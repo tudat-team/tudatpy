@@ -177,6 +177,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                     legendrePolynomialDerivative( index ), sphericalHarmonicsCache ).transpose( );
 
 
+
     }
 
     // Define expected radius gradient values.

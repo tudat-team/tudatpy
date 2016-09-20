@@ -92,7 +92,7 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const Eigen::Quaterniond& rotationToFrame,
         const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
@@ -119,15 +119,42 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrame(
+    return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame, rotationToFrameFunction( ),
                 rotationMatrixToFrameDerivativeFunction( ) );
 }
+
+//! Transform a relative state (Cartesian position and velocity) from one frame to another.
+/*!
+ *  Transform a relative state (Cartesian position and velocity) from one frame to another, taking into
+ *  account both the instantaneous rotational state of the two frames, and the rotational
+ *  rate of one frame w.r.t. the other.
+ *  \param stateInBaseFrame State that is to be transformed from base to target frame.
+ *  \param centralBodyStateInBaseFrame State of central body w.r.t. which returned state is to be computed.
+ *  State returned by this function must be in frame with same orientation as that returned by stateInBaseFrame.
+ *  \param rotationToFrameFunction Function returning rotation from base to target frame.
+ *  \param rotationMatrixToFrameDerivativeFunction Function returning time derivative of rotation
+ *   matrix from base to target frame.
+ *  \return State (Cartesian position and velocity) in target frame.
+ */
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > stateInBaseFrame,
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > centralBodyStateInBaseFrame,
+        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
+                rotationMatrixToFrameDerivativeFunction( ) );
+}
+
+
 
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
@@ -142,13 +169,13 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromStateFunctions(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationTimeFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const double currentTime,
         const boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrame(
+    return transformStateToFrameFromRotations(
                 stateInBaseFrame, rotationToFrameFunction( currentTime ),
                 rotationMatrixToFrameDerivativeFunction( currentTime ) );
 }

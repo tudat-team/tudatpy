@@ -37,19 +37,6 @@ void checkValidityOfRequiredEnvironmentUpdates(
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap );
 
-//! Function to extend existing list of required environment update types
-/*!
- * Function to extend existing list of required environment update types
- * \param environmentUpdateList List of environment updates to extend
- * (passed by reference and modified by function)
- * \param updatesToAdd List of environment updates that are to be added to environmentUpdateList
- */
-void addEnvironmentUpdates(
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
-        environmentUpdateList,
-        const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
-        updatesToAdd );
-
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
  * Get list of required environment model update settings from translational acceleration models.
@@ -71,7 +58,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
-        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap );
 
 //! Get list of required environment model update settings from a list of propagation settings.

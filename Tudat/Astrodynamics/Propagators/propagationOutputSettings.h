@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 
 namespace tudat
 {
@@ -39,7 +40,11 @@ enum PropagationDependentVariables
     total_acceleration_dependent_variable = 11,
     single_acceleration_dependent_variable = 12,
     aerodynamic_force_coefficients_dependent_variable = 13,
-    aerodynamic_moment_coefficients_dependent_variable = 14
+    aerodynamic_moment_coefficients_dependent_variable = 14,
+    rotation_matrix_to_body_fixed_frame_variable = 15,
+    intermediate_aerodynamic_rotation_matrix_variable = 16,
+    relative_body_aerodynamic_orientation_angle_variable = 17,
+    body_fixed_airspeed_based_velocity_variable = 18
 
 };
 
@@ -111,7 +116,53 @@ public:
 
 };
 
-//addAllFlightConditionsDependentVariables
+//! Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames
+class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body for which the rotation matrix is to be saved.
+     * \param baseFrame Frame from which rotation is to take place.
+     * \param targetFrame Frame to which the rotation is to take place.
+     */
+    IntermediateAerodynamicRotationVariableSaveSettings(
+            const std::string& associatedBody,
+            const reference_frames::AerodynamicsReferenceFrames baseFrame,
+            const reference_frames::AerodynamicsReferenceFrames targetFrame ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody ),
+        baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
+
+    //! Frame from which rotation is to take place.
+    reference_frames::AerodynamicsReferenceFrames baseFrame_;
+
+    //! Frame to which the rotation is to take place.
+    reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+};
+
+//! Class to define settings for saving an aerodynamics orientation angle from AerodynamicsReferenceFrameAngles list.
+class BodyAerodynamicAngleVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body for which the orientation angle is to be saved.
+     * \param angle Orientation angle that is to be saved.
+     */
+    BodyAerodynamicAngleVariableSaveSettings(
+            const std::string& associatedBody,
+            const reference_frames::AerodynamicsReferenceFrameAngles angle ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody ),
+        angle_( angle ){ }
+
+    //! Orientation angle that is to be saved.
+    reference_frames::AerodynamicsReferenceFrameAngles angle_;
+};
 
 //! Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings

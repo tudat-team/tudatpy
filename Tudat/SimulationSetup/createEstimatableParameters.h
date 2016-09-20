@@ -15,73 +15,131 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create interface object for estimating parameters representing an initial dynamical state.
+/*!
+ *  Function to create interface object for estimating parameters representing an initial dynamical state.
+ *  \param bodyMap Map of body objects containing the fll simulation environment.
+ *  \param parameterSettings Object defining the parameter interface that is to be created.
+ *  \return Interface object for estimating an initial state.
+ */
 template< typename InitialStateParameterType = double >
-boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > >
-createInitialDynamicalStateParameterToEstimate(
+boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
+< InitialStateParameterType, Eigen::Dynamic, 1 > > > createInitialDynamicalStateParameterToEstimate(
         const NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& parameterSettings )
 {
     using namespace tudat::estimatable_parameters;
 
-    boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > initialStateParameterToEstimate;
+    boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > >
+            initialStateParameterToEstimate;
 
+    // Check consistency of input.
     if( !isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
     {
-        std::cerr<<"Error when requesting to make initial state parameter "<<parameterSettings->parameterType_.first<<" of "<<
-                   parameterSettings->parameterType_.second.first<<", parameter is not an initial state parameter "<<std::endl;
+        std::string errorMessage = "Error when requesting to make initial state parameter " +
+                boost::lexical_cast< std::string >( parameterSettings->parameterType_.first ) + " of " +
+                boost::lexical_cast< std::string >( parameterSettings->parameterType_.second.first ) +
+                ", parameter is not an initial state parameter ";
+        throw std::runtime_error( errorMessage );
     }
     else
     {
+        // Identify state that is to be estimation
         switch( parameterSettings->parameterType_.first )
         {
         case initial_body_state:
-            if( boost::dynamic_pointer_cast< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+
+            // Check consistency of input.
+            if( boost::dynamic_pointer_cast<
+                    InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                         parameterSettings ) == NULL )
             {
-                std::cerr<<"Error when making body initial state parameter, settings type is incompatible"<<std::endl;
+                throw std::runtime_error( "Error when making body initial state parameter, settings type is incompatible" );
             }
             else
             {
-                boost::shared_ptr< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > initialStateSettings =
-                        boost::dynamic_pointer_cast< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                boost::shared_ptr< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings =
+                        boost::dynamic_pointer_cast<
+                        InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                             parameterSettings );
 
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState;
+
+                // If initial time is not defined, use preset initial state
                 if( ! ( initialStateSettings->initialTime_ == initialStateSettings->initialTime_  ) )
                 {
-                    initialStateParameterToEstimate = boost::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
-                                initialStateSettings->parameterType_.second.first, initialStateSettings->initialStateValue_,
-                                initialStateSettings->centralBody_,
-                                initialStateSettings->frameOrientation_ );
+                    initialTranslationalState = initialStateSettings->initialStateValue_;
+
+
                 }
+                // Compute initial state from environment
                 else
                 {
-                    initialStateParameterToEstimate = boost::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
-                                initialStateSettings->parameterType_.second.first, propagators::getInitialStateOfBody
-                                < double, InitialStateParameterType >(
-                                    initialStateSettings->parameterType_.second.first, initialStateSettings->centralBody_, bodyMap,
-                                    initialStateSettings->initialTime_ ), initialStateSettings->centralBody_,
-                                initialStateSettings->frameOrientation_ );
+                    initialTranslationalState = propagators::getInitialStateOfBody
+                            < double, InitialStateParameterType >(
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->centralBody_,
+                                bodyMap, initialStateSettings->initialTime_ );
+
                 }
+
+                // Create translational state estimation interface object
+                initialStateParameterToEstimate =
+                        boost::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
+                            initialStateSettings->parameterType_.second.first, initialTranslationalState,
+                            initialStateSettings->centralBody_,
+                            initialStateSettings->frameOrientation_ );
             }
             break;
         default:
-            std::cerr<<"Error, could not create parameter for initial state of type "<<parameterSettings->parameterType_.first<<std::endl;
-
+            std::string errorMessage = "Error, could not create parameter for initial state of type " +
+                    boost::lexical_cast< std::string >( parameterSettings->parameterType_.first );
+            throw std::runtime_error( errorMessage );
         }
     }
 
     return initialStateParameterToEstimate;
 }
 
-
+//! Function to create an interface object for estimating a parameter defined by a single double value
+/*!
+ * Function to create an interface object for estimating a parameter defined by a single double value
+ * \param doubleParameterName Object defining the parameter interface that is to be created.
+ * \param bodyMap Map of body objects containing the fll simulation environment.
+ * \param accelerationModelMap List of acceleration models used in simulations; empty by default (only required for
+ * selected parameters).
+ * \return Interface object for estimating parameter.
+ */
 boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > createDoubleParameterToEstimate(
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& doubleParameterName,
-        const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap = basic_astrodynamics::AccelerationMap( ) );
+        const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap =
+        basic_astrodynamics::AccelerationMap( ) );
 
+//! Function to create an interface object for estimating a parameter defined by a list of double values
+/*!
+ * Function to create an interface object for estimating a parameter defined by a list of single double values
+ * \param vectorParameterName Object defining the parameter interface that is to be created.
+ * \param bodyMap Map of body objects containing the fll simulation environment.
+ * \param accelerationModelMap List of acceleration models used in simulations; empty by default (only required for
+ * selected parameters).
+ * \return Interface object for estimating parameter.
+ */
 boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > createVectorParameterToEstimate(
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings >& vectorParameterName,
-        const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap = basic_astrodynamics::AccelerationMap( ) );
+        const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap =
+        basic_astrodynamics::AccelerationMap( ) );
 
+//! Function to create the interface object for estimating any number/type of parameters.
+/*!
+ *  Function to create the interface object for estimating any number/type of parameters. This can include both
+ *  environmental parameters and initial dynamical states. The types of parameters are defined by the parameterNames m
+ *  input variables
+ *  \param parameterNames List of objects defining the parameters that are to be estimated.
+ *  \param bodyMap Map of body objects containing the fll simulation environment.
+ *  \param accelerationModelMap List of acceleration models used in simulations; empty by default (only required for
+ *  selected parameters).
+ *  \return Interface object for estimating a set of parameters.
+ */
 template< typename InitialStateParameterType = double >
 boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > createParametersToEstimate(
         const std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& parameterNames,
@@ -96,18 +154,23 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParametersToEstimate;
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate;
 
+    // Iterate over all parameters.
     for( unsigned int i = 0; i < parameterNames.size( ); i++ )
     {
+        // Create initial dynamical parameters.
         if( isParameterDynamicalPropertyInitialState( parameterNames.at( i )->parameterType_.first ) )
         {
-            initialDynamicalParametersToEstimate.push_back( createInitialDynamicalStateParameterToEstimate< InitialStateParameterType >(
-                                                                bodyMap, parameterNames.at( i ) ) );
+            initialDynamicalParametersToEstimate.push_back(
+                        createInitialDynamicalStateParameterToEstimate< InitialStateParameterType >(
+                            bodyMap, parameterNames.at( i ) ) );
         }
+        // Create parameters defined by single double value
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == true )
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate(
                                                       parameterNames[ i ], bodyMap, accelerationModelMap ) );
         }
+        // Create parameters defined by list of double values
         else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == false )
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate(
@@ -115,7 +178,12 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
         }
         else
         {
-            std::cerr<<"Error, parameter type of "<<parameterNames[ i ]->parameterType_.second.first<<" of "<<parameterNames[ i ]->parameterType_.first<<" not recognized when making estimatable parameter set."<<std::endl;
+            std::string errorMessage = "Error, parameter type of  " +
+                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.second.first ) + "of " +
+                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.first ) +
+                    "not recognized when making estimatable parameter set.";
+
+            throw std::runtime_error( errorMessage );
         }
     }
 

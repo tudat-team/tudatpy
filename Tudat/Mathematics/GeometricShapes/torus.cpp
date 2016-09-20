@@ -42,6 +42,8 @@
 
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
+
 #include "Tudat/Mathematics/GeometricShapes/torus.h"
 
 namespace tudat
@@ -49,8 +51,6 @@ namespace tudat
 namespace geometric_shapes
 {
 
-using std::cerr;
-using std::endl;
 using std::sin;
 using std::cos;
 using mathematical_constants::PI;
@@ -75,12 +75,12 @@ Eigen::VectorXd Torus::getSurfacePoint( const double majorCircumferentialAngle,
 {
     // Form cartesian position vector from paranmetrization.
     cartesianPositionVector_( 0 )
-            = ( majorRadius_ + ( minorRadius_ * cos( minorCircumferentialAngle ) ) )
-            * cos( majorCircumferentialAngle );
+            = ( majorRadius_ + ( minorRadius_ * std::cos( minorCircumferentialAngle ) ) )
+            * std::cos( majorCircumferentialAngle );
     cartesianPositionVector_( 1 )
-            = ( majorRadius_ + ( minorRadius_ * cos( minorCircumferentialAngle ) ) )
-            * sin( majorCircumferentialAngle );
-    cartesianPositionVector_( 2 ) = minorRadius_ *  sin( minorCircumferentialAngle );
+            = ( majorRadius_ + ( minorRadius_ * std::cos( minorCircumferentialAngle ) ) )
+            * std::sin( majorCircumferentialAngle );
+    cartesianPositionVector_( 2 ) = minorRadius_ *  std::sin( minorCircumferentialAngle );
 
     // Translate vector.
     transformPoint( cartesianPositionVector_ );
@@ -131,41 +131,39 @@ Eigen::VectorXd Torus::getSurfaceDerivative( const double majorCircumferentialAn
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
         // basic_mathematics::coordinateConversions::convertSphericalToCartesian
-        // from Tudat Core.
         switch( powerOfMajorCircumferentialAngleDerivative % 4 )
         {
         case( 0 ):
 
-            derivative1Contribution_( 0 ) = cos( majorCircumferentialAngle );
-            derivative1Contribution_( 1 ) = sin( majorCircumferentialAngle );
+            derivative1Contribution_( 0 ) = std::cos( majorCircumferentialAngle );
+            derivative1Contribution_( 1 ) = std::sin( majorCircumferentialAngle );
             derivative1Contribution_( 2 ) = 1.0;
             break;
 
         case( 1 ):
 
-            derivative1Contribution_( 0 ) = -sin( majorCircumferentialAngle );
-            derivative1Contribution_( 1 ) = cos( majorCircumferentialAngle );
+            derivative1Contribution_( 0 ) = -std::sin( majorCircumferentialAngle );
+            derivative1Contribution_( 1 ) = std::cos( majorCircumferentialAngle );
             derivative1Contribution_( 2 ) = 0.0;
             break;
 
         case( 2 ):
 
-            derivative1Contribution_( 0 ) = -cos( majorCircumferentialAngle );
-            derivative1Contribution_( 1 ) = -sin( majorCircumferentialAngle );
+            derivative1Contribution_( 0 ) = -std::cos( majorCircumferentialAngle );
+            derivative1Contribution_( 1 ) = -std::sin( majorCircumferentialAngle );
             derivative1Contribution_( 2 ) = 0.0;
             break;
 
         case( 3 ):
 
-            derivative1Contribution_( 0 ) = sin( majorCircumferentialAngle );
-            derivative1Contribution_( 1 ) = -cos( majorCircumferentialAngle );
+            derivative1Contribution_( 0 ) = std::sin( majorCircumferentialAngle );
+            derivative1Contribution_( 1 ) = -std::cos( majorCircumferentialAngle );
             derivative1Contribution_( 2 ) = 0.0;
             break;
 
         default:
 
-            cerr << " Bad value for powerOfMajorCircumferentialAngleDerivative"
-                 << " ( mod 4 ) of value is not 0, 1, 2 or 3 " << endl;
+            throw std::runtime_error( " Bad value for powerOfMajorCircumferentialAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in torus" );
         }
 
         // This derivative is "cyclical" in the same manner as the derivative
@@ -175,9 +173,9 @@ Eigen::VectorXd Torus::getSurfaceDerivative( const double majorCircumferentialAn
         {
         case( 0 ):
 
-            derivative2Contribution_( 0 ) = minorRadius_ * cos( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = minorRadius_ * cos( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = minorRadius_ * std::cos( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = minorRadius_ * std::cos( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = minorRadius_ * std::sin( minorCircumferentialAngle );
 
             // For the zeroth derivative, a term needs to be added.
             if ( powerOfMinorCircumferentialAngleDerivative == 0 )
@@ -190,29 +188,28 @@ Eigen::VectorXd Torus::getSurfaceDerivative( const double majorCircumferentialAn
 
         case( 1 ):
 
-            derivative2Contribution_( 0 ) = -minorRadius_ * sin( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = -minorRadius_ * sin( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = -minorRadius_ * std::sin( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = -minorRadius_ * std::sin( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = minorRadius_ * std::cos( minorCircumferentialAngle );
             break;
 
         case( 2 ):
 
-            derivative2Contribution_( 0 ) = -minorRadius_ * cos( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = -minorRadius_ * cos( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = -minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = -minorRadius_ * std::cos( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = -minorRadius_ * std::cos( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = -minorRadius_ * std::sin( minorCircumferentialAngle );
             break;
 
         case( 3 ):
 
-            derivative2Contribution_( 0 ) =  minorRadius_ * sin( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) =  minorRadius_ * sin( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = -minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) =  minorRadius_ * std::sin( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) =  minorRadius_ * std::sin( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = -minorRadius_ * std::cos( minorCircumferentialAngle );
             break;
 
         default:
 
-            cerr << " Bad value for powerOfMinorCircumferentialAngleDerivative"
-                 << " ( mod 4 ) of value is not 0, 1, 2 or 3 " << endl;
+            throw std::runtime_error( " Bad value for powerOfMinorCircumferentialAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in torus" );
         }
 
         // Construct the full derivative.
@@ -245,9 +242,8 @@ double Torus::getParameter( const int index )
         break;
 
     default:
-
-        cerr << "Parameter " << index << " does not exist in Torus, returning 0" << endl;
-        break;
+        std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in torus.";
+        throw std::runtime_error( errorMessage );
     }
 
     // Return parameter.
@@ -258,15 +254,15 @@ double Torus::getParameter( const int index )
 //! Overload ostream to print class information.
 std::ostream &operator<<( std::ostream &stream, Torus& torus )
 {
-    stream << "This is a torus geometry." << endl;
+    stream << "This is a torus geometry." << std::endl;
     stream << "The minor angle runs from: "
            << torus.getMinimumMinorCircumferentialAngle( ) * 180.0 / PI << " degrees to "
-           << torus.getMaximumMinorCircumferentialAngle( ) * 180.0 / PI << " degrees" << endl;
+           << torus.getMaximumMinorCircumferentialAngle( ) * 180.0 / PI << " degrees" << std::endl;
     stream << "The major angle runs from: "
            << torus.getMinimumMajorCircumferentialAngle( ) * 180.0 / PI << " degrees to "
-           << torus.getMaximumMajorCircumferentialAngle( ) * 180.0 / PI << " degrees" << endl;
-    stream << "The major radius is: " << torus.getMajorRadius( ) << endl;
-    stream << "The minor ( tube ) radius is: " << torus.getMinorRadius( ) << endl;
+           << torus.getMaximumMajorCircumferentialAngle( ) * 180.0 / PI << " degrees" << std::endl;
+    stream << "The major radius is: " << torus.getMajorRadius( ) << std::endl;
+    stream << "The minor ( tube ) radius is: " << torus.getMinorRadius( ) << std::endl;
 
     // Return stream.
     return stream;

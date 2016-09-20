@@ -17,6 +17,7 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/createThrustModelGuidance.h"
 
 
 
@@ -85,7 +86,7 @@ public:
 
 //! Class for providing acceleration settings for mutual spherical harmonics acceleration model.
 /*!
- *  Class for providing accelerationsettings for mutual spherical harmonics acceleration model,
+ *  Class for providing acceleration settings for mutual spherical harmonics acceleration model,
  *  specifically the maximum degree and order up to which the fields of the bodies are be expanded.
  *  Please note that the minimum degrees and orders are currently always set to zero.
  */
@@ -135,6 +136,37 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
+//! Class for providing acceleration settings for a thrust acceleration model
+/*!
+ *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
+ *  guidance of the thrust are provided/
+ */
+class ThrustAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustDirectionGuidanceSettings Settings for the direction of the thrust
+     * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
+     */
+    ThrustAccelerationSettings(
+            const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+            const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
+        thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
+        thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
+
+    //! Destructor.
+    ~ThrustAccelerationSettings( ){ }
+
+    //! Settings for the direction of the thrust
+    boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
+
+    //! Settings for the magnitude of the thrust
+    boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
+};
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.

@@ -1,0 +1,279 @@
+#include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+
+
+namespace tudat
+{
+
+namespace observation_partials
+{
+
+//! Function to return partial(s) of position of ground station(s) w.r.t. state of a single body.
+std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtBodyPosition(
+        const observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate )
+{
+    // Declare data map to return.
+    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+
+    // Declare local variable to use in loop
+    std::string currentBodyName;
+
+    // Iterate over all like ends.
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        // Check if current link end is on body that is requested.
+        currentBodyName = linkEndIterator->second.first;
+        if( bodyToEstimate == currentBodyName )
+        {
+            // Create partial
+            partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtPosition >( );
+        }
+        else
+        {
+            std::string observedBodyEphemerisOrigin = bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
+            if( observedBodyEphemerisOrigin == bodyToEstimate )
+            {
+                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtPosition >( );
+            }
+        }
+    }
+
+    return partialMap;
+}
+
+std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+        const observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate )
+{
+    using namespace ephemerides;
+
+    // Declare data map to return.
+    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+
+    // Declare local variable to use in loop
+    boost::shared_ptr< simulation_setup::Body > currentBody;
+    std::string currentBodyName;
+
+    // Iterate over all like ends.
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        // Check if current link end body corresponds to body with property to estimate.
+        if( ( linkEndIterator->second.first == parameterToEstimate->getParameterName( ).second.first ) &&
+                ( linkEndIterator->second.second != "" ) )
+        {
+            // Set current body name and object.
+            currentBodyName = linkEndIterator->second.first;
+            currentBody = bodyMap.at( currentBodyName );
+
+            // Check if parameter is a rotation model property, in which case a PositionPartialWrtRotationMatrixParameter, with
+            // the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
+            if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
+            {
+                // Set ground station position function
+                boost::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
+                        boost::bind( &ground_stations::NominalGroundStationState::getCartesianPositionInTime,
+                                     ( currentBody )->getGroundStation( linkEndIterator->second.second )
+                                     ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+                // Create parameter partial object.
+                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtRotationMatrixParameter >(
+                            createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ), groundStationPositionFunction );
+            }
+            else
+            {
+                // Check which parameter is requested and create position partial if direct dependency between position and parameter exists.
+                switch( parameterToEstimate->getParameterName( ).first )
+                {
+                case estimatable_parameters::gravitational_parameter:
+                    break;
+
+                case estimatable_parameters::constant_drag_coefficient:
+                    break;
+
+                case estimatable_parameters::radiation_pressure_coefficient:
+                    break;
+
+                default:
+                    std::cerr<<"Parameter "<<parameterToEstimate->getParameterName( ).first<<" not implemented when making position partial"<<std::endl;
+                    break;
+                }
+            }
+        }
+    }
+
+    return partialMap;
+}
+
+//! Function to return partial(s) of position of ground station(s) w.r.t. a (vector) parameter.
+std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+        const observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
+{
+    using namespace ephemerides;
+
+    // Declare data map to return.
+    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+
+    // Declare local variable to use in loop
+    boost::shared_ptr< simulation_setup::Body > currentBody;
+    std::string currentBodyName;
+
+    // Iterate over all like ends.
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        // Check if current link end body corresponds to body with property to estimate.
+        if( linkEndIterator->second.first == parameterToEstimate->getParameterName( ).second.first && linkEndIterator->second.second != "" )
+        {
+            // Set current body name and object.
+            currentBodyName = linkEndIterator->second.first;
+            currentBody = bodyMap.at( currentBodyName );
+
+            // Check if parameter is a rotation model property, in which case a PositionPartialWrtRotationMatrixParameter, with
+            // the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
+            if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
+            {
+                // Set ground station position function
+                boost::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
+                        boost::bind( &ground_stations::NominalGroundStationState::getCartesianPositionInTime,
+                                     ( currentBody )->getGroundStation( linkEndIterator->second.second )
+                                     ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+                // Create parameter partial object.
+                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtRotationMatrixParameter >(
+                            createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ), groundStationPositionFunction );
+            }
+            else
+            {
+                // Check which parameter is requested and create position partial if direct dependency between position and parameter exists.
+                switch( parameterToEstimate->getParameterName( ).first )
+                {
+                case estimatable_parameters::spherical_harmonics_cosine_coefficient_block:
+                    break;
+                case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
+                    break;
+                default:
+                    std::cerr<<"Parameter "<<parameterToEstimate->getParameterName( ).first<<" not implemented when making position partial"<<std::endl;
+                    break;
+                }
+            }
+
+        }
+
+    }
+    return partialMap;
+}
+
+//! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
+boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate )
+{
+    using namespace simulation_setup;
+    using namespace ephemerides;
+
+    // Declare return object.
+    boost::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+
+    // Get body for rotation of which partial is to be created.
+    boost::shared_ptr< Body > currentBody = bodyMap.at( parameterToEstimate->getParameterName( ).second.first );
+
+    // Check for which rotation model parameter the partial object is to be created.
+    switch( parameterToEstimate->getParameterName( ).first )
+    {
+    case estimatable_parameters::constant_rotation_rate:
+
+        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
+                    currentBody->getRotationalEphemeris( ) ) == NULL )
+        {
+            throw std::runtime_error( "Warning, body's rotation model is not simple when making position w.r.t. constant rtoation rate partial" ) ;
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = boost::make_shared< RotationMatrixPartialWrtConstantRotationRate >(
+                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
+        break;
+    default:
+        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+        throw std::runtime_error( errorMessage );
+
+        break;
+    }
+
+    return rotationMatrixPartial;
+
+
+}
+
+//! Function to create partial object(s) of rotation matrix wrt a (vector) parameter.
+boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
+
+{
+    using namespace simulation_setup;
+    using namespace ephemerides;
+
+    // Declare return object.
+    boost::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+
+    // Get body for rotation of which partial is to be created.
+    boost::shared_ptr< Body > currentBody = bodyMap.at( parameterToEstimate->getParameterName( ).second.first );
+
+    // Check for which rotation model parameter the partial object is to be created.
+    switch( parameterToEstimate->getParameterName( ).first )
+    {
+    case estimatable_parameters::rotation_pole_position:
+
+
+        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
+                    currentBody->getRotationalEphemeris( ) ) == NULL )
+        {
+            std::string errorMessage = "Warning, body's rotation model is not simple when making position w.r.t. pole position partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = boost::make_shared< RotationMatrixPartialWrtPoleOrientation >(
+                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
+        break;
+
+    default:
+        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+        throw std::runtime_error( errorMessage );
+        break;
+    }
+
+    return rotationMatrixPartial;
+
+}
+
+
+boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
+        const  observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate,
+        const boost::shared_ptr< PositionObservationScaling > positionObservableScaler )
+{
+    std::map<  observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
+            createPositionPartialsWrtBodyPosition( linkEnds, bodyMap, bodyToEstimate );
+    boost::shared_ptr< PositionObervationPartial > positionObervationPartial;
+
+    if( positionPartials.size( ) > 0 )
+    {
+        positionObervationPartial = boost::make_shared< PositionObervationPartial >(
+                    positionObservableScaler, positionPartials, std::make_pair(
+                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
+    }
+
+    return positionObervationPartial;
+}
+
+}
+
+}

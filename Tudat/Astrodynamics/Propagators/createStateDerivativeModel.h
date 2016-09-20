@@ -142,7 +142,9 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::cerr<<"Error when creating Encke propagator, did not find central body "<<centralBodies[ i ]<<std::endl;
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
+                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                throw std::runtime_error( errorMessage );
             }
             initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
                         translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
@@ -309,6 +311,7 @@ createStateDerivativeModels(
 }
 
 } // namespace propagators
+
 } // namespace tudat
 
 #endif // TUDAT_CREATESTATEDERIVATIVEMODEL_H

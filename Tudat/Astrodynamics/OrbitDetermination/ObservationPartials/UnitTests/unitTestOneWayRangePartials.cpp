@@ -1,0 +1,96 @@
+/*    Copyright (c) 2010-2012 Delft University of Technology.
+ *
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modification is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
+ *
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
+ *
+ *    Changelog
+ *      YYMMDD    Author            Comment
+ *
+ *    References
+ *
+ */
+
+#define BOOST_TEST_MAIN
+
+#include <limits>
+#include <string>
+#include <vector>
+
+#include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/lambda/lambda.hpp>
+
+#include "Tudat/Basics/testMacros.h"
+
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+
+#include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/SimulationSetup/createGroundStations.h"
+#include "Tudat/SimulationSetup/defaultBodies.h"
+
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
+
+using namespace tudat::gravitation;
+using namespace tudat::ephemerides;
+using namespace tudat::observation_models;
+using namespace tudat::simulation_setup;
+using namespace tudat::spice_interface;
+using namespace tudat::observation_partials;
+using namespace tudat::orbit_determination;
+using namespace tudat::estimatable_parameters;
+
+BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
+
+BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
+{
+
+    // Define and create ground stations.
+    std::vector< std::pair< std::string, std::string > > groundStations;
+    groundStations.resize( 2 );
+    groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
+    groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
+
+    // Create environment
+    NamedBodyMap bodyMap = setupEnvironment( groundStations );
+
+    // Set link ends for observation model
+    LinkEnds linkEnds;
+    linkEnds[ transmitter ] = groundStations[ 1 ];
+    linkEnds[ receiver ] = groundStations[ 0 ];
+
+    // Generate one-way range model
+    boost::shared_ptr< OneWayRangeObservationModel< > > oneWayRangeModel =
+            boost::make_shared< OneWayRangeObservationModel< > >( groundStations[ 0 ], groundStations[ 1 ], bodyMap );
+
+    // Create parameter objects.
+    boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+            createEstimatableParameters( bodyMap, 1.1E7 );
+
+    testObservationPartials( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange );
+}
+
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+
+} // namespace tudat
+
+
+
+

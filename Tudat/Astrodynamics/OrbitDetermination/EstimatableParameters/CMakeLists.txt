@@ -46,6 +46,8 @@
 set(ESTIMATABLE_PARAMETERS_SOURCES
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/estimatableParameter.cpp"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/initialTranslationalState.cpp"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.cpp"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.cpp"
 )
 
 # Set the header files.
@@ -54,6 +56,10 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/gravitationalParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/initialTranslationalState.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/radiationPressureCoefficient.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationRate.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationalOrientation.h"
 )
 
 # Add static libraries.

@@ -198,6 +198,21 @@ public:
         }
     }
 
+    ObservationScalarType computeObservationEntry(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            const int observationEntry )
+    {
+        if( observationEntry < ObservationSize )
+        {
+            return computeObservations( time, linkEndAssociatedWithTime )( observationEntry );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, requesting out-of-bounds index for observation model" );
+        }
+    }
+
     //! Function to return the size of the observable
     /*!
      *  Function to return the size of the observable

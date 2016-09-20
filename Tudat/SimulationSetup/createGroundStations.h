@@ -13,9 +13,13 @@ namespace tudat
 namespace simulation_setup
 {
 
-void createGroundStations( const std::map< std::string, boost::shared_ptr< Body > >& bodyMap,
+
+void createGroundStations( const NamedBodyMap& bodyMap,
                            const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition );
 
+
+void createGroundStations( const NamedBodyMap& bodyMap,
+                           std::vector< std::pair< std::string, std::string > > groundStations );
 
 void setSingleBodyGroundStationPositionVariationFunctions( boost::shared_ptr< Body > body,
                                                            gravitation::BodyDeformationTypes variationType,

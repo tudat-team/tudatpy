@@ -64,7 +64,7 @@ namespace geometric_shapes
 /*!
  * Class that defines the sphere ( segment ) shape. Parametrization is based
  * on spherical coordinates, with azimuth and zenith angles as 1st and 2nd
- * variables (see basic_mathematics::convertSphericalToCartesian from Tudat Core).
+ * variables (see basic_mathematics::convertSphericalToCartesian).
  * In addition to the minimum and maximum of these two variables, the sphere radius is
  * required for defining the sphere.
  * Note that by using the scalingMatrix_ member variable, this class can also

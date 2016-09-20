@@ -17,7 +17,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
-#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -31,23 +30,19 @@ namespace aerodynamics
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
-        const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
-        const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
-        const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
-        transformationToCentralBodyFrame,
         const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
         aerodynamicAngleCalculator ):
     atmosphereModel_( atmosphereModel ),
     altitudeFunction_( altitudeFunction ),
-    stateOfVehicle_( stateOfVehicle ),
-    stateOfCentralBody_( stateOfCentralBody ),
-    transformationToCentralBodyFrame_( transformationToCentralBodyFrame ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),currentAltitude_( TUDAT_NAN ),
     currentLatitude_( TUDAT_NAN ), currentLongitude_( TUDAT_NAN ), currentTime_( TUDAT_NAN )
 {
     updateLatitudeAndLongitude_ = 0;
+
+    bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+                &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
 
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) ==
             NULL )
@@ -84,49 +79,52 @@ void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
 //! Function to update all flight conditions.
 void FlightConditions::updateConditions( const double currentTime )
 {
-    currentTime_ = currentTime;
-
-    // Calculate state of vehicle in global frame and corotating frame.
-    currentBodyCenteredState_ = stateOfVehicle_( ) - stateOfCentralBody_( );
-    currentBodyCenteredPseudoBodyFixedState_ = transformationToCentralBodyFrame_(
-                currentBodyCenteredState_ );
-
-    // Calculate altitute and airspeed of vehicle.
-    currentAltitude_ =
-            altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
-    currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
-
-    // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
-    if( aerodynamicAngleCalculator_!= NULL )
+    if( !( currentTime == currentTime_ ) )
     {
-        aerodynamicAngleCalculator_->update( false );
-    }
+        currentTime_ = currentTime;
 
-    // Update latitude and longitude (if required)
-    if( updateLatitudeAndLongitude_ )
-    {
-        currentLatitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::latitude_angle );
-        currentLongitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::longitude_angle );
-    }
+        // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
+        if( aerodynamicAngleCalculator_!= NULL )
+        {
+            aerodynamicAngleCalculator_->update( currentTime, false );
+        }
 
-    // Update density
-    currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
-                                                    currentLatitude_, currentTime_ );
+        // Calculate state of vehicle in global frame and corotating frame.
+        currentBodyCenteredPseudoBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
 
-    updateAerodynamicCoefficientInput( );
+        // Calculate altitute and airspeed of vehicle.
+        currentAltitude_ =
+                altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+        currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
 
-    // Update angles from aerodynamic to body-fixed frame (if relevant).
-    if( aerodynamicAngleCalculator_!= NULL )
-    {
-        aerodynamicAngleCalculator_->update( true );
+
+
+        // Update latitude and longitude (if required)
+        if( updateLatitudeAndLongitude_ )
+        {
+            currentLatitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                        reference_frames::latitude_angle );
+            currentLongitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                        reference_frames::longitude_angle );
+        }
+
+        // Update density
+        currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
+                                                        currentLatitude_, currentTime_ );
+
         updateAerodynamicCoefficientInput( );
-    }
 
-    // Update aerodynamic coefficients.
-    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
-                aerodynamicCoefficientIndependentVariables_ );
+        // Update angles from aerodynamic to body-fixed frame (if relevant).
+        if( aerodynamicAngleCalculator_!= NULL )
+        {
+            aerodynamicAngleCalculator_->update( currentTime, true );
+            updateAerodynamicCoefficientInput( );
+        }
+
+        // Update aerodynamic coefficients.
+        aerodynamicCoefficientInterface_->updateCurrentCoefficients(
+                    aerodynamicCoefficientIndependentVariables_ );
+    }
 }
 
 void FlightConditions::updateAerodynamicCoefficientInput( )
@@ -186,7 +184,7 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
 }
 
 //! Function to set the angle of attack to trimmed conditions.
-void setTrimmedConditions(
+boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
         const boost::shared_ptr< FlightConditions > flightConditions )
 {
     // Create trim object.
@@ -201,6 +199,8 @@ void setTrimmedConditions(
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
                              untrimmedIndependentVariablesFunction ) );
+
+    return trimOrientation;
 }
 
 }

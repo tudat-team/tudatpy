@@ -300,9 +300,9 @@ class MassPropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
 
-    //! Constructor of mass state propagator settings
+    //! Constructor of mass state propagator settings, with single mass rate model per body.
     /*!
-     * Constructor  of mass state propagator settings
+     * Constructor  of mass state propagator settings, with single mass rate model per body.
      * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
      * \param massRateModels List of mass rate models per propagated body.
      * \param initialBodyMasses Initial masses used as input for numerical integration.
@@ -322,6 +322,38 @@ public:
             const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                dependentVariablesToSave, printInterval ),
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
+    {
+        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator
+             massRateIterator = massRateModels.begin( ); massRateIterator != massRateModels.end( ); massRateIterator++ )
+        {
+            massRateModels_[ massRateIterator->first ].push_back( massRateIterator->second );
+        }
+    }
+
+    //! Constructor of mass state propagator settings
+    /*!
+     * Constructor  of mass state propagator settings
+     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
+     * \param massRateModels List of mass rate models per propagated body.
+     * \param initialBodyMasses Initial masses used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    MassPropagatorSettings(
+            const std::vector< std::string > bodiesWithMassToPropagate,
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >
+            massRateModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+            const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+            const double printInterval = TUDAT_NAN ):
+        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
+                                               dependentVariablesToSave, printInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { }
 
@@ -329,7 +361,7 @@ public:
     std::vector< std::string > bodiesWithMassToPropagate_;
 
     //! List of mass rate models per propagated body.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 };
 
 //! Function to retrieve the state size for a list of propagator settings.
@@ -556,10 +588,12 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                     if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first
                             || singleTypeIntegratedStateList.size( ) != 1 )
                     {
-                        std::cerr<<"Error when making integrated state list for hybrid propagator, inconsistency encountered "<<
-                                   singleTypeIntegratedStateList.begin( )->first<<" "<<typeIterator->first<<" "<<
-                                   singleTypeIntegratedStateList.size( )<<" "<<
-                                   singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
+                        std::string errorMessage = "Error when making integrated state list for hybrid propagator, inconsistency encountered " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->first ) + " " +
+                                boost::lexical_cast< std::string >( typeIterator->first ) + " " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.size( ) ) + " " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->second.size( ) );
+                        throw std::runtime_error( errorMessage );
                     }
                     else
                     {
@@ -574,7 +608,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             }
             else
             {
-                std::cerr<<"Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
+                throw std::runtime_error( "Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator" );
             }
         }
         break;

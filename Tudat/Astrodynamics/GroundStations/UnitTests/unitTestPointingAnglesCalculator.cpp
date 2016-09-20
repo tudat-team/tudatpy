@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
     // Test analytically checked azimuth and elevation
     {
         boost::shared_ptr< NominalGroundStationState > stationState = boost::make_shared< NominalGroundStationState >(
-                    groundStationPosition, Eigen::Vector3d::Zero( ), bodyShape );
+                    groundStationPosition, bodyShape );
         boost::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = boost::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
                     boost::bind( &NominalGroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
     //http://www.movable-type.co.uk/scripts/latlong.html
     {
         boost::shared_ptr< NominalGroundStationState > stationState = boost::make_shared< NominalGroundStationState >(
-                    groundStationPosition, Eigen::Vector3d::Zero( ), bodyShape );
+                    groundStationPosition, bodyShape );
         boost::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = boost::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
                     boost::bind( &NominalGroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
     {
         boost::shared_ptr< NominalGroundStationState > stationState = boost::make_shared< NominalGroundStationState >(
-                    groundStationPosition, Eigen::Vector3d::Zero( ), bodyShape );
+                    groundStationPosition, bodyShape );
         boost::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = boost::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
                     boost::bind( &NominalGroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
 
         groundStationPosition<<1234.0E3, -4539E3, 4298E3;
         boost::shared_ptr< NominalGroundStationState > stationState = boost::make_shared< NominalGroundStationState >(
-                    groundStationPosition, Eigen::Vector3d::Zero( ), bodyShape );
+                    groundStationPosition, bodyShape );
 
         boost::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = boost::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( inertialToBodyFixedFrame ),

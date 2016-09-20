@@ -16,10 +16,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
@@ -84,7 +81,4 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
 }
 
 }
-
-}
-
 

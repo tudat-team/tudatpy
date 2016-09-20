@@ -74,7 +74,6 @@ public:
         resetMaximumDegreeAndOrder( 0, 0 );
     }
 
-
     //! Constructor
     /*!
      * Constructor

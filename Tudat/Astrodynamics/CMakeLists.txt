@@ -47,6 +47,8 @@ set(ORBITDETERMINATIONDIR "${ASTRODYNAMICSDIR}/OrbitDetermination")
 set(PROPAGATORSDIR "${ASTRODYNAMICSDIR}/Propagators")
 set(RELATIVITYDIR "${ASTRODYNAMICSDIR}/Relativity")
 set(GROUNDSTATIONSDIR "${ASTRODYNAMICSDIR}/GroundStations")
+set(SYSTEMMODELSDIR "${ASTRODYNAMICSDIR}/SystemModels")
+set(PROPULSIONDIR "${ASTRODYNAMICSDIR}/Propulsion")
 
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
@@ -61,6 +63,8 @@ add_subdirectory("${SRCROOT}${ORBITDETERMINATIONDIR}")
 add_subdirectory("${SRCROOT}${PROPAGATORSDIR}")
 add_subdirectory("${SRCROOT}${RELATIVITYDIR}")
 add_subdirectory("${SRCROOT}${GROUNDSTATIONSDIR}")
+add_subdirectory("${SRCROOT}${SYSTEMMODELSDIR}")
+add_subdirectory("${SRCROOT}${PROPULSIONDIR}")
 
 
 # Get target properties for static libraries.
@@ -76,3 +80,5 @@ get_target_property(ORBITDETERMINATIONSOURCES tudat_orbit_determination SOURCES)
 get_target_property(RELATIVITYSOURCES tudat_relativity SOURCES)
 get_target_property(PROPAGATORSDIR tudat_propagators SOURCES)
 get_target_property(GROUNDSTATIONSDIR tudat_ground_stations SOURCES)
+get_target_property(SYSTEMMODELSSOURCES tudat_system_models SOURCES)
+get_target_property(PROPULSIONSOURCES tudat_propulsion SOURCES)

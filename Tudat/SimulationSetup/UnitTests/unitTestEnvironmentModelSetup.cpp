@@ -18,6 +18,11 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+
+#if USE_NRLMSISE00
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
+#endif
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
@@ -36,6 +41,8 @@
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/InputOutput/solarActivityData.h"
+#include "Tudat/InputOutput/parseSolarActivityData.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/SimulationSetup/createAtmosphereModel.h"
@@ -77,6 +84,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                 densityScaleHeight, constantTemperature,
                 densityAtZeroAltitude, specificGasConstant );
 
+
     // Create atmpshere models using setup function
     boost::shared_ptr< aerodynamics::AtmosphereModel > exponentialAtmosphere =
             createAtmosphereModel( exponentialAtmosphereSettings, "Earth" );
@@ -105,6 +113,29 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getPressure( 32.0, 0.0, 0.0, 0.0 ) );
     BOOST_CHECK_EQUAL( manualExponentialAtmosphere.getTemperature( 32.0, 0.0, 0.0, 0.0 ),
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
+
+#if USE_NRLMSISE00
+    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings =
+            boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+    boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
+            createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
+
+    // Compute properties using NRLMSISE00
+    double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
+            basic_astrodynamics::JULIAN_DAY_ON_J2000;
+    nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
+
+    // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
+    aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+                nrlmsiseAtmosphere )->getNRLMSISE00Input( );
+    BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
+    BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
+    BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
+
+    BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
+    BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
+    BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+#endif
 }
 
 #if USE_CSPICE
@@ -757,7 +788,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Set states in environment.
     double testTime = 0.5E7;
     basic_mathematics::Vector6d vehicleInertialState =
-            ephemerides::transformStateToFrame(
+            ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
             bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );

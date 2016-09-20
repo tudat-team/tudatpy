@@ -60,10 +60,31 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 namespace reference_frames
 {
+
+//! Get classical 1-3-2 Euler angles set from rotation matrix
+/*!
+ * Get classical 1-3-2 Euler angles set from rotation matrix R. That is, the Euler angles x, y, z are returned such that
+ * R = R_{1}(x)R_{3}(y)R_{2}(z)
+ * \param rotationMatrix Rotation matrix for which the equivalent Euler angles are to be computed.
+ * \return Euler angles x,y,z (about 1, 3 and 2 axes, respectively).
+ */
+Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
+        const Eigen::Matrix3d& rotationMatrix );
+
+//! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
+/*!
+ *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
+ * \param rotationMatrixFromInertialToPlanetFixedFrame Rotation matrix from which Euler angles are to be determined.
+ * \return Pole right ascension and declination, and prime meridian of date, from rotation matrix
+ */
+Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
+        const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame );
 
 //! Wrapper function to transform a vector to a different frame from a single rotation function.
 /*!
@@ -72,7 +93,7 @@ namespace reference_frames
  * \param rotation Function returning the current rotation to the new frame
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromQuaternionFunction(
         const Eigen::Vector3d& originalVector,
         const boost::function< Eigen::Quaterniond( ) > rotation );
 
@@ -83,7 +104,7 @@ Eigen::Vector3d transformVector(
  * \param transformationFunction Function transforming a vector to a new frame
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
         const boost::function< Eigen::Vector3d( ) > originalVector,
         const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
 
@@ -95,7 +116,7 @@ Eigen::Vector3d transformVector(
  * in this list are called in descending order.
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromVectorFunctions(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 
@@ -425,6 +446,7 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     const double longitude, const double latitude );
 
 } // namespace reference_frames
+
 } // namespace tudat
 
 #endif // TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
