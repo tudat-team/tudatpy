@@ -111,7 +111,6 @@ public:
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
-
 protected:
 
     //! Type of ephemeris model that is to be created.
