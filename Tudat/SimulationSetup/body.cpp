@@ -16,6 +16,18 @@ namespace tudat
 namespace simulation_setup
 {
 
+template< >
+Eigen::Matrix< double, 6, 1 > Body::getTemplatedState( )
+{
+    return getState( );
+}
+
+template< >
+Eigen::Matrix< long double, 6, 1 > Body::getTemplatedState( )
+{
+    return getLongState( );
+}
+
 //! Templated function to set the state manually.
 template< >
 void Body::setTemplatedState( const Eigen::Matrix< double, 6, 1 >& state )

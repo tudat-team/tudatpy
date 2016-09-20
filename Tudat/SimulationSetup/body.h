@@ -237,6 +237,8 @@ public:
      */
     Eigen::Matrix< long double, 3, 1 > getLongVelocity( ) { return currentLongState_.segment( 3, 3 ); }
 
+    template< typename ScalarStateType >
+    Eigen::Matrix< ScalarStateType, 6, 1 > getTemplatedState( );
 
     //! Function to set the rotation from global to body-fixed frame at given time
     /*!

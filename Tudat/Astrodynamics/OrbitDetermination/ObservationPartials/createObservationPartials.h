@@ -1,6 +1,8 @@
 #ifndef CREATEOBSERVATIONPARTIALS_H
 #define CREATEOBSERVATIONPARTIALS_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 
@@ -16,152 +18,59 @@ namespace observation_partials
 typedef std::map< observation_models::LinkEnds, std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > > PerLinkEndPerLightTimeSolutionCorrections;
 
 
-//template< typename ObservationScalarType, typename TimeType, typename StateScalarType, int ObservationSize  >
-//PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
-//        const std::map< LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
-//        ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > observationModels )
-//{
-//    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
-//    ObservableType observableType = observationModels.begin( )->second->getObservableType( );
+template< typename ObservationScalarType, typename TimeType, typename StateScalarType, int ObservationSize  >
+PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
+        const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
+        ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > observationModels )
+{
+    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
+    observation_models::ObservableType observableType = observationModels.begin( )->second->getObservableType( );
 
-//    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
-//    for( typename  std::map< LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
-//         ObservationSize, ObservationScalarType, TimeType, StateScalarType > > >::const_iterator observationModelIterator = observationModels.begin( );
-//         observationModelIterator != observationModels.end( ); observationModelIterator++ )
-//    {
-//        currentLightTimeCorrections.clear( );
+    for( typename  std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
+         ObservationSize, ObservationScalarType, TimeType, StateScalarType > > >::const_iterator observationModelIterator = observationModels.begin( );
+         observationModelIterator != observationModels.end( ); observationModelIterator++ )
+    {
+        currentLightTimeCorrections.clear( );
 
-//        if( observationModelIterator->second->getObservableType( ) != observableType )
-//        {
-//            std::cerr<<"Error when making grouped light time correction list, observable type is not constant"<<std::endl;
-//        }
-//        else
-//        {
-//            switch( observableType )
-//            {
-//            case oneWayRange:
-//            {
-//                boost::shared_ptr< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > > oneWayRangeModel =
-//                        boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                currentLightTimeCorrections.push_back( oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            case twoWayRange:
-//            {
-//                boost::shared_ptr< observation_models::TwoWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > > twoWayRangeModel =
-//                        boost::dynamic_pointer_cast< observation_models::TwoWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
+        if( observationModelIterator->second->getObservableType( ) != observableType )
+        {
+            std::cerr<<"Error when making grouped light time correction list, observable type is not constant"<<std::endl;
+        }
+        else
+        {
+            switch( observableType )
+            {
+            case observation_models::oneWayRange:
+            {
+                boost::shared_ptr< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > > oneWayRangeModel =
+                        boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back( oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::angular_position:
+            {
+                boost::shared_ptr< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType, StateScalarType > > angularPositionModel =
+                        boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType, StateScalarType > >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back( angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::position_observable:
+            {
+                break;
+            }
+            default:
+                std::cerr<<"Error in light time correction list creation, observable type "<<observableType<<" not recognized"<<std::endl;
+            }
+            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+        }
 
-//                currentLightTimeCorrections.push_back( twoWayRangeModel->getUpLinkLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                currentLightTimeCorrections.push_back( twoWayRangeModel->getDownLinkLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            case threeWayRange:
-//            {
-//                boost::shared_ptr< observation_models::TwoWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > > twoWayRangeModel =
-//                        boost::dynamic_pointer_cast< observation_models::TwoWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-
-//                currentLightTimeCorrections.push_back( twoWayRangeModel->getUpLinkLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                currentLightTimeCorrections.push_back( twoWayRangeModel->getDownLinkLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            case oneWayDiffencedRangeRate:
-//            {
-//                boost::shared_ptr< observation_models::OneWayRangeRateObservationModel< ObservationScalarType, TimeType, StateScalarType > > oneWayRangeRateModel =
-//                        boost::dynamic_pointer_cast< observation_models::OneWayRangeRateObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                currentLightTimeCorrections.push_back( oneWayRangeRateModel->getDopplerCalculator( )->getArcStartLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                currentLightTimeCorrections.push_back( oneWayRangeRateModel->getDopplerCalculator( )->getArcEndLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            case angular_position:
-//            {
-//                boost::shared_ptr< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType, StateScalarType > > angularPositionModel =
-//                        boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                currentLightTimeCorrections.push_back( angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            case stateObservable:
-//            {
-//                break;
-//            }
-//            case positionObservable:
-//            {
-//                break;
-//            }
-//            case multiBaselineRangeRate:
-//            {
-//                std::cerr<<"Warning, light time correction list creation not yet implemented for one-way vlbi model"<<std::endl;
-//                break;
-
-//            }
-//            case twoWayDifferencedRangeRate:
-//            {
-//                std::cerr<<"Warning, light time correction list creation not yet implemented for two-way range rate model"<<std::endl;
-//               break;
-
-//            }
-//            case differencedBaselineObservation:
-//            {
-//                std::cerr<<"Warning, light time correction list creation not yet implemented for differenced baseline observation model"<<std::endl;
-//                break;
-
-//            }
-//            case nWayRange:
-//            {
-//                boost::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > > nWayRangeObservationModel =
-//                        boost::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > > lightTimeCalculatorList =
-//                         nWayRangeObservationModel->getLightTimeCalculators( );
-//                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
-//                {
-//                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
-//                }
-//                break;
-//            }
-//            case nWayRangeRate:
-//            {
-//                boost::shared_ptr< observation_models::NWayRangeRateObservationModel< ObservationScalarType, TimeType, StateScalarType > > nWayRangeRateObservationModel =
-//                        boost::dynamic_pointer_cast< observation_models::NWayRangeRateObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > >
-//                        arcStartLightTimeCalculators = nWayRangeRateObservationModel->getArcStartObservationModel( )->getLightTimeCalculators( );
-//                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > >
-//                        arcEndLightTimeCalculators = nWayRangeRateObservationModel->getArcEndObservationModel( )->getLightTimeCalculators( );
-
-//                for( unsigned int i = 0; i < arcStartLightTimeCalculators.size( ); i++ )
-//                {
-//                    currentLightTimeCorrections.push_back( arcStartLightTimeCalculators.at( i )->getLightTimeCorrection( ) );
-//                }
-
-//                for( unsigned int i = 0; i < arcEndLightTimeCalculators.size( ); i++ )
-//                {
-//                    currentLightTimeCorrections.push_back( arcEndLightTimeCalculators.at( i )->getLightTimeCorrection( ) );
-//                }
-//                break;
-//            }
-//            case oneWayTimeTransfer:
-//            {
-//                boost::shared_ptr< observation_models::OneWayTimeTransferObservationModel< ObservationScalarType, TimeType, StateScalarType > > oneWayTimeTransferModel =
-//                        boost::dynamic_pointer_cast< observation_models::OneWayTimeTransferObservationModel< ObservationScalarType, TimeType, StateScalarType > >
-//                        ( observationModelIterator->second );
-//                currentLightTimeCorrections.push_back( oneWayTimeTransferModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-//                break;
-//            }
-//            default:
-//                std::cerr<<"Error in light time correction list creation, observable type "<<observableType<<" not recognized"<<std::endl;
-//            }
-//            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
-//        }
-
-//    }
-//    return lightTimeCorrectionsList;
-//}
+    }
+    return lightTimeCorrectionsList;
+}
 
 
 template< int ObservationSize >

@@ -32,26 +32,16 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
-#include "Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
-#include "Astrodynamics/Ephemerides/constantEphemeris.h"
-#include "Astrodynamics/Ephemerides/compositeRotationalEphemeris.h"
-#include "Astrodynamics/Ephemerides/createLinkEndEphemeris.h"
-#include "Astrodynamics/GroundStations/geodeticGroundStationState.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/displacementLoveNumbers.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/groundStationPosition.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/moonLibrationParameters.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/rotationModelPeriodicVariationAmplitudes.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/rotationModelPolynomialVariations.h"
-#include "Astrodynamics/OrbitDetermination/EstimatableParameters/rotationalPrecessionRate.h"
-#include "Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
-#include "Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
-#include "SimulationSetup/createBodyDeformationModel.h"
-#include "SimulationSetup/createGroundStations.h"
-#include "SimulationSetup/createBodies.h"
-#include "SimulationSetup/defaultBodies.h"
-#include "SimulationSetup/createEstimatableParameters.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
+#include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/SimulationSetup/createGroundStations.h"
+#include "Tudat/SimulationSetup/createBodies.h"
+#include "Tudat/SimulationSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/createEstimatableParameters.h"
 
 
 namespace tudat
@@ -59,12 +49,10 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace tudat::bodies;
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
 using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
-using namespace tudat::site_displacements;
 using namespace tudat::spice_interface;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
