@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Convert vehicle state to inertial frame.
         basic_mathematics::Vector6d vehicleInertialState =
-                ephemerides::transformStateToFrame(
+                ephemerides::transformStateToFrameFromRotations(
                     vehicleBodyFixedState,
                     bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
@@ -636,7 +636,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
 
         // Define vehicle inertial state.
         basic_mathematics::Vector6d vehicleInertialState =
-                ephemerides::transformStateToFrame(
+                ephemerides::transformStateToFrameFromRotations(
                     vehicleBodyFixedState,
                     bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
@@ -657,6 +657,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     boost::lambda::constant( bankAngle ) );
 
         // Update flight conditions
+        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number

@@ -6,10 +6,12 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    NOTE: The code in this file, and the associated cpp file, is tested in the unitTestDependentVariableOutput.cpp file.
  */
 
-#ifndef TRIMORIENTATION_H
-#define TRIMORIENTATION_H
+#ifndef TUDAT_TRIMORIENTATION_H
+#define TUDAT_TRIMORIENTATION_H
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -107,4 +109,4 @@ private:
 
 }
 
-#endif // TRIMORIENTATION_H
+#endif // TUDAT_TRIMORIENTATION_H

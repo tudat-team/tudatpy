@@ -13,10 +13,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Dummy function used for update, performs no calculations.
@@ -67,6 +64,9 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     setBodyState( perturbedState );
     updateFunction( );
 
+    basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                        accelerationModel );
+
     // Numerically compute partial derivatives.
     Eigen::Matrix3d accelerationPartials = upAccelerations - downAccelerations;
     for( int i = 0; i < 3; i++ )
@@ -114,6 +114,10 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
                 unperturbedParameterValue ) ;
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
+
+    accelerationModel->resetTime( TUDAT_NAN );
+    basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel, currentTime );
 
     // Calculate partial using central difference.
     return ( upPerturbedAcceleration - downPerturbedAcceleration ) / ( 2.0 * parameterPerturbation );
@@ -177,6 +181,10 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
                 unperturbedParameterValue ) ;
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
+    accelerationModel->resetTime( TUDAT_NAN );
+
+    basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                        accelerationModel, currentTime );
 
     // Calculate partial using central difference.
     return partialMatrix;
@@ -186,6 +194,3 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
 }
 
 }
-
-}
-

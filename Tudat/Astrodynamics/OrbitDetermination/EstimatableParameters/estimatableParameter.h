@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_ESTIMATABLEPARAMETERS_H
 #define TUDAT_ESTIMATABLEPARAMETERS_H
 
@@ -25,8 +35,11 @@ enum EstimatebleParametersEnum
     initial_body_state,
     gravitational_parameter,
     constant_drag_coefficient,
-    radiation_pressure_coefficient
-
+    radiation_pressure_coefficient,
+    spherical_harmonics_cosine_coefficient_block,
+    spherical_harmonics_sine_coefficient_block,
+    constant_rotation_rate,
+    rotation_pole_position
 };
 
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
@@ -44,6 +57,15 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
  * \return True if parameter is a double parameter.
  */
 bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given (non-dynamical) parameter influences a body's orientation.
+/*!
+ * Function to determine whether the given (non-dynamical) parameter influences a body's orientation.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is a property of rotation model
+ */
+bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType );
+
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
@@ -88,7 +110,7 @@ public:
      *  Pure virtual function to (re)set the value of the parameter.
      *  \param parameterValue to which the parameter is to be set.
      */
-    virtual void setParameterValue( ParameterType parameterValue ) = 0;
+    virtual void setParameterValue( const ParameterType parameterValue ) = 0;
 
     //! Function to retrieve the type and associated body of the parameter.
     /*!
@@ -322,6 +344,16 @@ public:
         return vectorParameters_;
     }
 
+    std::vector< boost::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
+    {
+        return estimatedDoubleParameters_;
+    }
+
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
+    {
+        return estimatedVectorParameters_;
+    }
+
     //! Function to get list of initial dynamical states that are to be estimated.
     //!
     /*!
@@ -423,6 +455,70 @@ public:
 
 };
 
+//! Class for providing settings spherical harmonic coefficient(s) parameter
+class SphericalHarmonicEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor, used to set user-defined list of degrees and orders.
+     * \param blockIndices List of degrees and orders that are to estimated (first and second of each entry are
+     * degree and order).
+     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
+     * of spherical_harmonics_sine_coefficient_block).
+     */
+    SphericalHarmonicEstimatableParameterSettings( const std::vector< std::pair< int, int > > blockIndices,
+                                                   const std::string associatedBody,
+                                                   const EstimatebleParametersEnum parameterType ):
+        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices )
+    {
+        if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
+                ( parameterType != spherical_harmonics_sine_coefficient_block ) )
+        {
+            std::cerr<<"Error when making spherical harmonic parameter settings, input parameter type is inconsistent."<<std::endl;
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor, used to set a full block of degrees and orders that are to be estimated
+     * \param minimumDegree Minimum degree of field that is to be estimated.
+     * \param minimumOrder Minimum order of field that is to be estimated.
+     * \param maximumDegree Maximum degree of field that is to be estimated.
+     * \param maximumOrder Maximum order of field that is to be estimated.
+     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
+     * of spherical_harmonics_sine_coefficient_block).
+     */
+    SphericalHarmonicEstimatableParameterSettings( const int minimumDegree,
+                                                   const int minimumOrder,
+                                                   const int maximumDegree,
+                                                   const int maximumOrder,
+                                                   const std::string associatedBody,
+                                                   const EstimatebleParametersEnum parameterType ):
+        EstimatableParameterSettings( associatedBody, parameterType )
+    {
+        if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
+                ( parameterType != spherical_harmonics_sine_coefficient_block ) )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+        }
+
+        for( int i = minimumDegree; i <= maximumDegree; i++ )
+        {
+            for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
+            {
+                blockIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
+
+    //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
+    std::vector< std::pair< int, int > > blockIndices_;
+};
+
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
@@ -496,6 +592,28 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )
+        {
+            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
+    }
+
+    return bodiesToEstimate;
+}
+
+template< typename InitialStateParameterType >
+std::vector< std::string > getListOfBodiesToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< std::string > bodiesToEstimate;
+
+    std::vector< boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) )
         {
             bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }

@@ -95,7 +95,7 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
 boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const boost::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
-        const NamedBodyMap bodyMap )
+        const NamedBodyMap& bodyMap )
 {
     using namespace tudat::gravitation;
     

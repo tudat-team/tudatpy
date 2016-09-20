@@ -3,12 +3,16 @@
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
 #include "Tudat/Astrodynamics/GroundStations/nominalGroundStationState.h"
 
 namespace tudat
+{
+
+namespace ground_stations
 {
 
 Eigen::Vector3d dummyPositionVariationFunction( const double time )
@@ -103,8 +107,7 @@ Eigen::Vector3d NominalGroundStationState::getCartesianPositionInTime(
                                    physical_constants::JULIAN_YEAR_IN_DAYS - referenceJulianYear_ ) +
             secondsSinceEpoch / ( physical_constants::JULIAN_YEAR_IN_DAYS * physical_constants::JULIAN_DAY );
 
-    return cartesianPosition_ + siteEccentricity_( secondsSinceEpoch ) +
-            positionVariationsFunction_( secondsSinceEpoch );
+    return cartesianPosition_ + positionVariationsFunction_( secondsSinceEpoch );
 }
 
 void NominalGroundStationState::resetGroundStationPositionAtEpoch( const Eigen::Vector3d cartesianPosition )
@@ -120,10 +123,11 @@ void NominalGroundStationState::resetGroundStationPositionAtEpoch( const Eigen::
 
 void NominalGroundStationState::setTransformationAndUnitVectors( )
 {
-    geocentricUnitVectors_ = getGeocentricLocalUnitVectors( getLatitude( ), getLongitude( ) );
+    std::cerr<<"Error, ground station trans. unit vectors disable"<<std::endl;
+    //geocentricUnitVectors_ = getGeocentricLocalUnitVectors( getLatitude( ), getLongitude( ) );
 
-    bodyFixedToTopocentricFrameRotation_ = getRotationQuaternionFromBodyFixedToTopocentricFrame(
-                bodySurface_, getLatitude( ), getLongitude( ), cartesianPosition_  );
+    //bodyFixedToTopocentricFrameRotation_ = getRotationQuaternionFromBodyFixedToTopocentricFrame(
+    //            bodySurface_, getLatitude( ), getLongitude( ), cartesianPosition_  );
 }
 
 std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors( const double geocentricLatitude,
@@ -169,7 +173,7 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
         // Calculate geodetic latitude.
         double flattening = oblateSphericalShapeModel->getFlattening( );
         double equatorialRadius = oblateSphericalShapeModel->getEquatorialRadius( );
-        double geodeticLatitude = basic_astrodynamics::calculateGeodeticLatitude( localPoint, equatorialRadius, flattening, 1.0E-4 );
+        double geodeticLatitude = coordinate_conversions::calculateGeodeticLatitude( localPoint, equatorialRadius, flattening, 1.0E-4 );
 
         // Calculte unit vectors of topocentric frame.
         topocentricUnitVectors = getGeocentricLocalUnitVectors( geodeticLatitude, geocentricLongitude );
@@ -201,3 +205,5 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
 
 }
 
+
+}

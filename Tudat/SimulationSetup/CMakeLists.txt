@@ -26,6 +26,8 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGroundStations.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyDeformationModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createThrustModelGuidance.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
 )
@@ -48,6 +50,8 @@ set(SIMULATION_SETUP_HEADERS
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGroundStations.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyDeformationModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createThrustModelGuidance.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.h"
 )
@@ -56,24 +60,13 @@ set(SIMULATION_SETUP_HEADERS
 add_library(tudat_simulation_setup STATIC ${SIMULATION_SETUP_SOURCES} ${SIMULATION_SETUP_HEADERS} )
 setup_tudat_library_target(tudat_simulation_setup "${SRCROOT}${SIMULATIONSETUPDIR}")
 
-list(APPEND TUDAT_CSPICE_LIBRARIES "")
-if(USE_CSPICE)
-  list(APPEND TUDAT_CSPICE_LIBRARIES tudat_spice_interface cspice)
-endif()
-
 # Add unit tests.
+if(USE_CSPICE)
 add_executable(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestEnvironmentModelSetup.cpp")
 setup_custom_test_program(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
-target_link_libraries(test_EnvironmentSetup tudat_simulation_setup tudat_gravitation tudat_ephemerides
-                      tudat_reference_frames tudat_electro_magnetism tudat_aerodynamics tudat_geometric_shapes
-                      tudat_input_output tudat_basic_astrodynamics
-                      tudat_basic_mathematics ${TUDAT_CSPICE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_EnvironmentSetup ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-if(USE_CSPICE)
 add_executable(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestAccelerationModelSetup.cpp")
 setup_custom_test_program(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
-target_link_libraries(test_AccelerationModelSetup tudat_simulation_setup tudat_gravitation tudat_ephemerides
-                      tudat_reference_frames tudat_electro_magnetism tudat_aerodynamics tudat_geometric_shapes
-                      tudat_input_output tudat_basic_astrodynamics
-                      tudat_basic_mathematics ${TUDAT_CSPICE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_AccelerationModelSetup ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif()

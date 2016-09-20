@@ -7,6 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include <iostream>
+
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 
 namespace tudat
@@ -28,6 +31,14 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
+//! Function to compute the relative state from two state functions.
+void getRelativeState(
+        basic_mathematics::Vector6d& relativeState,
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
+{
+    relativeState = stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
+}
 
 } // namespace ephemerides
 

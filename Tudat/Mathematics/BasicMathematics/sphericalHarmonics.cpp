@@ -50,6 +50,10 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
     maximumDegree_ = maximumDegree;
     maximumOrder_ = maximumOrder;
 
+    if( maximumOrder_ > maximumDegree_ )
+    {
+        maximumOrder_ = maximumDegree_;
+    }
     legendreCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ );
 
     sinesOfLongitude_.resize( maximumOrder_ + 1 );

@@ -60,11 +60,12 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case body_rotational_state_update:
                 {
-                    if( bodyMap.at( updateIterator->second.at( i ) )->
-                        getRotationalEphemeris( ) == NULL )
+                    if( ( bodyMap.at( updateIterator->second.at( i ) )->
+                        getRotationalEphemeris( ) == NULL ) &&
+                            ( bodyMap.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == NULL ) )
                     {
                         throw std::runtime_error(
-                            "Error when making environment model update settings, could not find rotational ephemeris of body "
+                            "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
                             + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;
@@ -118,49 +119,6 @@ void checkValidityOfRequiredEnvironmentUpdates(
 
                     break;
                 }
-            }
-        }
-    }
-}
-
-//! Function to extend existing list of required environment update types
-void addEnvironmentUpdates( std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > >& environmentUpdateList,
-                            const std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > > updatesToAdd )
-{
-    // Iterate over all environment update types.
-    for( std::map< propagators::EnvironmentModelsToUpdate,
-             std::vector< std::string > >::const_iterator
-         environmentUpdateIterator = updatesToAdd.begin( );
-         environmentUpdateIterator != updatesToAdd.end( ); environmentUpdateIterator++ )
-    {
-        bool addCurrentUpdate = 0;
-
-        // Iterate over all updated bodies.
-        for( unsigned int i = 0; i < environmentUpdateIterator->second.size( ); i++ )
-        {
-            addCurrentUpdate = 0;
-
-            // Check if current update type exists.
-            if( environmentUpdateList.count( environmentUpdateIterator->first ) == 0 )
-            {
-                addCurrentUpdate = 1;
-            }
-            // Check if current body exists for update type.
-            else if( std::find( environmentUpdateList.at( environmentUpdateIterator->first ).begin( ),
-                                environmentUpdateList.at( environmentUpdateIterator->first ).end( ),
-                                environmentUpdateIterator->second.at( i ) ) ==
-                     environmentUpdateList.at( environmentUpdateIterator->first ).end( ) )
-            {
-                addCurrentUpdate = 1;
-            }
-
-            // Add update type if required.
-            if( addCurrentUpdate )
-            {
-                environmentUpdateList[ environmentUpdateIterator->first ].push_back(
-                            environmentUpdateIterator->second.at( i ) );
             }
         }
     }
@@ -304,7 +262,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
                             thirdBodyAcceleration = boost::dynamic_pointer_cast<
                             gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
-                                accelerationModelIterator->second.at( i ) );;
+                                accelerationModelIterator->second.at( i ) );
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
@@ -322,6 +280,18 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                     std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
                                     std::string( "EnvironmentUpdaterSettings" ) );
                     }
+                    break;
+                }
+                case thrust_acceleration:
+                {
+                    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > thrustModelUpdates =
+                            boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                accelerationModelIterator->second.at( i ) )->getRequiredModelUpdates( );
+                    addEnvironmentUpdates( singleAccelerationUpdateNeeds, thrustModelUpdates );
+
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                                acceleratedBodyIterator->first );
+
                     break;
                 }
                 default:
@@ -347,7 +317,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 //! Get list of required environment model update settings from mass rate models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
-        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;
@@ -359,30 +329,35 @@ createMassPropagationEnvironmentUpdaterSettings(
               std::vector< std::string > > singleRateModelUpdateNeeds;
 
     // Iterate over all bodies with mass rate model.
-    for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
+    for( std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > >::const_iterator massRateModelIterator =
          massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
     {
-        singleRateModelUpdateNeeds.clear( );
-
-        // Identify mass rate type and set required environment update settings.
-        AvailableMassRateModels currentAccelerationModelType =
-                getMassRateModelType( massRateModelIterator->second );
-        switch( currentAccelerationModelType )
+        for( unsigned int i = 0; i < massRateModelIterator->second.size( ); i++ )
         {
-        case custom:
-            break;
-        default:
-            throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
-                                      boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+            singleRateModelUpdateNeeds.clear( );
 
+            // Identify mass rate type and set required environment update settings.
+            AvailableMassRateModels currentAccelerationModelType =
+                    getMassRateModelType( massRateModelIterator->second.at( i ) );
+            switch( currentAccelerationModelType )
+            {
+            case custom_mass_rate_model:
+                break;
+            case from_thrust_mass_rate_model:
+                break;
+            default:
+                throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
+                                          boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+
+            }
+
+            // Check whether requested updates are possible.
+            checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
+
+            // Add requested updates of current acceleration model to
+            // full list of environment updates.
+            addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
         }
-
-        // Check whether requested updates are possible.
-        checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
-
-        // Add requested updates of current acceleration model to
-        // full list of environment updates.
-        addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
     }
 
     return environmentModelsToUpdate;
@@ -426,18 +401,17 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
                = bodyIterator->second->getRadiationPressureInterfaces( );
 
         // Add each interface update function to update list.
-        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > > ::iterator
-                 iterator = radiationPressureInterfaces.begin( );
+        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > >::iterator
+             iterator = radiationPressureInterfaces.begin( );
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
             singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
-                push_back( bodyIterator->first );
+                    push_back( bodyIterator->first );
         }
 
-        // If body has rotation model, update rotational state in each time step.
-        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
-                bodyIterator->second->getRotationalEphemeris( );
-        if( rotationalEphemeris != NULL )
+        // If body has rotation model, update rotational state in each time step.;
+        if( ( bodyIterator->second->getRotationalEphemeris( ) != NULL ) ||
+                ( bodyIterator->second->getDependentOrientationCalculator( ) != NULL ) )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                 push_back( bodyIterator->first );

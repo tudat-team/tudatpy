@@ -66,7 +66,14 @@
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
-#include "Tudat/SimulationSetup/createFlightConditions.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#include <Tudat/Astrodynamics/Propagators/dynamicsSimulator.h>
+#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
+#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
+#include <Tudat/InputOutput/basicInputOutput.h>
+#include <Tudat/SimulationSetup/body.h>
+#include <Tudat/SimulationSetup/createAccelerationModels.h>
+#include <Tudat/SimulationSetup/defaultBodies.h>
 
 namespace tudat
 {
@@ -315,6 +322,426 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         // Check if computed moment matches expected.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
     }
+}
+
+class DummyAngleCalculator
+{
+public:
+
+    void update( const double time )
+    {
+        time_ = time;
+    }
+
+    double getDummyAngleOfAttack( )
+    {
+        return 0.2 - time_ / 1000.0;
+    }
+
+    double getDummyAngleOfSideslip( )
+    {
+        return 0.6 + 0.5 * time_ / 1000.0;
+    }
+
+    double getDummyBankAngle( )
+    {
+        return 1.3 + 0.24 * time_ / 1000.0;
+    }
+
+    double time_;
+};
+
+void testAerodynamicForceDirection( const bool includeThrustForce,
+                                    const bool imposeThrustDirection,
+                                    const bool swapCreationOrder )
+{
+    using namespace tudat;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+
+    //Load spice kernels.
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+
+    double thrustMagnitude = 1.0E3;
+    double specificImpulse = 250.0;
+
+    unsigned int maximumIndex = 8;
+    if( imposeThrustDirection )
+    {
+        maximumIndex = 4;
+    }
+    for( unsigned int i = 4; i < maximumIndex; i++ )
+    {
+        std::cout<<"Run: "<<i<<std::endl;
+        // Create Earth object
+        std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+                getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
+        defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                    basic_mathematics::Vector6d::Zero( ) );
+        NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+
+        // Create vehicle objects.
+        double vehicleMass = 5.0E3;
+        bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+        bodyMap[ "Vehicle" ]->setEphemeris(
+                    boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        "Earth" ) );
+
+        if( i < 4 && !imposeThrustDirection )
+        {
+            bodyMap[ "Vehicle" ]->setRotationalEphemeris(
+                        boost::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
+        }
+
+        bool areCoefficientsInAerodynamicFrame;
+        if( ( i % 2 ) == 0 )
+        {
+            areCoefficientsInAerodynamicFrame = 1;
+        }
+        else
+        {
+            areCoefficientsInAerodynamicFrame = 0;
+        }
+
+        Eigen::Vector3d aerodynamicCoefficients;
+        if( ( i / 2 ) % 2 == 0 )
+        {
+            aerodynamicCoefficients = Eigen::Vector3d::UnitX( );
+        }
+        else
+        {
+            aerodynamicCoefficients = ( Eigen::Vector3d( )<<1.0, -0.1, 0.5 ).finished( );
+
+        }
+
+        boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+                boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                    areCoefficientsInAerodynamicFrame, 1 );
+        bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+        Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
+
+
+        // Finalize body creation.
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+
+        if( swapCreationOrder )
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+        }
+
+        Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
+
+        if( includeThrustForce )
+        {
+            if( !imposeThrustDirection )
+            {
+                accelerationsOfVehicle[ "Vehicle" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                boost::make_shared< ConstantThrustEngineSettings >(
+                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
+            }
+            else
+            {
+                accelerationsOfVehicle[ "Vehicle" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< CustomThrustOrientationSettings >(
+                                    boost::bind( spice_interface::computeRotationQuaternionBetweenFrames,
+                                                     "IAU_Mars", "IAU_Earth", _1 ) ),
+                                boost::make_shared< ConstantThrustEngineSettings >(
+                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
+            }
+        }
+
+        if( !swapCreationOrder )
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+        }
+
+
+
+        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+        bodiesToPropagate.push_back( "Vehicle" );
+        centralBodies.push_back( "Earth" );
+
+        // Set initial state
+        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+
+        systemInitialState( 0 ) = 6.8E6;
+        systemInitialState( 4 ) = 7.5E3;
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+        boost::shared_ptr< DummyAngleCalculator > testAngles =
+                boost::make_shared< DummyAngleCalculator >( );
+
+        if( !( i < 4 ) )
+        {
+            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+                    bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
+            angleCalculator->setOrientationAngleFunctions(
+                        boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
+                        boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
+                        boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
+                        boost::bind( &DummyAngleCalculator::update, testAngles, _1 ) );
+        }
+
+
+        boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+        dependentVariables.push_back(
+                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        aerodynamic, "Vehicle", "Earth", 0 ) );
+        dependentVariables.push_back(
+                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                        "Vehicle", reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) );
+        dependentVariables.push_back(
+                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                        "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
+        dependentVariables.push_back(
+                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                        "Vehicle", reference_frames::inertial_frame, reference_frames::corotating_frame ) );
+        dependentVariables.push_back(
+                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                        "Vehicle", reference_frames::inertial_frame, reference_frames::trajectory_frame ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        body_fixed_airspeed_based_velocity_variable, "Vehicle" ) );
+        if( includeThrustForce )
+        {
+            dependentVariables.push_back(
+                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+        }
+
+        dependentVariableSaveSettings = boost::make_shared< DependentVariableSaveSettings >( dependentVariables );
+
+
+        boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+                boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
+                  cowell, dependentVariableSaveSettings );
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, 0.0, 5.0 );
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+
+        // Retrieve numerical solutions for state and dependent variables
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+                dynamicsSimulator.getDependentVariableHistory( );
+
+        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
+                bodyMap.at( "Vehicle" )->getRotationalEphemeris( );
+
+        double thrustAcceleration = thrustMagnitude / vehicleMass;
+        Eigen::Matrix3d matrixDifference;
+        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+             dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); outputIterator++ )
+        {
+
+
+            // Retrieve dependent variables from output;
+            Eigen::Matrix3d rotationToAerodynamicFrame =
+                    getMatrixFromVectorRotationRepresentation(
+                        outputIterator->second.segment( 3, 9 ) );
+            Eigen::Matrix3d rotationToBodyFrame =
+                    getMatrixFromVectorRotationRepresentation(
+                        outputIterator->second.segment( 12, 9 ) );
+            Eigen::Matrix3d rotationToCorotatingFrame = getMatrixFromVectorRotationRepresentation(
+                        outputIterator->second.segment( 21, 9 ) );
+            Eigen::Matrix3d rotationToTrajectoryFrame = getMatrixFromVectorRotationRepresentation(
+                        outputIterator->second.segment( 30, 9 ) );
+            Eigen::Vector3d bodyFixedAirspeed = outputIterator->second.segment( 39, 3 );
+
+            // Velocity vector in aerodynamic and trajectory frames should have component in positivie x-direction only.
+            Eigen::Vector3d bodyFixedAirspeedInAerodynamicFrame = rotationToAerodynamicFrame *
+                    rotationToCorotatingFrame.transpose( ) * bodyFixedAirspeed;
+            Eigen::Vector3d bodyFixedAirspeedInTrajectoryFrame = rotationToTrajectoryFrame *
+                    rotationToCorotatingFrame.transpose( ) * bodyFixedAirspeed;
+
+            // Check velocity in aerodynamic frame
+            BOOST_CHECK_CLOSE_FRACTION( bodyFixedAirspeedInAerodynamicFrame.x( ),
+                                        bodyFixedAirspeedInAerodynamicFrame.norm( ),
+                                        std::numeric_limits< double >::epsilon( ) );
+
+            // Check velocity in trajectory frame
+            BOOST_CHECK_CLOSE_FRACTION( bodyFixedAirspeedInTrajectoryFrame.x( ),
+                                        bodyFixedAirspeedInTrajectoryFrame.norm( ),
+                                        std::numeric_limits< double >::epsilon( ) );
+
+            // For drag-only aerodynamics
+            if( ( i % 4 ) == 0 )
+            {
+                Eigen::Vector3d aerodynamicForceInAerodynamicFrame = rotationToAerodynamicFrame * outputIterator->second.segment( 0, 3 );
+                BOOST_CHECK_CLOSE_FRACTION( -aerodynamicForceInAerodynamicFrame.x( ),
+                                            aerodynamicForceInAerodynamicFrame.norm( ),
+                                            std::numeric_limits< double >::epsilon( ) );
+            }
+
+            // For C_{x}-only aerodynamics
+            else if( ( i % 4 ) == 1 )
+            {
+                Eigen::Vector3d aerodynamicForceInBodyFrame = rotationToBodyFrame * outputIterator->second.segment( 0, 3 );
+                BOOST_CHECK_CLOSE_FRACTION( -aerodynamicForceInBodyFrame.x( ),
+                                            aerodynamicForceInBodyFrame.norm( ),
+                                            std::numeric_limits< double >::epsilon( ) );
+            }
+
+            // Check that aerodynamic force is in correct direction (in aerodynamic frame).
+            else if( ( i % 4 ) == 2 )
+            {
+                Eigen::Vector3d aerodynamicForceDirectionInAerodynamicFrame =
+                        ( rotationToAerodynamicFrame * outputIterator->second.segment( 0, 3 ) ).normalized( );
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_CLOSE_FRACTION( -aerodynamicForceDirectionInAerodynamicFrame( j ),
+                                                aerodynamicCoefficientsDirection( j ), 5.0E-14 );
+                }
+            }
+
+            // Check that aerodynamic force is in correct direction (in body frame).
+            else if( ( i % 4 ) == 3 )
+            {
+                Eigen::Vector3d aerodynamicForceDirectionInBodyFrame =
+                        ( rotationToBodyFrame * outputIterator->second.segment( 0, 3 ) ).normalized( );
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_CLOSE_FRACTION( -aerodynamicForceDirectionInBodyFrame( j ),
+                                                aerodynamicCoefficientsDirection( j ), 5.0E-14 );
+                }
+            }
+
+            // Check if thrust force is in correct direction.
+            if( includeThrustForce && !imposeThrustDirection )
+            {
+                Eigen::Vector3d thrustForceInBodyFrame = rotationToBodyFrame * outputIterator->second.segment( 42, 3 );
+
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( thrustForceInBodyFrame( j ) - bodyFixedThrustDirection( j ) *
+                                           thrustAcceleration ), 1.0E-14 );
+                }
+            }
+            else if( includeThrustForce && imposeThrustDirection )
+            {
+                Eigen::Vector3d thrustForceInPropagationFrame = ( outputIterator->second.segment( 42, 3 ) );
+
+                Eigen::Matrix3d rotationToBodyFrameFromEphemeris = spice_interface::computeRotationQuaternionBetweenFrames(
+                            "IAU_Earth", "IAU_Mars", outputIterator->first ).toRotationMatrix( );
+                Eigen::Vector3d imposedThrustForceInPropagationFrame =
+                        thrustAcceleration * ( rotationToBodyFrameFromEphemeris.transpose( ) * bodyFixedThrustDirection );
+
+
+
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( thrustForceInPropagationFrame( j ) - imposedThrustForceInPropagationFrame( j ) ),
+                                1.0E-15 );
+                }
+                matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
+
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    for( unsigned int k = 0; k < 3; k++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 5.0E-14 );
+                    }
+                }
+
+            }
+
+            if( i < 4 && !imposeThrustDirection )
+            {
+                // Check if imposed and indirectly obtained rotation matrices are equal.
+                Eigen::Matrix3d rotationToBodyFrameFromEphemeris = rotationalEphemeris->getRotationToTargetFrame(
+                            outputIterator->first, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    for( unsigned int k = 0; k < 3; k++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 1.0E-13 );
+                    }
+                }
+            }
+            else if( !( i < 4 ) )
+            {
+                testAngles->update( outputIterator->first );
+
+                Eigen::Matrix3d aerodynamicToBodyFrame = rotationToBodyFrame * rotationToAerodynamicFrame.inverse( );
+                Eigen::Matrix3d aerodynamicToTrajectoryFrame = rotationToTrajectoryFrame * rotationToAerodynamicFrame.inverse( );
+
+                Eigen::Matrix3d manualAerodynamicToBodyFrame =
+                        reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+                            testAngles->getDummyAngleOfAttack( ), testAngles->getDummyAngleOfSideslip( ) );
+                Eigen::Matrix3d manualAerodynamicToTrajectoryFrame =
+                        reference_frames::getAerodynamicToTrajectoryFrameTransformationMatrix(
+                            testAngles->getDummyBankAngle( ) );
+
+                matrixDifference = aerodynamicToBodyFrame - manualAerodynamicToBodyFrame;
+
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    for( unsigned int k = 0; k < 3; k++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 1.0E-14 );
+                    }
+                }
+
+                matrixDifference = aerodynamicToTrajectoryFrame - manualAerodynamicToTrajectoryFrame;
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    for( unsigned int k = 0; k < 3; k++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( j, k ) ), 1.0E-14 );
+                    }
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
+{
+    //testAerodynamicForceDirection( 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 0 );
+    //testAerodynamicForceDirection( 1, 1, 0 );
+    //testAerodynamicForceDirection( 1, 0, 1 );
+    //testAerodynamicForceDirection( 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

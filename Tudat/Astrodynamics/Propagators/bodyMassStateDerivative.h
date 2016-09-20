@@ -41,8 +41,8 @@ public:
 
     //! Constructor
     /*!
-     * Constructor, sets the mass rate models and the bodies that are to be propagated
-     * \param massRateModels Map of models per body that are to be used for the mass rate computation.
+     * Constructor, sets the mass rate models and the bodies that are to be propagated (single mass rate model per body).
+     * \param massRateModels Map of model per body that is to be used for the mass rate computation.
      * \param bodiesToIntegrate List of bodies for which the mass is to be propagated. Note that this vector have
      * more entries than the massRateModels map, as a body's mass can be 'propagated' with no rate model (i.e. constant
      * mass).
@@ -53,6 +53,23 @@ public:
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::body_mass_state ),
         massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+
+    //! Constructor
+    /*!
+     * Constructor, sets the mass rate models and the bodies that are to be propagated.
+     * \param massRateModels Map of models per body that are to be used for the mass rate computation.
+     * \param bodiesToIntegrate List of bodies for which the mass is to be propagated. Note that this vector have
+     * more entries than the massRateModels map, as a body's mass can be 'propagated' with no rate model (i.e. constant
+     * mass).
+     */
+    BodyMassStateDerivative(
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+            massRateModels,
+            const std::vector< std::string >& bodiesToIntegrate ):
+        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
+            propagators::body_mass_state ),
+        massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+
 
     //! Destructor
     virtual ~BodyMassStateDerivative( ){ }
@@ -69,8 +86,8 @@ public:
      */
     void calculateSystemStateDerivative(
                 const TimeType time,
-                const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-                Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
 
@@ -80,10 +97,14 @@ public:
              massRateModelIterator_ != massRateModels_.end( );
              massRateModelIterator_++ )
         {
-            stateDerivative( currentIndex, 0 ) = static_cast< StateScalarType >(
-                        massRateModelIterator_->second->getMassRate( ) );
+            stateDerivative( currentIndex, 0 ) = 0.0;
+            for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
+            {
+                stateDerivative( currentIndex, 0 ) += static_cast< StateScalarType >(
+                            massRateModelIterator_->second.at ( i )->getMassRate( ) );
 
-            currentIndex++;
+                currentIndex++;
+            }
 
         }
     }
@@ -100,7 +121,10 @@ public:
              massRateModelIterator_ != massRateModels_.end( );
              massRateModelIterator_++ )
         {
-            massRateModelIterator_->second->resetTime( TUDAT_NAN );
+            for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
+            {
+                massRateModelIterator_->second.at ( i )->resetTime( TUDAT_NAN );
+            }
         }
     }
 
@@ -120,15 +144,18 @@ public:
              massRateModelIterator_ != massRateModels_.end( );
              massRateModelIterator_++ )
         {
-            massRateModelIterator_->second->updateMembers( static_cast< double >( currentTime ) );
+            for( unsigned int i = 0; i < massRateModelIterator_->second.size( ); i++ )
+            {
+                massRateModelIterator_->second.at ( i )->updateMembers( static_cast< double >( currentTime ) );
+            }
         }
     }
 
     //! Function included for compatibility purposes with base class, local and global representation is equal for mass rate
     //! model. Function returns (by reference)  input internalSolution.
     void convertCurrentStateToGlobalRepresentation(
-                const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
-                Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         currentCartesianLocalSoluton = internalSolution;
     }
@@ -165,10 +192,10 @@ public:
 private:
 
     //! Map of models per body that are to be used for the mass rate computation.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 
     //! Predefined iterator to save (de-)allocation time.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator massRateModelIterator_;
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >::const_iterator massRateModelIterator_;
 
     //! List of bodies for which the mass is to be propagated.
     /*!

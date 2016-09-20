@@ -20,13 +20,8 @@
 namespace tudat
 {
 
-namespace orbit_determination
+namespace acceleration_partials
 {
-
-namespace partial_derivatives
-{
-
-using namespace gravitation;
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 /*!
@@ -146,7 +141,7 @@ public:
               ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
-            std::cerr<<"Warning, dependency of central gravity on body masses not yet implemented"<<std::endl;
+            throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
         }
         return 0;
     }
@@ -158,7 +153,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -168,7 +163,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         boost::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -205,7 +200,7 @@ protected:
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
      * Function to create a function returning the current partial w.r.t. a gravitational parameter.
-     * \param parameterId Identified of parameter for which the partial is to be created.
+     * \param parameterId Identifier of parameter for which the partial is to be created.
      * \return Pair with partial function and paramater partial size. The partial function is non-empty only
      * if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if
      * accelerationUsesMutualAttraction_ is true).
@@ -254,5 +249,4 @@ protected:
 
 }
 
-}
 #endif // TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H

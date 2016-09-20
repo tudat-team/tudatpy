@@ -48,6 +48,8 @@
 
 #include <cmath>
 
+#include <boost/lexical_cast.hpp>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
@@ -59,8 +61,6 @@ namespace geometric_shapes
 {
 
 // Using declarations.
-using std::cerr;
-using std::endl;
 using std::cos;
 using std::sin;
 using unit_conversions::convertRadiansToDegrees;
@@ -113,7 +113,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
         derivative_( 1 ) = 0.0;
         derivative_( 2 ) = 0.0;
 
-        cerr << "No negative power of derivatives allowed, returning 0,0,0" << endl;
+        throw std::runtime_error( "No negative power of derivatives allowed in sphere segment." );
     }
 
     // When requesting the zeroth derivative with respect to the two
@@ -136,8 +136,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
         // only dependent on sines and cosines, only the "modulo 4"th
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
-        // basic_mathematics::coordinateConversions::convertSphericalToCartesian from
-        // Tudat Core.
+        // basic_mathematics::coordinateConversions::convertSphericalToCartesian
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
         case( 0 ):
@@ -170,8 +169,8 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
 
         default:
 
-            cerr << " Bad value for powerOfAzimuthAngleDerivative"
-                 << " ( mod 4 ) of value is not 0, 1, 2 or 3 " << endl;
+            throw std::runtime_error( " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
+
         }
 
         // This derivative is "cyclical" in the same manner as the derivative
@@ -208,8 +207,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
 
         default:
 
-            cerr << " Bad value for powerOfZenithAngleDerivative"
-                 << " ( mod 4 ) of value is not 0, 1, 2 or 3 " << endl;
+            throw std::runtime_error( " Bad value for powerOfZenithAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 in sphere segment." );
         }
 
         // Construct the full derivative.
@@ -239,10 +237,8 @@ double SphereSegment::getParameter( const int index )
     // Else return cerr statement.
     else
     {
-        parameter_ = -0.0;
-
-        // Cerr statement.
-        cerr << "Parameter does not exist" << endl;
+        std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in sphere segment.";
+        throw std::runtime_error( errorMessage );
     }
 
     // Return parameter.
@@ -252,19 +248,19 @@ double SphereSegment::getParameter( const int index )
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
 {
-    stream << "This is a sphere segment geometry." << endl;
-    stream << "The range of the independent variables are: " << endl;
+    stream << "This is a sphere segment geometry." << std::endl;
+    stream << "The range of the independent variables are: " << std::endl;
     stream << "Azimuth angle: "
            << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 1 ) )
            << " degrees to "
            << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 1 ) )
-           << " degrees" << endl;
+           << " degrees" << std::endl;
     stream << "Zenith angle: "
            << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 2 ) )
            << " degrees to "
            << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 2 ) )
-           << " degrees" << endl;
-    stream << "The radius is: " << sphereSegment.getRadius( ) << " meter." << endl;
+           << " degrees" << std::endl;
+    stream << "The radius is: " << sphereSegment.getRadius( ) << " meter." << std::endl;
 
     // Return stream.
     return stream;

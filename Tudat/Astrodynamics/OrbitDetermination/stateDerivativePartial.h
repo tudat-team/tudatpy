@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_STATEDERIVATIVEPARTIAL_H
 #define TUDAT_STATEDERIVATIVEPARTIAL_H
 
@@ -19,9 +29,6 @@ namespace tudat
 {
 
 namespace orbit_determination
-{
-
-namespace partial_derivatives
 {
 
 //! Base class for computing the partial derivatives of a state derivative model
@@ -281,9 +288,12 @@ public:
         {
             if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
             {
-                std::cerr<<"Parameter of type "<<parameter->getParameterName( ).first<<", "<<
-                          parameter->getParameterName( ).second.first<<", "<<
-                          parameter->getParameterName( ).second.second<<" not found in list of existing partials"<<std::endl;
+                std::string errorMessage = "Parameter of type " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + ", " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.first ) + ", " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.second ) + ", " +
+                        " not found in list of existing partials";
+                throw std::runtime_error( errorMessage );
             }
             else
             {
@@ -517,7 +527,7 @@ protected:
  *  bodies undergoing 'acceleration (and being estimated), the second (inner) vector is the list of partials
  *  being exerted on a single body.
  */
-typedef std::vector< std::vector< boost::shared_ptr< partial_derivatives::StateDerivativePartial > > >
+typedef std::vector< std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > >
 StateDerivativePartialsMap;
 
 //! Function to evaluate the negative value of a parameter partial.
@@ -624,8 +634,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterObject,
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
-
-}
 
 }
 

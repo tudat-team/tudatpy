@@ -22,10 +22,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Dummy function used for update, performs no calculations.
@@ -106,8 +103,6 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
         const double currentTime = 0.0,
         boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
-
-}
 
 }
 

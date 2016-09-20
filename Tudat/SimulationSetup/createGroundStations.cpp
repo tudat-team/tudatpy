@@ -10,7 +10,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-void createGroundStations( const std::map< std::string, boost::shared_ptr< Body > >& bodyMap,
+void createGroundStations( const NamedBodyMap& bodyMap,
                            const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition )
 {
     using namespace tudat::ephemerides;
@@ -54,6 +54,11 @@ void createGroundStations( const std::map< std::string, boost::shared_ptr< Body 
     }
 }
 
+void createGroundStations( const NamedBodyMap& bodyMap,
+                           std::vector< std::pair< std::string, std::string > > groundStations )
+{
+    std::cerr<<"Error, default ground stations not yet implemented"<<std::endl;
+}
 
 void setSingleBodyGroundStationPositionVariationFunctions( boost::shared_ptr< Body > body,
                                                            gravitation::BodyDeformationTypes variationType,

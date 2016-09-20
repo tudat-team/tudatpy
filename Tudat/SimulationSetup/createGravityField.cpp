@@ -104,8 +104,9 @@ std::pair< double, double  > readGravityFieldFile(
         // Check current line for consistency
         if( vectorOfIndividualStrings.size( ) < 4 )
         {
-            std::cerr<<"Error when reading pds gravity field file, number of fields is "
-                    <<vectorOfIndividualStrings.size( )<<std::endl;
+            std::string errorMessage = "Error when reading pds gravity field file, number of fields is " +
+                    boost::lexical_cast< std::string >( vectorOfIndividualStrings.size( ) );
+            throw std::runtime_error( errorMessage );
         }
         else
         {
@@ -159,7 +160,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else if( gravityFieldVariationSettings.size( ) != 0 )
         {
-            std::cerr<<"Error, requested central gravity field, but field variations settings are not empty."<<std::endl;
+            throw std::runtime_error( "Error, requested central gravity field, but field variations settings are not empty." );
         }
         else
         {
@@ -174,7 +175,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     {
         if( gravityFieldVariationSettings.size( ) != 0 )
         {
-            std::cerr<<"Error, requested central gravity field, but field variations settings are not empty."<<std::endl;
+            throw std::runtime_error( "Error, requested central gravity field, but field variations settings are not empty." );
         }
         else
         {
@@ -230,8 +231,9 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 {
                     if( bodyMap.at( body )->getGravityFieldModel( ) != NULL )
                     {
-                        std::cerr<<"Warning when making time-dependent gravity field model for body "<<body<<" existing gravity field "
-                                <<" is not empty but overwritten in Body! "<<std::endl;
+                        std::string errorMessage = "Warning when making time-dependent gravity field model for body " + body +
+                                " existing gravity field is not empty but overwritten in Body! ";
+                        throw std::runtime_error( errorMessage );
                     }
 
                     // Create preliminary TimeDependentSphericalHarmonicsGravityField, without actual variation settings.

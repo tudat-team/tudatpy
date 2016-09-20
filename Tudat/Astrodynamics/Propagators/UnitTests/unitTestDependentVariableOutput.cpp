@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 //! are compred against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 {
+    using namespace tudat;
     using namespace ephemerides;
     using namespace interpolators;
     using namespace numerical_integrators;

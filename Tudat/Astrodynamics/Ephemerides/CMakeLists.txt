@@ -100,13 +100,11 @@ target_link_libraries(test_SimpleRotationalEphemeris tudat_ephemerides tudat_ref
 if(USE_CSPICE)
 add_executable(test_FrameManager "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestFrameManager.cpp")
 setup_custom_test_program(test_FrameManager "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_FrameManager tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_spice_interface tudat_basic_mathematics cspice ${Boost_LIBRARIES})
-endif()
+target_link_libraries(test_FrameManager tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_EXTERNAL_LIBRARIES} ${Boost_LIBRARIES})
 
-if(USE_CSPICE)
 add_executable(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCompositeEphemeris.cpp")
 setup_custom_test_program(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_CompositeEphemeris tudat_simulation_setup tudat_electro_magnetism tudat_gravitation tudat_ephemerides tudat_reference_frames tudat_aerodynamics tudat_reference_frames tudat_spice_interface tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics cspice ${Boost_LIBRARIES})
+target_link_libraries(test_CompositeEphemeris ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
 add_executable(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerEphemeris.cpp")

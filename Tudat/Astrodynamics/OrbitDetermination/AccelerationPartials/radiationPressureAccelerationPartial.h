@@ -19,10 +19,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
@@ -241,8 +238,6 @@ private:
     //! position of body exerting acceleration).
     Eigen::Matrix3d currentPartialWrtPosition_;
 };
-
-}
 
 }
 

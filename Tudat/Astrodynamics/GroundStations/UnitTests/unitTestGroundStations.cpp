@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_SUITE( test_ground_stations )
 BOOST_AUTO_TEST_CASE( test_GroundStations )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getDataFilesRootPath( ) + "SpiceKernels/";
+    std::string kernelsPath = input_output::getSpiceKernelPath( ) + "SpiceKernels/";
 
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
@@ -54,10 +54,10 @@ BOOST_AUTO_TEST_CASE( test_GroundStations )
 
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings< double, double >( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer, full );
+            getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings[ "Moon" ]->gravityFieldVariationSettings.clear( );
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap =
-            createCelestialBodies( bodySettings );
+    NamedBodyMap bodyMap =
+            createBodies( bodySettings );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.push_back( std::make_pair( "Earth", "Concepcion" ) );

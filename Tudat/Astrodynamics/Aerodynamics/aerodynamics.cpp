@@ -500,7 +500,8 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
     return atan( tangentOfDeflectionAngle_ );
 }
 
-//! Function to compute the speed of sounds in a gas
+
+//! Function to compute the speed of sound in a gas
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant )
 {
@@ -511,6 +512,13 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
 double computeMachNumber( const double speed, const double speedOfSound )
 {
     return speed / speedOfSound;
+}
+
+//! Function to compute the mean free path of a particle.
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
+{
+    return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
+                   weightedAverageCollisionDiameter * averageNumberDensity );
 }
 
 } // namespace aerodynamics

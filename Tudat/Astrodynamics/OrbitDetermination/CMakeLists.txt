@@ -44,15 +44,18 @@
 
 set(ACCELERATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/AccelerationPartials")
 set(ESTIMATABLEPARAMETERSDIR "${ORBITDETERMINATIONDIR}/EstimatableParameters")
-
+set(OBSERVATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/ObservationPartials")
+set(LIGHTTIMECORRECTIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/LightTimeCorrectionPartials")
 
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${ACCELERATIONPARTIALSDIR}")
 add_subdirectory("${SRCROOT}${ESTIMATABLEPARAMETERSDIR}")
+add_subdirectory("${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 
 # Get target properties for static libraries.
 get_target_property(ACCELERATIONPARTIALSSOURCES tudat_acceleration_partials SOURCES)
 get_target_property(ESTIMATABLEPARAMETERSOURCES tudat_estimatable_parameters SOURCES)
+get_target_property(OBSERVATIONPARTIALSSOURCES tudat_observation_partials SOURCES)
 
 # Set the source files.
 set(ORBIT_DETERMINATION_SOURCES

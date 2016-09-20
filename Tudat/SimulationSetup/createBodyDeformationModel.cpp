@@ -15,7 +15,7 @@ namespace simulation_setup
 boost::shared_ptr< site_displacements::BodyDeformationModel > createBodyDeformationModel(
         boost::shared_ptr< BodyDeformationSettings > bodyDeformationSettings,
         const std::string body,
-        const NamedBodyMap bodyMap )
+        const NamedBodyMap& bodyMap )
 {
     using namespace tudat::site_displacements;
     using namespace tudat::gravitation;
