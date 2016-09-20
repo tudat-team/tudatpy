@@ -22,6 +22,7 @@ set(OBSERVABLECORRECTIONSDIR "${OBSERVATIONMODELSDIR}/ObservableCorrections")
 set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/createLightTimeCalculator.cpp"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/createLightTimeCorrection.cpp"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"
 )

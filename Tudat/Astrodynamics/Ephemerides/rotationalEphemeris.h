@@ -357,6 +357,17 @@ protected:
 
 };
 
+template< typename StateScalarType, typename TimeType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
+        const TimeType currentTime,
+        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrame( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
+
+}
 
 } // namespace tudat
 } // namespace ephemerides

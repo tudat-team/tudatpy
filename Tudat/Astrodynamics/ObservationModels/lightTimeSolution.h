@@ -11,7 +11,8 @@
 #ifndef TUDAT_LIGHT_TIME_SOLUTIONS_H
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
-
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -21,6 +22,7 @@
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 
 namespace tudat
 {
@@ -41,6 +43,28 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 typedef boost::function< double(
         const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
+
+class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
+{
+public:
+    LightTimeCorrectionFunctionWrapper(
+            const LightTimeCorrectionFunction lightTimeCorrectionFunction ):
+        LightTimeCorrection( function_wrapper_light_time_correction ),
+        lightTimeCorrectionFunction_( lightTimeCorrectionFunction ){ }
+
+    double calculateLightTimeCorrection(
+            const basic_mathematics::Vector6d& transmitterState,
+            const basic_mathematics::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime )
+    {
+        return lightTimeCorrectionFunction_(
+                    transmitterState, receiverState, transmissionTime, receptionTime );
+    }
+
+private:
+    LightTimeCorrectionFunction lightTimeCorrectionFunction_;
+};
 
 //! Class to calculate the light time between two points.
 /*!
@@ -72,14 +96,32 @@ public:
     LightTimeCalculator(
             const boost::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const boost::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
-            const std::vector< LightTimeCorrectionFunction > correctionFunctions =
-            std::vector< LightTimeCorrectionFunction >( ),
+            const std::vector< boost::shared_ptr< LightTimeCorrection > > correctionFunctions =
+            std::vector< boost::shared_ptr< LightTimeCorrection > >( ),
             const bool iterateCorrections = false ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
         correctionFunctions_( correctionFunctions ),
         iterateCorrections_( iterateCorrections ),
         currentCorrection_( 0.0 ){ }
+
+    LightTimeCalculator(
+            const boost::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const boost::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::vector< LightTimeCorrectionFunction > correctionFunctions,
+            const bool iterateCorrections = false ):
+        stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
+        stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
+        iterateCorrections_( iterateCorrections ),
+        currentCorrection_( 0.0 )
+    {
+        for( unsigned int i = 0; i < correctionFunctions.size( ); i++ )
+        {
+            correctionFunctions_.push_back(
+                        boost::make_shared< LightTimeCorrectionFunctionWrapper >(
+                                                correctionFunctions.at( i ) ) );
+        }
+    }
 
     //! Function to calculate the light time.
     /*!
@@ -255,27 +297,32 @@ public:
         return newLightTimeCalculation;
     }
 
+    std::vector< boost::shared_ptr< LightTimeCorrection > > getLightTimeCorrection( )
+    {
+        return correctionFunctions_;
+    }
+
 protected:
 
     //! Transmitter state function.
     /*!
      *  Transmitter state function.
      */
-    boost::function< basic_mathematics::Vector6d( const double ) >
+    boost::function< StateType( const double ) >
     stateFunctionOfTransmittingBody_;
 
     //! Receiver state function.
     /*!
      *  Receiver state function.
      */
-    boost::function< basic_mathematics::Vector6d( const double ) >
+    boost::function< StateType( const double ) >
     stateFunctionOfReceivingBody_;
 
     //! List of light-time correction functions.
     /*!
      *  List of light-time correction functions, i.e. tropospheric, relativistic, etc.
      */
-    std::vector< LightTimeCorrectionFunction > correctionFunctions_;
+    std::vector< boost::shared_ptr< LightTimeCorrection > > correctionFunctions_;
 
     //! Boolean deciding whether to recalculate the correction during each iteration.
     /*!
@@ -327,7 +374,7 @@ protected:
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
             totalLightTimeCorrections += static_cast< ObservationScalarType >(
-                        correctionFunctions_[ i ](
+                        correctionFunctions_[ i ]->calculateLightTimeCorrection(
                             transmitterState.template cast< double >( ), receiverState.template cast< double >( ),
                             static_cast< double >( transmissionTime ), static_cast< double >( receptionTime ) ) );
         }

@@ -21,6 +21,96 @@ namespace tudat
 namespace observation_models
 {
 
+template< typename TimeType >
+Eigen::Matrix< long double, 6, 1 > convertLongDoubleStateFromDoubleStateFunction(
+        const TimeType& time, const boost::function< basic_mathematics::Vector6d( const TimeType& ) >& doubleStateFunction )
+{
+    return ( doubleStateFunction( time ) ).template cast< long double >( );
+}
+
+
+template< typename ScalarStateType = double >
+Eigen::Matrix< ScalarStateType, 6, 1 > calculateCurrentInertialReferencePointState(
+        boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > bodyStateFunction,
+        boost::function< Eigen::Quaterniond( ) > bodyRotationFunction,
+        boost::function< Eigen::Vector3d( ) > bodyFixedReferencePointStateFunction,
+        boost::function< Eigen::Matrix3d( ) > bodyDerivativeRotationFunction = boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) )
+{
+    return bodyStateFunction( ) +
+            convertStateToInertialFrame(
+                ( Eigen::Matrix< ScalarStateType, 6, 1 >( )<< bodyFixedReferencePointStateFunction( ).template cast< ScalarStateType >( ),
+                  Eigen::Matrix< ScalarStateType, 3, 1 >( ) ).finished( ),
+                bodyRotationFunction( ).toRotationMatrix( ), bodyDerivativeRotationFunction( ) );
+
+}
+
+template< typename ScalarStateType = double >
+boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > createReferencePointStateFunction(
+        boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
+        boost::function< Eigen::Vector3d( ) > bodyFixedReferencePointStateFunction )
+{
+    boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > bodyStateFunction =
+            boost::bind( &simulation_setup::Body::getTemplatedState< ScalarStateType >, bodyWithReferencePoint );
+    boost::function< Eigen::Quaterniond( ) > bodyRotationFunction =
+            boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, bodyWithReferencePoint );
+    boost::function< Eigen::Matrix3d( ) > bodyRotationDerivativeFunction =
+            boost::bind( &simulation_setup::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, bodyWithReferencePoint );
+    return boost::bind( &calculateCurrentInertialReferencePointState< ScalarStateType >, bodyStateFunction, bodyRotationFunction,
+                        bodyFixedReferencePointStateFunction, bodyRotationDerivativeFunction );
+}
+
+template< typename TimeType = double, typename ScalarStateType = double >
+boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+        boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
+        boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+        boost::function< basic_mathematics::Vector6d( const TimeType& ) > referencePointStateFunction );
+
+template< typename TimeType = double, typename ScalarStateType = double >
+boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
+        const boost::shared_ptr< simulation_setup::Body > bodyWithLinkEnd, const std::pair< std::string, std::string >& linkEndId )
+{
+    typedef Eigen::Matrix< ScalarStateType, 6, 1 > StateType;
+
+    boost::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
+
+    // Checking transmitter is a S/C
+    if( linkEndId.second != "" )
+    {
+        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
+        {
+            std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", station not found"<<std::endl;
+        }
+
+        // Retrieve function to calculate state of transmitter S/C
+        linkEndCompleteEphemerisFunction =
+                boost::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< ScalarStateType,TimeType >,
+                             createReferencePointEphemeris< TimeType, ScalarStateType >(
+                                 bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
+                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame< TimeType >,
+                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
+
+    }
+    // Else, transmitter is S/C
+    else
+    {
+        // Create function to calculate state of transmitting ground station.
+        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
+                                                        bodyWithLinkEnd, _1 );
+    }
+    return linkEndCompleteEphemerisFunction;
+}
+
+template< typename TimeType = double, typename ScalarStateType = double >
+boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+        const std::pair< std::string, std::string > linkEndId, const simulation_setup::NamedBodyMap& bodyMap )
+{
+    if( bodyMap.count( linkEndId.first ) == 0  )
+    {
+        std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body not found "<<std::endl;
+    }
+    return getLinkEndCompleteEphemerisFunction< TimeType, ScalarStateType >( bodyMap.at( linkEndId.first ), linkEndId );
+}
+
 //! Function to create a light-time calculation object
 /*!
  *  Function to create a light-time calculation object from light time correction settings environment and link end
@@ -44,16 +134,15 @@ createLightTimeCalculator(
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd )
 {
-    std::vector< LightTimeCorrectionFunction > lightTimeCorrectionFunctions;
+    std::vector< boost::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
 
     // Create lighttime correction functions from lightTimeCorrections
     for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
     {
-        LightTimeCorrectionFunction correctionFunction =
-                boost::bind( &LightTimeCorrection::calculateLightTimeCorrection, createLightTimeCorrections(
-                                        lightTimeCorrections[ i ], bodyMap, transmittingLinkEnd, receivingLinkEnd ),
-                             _1, _2, _3, _4 );
-        lightTimeCorrectionFunctions.push_back(  correctionFunction );
+
+        lightTimeCorrectionFunctions.push_back(
+                    createLightTimeCorrections(
+                        lightTimeCorrections[ i ], bodyMap, transmittingLinkEnd, receivingLinkEnd ) );
     }
 
     // Create light time calculator.
@@ -80,19 +169,14 @@ createLightTimeCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections )
 {
-    // Check input consistency
-   if( transmittingLinkEnd.second != "" || receivingLinkEnd.second != "" )
-   {
-       throw std::runtime_error( "Error, body reference points not yet supported when creating light time calculator" );
-   }
 
-   // Get link end state functions and create light time calculator.
-   return createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-               boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                            bodyMap.at( transmittingLinkEnd.first ), _1 ),
-               boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                            bodyMap.at( receivingLinkEnd.first ), _1 ),
-               bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
+    // Get link end state functions and create light time calculator.
+    return createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
+                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+                    transmittingLinkEnd, bodyMap ),
+                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+                    receivingLinkEnd, bodyMap ),
+                bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
 }
 
 }

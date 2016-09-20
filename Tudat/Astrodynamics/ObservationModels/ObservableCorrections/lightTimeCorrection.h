@@ -22,7 +22,8 @@ namespace observation_models
 //! Enum defining different types of light time corrections.
 enum LightTimeCorrectionType
 {
-    first_order_relativistic
+    first_order_relativistic,
+    function_wrapper_light_time_correction
 };
 
 

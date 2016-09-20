@@ -31,6 +31,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
+#include "Tudat/Astrodynamics/ObservationModels/createObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
@@ -51,7 +52,6 @@ using namespace tudat::observation_models;
 using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
-using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
@@ -74,8 +74,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     linkEnds[ receiver ] = groundStations[ 0 ];
 
     // Generate one-way range model
-    boost::shared_ptr< OneWayRangeObservationModel< > > oneWayRangeModel =
-            boost::make_shared< OneWayRangeObservationModel< > >( groundStations[ 0 ], groundStations[ 1 ], bodyMap );
+    boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+            observation_models::ObservationModelCreator< 1, double, double, double >::createObservationModel(
+                oneWayRange, linkEnds, bodyMap  );
 
     // Create parameter objects.
     boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =

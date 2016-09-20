@@ -73,7 +73,14 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 
     // Define and create ground stations.
-    createGroundStations( bodyMap, groundStations );
+    std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
+    groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
+            ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
+    groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
+            ( Eigen::Vector3d( ) <<-2.5E5, 3.2E6, -2.65E4 ).finished( );
+
+
+    createGroundStations( bodyMap, groundStationsToCreate );
 
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
