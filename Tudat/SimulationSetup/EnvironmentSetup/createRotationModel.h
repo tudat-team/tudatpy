@@ -16,7 +16,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
 

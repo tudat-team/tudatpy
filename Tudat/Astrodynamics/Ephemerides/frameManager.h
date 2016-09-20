@@ -22,7 +22,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
 {

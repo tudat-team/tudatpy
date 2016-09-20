@@ -18,7 +18,7 @@
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
 {

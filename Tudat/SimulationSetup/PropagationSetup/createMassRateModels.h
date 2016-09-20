@@ -19,7 +19,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propulsion/massRateFromThrust.h"
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
 {

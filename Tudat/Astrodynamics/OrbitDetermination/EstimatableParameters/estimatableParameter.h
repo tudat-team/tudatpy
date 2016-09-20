@@ -22,7 +22,8 @@
 #include <Eigen/Geometry>
 
 
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+
 namespace tudat
 {
 

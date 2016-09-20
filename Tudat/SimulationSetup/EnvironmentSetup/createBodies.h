@@ -14,15 +14,15 @@
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
-#include "Tudat/SimulationSetup/body.h"
-#include "Tudat/SimulationSetup/createEphemeris.h"
-#include "Tudat/SimulationSetup/createAtmosphereModel.h"
-#include "Tudat/SimulationSetup/createBodyShapeModel.h"
-#include "Tudat/SimulationSetup/createEphemeris.h"
-#include "Tudat/SimulationSetup/createGravityField.h"
-#include "Tudat/SimulationSetup/createRotationModel.h"
-#include "Tudat/SimulationSetup/createRadiationPressureInterface.h"
-#include "Tudat/SimulationSetup/createFlightConditions.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodyShapeModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 
 namespace tudat
 {

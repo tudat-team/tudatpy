@@ -16,7 +16,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 
-#include "Tudat/SimulationSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
 
 namespace tudat
 {

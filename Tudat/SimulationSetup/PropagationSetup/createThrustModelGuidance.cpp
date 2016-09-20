@@ -1,4 +1,4 @@
-#include "Tudat/SimulationSetup/createThrustModelGuidance.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 #include "Tudat/Basics/utilities.h"
 
 namespace tudat

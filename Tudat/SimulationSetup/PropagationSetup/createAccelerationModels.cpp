@@ -21,9 +21,9 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Basics/utilities.h"
-#include "Tudat/SimulationSetup/accelerationSettings.h"
-#include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/createFlightConditions.h"
+#include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 
 namespace tudat
 {

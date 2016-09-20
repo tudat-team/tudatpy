@@ -2,7 +2,7 @@
 #define CREATESTATEDERIVATIVEPARTIALS_H
 
 #include "Tudat/Astrodynamics/OrbitDetermination/stateDerivativePartial.h"
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"

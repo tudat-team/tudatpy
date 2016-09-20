@@ -23,7 +23,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 
 
 namespace tudat

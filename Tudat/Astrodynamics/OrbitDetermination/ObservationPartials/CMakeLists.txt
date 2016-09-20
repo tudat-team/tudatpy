@@ -44,54 +44,19 @@
 
 # Set the source files.
 set(OBSERVATION_PARTIALS_SOURCES
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.cpp"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.cpp"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.cpp"
 )
 
 # Set the header files.
 set(OBSERVATION_PARTIALS_HEADERS
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.h"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
 )
 
-# Set the header files.
-set(OBSERVATION_PARTIALS_TEST_HEADERS
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/observationPartialTestFunctions.h"
-)
 
-set(OBSERVATION_PARTIALS_TEST_SOURCES
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/observationPartialTestFunctions.cpp"
-)
 # Add static libraries.
 add_library(tudat_observation_partials STATIC ${OBSERVATION_PARTIALS_SOURCES} ${OBSERVATION_PARTIALS_HEADERS})
 setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}")
 
-add_library(tudat_observation_partials_test_functions STATIC ${OBSERVATION_PARTIALS_TEST_SOURCES} ${OBSERVATION_PARTIALS_TEST_HEADERS})
-setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}/UnitTests")
-
-add_executable(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestOneWayRangePartials.cpp")
-setup_custom_test_program(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
-target_link_libraries(test_OneWayRangePartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-#add_executable(test_PositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestPositionPartials.cpp")
-#setup_custom_test_program(test_PositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
-#target_link_libraries(test_PositionPartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
 add_executable(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestRotationMatrixPartials.cpp")
 setup_custom_test_program(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_RotationMatrixPartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/UnitTests/unitTestLightTimeCorrectionPartials.cpp")
-setup_custom_test_program(test_LightTimeCorrectionPartials "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}")
-target_link_libraries(test_LightTimeCorrectionPartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})

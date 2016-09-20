@@ -12,7 +12,7 @@
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #endif
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
 namespace tudat
 {

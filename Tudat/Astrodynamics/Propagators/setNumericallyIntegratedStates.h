@@ -11,10 +11,10 @@
 #ifndef TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 #define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 
 
 namespace tudat

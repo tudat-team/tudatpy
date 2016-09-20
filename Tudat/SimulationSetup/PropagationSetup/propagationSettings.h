@@ -26,8 +26,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
-#include "Tudat/Astrodynamics/Propagators/propagationOutputSettings.h"
-#include "Tudat/Astrodynamics/Propagators/propagationTerminationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 
 namespace tudat
 {

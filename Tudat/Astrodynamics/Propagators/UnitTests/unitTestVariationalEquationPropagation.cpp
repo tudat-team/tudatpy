@@ -26,11 +26,11 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquationsSolver.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
-#include "Tudat/SimulationSetup/createBodies.h"
-#include "Tudat/SimulationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat

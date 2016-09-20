@@ -14,10 +14,10 @@
 #include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/createBodies.h"
-#include "Tudat/SimulationSetup/createGravityField.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
 
 namespace tudat

@@ -24,8 +24,8 @@
 #include <boost/format.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "Tudat/SimulationSetup/body.h"
-#include "Tudat/SimulationSetup/createGravityFieldVariations.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"

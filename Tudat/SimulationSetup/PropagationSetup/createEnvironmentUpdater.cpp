@@ -9,7 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
-#include "Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
 
 namespace tudat
 {

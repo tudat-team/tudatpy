@@ -14,7 +14,7 @@
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/tabulatedGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
-#include "Tudat/SimulationSetup/createGravityFieldVariations.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityFieldVariations.h"
 
 namespace tudat
 {

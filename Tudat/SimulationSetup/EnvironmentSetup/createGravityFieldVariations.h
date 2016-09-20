@@ -17,7 +17,7 @@
 #include <boost/assign/list_of.hpp>
 
 
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 

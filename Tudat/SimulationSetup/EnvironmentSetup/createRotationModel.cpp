@@ -15,7 +15,7 @@
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #endif
-#include "Tudat/SimulationSetup/createRotationModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
 
 namespace tudat
 {

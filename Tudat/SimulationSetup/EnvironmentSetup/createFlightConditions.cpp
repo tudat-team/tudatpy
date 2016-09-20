@@ -13,7 +13,7 @@
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "Tudat/SimulationSetup/createFlightConditions.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 
 namespace tudat
 {
