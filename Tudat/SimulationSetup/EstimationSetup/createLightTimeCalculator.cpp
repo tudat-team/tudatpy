@@ -2,7 +2,7 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Astrodynamics/ObservationModels/createLightTimeCalculator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/Astrodynamics/GroundStations/groundStation.h"
 #include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 

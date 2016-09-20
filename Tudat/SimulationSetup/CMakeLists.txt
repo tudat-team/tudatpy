@@ -8,13 +8,14 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
+set(ESTIMATIONSETUPSDIR "${SIMULATIONSETUPDIR}/EstimationSetup")
 
 # Add source files.
 set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.cpp"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationPartials.cpp"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createStateDerivativePartials.cpp"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createEstimatableParameters.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createAccelerationPartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createStateDerivativePartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createEstimatableParameters.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createFlightConditions.cpp"
@@ -30,14 +31,20 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createOneWayRangePartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createAngularPositionPartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCorrectionPartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createPositionPartials.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCalculator.cpp"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCorrection.cpp"
 )
 
 # Add header files.
 set(SIMULATION_SETUP_HEADERS 
   "${SRCROOT}${SIMULATIONSETUPDIR}/accelerationSettings.h"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationPartials.h"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createStateDerivativePartials.h"
-  "${SRCROOT}${SIMULATIONSETUPDIR}/createEstimatableParameters.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createAccelerationPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createStateDerivativePartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createEstimatableParameters.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.h"
@@ -54,6 +61,15 @@ set(SIMULATION_SETUP_HEADERS
   "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createOneWayRangePartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createAngularPositionPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createPositionPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCorrectionPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createObservationPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createObservationPartials.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createObservationModel.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCalculator.h"
+  "${SRCROOT}${ESTIMATIONSETUPSDIR}/createLightTimeCorrection.h"
 )
 
 # Add static libraries.

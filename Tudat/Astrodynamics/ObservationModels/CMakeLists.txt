@@ -22,8 +22,6 @@ set(OBSERVABLECORRECTIONSDIR "${OBSERVATIONMODELSDIR}/ObservableCorrections")
 set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
-  "${SRCROOT}${OBSERVATIONMODELSDIR}/createLightTimeCalculator.cpp"
-  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/createLightTimeCorrection.cpp"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"
 )
 
@@ -37,10 +35,7 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationBias.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayRangeObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
-  "${SRCROOT}${OBSERVATIONMODELSDIR}/createObservationModel.h"
-  "${SRCROOT}${OBSERVATIONMODELSDIR}/createLightTimeCalculator.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
-  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/createLightTimeCorrection.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.h"
 )

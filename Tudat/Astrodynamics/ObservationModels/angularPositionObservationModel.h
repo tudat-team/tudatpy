@@ -17,7 +17,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-#include "Tudat/Astrodynamics/ObservationModels/createLightTimeCalculator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 

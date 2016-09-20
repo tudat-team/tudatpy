@@ -5,7 +5,7 @@
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
-#include "Tudat/SimulationSetup/createAccelerationPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
 
 namespace tudat
 {

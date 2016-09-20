@@ -11,12 +11,12 @@
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayRangePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/createLightTimeCorrectionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 
 namespace tudat
 {

@@ -2,15 +2,13 @@
 
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createOneWayRangePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 
 namespace tudat
 {
 
 namespace observation_partials
 {
-
-using namespace ephemerides;
 
 //! Function to generate one-way range partial wrt an initial position of a body.
 boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
