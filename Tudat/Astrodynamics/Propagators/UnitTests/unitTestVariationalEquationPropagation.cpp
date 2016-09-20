@@ -31,7 +31,7 @@
 #include "Tudat/SimulationSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/createBodies.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/createEstimatableParameters.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat
 {

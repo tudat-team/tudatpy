@@ -22,9 +22,6 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
-typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 //! Function to return partial(s) of position of ground station(s) w.r.t. state of a single body.
 /*!

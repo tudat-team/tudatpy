@@ -16,7 +16,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createObservationPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/createBodyDeformationModel.h"
 #include "Tudat/SimulationSetup/createGroundStations.h"

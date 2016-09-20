@@ -10,6 +10,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 namespace tudat
 {
@@ -192,6 +193,11 @@ private:
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
+
+
+//! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
+typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 
 }

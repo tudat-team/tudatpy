@@ -46,32 +46,23 @@
 set(OBSERVATION_PARTIALS_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createOneWayRangePartials.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createAngularPositionPartials.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createPositionPartials.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.cpp"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/createLightTimeCorrectionPartials.cpp"
 )
 
 # Set the header files.
 set(OBSERVATION_PARTIALS_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/angularPositionPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createOneWayRangePartials.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createAngularPositionPartials.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createPositionPartials.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createObservationPartials.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
-  "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/createLightTimeCorrectionPartials.h"
 )
 
 # Set the header files.

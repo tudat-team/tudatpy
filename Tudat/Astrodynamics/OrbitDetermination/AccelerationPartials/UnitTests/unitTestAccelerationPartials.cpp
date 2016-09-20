@@ -28,10 +28,10 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
-#include "Tudat/SimulationSetup/createAccelerationPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
 #include "Tudat/SimulationSetup/createBodies.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/createEstimatableParameters.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"
 
 namespace tudat

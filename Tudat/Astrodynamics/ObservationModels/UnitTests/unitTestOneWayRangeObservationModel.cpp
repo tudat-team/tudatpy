@@ -23,7 +23,7 @@
 
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
-#include "Tudat/Astrodynamics/ObservationModels/createObservationModel.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/createBodies.h"
 

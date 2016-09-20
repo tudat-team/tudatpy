@@ -6,8 +6,8 @@
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createAngularPositionPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createOneWayRangePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 
 namespace tudat
 {

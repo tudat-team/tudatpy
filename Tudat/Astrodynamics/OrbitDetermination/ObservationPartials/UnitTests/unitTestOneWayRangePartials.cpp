@@ -31,10 +31,10 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
-#include "Tudat/Astrodynamics/ObservationModels/createObservationModel.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createObservationPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"

@@ -8,9 +8,9 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
-#include "Tudat/Astrodynamics/ObservationModels/createObservationModel.h"
-#include "Tudat/SimulationSetup/createEstimatableParameters.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/createLightTimeCorrectionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticLightTimeCorrectionPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
 

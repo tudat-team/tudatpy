@@ -1,5 +1,5 @@
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 
 
 namespace tudat
