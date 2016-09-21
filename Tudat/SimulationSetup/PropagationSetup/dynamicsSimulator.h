@@ -85,6 +85,10 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     return systemInitialState;
 }
 
+
+boost::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 //! Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time.
 /*!
 * Function to get the states of a set of bodies, w.r.t. some set of central bodies, at the requested time, creates
@@ -104,7 +108,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
 {
     // Create ReferenceFrameManager and call overloaded function.
     return getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodyMap, initialTime,
-                                     boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap ) );
+                                     createFrameManager( bodyMap ) );
 }
 
 //! Function to get the states of single body, w.r.t. some central body, at the requested time.
@@ -164,7 +168,7 @@ public:
 
         if( setIntegratedResult_ )
         {
-            frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
+            frameManager_ = createFrameManager( bodyMap );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
@@ -173,7 +177,9 @@ public:
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
-                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_  ), environmentUpdater_ );
+                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_  ),
+                    boost::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
+                                 environmentUpdater_, _1, _2, _3 ) );
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 

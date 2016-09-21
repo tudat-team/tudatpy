@@ -24,7 +24,6 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-#include "Tudat/SimulationSetup/PropagationSetup/environmentUpdater.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 
@@ -54,17 +53,19 @@ public:
      *  Derivative model constructor. Takes state derivative model and environment
      *  updater. Constructor checks whether all models use the same environment updater.     
      *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type of dynamical equation.
-     *  \param environmentUpdater Object which is used to update time-dependent environment models to current time and state,
-     *  must be consistent with member environment updaters of stateDerivativeModels entries.
+     *  \param environmentUpdateFunction Function which is used to update time-dependent environment models to current time
+     *  and state, must be consistent with member environment updaters of stateDerivativeModels entries.
      *  \param variationalEquations Object used for computing the state derivative in the variational equations
      */
     DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
             stateDerivativeModels,
-            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater,
+            const boost::function< void(
+                const TimeType, const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+                const std::vector< IntegratedStateType > ) > environmentUpdateFunction,
             const boost::shared_ptr< VariationalEquations > variationalEquations =
-                        boost::shared_ptr< VariationalEquations >( ) ):
-        environmentUpdater_( environmentUpdater ), variationalEquations_( variationalEquations )
+            boost::shared_ptr< VariationalEquations >( ) ):
+        environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -152,12 +153,12 @@ public:
             }
 
             convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
-            environmentUpdater_->updateEnvironment( time, currentStatesPerTypeInConventionalRepresentation_,
+            environmentUpdateFunction_( time, currentStatesPerTypeInConventionalRepresentation_,
                                                     integratedStatesFromEnvironment_ );
         }
         else
         {
-            environmentUpdater_->updateEnvironment(
+            environmentUpdateFunction_(
                         time, std::unordered_map<
                         IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
@@ -485,15 +486,17 @@ private:
                             state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
-                                        currentStateTypeSize, 0, currentIndices.second, 1 ) );
+                                currentStateTypeSize, 0, currentIndices.second, 1 ) );
 
                 currentStateTypeSize += currentIndices.second;
             }
         }
     }
 
-    //! Object used to update the environment to the current state and time.
-    boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
+    boost::function<
+    void( const TimeType, const std::unordered_map< IntegratedStateType,
+          Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
+          const std::vector< IntegratedStateType > ) > environmentUpdateFunction_;
 
     //! Object used for computing the state derivative in the variational equations
     boost::shared_ptr< VariationalEquations > variationalEquations_;

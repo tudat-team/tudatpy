@@ -80,6 +80,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
 )
 
 # Add static libraries.

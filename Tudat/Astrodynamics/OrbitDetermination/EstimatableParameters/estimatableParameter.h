@@ -11,18 +11,18 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERS_H
 #define TUDAT_ESTIMATABLEPARAMETERS_H
 
-#include <iomanip>
-#include <iostream>
+#include <vector>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <Eigen/Geometry>
 
-
-#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
 namespace tudat
 {

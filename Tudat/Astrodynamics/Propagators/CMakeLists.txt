@@ -35,10 +35,12 @@
 
 # Add source files.
 set(PROPAGATORS_SOURCES
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
 )
 
 # Add header files.

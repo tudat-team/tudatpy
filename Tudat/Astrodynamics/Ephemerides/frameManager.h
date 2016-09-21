@@ -22,7 +22,6 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
 {
@@ -56,13 +55,6 @@ std::string getBaseFrameName( );
 class ReferenceFrameManager
 {
 public:
-
-    //! Constructor from named list of bodies.
-    /*!
-     *  Constructor from named list of bodies. Ephemerides used in class are retrieved from bodies.
-     *  \param bodyMap List of bodies used in simulations.
-     */
-    ReferenceFrameManager( const simulation_setup::NamedBodyMap& bodyMap );
 
     //! Constructor from named list of ephemerides.
     /*!

@@ -21,7 +21,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 
