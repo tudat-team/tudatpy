@@ -684,6 +684,7 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
     // Retrieve flight conditions; create object if not yet extant.
     boost::shared_ptr< FlightConditions > bodyFlightConditions =
             bodyUndergoingAcceleration->getFlightConditions( );
+
     if( bodyFlightConditions == NULL )
     {
         bodyUndergoingAcceleration->setFlightConditions(

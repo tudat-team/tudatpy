@@ -41,7 +41,6 @@
 #include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationOutput.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"

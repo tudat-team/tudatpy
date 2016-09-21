@@ -36,7 +36,14 @@ boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > getL
     {
         std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body not found "<<std::endl;
     }
-    return getLinkEndCompleteEphemerisFunction< TimeType, ScalarStateType >( bodyMap.at( linkEndId.first ), linkEndId );
+
+    if( linkEndId.second != ""  )
+    {
+        std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body reference points not yet supported "<<std::endl;
+    }
+
+    return boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
+                        bodyMap.at( linkEndId.first ), _1 );
 }
 
 //! Function to create a light-time calculation object

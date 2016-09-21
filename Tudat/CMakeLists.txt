@@ -257,9 +257,9 @@ if(USE_NRLMSISE00)
   list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
 endif()
 
-#if(USE_GSL)
-#  list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
-#endif()
+if(USE_GSL)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
+endif()
 
 
 list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_propagators
