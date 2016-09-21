@@ -82,6 +82,15 @@ double computeSampleMean( const std::vector< double >& sampleData )
             / static_cast< double >( sampleData.size( ) );
 }
 
+//! Compute sample mean for a sample of VectorXd
+Eigen::VectorXd computeSampleMean( const std::vector< Eigen::VectorXd >& sampleData )
+{
+    // Return sample mean.
+    Eigen::VectorXd initialValue = Eigen::VectorXd::Zero( sampleData.at( 0 ).rows( ) );
+    return std::accumulate( sampleData.begin( ), sampleData.end( ), initialValue )
+            / static_cast< double >( sampleData.size( ) );
+}
+
 //! Compute sample variance.
 double computeSampleVariance( const std::vector< double >& sampleData )
 {
@@ -128,6 +137,26 @@ double computeSampleMedian( std::vector< double > sampleData )
     }
 
     return sampleMedian;
+}
+
+//! Compute sample variance for a sample of VectorXd.
+Eigen::VectorXd computeSampleVariance( const std::vector< Eigen::VectorXd >& sampleData )
+{
+    // Declare local variables.
+    // Declare and compute sample mean.
+    Eigen::VectorXd sampleMean_ = computeSampleMean( sampleData );
+
+    // Declare and initialize sum of residuals squared.
+    Eigen::VectorXd sumOfResidualsSquared_ = Eigen::VectorXd::Zero( sampleData.at( 0 ).rows( ) );
+
+    // Compute sum of residuals of sample data squared.
+    for ( unsigned int i = 0; i < sampleData.size( ); i++ )
+    {
+        sumOfResidualsSquared_ += ( sampleData.at( i ) - sampleMean_ ).cwiseProduct( sampleData.at( i ) - sampleMean_ );
+    }
+
+    // Return sample variance.
+    return 1.0 / ( static_cast< double >( sampleData.size( ) ) - 1.0 ) * sumOfResidualsSquared_;
 }
 
 } // namespace statistics
