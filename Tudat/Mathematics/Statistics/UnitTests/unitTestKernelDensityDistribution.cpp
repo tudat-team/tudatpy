@@ -298,21 +298,21 @@ BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity2D )
 
          // Compare against Matlab results,
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability( 0, 2.276047714155371E-1 ),
+                    distribution.evaluateCumulativeMarginalProbability( 0, 2.276047714155371E-1 ),
                     2.446324562687310E-1, 5E-3 );
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability( 1, 6.083875672099921e-02 ),
+                    distribution.evaluateCumulativeMarginalProbability( 1, 6.083875672099921e-02 ),
                     6.360523509878839e-01, 5E-3 );
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability( 1, 9.861136936766661e-02 ),
+                    distribution.evaluateCumulativeMarginalProbability( 1, 9.861136936766661e-02 ),
                     7.371490745984073e-01, 5E-3 );
 
         // Check theoretical CDF at edge of domain.
         BOOST_CHECK_SMALL( std::fabs(
-            distribution.getCumulativeMarginalProbability( 1, 300.0 )
+            distribution.evaluateCumulativeMarginalProbability( 1, 300.0 )
                                - 1.0 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_SMALL( std::fabs(
-            distribution.getCumulativeMarginalProbability( 1, -200.0 )
+            distribution.evaluateCumulativeMarginalProbability( 1, -200.0 )
                                - 0.0 ), 4.0 * std::numeric_limits< double >::epsilon( ) );
     }
 }
@@ -425,14 +425,14 @@ BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity3D )
         location <<  1.5, 1E-2, 0.8;
 
         int marginal = 0;
-        double computedDensity = distribution.getCumulativeMarginalProbability( marginal, location( marginal ) );
+        double computedDensity = distribution.evaluateCumulativeMarginalProbability( marginal, location( marginal ) );
         double expectedDensity = 3.829580307170373e-01;
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ), 4.0 * std::numeric_limits< double >::epsilon( ) );
 
         marginal = 1;
-        computedDensity = distribution.getCumulativeMarginalProbability( marginal, location( marginal ) );
+        computedDensity = distribution.evaluateCumulativeMarginalProbability( marginal, location( marginal ) );
         expectedDensity = 2.674493565829487e-01;
 
         // Check correct density
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity3D )
         std::vector< double > conditions( 0 );
         conditions.push_back( 0.1 );
 
-        double computedDensity = distribution.getCumulativeConditionalMarginalProbability(
+        double computedDensity = distribution.evaluateCumulativeConditionalMarginalProbability(
                     conditionDimensions, conditions, marginal, location( marginal ) );
         double expectedDensity = 4.970339167925200e-01;
 
@@ -460,7 +460,7 @@ BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity3D )
         conditionDimensions[0] = 0;
         conditions[0] = 0.4;
         marginal = 2;
-        computedDensity = distribution.getCumulativeConditionalMarginalProbability(
+        computedDensity = distribution.evaluateCumulativeConditionalMarginalProbability(
                     conditionDimensions, conditions, marginal, location( marginal ) );
         expectedDensity = 3.932443313127392e-01;
 
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
         int marginal = 0;
 
         // Compute marginal cdf from kernel and theoretical value (marginalDimension = 0).
-        double computedDensity = distribution.getCumulativeMarginalProbability( marginal, location( marginal ) );
+        double computedDensity = distribution.evaluateCumulativeMarginalProbability( marginal, location( marginal ) );
         double expectedDensity = ( gaussianDistribution1->evaluateCdf( location( 0 ) ) +
                                    gaussianDistribution2->evaluateCdf( location( 0 ) ) +
                                    gaussianDistribution3->evaluateCdf( location( 0 ) ) ) / 3.0;
@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
 
         // Compute marginal cdf from kernel and theoretical value (marginalDimension = 1).
         marginal = 1;
-        computedDensity = distribution.getCumulativeMarginalProbability( marginal, location( marginal ) );
+        computedDensity = distribution.evaluateCumulativeMarginalProbability( marginal, location( marginal ) );
         expectedDensity = gaussianDistribution4->evaluateCdf( location( 1 ) );
 
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ), 4.0 * std::numeric_limits< double >::epsilon( ) );
@@ -570,7 +570,7 @@ BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
         conditions.push_back( 0.2 );
 
         // Compute marginal cdf from kernel and theoretical value (marginalDimension = 0).
-        double computedDensity = distribution.getCumulativeConditionalMarginalProbability(
+        double computedDensity = distribution.evaluateCumulativeConditionalMarginalProbability(
                     conditionDimensions, conditions, marginal, location );
         double expectedDensity = ( gaussianDistribution1->evaluateCdf( location ) +
                                    gaussianDistribution2->evaluateCdf( location ) +
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
         conditionDimensions[0] = 0;
         conditions[ 0 ]  = 2.5;
         location = 0.2;
-        computedDensity = distribution.getCumulativeConditionalMarginalProbability(
+        computedDensity = distribution.evaluateCumulativeConditionalMarginalProbability(
                     conditionDimensions, conditions, marginal, location );
         expectedDensity = gaussianDistribution4->evaluateCdf( location );
 
@@ -596,3 +596,4 @@ BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
 } // namespace tudat
+x
