@@ -24,7 +24,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
+#include "Tudat/SimulationSetup/PropagationSetup/environmentUpdater.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 

@@ -13,7 +13,7 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/Propagators/stateTransitionMatrixInterface.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createStateDerivativePartials.h"
 

@@ -13,7 +13,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Tudat/Astrodynamics/Propagators/propagationOutput.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationOutput.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 
 namespace tudat

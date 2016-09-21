@@ -27,10 +27,11 @@
 #include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
-#include "Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h"
+#include "Tudat/SimulationSetup/PropagationSetup/setNumericallyIntegratedStates.h"
 #include "Tudat/Astrodynamics/Propagators/integrateEquations.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createStateDerivativeModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 

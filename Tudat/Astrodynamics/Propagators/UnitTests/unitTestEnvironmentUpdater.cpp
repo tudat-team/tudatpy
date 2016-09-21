@@ -23,7 +23,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"

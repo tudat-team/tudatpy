@@ -19,7 +19,6 @@
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
 

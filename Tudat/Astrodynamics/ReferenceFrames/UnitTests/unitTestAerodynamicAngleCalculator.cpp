@@ -10,7 +10,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
-#include <Tudat/Astrodynamics/Propagators/dynamicsSimulator.h>
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include <Tudat/External/SpiceInterface/spiceEphemeris.h>
 #include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
 #include <Tudat/InputOutput/basicInputOutput.h>

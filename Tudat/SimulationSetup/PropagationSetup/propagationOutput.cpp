@@ -9,7 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
-#include "Tudat/Astrodynamics/Propagators/propagationOutput.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationOutput.h"
 
 namespace tudat
 {

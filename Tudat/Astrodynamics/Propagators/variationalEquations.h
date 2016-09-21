@@ -14,7 +14,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
-#include "Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h"
+#include "Tudat/SimulationSetup/PropagationSetup/setNumericallyIntegratedStates.h"
 
 namespace tudat
 {

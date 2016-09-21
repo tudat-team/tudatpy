@@ -29,7 +29,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"

@@ -6,7 +6,8 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat

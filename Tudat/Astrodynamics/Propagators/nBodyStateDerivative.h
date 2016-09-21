@@ -23,7 +23,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 
 
 namespace tudat
@@ -31,6 +30,13 @@ namespace tudat
 
 namespace propagators
 {
+
+//! Enum listing propagator types for translational dynamics that can be used.
+enum TranslationalPropagatorType
+{
+    cowell = 0,
+    encke = 1
+};
 
 //! State derivative for the translational dynamics of N bodies
 /*!

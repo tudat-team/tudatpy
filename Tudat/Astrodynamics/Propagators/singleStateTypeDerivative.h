@@ -13,13 +13,22 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
-
 namespace tudat
 {
 
 namespace propagators
 {
+
+
+
+//! Enum listing types of dynamics that can be numerically integrated
+enum IntegratedStateType
+{
+    hybrid = 0,
+    transational_state = 1,
+    body_mass_state = 2
+};
+
 
 //! Base class for calculating the state derivative model for a single type of dynamics.
 /*!
