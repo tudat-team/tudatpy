@@ -35,12 +35,8 @@
 
 # Add source files.
 set(PROPAGATORS_SOURCES
-  "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationTermination.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
 )
@@ -53,15 +49,9 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
-  "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.h"
-  "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
-  "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
   "${SRCROOT}${PROPAGATORSDIR}/bodyMassStateDerivative.h"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationTermination.h"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.h"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.h"
-  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
 )

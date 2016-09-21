@@ -26,6 +26,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
+#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 
@@ -34,23 +36,6 @@ namespace tudat
 
 namespace propagators
 {
-
-
-//! Enum listing types of dynamics that can be numerically integrated
-enum IntegratedStateType
-{
-    hybrid = 0,
-    transational_state = 1,
-    body_mass_state = 2
-};
-
-
-//! Enum listing propagator types for translational dynamics that can be used.
-enum TranslationalPropagatorType
-{
-    cowell = 0,
-    encke = 1
-};
 
 //! Get size of state for single propagated state of given type.
 /*!

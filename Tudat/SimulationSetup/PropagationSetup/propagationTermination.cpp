@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/Propagators/propagationTermination.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 
 namespace tudat
 {

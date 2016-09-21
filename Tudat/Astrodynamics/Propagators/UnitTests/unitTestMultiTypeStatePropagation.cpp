@@ -28,7 +28,7 @@
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/InputOutput/basicInputOutput.h>
 
-#include <Tudat/Astrodynamics/Propagators/dynamicsSimulator.h>
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include <Tudat/External/SpiceInterface/spiceInterface.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>

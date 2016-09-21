@@ -19,10 +19,8 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/Astrodynamics/Propagators/propagationTermination.h"
 
 namespace tudat
 {

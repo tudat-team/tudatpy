@@ -18,7 +18,7 @@
 #include <Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
 
-#include <Tudat/Astrodynamics/Propagators/dynamicsSimulator.h>
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <Tudat/External/SpiceInterface/spiceInterface.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/body.h>

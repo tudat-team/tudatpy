@@ -32,7 +32,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
-#include "Tudat/Astrodynamics/Propagators/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {

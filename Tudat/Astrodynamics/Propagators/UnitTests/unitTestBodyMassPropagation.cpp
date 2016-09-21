@@ -18,7 +18,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup//propagationSettings.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 
 
 namespace tudat

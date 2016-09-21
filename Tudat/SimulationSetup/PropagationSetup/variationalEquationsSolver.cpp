@@ -1,4 +1,4 @@
-#include "Tudat/Astrodynamics/Propagators/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {
