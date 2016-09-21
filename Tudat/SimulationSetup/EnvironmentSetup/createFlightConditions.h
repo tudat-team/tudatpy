@@ -607,14 +607,10 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::function< double( ) > angleOfAttackFunction =
-        boost::lambda::constant ( 0.0 ),
-        const boost::function< double( ) > angleOfSideslipFunction =
-        boost::lambda::constant ( 0.0 ),
-        const boost::function< double( ) > bankAngleFunction =
-        boost::lambda::constant ( 0.0 ),
-        const boost::function< void( const double ) > angleUpdateFunction =
-        boost::function< void( const double ) >( ) );
+        const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
+        const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
+        const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
+        const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
 
 } // namespace simulation_setup

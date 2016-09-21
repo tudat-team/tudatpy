@@ -299,6 +299,7 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     return angleValue;
 }
 
+//! Function to set the trajectory<->body-fixed orientation angles.
 void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const boost::function< double( ) > angleOfAttackFunction,
         const boost::function< double( ) > angleOfSideslipFunction,
@@ -309,7 +310,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cerr<<"Warning, overriding existing angle of attack function in AerodynamicAngleCalculator"<<std::endl;
+            std::cout<<"Warning, overriding existing angle of attack function in AerodynamicAngleCalculator"<<std::endl;
         }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }

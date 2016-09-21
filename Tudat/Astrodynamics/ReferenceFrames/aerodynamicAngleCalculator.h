@@ -87,14 +87,10 @@ public:
             const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const std::string centralBodyName,
             const bool calculateVerticalToAerodynamicFrame = 0,
-            const boost::function< double( ) > angleOfAttackFunction =
-            boost::lambda::constant ( 0.0 ),
-            const boost::function< double( ) > angleOfSideslipFunction =
-            boost::lambda::constant ( 0.0 ),
-            const boost::function< double( ) > bankAngleFunction =
-            boost::lambda::constant ( 0.0 ),
-            const boost::function< void( const double ) > angleUpdateFunction =
-            boost::function< void( const double ) >( ) ):
+            const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
+            const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) ):
         DependentOrientationCalculator( ),
         bodyFixedStateFunction_( bodyFixedStateFunction ),
         rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
