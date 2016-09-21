@@ -121,25 +121,25 @@ public:
      */
     double evaluateCdf( const Eigen::VectorXd& independentVariables );
 
-    //! Function to evaluate probability density of joint marginal distribution.
+    //! Function to evaluate probability density of marginal (in one or more dimensions) distribution.
     /*!
-     * Function to evaluate probability density of joint marginal distribution,
-     * \param marginalDimensions Dimensions over which the average marginal probaility is to be computed
+     * Function to evaluate probability density of marginal (in one or more dimensions) distribution,
+     * \param marginalDimensions Dimensions over which the marginal probaility is to be computed
      * \param independentVariables Values of independent variables (in marginalDimensions) at which marginal
      * probability is to be computed
-     * \return Probability density of joint marginal distribution.
+     * \return Probability density of marginal distribution.
      */
-    double getMarginalProbabilityDensity(
+    double evaluateMarginalProbabilityDensity(
             const std::vector< int >& marginalDimensions, const Eigen::VectorXd& independentVariables );
 
     //! Function to evaluate marginal distribution density at single dimension.
     /*!
      * Function to evaluate marginal distribution density at single dimension.
-     *  \param marginalDimension Dimension in whihc the marginal distribution is to be computed
+     *  \param marginalDimension Dimension in which the marginal distribution is to be computed
      *  \param independentVariable Value of independent variable in dimension marginalDimension
      *  \return Probability density of marginal distribution at given dimension and independent variable.
      */
-    double getMarginalProbabilityDensity( const int marginalDimension, const double independentVariable );
+    double evaluateMarginalProbabilityDensity( const int marginalDimension, const double independentVariable );
 
     //! Function to evaluate cumulative probability of marginal distribution at single dimension.
     /*!
@@ -148,11 +148,11 @@ public:
      *  \param independentVariable Value of independent variable in dimension marginalDimension
      *  \return cumulative probability of marginal distribution at given dimension and independent variable.
      */
-    double getCumulativeMarginalProbability( const int marginalDimension, const double independentVariable );
+    double evaluateCumulativeMarginalProbability( const int marginalDimension, const double independentVariable );
 
-    //! Function to evaluate cumulative conditional probability of marginal distribution at single dimension
+    //! Function to evaluate cumulative probability of marginal distribution of conditional distribution at single dimension
     /*!
-     * Function to evaluate cumulative probability of marginal distribution at single dimension,
+     * Function to evaluate cumulative probability of marginal distribution of conditional distribution at single dimension,
      * given conditions of cdf on other dimensions
      * \param conditionDimensions List of dimensions in which cdf is given
      * \param conditions Independent variables at which values of cdf, in dimensions listed in conditionDimensions,
@@ -161,14 +161,14 @@ public:
      * \param independentVariable Independent variable at which conditional marginal cdf is to be computed
      * \return Cumulative conditional probability of marginal distribution at given settings.
      */
-    double getCumulativeConditionalMarginalProbability(
+    double evaluateCumulativeConditionalMarginalProbability(
             const std::vector< int >& conditionDimensions,
             const std::vector< double >& conditions,
             const int marginalDimension, const double independentVariable );
 
-    //! Function to evaluate conditional probability density of marginal distribution at single dimension
+    //! Function to evaluate probability density of marginal distribution of conditional distribution at single dimension
     /*!
-     * Function to evaluate probability density of marginal distribution at single dimension,
+     * Function to evaluate probability density of marginal distribution of conditional distribution at single dimension,
      * given conditions of cdf on other dimensions
      * \param conditionDimensions List of dimensions in which pdf is given
      * \param conditions Independent variables at which values of pdf, in dimensions listed in conditionDimensions,
@@ -177,15 +177,12 @@ public:
      * \param independentVariable Independent variable at which conditional marginal pdf is to be computed
      * \return Conditional pdf of marginal distribution at given settings.
      */
-    double getConditionalMarginalProbabilityDensity(
+    double evaluateConditionalMarginalProbabilityDensity(
             const std::vector< int >& conditionDimensions,
             const std::vector< double >& conditions,
             const int marginalDimension, const double independentVariable );
 
-    //! Compute optimal bandwidth using the provided samples and bandwidth scaling variable.
-    /*!
-     *  Compute optimal bandwidth using the provided samples and bandwidth scaling variable.
-     */
+    //! Compute optimal bandwidth using the provided samples.
     void computeOptimalBandWidth( );
 
     //! Function to retrieve the optimal bandwidth
@@ -254,7 +251,8 @@ public:
      * Function to retrieve the sample standard deviation.
      * \return Sample standard deviation.
      */
-    Eigen::VectorXd getSampleStandardDeviation( ){
+    Eigen::VectorXd getSampleStandardDeviation( )
+    {
 
         return sampleStandardDeviation_;
     }

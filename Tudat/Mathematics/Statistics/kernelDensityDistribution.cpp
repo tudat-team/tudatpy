@@ -295,7 +295,7 @@ double KernelDensityDistribution::evaluateCdf( const Eigen::VectorXd& independen
 }
 
 //! Get cumulative probability of marginal distribution
-double KernelDensityDistribution::getCumulativeMarginalProbability(
+double KernelDensityDistribution::evaluateCumulativeMarginalProbability(
         const int marginalDimension, const double independentVariable )
 {
     // Compute cdf at independentVariable in marginalDimension, averaged over all samples
@@ -308,7 +308,7 @@ double KernelDensityDistribution::getCumulativeMarginalProbability(
 }
 
 //! Function to evaluate probability density of joint marginal distribution.
-double KernelDensityDistribution::getMarginalProbabilityDensity(
+double KernelDensityDistribution::evaluateMarginalProbabilityDensity(
         const std::vector< int >& marginalDimensions, const Eigen::VectorXd& independentVariables )
 {
     double probabilityDensity = 0.0;
@@ -333,7 +333,7 @@ double KernelDensityDistribution::getMarginalProbabilityDensity(
 }
 
 //! Function to evaluate marginal distribution density at single dimension.
-double KernelDensityDistribution::getMarginalProbabilityDensity(
+double KernelDensityDistribution::evaluateMarginalProbabilityDensity(
         const int marginalDimension, const double independentVariable )
 {
     double probabilityDensity = 0.0;
@@ -347,11 +347,17 @@ double KernelDensityDistribution::getMarginalProbabilityDensity(
 }
 
 //! Function to evaluate cumulative conditional probability of marginal distribution at single dimension
-double KernelDensityDistribution::getCumulativeConditionalMarginalProbability(
+double KernelDensityDistribution::evaluateCumulativeConditionalMarginalProbability(
         const std::vector< int >& conditionDimensions,
         const std::vector< double >& conditions,
         const int marginalDimension, const double independentVariable )
 {
+    if( std::find( conditionDimensions.begin( ), conditionDimensions.end( ), marginalDimension ) !=
+            conditionDimensions.end( ) )
+    {
+        throw std::runtime_error( "Error when evaluatiing cumulative conditional marginal kernel density probability, repeated indices found" );
+    }
+
     double marginalConditionalCdfOfCurrentKernel = 1.0;
     double normalizationFactor = 0.0;
     double marginalValue = 0.0;
@@ -378,11 +384,17 @@ double KernelDensityDistribution::getCumulativeConditionalMarginalProbability(
 }
 
 //! Function to evaluate conditional probability density of marginal distribution at single dimension
-double KernelDensityDistribution::getConditionalMarginalProbabilityDensity(
+double KernelDensityDistribution::evaluateConditionalMarginalProbabilityDensity(
         const std::vector< int >& conditionDimensions,
         const std::vector< double >& conditions,
         const int marginalDimension, const double independentVariable )
 {
+    if( std::find( conditionDimensions.begin( ), conditionDimensions.end( ), marginalDimension ) !=
+            conditionDimensions.end( ) )
+    {
+        throw std::runtime_error( "Error when evaluatiing conditional marginal kernel density probability, repeated indices found" );
+    }
+
     double marginalConditionalPdfOfCurrentKernel = 1.0;
     double normalizationFactor = 0.0;
     double marginalValue = 0.0;
