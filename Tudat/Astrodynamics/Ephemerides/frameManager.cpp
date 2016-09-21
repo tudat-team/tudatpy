@@ -35,28 +35,6 @@ bool isFrameInertial( const std::string& frame )
     return isFrameInertial_;
 }
 
-
-//! Constructor from named list of bodies.
-ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyMap& bodyMap )
-{
-    // Get ephemerides from bodies
-    std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerides;
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
-    {
-        if( bodyIterator->second->getEphemeris( ) != NULL )
-        {
-            ephemerides[ bodyIterator->first ] = bodyIterator->second->getEphemeris( );
-        }
-    }
-
-    // Set name of global base frame.
-    frameIndexList_[ getBaseFrameName( ) ] = -1;
-
-    // Initialize frame book-keeping variables.
-    setEphemerides( ephemerides );
-}
-
 //! Constructor from named list of ephemerides.
 ReferenceFrameManager::ReferenceFrameManager(
         const std::map< std::string, boost::shared_ptr< Ephemeris > >& ephemerisMap )

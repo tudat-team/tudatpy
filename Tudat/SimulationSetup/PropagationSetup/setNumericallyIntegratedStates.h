@@ -290,19 +290,6 @@ void resetIntegratedBodyMass(
     }
 }
 
-//! Function to determine in which order the ephemerides are to be updated
-/*!
- * Function to determine in which order the ephemerides are to be updated. The order depends on the
- * dependencies between the ephemeris/integration origins. 
- * \param integratedBodies List of bodies that are numerically integrated.
- * \param centralBodies List of origins w.r.t. the integratedBodies' translational dynamics is propagated.
- * \param ephemerisOrigins Origin of the Ephemeris objects of the integratedBodies.
- * \return
- */
-std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::string > integratedBodies,
-                                                          std::vector< std::string > centralBodies,
-                                                          std::vector< std::string > ephemerisOrigins );
-
 //! Base class for settings how numerically integrated states are processed
 /*!
  *  Base class for defining settings on how numerically integrated states are to be processed in the

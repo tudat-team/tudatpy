@@ -72,56 +72,6 @@ ObservableType getObservableType( const std::string& observableName )
     return observableType;
 }
 
-std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
-        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds )
-{
-    std::vector< int > linkEndIndices;
-
-    switch( observableType )
-    {
-    case oneWayRange:
-        switch( linkEndType )
-        {
-        case transmitter:
-            linkEndIndices.push_back( 0 );
-            break;
-        case receiver:
-            linkEndIndices.push_back( 1 );
-            break;
-        default:
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
-        }
-        break;
-    case angular_position:
-        switch( linkEndType )
-        {
-        case transmitter:
-            linkEndIndices.push_back( 0 );
-            break;
-        case receiver:
-            linkEndIndices.push_back( 1 );
-            break;
-        default:
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
-        }
-        break;
-    case position_observable:
-        if( linkEndType == observed_body )
-        {
-            linkEndIndices.push_back( 0 );
-        }
-        else
-        {
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
-        }
-
-    default:
-        std::cerr<<"Error, could not find link end type index of observable "<<observableType<<std::endl;
-    }
-
-    return linkEndIndices;
-}
-
 }
 
 }

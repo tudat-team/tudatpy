@@ -37,22 +37,6 @@ namespace tudat
 namespace propagators
 {
 
-//! Get size of state for single propagated state of given type.
-/*!
- * Get size of state for single propagated state of given type (i.e. 6 for translational state).
- * \param stateType Type of state
- * \return Size of single state.
- */
-int getSingleIntegrationSize( const IntegratedStateType stateType );
-
-//! Get order of differential equation for governing equations of dynamics of given type.
-/*!
- * Get order of differential equation for governing equations of dynamics of given type (i.e. 2 for translational state).
- * \param stateType Type of state
- * \return Order of differential equations.
- */
-int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
-
 //! Base class for defining setting of a propagator
 /*!
  *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
@@ -647,7 +631,6 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
     return integratedStateList;
 }
-
 
 } // namespace propagators
 

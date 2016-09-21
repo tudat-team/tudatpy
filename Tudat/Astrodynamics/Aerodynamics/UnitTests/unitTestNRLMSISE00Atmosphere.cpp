@@ -1069,7 +1069,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
 
 //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
     // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(2030,6,21,8,3,20) ;
+    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
     double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
                     julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
 
@@ -1114,7 +1114,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
 
 //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
     // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(2030,6,21,8,3,20) ;
+    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
     double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
                     julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
 

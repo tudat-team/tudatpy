@@ -21,85 +21,13 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename TimeType >
-Eigen::Matrix< long double, 6, 1 > convertLongDoubleStateFromDoubleStateFunction(
-        const TimeType& time, const boost::function< basic_mathematics::Vector6d( const TimeType& ) >& doubleStateFunction )
-{
-    return ( doubleStateFunction( time ) ).template cast< long double >( );
-}
-
-
-template< typename ScalarStateType = double >
-Eigen::Matrix< ScalarStateType, 6, 1 > calculateCurrentInertialReferencePointState(
-        boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > bodyStateFunction,
-        boost::function< Eigen::Quaterniond( ) > bodyRotationFunction,
-        boost::function< Eigen::Vector3d( ) > bodyFixedReferencePointStateFunction,
-        boost::function< Eigen::Matrix3d( ) > bodyDerivativeRotationFunction = boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) )
-{
-    return bodyStateFunction( ) +
-            convertStateToInertialFrame(
-                ( Eigen::Matrix< ScalarStateType, 6, 1 >( )<< bodyFixedReferencePointStateFunction( ).template cast< ScalarStateType >( ),
-                  Eigen::Matrix< ScalarStateType, 3, 1 >( ) ).finished( ),
-                bodyRotationFunction( ).toRotationMatrix( ), bodyDerivativeRotationFunction( ) );
-
-}
-
-template< typename ScalarStateType = double >
-boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > createReferencePointStateFunction(
-        boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
-        boost::function< Eigen::Vector3d( ) > bodyFixedReferencePointStateFunction )
-{
-    boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( ) > bodyStateFunction =
-            boost::bind( &simulation_setup::Body::getTemplatedState< ScalarStateType >, bodyWithReferencePoint );
-    boost::function< Eigen::Quaterniond( ) > bodyRotationFunction =
-            boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, bodyWithReferencePoint );
-    boost::function< Eigen::Matrix3d( ) > bodyRotationDerivativeFunction =
-            boost::bind( &simulation_setup::Body::getCurrentRotationMatrixDerivativeToGlobalFrame, bodyWithReferencePoint );
-    return boost::bind( &calculateCurrentInertialReferencePointState< ScalarStateType >, bodyStateFunction, bodyRotationFunction,
-                        bodyFixedReferencePointStateFunction, bodyRotationDerivativeFunction );
-}
-
-template< typename TimeType = double, typename ScalarStateType = double >
-boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
-        boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
-        boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
-        boost::function< basic_mathematics::Vector6d( const TimeType& ) > referencePointStateFunction );
-
-template< typename TimeType = double, typename ScalarStateType = double >
-boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
-        const boost::shared_ptr< simulation_setup::Body > bodyWithLinkEnd, const std::pair< std::string, std::string >& linkEndId )
-{
-    typedef Eigen::Matrix< ScalarStateType, 6, 1 > StateType;
-
-    boost::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
-
-    // Checking transmitter is a S/C
-    if( linkEndId.second != "" )
-    {
-        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
-        {
-            std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", station not found"<<std::endl;
-        }
-
-        // Retrieve function to calculate state of transmitter S/C
-        linkEndCompleteEphemerisFunction =
-                boost::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< ScalarStateType,TimeType >,
-                             createReferencePointEphemeris< TimeType, ScalarStateType >(
-                                 bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
-                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame< TimeType >,
-                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
-
-    }
-    // Else, transmitter is S/C
-    else
-    {
-        // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
-                                                        bodyWithLinkEnd, _1 );
-    }
-    return linkEndCompleteEphemerisFunction;
-}
-
+//! Function to create a state function of a link end, expressed in base frame.
+/*!
+ *  Function to create a state function of a link end, expressed in base frame.
+ *  \param linkEndId Name of the reference point for which state function is to be created.
+ *  \param bodyMap List of body objects that comprises the environment
+ *  \return Requested state function.
+ */
 template< typename TimeType = double, typename ScalarStateType = double >
 boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
         const std::pair< std::string, std::string > linkEndId, const simulation_setup::NamedBodyMap& bodyMap )

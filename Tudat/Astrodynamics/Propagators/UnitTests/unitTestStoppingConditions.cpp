@@ -22,7 +22,7 @@
 #include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <Tudat/External/SpiceInterface/spiceInterface.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h>
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 #include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
 #include <Tudat/InputOutput/basicInputOutput.h>
 
