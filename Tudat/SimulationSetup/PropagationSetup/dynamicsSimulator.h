@@ -11,6 +11,9 @@
 #ifndef TUDAT_DYNAMICSSIMULATOR_H
 #define TUDAT_DYNAMICSSIMULATOR_H
 
+#include <vector>
+#include <string>
+
 #include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
 
