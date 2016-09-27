@@ -280,15 +280,6 @@ private:
 
 };
 
-//! Function to set the angle of attack to trimmed conditions.
-/*!
- * Function to set the angle of attack to trimmed conditions. Using this function requires teh aerodynamic coefficient
- * interface to be dependent on the angle of attack.
- * \param flightConditions Flight conditions for body that is to have trimmed conditions.
- */
-boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< FlightConditions > flightConditions );
-
 } // namespace aerodynamics
 
 } // namespace tudat
