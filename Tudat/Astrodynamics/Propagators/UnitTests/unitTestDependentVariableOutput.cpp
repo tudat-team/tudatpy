@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
-    setTrimmedConditions( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+    setTrimmedConditions( bodyMap.at( "Apollo" ) );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >

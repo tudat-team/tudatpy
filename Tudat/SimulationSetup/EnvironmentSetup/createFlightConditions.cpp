@@ -223,6 +223,38 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 }
 
 
+//! Function to set the angle of attack to trimmed conditions.
+boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions )
+{
+    // Create trim object.
+    boost::shared_ptr< aerodynamics::TrimOrientationCalculator > trimOrientation =
+            boost::make_shared< aerodynamics::TrimOrientationCalculator >(
+                flightConditions->getAerodynamicCoefficientInterface( ) );
+
+    // Create angle-of-attack function from trim object.
+    boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            boost::bind( &aerodynamics::FlightConditions::getAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                boost::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
+                             untrimmedIndependentVariablesFunction ) );
+
+    return trimOrientation;
+}
+
+//! Function to set the angle of attack to trimmed conditions.
+boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const boost::shared_ptr< Body > bodyWithFlightConditions )
+{
+    if( bodyWithFlightConditions->getFlightConditions( ) == NULL )
+    {
+        throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
+    }
+
+    return setTrimmedConditions( bodyWithFlightConditions->getFlightConditions( ) );
+}
+
 //! Function that must be called to link the EntryGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
