@@ -153,7 +153,7 @@ public:
      */
     ThrustAccelerationSettings(
             const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-            const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings):
+            const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
         thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }

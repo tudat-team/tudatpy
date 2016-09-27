@@ -45,5 +45,6 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/thrustSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 
 #endif // TUDATSIMULATIONHEADER_H

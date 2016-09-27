@@ -67,7 +67,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
   "${SRCROOT}${AERODYNAMICSDIR}//UnitTests/testApolloCapsuleCoefficients.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
-  "${SRCROOT}${AERODYNAMICSDIR}/entryGuidance.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
 )
 
 if(USE_NRLMSISE00)
