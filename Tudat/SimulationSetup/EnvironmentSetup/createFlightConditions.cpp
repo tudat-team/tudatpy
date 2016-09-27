@@ -222,6 +222,39 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 
 }
 
+
+//! Function that must be called to link the EntryGuidance object to the simulation
+void setGuidanceAnglesFunctions(
+        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator )
+{
+    angleCalculator->setOrientationAngleFunctions(
+                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
+                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
+                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
+                boost::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance,_1 ) );
+}
+
+//! Function that must be called to link the EntryGuidance object to the simulation
+void setGuidanceAnglesFunctions(
+        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const boost::shared_ptr< simulation_setup::Body > bodyWithAngles )
+{
+    boost::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
+            bodyWithAngles->getDependentOrientationCalculator( );
+    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
+
+    if( angleCalculator == NULL )
+    {
+        throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
+    }
+    else
+    {
+        setGuidanceAnglesFunctions( aerodynamicGuidance, angleCalculator );
+    }
+}
+
 } // namespace simulation_setup
 
 } // namespace tudat

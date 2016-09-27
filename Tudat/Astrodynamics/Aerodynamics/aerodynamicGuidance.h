@@ -14,16 +14,16 @@ namespace aerodynamics
 
 //! Base class in which the aerodynamic angles (angle of attack, sideslip and bank angle) are computed. A derived class
 //! implementing a specific guidance law is to be implemented by the user.
-class EntryGuidance
+class AerodynamicGuidance
 {
 public:
 
     //! Constructor.
-    EntryGuidance( ):
+    AerodynamicGuidance( ):
         currentAngleOfAttack_( TUDAT_NAN ), currentAngleOfSideslip_( TUDAT_NAN ), currentBankAngle_( TUDAT_NAN ){ }
 
     //! Destructor
-    virtual ~EntryGuidance( ){ }
+    virtual ~AerodynamicGuidance( ){ }
 
     //! Pure virtual function to update the guidance to the current time and state
     /*!
@@ -74,16 +74,6 @@ protected:
     double currentBankAngle_;
 
 };
-
-//! Function that must be called to link the EntryGuidance object to the simulation
-/*!
- * Function that must be called to link the EntryGuidance object to the simulation
- * \param entryGuidance Object computing the current aerodynamic angles.
- * \param angleCalculator Object that handles all aerodynamic angles in the numerical propagation
- */
-void setGuidanceAnglesFunctions(
-        const boost::shared_ptr< EntryGuidance > entryGuidance,
-        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator );
 
 }
 

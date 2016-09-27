@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicGuidance.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
@@ -612,6 +613,26 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
         const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
+
+//! Function that must be called to link the EntryGuidance object to the simulation
+/*!
+ * Function that must be called to link the EntryGuidance object to the simulation
+ * \param aerodynamicGuidance Object computing the current aerodynamic angles.
+ * \param angleCalculator Object that handles all aerodynamic angles in the numerical propagation
+ */
+void setGuidanceAnglesFunctions(
+        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator );
+
+//! Function that must be called to link the EntryGuidance object to the simulation
+/*!
+ * Function that must be called to link the EntryGuidance object to the simulation
+ * \param aerodynamicGuidance Object computing the current aerodynamic angles.
+ * \param bodyWithAngles Body for which the orientation is to be controlled.
+ */
+void setGuidanceAnglesFunctions(
+        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const boost::shared_ptr< simulation_setup::Body > bodyWithAngles );
 
 } // namespace simulation_setup
 
