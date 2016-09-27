@@ -1,6 +1,8 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+#include <vector>
+
 #include <map>
 #include <boost/function.hpp>
 #include <Eigen/Core>
