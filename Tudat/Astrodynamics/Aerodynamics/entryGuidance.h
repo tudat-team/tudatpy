@@ -85,8 +85,8 @@ void setGuidanceAnglesFunctions(
         const boost::shared_ptr< EntryGuidance > entryGuidance,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator );
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ENTRYGUIDANCE_H

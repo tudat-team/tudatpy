@@ -251,8 +251,8 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix  );
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H

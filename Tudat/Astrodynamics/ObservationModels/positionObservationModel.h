@@ -116,8 +116,8 @@ private:
     boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction_;
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_POSITIONOBSERVATIONMODEL_H

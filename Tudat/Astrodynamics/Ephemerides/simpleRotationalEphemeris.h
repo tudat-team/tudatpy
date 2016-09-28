@@ -281,7 +281,7 @@ private:
     Eigen::Matrix3d auxiliaryMatrix_;
 };
 
-} // namespace tudat
 } // namespace ephemerides
+} // namespace tudat
 
 #endif // TUDAT_SIMPLE_ROTATIONAL_EPHEMERIS_H

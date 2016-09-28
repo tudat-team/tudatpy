@@ -44,7 +44,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
                                                               const Eigen::Vector3d& receiverPosition,
                                                               const Eigen::Vector3d& centralBodyPosition,
                                                               const double ppnParameterGamma = 1.0 );
-}
+} // namespace relativity
 
-}
+} // namespace tudat
 #endif // TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H

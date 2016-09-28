@@ -83,7 +83,7 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
                 3.9116, momentReference );
 }
 
-}
+} // namespace unit_tests
 
-}
+} // namespace tudat
 #endif // TUDAT_TESTAPOLLOCAPSULECOEFFICIENTS_H

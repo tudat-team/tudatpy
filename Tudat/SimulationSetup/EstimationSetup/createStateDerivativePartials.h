@@ -82,8 +82,8 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
     return stateDerivativePartials;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATESTATEDERIVATIVEPARTIALS_H

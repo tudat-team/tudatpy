@@ -115,8 +115,8 @@ void createVectorBlockMatrixHistory(
     }
 }
 
-}
+} // namespace utilities
 
-}
+} // namespace tudat
 
 #endif // TUDAT_UTILITIES_H

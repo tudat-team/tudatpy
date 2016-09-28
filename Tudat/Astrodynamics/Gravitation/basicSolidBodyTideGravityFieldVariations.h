@@ -557,7 +557,7 @@ protected:
 
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 #endif // TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H

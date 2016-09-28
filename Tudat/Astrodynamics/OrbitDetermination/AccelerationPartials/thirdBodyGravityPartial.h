@@ -493,9 +493,9 @@ private:
 
 };
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_THIRDBODYGRAVITYPARTIAL_H

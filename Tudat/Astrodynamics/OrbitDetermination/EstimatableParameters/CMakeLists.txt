@@ -17,7 +17,6 @@
 # Set the source files.
 set(ESTIMATABLE_PARAMETERS_SOURCES
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/estimatableParameter.cpp"
-  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/initialTranslationalState.cpp"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.cpp"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.cpp"
 )

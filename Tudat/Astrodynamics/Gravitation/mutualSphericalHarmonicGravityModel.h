@@ -260,8 +260,8 @@ protected:
 
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 
 #endif // TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H

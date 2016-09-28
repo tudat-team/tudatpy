@@ -24,7 +24,7 @@
 #ifndef TUDAT_SURFACEGEOMETRY_H
 #define TUDAT_SURFACEGEOMETRY_H
 
-#include<iostream>
+#include <iostream>
 
 //! Tudat library namespace.
 /*!
@@ -53,6 +53,6 @@ protected:
 private:
 };
 
-}
+} // namespace tudat
 
 #endif // TUDAT_SURFACEGEOMETRY_H

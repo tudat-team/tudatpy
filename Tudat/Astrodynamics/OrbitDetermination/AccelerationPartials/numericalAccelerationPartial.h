@@ -104,8 +104,8 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
         boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_NUMERICALACCELERATIONPARTIAL_H

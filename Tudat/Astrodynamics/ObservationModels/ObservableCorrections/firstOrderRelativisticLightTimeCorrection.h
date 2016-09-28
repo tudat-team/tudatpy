@@ -192,7 +192,7 @@ private:
     double currentTotalLightTimeCorrection_;
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 #endif // TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H

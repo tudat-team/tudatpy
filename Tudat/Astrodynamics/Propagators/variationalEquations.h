@@ -478,8 +478,8 @@ private:
 };
 
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_VARIATIONALEQUATIONS_H
