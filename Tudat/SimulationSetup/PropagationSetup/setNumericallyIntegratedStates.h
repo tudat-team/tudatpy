@@ -210,7 +210,7 @@ void resetIntegratedEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate,
-        const std::pair< int, int > startIndexAndSize,
+        const std::pair< unsigned int, unsigned int > startIndexAndSize,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
         const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
             integrationToEphemerisFrameFunctions =
@@ -259,7 +259,7 @@ void resetIntegratedBodyMass(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate ,
-        const std::pair< int, int > startIndexAndSize )
+        const std::pair< unsigned int, unsigned int > startIndexAndSize )
 {
     if( startIndexAndSize.second != bodiesToIntegrate.size( ) )
     {
