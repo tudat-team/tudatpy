@@ -86,8 +86,8 @@ private:
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CONSTANTROTATIONALORIENTATION_H

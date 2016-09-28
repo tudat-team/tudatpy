@@ -160,8 +160,8 @@ protected:
     boost::function< double( ) > massFlowFunction_;
 };
 
-}
+} // namespace system_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ENGINEMODEL_H

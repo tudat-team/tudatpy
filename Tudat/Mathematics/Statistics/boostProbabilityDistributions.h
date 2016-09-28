@@ -105,9 +105,9 @@ private:
 boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
         const ContinuousBoostStatisticalDistributions boostDistribution, const std::vector< double >& parameters );
 
-}
+} // namespace statistics
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H

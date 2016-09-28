@@ -79,9 +79,9 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
 basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
         const basic_mathematics::Vector6d& sphericalOrbitalState );
 
-} // namespace tudat
-
 } // namespace orbital_element_conversions
+
+} // namespace tudat
 
 
 #endif // TUDAT_SPHERICALSTATECONVERSIONS_H

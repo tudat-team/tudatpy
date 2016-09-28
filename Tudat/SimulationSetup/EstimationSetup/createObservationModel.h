@@ -283,8 +283,8 @@ public:
     }
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEOBSERVATIONMODEL_H

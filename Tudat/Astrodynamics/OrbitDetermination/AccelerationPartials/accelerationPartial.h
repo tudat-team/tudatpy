@@ -368,8 +368,8 @@ protected:
 };
 
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ACCELERATIONPARTIALS_H

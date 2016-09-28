@@ -93,7 +93,7 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
-} // close namespace orbital_element_conversion
+} // namespace orbital_element_conversions
 
 } // close tudat
 

@@ -210,8 +210,8 @@ typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, 
 boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 
-}
+} // namespace observation_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ROTATIONMATRIXPARTIAL_H

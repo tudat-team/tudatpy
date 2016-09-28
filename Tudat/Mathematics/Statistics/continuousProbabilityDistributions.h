@@ -106,8 +106,8 @@ public:
     virtual double evaluateInverseCdf( const IndependentVariableType independentVariable ) = 0;
 };
 
-}
+} // namespace statistics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CONTINUOUSPROBABILITYDISTRIBUTIONS_H

@@ -134,8 +134,8 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
 }
 
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 #endif // TUDAT_INITIALTRANSLATIONALSTATE_H

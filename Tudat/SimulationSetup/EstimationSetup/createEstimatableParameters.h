@@ -203,8 +203,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
 }
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEESTIMATABLEPARAMETERS_H

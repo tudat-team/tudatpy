@@ -121,8 +121,8 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
 }
 
 
-}
+} // namespace observation_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEPOSITIONPARTIALS_H

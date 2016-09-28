@@ -288,8 +288,8 @@ DependentVariableType > > createFixedStepSizeIntegrator(
     return integrator;
 }
 
-}
+} // namespace numerical_integrators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATENUMERICALINTEGRATOR_H

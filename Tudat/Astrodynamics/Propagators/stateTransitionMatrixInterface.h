@@ -211,7 +211,7 @@ private:
     sensitivityMatrixInterpolator_;
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 #endif // TUDAT_STATETRANSITIONMATRIXINTERFACE_H

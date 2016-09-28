@@ -314,7 +314,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
         {
             // Declare string containing part of name of object.
-            string namePart_;
+            std::string namePart_;
 
             // Loop through the stringstream and read words that constitute name of
             // object. Store name parts in objectName storage container.

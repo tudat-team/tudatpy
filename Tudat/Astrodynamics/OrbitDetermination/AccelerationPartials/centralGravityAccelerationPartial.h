@@ -243,8 +243,8 @@ protected:
 
 };
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H

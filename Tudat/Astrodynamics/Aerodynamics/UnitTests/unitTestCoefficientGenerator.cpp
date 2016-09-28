@@ -282,9 +282,9 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
             = boost::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
-    vector< int > numberOfLines( 4 );
-    vector< int > numberOfPoints( 4 );
-    vector< bool > invertOrders( 4 );
+    std::vector< int > numberOfLines( 4 );
+    std::vector< int > numberOfPoints( 4 );
+    std::vector< bool > invertOrders( 4 );
 
     // Set number of analysis points.
     numberOfLines[ 0 ] = 31;

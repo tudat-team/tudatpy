@@ -79,9 +79,9 @@ private:
 
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_GRAVITATIONALPARAMETER_H

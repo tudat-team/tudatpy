@@ -46,7 +46,7 @@ void addEnvironmentUpdates(
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
         updatesToAdd );
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 #endif // TUDAT_ENVIRONMENTUPDATETYPES_H
