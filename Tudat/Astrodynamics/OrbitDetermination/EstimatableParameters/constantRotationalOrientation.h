@@ -15,8 +15,6 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 
-using std::string;
-
 namespace tudat
 {
 
