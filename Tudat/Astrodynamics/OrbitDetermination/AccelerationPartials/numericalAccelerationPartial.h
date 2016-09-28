@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef NUMERICALACCELERATIONPARTIAL_H
-#define NUMERICALACCELERATIONPARTIAL_H
+#ifndef TUDAT_NUMERICALACCELERATIONPARTIAL_H
+#define TUDAT_NUMERICALACCELERATIONPARTIAL_H
 
 #include <boost/function.hpp>
 
@@ -108,4 +108,4 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
 
 }
 
-#endif // NUMERICALACCELERATIONPARTIAL_H
+#endif // TUDAT_NUMERICALACCELERATIONPARTIAL_H

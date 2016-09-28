@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef RELATIVISTICLIGHTTIMECORRECTIONS_H
-#define RELATIVISTICLIGHTTIMECORRECTIONS_H
+#ifndef TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
+#define TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include <cmath>
@@ -47,4 +47,4 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 }
 
 }
-#endif // RELATIVISTICLIGHTTIMECORRECTIONS_H
+#endif // TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H

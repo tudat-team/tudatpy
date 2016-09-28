@@ -98,4 +98,4 @@ createSingleArcVariationalEquationsSolver(
 
 }
 
-#endif // CREATENUMERICALSIMULATOR_H
+#endif // TUDAT_CREATENUMERICALSIMULATOR_H

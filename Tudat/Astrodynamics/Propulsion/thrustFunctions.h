@@ -43,4 +43,4 @@ double computePropellantMassRateFromSpecificImpulse(
 } // namespace tudat
 
 
-#endif // THRUSTFUNCTIONS_H
+#endif // TUDAT_THRUSTFUNCTIONS_H

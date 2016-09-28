@@ -214,4 +214,4 @@ boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatri
 
 }
 
-#endif
+#endif // TUDAT_ROTATIONMATRIXPARTIAL_H
