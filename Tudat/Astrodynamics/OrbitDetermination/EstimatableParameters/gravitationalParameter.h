@@ -14,8 +14,6 @@
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
-using std::string;
-
 namespace tudat
 {
 

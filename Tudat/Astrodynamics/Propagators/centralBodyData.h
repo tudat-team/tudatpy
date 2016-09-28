@@ -187,7 +187,7 @@ public:
             const bool areInputStateLocal = true )
     {
         localInternalState_ =  internalState;
-        if( referenceFrameOriginStates.size( ) != updateOrder_.size( ) )\
+        if( referenceFrameOriginStates.size( ) != updateOrder_.size( ) )
         {
             referenceFrameOriginStates.resize( updateOrder_.size( ) );
         }

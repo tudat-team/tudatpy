@@ -62,32 +62,31 @@ BOOST_AUTO_TEST_SUITE( test_missile_datcom_data )
 BOOST_AUTO_TEST_CASE( testMissileDatcomData )
 {
     using namespace input_output;
-    using std::string;
 
     // Read and process data file.
-    string fileLocation = getTudatRootPath( )
+    std::string fileLocation = getTudatRootPath( )
             + "InputOutput/UnitTests/inputForBenchMarkMissileDatcomData.dat";
     MissileDatcomData myMissileDatcomData( fileLocation );
 
     // Set name of file and path to write to and from.
-    string outputFileName = getTudatRootPath( ) + "InputOutput/UnitTests/bodyTailConfiguration";
+    std::string outputFileName = getTudatRootPath( ) + "InputOutput/UnitTests/bodyTailConfiguration";
 
     // Write files for coefficients at each angle of attack.
     myMissileDatcomData.writeCoefficientsToFile( outputFileName, 9, 2 );
 
     // Read benchmark files and check if all entries are equal to those written by DatcomData
-    string totalPath;
+    std::string totalPath;
     Eigen::MatrixXd benchmarkFile, tudatFile;
 
     for ( int i = 0; i < 5; i++ )
     {
         // Read file just written
-        totalPath = outputFileName + "_" + boost::lexical_cast< string >( i );
+        totalPath = outputFileName + "_" + boost::lexical_cast< std::string >( i );
         tudatFile = readMatrixFromFile( totalPath );
 
         // Read benchmark file
         totalPath = getTudatRootPath( ) + "InputOutput/UnitTests/benchmark_"
-                + boost::lexical_cast< string >( i );
+                + boost::lexical_cast< std::string >( i );
         benchmarkFile = readMatrixFromFile( totalPath );
 
         // Iterate over all entries and check values.

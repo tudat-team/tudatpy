@@ -94,6 +94,12 @@ private:
 
 };
 
+//! Function to retrieve the size of the estimatable parameter set.
+/*!
+ *  Function to retrieve the size of the estimatable parameter set.
+ *  \param estimatableParameterSet Set of estimatable parameters.
+ *  \return Size of parameter set.
+ */
 template< typename InitialStateParameterType = double >
 int getSingleArcParameterSetSize(
         boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
@@ -113,6 +119,12 @@ int getSingleArcParameterSetSize(
     return totalParameterSetSize;
 }
 
+//! Function to retrieve the size of the dynamical state.
+/*!
+ *  Function to retrieve the size of the dynamical state.
+ *  \param estimatableParameterSet Set of estimatable parameters.
+ *  \return Size of the initial dynamical state.
+ */
 template< typename InitialStateParameterType = double >
 int getSingleArcInitialDynamicalStateParameterSetSize(
         boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
