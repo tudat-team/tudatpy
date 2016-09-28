@@ -9,8 +9,8 @@
  */
 
 
-#ifndef ENVIRONMENTUPDATETYPES_H
-#define ENVIRONMENTUPDATETYPES_H
+#ifndef TUDAT_ENVIRONMENTUPDATETYPES_H
+#define TUDAT_ENVIRONMENTUPDATETYPES_H
 
 #include <string>
 #include <vector>
@@ -49,4 +49,4 @@ void addEnvironmentUpdates(
 }
 
 }
-#endif // ENVIRONMENTUPDATETYPES_H
+#endif // TUDAT_ENVIRONMENTUPDATETYPES_H

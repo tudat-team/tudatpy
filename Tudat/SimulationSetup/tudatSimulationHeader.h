@@ -9,8 +9,8 @@
  */
 
 
-#ifndef TUDATSIMULATIONHEADER_H
-#define TUDATSIMULATIONHEADER_H
+#ifndef TUDAT_SIMULATIONHEADER_H
+#define TUDAT_SIMULATIONHEADER_H
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
@@ -46,4 +46,4 @@
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/thrustSettings.h"
 
-#endif // TUDATSIMULATIONHEADER_H
+#endif // TUDAT_SIMULATIONHEADER_H

@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef POSITIONOBSERVATIONMODEL_H
-#define POSITIONOBSERVATIONMODEL_H
+#ifndef TUDAT_POSITIONOBSERVATIONMODEL_H
+#define TUDAT_POSITIONOBSERVATIONMODEL_H
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -120,4 +120,4 @@ private:
 
 }
 
-#endif // POSITIONOBSERVATIONMODEL_H
+#endif // TUDAT_POSITIONOBSERVATIONMODEL_H

@@ -140,4 +140,4 @@ boost::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRand
 
 }
 
-#endif // RANDOMVARIABLEGENERATION_H
+#endif // TUDAT_RANDOMVARIABLEGENERATION_H
