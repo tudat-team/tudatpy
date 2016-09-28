@@ -380,7 +380,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     }
     for( unsigned int i = 4; i < maximumIndex; i++ )
     {
-        std::cout<<"Run: "<<i<<std::endl;
         // Create Earth object
         std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
                 getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );

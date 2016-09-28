@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
@@ -203,6 +201,7 @@ boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
     return trimOrientation;
 }
 
-}
 
-}
+} // namespace aerodynamics
+
+} // namespace tudat

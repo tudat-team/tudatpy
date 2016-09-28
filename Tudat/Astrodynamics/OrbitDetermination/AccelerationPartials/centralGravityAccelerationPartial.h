@@ -11,8 +11,6 @@
 #ifndef TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H
 #define TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"

@@ -202,7 +202,7 @@ public:
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
             = boost::lambda::constant( StateMatrix::Zero( ) ),
-            const bool isMutualAttractionUsed = 0 )
+            const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 boost::lambda::constant( aGravitationalParameter ),
                 positionOfBodyExertingAccelerationFunction,
@@ -236,7 +236,7 @@ public:
             const boost::function< double( ) > aGravitationalParameterFunction,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
             = boost::lambda::constant( StateMatrix::Zero( ) ),
-            const bool isMutualAttractionUsed = 0 )
+            const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction,
