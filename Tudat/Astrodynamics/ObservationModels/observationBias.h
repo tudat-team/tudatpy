@@ -11,7 +11,6 @@
 #ifndef TUDAT_OBSERVATIONBIAS_H
 #define TUDAT_OBSERVATIONBIAS_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>

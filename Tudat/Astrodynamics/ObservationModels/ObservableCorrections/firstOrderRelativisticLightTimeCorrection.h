@@ -13,7 +13,6 @@
 
 #include <cmath>
 #include <vector>
-#include <iostream>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>

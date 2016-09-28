@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"

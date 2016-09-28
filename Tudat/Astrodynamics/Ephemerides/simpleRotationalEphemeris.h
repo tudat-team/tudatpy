@@ -214,7 +214,7 @@ public:
      * \return Rotation rate [rad/s].
      */
     double getRotationRate( ) { return rotationRate_; }
-\
+
     //! Function to reset the rotation rate of the body.
     /*!
      * Function to reset the rotation rate of the body.
