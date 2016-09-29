@@ -45,6 +45,14 @@ enum AerodynamicsReferenceFrames
     body_frame = 4
 };
 
+//! Function to get a string representing a 'named identification' of a reference frame.
+/*!
+ * Function to get a string representing a 'named identification' of a reference frame.
+ * \param frame Type of reference frame
+ * \return String with reference frame id.
+ */
+std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame );
+
 //! Enum to define ids for various angles needed for converting between inertial and body-fixed
 //! frame, using transformation chain via aerodynamic frame.
 enum AerodynamicsReferenceFrameAngles
@@ -57,6 +65,15 @@ enum AerodynamicsReferenceFrameAngles
     angle_of_sideslip = 5,
     bank_angle = 6
 };
+
+//! Function to get a string representing a 'named identification' of an aerodynamic angle
+/*!
+ * Function to get a string representing a 'named identification' of an aerodynamic angle
+ * \param angle Type of aerodynamic angle
+ * \return String withaerodynamic angle id.
+ */
+std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle );
+
 
 
 //! Object to calculate aerodynamic orientation angles from current vehicle state.

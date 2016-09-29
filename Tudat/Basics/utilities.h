@@ -1,8 +1,11 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+#include <iostream>
 #include <map>
+
 #include <boost/function.hpp>
+
 #include <Eigen/Core>
 
 namespace tudat
@@ -100,6 +103,21 @@ void createVectorBlockMatrixHistory(
         // Set numerically integrated states of bodies.
         blockMatrixHistory[ matrixIterator->first ] =
                 matrixIterator->second.block( startIndices.first, startIndices.second, segmentSize, 1 );
+    }
+}
+
+//! Function to print the contents of a map, line by line
+/*!
+ *  Function to print the contents of a map, line by line. Both the key and value types must have the << operator defined
+ *  \param mapToPrint Map that is to be printed.
+ */
+template< typename S, typename T >
+void printMapContents( const std::map< S, T >& mapToPrint)
+{
+    for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( );
+         mapIterator != mapToPrint.end( ); mapIterator++ )
+    {
+        std::cout<<mapIterator->first<<", "<<mapIterator->second<<std::endl;
     }
 }
 

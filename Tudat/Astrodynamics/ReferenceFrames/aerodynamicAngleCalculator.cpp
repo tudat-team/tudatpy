@@ -28,6 +28,76 @@ namespace tudat
 namespace reference_frames
 {
 
+//! Function to get a string representing a 'named identification' of a reference frame.
+std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame )
+{
+    std::string frameName;
+    switch( frame )
+    {
+    case inertial_frame:
+        frameName = "inertial frame ";
+        break;
+    case corotating_frame:
+        frameName = "corotating frame ";
+        break;
+    case vertical_frame:
+        frameName = "vertical frame ";
+        break;
+    case trajectory_frame:
+        frameName = "trajectory frame ";
+        break;
+    case aerodynamic_frame:
+        frameName = "aerodynamic frame ";
+        break;
+    case body_frame:
+        frameName = "body frame ";
+        break;
+    default:
+        std::string errorMessage = "Error, aerodynamic frame type " +
+                boost::lexical_cast< std::string >( frame ) +
+                "not found when retrieving frame name ";
+        throw std::runtime_error( errorMessage );
+    }
+    return frameName;
+}
+
+//! Function to get a string representing a 'named identification' of an aerodynamic angle
+std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle )
+{
+    std::string angleName;
+    switch( angle )
+    {
+    case latitude_angle:
+        angleName = "latitude angle ";
+        break;
+    case longitude_angle:
+        angleName = "longitude angle ";
+        break;
+    case heading_angle:
+        angleName = "heading angle ";
+        break;
+    case flight_path_angle:
+        angleName = "flight path angle ";
+        break;
+    case angle_of_attack:
+        angleName = "angle of attack ";
+        break;
+    case angle_of_sideslip:
+        angleName = "sideslip angle ";
+        break;
+    case bank_angle:
+        angleName = "bank angle ";
+        break;
+    default:
+        std::string errorMessage = "Error, aerodynamic angle type " +
+                boost::lexical_cast< std::string >( angle ) +
+                "not found when retrieving angle name ";
+        throw std::runtime_error( errorMessage );
+    }
+    return angleName;
+}
+
+
 //! Function to update the orientation angles to the current state.
 void AerodynamicAngleCalculator::update( const double currentTime, const bool updateBodyOrientation )
 {

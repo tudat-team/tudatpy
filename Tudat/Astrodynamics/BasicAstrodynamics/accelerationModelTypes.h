@@ -72,6 +72,14 @@ enum AvailableAcceleration
     thrust_acceleration
 };
 
+//! Function to get a string representing a 'named identification' of an acceleration type
+/*!
+ * Function to get a string representing a 'named identification' of an acceleration type
+ * \param accelerationType Type of acceleration model.
+ * \return String with acceleration id.
+ */
+std::string getAccelerationModelName( const AvailableAcceleration accelerationType );
+
 //! List of model types for body mass rates.
 /*!
 *  List of model types for body mass rates available in simulations. Mass rate models not defined by this

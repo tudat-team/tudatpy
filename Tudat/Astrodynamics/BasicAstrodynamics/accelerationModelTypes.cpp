@@ -40,6 +40,48 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+//! Function to get a string representing a 'named identification' of an acceleration type
+std::string getAccelerationModelName( const AvailableAcceleration accelerationType )
+{
+    std::string accelerationName;
+    switch( accelerationType )
+    {
+    case central_gravity:
+        accelerationName = "central gravity ";
+        break;
+    case aerodynamic:
+        accelerationName = "aerodynamic ";
+        break;
+    case cannon_ball_radiation_pressure:
+        accelerationName = "cannonball radiation pressure ";
+        break;
+    case spherical_harmonic_gravity:
+        accelerationName = "spherical harmonic gravity ";
+        break;
+    case mutual_spherical_harmonic_gravity:
+        accelerationName = "mutual spherical harmonic gravity ";
+        break;
+    case third_body_central_gravity:
+        accelerationName = "third-body central gravity ";
+        break;
+    case third_body_spherical_harmonic_gravity:
+        accelerationName = "third-body spherical harmonic gravity ";
+        break;
+    case third_body_mutual_spherical_harmonic_gravity:
+        accelerationName = "third-body mutual spherical harmonic gravity ";
+        break;
+    case thrust_acceleration:
+        accelerationName = "thrust ";
+        break;
+    default:
+        std::string errorMessage = "Error, acceleration type " +
+                boost::lexical_cast< std::string >( accelerationType ) +
+                "not found when retrieving acceleration name ";
+        throw std::runtime_error( errorMessage );
+    }
+    return accelerationName;
+}
+
 //! Function to identify the derived class type of an acceleration model.
 AvailableAcceleration getAccelerationModelType(
         const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
