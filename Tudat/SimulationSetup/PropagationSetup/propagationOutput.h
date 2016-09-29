@@ -536,12 +536,12 @@ Eigen::VectorXd evaluateListOfFunctions(
  *  \param saveSettings Object containing types and other properties of dependent variables.
  *  \param bodyMap List of bodies to use in simulations (containing full environment).
  *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
- *  \return Function returning requested dependent variable values.
+ *  \return Pair with function returning requested dependent variable values, and list variable names with start entries.
  *  NOTE: The environment and state derivative models need to
  *  be updated to current state and independent variable before computation is performed.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
+std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction(
         const boost::shared_ptr< DependentVariableSaveSettings > saveSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::unordered_map< IntegratedStateType,
@@ -557,6 +557,8 @@ boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
     std::vector< boost::function< double( ) > > doubleFunctionList;
     std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
     int totalVariableSize = 0;
+
+    std::map< int, std::string > dependentVariableId;
     for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
     {
         // Create double parameter
@@ -565,6 +567,8 @@ boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
             doubleFunctionList.push_back( getDoubleDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
+            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
+                        dependentVariables.at( i ) );
             totalVariableSize++;
         }
         // Create vector parameter
@@ -573,12 +577,16 @@ boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
             vectorFunctionList.push_back( getVectorDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
+            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
+                        dependentVariables.at( i ) );
             totalVariableSize += vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second;
         }
     }
 
     // Create function conatenating function results.
-    return boost::bind( &evaluateListOfFunctions, doubleFunctionList, vectorFunctionList, totalVariableSize );
+    return std::make_pair(
+                boost::bind( &evaluateListOfFunctions, doubleFunctionList, vectorFunctionList, totalVariableSize ),
+                dependentVariableId );
 }
 
 

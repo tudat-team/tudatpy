@@ -18,7 +18,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
-
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -185,10 +185,20 @@ public:
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
         {
-            dependentVariablesFunctions_ =
-                    createDependentVariableListFunction(
+            std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
+                    createDependentVariableListFunction< TimeType, StateScalarType >(
                         propagatorSettings_->getDependentVariablesToSave( ), bodyMap_,
                         dynamicsStateDerivative_->getStateDerivativeModels( ) );
+            dependentVariablesFunctions_ = dependentVariableData.first;
+            dependentVariableIds_ = dependentVariableData.second;
+
+            if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ )
+            {
+                std::cout<<"Dependent variables being saved, output vectors contain: "<<std::endl<<
+                           "Vector entry, Vector contents"<<std::endl;
+                utilities::printMapContents(
+                            dependentVariableIds_ );
+            }
         }
 
         stateDerivativeFunction_ =
@@ -344,9 +354,14 @@ protected:
     //! Settings for propagator.
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
 
+    //! Object defining when the propagation is to be terminated.
     boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition_;
 
+    //! Function returning dependent variables (during numerical propagation)
     boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
+
+    //! Map listing starting entry of dependent variables in output vector, along with associated ID.
+    std::map< int, std::string > dependentVariableIds_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
