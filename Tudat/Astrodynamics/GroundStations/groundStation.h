@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_GROUNDSTATION_H
 #define TUDAT_GROUNDSTATION_H
 
@@ -38,7 +48,7 @@ public:
      *  \return State at requested time.
      */
     template< typename StateScalarType, typename TimeType >
-    basic_mathematics::Vector6d getStateInPlanetFixedFrame( const TimeType& time )
+    Eigen::Matrix< StateScalarType, 6, 1 > getStateInPlanetFixedFrame( const TimeType& time )
     {
         return ( nominalStationState_->getCartesianStateInTime(
                      static_cast< double >( time ), basic_astrodynamics::JULIAN_DAY_ON_J2000  ) ).
