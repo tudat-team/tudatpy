@@ -18,8 +18,7 @@
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/GroundStations/nominalGroundStationState.h"
-#include "Tudat/Astrodynamics/GroundStations/pointingAnglesCalculator.h"
+#include "Tudat/Astrodynamics/GroundStations/groundStationState.h"
 
 namespace tudat
 {
@@ -30,11 +29,9 @@ namespace ground_stations
 class GroundStation
 {
 public:
-    GroundStation( const boost::shared_ptr< NominalGroundStationState > stationState,
-                   const boost::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator,
+    GroundStation( const boost::shared_ptr< GroundStationState > stationState,
                    const std::string& stationId ):
-        nominalStationState_( stationState ), pointingAnglesCalculator_( pointingAnglesCalculator ),
-        stationId_( stationId )
+        nominalStationState_( stationState ), stationId_( stationId )
     {  }
 
 
@@ -47,7 +44,7 @@ public:
         return stateInPlanetFixedFrame;
     }
 
-    boost::shared_ptr< NominalGroundStationState > getNominalStationState( )
+    boost::shared_ptr< GroundStationState > getNominalStationState( )
     {
         return nominalStationState_;
     }
@@ -59,7 +56,7 @@ public:
 
 private:
 
-    boost::shared_ptr< NominalGroundStationState > nominalStationState_;
+    boost::shared_ptr< GroundStationState > nominalStationState_;
 
     std::string stationId_;
 };

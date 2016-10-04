@@ -1,5 +1,5 @@
-#ifndef NOMINALGROUNDSTATIONSTATE_H
-#define NOMINALGROUNDSTATIONSTATE_H
+#ifndef TUDAT_GROUNDSTATIONSTATE_H
+#define TUDAT_GROUNDSTATIONSTATE_H
 
 #include <vector>
 
@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
 
 
 namespace tudat
@@ -30,20 +31,20 @@ namespace ground_stations
 /*!
  *  Class containing for storing of and calculations on the body-fixed position of a ground station
  */
-class NominalGroundStationState
+class GroundStationState
 {
 public:
     //! Constructor taking cartesian position data.
     /*!
      *  Constructor taking cartesian position data.
      */
-    NominalGroundStationState(
-            const Eigen::Vector3d stationCartesianPosition,
-            const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface = boost::shared_ptr< basic_astrodynamics::BodyShapeModel >( ),
-            const double referenceJulianYear = basic_astrodynamics::JULIAN_DAY_ON_J2000 / physical_constants::JULIAN_YEAR_IN_DAYS,
-            const bool setTransformation = 1 );
+    GroundStationState(
+            const Eigen::Vector3d stationPosition,
+            const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position,
+            const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface =
+            boost::shared_ptr< basic_astrodynamics::BodyShapeModel >( ) );
 
-    virtual ~NominalGroundStationState( ){ }
+    virtual ~GroundStationState( ){ }
 
     //! Function to obtain the Cartesian position of the state in the local frame at a given time.
     /*!
@@ -79,7 +80,14 @@ public:
         return sphericalPosition_;
     }
 
-    virtual void resetGroundStationPositionAtEpoch( const Eigen::Vector3d cartesianPosition );
+    Eigen::Vector3d getNominalGeodeticPosition( )
+    {
+        return geodeticPosition;
+    }
+
+    virtual void resetGroundStationPositionAtEpoch(
+            const Eigen::Vector3d stationPosition,
+            const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position );
 
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
     {
@@ -99,13 +107,10 @@ protected:
      *  Spherical position of station, without variations (linear drift, eccentricity, tides, etc. ), in the body-fixed frame.
      *  The order of the entries is: radius, colatitude, longitude.
      */
-    Eigen::Vector3d sphericalPosition_; //(radius, co-geocentric latitude, longitude)
+    Eigen::Vector3d sphericalPosition_; //(radius, geocentric latitude, longitude)
 
-    //! Name of ground station of which this object is a member
-    /*!
-     *  Name of ground station of which this object is a member, i.e. the station of which this object describes the state.
-     */
-    std::string siteId_;
+    Eigen::Vector3d geodeticPosition; //(altitude, geodetic latitude, longitude)
+
 
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
@@ -113,4 +118,4 @@ protected:
 }
 
 }
-#endif // NOMINALGROUNDSTATIONSTATE_H
+#endif // TUDAT_GROUNDSTATIONSTATE_H

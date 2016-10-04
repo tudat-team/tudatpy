@@ -21,6 +21,57 @@ namespace tudat
 namespace observation_models
 {
 
+template< typename TimeType >
+Eigen::Matrix< long double, 6, 1 > convertLongDoubleStateFromDoubleStateFunction(
+        const TimeType& time, const boost::function< basic_mathematics::Vector6d( const TimeType& ) >& doubleStateFunction )
+{
+    return ( doubleStateFunction( time ) ).template cast< long double >( );
+}
+
+
+
+template< typename TimeType = double, typename ScalarStateType = double >
+boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+        boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
+        boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+        boost::function< basic_mathematics::Vector6d( const TimeType& ) > referencePointStateFunction );
+
+
+template< typename TimeType = double, typename ScalarStateType = double >
+boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
+        const boost::shared_ptr< simulation_setup::Body > bodyWithLinkEnd, const std::pair< std::string, std::string >& linkEndId )
+{
+    typedef Eigen::Matrix< ScalarStateType, 6, 1 > StateType;
+
+    boost::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
+
+    // Checking transmitter is a S/C
+    if( linkEndId.second != "" )
+    {
+        if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
+        {
+            std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", station not found"<<std::endl;
+        }
+
+        // Retrieve function to calculate state of transmitter S/C
+        linkEndCompleteEphemerisFunction =
+                boost::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< ScalarStateType,TimeType >,
+                             createReferencePointEphemeris< TimeType, ScalarStateType >(
+                                 bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
+                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame< TimeType >,
+                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
+
+    }
+    // Else, transmitter is S/C
+    else
+    {
+        // Create function to calculate state of transmitting ground station.
+        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
+                                                        bodyWithLinkEnd, _1 );
+    }
+    return linkEndCompleteEphemerisFunction;
+}
+
 //! Function to create a state function of a link end, expressed in base frame.
 /*!
  *  Function to create a state function of a link end, expressed in base frame.
@@ -36,14 +87,7 @@ boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > getL
     {
         std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body not found "<<std::endl;
     }
-
-    if( linkEndId.second != ""  )
-    {
-        std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body reference points not yet supported "<<std::endl;
-    }
-
-    return boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
-                        bodyMap.at( linkEndId.first ), _1 );
+    return getLinkEndCompleteEphemerisFunction< TimeType, ScalarStateType >( bodyMap.at( linkEndId.first ), linkEndId );
 }
 
 //! Function to create a light-time calculation object
