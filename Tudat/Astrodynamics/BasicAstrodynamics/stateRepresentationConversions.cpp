@@ -9,6 +9,7 @@ namespace tudat
 namespace coordinate_conversions
 {
 
+//! Function to convert a position from one representation to another
 Eigen::Vector3d convertPositionElements(
         const Eigen::Vector3d& originalElements,
         const PositionElementTypes originalElementType,
@@ -23,6 +24,7 @@ Eigen::Vector3d convertPositionElements(
     }
     else
     {
+        // Retrieve flattening and equatorial radius if required.
         double flattening = TUDAT_NAN, equatorialRadius = TUDAT_NAN;
         if( ( originalElementType == geodetic_position ) || ( convertedElementType == geodetic_position ) )
         {
@@ -48,10 +50,12 @@ Eigen::Vector3d convertPositionElements(
                 throw std::runtime_error( "Error when converting to/from geodetic position, shape model not recognized" );
             }
         }
+        // Check original type
         switch( originalElementType )
         {
         case cartesian_position:
         {
+            // Convert Cartesian position to requested type.
             switch( convertedElementType )
             {
             case spherical_position:
@@ -74,6 +78,7 @@ Eigen::Vector3d convertPositionElements(
         }
         case spherical_position:
         {
+            // Convert spherical position to requested type.
             switch( convertedElementType )
             {
             case cartesian_position:
@@ -105,6 +110,7 @@ Eigen::Vector3d convertPositionElements(
         }
         case geodetic_position:
         {
+            // Convert geodetic position to requested type.
             switch( convertedElementType )
             {
             case cartesian_position:

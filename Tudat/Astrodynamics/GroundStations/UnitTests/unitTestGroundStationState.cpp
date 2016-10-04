@@ -8,6 +8,7 @@
 #include "Tudat/Astrodynamics/GroundStations/groundStationState.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -30,8 +31,10 @@ using namespace tudat::spice_interface;
 
 BOOST_AUTO_TEST_SUITE( test_ground_station_state )
 
+//! Test if ground stations are correctly created.
 BOOST_AUTO_TEST_CASE( test_GroundStationState )
 {
+    // Create Earth object
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
@@ -55,10 +58,12 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
                                                 convertDegreesToRadians( -7.26654999 ),
                                                 convertDegreesToRadians( 72.36312094 ) );
 
+    // Manually compute associated spherical position
     Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
                 testCartesianPosition );
     testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
 
+    // Creatre ground stations: same position, but different representation
     createGroundStation( earth, "Station1", testCartesianPosition, cartesian_position );
     createGroundStation( earth, "Station2", testSphericalPosition, spherical_position );
     createGroundStation( earth, "Station3", testGeodeticPosition, geodetic_position );
@@ -67,6 +72,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     boost::shared_ptr< GroundStationState > station2 = earth->getGroundStation( "Station2" )->getNominalStationState( );
     boost::shared_ptr< GroundStationState > station3 = earth->getGroundStation( "Station3" )->getNominalStationState( );
 
+    // Check if ground station representations are correctly converted
     Eigen::Vector3d position1, position2;
 
     {
@@ -142,12 +148,15 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     }
 }
 
+//! Test if global state function for ground station is correctly created.
 BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 {
+    // Load Spice kernels
     loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
     loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
     loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0009.tls" );
 
+    // Create Earth object
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
@@ -166,16 +175,20 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     earth->setRotationalEphemeris( boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
                                        "ECLIPJ2000", "IAU_Earth" ) );
 
+    // Define ground station state
     const Eigen::Vector3d groundStationPosition( 1917032.190, 6029782.349, -801376.113 );
     basic_mathematics::Vector6d groundStationState;
     groundStationState << groundStationPosition, 0.0, 0.0, 0.0;
 
+    // Create ground station
     createGroundStation( earth, "Station1", groundStationPosition, cartesian_position );
 
+    // Make state function of ground station w.r.t. SSB in inertial frame
     boost::function< Eigen::Matrix< double, 6, 1 >( const double ) > stateFunction =
             observation_models::getLinkEndCompleteEphemerisFunction(
                 std::make_pair( "Earth", "Station1" ), bodyMap );
 
+    // Compare state function with manual computation.
     basic_mathematics::Vector6d currentGlobalState, currentGlobalStateFromFunction;
     for( double testTime = 1.0E7; testTime < 5.0E7; testTime += 2.5E6 )
     {

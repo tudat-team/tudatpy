@@ -1,24 +1,9 @@
 #ifndef TUDAT_GROUNDSTATIONSTATE_H
 #define TUDAT_GROUNDSTATIONSTATE_H
 
-#include <vector>
-
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
-#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
-
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 
 namespace tudat
@@ -27,16 +12,18 @@ namespace tudat
 namespace ground_stations
 {
 
-//! Class containing for storing of and calculations on the body-fixed position of a ground station
-/*!
- *  Class containing for storing of and calculations on the body-fixed position of a ground station
- */
+//! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
 class GroundStationState
 {
 public:
-    //! Constructor taking cartesian position data.
+
+    //! Constructor
     /*!
-     *  Constructor taking cartesian position data.
+     *  Constructor
+     * \param stationPosition Position of ground station in body-fixed frame
+     * \param inputElementType Element type (e.g. Cartesian, spherical, etc.) of groundStationPosition.
+     * \param bodySurface Shape of body on which state is defined. If NULL (default), no conversions to/from
+     * geodetic position are possible.
      */
     GroundStationState(
             const Eigen::Vector3d stationPosition,
@@ -46,49 +33,74 @@ public:
 
     virtual ~GroundStationState( ){ }
 
-    //! Function to obtain the Cartesian position of the state in the local frame at a given time.
+    //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
     /*!
-     *  Function to obtain the Cartesian position of the state in the local (body-fixed, not topocentrix) frame at a given time.
-     *  Adds all position variations to the nominal state (at the requested time) and returns the state.
+     *  Function to obtain the Cartesian state of the ground station in the local frame (body-fixed, not topocentric) at a
+     *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
+     *  poisition variations are as yet not included.
      *  \param secondsSinceEpoch Secons since reference epoch at which the position is to be retrieved.
      *  \param inputReferenceEpoch Reference epoch julian day
-     *  \return Cartiesian position of station in local frame at requested time.
+     *  \return Cartesian state of station in local frame at requested time.
      */
-    Eigen::Vector3d getCartesianPositionInTime(
+     basic_mathematics::Vector6d getCartesianStateInTime(
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-    //! Function to return the nominal cartesian (unperturbed) position of the station
+    //! Function to return the nominal (unperturbed) Cartesian position of the station
     /*!
-     *  Function to return the nominal cartesian (unperturbed, i.e. not including linear drift, eccentricity, tidal variations, etc.)
-     *  position of the station in body-fixed system. Typically used for applications require moderate to low precision of ground station position.
-     *  \return Unperturbed position of the station
+     *  Function to return the nominal Cartesian (unperturbed, i.e. not including linear drift, eccentricity,
+     *  tidal variations, etc.) position of the station in body-fixed system.
+     *  \return Unperturbed Cartesian position of the station
      */
     Eigen::Vector3d getNominalCartesianPosition( )
     {
         return cartesianPosition_;
     }
 
-    //! Function to return the nominal spherical (unperturbed) position of the station
+    //! Function to return the nominal (unperturbed) spherical position of the station
     /*!
-     *  Function to return the nominal spherical (unperturbed, i.e. not including linear drift, eccentricity, tidal variations, etc.)
-     *  position of the station in body-fixed system.
-     *  \return Unperturbed position of the station
+     *  Function to return the nominal spherical (unperturbed, i.e. not including linear drift, eccentricity,
+     *  tidal variations, etc.) position of the station in body-fixed system.
+     *  \return Unperturbed spherical position of the station
      */
     Eigen::Vector3d getNominalSphericalPosition( )
     {
         return sphericalPosition_;
     }
 
+    //! Function to return the nominal (unperturbed) geodetic position of the station
+    /*!
+     *  Function to return the nominal geodetic (unperturbed, i.e. not including linear drift, eccentricity,
+     *  tidal variations, etc.) position of the station in body-fixed system.
+     *  NOTE: This vector is only defined in bodySurface_ was non-NULL at last setting of nominal state
+     *  (call to resetGroundStationPositionAtEpoch).
+     *  \return Unperturbed geodetic position of the station
+     */
     Eigen::Vector3d getNominalGeodeticPosition( )
     {
+        if( !( geodeticPosition( 0 ) == geodeticPosition( 0 ) ) )
+        {
+            throw std::runtime_error( "Error, retrieving geodetic position from ground station state, but is not defined" );
+        }
         return geodeticPosition;
     }
 
-    virtual void resetGroundStationPositionAtEpoch(
+    //! Function to (re)set the nominal state of the station
+    /*!
+     *  Function to (re)set the nominal state of the station. Input may be in any type of elements defined in
+     *  PositionElementTypes enum.
+     * \param stationPosition Position of ground station in body-fixed frame
+     * \param inputElementType Element type (e.g. Cartesian, spherical, etc.) of groundStationPosition.
+     */
+    void resetGroundStationPositionAtEpoch(
             const Eigen::Vector3d stationPosition,
             const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position );
 
+    //! Function to retrieve the shape of body on which state is defined.
+    /*!
+     *  Function to retrieve the shape of body on which state is defined
+     * \ return Shape of body on which state is defined
+     */
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
     {
         return bodySurface_;
@@ -98,20 +110,26 @@ protected:
 
     //! Cartesian position of station
     /*!
-     *  Cartesian position of station, without variations (linear drift, eccentricity, tides, etc. ), in the body-fixed frame.
+     *  Cartesian position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
      */
-    Eigen::Vector3d cartesianPosition_; //(x,y,z)
+    Eigen::Vector3d cartesianPosition_;
 
     //! Spherical position of station
     /*!
-     *  Spherical position of station, without variations (linear drift, eccentricity, tides, etc. ), in the body-fixed frame.
-     *  The order of the entries is: radius, colatitude, longitude.
+     *  Spherical position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
+     *  The order of the entries is: radius, geocentric latitude, longitude.
      */
-    Eigen::Vector3d sphericalPosition_; //(radius, geocentric latitude, longitude)
+    Eigen::Vector3d sphericalPosition_;
 
-    Eigen::Vector3d geodeticPosition; //(altitude, geodetic latitude, longitude)
+    //! Geodetic position of station
+    /*!
+     *  Geodetic position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
+     *  The order of the entries is: altitude, geodetic latitude, longitude. This vector is only defined in bodySurface_ was
+     *  non-NULL at last setting of nominal state (call to resetGroundStationPositionAtEpoch).
+     */
+    Eigen::Vector3d geodeticPosition;
 
-
+    //! Shape of body on which state is defined
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
 
