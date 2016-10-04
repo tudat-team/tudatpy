@@ -29,6 +29,7 @@
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
 #include <Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h>
+#include <Tudat/Astrodynamics/GroundStations/groundStation.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
@@ -798,6 +799,25 @@ public:
         return currentMass_;
     }
 
+    //! Body ground station interface functions.
+    void addGroundStation( std::string stationName, boost::shared_ptr< ground_stations::GroundStation > station )
+    {
+        groundStationMap[ stationName ] = station;
+    }
+
+    boost::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const
+    {
+        if( groundStationMap.count( stationName ) == 0 )
+        {
+            std::cerr<<"Warning, station "<<stationName<<" does not exist"<<std::endl;
+        }
+        return groundStationMap.at( stationName );
+    }
+
+    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const
+    {
+        return groundStationMap;
+    }
 
     //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
     /*!
@@ -896,6 +916,9 @@ private:
     std::map< std::string,
               boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
+
+
+    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > groundStationMap;
 
     //! Container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
     boost::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
