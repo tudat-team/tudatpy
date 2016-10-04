@@ -53,7 +53,8 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_position_representation_conversions )
 
-BOOST_AUTO_TEST_CASE( testGeneralGeodeticCoordinateConversions )
+
+BOOST_AUTO_TEST_CASE( testGeneralCoordinateConversions )
 {
     using namespace coordinate_conversions;
     using namespace unit_conversions;
@@ -66,6 +67,7 @@ BOOST_AUTO_TEST_CASE( testGeneralGeodeticCoordinateConversions )
                                                 convertDegreesToRadians( -7.26654999 ),
                                                 convertDegreesToRadians( 72.36312094 ) );
 
+    // Manually compute associated spherical position
     Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
                 testCartesianPosition );
     testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
@@ -75,64 +77,73 @@ BOOST_AUTO_TEST_CASE( testGeneralGeodeticCoordinateConversions )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
+    // Create shape model
     boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
             boost::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
                 equatorialRadius, flattening );
 
+    // Declare variables for computation
     Eigen::Vector3d computedCartesianPosition, computedSphericalPosition, computedGeodeticPosition;
 
-    computedCartesianPosition = coordinate_conversions::convertPositionElements(
-                testGeodeticPosition, coordinate_conversions::geodetic_position, coordinate_conversions::cartesian_position,
-                oblateSpheroidModel );
-
-    computedSphericalPosition = coordinate_conversions::convertPositionElements(
-                testGeodeticPosition, coordinate_conversions::geodetic_position, coordinate_conversions::spherical_position,
-                oblateSpheroidModel );
-
-
-    for( unsigned int i = 0; i < 3; i++ )
+    // Test computation from spherical position
     {
-        BOOST_CHECK_SMALL( testCartesianPosition( i ) - computedCartesianPosition( i ), 1.0E-3 );
+        computedCartesianPosition = coordinate_conversions::convertPositionElements(
+                    testGeodeticPosition, coordinate_conversions::geodetic_position, coordinate_conversions::cartesian_position,
+                    oblateSpheroidModel );
+
+        computedSphericalPosition = coordinate_conversions::convertPositionElements(
+                    testGeodeticPosition, coordinate_conversions::geodetic_position, coordinate_conversions::spherical_position,
+                    oblateSpheroidModel );
+
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( testCartesianPosition( i ) - computedCartesianPosition( i ), 1.0E-3 );
+        }
+
+        BOOST_CHECK_SMALL( testSphericalPosition( 0 ) - computedSphericalPosition( 0 ), 1.0E-3 );
+        BOOST_CHECK_SMALL( testSphericalPosition( 1 ) - computedSphericalPosition( 1 ), 1.0E-3 / equatorialRadius );
+        BOOST_CHECK_SMALL( testSphericalPosition( 2 ) - computedSphericalPosition( 2 ), 1.0E-3 / equatorialRadius );
     }
 
-    BOOST_CHECK_SMALL( testSphericalPosition( 0 ) - computedSphericalPosition( 0 ), 1.0E-3 );
-    BOOST_CHECK_SMALL( testSphericalPosition( 1 ) - computedSphericalPosition( 1 ), 1.0E-3 / equatorialRadius );
-    BOOST_CHECK_SMALL( testSphericalPosition( 2 ) - computedSphericalPosition( 2 ), 1.0E-3 / equatorialRadius );
-
-
-
-    computedSphericalPosition = coordinate_conversions::convertPositionElements(
-                testCartesianPosition, coordinate_conversions::cartesian_position, coordinate_conversions::spherical_position,
-                oblateSpheroidModel );
-
-    computedGeodeticPosition = coordinate_conversions::convertPositionElements(
-                testCartesianPosition, coordinate_conversions::cartesian_position, coordinate_conversions::geodetic_position,
-                oblateSpheroidModel );
-
-    BOOST_CHECK_SMALL( testGeodeticPosition( 0 ) - computedGeodeticPosition( 0 ), 1.0E-3 );
-    BOOST_CHECK_SMALL( testGeodeticPosition( 1 ) - computedGeodeticPosition( 1 ), 1.0E-3 / equatorialRadius );
-    BOOST_CHECK_SMALL( testGeodeticPosition( 2 ) - computedGeodeticPosition( 2 ), 1.0E-3 / equatorialRadius );
-
-    BOOST_CHECK_SMALL( testSphericalPosition( 0 ) - computedSphericalPosition( 0 ), 1.0E-3 );
-    BOOST_CHECK_SMALL( testSphericalPosition( 1 ) - computedSphericalPosition( 1 ), 1.0E-3 / equatorialRadius );
-    BOOST_CHECK_SMALL( testSphericalPosition( 2 ) - computedSphericalPosition( 2 ), 1.0E-3 / equatorialRadius );
-
-    computedCartesianPosition = coordinate_conversions::convertPositionElements(
-                testSphericalPosition, coordinate_conversions::spherical_position, coordinate_conversions::cartesian_position,
-                oblateSpheroidModel );
-
-    computedGeodeticPosition = coordinate_conversions::convertPositionElements(
-                testSphericalPosition, coordinate_conversions::spherical_position, coordinate_conversions::geodetic_position,
-                oblateSpheroidModel );
-
-    for( unsigned int i = 0; i < 3; i++ )
+    // Test computation from Cartesian position
     {
-        BOOST_CHECK_SMALL( testCartesianPosition( i ) - computedCartesianPosition( i ), 1.0E-3 );
+        computedSphericalPosition = coordinate_conversions::convertPositionElements(
+                    testCartesianPosition, coordinate_conversions::cartesian_position, coordinate_conversions::spherical_position,
+                    oblateSpheroidModel );
+
+        computedGeodeticPosition = coordinate_conversions::convertPositionElements(
+                    testCartesianPosition, coordinate_conversions::cartesian_position, coordinate_conversions::geodetic_position,
+                    oblateSpheroidModel );
+
+        BOOST_CHECK_SMALL( testGeodeticPosition( 0 ) - computedGeodeticPosition( 0 ), 1.0E-3 );
+        BOOST_CHECK_SMALL( testGeodeticPosition( 1 ) - computedGeodeticPosition( 1 ), 1.0E-3 / equatorialRadius );
+        BOOST_CHECK_SMALL( testGeodeticPosition( 2 ) - computedGeodeticPosition( 2 ), 1.0E-3 / equatorialRadius );
+
+        BOOST_CHECK_SMALL( testSphericalPosition( 0 ) - computedSphericalPosition( 0 ), 1.0E-3 );
+        BOOST_CHECK_SMALL( testSphericalPosition( 1 ) - computedSphericalPosition( 1 ), 1.0E-3 / equatorialRadius );
+        BOOST_CHECK_SMALL( testSphericalPosition( 2 ) - computedSphericalPosition( 2 ), 1.0E-3 / equatorialRadius );
     }
 
-    BOOST_CHECK_SMALL( testGeodeticPosition( 0 ) - computedGeodeticPosition( 0 ), 1.0E-3 );
-    BOOST_CHECK_SMALL( testGeodeticPosition( 1 ) - computedGeodeticPosition( 1 ), 1.0E-3 / equatorialRadius );
-    BOOST_CHECK_SMALL( testGeodeticPosition( 2 ) - computedGeodeticPosition( 2 ), 1.0E-3 / equatorialRadius );
+    // Test computation from geodetic position
+    {
+        computedCartesianPosition = coordinate_conversions::convertPositionElements(
+                    testSphericalPosition, coordinate_conversions::spherical_position, coordinate_conversions::cartesian_position,
+                    oblateSpheroidModel );
+
+        computedGeodeticPosition = coordinate_conversions::convertPositionElements(
+                    testSphericalPosition, coordinate_conversions::spherical_position, coordinate_conversions::geodetic_position,
+                    oblateSpheroidModel );
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( testCartesianPosition( i ) - computedCartesianPosition( i ), 1.0E-3 );
+        }
+
+        BOOST_CHECK_SMALL( testGeodeticPosition( 0 ) - computedGeodeticPosition( 0 ), 1.0E-3 );
+        BOOST_CHECK_SMALL( testGeodeticPosition( 1 ) - computedGeodeticPosition( 1 ), 1.0E-3 / equatorialRadius );
+        BOOST_CHECK_SMALL( testGeodeticPosition( 2 ) - computedGeodeticPosition( 2 ), 1.0E-3 / equatorialRadius );
+    }
 
 }
 

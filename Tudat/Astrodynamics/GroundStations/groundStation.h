@@ -1,23 +1,11 @@
-#ifndef GROUNDSTATION_H
-#define GROUNDSTATION_H
-
-#include <vector>
+#ifndef TUDAT_GROUNDSTATION_H
+#define TUDAT_GROUNDSTATION_H
 
 #include <boost/shared_ptr.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/bind.hpp>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
-
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/GroundStations/groundStationState.h"
 
 namespace tudat
@@ -26,29 +14,52 @@ namespace tudat
 namespace ground_stations
 {
 
+//! Class to store properties of a ground station (i.e. reference point with associated systems on a celestial body)
 class GroundStation
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param stationState Object to define and compute the state of the ground station.
+     * \param stationId Name of the ground station
+     */
     GroundStation( const boost::shared_ptr< GroundStationState > stationState,
                    const std::string& stationId ):
-        nominalStationState_( stationState ), stationId_( stationId )
-    {  }
+        nominalStationState_( stationState ), stationId_( stationId ){ }
 
 
-    //! Function returns nominal (at reference epoch) state of ground station (no velocity included).
-    template< typename TimeType >
+    //! Function that returns (at reference epoch) the state of the ground station
+    /*!
+     *  Function that returns (at reference epoch) the state of the ground station. State is computed by nominalStationState_
+     *  and cast to the required format by this function
+     *  \param time Time (in seconds since J2000) at which state is to be retrieved
+     *  \return State at requested time.
+     */
+    template< typename StateScalarType, typename TimeType >
     basic_mathematics::Vector6d getStateInPlanetFixedFrame( const TimeType& time )
     {
-        basic_mathematics::Vector6d stateInPlanetFixedFrame = basic_mathematics::Vector6d::Zero( );
-        stateInPlanetFixedFrame.segment( 0, 3 ) = nominalStationState_->getCartesianPositionInTime( static_cast< double >( time ) );
-        return stateInPlanetFixedFrame;
+        return ( nominalStationState_->getCartesianStateInTime(
+                     static_cast< double >( time ), basic_astrodynamics::JULIAN_DAY_ON_J2000  ) ).
+                template cast< StateScalarType >( );
     }
 
+    //! Function to return object to define and compute the state of the ground station.
+    /*!
+     * Function to return object to define and compute the state of the ground station.
+     * \return Object to define and compute the state of the ground station.
+     */
     boost::shared_ptr< GroundStationState > getNominalStationState( )
     {
         return nominalStationState_;
     }
 
+    //! Function to return name of the ground station
+    /*!
+     * Function to return name of the ground station
+     * \return Name of the ground station
+     */
     std::string getStationId( )
     {
         return stationId_;
@@ -56,8 +67,10 @@ public:
 
 private:
 
+    //! Object to define and compute the state of the ground station.
     boost::shared_ptr< GroundStationState > nominalStationState_;
 
+    //! Name of the ground station
     std::string stationId_;
 };
 
@@ -66,4 +79,4 @@ private:
 
 }
 
-#endif // GROUNDSTATION_H
+#endif // TUDAT_GROUNDSTATION_H

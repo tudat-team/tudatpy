@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATELIGHTTIMECALCULATOR_H
 #define TUDAT_CREATELIGHTTIMECALCULATOR_H
 
+#include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
@@ -21,21 +22,26 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename TimeType >
-Eigen::Matrix< long double, 6, 1 > convertLongDoubleStateFromDoubleStateFunction(
-        const TimeType& time, const boost::function< basic_mathematics::Vector6d( const TimeType& ) >& doubleStateFunction )
-{
-    return ( doubleStateFunction( time ) ).template cast< long double >( );
-}
-
-
-
 template< typename TimeType = double, typename ScalarStateType = double >
 boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
         boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
         boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
-        boost::function< basic_mathematics::Vector6d( const TimeType& ) > referencePointStateFunction );
+        boost::function< basic_mathematics::Vector6d( const TimeType& ) > referencePointStateFunction )
+{
+    typedef Eigen::Matrix< ScalarStateType, 6, 1 > StateType;
 
+    std::map< int, boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
+    stationEphemerisVector[ 2 ] = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >, bodyWithReferencePoint, _1 );
+    stationEphemerisVector[ 0 ] = referencePointStateFunction;
+
+    std::map< int, boost::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
+    stationRotationVector[ 1 ] =  boost::bind( &ephemerides::transformStateToGlobalFrame< ScalarStateType, TimeType >, _2, _1, bodyRotationModel );
+
+    boost::shared_ptr< ephemerides::Ephemeris > ephemeris = boost::make_shared< ephemerides::CompositeEphemeris< TimeType, ScalarStateType > >(
+                stationEphemerisVector, stationRotationVector, "SSB", "ECLIPJ2000" );
+
+    return ephemeris;
+}
 
 template< typename TimeType = double, typename ScalarStateType = double >
 boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
@@ -50,7 +56,8 @@ boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > get
     {
         if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
         {
-            std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", station not found"<<std::endl;
+            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", station not found.";
+            throw std::runtime_error( errorMessage );
         }
 
         // Retrieve function to calculate state of transmitter S/C
@@ -58,7 +65,7 @@ boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType& ) > get
                 boost::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< ScalarStateType,TimeType >,
                              createReferencePointEphemeris< TimeType, ScalarStateType >(
                                  bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
-                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame< TimeType >,
+                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame< ScalarStateType, TimeType >,
                                               bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
 
     }
@@ -85,7 +92,8 @@ boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > getL
 {
     if( bodyMap.count( linkEndId.first ) == 0  )
     {
-        std::cerr<<"Error when making ephemeris function for "<<linkEndId.first<<", "<<linkEndId.second<<", body not found "<<std::endl;
+        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", body not found.";
+        throw std::runtime_error( errorMessage );
     }
     return getLinkEndCompleteEphemerisFunction< TimeType, ScalarStateType >( bodyMap.at( linkEndId.first ), linkEndId );
 }
