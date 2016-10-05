@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
 #include "Tudat/SimulationSetup/PropagationSetup/setNumericallyIntegratedStates.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
@@ -35,6 +36,29 @@ createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 
         interpolators::LagrangeInterpolator< double,
                                              Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
 }
+
+//! Function to create an interpolator for the new translational state of a body.
+template< >
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< long double, 6, 1 > > >
+createStateInterpolator( const std::map< Time, Eigen::Matrix< long double, 6, 1 > >& stateMap )
+{
+    return boost::make_shared<
+        interpolators::LagrangeInterpolator<
+            Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
+}
+
+
+//! Function to create an interpolator for the new translational state of a body.
+template< >
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix< double, 6, 1 > > >
+createStateInterpolator( const std::map< Time, Eigen::Matrix< double, 6, 1 > >& stateMap )
+{
+    return boost::make_shared<
+        interpolators::LagrangeInterpolator<
+            Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
+}
+
+
 
 
 } // namespace propagators

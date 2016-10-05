@@ -66,6 +66,10 @@ class ApproximatePlanetPositionsCircularCoplanar : public ApproximatePlanetPosit
 {
 public:
 
+    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianLongStateFromEphemeris;
+
+
     //! Default constructor.
     /*!
      * Default constructor that initializes the class from the body for which the position is

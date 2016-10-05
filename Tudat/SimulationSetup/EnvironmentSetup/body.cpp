@@ -17,6 +17,35 @@ namespace simulation_setup
 {
 
 template< >
+Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
+{
+    return getBaseFrameDoubleState( time );
+}
+
+template< >
+Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
+{
+    return getBaseFrameLongDoubleState( time );
+}
+
+template< >
+Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
+{
+    return getBaseFrameDoubleState( time );
+}
+
+template< >
+Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
+{
+    return getBaseFrameLongDoubleState( time );
+}
+
+
+
+
+
+
+template< >
 Eigen::Matrix< double, 6, 1 > Body::getTemplatedState( )
 {
     return getState( );
@@ -42,40 +71,6 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
     setLongState( state );
 }
 
-//! Templated function to get the current state of the body from its ephemeris and
-//! global-to-ephemeris-frame function.
-template<  >
-Eigen::Matrix< double, 6, 1 > Body::getTemplatedStateInBaseFrameFromEphemeris( const double& time )
-{
-    return getStateInBaseFrameFromEphemeris( time );
-}
-
-
-//! Templated function to get the current state of the body from its ephemeris and
-//! global-to-ephemeris-frame function.
-template<  >
-Eigen::Matrix< long double, 6, 1 >
-    Body::getTemplatedStateInBaseFrameFromEphemeris( const double& time )
-{
-    return getLongStateInBaseFrameFromEphemeris( time );
-}
-
-//! Templated function to set the current state of the body from its ephemeris and
-//! global-to-ephemeris-frame function.
-template< >
-void Body::setTemplatedStateFromEphemeris< double, double >( const double& time )
-{
-    currentState_ = getTemplatedStateInBaseFrameFromEphemeris< double, double >( time );
-}
-
-//! Templated function to set the current state of the body from its ephemeris and
-//! global-to-ephemeris-frame function.
-template< >
-void Body::setTemplatedStateFromEphemeris< long double, double >( const double& time )
-{
-    currentLongState_ = getTemplatedStateInBaseFrameFromEphemeris< long double, double >( time );
-    currentState_ = currentLongState_.cast< double >( );
-}
 
 } // namespace simulation_setup
 

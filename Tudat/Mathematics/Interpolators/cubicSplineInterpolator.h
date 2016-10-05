@@ -53,6 +53,7 @@
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -131,7 +132,7 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
  * \tparam IndependentVariableType Type of independent variables.
  * \tparam DependentVariableType Type of dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType, typename ScalarType = IndependentVariableType >
 class CubicSplineInterpolator :
         public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
@@ -255,19 +256,21 @@ public:
                     targetIndependentVariableValue );
 
         // Get independent variable values bounding interval in which requested value lies.
-        IndependentVariableType lowerValue, upperValue, squareDifference;
+        IndependentVariableType lowerValue, upperValue;
+        ScalarType squareDifference;
         lowerValue = independentValues_[ lowerEntry_ ];
         upperValue = independentValues_[ lowerEntry_ + 1 ];
 
         // Calculate coefficients A,B,C,D (see Numerical (Press W.H., et al., 2002))
-        squareDifference = ( upperValue - lowerValue ) * ( upperValue - lowerValue );
-        IndependentVariableType coefficientA_ = ( upperValue - targetIndependentVariableValue )
-                / ( upperValue - lowerValue );
-        IndependentVariableType coefficientB_ = 1 - coefficientA_;
-        IndependentVariableType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ -
-                                                  coefficientA_ ) / 6.0 * squareDifference;
-        IndependentVariableType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ -
-                                                  coefficientB_ ) / 6.0 * squareDifference;
+        squareDifference = static_cast< ScalarType >( upperValue - lowerValue ) *
+                static_cast< ScalarType >( upperValue - lowerValue );
+        ScalarType coefficientA_ = ( upperValue - targetIndependentVariableValue )
+                / static_cast< ScalarType >( upperValue - lowerValue );
+        ScalarType coefficientB_ = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA_;
+        ScalarType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ - coefficientA_ ) /
+                mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
+        ScalarType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ - coefficientB_ ) /
+                mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
 
         // The interpolated dependent variable value.
         return coefficientA_ * dependentValues_[ lowerEntry_ ] +
@@ -292,15 +295,15 @@ private:
         numberOfDataPoints_ = independentValues_.size( );
 
         // Sub-diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > aCoefficients_;
+        std::vector< ScalarType > aCoefficients_;
         aCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > bCoefficients_;
+        std::vector< ScalarType > bCoefficients_;
         bCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Super-diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > cCoefficients_;
+        std::vector< ScalarType > cCoefficients_;
         cCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Right-hand side of tridiagonal matrix system
@@ -308,15 +311,13 @@ private:
         rCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Temporary value vector.
-        std::vector< IndependentVariableType > hCoefficients_;
+        std::vector< ScalarType > hCoefficients_;
         hCoefficients_.resize( numberOfDataPoints_ - 1 );
 
         // Set second derivatives of curve to zero at endpoints, i.e. impose natural spline
         // condition.
-        aCoefficients_[ numberOfDataPoints_- 3 ] = independentValues_[ 0 ] -
-                                                   independentValues_[ 0 ];
-        cCoefficients_[ numberOfDataPoints_- 3 ] = independentValues_[ 0 ] -
-                                                   independentValues_[ 0 ];
+        aCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        cCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
 
         // Compute the vectors h (temporary values),a,c,b,r.
         for ( unsigned int i = 0; i < ( numberOfDataPoints_ - 1 ); i++ )
@@ -342,7 +343,7 @@ private:
 
         // Solve tridiagonal matrix equatuion.
         std::vector< DependentVariableType > middleSecondDerivativeOfCurvatures =
-                solveTridiagonalMatrixEquation< IndependentVariableType, DependentVariableType >
+                solveTridiagonalMatrixEquation< ScalarType, DependentVariableType >
                 ( aCoefficients_, bCoefficients_, cCoefficients_,  rCoefficients_ );
 
         // Append zeros to ends of calculated second derivative values (natural spline condition).

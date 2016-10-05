@@ -63,6 +63,9 @@ class SpiceEphemeris : public Ephemeris
 {
 public:
 
+    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianLongStateFromEphemeris;
+
     //! Constructor.
     /*!
      * Constructor, sets the input variables for the calls to the spice function to retrieve state.

@@ -60,6 +60,9 @@ class KeplerEphemeris : public Ephemeris
 {
 public:
 
+    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianLongStateFromEphemeris;
+
     //! Class constructor.
     /*!
      *  Class constructor, sets the characteristics of the Kepler orbit and the root finder

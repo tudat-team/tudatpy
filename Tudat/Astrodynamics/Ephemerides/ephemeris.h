@@ -43,9 +43,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
+#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
 
 namespace tudat
 {
@@ -104,6 +106,20 @@ public:
             const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
     {
         return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
+    }
+
+    virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const Time& currentTime )
+    {
+        return getCartesianStateFromEphemeris( currentTime.getSeconds< double >( ),
+                                               basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    }
+
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
+            const Time& currentTime )
+    {
+        return getCartesianLongStateFromEphemeris( currentTime.getSeconds< double >( ),
+                                                   basic_astrodynamics::JULIAN_DAY_ON_J2000 );
     }
 
     //! Get state from ephemeris, with state scalar as template type.

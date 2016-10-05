@@ -199,7 +199,7 @@ private:
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
-                            template setTemplatedStateFromEphemeris< StateScalarType, TimeType >( currentTime );
+                            template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
 
                 }
                 break;
@@ -399,7 +399,7 @@ private:
                             boost::function< void( const TimeType ) > stateSetFunction =
                                     boost::bind(
                                         &simulation_setup::Body
-                                            ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
+                                            ::setStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(

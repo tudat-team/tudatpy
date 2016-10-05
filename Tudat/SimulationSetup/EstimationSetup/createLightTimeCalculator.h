@@ -42,7 +42,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
 
     // Create list of state/rotation functions that are to be used
     std::map< int, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
-    stationEphemerisVector[ 2 ] = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris
+    stationEphemerisVector[ 2 ] = boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
                                                < StateScalarType, TimeType >, bodyWithReferencePoint, _1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
@@ -95,7 +95,7 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     else
     {
         // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                                         bodyWithLinkEnd, _1 );
     }
     return linkEndCompleteEphemerisFunction;

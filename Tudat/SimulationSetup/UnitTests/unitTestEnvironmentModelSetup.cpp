@@ -674,9 +674,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     double testTime = 0.5E7;
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
 
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
             bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
