@@ -31,12 +31,14 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
+//! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
 template<  >
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
 {
     return getCartesianStateFromEphemeris( time );
 }
 
+//! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
 template<  >
 Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
 {

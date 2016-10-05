@@ -393,8 +393,8 @@ void testCowellPropagationOfKeplerOrbit( )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            boost::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, initialEphemerisTime, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
@@ -490,6 +490,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
     testCowellPropagationOfKeplerOrbit< double, long double >( );
+    testCowellPropagationOfKeplerOrbit< Time, double >( );
+    testCowellPropagationOfKeplerOrbit< Time, long double >( );
 
 }
 
