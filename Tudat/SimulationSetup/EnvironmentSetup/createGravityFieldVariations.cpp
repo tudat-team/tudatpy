@@ -142,7 +142,7 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
                 {
                     deformingBodyStateFunctions.push_back(
                                 boost::bind(
-                                    &Body::getStateInBaseFrameFromEphemeris,
+                                    &Body::getStateInBaseFrameFromEphemeris< double, double >,
                                     bodyMap.at( deformingBodies[ i ] ), _1 ) );
                 }
                 else
@@ -170,7 +170,7 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
             // Set state and orientation functions of perturbed body.
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != NULL )
             {
-                deformedBodyStateFunction = boost::bind( &Body::getStateInBaseFrameFromEphemeris,
+                deformedBodyStateFunction = boost::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
                                                          bodyMap.at( body ), _1 );
                 deformedBodyOrientationFunction = boost::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrame,

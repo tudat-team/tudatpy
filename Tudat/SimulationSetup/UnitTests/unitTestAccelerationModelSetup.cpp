@@ -343,9 +343,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
     bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
 
 

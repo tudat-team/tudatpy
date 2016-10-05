@@ -61,6 +61,9 @@ class TabulatedCartesianEphemeris : public Ephemeris
 {
 public:
 
+    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianLongStateFromEphemeris;
+
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     //! Typedef for state interpolator
@@ -130,6 +133,12 @@ public:
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
             const double secondsSinceEpoch,
             const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const Time& time );
+
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
+            const Time& time );
 
 
     //! Function to return the interpolator

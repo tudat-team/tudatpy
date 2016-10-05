@@ -31,6 +31,18 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
+template<  >
+Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianStateFromEphemeris( time );
+}
+
+template<  >
+Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianLongStateFromEphemeris( time );
+}
+
 //! Function to compute the relative state from two state functions.
 void getRelativeState(
         basic_mathematics::Vector6d& relativeState,

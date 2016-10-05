@@ -85,7 +85,7 @@ typedef boost::mt19937 GlobalRandomNumberGeneratorType;
  */
 GlobalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
 
-//! Compute modulo of double.
+//! Compute modulo of floating-point number (default double).
 /*!
  * Computes the remainder of division of one floating-point number by another. The modulo
  * computation is based on the mathematical definition of congruence, which is different from the
@@ -101,6 +101,15 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
 {
     return dividend - divisor * std::floor( dividend / divisor );
 }
+
+template< typename ScalarType >
+inline void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
+                                       ScalarType& moduloValue, int& numberOfDivisors )
+{
+    numberOfDivisors = std::floor( dividend / divisor );
+    moduloValue = dividend - divisor * static_cast< ScalarType >( numberOfDivisors );
+}
+
 
 //! Raise floating point variable to integer power.
 template< typename ScalarType >
