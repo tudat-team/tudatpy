@@ -108,6 +108,15 @@ public:
         return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
     }
 
+
+    //! Get state from ephemeris (with double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with double as state scalar at given time (as custom Time type). By default, this
+     * function casts the double getCartesianStateFromEphemeris to double. It may be overridden
+     * by derived classes.
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with double as state scalar
+     */
     virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
             const Time& currentTime )
     {
@@ -115,6 +124,14 @@ public:
                                                basic_astrodynamics::JULIAN_DAY_ON_J2000 );
     }
 
+    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type). By default, this
+     * function casts the double getCartesianStateFromEphemeris to long double. It may be overridden
+     * by derived classes to make use of full long double computations.
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with long double as state scalar
+     */
     virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
             const Time& currentTime )
     {
@@ -125,8 +142,7 @@ public:
     //! Get state from ephemeris, with state scalar as template type.
     /*!
      * Returns state from ephemeris (state scalar as template type) at given time.
-     * \param time Time at which ephemeris is to be evaluated (JULIAN_DAY_ON_J2000 used as reference
-              julian day when needed).
+     * \param time Time at which ephemeris is to be evaluated
      * \return State from ephemeris with requested state scalar type.
      */
     template< typename StateScalarType, typename TimeType >

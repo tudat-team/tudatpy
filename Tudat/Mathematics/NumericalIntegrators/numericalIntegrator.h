@@ -61,7 +61,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
 public:
@@ -94,7 +94,7 @@ public:
      * last step size that was computed or passed to performIntegrationStep( ).
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const = 0;
+    virtual TimeStepType getNextStepSize( ) const = 0;
 
     //! Get current state.
     /*!
@@ -137,7 +137,7 @@ public:
      * \return The state at independentVariableEnd.
      */
     virtual StateType integrateTo( const IndependentVariableType intervalEnd,
-                                   const IndependentVariableType initialStepSize );
+                                   const TimeStepType initialStepSize );
 
     //! Perform a single integration step.
     /*!
@@ -149,7 +149,7 @@ public:
      * \param stepSize The step size of this step.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize ) = 0;
+    virtual StateType performIntegrationStep( const TimeStepType stepSize ) = 0;
 
     //! Function to return the function that computes and returns the state derivative
     /*!
@@ -172,25 +172,25 @@ protected:
 };
 
 //! Perform an integration to a specified independent variable value.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
-StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType >::
+template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::
 integrateTo( const IndependentVariableType intervalEnd,
-             const IndependentVariableType initialStepSize )
+             const TimeStepType initialStepSize )
 {
-    IndependentVariableType stepSize = initialStepSize;
+    TimeStepType stepSize = initialStepSize;
 
     // Flag to indicate that the integration end value of the independent variable has been
     // reached.
-    bool atIntegrationIntervalEnd = ( intervalEnd - getCurrentIndependentVariable( ) )
+    bool atIntegrationIntervalEnd = static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) )
             * stepSize / std::fabs( stepSize )
-            <= std::numeric_limits< IndependentVariableType >::epsilon( );
+            <= std::numeric_limits< TimeStepType >::epsilon( );
 
     while ( !atIntegrationIntervalEnd )
     {
         // Check if the remaining interval is smaller than the step size.
-        if ( std::fabs( intervalEnd - getCurrentIndependentVariable( ) )
+        if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
              <= std::fabs( stepSize ) *
-             ( 1.0 + std::numeric_limits< IndependentVariableType >::epsilon( ) ) )
+             ( 1.0 + std::numeric_limits< TimeStepType >::epsilon( ) ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
             // step size accordingly.

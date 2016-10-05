@@ -121,6 +121,18 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
+template< typename S, typename T, typename U, typename V, int Rows, int Columns >
+void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& originalMap,
+                          std::map< U, Eigen::Matrix< V, Rows, Columns > >& newTypesMap )
+{
+    newTypesMap.clear( );
+    for( typename std::map< S, Eigen::Matrix< T, Rows, Columns > >::const_iterator mapIterator = originalMap.begin( );
+         mapIterator != originalMap.end( ); mapIterator++ )
+    {
+        newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
+    }
+}
+
 }
 
 }

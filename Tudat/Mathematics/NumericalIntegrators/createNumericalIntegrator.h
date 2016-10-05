@@ -180,9 +180,9 @@ public:
  *  \param integratorSettings Settings for numerical integrator.
  *  \return Numerical integrator object
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType, typename TimeStepType = IndependentVariableType >
 boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
-DependentVariableType > > createIntegrator(
+DependentVariableType, TimeStepType > > createIntegrator(
         boost::function< DependentVariableType(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
@@ -190,20 +190,20 @@ DependentVariableType > > createIntegrator(
 
 {    
     boost::shared_ptr< NumericalIntegrator
-            < IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
+            < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > > integrator;
 
     // Retrieve requested type of integrator
     switch( integratorSettings->integratorType_ )
     {
     case euler:
         integrator = boost::make_shared< EulerIntegrator
-                < IndependentVariableType, DependentVariableType, DependentVariableType > >
+                < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
     case rungeKutta4:
 
         integrator = boost::make_shared< RungeKutta4Integrator
-                < IndependentVariableType, DependentVariableType, DependentVariableType > >
+                < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
 
@@ -225,16 +225,16 @@ DependentVariableType > > createIntegrator(
                         variableStepIntegratorSettings->coefficientSet_ );
             integrator = boost::make_shared<
                     RungeKuttaVariableStepSizeIntegrator
-                    < IndependentVariableType, DependentVariableType, DependentVariableType > >
+                    < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                     ( coefficients,
                       stateDerivativeFunction, integratorSettings->initialTime_, initialState,
-                      variableStepIntegratorSettings->minimumStepSize_,
-                      variableStepIntegratorSettings->maximumStepSize_,
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->minimumStepSize_ ),
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->maximumStepSize_ ),
                       variableStepIntegratorSettings->relativeErrorTolerance_,
                       variableStepIntegratorSettings->absoluteErrorTolerance_ ,
-                      variableStepIntegratorSettings->safetyFactorForNextStepSize_,
-                      variableStepIntegratorSettings->maximumFactorIncreaseForNextStepSize_,
-                      variableStepIntegratorSettings->minimumFactorDecreaseForNextStepSize_ );
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->safetyFactorForNextStepSize_ ),
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
         }
         break;
     }
@@ -242,49 +242,6 @@ DependentVariableType > > createIntegrator(
         std::runtime_error(
                     "Error, integrator " +  boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) +
                     "not found. " );    }
-    return integrator;
-}
-
-//! Function to create a numerical integrator.
-/*!
- *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
- *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
- *  \param initialState Initial state
- *  \param integratorSettings Settings for numerical integrator.
- *  \return Numerical integrator object
- */
-template< typename IndependentVariableType, typename DependentVariableType, typename TimeType = double >
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
-DependentVariableType > > createFixedStepSizeIntegrator(
-        boost::function< DependentVariableType(
-            const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
-        const DependentVariableType initialState,
-        boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
-
-{
-    boost::shared_ptr< NumericalIntegrator
-            < IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
-
-    // Retrieve requested type of integrator
-    switch( integratorSettings->integratorType_ )
-    {
-    case euler:
-        integrator = boost::make_shared< EulerIntegrator
-                < IndependentVariableType, DependentVariableType, DependentVariableType > >
-                ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
-        break;
-    case rungeKutta4:
-
-        integrator = boost::make_shared< RungeKutta4Integrator
-                < IndependentVariableType, DependentVariableType, DependentVariableType > >
-                ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
-        break;
-
-    default:
-        std::runtime_error(
-                    "Error, fixed step integrator " +
-                    boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) + "not found. " );
-    }
     return integrator;
 }
 

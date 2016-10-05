@@ -134,9 +134,23 @@ public:
             const double secondsSinceEpoch,
             const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+    //! Get cartesian state from ephemeris (in double precision from Time input).
+    /*!
+     * Returns cartesian state from ephemeris  (in double precision from Time input), as calculated from interpolator_.
+     * \param time Time at which ephemeris is to be evaluated
+     * \return State in Cartesian elements from ephemeris.
+     */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
             const Time& time );
 
+    //! Get cartesian state from ephemeris (in long double precision from Time input).
+    /*!
+     * Returns cartesian state from ephemeris  (in long double precision from Time input), as calculated from interpolator_.
+     * For double StateScalarType class template argument, this function returns the double precision interpolated values,
+     * cast to long double. Only for long double StateScalarType argument is this function used to its fullest.
+     * \param time Time at which ephemeris is to be evaluated
+     * \return State in Cartesian elements from ephemeris.
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
             const Time& time );
 
@@ -171,6 +185,8 @@ private:
     double julianDayAtEpoch_;
 
 };
+
+bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
 
 } // namespace ephemerides
 
