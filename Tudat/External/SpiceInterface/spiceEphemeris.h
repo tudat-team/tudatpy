@@ -26,7 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120717    D. Dirkx          File created.
  *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
- *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
+ *      130226    K. Kumar          Updated return-type for getCartesianState().
  *      140124    D. Dirkx          Corrected doxygen documentation.
  *
  *    References
@@ -63,8 +63,7 @@ class SpiceEphemeris : public Ephemeris
 {
 public:
 
-    using Ephemeris::getCartesianStateFromEphemeris;
-    using Ephemeris::getCartesianLongStateFromEphemeris;
+    using Ephemeris::getCartesianState;
 
     //! Constructor.
     /*!
@@ -89,14 +88,11 @@ public:
     //! Get Cartesian state from ephemeris.
     /*!
      * Returns Cartesian state from ephemeris at given Julian day.
-     * \param secondsSinceEpoch Seconds since reference epoch at which Cartesian state is to be
-     *          determined.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
      * \return State from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, 
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    basic_mathematics::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
 private:
 

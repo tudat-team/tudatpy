@@ -55,7 +55,7 @@ void resetIntegratedEphemerisOfBody(
  * Function to reset the tabulated ephemeris of a body, this requires the requested body to possess
  * an ephemeris of type TabulatedCartesianEphemeris< StateScalarType, TimeType >
  * \param bodyMap List of bodies used in simulations.
- * \param ephemerisInterpolator Interpolator providing the new state of the body as a function of time.
+ * \param ephemerisInput New state history of the body
  * \param bodyToIntegrate Name of body for which the ephemeris is to be reset.
  */
 template< typename TimeType, typename StateScalarType >

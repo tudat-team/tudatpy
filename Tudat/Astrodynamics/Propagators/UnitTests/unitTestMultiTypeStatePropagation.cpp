@@ -189,7 +189,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
             // Interpolate propagated dynamics type
             if( simulationCase == 3 )
             {
-                returnMap[ currentTime ] = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianStateFromEphemeris( currentTime );
+                returnMap[ currentTime ] = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianState( currentTime );
             }
             else if( simulationCase == 4 )
             {
@@ -199,7 +199,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
             else if( simulationCase == 5 )
             {
                 returnMap[ currentTime ] = Eigen::VectorXd::Zero( 7 );
-                returnMap[ currentTime ].segment( 0, 6 ) = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianStateFromEphemeris( currentTime );
+                returnMap[ currentTime ].segment( 0, 6 ) = bodyMap[ "Asterix" ]->getEphemeris( )->getCartesianState( currentTime );
                 returnMap[ currentTime ]( 6 ) = bodyMap[ "Asterix" ]->getBodyMassFunction( )( currentTime );
 
             }

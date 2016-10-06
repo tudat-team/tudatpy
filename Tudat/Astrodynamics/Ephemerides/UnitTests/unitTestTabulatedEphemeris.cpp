@@ -72,8 +72,8 @@ std::map< double, basic_mathematics::Vector6d > getStateHistoryMap(
     double currentTime = startTime;
     while( currentTime <= finalTime )
     {
-        stateHistoryMap[ currentTime ] = originalEphemeris->getCartesianStateFromEphemeris(
-                    currentTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+        stateHistoryMap[ currentTime ] = originalEphemeris->getCartesianState(
+                    currentTime);
         currentTime += timeStep;
     }
 
@@ -103,32 +103,32 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
     // Create tabulated epehemeris from interpolator
     boost::shared_ptr< TabulatedCartesianEphemeris< > > tabulatedEphemeris =
             boost::make_shared< TabulatedCartesianEphemeris< > >(
-                marsStateInterpolator, "SSB", "J2000", basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                marsStateInterpolator, "SSB", "J2000");
 
     // Compare interpolated and tabulated ephemeris state at dummy time.
     double testTime = 1.9337E5;
     basic_mathematics::Vector6d interpolatorState = marsStateInterpolator->interpolate( testTime );
-    basic_mathematics::Vector6d ephemerisState = tabulatedEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    basic_mathematics::Vector6d ephemerisState = tabulatedEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( interpolatorState, ephemerisState, 0.0 );
 
     // Compare direct and tabulated ephemeris state at dummy time (comparison not equal due to
     // interpolation errors).
-    basic_mathematics::Vector6d directState = marsNominalEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    basic_mathematics::Vector6d directState = marsNominalEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, 1.0E-10 );
     testTime = 5.836392E6;
 
     // Compare interpolated and tabulated ephemeris state at second dummy time.
     interpolatorState = marsStateInterpolator->interpolate( testTime );
-    ephemerisState = tabulatedEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    ephemerisState = tabulatedEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( interpolatorState, ephemerisState, 0.0 );
 
     // Compare direct and tabulated ephemeris state at second dummy time (comparison not equal due
     // to interpolation errors).
-    directState = marsNominalEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    directState = marsNominalEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, 1.0E-10 );
 
     // Create new ephemeris from which table is to be generated; used to reset input to tabulated
@@ -144,31 +144,17 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
             < double, basic_mathematics::Vector6d > > jupiterStateInterpolator =
             boost::make_shared< interpolators::CubicSplineInterpolator
             < double, basic_mathematics::Vector6d > >( jupiterStateHistoryMap );
-    tabulatedEphemeris->resetInterpolator( jupiterStateInterpolator,
-                                           basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    tabulatedEphemeris->resetInterpolator( jupiterStateInterpolator );
 
     // Test tabulated ephemeris with reset data.
     interpolatorState = jupiterStateInterpolator->interpolate( testTime );
-    ephemerisState = tabulatedEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    ephemerisState = tabulatedEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( interpolatorState, ephemerisState, 0.0 );
-    directState = jupiterNominalEphemeris->getCartesianStateFromEphemeris(
-                testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    directState = jupiterNominalEphemeris->getCartesianState(
+                testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, 1.0E-10 );
 
-    // Test whether check of reference epoch is succesfull. The following is expected to fail.
-    bool isErrorCaught = 0;
-    try
-    {
-        ephemerisState = tabulatedEphemeris->getCartesianStateFromEphemeris(
-                    testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 - 1.0 );
-    }
-    catch( std::runtime_error )
-    {
-        // Store the fact that a runtime error occurred, such that the values will be stored.
-        isErrorCaught = 1;
-    }
-    BOOST_CHECK_EQUAL( isErrorCaught, 1 );
 
     // Check whether getting of interpolator is correct
     BOOST_CHECK_EQUAL( tabulatedEphemeris->getInterpolator( ), jupiterStateInterpolator );

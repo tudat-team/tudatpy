@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
             boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
                 spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000" , "IAU_Earth", 0.0 ),
                 2.0 * mathematical_constants::PI / 86400.0,
-                1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                1.0E7,
                 "ECLIPJ2000" , "IAU_Earth" );
 
     earth->setRotationalEphemeris( simpleRotationalEphemeris );

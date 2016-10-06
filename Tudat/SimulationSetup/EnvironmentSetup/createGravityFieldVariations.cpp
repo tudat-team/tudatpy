@@ -174,8 +174,7 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
                                                          bodyMap.at( body ), _1 );
                 deformedBodyOrientationFunction = boost::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                            bodyMap.at( body )->getRotationalEphemeris( ), _1,
-                            basic_astrodynamics::JULIAN_DAY_ON_J2000  );
+                            bodyMap.at( body )->getRotationalEphemeris( ), _1 );
             }
             else
             {

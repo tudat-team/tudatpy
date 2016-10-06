@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     basic_mathematics::Vector6d currentGlobalState, currentGlobalStateFromFunction;
     for( double testTime = 1.0E7; testTime < 5.0E7; testTime += 2.5E6 )
     {
-        currentGlobalState = earth->getEphemeris( )->getCartesianStateFromEphemeris( testTime ) +
+        currentGlobalState = earth->getEphemeris( )->getCartesianState( testTime ) +
                 ephemerides::transformStateToGlobalFrame( groundStationState, testTime, earth->getRotationalEphemeris( ) );
         currentGlobalStateFromFunction = stateFunction( testTime );
         for( unsigned int i = 0; i < 6; i++ )

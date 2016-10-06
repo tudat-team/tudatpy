@@ -55,19 +55,19 @@ namespace ephemerides
 {
 
 //! Get state from ephemeris.
-basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianState(
+        const double secondsSinceEpoch)
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
     return orbital_element_conversions::
             convertKeplerianToCartesianElements(
-                getKeplerianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ),
+                getKeplerianStateFromEphemeris( secondsSinceEpoch ),
                 sunGravitationalParameter );
 }
 
 //! Get keplerian state from ephemeris.
 basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+        const double secondsSinceEpoch )
 {
     using std::pow;
     using std::sin;
@@ -76,7 +76,7 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
 
     // Set Julian date.
     julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
-                secondsSinceEpoch, julianDayAtEpoch );
+                secondsSinceEpoch, referenceJulianDate_ );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;

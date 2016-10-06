@@ -18,7 +18,7 @@ class ConstantEphemeris : public Ephemeris
 {
 public:
 
-    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianState;
 
     //! Constructor of a constant Ephemeris object
     /*!
@@ -51,12 +51,10 @@ public:
      * Returns state from ephemeris at given time.
      * \param seconsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated
               (not used in this derived class)
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state given by constantStateFunction_
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double seconsSinceEpoch = 0.0,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000)
+    basic_mathematics::Vector6d getCartesianState(
+            const double seconsSinceEpoch = 0.0 )
     {
         return constantStateFunction_( );
     }

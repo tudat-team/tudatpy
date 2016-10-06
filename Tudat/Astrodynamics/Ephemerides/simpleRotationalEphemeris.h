@@ -61,24 +61,19 @@ public:
      * \param initialRotationToTargetFrame Rotation from base to target frame at initial time
      *          (specified by 2nd and 3rd parameter).
      * \param rotationRate Constant rotation rate of body.
-     * \param initialSecondsSinceEpoch Seconds since epoch at which initialRotationToTargetFrame
-     *          is valid. Epoch is given by next parameter.
-     * \param inputReferenceJulianDay Julian day of epoch since which initialSecondsSinceEpoch is
-     *          counted.
+     * \param initialSecondsSinceEpoch Seconds since epoch at which primeMeridianOfDate  is valid.
      * \param baseFrameOrientation Base frame identifier.
      * \param targetFrameOrientation Target frame identifier.
      */
     SimpleRotationalEphemeris( const Eigen::Quaterniond& initialRotationToTargetFrame,
                                const double rotationRate,
                                const double initialSecondsSinceEpoch,
-                               const double inputReferenceJulianDay,
                                const std::string& baseFrameOrientation = "",
                                const std::string& targetFrameOrientation = "" )
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
           rotationRate_( rotationRate ),
           initialRotationToTargetFrame_( initialRotationToTargetFrame ),
-          initialSecondsSinceEpoch_( initialSecondsSinceEpoch ),
-          inputReferenceJulianDay_( inputReferenceJulianDay )
+          initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
         auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
@@ -96,10 +91,7 @@ public:
      * \param poleDeclination Declination of body's pole in base frame.
      * \param primeMeridianOfDate Position of prime meridian at given time.
      * \param rotationRate Constant rotation rate of body.
-     * \param initialSecondsSinceEpoch Seconds since epoch at which primeMeridianOfDate
-     *          is valid. Epoch is gievn by next parameter.
-     * \param inputReferenceJulianDay Julian day of epoch since which previous parameter is
-     *          counted.
+     * \param initialSecondsSinceEpoch Seconds since epoch at which primeMeridianOfDate  is valid.
      * \param baseFrameOrientation Base frame identifier.
      * \param targetFrameOrientation Target frame identifier.
      */
@@ -108,7 +100,6 @@ public:
                                const double primeMeridianOfDate,
                                const double rotationRate,
                                const double initialSecondsSinceEpoch,
-                               const double inputReferenceJulianDay,
                                const std::string& baseFrameOrientation = "",
                                const std::string& targetFrameOrientation = ""  )
         : RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
@@ -116,8 +107,7 @@ public:
           initialRotationToTargetFrame_(
               reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
                   poleDeclination, poleRightAscension, primeMeridianOfDate ) ),
-          initialSecondsSinceEpoch_( initialSecondsSinceEpoch ),
-          inputReferenceJulianDay_( inputReferenceJulianDay )
+          initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
         auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
@@ -131,44 +121,37 @@ public:
     /*!
      * Pure virtual function that calculates the rotation quaternion from target frame to base
      * frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument.
-     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
     Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch )
+            const double secondsSinceEpoch )
     {
-        return getRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch ).inverse( );
+        return getRotationToTargetFrame( secondsSinceEpoch ).inverse( );
     }
 
     //! Get rotation quaternion to target frame from base frame.
     /*!
      * Returns the rotation quaternion to target frame from base frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
      */
     Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch );
+            const double secondsSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original
     //! frame.
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time.
-     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+            const double secondsSinceEpoch )
     {
-        return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch ).
+        return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).
                 transpose( );
     }
 
@@ -177,15 +160,12 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from original frame to target
      *  frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
 
     //! Get rotation from target to base frame at initial time.
     /*!
@@ -200,13 +180,6 @@ public:
      * \return Seconds since Julian day epoch [s].
      */
     double getInitialSecondsSinceEpoch( ) { return initialSecondsSinceEpoch_; }
-
-    //! Get Julian day of reference epoch.
-    /*!
-     * Returns Julian day of reference epoch.
-     * \return Julian day of reference epoch.
-     */
-    double getInputReferenceJulianDay( ) { return inputReferenceJulianDay_; }
 
     //! Get rotation rate of body.
     /*!
@@ -264,11 +237,6 @@ private:
      */
     double initialSecondsSinceEpoch_;
 
-    //! Julian day of reference epoch.
-    /*!
-     * Julian day of reference epoch.
-     */
-    double inputReferenceJulianDay_;
 
     //! Initial Euler angles describing the rotational state of the body at initialSecondsSinceEpoch_
     /*!

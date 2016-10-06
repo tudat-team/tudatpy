@@ -295,17 +295,17 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1->interpolate( currentTime );
 
-        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
-        reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
+        reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianState( currentTime );
         reconstructedInertialSolution.segment( 12, 6 ) =
-                moonEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                moonEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
         reconstructedInertialSolution.segment( 18, 6 ) =
-                marsEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                marsEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
 
         // Compare states.
         stateDifference = reconstructedInertialSolution - currentInertialSolution;

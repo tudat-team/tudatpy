@@ -60,8 +60,7 @@ class KeplerEphemeris : public Ephemeris
 {
 public:
 
-    using Ephemeris::getCartesianStateFromEphemeris;
-    using Ephemeris::getCartesianLongStateFromEphemeris;
+    using Ephemeris::getCartesianState;
 
     //! Class constructor.
     /*!
@@ -76,10 +75,10 @@ public:
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier)
      *  (default ECLIPJ000
      *  \param rootFinderAbsoluteTolerance Convergence tolerance for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  convert mean to eccentric anomaly on each call to getCartesianState
      *  (default 200*epsilon).
      *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  convert mean to eccentric anomaly on each call to getCartesianState
      *  (default 1000).
      */
     KeplerEphemeris( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
@@ -94,14 +93,11 @@ public:
     //! Function to get state from ephemeris.
     /*!
      *  Returns state from ephemeris at given time, assuming a purely Keplerian orbit
-     *  \param secondsSinceEpoch Seconds since epoch (should be w.r.t. same reference time
-     *  as epochOfInitialState), and does not represent the time since epochOfInitialState.
-     *  \param julianDayAtEpoch Reference epoch in Julian day (default JD on J2000).
+     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Keplerian orbit Cartesian state at given time.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    basic_mathematics::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
 private:
 
