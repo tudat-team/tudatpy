@@ -66,8 +66,8 @@ class ApproximatePlanetPositionsCircularCoplanar : public ApproximatePlanetPosit
 {
 public:
 
-    using Ephemeris::getCartesianStateFromEphemeris;
-    using Ephemeris::getCartesianLongStateFromEphemeris;
+    using Ephemeris::getCartesianState;
+    using Ephemeris::getCartesianLongState;
 
 
     //! Default constructor.
@@ -78,11 +78,13 @@ public:
      *
      * \param bodyWithEphemerisData The body for which the position is approximated.
      * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
+     * \param referenceJulianDate Reference julian day w.r.t. which ephemeris is evaluated.
      * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositionsCircularCoplanar(
             BodiesWithEphemerisData bodyWithEphemerisData,
-            const double aSunGravitationalParameter = 1.32712440018e20 )
+            const double aSunGravitationalParameter = 1.32712440018e20,
+            const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
         : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
           constantOrbitalRadius_( -0.0 )
     {
@@ -93,11 +95,10 @@ public:
     /*!
      * Returns state in Cartesian elements from ephemeris for circular and coplanar orbit.
      * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch );
+    basic_mathematics::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
 protected:
 
@@ -108,6 +109,8 @@ private:
      * Constant orbital radius for circular orbit.
      */
     double constantOrbitalRadius_;
+
+    double referenceJulianDate_;
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsCircularCoplanar object.

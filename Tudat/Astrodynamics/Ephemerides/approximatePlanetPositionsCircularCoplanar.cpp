@@ -53,11 +53,11 @@ namespace ephemerides
 
 //! Get state from ephemeris; circular, coplanar case
 basic_mathematics::Vector6d ApproximatePlanetPositionsCircularCoplanar::
-getCartesianStateFromEphemeris( const double secondsSinceEpoch, const double julianDayAtEpoch )
+getCartesianState( const double secondsSinceEpoch )
 {
     // Set Julian date.
     julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
-                secondsSinceEpoch, julianDayAtEpoch );
+                secondsSinceEpoch, referenceJulianDate_ );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;

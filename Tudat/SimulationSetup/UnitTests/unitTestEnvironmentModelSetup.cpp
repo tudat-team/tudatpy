@@ -166,8 +166,8 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
         // Verify equivalence of automatically set up and manual models.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( manualApproximateEphemeris.getCartesianStateFromEphemeris( 1.0E7 ) ),
-                    ( approximateEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( manualApproximateEphemeris.getCartesianState( 1.0E7 ) ),
+                    ( approximateEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( spice_interface::getBodyCartesianStateAtEpoch(
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( spice_interface::getBodyCartesianStateAtEpoch(
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
 
         // Manually create table of states from spice
@@ -227,12 +227,12 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
         // Compare ephemerides away from node point.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
-                    ( tabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
+                    ( tabulatedEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
-                    ( manualTabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
+                    ( manualTabulatedEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -616,21 +616,21 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
     // Create rotation model manually.
     ephemerides::SimpleRotationalEphemeris manualApproximateEphemeris(
                 Eigen::Quaterniond( spiceInitialRotationToTargetFrameMatrix ),
-                venusRotationRate, 1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                venusRotationRate, 1.0E7,
                 "J2000", "IAU_VENUS" );
 
     // Verify equivalence of automatically set up and manual models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( Eigen::Matrix3d( manualApproximateEphemeris.getRotationToBaseFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 ( Eigen::Matrix3d( approximateEphemeris->getRotationToBaseFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( Eigen::Matrix3d( manualApproximateEphemeris.getRotationToTargetFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 ( Eigen::Matrix3d( approximateEphemeris->getRotationToTargetFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 std::numeric_limits< double >::epsilon( ) );
 
 }

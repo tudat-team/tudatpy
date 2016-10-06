@@ -122,26 +122,26 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     BOOST_CHECK_EQUAL( commonFrame.first, "Earth" );
     BOOST_CHECK_EQUAL( commonFrame.second, 1 );
 
-    basic_mathematics::Vector6d testState = frameManager->getEphemeris< >( "Moon", "LAGEOS" )->getCartesianStateFromEphemeris( 0.0 );
+    basic_mathematics::Vector6d testState = frameManager->getEphemeris< >( "Moon", "LAGEOS" )->getCartesianState( 0.0 );
     basic_mathematics::Vector6d expectedState = earthCentricLageosState - earthCentricMoonState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Phobos", "Sun" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Phobos", "Sun" )->getCartesianState( 0.0 );
     expectedState = sunCentricMarsState + marsCentricPhobosState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, ( -1.0 * expectedState ), std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Sun", "Phobos" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Sun", "Phobos" )->getCartesianState( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Sun", "Earth" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Sun", "Earth" )->getCartesianState( 0.0 );
     expectedState = sunCentricEarthState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( getBaseFrameName( ), "Earth" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( getBaseFrameName( ), "Earth" )->getCartesianState( 0.0 );
     expectedState = barycentricSunState + sunCentricEarthState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Earth", getBaseFrameName( ) )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Earth", getBaseFrameName( ) )->getCartesianState( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, ( -1.0 * expectedState ), std::numeric_limits< double >::epsilon( ) );
 
 }

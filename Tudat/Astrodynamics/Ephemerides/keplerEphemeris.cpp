@@ -121,8 +121,8 @@ KeplerEphemeris::KeplerEphemeris(
 }
 
 //! Function to get state from ephemeris.
-basic_mathematics::Vector6d KeplerEphemeris::getCartesianStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+basic_mathematics::Vector6d KeplerEphemeris::getCartesianState(
+        const double secondsSinceEpoch )
 {
     using namespace tudat::orbital_element_conversions;
 
