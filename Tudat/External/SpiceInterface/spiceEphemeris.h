@@ -78,12 +78,14 @@ public:
      *          iterations for calculating light time.
      * \param referenceFrameName Name of the reference frame in which the epehemeris is to be
      *          calculated.
+     * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
      */
     SpiceEphemeris( const std::string& targetBodyName, const std::string& observerBodyName,
                     const bool correctForStellarAbberation = true,
                     const bool correctForLightTimeAbberation = true,
                     const bool convergeLighTimeAbberation = false,
-                    const std::string& referenceFrameName = "ECLIPJ2000" );
+                    const std::string& referenceFrameName = "ECLIPJ2000",
+                    const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     //! Get Cartesian state from ephemeris.
     /*!
@@ -128,6 +130,9 @@ private:
      * ( see corresponding spice documentation ).
      */
     std::string abberationCorrections_;
+
+    //! Offset of reference julian day (from J2000) w.r.t. which ephemeris is evaluated.
+    double referenceDayOffSet_;
 };
 
 } // namespace ephemerides

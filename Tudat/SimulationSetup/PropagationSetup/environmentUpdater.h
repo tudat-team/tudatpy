@@ -404,6 +404,12 @@ private:
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
+
+                            resetFunctionVector_.push_back(
+                                        boost::make_tuple(
+                                            body_transational_state_update, currentBodies.at( i ),
+                                            boost::bind( &simulation_setup::Body::resetTimeOfCurrentState,
+                                                         bodyList_.at( currentBodies.at( i ) ), Time( TUDAT_NAN ) ) ) );
                         }
                         break;
                     }

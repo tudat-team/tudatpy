@@ -42,70 +42,147 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Base class used for the determination of the inertial state of a Body's ephemeris origin
+/*!
+ *  Base class used for the determination of the inertial state of a Body's ephemeris origin. This base class is used
+ *  to provide an untemplated interface class through which to call the base frame state. The state may be defined
+ *  in a templated manner in the derived class.
+ */
 class BaseStateInterface
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
+     */
     BaseStateInterface(
             const std::string baseFrameId ):
         baseFrameId_( baseFrameId ){ }
 
-
+    //! Destructor
     virtual ~BaseStateInterface( ){ }
 
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     template< typename OutputTimeType, typename OutputStateScalarType >
     Eigen::Matrix< OutputStateScalarType, 6, 1 > getBaseFrameState(
             const OutputTimeType time );
 
 protected:
 
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time ) = 0;
 
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double long state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time ) = 0;
 
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time ) = 0;
 
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and long double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time ) = 0;
 
-
+    //! Name of frame origin for which inertial state is computed by this class
     std::string baseFrameId_;
 };
 
+//! Class used for the determination of the inertial state of a Body's ephemeris origin
 template< typename TimeType, typename StateScalarType >
 class BaseStateInterfaceImplementation: public BaseStateInterface
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
+     * \param stateFunction Function returning frame's inertial state as a function of time.
+     */
     BaseStateInterfaceImplementation(
             const std::string baseFrameId,
             const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction ):
         BaseStateInterface( baseFrameId ),
         stateFunction_( stateFunction ){ }
 
-    BaseStateInterfaceImplementation( ){ }
+    //! Destructor
+    ~BaseStateInterfaceImplementation( ){ }
 
-    template< typename OutputTimeType, typename OutputStateScalarType >
-    Eigen::Matrix< OutputStateScalarType, 6, 1 > getBaseFrameState(
-            const OutputTimeType time )
-    {
-        return ( stateFunction_( static_cast< OutputTimeType >( time ) ) ).template cast< OutputStateScalarType >( );
-    }
 
 protected:
 
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
     {
         return stateFunction_( time ).template cast< double >( );
     }
 
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double long state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
     {
         return stateFunction_( time ).template cast< long double >( );
     }
 
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time )
     {
         return stateFunction_( time ).template cast< double >( );
     }
 
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and long double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
     {
         return stateFunction_( time ).template cast< long double >( );
@@ -113,6 +190,7 @@ protected:
 
 private:
 
+    //! Function returning frame's inertial state as a function of time.
     boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
 };
 
@@ -136,7 +214,7 @@ public:
      */
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ) )
-        : currentState_( state ),
+        : currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
           ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
                                           "", boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
@@ -195,40 +273,56 @@ public:
     //! global-to-ephemeris-frame function.
     /*!
      * Templated function to set the current state of the body from its ephemeris and
-     * global-to-ephemeris-frame function. It calls either the setStateFromEphemeris or
-     * setLongStateFromEphemeris function.
+     * global-to-ephemeris-frame function. It sets both the currentState_ and currentLongState_ variables. F
+     * FUndamental coputation is done on state with StateScalarType precision as a function of TimeType time
      * \param time Time at which the global state is to be set.
      */
     template< typename StateScalarType = double, typename TimeType = double >
     void setStateFromEphemeris( const TimeType& time )
     {
-        if( sizeof( StateScalarType ) == 8 )
+        if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
         {
-            currentState_ =
-                    getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).template cast< double >( );
-            currentLongState_ = currentState_.template cast< long double >( );
-        }
-        else
-        {
-            currentLongState_ =
-                    getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >( time ).template cast< long double >( );
-            currentState_ = currentLongState_.template cast< double >( );
+            if( sizeof( StateScalarType ) == 8 )
+            {
+                currentState_ =
+                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                        template cast< double >( );
+                currentLongState_ = currentState_.template cast< long double >( );
+            }
+            else
+            {
+                currentLongState_ =
+                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                        template cast< long double >( );
+                currentState_ = currentLongState_.template cast< double >( );
+            }
+
+            timeOfCurrentState_ = static_cast< TimeType >( time );
         }
     }
 
     //! Templated function to get the current state of the body from its ephemeris and
     //! global-to-ephemeris-frame function.
     /*!
-     * Templated function to sgt the current state of the body from its ephemeris and
-     * global-to-ephemeris-frame function.  It calls either the getStateInBaseFrameFromEphemeris or
-     * getLongStateInBaseFrameFromEphemeris function.getStateInBaseFrameFromEphemeris
-     * \param time Time at which the global state is to be set.
+     * Templated function to get the current state of the body from its ephemeris and
+     * global-to-ephemeris-frame function.  It calls the setStateFromEphemeris state, resetting the currentState_ /
+     * currentLongState_ variables, and returning the state with the requested precision
+     * \return State at requested time
      */
     template< typename StateScalarType = double, typename TimeType = double >
     Eigen::Matrix< StateScalarType, 6, 1 > getStateInBaseFrameFromEphemeris( const TimeType time )
     {
-       return bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
-               ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time );
+       setStateFromEphemeris< StateScalarType, TimeType >( time );
+       if( sizeof( StateScalarType ) == 8 )
+       {
+           return currentState_.template cast< StateScalarType >( );
+       }
+       else
+       {
+           return currentLongState_.template cast< StateScalarType >( );
+       }
 
     }
 
@@ -275,6 +369,11 @@ public:
      */
     Eigen::Matrix< long double, 3, 1 > getLongVelocity( ) { return currentLongState_.segment( 3, 3 ); }
 
+    //! Templated function to retrieve the state.
+    /*!
+     * Templated function to retrieve the state, calls either getState or getLongState function.
+     * \return  Current state of the body, with StateScalarType precision.
+     */
     template< typename ScalarStateType >
     Eigen::Matrix< ScalarStateType, 6, 1 > getTemplatedState( );
 
@@ -834,6 +933,7 @@ public:
         {
             std::cerr<<"Warning, station "<<stationName<<" does not exist"<<std::endl;
         }
+
         return groundStationMap.at( stationName );
     }
 
@@ -863,6 +963,10 @@ public:
         }
     }
 
+    void resetTimeOfCurrentState( const Time& timeOfCurrentState = TUDAT_NAN )
+    {
+        timeOfCurrentState_ = timeOfCurrentState;
+    }
 
 protected:
 
@@ -875,6 +979,8 @@ private:
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
 
+
+    Time timeOfCurrentState_;
 
 
 
