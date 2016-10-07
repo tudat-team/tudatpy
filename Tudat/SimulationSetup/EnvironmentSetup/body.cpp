@@ -16,24 +16,28 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template< >
 Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameDoubleState( time );
 }
 
+//! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template< >
 Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )
 {
     return getBaseFrameLongDoubleState( time );
 }
 
+//! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template< >
 Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
     return getBaseFrameDoubleState( time );
 }
 
+//! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template< >
 Eigen::Matrix< long double, 6, 1 > BaseStateInterface::getBaseFrameState( const Time time )
 {
