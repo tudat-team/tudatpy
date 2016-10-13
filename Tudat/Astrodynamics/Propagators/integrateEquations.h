@@ -47,7 +47,7 @@ namespace propagators
  *  \param printInterval Frequency with which to print progress to console (nan = never).
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-void integrateEquations2(
+void integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
         const boost::function< bool( const double ) > stopPropagationFunction,
@@ -192,7 +192,7 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        integrateEquations2< StateType, double >(
+        integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
                     dependentVariableHistory,
                     dependentVariableFunction,
@@ -201,7 +201,7 @@ public:
 };
 
 
-template< typename StateType>
+template< typename StateType >
 class EquationIntegrationInterface< StateType, Time >
 {
 public:
@@ -237,7 +237,7 @@ public:
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        integrateEquations2< StateType, Time, long double >(
+        integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
                     dependentVariableHistory,
                     dependentVariableFunction,

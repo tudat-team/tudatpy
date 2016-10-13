@@ -963,9 +963,14 @@ public:
         }
     }
 
-    void resetTimeOfCurrentState( const Time& timeOfCurrentState = TUDAT_NAN )
+    //! Function to indicate that the state needs to be recomputed on next call to setStateFromEphemeris.
+    /*!
+     * Function to reset the time to which the state was last updated using setStateFromEphemeris function to nan, thereby
+     * singalling that it needs to be recomputed upon next call.
+     */
+    void recomputeStateOnNextCall( )
     {
-        timeOfCurrentState_ = timeOfCurrentState;
+        timeOfCurrentState_ = Time( TUDAT_NAN );
     }
 
 protected:

@@ -248,9 +248,9 @@ public:
     }
 
 
-    //! Multiplication operator of a double with a Time object (i.e. to rescale time)
+    //! Multiplication operator of a long double with a Time object (i.e. to rescale time)
     /*!
-     * Multiplication operator of a double with a Time object (i.e. to rescale time)
+     * Multiplication operator of a long double with a Time object (i.e. to rescale time)
      * \param timeToMultiply1 Value by which Time is to be multiplied
      * \param timeToMultiply2 Time that is to be multiplied by first input argument
      * \return Multiplied Time object.
@@ -258,7 +258,7 @@ public:
     friend Time operator*( const long double timeToMultiply1, const Time& timeToMultiply2 )
     {
         long double newPeriods = timeToMultiply1 * static_cast< long double >( timeToMultiply2.fullPeriods_ );
-        long double roundedNewPeriods = std::floor( newPeriods );
+        long double roundedNewPeriods = static_cast< long double >( std::floor( newPeriods ) );
 
         int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
         long double newSecondsIntoFullPeriod_ = timeToMultiply2.secondsIntoFullPeriod_ * timeToMultiply1;
@@ -270,6 +270,18 @@ public:
     //! Multiplication operator of a long double with a Time object (i.e. to rescale time)
     /*!
      * Multiplication operator of a long double with a Time object (i.e. to rescale time)
+     * \param timeToMultiply1 Time that is to be multiplied by second input argument
+     * \param timeToMultiply2 Value by which Time is to be multiplied
+     * \return Multiplied Time object.
+     */
+    friend Time operator*( const Time& timeToMultiply1, const long double timeToMultiply2 )
+    {
+        return timeToMultiply2 * timeToMultiply1;
+    }
+
+    //! Multiplication operator of a double with a Time object (i.e. to rescale time)
+    /*!
+     * Multiplication operator of a double with a Time object (i.e. to rescale time)
      * \param timeToMultiply1 Value by which Time is to be multiplied
      * \param timeToMultiply2 Time that is to be multiplied by first input argument
      * \return Multiplied Time object.
@@ -288,6 +300,17 @@ public:
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
     }
 
+    //! Multiplication operator of a double with a Time object (i.e. to rescale time)
+    /*!
+     * Multiplication operator of a double with a Time object (i.e. to rescale time)
+     * \param timeToMultiply1 Time that is to be multiplied by second input argument
+     * \param timeToMultiply2 Value by which Time is to be multiplied
+     * \return Multiplied Time object.
+     */
+    friend Time operator*( const Time& timeToMultiply1, const double timeToMultiply2 )
+    {
+        return timeToMultiply2 * timeToMultiply1;
+    }
 
     //! Division operator of a Time object with a double (i.e. to rescale time)
     /*!
