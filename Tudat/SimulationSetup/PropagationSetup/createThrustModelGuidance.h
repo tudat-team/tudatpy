@@ -94,8 +94,8 @@ void resetThrustMagnitudeAndDirectionTime(
         const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime = TUDAT_NAN );
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATETHRUSTMODELGUIDANCE_H

@@ -80,8 +80,8 @@ private:
 };
 
 
-}
+} // namespace system_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_VEHICLESYSTEMS_H

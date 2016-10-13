@@ -214,7 +214,7 @@ public:
      * \return Rotation rate [rad/s].
      */
     double getRotationRate( ) { return rotationRate_; }
-\
+
     //! Function to reset the rotation rate of the body.
     /*!
      * Function to reset the rotation rate of the body.
@@ -281,7 +281,7 @@ private:
     Eigen::Matrix3d auxiliaryMatrix_;
 };
 
-} // namespace tudat
 } // namespace ephemerides
+} // namespace tudat
 
 #endif // TUDAT_SIMPLE_ROTATIONAL_EPHEMERIS_H

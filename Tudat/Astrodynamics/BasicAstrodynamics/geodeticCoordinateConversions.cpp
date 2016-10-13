@@ -34,6 +34,7 @@
  *
  */
 
+#include <vector>
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"

@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
+#include <vector>
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
