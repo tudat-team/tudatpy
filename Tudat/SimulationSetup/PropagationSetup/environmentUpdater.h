@@ -408,8 +408,8 @@ private:
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
                                             body_transational_state_update, currentBodies.at( i ),
-                                            boost::bind( &simulation_setup::Body::resetTimeOfCurrentState,
-                                                         bodyList_.at( currentBodies.at( i ) ), Time( TUDAT_NAN ) ) ) );
+                                            boost::bind( &simulation_setup::Body::recomputeStateOnNextCall,
+                                                         bodyList_.at( currentBodies.at( i ) ) ) ) );
                         }
                         break;
                     }

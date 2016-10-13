@@ -217,11 +217,9 @@ public:
         return getTemplatedCartesianStateFromCompositeEphemeris< double, long double >( secondsSinceEpoch );
     }
 
-    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    //! Get state from ephemeris (with double as state scalar and Time as time type).
     /*!
-     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type). By default, this
-     * function casts the double getCartesianState to long double. It may be overridden
-     * by derived classes to make use of full long double computations.
+     * Returns state from ephemeris with double as state scalar at given time (as custom Time type).
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with long double as state scalar
      */
@@ -231,12 +229,27 @@ public:
         return getTemplatedCartesianStateFromCompositeEphemeris< Time, double >( currentTime );
     }
 
+    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type).
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with long double as state scalar
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
             const Time& currentTime )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< Time, long double >( currentTime );
     }
 
+    //! Templated function to get the state from tabulated ephemeris.
+    /*!
+     *  Templated function to get the state from tabulated ephemeris. This function is called with the appropriate
+     *  template arguments by each of the specific state functions. Its function is to have only a single function
+     *  implemented, while ensuring that the numerical precision is at least that of the CompositeEphemeris and requested
+     *  time/state scalar types.
+     *  \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
+     *  \return State given by combined rotations and translations, at requested precision.
+     */
     template< typename OutputTimeType, typename OutputStateScalarType >
     Eigen::Matrix< OutputStateScalarType, 6, 1 > getTemplatedCartesianStateFromCompositeEphemeris(
             const OutputTimeType& currentTime )

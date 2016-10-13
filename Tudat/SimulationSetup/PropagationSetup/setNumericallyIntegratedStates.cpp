@@ -18,6 +18,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Function checking feasibility of resetting the translational dynamics
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
         const simulation_setup::NamedBodyMap& bodyMap )
