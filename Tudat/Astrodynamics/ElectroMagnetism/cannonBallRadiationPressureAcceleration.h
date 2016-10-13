@@ -172,7 +172,12 @@ public:
      * \return Radiation pressure acceleration.
      * \sa computeCannonBallRadiationPressureAcceleration().
      */
-    Eigen::Vector3d getAcceleration( );
+    Eigen::Vector3d getAcceleration( )
+    {
+        return computeCannonBallRadiationPressureAcceleration(
+                    currentRadiationPressure_, currentVectorToSource_, currentArea_,
+                    currentRadiationPressureCoefficient_, currentMass_ );
+    }
 
     //! Update member variables used by the radiation pressure acceleration model.
     /*!
@@ -181,7 +186,28 @@ public:
      * not the function-pointers are then used by the getAcceleration( ) function.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            currentVectorToSource_ = ( sourcePositionFunction_( )
+                                       - acceleratedBodyPositionFunction_( ) ).normalized( );
+            currentRadiationPressure_ = radiationPressureFunction_( );
+            currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
+            currentArea_ = areaFunction_( );
+            currentMass_ = massFunction_( );
+        }
+    }
+
+    //! Function to retrieve the function pointer returning mass of accelerated body.
+    /*!
+     * Function to retrieve the function pointer returning mass of accelerated body.
+     * \return Function pointer returning mass of accelerated body.
+     */
+    boost::function< double( ) > getMassFunction( )
+    {
+        return massFunction_;
+    }
 
 private:
 

@@ -45,8 +45,9 @@
 #ifndef TUDAT_ACCELERATION_MODEL_H
 #define TUDAT_ACCELERATION_MODEL_H
 
-#include <map>
 #include <vector>
+#include <map>
+#include <unordered_map>
 
 #include <boost/shared_ptr.hpp>
 
@@ -71,6 +72,11 @@ template < typename AccelerationDataType = Eigen::Vector3d >
 class AccelerationModel
 {
 public:
+
+
+    //! Constructor.
+    AccelerationModel( ):
+        currentTime_( TUDAT_NAN ){ }
 
     //! Virtual destructor.
     /*!
@@ -103,6 +109,11 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
+    //! Function to reset the current time
+    /*!
+     * Function to reset the current time of the acceleration model.
+     * \param currentTime Current time (default NaN).
+     */
     virtual void resetTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
@@ -110,6 +121,7 @@ public:
 
 protected:
 
+    //! Previous time to which acceleration model was updated.
     double currentTime_;
 
 protected:
@@ -137,14 +149,16 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * \tparam AccelerationDataType Data type used to represent accelerations
  *          (default=Eigen::Vector3d).
  * \param accelerationModel Acceleration model that is to be evaluated.
+ * \param currentTime Time at which acceleration model is to be updated.
  * \return Acceleration that is obtained following the member update.
  */
 template < typename AccelerationDataType >
 AccelerationDataType updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel )
+        const boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
+        const double currentTime = TUDAT_NAN )
 {
     // Update members.
-    accelerationModel->updateMembers( );
+    accelerationModel->updateMembers( currentTime );
 
     // Evaluate and return acceleration.
     return accelerationModel->getAcceleration( );
@@ -152,14 +166,14 @@ AccelerationDataType updateAndGetAcceleration(
 
 //! Typedef defining a list of accelerations acting on a single body, key is the name of each
 //! body exerting a acceletation, value is a list of accelerations exerted by that body.
-typedef std::map< std::string, std::vector<
+typedef std::unordered_map< std::string, std::vector<
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
 SingleBodyAccelerationMap;
 
 //! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
 //! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
 //! acting on it.
-typedef std::map< std::string, SingleBodyAccelerationMap > AccelerationMap;
+typedef std::unordered_map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 
 } // namespace basic_astrodynamics
 } // namespace tudat

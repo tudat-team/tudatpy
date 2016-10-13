@@ -1,37 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      130226    D. Dirkx          Migrated from personal code.
- *      130521    E. Brandon        Minor changes during code check.
- *      140127    D. Dirkx          Adapted for custom Spice kernel folder.
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #define BOOST_TEST_MAIN
@@ -88,8 +62,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
                 moon, "SSB", false, false, false, frame );
 
     // Create light-time calculator, Earth center transmitter, Moon center receiver.
-    boost::shared_ptr< LightTimeCalculator > lightTimeEarthToMoon =
-            boost::make_shared< LightTimeCalculator >
+    boost::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoon =
+            boost::make_shared< LightTimeCalculator< > >
             ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
               boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
@@ -182,8 +156,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     lightTimeCorrections.push_back( &getTimeDifferenceLightTimeCorrection );
 
     // Create light-time object with correction.
-    boost::shared_ptr< LightTimeCalculator > lightTimeEarthToMoonWithCorrection =
-            boost::make_shared< LightTimeCalculator >
+    boost::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoonWithCorrection =
+            boost::make_shared< LightTimeCalculator< > >
             ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
               boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
@@ -209,7 +183,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Create light-time object with correction, without iterating light-time corrections.
     lightTimeEarthToMoonWithCorrection =
-            boost::make_shared< LightTimeCalculator >
+            boost::make_shared< LightTimeCalculator< > >
             ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
               boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
@@ -239,7 +213,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Create light-time object with multiple corrections.
     lightTimeEarthToMoonWithCorrection =
-            boost::make_shared< LightTimeCalculator >
+            boost::make_shared< LightTimeCalculator< > >
             ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
                            basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
               boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,

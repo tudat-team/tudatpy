@@ -10,7 +10,13 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
+#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
+#include <Tudat/InputOutput/basicInputOutput.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include <Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
 
 namespace tudat
 {
@@ -48,12 +54,13 @@ void testAerodynamicAngleCalculation(
     // Create angle calculator
     AerodynamicAngleCalculator aerodynamicAngleCalculator(
                 boost::lambda::constant( testState ),
+                boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ), "", 1,
                 boost::lambda::constant( angleOfAttack ),
                 boost::lambda::constant( angleOfSideslip),
-                boost::lambda::constant( bankAngle ), 1 );
+                boost::lambda::constant( bankAngle ) );
 
     // Update angle calculator.
-    aerodynamicAngleCalculator.update( );
+    aerodynamicAngleCalculator.update( 0.0, true );
 
     // Compare expected against computed angles.
     BOOST_CHECK_SMALL(
@@ -216,10 +223,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
                                          testLatitude, testLongitude,
                                          angleOfAttack, angleOfSideslip, bankAngle );
     }
-
-
-
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

@@ -123,8 +123,7 @@ public:
         // Check if field variation set exists.
         if( gravityFieldVariationsSet_ == NULL )
         {
-            std::cerr << "Warning, gravity field coefficient update functions are NULL " <<
-                       " when requesting update" << std::endl;
+            throw std::runtime_error( "Warning, gravity field coefficient update functions are NULL when requesting update" );
         }
         else
         {
@@ -190,7 +189,7 @@ public:
         }
         else
         {
-            std::cerr << "Error when resetting nominal cosine coefficient" << std::endl;
+            throw std::runtime_error( "Error when resetting nominal cosine coefficient" );
         }
     }
 
@@ -230,7 +229,7 @@ public:
         }
         else
         {
-            std::cerr << "Error when resetting nominal sine coefficient" << std::endl;
+            throw std::runtime_error( "Error when resetting nominal sine coefficient" );
         }
     }
 

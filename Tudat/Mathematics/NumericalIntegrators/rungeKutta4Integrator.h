@@ -38,8 +38,6 @@
  *    References
  *
  *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
  *
  */
 
@@ -259,7 +257,7 @@ typedef boost::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPoin
  */
 typedef boost::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
-} // namespace integrators
+} // namespace numerical_integrators
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H

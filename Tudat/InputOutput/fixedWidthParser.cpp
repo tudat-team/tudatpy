@@ -116,7 +116,7 @@ void FixedWidthParser::parseLine( std::string& line )
     }
 
     // Verify that number of individual vectors corresponds to the specified number of fields.
-    if ( vectorOfIndividualStrings_.size() != numberOfFields_ )
+    if ( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
     {
         std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size( )
         << ") does not match the specified number of fields (" << numberOfFields_ << ")"

@@ -34,8 +34,6 @@
  *    References
  *
  *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
  *
  */
 
@@ -152,6 +150,16 @@ public:
      * \return The state at the end of the interval.
      */
     virtual StateType performIntegrationStep( const IndependentVariableType stepSize ) = 0;
+
+    //! Function to return the function that computes and returns the state derivative
+    /*!
+     * Function to return the function that computes and returns the state derivative
+     * \return Function that returns the state derivative
+     */
+    StateDerivativeFunction getStateDerivativeFunction( )
+    {
+        return stateDerivativeFunction_;
+    }
 
 protected:
 

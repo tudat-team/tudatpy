@@ -29,9 +29,9 @@
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
-#include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/createBodies.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 
 namespace tudat
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     // Manually create acceleration model.
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel< > >(
+            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter,
             planetaryRadius, cosineCoefficients, sineCoefficients,
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Manually create acceleration.
     manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel< > >(
+            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter * 1.1,
             planetaryRadius, cosineCoefficients, sineCoefficients,
@@ -657,6 +657,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     boost::lambda::constant( bankAngle ) );
 
         // Update flight conditions
+        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number

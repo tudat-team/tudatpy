@@ -124,10 +124,37 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationFunction
         const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrameFromRotations(
+    return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame, rotationToFrameFunction( ),
                 rotationMatrixToFrameDerivativeFunction( ) );
 }
+
+//! Transform a relative state (Cartesian position and velocity) from one frame to another.
+/*!
+ *  Transform a relative state (Cartesian position and velocity) from one frame to another, taking into
+ *  account both the instantaneous rotational state of the two frames, and the rotational
+ *  rate of one frame w.r.t. the other.
+ *  \param stateInBaseFrame State that is to be transformed from base to target frame.
+ *  \param centralBodyStateInBaseFrame State of central body w.r.t. which returned state is to be computed.
+ *  State returned by this function must be in frame with same orientation as that returned by stateInBaseFrame.
+ *  \param rotationToFrameFunction Function returning rotation from base to target frame.
+ *  \param rotationMatrixToFrameDerivativeFunction Function returning time derivative of rotation
+ *   matrix from base to target frame.
+ *  \return State (Cartesian position and velocity) in target frame.
+ */
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > stateInBaseFrame,
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > centralBodyStateInBaseFrame,
+        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
+                rotationMatrixToFrameDerivativeFunction( ) );
+}
+
+
 
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
@@ -330,8 +357,19 @@ protected:
 
 };
 
+template< typename StateScalarType, typename TimeType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
+        const TimeType currentTime,
+        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrame( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
 
-} // namespace tudat
+}
+
 } // namespace ephemerides
+} // namespace tudat
 
 #endif // TUDAT_ROTATIONAL_EPHEMERIS_H

@@ -49,7 +49,7 @@
  *
  */
 
-#include <iostream>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
@@ -57,9 +57,6 @@ namespace tudat
 {
 namespace geometric_shapes
 {
-
-using std::cerr;
-using std::endl;
 
 //! Set minimum value of independent variable.
 void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIndex,
@@ -86,9 +83,9 @@ void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIn
 
     default:
 
-        cerr << " Only 2 independent variables, variable "
-             << parameterIndex << " does not exist when"
-             << "setting minimum value"<< endl;
+        std::string errorMessage =  "Only 2 independent variables, variable " +
+                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when setting minimum value";
+        throw std::runtime_error( errorMessage );
     }
 }
 
@@ -118,9 +115,9 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
 
     default:
 
-        cerr << " Only 2 independent variables, variable "
-             << parameterIndex << " does not exist when"
-             << "setting maximum value"<< endl;
+        std::string errorMessage =  "Only 2 independent variables, variable " +
+                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when setting maximum value";
+        throw std::runtime_error( errorMessage );
     }
 }
 
@@ -147,11 +144,9 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable( const int parameter
 
     default:
 
-        minimumValue_ = -0.0;
-
-        cerr << " Only 2 independent variables, variable "
-             <<  parameterIndex << " does not exist when "
-             << "getting minimum value, returning -0.0" << endl;
+        std::string errorMessage =  "Only 2 independent variables, variable " +
+                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when getting minimum value";
+        throw std::runtime_error( errorMessage );
     }
 
     // Return minimum value.
@@ -180,11 +175,9 @@ double SingleSurfaceGeometry::getMaximumIndependentVariable( const int parameter
         break;
 
     default:
-
-        maximumValue_ = -0.0;
-
-        cerr << "Only 2 independent variables, variable " << parameterIndex << " does not exist "
-             << "when getting maximum value, returning -0.0" << endl;
+        std::string errorMessage =  "Only 2 independent variables, variable " +
+                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when getting maximum value";
+        throw std::runtime_error( errorMessage );
     }
 
     // Return maximum value.

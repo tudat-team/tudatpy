@@ -136,8 +136,8 @@ boost::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRand
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
         const double seed  );
-}
+} // namespace statistics
 
-}
+} // namespace tudat
 
-#endif // RANDOMVARIABLEGENERATION_H
+#endif // TUDAT_RANDOMVARIABLEGENERATION_H

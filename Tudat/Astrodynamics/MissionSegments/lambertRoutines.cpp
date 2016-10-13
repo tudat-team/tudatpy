@@ -226,8 +226,9 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Verify that root-finder has converged.
     if ( iterator == maximumNumberOfIterations )
     {
-        std::cerr << "Lambert Solver did not converge within the maximum number of iterations ("
-                  << maximumNumberOfIterations << ")." << std::endl;
+        std::string errorMessage = "Lambert Solver did not converge within the maximum number of iterations: " +
+                boost::lexical_cast< std::string >( maximumNumberOfIterations );
+        throw std::runtime_error( errorMessage );
     }
 
     // Revert to x parameter.

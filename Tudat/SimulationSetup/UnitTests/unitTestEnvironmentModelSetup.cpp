@@ -18,6 +18,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+
 #if USE_NRLMSISE00
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
@@ -44,14 +45,15 @@
 #include "Tudat/InputOutput/parseSolarActivityData.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/SimulationSetup/createAtmosphereModel.h"
-#include "Tudat/SimulationSetup/createEphemeris.h"
-#include "Tudat/SimulationSetup/createGravityField.h"
-#include "Tudat/SimulationSetup/createRotationModel.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
 namespace tudat
 {
+
 namespace unit_tests
 {
 

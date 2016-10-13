@@ -206,9 +206,11 @@ public:
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
-            throw std::runtime_error(
-                        "Error in AerodynamicCoefficientGenerator, number of "
-                        "input variables is inconsistent " );
+            std::string errorMessage =
+                    "Error in AerodynamicCoefficientGenerator, number of input variables is inconsistent " +
+                    boost::lexical_cast< std::string >( independentVariables.size( ) ) + ", " +
+                    boost::lexical_cast< std::string >( numberOfIndependentVariables_ );
+            throw std::runtime_error( errorMessage );
         }
 
         // Update current coefficients.

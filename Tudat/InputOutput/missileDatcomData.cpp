@@ -54,8 +54,6 @@ namespace input_output
 
 using unit_conversions::convertDegreesToRadians;
 using std::iterator;
-using std::string;
-using std::vector;
 
 //! Constructor that reads and processes Missile Datcom output.
 MissileDatcomData::MissileDatcomData( const std::string& fileNameAndPath )
@@ -65,13 +63,13 @@ MissileDatcomData::MissileDatcomData( const std::string& fileNameAndPath )
 }
 
 //! Function to convert the MissileDatcomData.
-void MissileDatcomData::convertDatcomData( const vector< double >& datcomData )
+void MissileDatcomData::convertDatcomData( const std::vector< double >& datcomData )
 {
-    vector< double > datcomDataToBeConverted = datcomData;
+    std::vector< double > datcomDataToBeConverted = datcomData;
 
     // Add an extra item at the begin, such that the first real value is at entry 1.
     // The same indices as described in the MissileDatcom user manual can now be used.
-    vector< double >::iterator it;
+    std::vector< double >::iterator it;
     it = datcomDataToBeConverted.begin( );
     datcomDataToBeConverted.insert( it,-0.0 );
 
@@ -210,7 +208,7 @@ void MissileDatcomData::writeCoefficientsToFile( const std::string& fileNameBase
         // Make filename for specific angle of attack.
         std::ostringstream stringstream;
         stringstream << fileNameBase << "_" << i;
-        string fileName = stringstream.str( );
+        std::string fileName = stringstream.str( );
 
         // Open output file.
         std::ofstream outputFile;

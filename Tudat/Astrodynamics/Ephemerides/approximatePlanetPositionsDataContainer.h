@@ -93,48 +93,47 @@ public:
                                      ApproximatePlanetPositionsDataContainer&
                                      approximatePlanetPositionsDataContainer )
     {
-        using std::endl;
 
-        stream << "This is an ApproximatePlanetPositionsDataContainer object. " << endl;
+        stream << "This is an ApproximatePlanetPositionsDataContainer object. " << std::endl;
         stream << "The data corresponds to the table entry for "
-               << approximatePlanetPositionsDataContainer.planetName_ << endl;
+               << approximatePlanetPositionsDataContainer.planetName_ << std::endl;
         stream << "The semi-major axis in AU is set to: "
-               << approximatePlanetPositionsDataContainer.semiMajorAxis_ << endl;
+               << approximatePlanetPositionsDataContainer.semiMajorAxis_ << std::endl;
         stream << "The eccentricity in radians is set to: "
-               << approximatePlanetPositionsDataContainer.eccentricity_ << endl;
+               << approximatePlanetPositionsDataContainer.eccentricity_ << std::endl;
         stream << "The inclination in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.inclination_ << endl;
+               << approximatePlanetPositionsDataContainer.inclination_ << std::endl;
         stream << "The mean longitude in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.meanLongitude_ << endl;
+               << approximatePlanetPositionsDataContainer.meanLongitude_ << std::endl;
         stream << "The longitude of perihelion in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_ << endl;
+               << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_ << std::endl;
         stream << "The longitude of the ascending node in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_<< endl;
+               << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_<< std::endl;
         stream << "The rate of change of semi-major axis AU per century is set to: "
-               << approximatePlanetPositionsDataContainer.rateOfChangeOfSemiMajorAxis_ << endl;
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfSemiMajorAxis_ << std::endl;
         stream << "The rate of change of eccentricity in radians per century is set to: "
-               << approximatePlanetPositionsDataContainer.rateOfChangeOfEccentricity_ << endl;
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfEccentricity_ << std::endl;
         stream << "The rate of change of inclination in degrees per century is set to: "
-               << approximatePlanetPositionsDataContainer.rateOfChangeOfInclination_ << endl;
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfInclination_ << std::endl;
         stream << "The rate of change of mean longitude in degrees per century is set to: "
-               << approximatePlanetPositionsDataContainer.rateOfChangeOfMeanLongitude_ << endl;
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfMeanLongitude_ << std::endl;
         stream << "The rate of change of longitude of perihelion in degrees per century is set to: "
-               << approximatePlanetPositionsDataContainer.rateOfChangeOfLongitudeOfPerihelion_ << endl;
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfLongitudeOfPerihelion_ << std::endl;
         stream << "The rate of change of longitude of ascending node in degrees per century is set "
                << "to: " << approximatePlanetPositionsDataContainer
-                  .rateOfChangeOfLongitudeOfAscendingNode_ << endl;
+                  .rateOfChangeOfLongitudeOfAscendingNode_ << std::endl;
 
         // Check if additional terms are defined for outer planets.
         if ( approximatePlanetPositionsDataContainer.additionalTermB_ != -0.0 )
         {
             stream << "The additional term B is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermB_ << endl;
+                   << approximatePlanetPositionsDataContainer.additionalTermB_ << std::endl;
             stream << "The additional term C is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermC_ << endl;
+                   << approximatePlanetPositionsDataContainer.additionalTermC_ << std::endl;
             stream << "The additional term S is set to: "
-                   << approximatePlanetPositionsDataContainer.additionalTermS_ << endl;
+                   << approximatePlanetPositionsDataContainer.additionalTermS_ << std::endl;
             stream << "The additional term F is set to: "
-                   << approximatePlanetPositionsDataContainer .additionalTermF_ << endl;
+                   << approximatePlanetPositionsDataContainer .additionalTermF_ << std::endl;
         }
 
         // Return stream.

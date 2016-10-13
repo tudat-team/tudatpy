@@ -507,6 +507,12 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
     return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
 }
 
+//! Compute Mach number
+double computeMachNumber( const double speed, const double speedOfSound )
+{
+    return speed / speedOfSound;
+}
+
 //! Function to compute the mean free path of a particle.
 double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
 {
