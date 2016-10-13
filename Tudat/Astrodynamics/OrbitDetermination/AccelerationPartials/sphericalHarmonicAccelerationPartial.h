@@ -363,8 +363,8 @@ protected:
 
 };
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H

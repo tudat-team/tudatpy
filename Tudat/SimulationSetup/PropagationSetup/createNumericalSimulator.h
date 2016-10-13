@@ -94,8 +94,8 @@ createSingleArcVariationalEquationsSolver(
                 clearNumericalSolution, integrateEquationsOnCreation );
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
-#endif // CREATENUMERICALSIMULATOR_H
+#endif // TUDAT_CREATENUMERICALSIMULATOR_H

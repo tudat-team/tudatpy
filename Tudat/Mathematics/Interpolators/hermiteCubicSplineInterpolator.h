@@ -185,8 +185,8 @@ private:
 //! Typede for cubic hermite spline with double (in)dependent variables.
 typedef HermiteCubicSplineInterpolator< double, double > HermiteCubicSplineInterpolatorDouble;
 
-} //namespace tudat
+} // namespace interpolators
 
-} //namespace interpolators
+} // namespace tudat
 
 #endif // TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H

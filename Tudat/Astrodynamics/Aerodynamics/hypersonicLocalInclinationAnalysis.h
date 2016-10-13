@@ -52,7 +52,6 @@
 #ifndef TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 #define TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 
-#include <iostream>
 #include <map>
 #include <string>
 #include <vector>

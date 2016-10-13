@@ -66,6 +66,8 @@
 #ifndef TUDAT_COORDINATE_CONVERSIONS_H
 #define TUDAT_COORDINATE_CONVERSIONS_H
 
+#include <vector>
+
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"

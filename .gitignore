@@ -40,6 +40,7 @@ install_manifest.txt
 *.exe
 *.out
 *.app
+*.sh
 
 #
 # Build and doxygen related

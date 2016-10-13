@@ -114,9 +114,9 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const std::pair< std::string, std::string >& transmitter,
         const std::pair< std::string, std::string >& receiver );
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_CREATELIGHTTIMECORRECTION_H

@@ -76,21 +76,19 @@ TwoLineElementData::TwoLineElementData( )
 std::ostream& operator<<( std::ostream& stream,
                           TwoLineElementData& twoLineElementData )
 {
-    // Using declarations.
-    using std::endl;
 
-    stream << "This is a TLE data object." << endl;
-    stream << "The converted TLE information is stored as: " << endl;
+    stream << "This is a TLE data object." << std::endl;
+    stream << "The converted TLE information is stored as: " << std::endl;
 
-    stream << "TLE line 0: " << endl;
+    stream << "TLE line 0: " << std::endl;
     for ( unsigned int i = 0; i < twoLineElementData.objectName.size( ); i++ )
     {
         stream << twoLineElementData.objectName.at( i ) << " ";
     }
-    stream << endl;
-    stream << twoLineElementData.objectNameString << endl;
+    stream << std::endl;
+    stream << twoLineElementData.objectNameString << std::endl;
 
-    stream << "TLE line 1: " << endl;
+    stream << "TLE line 1: " << std::endl;
     stream << twoLineElementData.lineNumberLine1 << " ";
     stream << twoLineElementData.objectIdentificationNumber << " ";
     stream << twoLineElementData.tleClassification << " ";
@@ -110,9 +108,9 @@ std::ostream& operator<<( std::ostream& stream,
     stream << twoLineElementData.bStar << " ";
     stream << twoLineElementData.orbitalModel << " ";
     stream << twoLineElementData.tleNumber << " ";
-    stream << twoLineElementData.modulo10CheckSumLine1 << endl;
+    stream << twoLineElementData.modulo10CheckSumLine1 << std::endl;
 
-    stream << "TLE line 2: " << endl;
+    stream << "TLE line 2: " << std::endl;
     stream << twoLineElementData.lineNumberLine2 << " ";
     stream << twoLineElementData.objectIdentificationNumberLine2 << " ";
     stream << twoLineElementData.TLEKeplerianElements(
@@ -127,14 +125,14 @@ std::ostream& operator<<( std::ostream& stream,
     stream << twoLineElementData.meanMotionInRevolutionsPerDay << " ";
     stream << twoLineElementData.revolutionNumber << " ";
     stream << twoLineElementData.totalRevolutionNumber << " ";
-    stream << twoLineElementData.modulo10CheckSumLine2 << endl;
+    stream << twoLineElementData.modulo10CheckSumLine2 << std::endl;
 
-    stream << "Calculated values: " << endl;
+    stream << "Calculated values: " << std::endl;
     stream << "Semi-Major Axis = " << twoLineElementData.TLEKeplerianElements(
                   orbital_element_conversions::semiMajorAxisIndex )
-           << endl;
-    stream << "Perigee = " << twoLineElementData.perigee << endl;
-    stream << "Apogee = " << twoLineElementData.apogee << endl;
+           << std::endl;
+    stream << "Perigee = " << twoLineElementData.perigee << std::endl;
+    stream << "Apogee = " << twoLineElementData.apogee << std::endl;
 
     // Return stream.
     return stream;

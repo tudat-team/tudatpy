@@ -9,8 +9,8 @@
  */
 
 
-#ifndef ENVIRONMENTUPDATETYPES_H
-#define ENVIRONMENTUPDATETYPES_H
+#ifndef TUDAT_ENVIRONMENTUPDATETYPES_H
+#define TUDAT_ENVIRONMENTUPDATETYPES_H
 
 #include <string>
 #include <vector>
@@ -46,7 +46,7 @@ void addEnvironmentUpdates(
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
         updatesToAdd );
 
-}
+} // namespace propagators
 
-}
-#endif // ENVIRONMENTUPDATETYPES_H
+} // namespace tudat
+#endif // TUDAT_ENVIRONMENTUPDATETYPES_H
