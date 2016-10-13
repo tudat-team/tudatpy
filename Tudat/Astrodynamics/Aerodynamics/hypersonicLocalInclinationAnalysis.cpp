@@ -67,8 +67,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-using std::string;
-using std::endl;
 using basic_mathematics::Vector6d;
 using mathematical_constants::PI;
 
@@ -663,8 +661,9 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
 
     else
     {
-        std::cerr << "Error, expansion local inclination method number "<< method <<
-                     " not recognized" << std::endl;
+        std::string errorMessage = "Error, expansion local inclination method number "
+                + boost::lexical_cast< std::string >( method ) + " not recognized";
+        throw std::runtime_error( errorMessage );
     }
 }
 

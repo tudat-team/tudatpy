@@ -42,6 +42,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 
 namespace tudat
 {
@@ -144,9 +145,20 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             // Update two constituent acceleration models.
-            accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
-            accelerationModelForCentralBody_->updateMembers( );
+            accelerationModelForBodyUndergoingAcceleration_->updateMembers( currentTime );
+            accelerationModelForCentralBody_->updateMembers( currentTime );
         }
+    }
+
+    //! Function to reset the current time
+    /*!
+     * Function to reset the current time of the acceleration model.
+     * \param currentTime Current time (default NaN).
+     */
+    void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        accelerationModelForBodyUndergoingAcceleration_->resetTime( currentTime );
+        accelerationModelForCentralBody_->resetTime( currentTime );
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.
@@ -207,8 +219,13 @@ typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
 ThirdBodyCentralGravityAcceleration;
 
 //! Typedef for third body spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd >
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
+
+//! Typedef for third body mutual spherical harmonic gravity acceleration.
+typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
+ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
+
 
 } // namespace gravitation
 

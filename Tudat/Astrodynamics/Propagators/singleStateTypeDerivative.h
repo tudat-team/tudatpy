@@ -13,13 +13,39 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
-
 namespace tudat
 {
 
 namespace propagators
 {
+
+
+
+//! Enum listing types of dynamics that can be numerically integrated
+enum IntegratedStateType
+{
+    hybrid = 0,
+    transational_state = 1,
+    body_mass_state = 2
+};
+
+
+//! Get size of state for single propagated state of given type.
+/*!
+ * Get size of state for single propagated state of given type (i.e. 6 for translational state).
+ * \param stateType Type of state
+ * \return Size of single state.
+ */
+int getSingleIntegrationSize( const IntegratedStateType stateType );
+
+//! Get order of differential equation for governing equations of dynamics of given type.
+/*!
+ * Get order of differential equation for governing equations of dynamics of given type (i.e. 2 for translational state).
+ * \param stateType Type of state
+ * \return Order of differential equations.
+ */
+int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
+
 
 //! Base class for calculating the state derivative model for a single type of dynamics.
 /*!
@@ -53,14 +79,22 @@ public:
      * updated before calling this function. It returns the state derivative in teh form required
      * for the specific type of propagator used (defined by derived class).
      * \param time Time at which the state derivative is to be calculated.
-     * \param stateOfSystemToBeIntegrated Current state of the system, in the form that the
-     * equations are propagated (i.e.  directly from numerical integrator)
-     * \return Derivative of the state of the system, in the form that the equations are propagated
-     * (i.e. to be piped directly to numerical integrator)
+     * \param stateOfSystemToBeIntegrated Current state of the system, in the form that the equations are propagated (i.e.
+     * directly from numerical integrator)
+     * \param stateDerivative Derivative of the state of the system, in the form that the equations are propagated
+     * (i.e. to be piped directly to numerical integrator), returned by reference.
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
+    virtual void calculateSystemStateDerivative(
             const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated ) =  0;
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative ) = 0;
+
+    //! Function to clear reference/cached values of state derivative model
+    /*!
+     * Function to clear reference/cached values of state derivative model, such as the current time and/or state.
+     * This function is to be implemented in each derived class
+     */
+    virtual void clearStateDerivativeModel( ) = 0;
 
     //! Function to update the state derivative model to the current time.
     /*!
@@ -82,11 +116,12 @@ public:
      * \param internalSolution State in propagator-specific form (i.e. form that is used in
      * numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the 'conventional form' in inertial
-     * coordinates, that can for instance be set directly in the body object.
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form' in inertial
+     * coordinates, that can for instance be set directly  in the body object (returned by reference).
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time ) = 0;
+    virtual void convertCurrentStateToGlobalRepresentation(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
@@ -113,10 +148,12 @@ public:
      * \param internalSolution State in propagator-specific form (i.e. form that is used in
      * numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the 'conventional form'
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form' (returned by
+     * reference).
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time ) = 0;
+    virtual void convertToOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
     //! Function to return the size of the state handled by the object
     /*!

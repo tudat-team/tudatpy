@@ -66,9 +66,12 @@
 #ifndef TUDAT_COORDINATE_CONVERSIONS_H
 #define TUDAT_COORDINATE_CONVERSIONS_H
 
+#include <vector>
+
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -107,7 +110,33 @@ Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoo
  * \return Vector containing sphericalCoordinates radius, zenith and azimuth (in that
  *          order), as calculated from sphericalCoordinates.
 */
-Eigen::Vector3d convertCartesianToSpherical( const Eigen::Vector3d& cartesianCoordinates );
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 3, 1 > convertCartesianToSpherical( const Eigen::Matrix< ScalarType, 3, 1 > & cartesianCoordinates )
+
+{
+    // Create output Vector3d.
+    Eigen::Matrix< ScalarType, 3, 1 > convertedSphericalCoordinates_ = Eigen::Matrix< ScalarType, 3, 1 >::Zero( );
+
+    // Compute transformation of Cartesian coordinates to spherical coordinates.
+    convertedSphericalCoordinates_( 0 ) = cartesianCoordinates.norm( );
+
+    // Check if coordinates are at origin.
+    if ( convertedSphericalCoordinates_( 0 ) < std::numeric_limits< ScalarType >::epsilon( ) )
+    {
+        convertedSphericalCoordinates_( 1 ) = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        convertedSphericalCoordinates_( 2 ) = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+    }
+    // Else compute coordinates using trigonometric relationships.
+    else
+    {
+        convertedSphericalCoordinates_( 1 ) = std::acos( cartesianCoordinates( 2 )
+                                                         / convertedSphericalCoordinates_( 0 ) );
+        convertedSphericalCoordinates_( 2 ) = std::atan2( cartesianCoordinates( 1 ),
+                                                          cartesianCoordinates( 0 ) );
+    }
+
+    return convertedSphericalCoordinates_;
+}
 
 //! Spherical coordinate indices.
 /*!
@@ -248,6 +277,14 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 basic_mathematics::Vector6d convertCartesianToCylindricalState(
         const basic_mathematics::Vector6d& cartesianState );
 
+//! Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
+/*!
+ * Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
+ * \param cartesianCoordinates Vector with Cartesian position at which gradient is computed.
+ * \return Matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
+ */
+Eigen::Matrix3d getSphericalToCartesianGradientMatrix( const Eigen::Vector3d& cartesianCoordinates );
+
 //! Convert spherical to Cartesian gradient.
 /*!
 * This function converts a gradient vector with respect to spherical coordinates to a gradient
@@ -289,6 +326,33 @@ basic_mathematics::Vector6d convertCartesianToCylindricalState(
 */
 Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
                                                      const Eigen::Vector3d& cartesianCoordinates );
+
+//! Function to compute the derivative of the Cartesian gradient w.r.t. the  Cartesian position, keeping the
+//! spherical gradient constant.
+/*!
+ * Function to compute the derivative of the Cartesian gradient w.r.t. the  Cartesian position, keeping the
+ * spherical gradient constant.
+ * \param sphericalGradient Value of spherical gradient (derivatives w.r.t. radius, latitude and longitude).
+ * \param cartesianCoordinates Cartesian position at whichr result is to be computed.
+ * \param subMatrices Subcomputations performed by this function: derivatives of results of
+ * getSphericalToCartesianGradientMatrix, w.r.t. x, y and z component of cartesianCoordinates, respectively.
+ * \return Require derivative of cartesian gradient.
+ */
+Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
+                                                             const Eigen::Vector3d& cartesianCoordinates,
+                                                             std::vector< Eigen::Matrix3d >& subMatrices );
+
+//! Function to compute the derivative of the Cartesian gradient w.r.t. the  Cartesian position, keeping the
+//! spherical gradient constant.
+/*!
+ * Function to compute the derivative of the Cartesian gradient w.r.t. the  Cartesian position, keeping the
+ * spherical gradient constant.
+ * \param sphericalGradient Value of spherical gradient (derivatives w.r.t. radius, latitude and longitude).
+ * \param cartesianCoordinates Cartesian position at whichr result is to be computed..
+ * \return Require derivative of cartesian gradient.
+ */
+Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
+                                                             const Eigen::Vector3d& cartesianCoordinates );
 
 //! Convert spherical to Cartesian state.
 /*!

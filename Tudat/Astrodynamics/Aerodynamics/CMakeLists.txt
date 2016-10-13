@@ -44,6 +44,7 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/trimOrientation.cpp"
 )
 
 # Set the header files.
@@ -63,7 +64,9 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
-  "${SRCROOT}${AERODYNAMICSDIR}//UnitTests/testApolloCapsuleCoefficients.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/testApolloCapsuleCoefficients.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
 )
 
 if(USE_NRLMSISE00)
@@ -82,7 +85,8 @@ setup_tudat_library_target(tudat_aerodynamics "${SRCROOT}{AERODYNAMICSDIR}")
 # Add unit tests.
 add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp")
 setup_custom_test_program(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_simulation_setup tudat_aerodynamics tudat_reference_frames tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicMomentAndAerodynamicForce ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")

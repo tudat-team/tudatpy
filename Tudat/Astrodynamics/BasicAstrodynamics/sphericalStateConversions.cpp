@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
+#include <vector>
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -42,7 +42,7 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
     basic_mathematics::Vector6d sphericalOrbitalState;
 
     // Compute and set spherical position
-    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical< double >(
                 bodyFixedCartesianState.segment( 0, 3 ) );
     sphericalOrbitalState( radiusIndex ) = sphericalPosition( 0 );
     sphericalOrbitalState( latitudeIndex ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );

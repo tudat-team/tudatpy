@@ -77,8 +77,10 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/oblateSpheroidBodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalBodyShapeModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
 )
 
 # Add static libraries.
@@ -112,7 +114,7 @@ setup_custom_test_program(test_UnitConversions "${SRCROOT}${BASICASTRODYNAMICSDI
 target_link_libraries(test_UnitConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_MeanToEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
-setup_custom_test_program(test_MeanToEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+setup_custom_test_program(test_MeanToEccentricAnomalyConversion "${SRCRthrustFunctionsOOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MeanToEccentricAnomalyConversion tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_MeanToHyperbolicEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToHyperbolicEccentricAnomaly.cpp")

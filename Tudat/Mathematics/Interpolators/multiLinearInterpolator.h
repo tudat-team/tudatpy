@@ -57,6 +57,7 @@
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
@@ -104,8 +105,7 @@ public:
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != numberOfDimensions )
         {
-            std::cerr << "Error: dimension of independent value vector provided to constructor";
-            std::cerr << "incompatible with tenmplate parameter " << std::endl;
+            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter " );
         }
 
         // Check consistency of input data of dependent and independent data.
@@ -113,8 +113,9 @@ public:
         {
             if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
-                std::cerr << "Warning: number of data points in dimension" << i
-                          << " of independent and dependent data incompatible" << std::endl;
+                std::string errorMessage = "Warning: number of data points in dimension" +
+                        boost::lexical_cast< std::string >( i ) + "of independent and dependent data incompatible";
+                throw std::runtime_error( errorMessage );
             }
         }
 
@@ -214,8 +215,7 @@ private:
 
         default:
 
-            std::cerr << "Warning: lookup scheme not found when making scheme for 1-D interpolator"
-                      << std::endl;
+            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
         }
     }
 

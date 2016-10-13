@@ -14,7 +14,9 @@
 #include <vector>
 
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
@@ -47,24 +49,13 @@ public:
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
      *  its body-fixed position.
-     *  \param stateOfVehicle Function returning the current state of the vehicle
-     *  (in the global frame)
-     *  \param stateOfCentralBody Function returning the current state of the central body
-     *  (in the global frame)
-     *  \param transformationToCentralBodyFrame Function transforming the inertial body-centered to
-     *  the body-centered, body-fixed (co-rotating) frame.
-     *  \param aerodynamicCoefficientInterface Object from which the aerodynamic coefficients
-     *  are obtained.
+     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
+     *  coefficients are retrieved
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
      */
     FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
                       const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
-                      const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
-                      const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
-                      const boost::function< basic_mathematics::Vector6d(
-                          const basic_mathematics::Vector6d& ) >
-                      transformationToCentralBodyFrame,
                       const boost::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
@@ -110,6 +101,17 @@ public:
         return currentAirspeed_;
     }
 
+    //! Function to return speed of sound
+    /*!
+     *  Function to return speed of from quantities computed by previous call of updateConditions.
+     *  \return Current speed of sound.
+     */
+    double getCurrentSpeedOfSound( )
+    {
+        return atmosphereModel_->getSpeedOfSound(
+                    currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ );
+    }
+
     //! Function to return the current time of the FlightConditions
     /*!
      *  Function to return the current time of the FlightConditions.
@@ -139,6 +141,8 @@ public:
             aerodynamicAngleCalculator )
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
+        bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+                    &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
     }
 
     //! Function to set custom dependency of aerodynamic coefficients
@@ -161,8 +165,18 @@ public:
     basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
         return currentBodyCenteredPseudoBodyFixedState_;
-
     }
+
+    //! Function to return current central body-fixed velocity of vehicle.
+    /*!
+     *  Function to return central body-fixed velocity of vehicle.
+     *  \return Current central body-fixed velocity of vehicle.
+     */
+    Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
+    {
+        return currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 );
+    }
+
 
     //! Function to return aerodynamic angle calculator object
     /*!
@@ -175,8 +189,42 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
+    //! Function to return object from which the aerodynamic coefficients are obtained.
+    /*!
+     *  Function to return object from which the aerodynamic coefficients are obtained.
+     *  \return Object from which the aerodynamic coefficients are obtained.
+     */
+    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
+    {
+        return aerodynamicCoefficientInterface_;
+    }
+
+    //! Function to return list of independent variables of the aerodynamic coefficient interface
+    /*!
+     *  Function to return list of independent variables of the aerodynamic coefficient interface
+     *  \return List of independent variables of the aerodynamic coefficient interface
+     */
+    std::vector< double > getAerodynamicCoefficientIndependentVariables( )
+    {
+        return aerodynamicCoefficientIndependentVariables_;
+    }
+
+    //! Function to reset the current time of the flight conditions.
+    /*!
+     *  Function to reset the current time of the flight conditions. This function is typically sused to set the current time
+     *  to NaN, indicating the need to recompute all quantities for the next time computation.
+     * \param currentTime
+     */
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+    }
 
 private:
+
+    //! Function to update the independent variables of the aerodynamic coefficient interface
+    void updateAerodynamicCoefficientInput( );
 
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
@@ -187,22 +235,12 @@ private:
     //! Function returning the altitude of the vehicle as a function of its body-fixed position.
     const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
 
-    //! Function returning the current state of the vehicle (in the global frame)
-    boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle_;
+    //! Function to return the current state of the vehicle in a body-fixed frame.
+    boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
 
-    //! Function returning the current state of the central body (in the global frame)
-    boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody_;
-
-    //! Function transforming the inertial body-centered to the body-centered, body-fixed
-    //! co-rotating) frame.
-    boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
-    transformationToCentralBodyFrame_;
 
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
-
-    //! List of custom functions for aerodynamic coefficient dependencies.
-    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
@@ -231,11 +269,19 @@ private:
     //! Current time of propagation.
     double currentTime_;
 
+    //! List of custom functions for aerodynamic coefficient dependencies.
+    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
+
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
+
+    //! Current list of independent variables of the aerodynamic coefficient interface
+    std::vector< double > aerodynamicCoefficientIndependentVariables_;
+
 };
 
 } // namespace aerodynamics
 
 } // namespace tudat
+
 #endif // TUDAT_FLIGHTCONDITIONS_H

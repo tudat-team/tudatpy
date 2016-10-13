@@ -89,5 +89,19 @@ Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
             * Eigen::Matrix3d( initialRotationToTargetFrame_ );
 }
 
+//! Function to reset the right ascension and declination of body's north pole.
+void SimpleRotationalEphemeris::resetInitialPoleRightAscensionAndDeclination( const double rightAscension,
+                                                   const double declination )
+{
+    // Recalculate initial rotation quaternion
+    initialRotationToTargetFrame_ =
+        reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+            declination, rightAscension, initialEulerAngles_.z( ) );
+
+    // Reset angles in vector of Euler angles.
+    initialEulerAngles_.x( ) = rightAscension;
+    initialEulerAngles_.y( ) = declination;
+}
+
 } // namespace tudat
 } // namespace ephemerides
