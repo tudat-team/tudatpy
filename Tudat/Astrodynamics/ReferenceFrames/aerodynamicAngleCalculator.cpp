@@ -9,7 +9,6 @@
  */
 
 #include <iostream>
-#include <iomanip>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
@@ -310,7 +309,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cout<<"Warning, overriding existing angle of attack function in AerodynamicAngleCalculator"<<std::endl;
+            std::cout << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }
@@ -319,7 +318,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cerr<<"Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator"<<std::endl;
+            std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfSideslipFunction_ = angleOfSideslipFunction;
     }
@@ -328,7 +327,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cerr<<"Warning, overriding existing bank angle function in AerodynamicAngleCalculator"<<std::endl;
+            std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
         }
         bankAngleFunction_ = bankAngleFunction;
     }
@@ -337,7 +336,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleUpdateFunction_.empty( ) )
         {
-            std::cerr<<"Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator"<<std::endl;
+            std::cerr << "Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator" << std::endl;
         }
         angleUpdateFunction_ = angleUpdateFunction;
     }

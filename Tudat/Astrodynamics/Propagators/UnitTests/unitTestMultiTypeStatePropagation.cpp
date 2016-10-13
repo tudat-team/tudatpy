@@ -15,8 +15,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <iostream>
-
 #include <Eigen/Core>
 
 #include <Tudat/Basics/testMacros.h>
@@ -219,7 +217,11 @@ BOOST_AUTO_TEST_CASE( testHybridStateDerivativeModel )
     // interpolated from reset dynamics (useCase = 1)
     for( int useCase = 0; useCase < 2; useCase++ )
     {
-        int simulationCaseToAdd = ( useCase == 0 ) ? ( 0 ) : ( 3 );
+        int simulationCaseToAdd = 3;
+        if( useCase == 0 )
+        {
+             simulationCaseToAdd = 0;
+        }
 
         // Propagate dynamics for translational, mass and combined state.
         std::map< double, Eigen::VectorXd >  translationalState = propagateKeplerOrbitAndMassState( 0 + simulationCaseToAdd );
