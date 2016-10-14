@@ -12,7 +12,6 @@ namespace unit_tests
 
 using basic_mathematics::Vector6d;
 using mathematical_constants::PI;
-using std::vector;
 using namespace aerodynamics;
 
 boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
@@ -23,9 +22,9 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
             = boost::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
-    vector< int > numberOfLines;
-    vector< int > numberOfPoints;
-    vector< bool > invertOrders;
+    std::vector< int > numberOfLines;
+    std::vector< int > numberOfPoints;
+    std::vector< bool > invertOrders;
     numberOfLines.resize( 4 );
     numberOfPoints.resize( 4 );
     invertOrders.resize( 4 );
@@ -84,7 +83,7 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
                 3.9116, momentReference );
 }
 
-}
+} // namespace unit_tests
 
-}
+} // namespace tudat
 #endif // TUDAT_TESTAPOLLOCAPSULECOEFFICIENTS_H

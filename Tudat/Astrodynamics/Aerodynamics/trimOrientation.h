@@ -105,8 +105,8 @@ private:
     int variableIndex_;
 };
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_TRIMORIENTATION_H

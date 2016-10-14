@@ -39,7 +39,6 @@
 #define TUDAT_PARSESOLARACTIVITY_H
 
 #include <iostream>
-#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -131,8 +130,6 @@ namespace input_output
 {
 namespace solar_activity
 {
-
-using std::string;
 
 //! Solar activity parser class.
 /*!

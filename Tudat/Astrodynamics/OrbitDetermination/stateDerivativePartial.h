@@ -635,8 +635,8 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
 
-}
+} // namespace orbit_determination
 
-}
+} // namespace tudat
 
 #endif // TUDAT_STATEDERIVATIVEPARTIAL_H

@@ -38,6 +38,7 @@
 #include "Tudat/InputOutput/fixedWidthParser.h"
 
 #include <vector>
+#include <string>
 
 #include <boost/lexical_cast.hpp>
 

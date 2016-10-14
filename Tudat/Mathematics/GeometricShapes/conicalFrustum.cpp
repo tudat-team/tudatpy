@@ -52,7 +52,6 @@ namespace geometric_shapes
 {
 
 using mathematical_constants::PI;
-using std::endl;
 using std::sin;
 using std::cos;
 
@@ -238,14 +237,14 @@ double ConicalFrustum::getParameter( const int index )
 //! Overload ostream to print class information.
 std::ostream &operator<<( std::ostream &stream, ConicalFrustum& conicalFrustum )
 {
-    stream << "This is a conical frustum geometry." << endl;
+    stream << "This is a conical frustum geometry." << std::endl;
     stream << "The circumferential angle runs from: "
            << conicalFrustum.getMinimumAzimuthAngle( ) * 180.0 / PI << " degrees to "
-           << conicalFrustum.getMaximumAzimuthAngle( ) * 180.0 / PI << " degrees" << endl;
-    stream << "The start radius is: " << conicalFrustum.getStartRadius( ) << endl;
-    stream << "The length is: " << conicalFrustum.getLength( ) << endl;
+           << conicalFrustum.getMaximumAzimuthAngle( ) * 180.0 / PI << " degrees" << std::endl;
+    stream << "The start radius is: " << conicalFrustum.getStartRadius( ) << std::endl;
+    stream << "The length is: " << conicalFrustum.getLength( ) << std::endl;
     stream << "The cone half angle is: "  << conicalFrustum.getConeHalfAngle( ) * 180.0 / PI
-           << " degrees" << endl;
+           << " degrees" << std::endl;
 
     // Return stream.
     return stream;

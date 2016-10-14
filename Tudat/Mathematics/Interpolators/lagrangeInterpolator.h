@@ -472,7 +472,7 @@ private:
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;
 
-}
+} // namespace interpolators
 
-}
+} // namespace tudat
 #endif // TUDAT_LAGRANGEINTERPOLATOR_H

@@ -256,7 +256,7 @@ typedef boost::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPoin
  */
 typedef boost::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
-} // namespace integrators
+} // namespace numerical_integrators
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H

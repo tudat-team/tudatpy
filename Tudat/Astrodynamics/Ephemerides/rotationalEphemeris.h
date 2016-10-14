@@ -348,7 +348,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
 
 }
 
-} // namespace tudat
 } // namespace ephemerides
+} // namespace tudat
 
 #endif // TUDAT_ROTATIONAL_EPHEMERIS_H

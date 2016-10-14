@@ -322,8 +322,8 @@ private:
 };
 
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_NBODYENCKESTATEDERIVATIVE_H

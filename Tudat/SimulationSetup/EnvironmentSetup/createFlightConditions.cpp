@@ -255,7 +255,7 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
     return setTrimmedConditions( bodyWithFlightConditions->getFlightConditions( ) );
 }
 
-//! Function that must be called to link the EntryGuidance object to the simulation
+//! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator )
@@ -267,7 +267,7 @@ void setGuidanceAnglesFunctions(
                 boost::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance,_1 ) );
 }
 
-//! Function that must be called to link the EntryGuidance object to the simulation
+//! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
         const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
         const boost::shared_ptr< simulation_setup::Body > bodyWithAngles )

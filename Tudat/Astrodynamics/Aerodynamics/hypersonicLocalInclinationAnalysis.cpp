@@ -67,8 +67,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-using std::string;
-using std::endl;
 using basic_mathematics::Vector6d;
 using mathematical_constants::PI;
 

@@ -85,12 +85,6 @@ namespace input_output
 
 // Using declarations.
 using mathematical_constants::PI;
-using std::string;
-using std::stringstream;
-using std::endl;
-using std::vector;
-using std::multimap;
-using std::pair;
 
 //! Open data file.
 void TwoLineElementsTextFileReader::openFile( )
@@ -165,7 +159,7 @@ void TwoLineElementsTextFileReader::readAndStoreData( )
             if ( ( ( !startingCharacter_.empty( ) && stringOfData_.substr( 0, 1 )
                      .compare( startingCharacter_ ) != 0 )
                    || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
-                        == string::npos )
+                        == std::string::npos )
                    || ( startingCharacter_.empty( ) && skipKeyword_.empty( ) ) )
                  && !stringOfData_.empty( ) )
             {
@@ -206,7 +200,7 @@ void TwoLineElementsTextFileReader::stripEndOfLineCharacters(
 {
     // Declare local variables.
     // Declare string iterator.
-    string::iterator iteratorString_;
+    std::string::iterator iteratorString_;
 
     // Loop through all the strings stored in the container.
     for ( LineBasedStringDataMap::iterator iteratorContainerOfDataFromFile_
@@ -250,7 +244,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
     twoLineElementData_.resize( numberOfObjects_ );
 
     // Create vector of the three lines of a single object's TLE data as strings.
-    vector< string > twoLineElementString_( 3 );
+    std::vector< std::string > twoLineElementString_( 3 );
 
     // Create the object counter.
     unsigned int objectNumberCounter_ = 0;
@@ -303,9 +297,9 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         }
 
         // Initiate a stringstream for each line.
-        stringstream line0StringStream_( stringstream::in | stringstream::out );
-        stringstream line1StringStream_( stringstream::in | stringstream::out );
-        stringstream line2StringStream_( stringstream::in | stringstream::out );
+        std::stringstream line0StringStream_( std::stringstream::in | std::stringstream::out );
+        std::stringstream line1StringStream_( std::stringstream::in | std::stringstream::out );
+        std::stringstream line2StringStream_( std::stringstream::in | std::stringstream::out );
 
         // Insert the strings into the stringstreams
         if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
@@ -320,7 +314,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
         {
             // Declare string containing part of name of object.
-            string namePart_;
+            std::string namePart_;
 
             // Loop through the stringstream and read words that constitute name of
             // object. Store name parts in objectName storage container.
@@ -584,19 +578,19 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 }
 
 //! Checks the integrity of the TLE input file.
-multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileIntegrity( )
+std::multimap< int, std::string > TwoLineElementsTextFileReader::checkTwoLineElementsFileIntegrity( )
 {
     // Create vector of the three lines of a TLE as strings
-    vector< string > twoLineElementString_( 3 );
+    std::vector< std::string > twoLineElementString_( 3 );
 
     // Boolean which turns to true if one of the tests is not passed.
     bool isObjectErroneous = false;
 
     // Vector of object numbers of objects with corrupted TLE data.
-    vector< int > corruptedTwoLineElementDataPositions_;
+    std::vector< int > corruptedTwoLineElementDataPositions_;
 
     // Multimap of corrupted TLE errors.
-    multimap< int, string > corruptedTwoLineElementDataErrors_;
+    std::multimap< int, std::string > corruptedTwoLineElementDataErrors_;
 
     // Loop is started over the entire structure of objects,
     // multiple checks are performed per TLE, if a check is not passed boolean
@@ -624,7 +618,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
         if ( twoLineElementData_.at( i ).lineNumberLine1 != 1 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Incorrect line-1 leading integer." ) );
+                        std::pair< int, std::string >( i, "Incorrect line-1 leading integer." ) );
 
             isObjectErroneous = true;
         }
@@ -633,7 +627,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
         if ( twoLineElementData_.at( i ).lineNumberLine2 != 2 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Incorrect line-2 leading integer." ) );
+                        std::pair< int, std::string >( i, "Incorrect line-2 leading integer." ) );
 
             isObjectErroneous = true;
         }
@@ -642,7 +636,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
                   && twoLineElementData_.at( i ).tleClassification != 'C' )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Invalid TLE classification." ) );
+                        std::pair< int, std::string >( i, "Invalid TLE classification." ) );
 
             isObjectErroneous = true;
         }
@@ -651,7 +645,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
         if ( twoLineElementData_.at( i ).orbitalModel != 0 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Incorrect orbital model." ) );
+                        std::pair< int, std::string >( i, "Incorrect orbital model." ) );
 
             isObjectErroneous = true;
         }
@@ -695,7 +689,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
         if ( line1Modulo10Sum_ != twoLineElementData_.at( i ).modulo10CheckSumLine1 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Incorrect line-1 modulo-10 checksum." ) );
+                        std::pair< int, std::string >( i, "Incorrect line-1 modulo-10 checksum." ) );
 
             isObjectErroneous = true;
         }
@@ -725,7 +719,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
         if ( line2Modulo10Sum_ != twoLineElementData_.at( i ).modulo10CheckSumLine2 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >( i, "Incorrect line-2 modulo-10 checksum." ) );
+                        std::pair< int, std::string >( i, "Incorrect line-2 modulo-10 checksum." ) );
 
             isObjectErroneous = true;
         }
@@ -736,7 +730,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
              twoLineElementData_.at( i ).objectIdentificationNumberLine2 )
         {
             corruptedTwoLineElementDataErrors_.insert(
-                        pair< int, string >(
+                        std::pair< int, std::string >(
                             i, "Line-1 and line-2 object idenfitication number mismatch." ) );
 
             isObjectErroneous = true;
