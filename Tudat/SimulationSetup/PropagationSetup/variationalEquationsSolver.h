@@ -656,9 +656,9 @@ private:
 
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 
 

@@ -25,6 +25,7 @@ namespace tudat
 namespace statistics
 {
 
+//! Generate sample of random vectors, with entries of each vector independently, but not identically, distributed.
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples,
         const std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators )
@@ -46,6 +47,7 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
     return randomSamples;
 }
 
+//! Generate sample of random vectors, with entries of each vector independently and identically distributed.
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples, const int numberOfDimensions,
         const boost::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator )

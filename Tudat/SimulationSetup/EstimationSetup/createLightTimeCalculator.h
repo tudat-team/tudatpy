@@ -188,7 +188,7 @@ createLightTimeCalculator(
                 bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
 }
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 #endif // TUDAT_CREATELIGHTTIMECALCULATOR_H

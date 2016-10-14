@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_SUITE( test_shapiro_delay )
 BOOST_AUTO_TEST_CASE( testShapiroDelay )
 {
     basic_mathematics::Vector6d groundStationState;
-    groundStationState<<0.0, 0.0, 6378.0, 0.0, 0.0, 0.0;
+    groundStationState << 0.0, 0.0, 6378.0, 0.0, 0.0, 0.0;
     basic_mathematics::Vector6d satelliteState;
-    satelliteState << 0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
+    satelliteState  <<  0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
     basic_mathematics::Vector6d centralBodyPosition = basic_mathematics::Vector6d::Zero( );
 
     boost::shared_ptr< ConstantEphemeris > ephemeris = boost::make_shared< ConstantEphemeris >(

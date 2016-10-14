@@ -436,12 +436,24 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
  */
 double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
-
-
+//! Get ECEF to V-frame quaternion
+/*!
+ *  Get the transformation from the co-rotating planetocentric frame to local vertical.
+ *  \param longitude Longitude of position.
+ *  \param latitude Latitude of position.
+ *  \return Transformation quaternion.
+ */
 Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
     const double longitude, const double latitude );
 
-// http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+//! Get V-frame to ECEF quaternion
+/*!
+ *  Get the transformation from the local vertical to the co-rotating planetocentric frame.
+ *  \sa http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+ *  \param longitude Longitude of position.
+ *  \param latitude Latitude of position.
+ *  \return Transformation quaternion.
+ */
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     const double longitude, const double latitude );
 

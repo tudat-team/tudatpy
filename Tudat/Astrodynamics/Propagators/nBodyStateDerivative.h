@@ -338,7 +338,7 @@ protected:
 
         stateDerivative.setZero( );
 
-        int currentBodyIndex = TUDAT_NAN;
+        int currentBodyIndex = 0;
         int currentAccelerationIndex = 0;
 
         // Iterate over all bodies with accelerations.

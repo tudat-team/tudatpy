@@ -148,8 +148,8 @@ private:
     boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator_;
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H

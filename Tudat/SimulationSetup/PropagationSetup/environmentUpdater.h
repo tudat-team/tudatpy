@@ -165,7 +165,7 @@ private:
                 {
                     bodyList_[ bodiesWithIntegratedMass[ i ].first ]
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
-                }                
+                } 
                 break;
             };
             default:
@@ -254,8 +254,10 @@ private:
                     if( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator ) != NULL )
                     {
-                        int translationalUpdateIndex = -1;
-                        int rotationalUpdateIndex = -1;
+                        unsigned int translationalUpdateIndex = 0;
+                        unsigned int rotationalUpdateIndex = 0;
+                        bool translationalUpdateIndexSet = false;
+                        bool rotationalUpdateIndexSet = false;
 
                         // Check if the state or orientation of the central body of AerodynamicAngleCalculator is updated.
                         for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
@@ -265,6 +267,7 @@ private:
                                     aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
                                 translationalUpdateIndex = j;
+                                translationalUpdateIndexSet = true;
                             }
 
                             if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_rotational_state_update ) &&
@@ -272,11 +275,12 @@ private:
                                     aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
                                 rotationalUpdateIndex = j;
+                                rotationalUpdateIndexSet = true;
                             }
                         }
 
                         // If required updates are not found, throw error.
-                        if( ( translationalUpdateIndex == -1 ) || ( rotationalUpdateIndex == -1 )  )
+                        if( !translationalUpdateIndexSet || !rotationalUpdateIndexSet  )
                         {
                             throw std::runtime_error(
                                         "Error when finding update order for AerodynamicAngleCalculator, did not find required updates for central body" );

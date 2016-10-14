@@ -1,5 +1,5 @@
-#ifndef STATETRANSITIONMATRIXINTERFACE_H
-#define STATETRANSITIONMATRIXINTERFACE_H
+#ifndef TUDAT_STATETRANSITIONMATRIXINTERFACE_H
+#define TUDAT_STATETRANSITIONMATRIXINTERFACE_H
 
 #include <vector>
 
@@ -211,7 +211,7 @@ private:
     sensitivityMatrixInterpolator_;
 };
 
-}
+} // namespace propagators
 
-}
-#endif // STATETRANSITIONMATRIXINTERFACE_H
+} // namespace tudat
+#endif // TUDAT_STATETRANSITIONMATRIXINTERFACE_H

@@ -537,8 +537,8 @@ Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVec
     return initialStateVector.block( 0, 0, vectorSize, 1 );
 }
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ESTIMATABLEPARAMETERS_H

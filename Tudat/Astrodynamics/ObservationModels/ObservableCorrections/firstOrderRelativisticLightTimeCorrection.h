@@ -13,7 +13,6 @@
 
 #include <cmath>
 #include <vector>
-#include <iostream>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -193,7 +192,7 @@ private:
     double currentTotalLightTimeCorrection_;
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 #endif // TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H

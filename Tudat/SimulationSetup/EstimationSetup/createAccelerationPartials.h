@@ -303,8 +303,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
     return accelerationPartialsList;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEACCELERATIONPARTIALS_H
