@@ -52,6 +52,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.cpp"
 )
 
 # Set the header files.
@@ -152,6 +153,10 @@ target_link_libraries(test_ModifiedEquinoctialElementConversions tudat_basic_ast
 add_executable(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestGeodeticCoordinateConversions.cpp")
 setup_custom_test_program(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_GeodeticCoordinateConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_StateElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestStateConversions.cpp")
+setup_custom_test_program(test_StateElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_StateElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_SphericalOrbitalStateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestSphericalOrbitStateConversions.cpp")
 setup_custom_test_program(test_SphericalOrbitalStateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
