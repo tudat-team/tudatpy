@@ -82,7 +82,7 @@ const static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0
 #ifdef M_PI
 const static double PI = M_PI;
 #else
-const static double PI = 3.141592653589793238; // 18 digits.
+const static double PI = 3.14159265358979323846; // 18 digits.
 #endif
 
 const static long double LONG_PI = 3.14159265358979323846264338328L;

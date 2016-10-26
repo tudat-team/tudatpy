@@ -29,6 +29,7 @@
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
 #include <Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h>
+#include <Tudat/Astrodynamics/GroundStations/groundStation.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
@@ -798,6 +799,42 @@ public:
         return currentMass_;
     }
 
+    //! Function to add a ground station to the body
+    /*!
+     * Function to add a ground station to the body
+     * \param stationName Name of ground station
+     * \param station Ground station object that is to be set
+     */
+    void addGroundStation( const std::string& stationName,
+                           const boost::shared_ptr< ground_stations::GroundStation >& station )
+    {
+        groundStationMap[ stationName ] = station;
+    }
+
+    //! Function to retrieve a ground station
+    /*!
+     * Function to retrieve a ground station
+     * \param stationName Name of ground station
+     * \return Ground station object that is retrieved
+     */
+    boost::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const
+    {
+        if( groundStationMap.count( stationName ) == 0 )
+        {
+            std::cerr<<"Warning, station "<<stationName<<" does not exist"<<std::endl;
+        }
+        return groundStationMap.at( stationName );
+    }
+
+    //! Function to retrieve full list of ground stations
+    /*!
+     * Function to retrieve full list of ground stations
+     * \return Full list of ground stations
+     */
+    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const
+    {
+        return groundStationMap;
+    }
 
     //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
     /*!
@@ -896,6 +933,9 @@ private:
     std::map< std::string,
               boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
+
+    //! List of ground station objects on Body
+    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > groundStationMap;
 
     //! Container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
     boost::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
