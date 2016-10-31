@@ -146,9 +146,10 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
                 estimatedInitialStateParameters );
 }
 
-Eigen::Matrix< double, 1, 3 > calculatePartialWrtConstantBodyState(
+Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
-        const boost::function< double( const double ) > observationFunction, const double observationTime )
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
     boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
@@ -156,22 +157,23 @@ Eigen::Matrix< double, 1, 3 > calculatePartialWrtConstantBodyState(
     basic_mathematics::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     basic_mathematics::Vector6d perturbedBodyState;
 
-    Eigen::Matrix< double, 1, 3 > numericalPartialWrtBodyPosition = Eigen::Matrix< double, 1, 3 >::Zero( );
+    Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
+            Eigen::Matrix< double, Eigen::Dynamic, 3 >::Zero( observableSize, 3 );
     for( int i = 0; i < 3; i++ )
     {
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) += bodyPositionVariation( i );
         bodyEphemeris->updateConstantState( perturbedBodyState );
         bodyMap.at( bodyName )->recomputeStateOnNextCall( );
-        double upPerturbedObservation = observationFunction( observationTime );
+        Eigen::VectorXd upPerturbedObservation = observationFunction( observationTime );
 
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) -= bodyPositionVariation( i );
         bodyEphemeris->updateConstantState( perturbedBodyState );
         bodyMap.at( bodyName )->recomputeStateOnNextCall( );
-        double downPerturbedObservation = observationFunction( observationTime );
+        Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
 
-        numericalPartialWrtBodyPosition( 0, i ) = ( upPerturbedObservation - downPerturbedObservation ) /
+        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
                 ( 2.0 * bodyPositionVariation( i ) );
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
@@ -180,20 +182,20 @@ Eigen::Matrix< double, 1, 3 > calculatePartialWrtConstantBodyState(
     return numericalPartialWrtBodyPosition;
 }
 
-std::vector< double > calculateNumericalPartialsWrtDoubleParameters(
+std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
         const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
         const std::vector< boost::function< void( ) > > updateFunctions,
         const std::vector< double >& parameterPerturbations,
-        const boost::function< double( const double ) > observationFunction,
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime )
 {
-    std::vector< double > partialVector;
+    std::vector< Eigen::VectorXd > partialVector;
 
     for( unsigned int i = 0; i < doubleParameters.size( ); i++ )
     {
         partialVector.push_back( calculateNumericalObservationParameterPartial(
                                      doubleParameters.at( i ), parameterPerturbations.at( i ), observationFunction,
-                                     observationTime, updateFunctions.at( i ) )( 0 ) );
+                                     observationTime, updateFunctions.at( i ) ) );
     }
 
     return partialVector;
@@ -216,22 +218,6 @@ std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
     }
 
     return partialVector;
-}
-
-std::vector< std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > > calculateAnalyticalPartials(
-        const std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >& partialObjectList,
-        const std::vector< basic_mathematics::Vector6d >& states,
-        const std::vector< double >& times,
-        const LinkEndType linkEndOfFixedTime )
-{
-    std::vector< std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > > partialList;
-
-    for( std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >::const_iterator partialIterator =
-         partialObjectList.begin( ); partialIterator != partialObjectList.end( ); partialIterator++ )
-    {
-        partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime ) );
-    }
-    return partialList;
 }
 
 std::vector< int > getSingleAnalyticalPartialSize(

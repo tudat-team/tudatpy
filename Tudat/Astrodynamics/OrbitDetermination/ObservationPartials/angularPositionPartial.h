@@ -5,6 +5,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/positionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/lightTimeCorrectionPartial.h"
 
 namespace tudat
 {
@@ -31,19 +32,23 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd );
 
-    Eigen::Matrix< double, 2, 3 > getTransmitterScalingFactor_( )
-    {
-        return -scalingFactor_;
-    }
-    Eigen::Matrix< double, 2, 3 > getReceiverScalingFactor_( )
-    {
-        return scalingFactor_;
-    }
+    Eigen::Matrix< double, 2, 3 > getScalingFactor(
+            const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  );
 
-    Eigen::Matrix< double, 2, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType );
+    Eigen::Vector2d getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  );
+
 
 private:
     Eigen::Matrix< double, 2, 3 > scalingFactor_;
+
+    Eigen::Matrix< double, 2, 3 > receiverReferenceScalingFactor_;
+
+    Eigen::Matrix< double, 2, 3 > transmitterReferenceScalingFactor_;
+
+    Eigen::Vector2d transmitterReferenceLightTimeCorrectionScaling_;
+
+    Eigen::Vector2d receiverReferenceLightTimeCorrectionScaling_;
+
 };
 
 class AngularPositionPartial: public ObservationPartial< 2 >
@@ -53,9 +58,12 @@ public:
 
     AngularPositionPartial( const boost::shared_ptr< AngularPositionScaling > angularPositionScaler,
                             const std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >& positionPartialList,
-                            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
+                            const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
+                            const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
+                std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< 2 >( parameterIdentifier ),
-        angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ){ }
+        angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ),
+        lighTimeCorrectionPartials_( lighTimeCorrectionPartials ){ }
 
     ~AngularPositionPartial( ){ }
 
@@ -70,6 +78,12 @@ protected:
     std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartialList_;
 
     std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
+
+    std::vector< boost::function< AngularPositionPartialReturnType(
+            const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) > >
+    lighTimeCorrectionPartialsFunctions_;
+
+    std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 };
 
 }

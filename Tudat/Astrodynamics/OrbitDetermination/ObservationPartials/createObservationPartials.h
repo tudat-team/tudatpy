@@ -155,7 +155,7 @@ public:
         {
         case observation_models::angular_position:
             observationPartialList = createAngularPositionPartials< ParameterType >(
-                        linkEnds, bodyMap, parametersToEstimate );
+                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
         default:
             std::cerr<<"Error when making observation partial set, could not recognize observable "<<observableType<<std::endl;

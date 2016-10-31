@@ -32,12 +32,18 @@ public:
 
     Eigen::Matrix< double, 1, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  );
 
-private:
-    Eigen::Matrix< double, 1, 3 > baseScalingFactor_;
+    double getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  );
 
+private:
     Eigen::Matrix< double, 1, 3 > transmitterReferenceScalingFactor_;
 
     Eigen::Matrix< double, 1, 3 > receiverReferenceScalingFactor_;
+
+    double transmitterReferenceLightTimeCorrectionScaling_;
+
+    double receiverReferenceLightTimeCorrectionScaling_;
+
+    observation_models::LinkEndType currentLinkEndType_;
 
 };
 
