@@ -128,35 +128,6 @@ Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParamete
     return ( upPerturbedValue - downPerturbedValue ) / ( 2.0 * parameterPerturbation );
 }
 
-Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParameterPartialWithSingleArcDynamicsUpdate(
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< double > > & propagatorSettings,
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        const double parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
-        const double evaluationTime,
-        boost::function< void( ) > updateFunction )
-{
-
-    double unperturbedParameterValue = parameter->getParameterValue( );
-
-    parameter->setParameterValue( unperturbedParameterValue + parameterPerturbation );
-    updateFunction( );
-    propagators::SingleArcDynamicsSimulator< >( bodyMap, integratorSettings, propagatorSettings );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 >  upPerturbedValue = observationFunction( evaluationTime );
-
-    parameter->setParameterValue( unperturbedParameterValue - parameterPerturbation );
-    updateFunction( );
-    propagators::SingleArcDynamicsSimulator< >( bodyMap, integratorSettings, propagatorSettings );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 >  downPerturbedValue = observationFunction( evaluationTime );
-
-    parameter->setParameterValue( unperturbedParameterValue );
-    updateFunction( );
-
-    return ( upPerturbedValue - downPerturbedValue ) / ( 2.0 * parameterPerturbation );
-}
-
 Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const Eigen::VectorXd parameterPerturbation,
@@ -194,62 +165,6 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
     return parameterPartial;
 }
 
-Eigen::MatrixXd calculateNumericalObservationParameterPartialWithSingleArcDynamicsUpdate(
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< double > > & propagatorSettings,
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        const Eigen::VectorXd parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
-        const double evaluationTime,
-        boost::function< void( ) > updateFunction )
-{
-    Eigen::MatrixXd parameterPartial = Eigen::MatrixXd::Zero( observationFunction( evaluationTime ).rows( ),
-                                                              parameter->getParameterSize( ) );
-
-    Eigen::VectorXd unperturbedParameterValue = parameter->getParameterValue( );
-    Eigen::VectorXd perturbedParameterValue;
-
-    for( int i = 0; i < parameter->getParameterSize( ); i++ )
-    {
-        perturbedParameterValue = unperturbedParameterValue;
-        perturbedParameterValue( i ) += parameterPerturbation( i );
-        parameter->setParameterValue( perturbedParameterValue );
-        if( parameter->getParameterName( ).first < 0 )
-        {
-            resetInitialDynamicalState( propagatorSettings, parameter, perturbedParameterValue( i ), i );
-        }
-
-        propagators::SingleArcDynamicsSimulator< >( bodyMap, integratorSettings, propagatorSettings );
-        updateFunction( );
-        Eigen::VectorXd upPerturbedValue = observationFunction( evaluationTime );
-
-        perturbedParameterValue = unperturbedParameterValue;
-        perturbedParameterValue( i ) -= parameterPerturbation( i );
-        parameter->setParameterValue( perturbedParameterValue );
-        if( parameter->getParameterName( ).first < 0 )
-        {
-            resetInitialDynamicalState( propagatorSettings, parameter, perturbedParameterValue( i ), i );
-        }
-
-        propagators::SingleArcDynamicsSimulator< >( bodyMap, integratorSettings, propagatorSettings );
-        updateFunction( );
-        Eigen::VectorXd downPerturbedValue = observationFunction( evaluationTime );
-
-        if( parameter->getParameterName( ).first < 0 )
-        {
-            resetInitialDynamicalState( propagatorSettings, parameter, unperturbedParameterValue( i ), i );
-        }
-
-        parameterPartial.block( 0, i, downPerturbedValue.rows( ), 1 ) = ( upPerturbedValue - downPerturbedValue ) /
-                ( 2.0 * parameterPerturbation( i ) );
-    }
-
-    parameter->setParameterValue( unperturbedParameterValue );
-    updateFunction( );
-
-    return parameterPartial;
-}
 
 }
 
