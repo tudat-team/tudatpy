@@ -56,6 +56,13 @@ public:
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+     Eigen::Vector3d getCartesianPositionInTime(
+            const double secondsSinceEpoch,
+            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+     {
+         return getCartesianStateInTime( secondsSinceEpoch, inputReferenceEpoch ).segment( 0, 3 );
+     }
+
     //! Function to return the nominal (unperturbed) Cartesian position of the station
     /*!
      *  Function to return the nominal Cartesian (unperturbed, i.e. not including linear drift, eccentricity,

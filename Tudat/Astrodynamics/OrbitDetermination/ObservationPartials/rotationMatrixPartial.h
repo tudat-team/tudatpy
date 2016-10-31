@@ -1,13 +1,3 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
- *    All rigths reserved
- *
- *    This file is part of the Tudat. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the Modified BSD license. You should have received
- *    a copy of the license with this file. If not, please or visit:
- *    http://tudat.tudelft.nl/LICENSE.
- */
-
 #ifndef TUDAT_ROTATIONMATRIXPARTIAL_H
 #define TUDAT_ROTATIONMATRIXPARTIAL_H
 
@@ -21,7 +11,6 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
-
 namespace tudat
 {
 
@@ -204,14 +193,12 @@ private:
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
 
-
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
 boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
+}
 
-} // namespace observation_partials
+}
 
-} // namespace tudat
-
-#endif // TUDAT_ROTATIONMATRIXPARTIAL_H
+#endif

@@ -9,7 +9,7 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
