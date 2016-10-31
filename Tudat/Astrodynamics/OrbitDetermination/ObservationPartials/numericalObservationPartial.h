@@ -62,15 +62,6 @@ Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParamete
         const double evaluationTime,
         boost::function< void( ) > updateFunction = &emptyFunction2 );
 
-Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParameterPartialWithSingleArcDynamicsUpdate(
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< double > > & propagatorSettings,
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        const double parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
-        const double evaluationTime,
-        boost::function< void( ) > updateFunction = &emptyFunction2 );
 
 Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
@@ -79,15 +70,6 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         const double evaluationTime,
         boost::function< void( ) > updateFunction = &emptyFunction2 );
 
-Eigen::MatrixXd calculateNumericalObservationParameterPartialWithSingleArcDynamicsUpdate(
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< double > > & propagatorSettings,
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        const Eigen::VectorXd parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
-        const double evaluationTime,
-        boost::function< void( ) > updateFunction = &emptyFunction2 );
 
 /*
 Eigen::Matrix< double, 1, Eigen::Dynamic >

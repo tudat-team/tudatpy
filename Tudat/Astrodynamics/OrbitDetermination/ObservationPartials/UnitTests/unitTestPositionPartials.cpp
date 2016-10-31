@@ -71,7 +71,6 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
     loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "mar097.bsp");
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
@@ -84,11 +83,9 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     bodyMap[ "Moon" ] = boost::make_shared< Body >( );
     bodyMap[ "Sun" ] = boost::make_shared< Body >( );
     bodyMap[ "Mars" ] = boost::make_shared< Body >( );
-    bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
 
     ( bodyMap[ "Earth" ] )->setShapeModel( boost::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Earth" ) ) );
     ( bodyMap[ "Mars" ] )->setShapeModel( boost::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Mars" ) ) );
-    ( bodyMap[ "Phobos" ] )->setShapeModel( boost::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Phobos" ) ) );
 
     bodyMap[ "Earth" ]->setEphemeris(
                 boost::make_shared< ConstantEphemeris >(
@@ -106,10 +103,6 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
                 boost::make_shared< ConstantEphemeris >(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
-    bodyMap[ "Phobos" ]->setEphemeris(
-                boost::make_shared< ConstantEphemeris >(
-                    getBodyCartesianStateAtEpoch( "Phobos", "Mars", "ECLIPJ2000", "NONE", 0.0 ),
-                    "SSB", "ECLIPJ2000" ) );
 
     ( bodyMap[ "Sun" ] )->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
@@ -118,19 +111,22 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     ( bodyMap[ "Earth" ] )->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
 
-       boost::shared_ptr< SimpleRotationalEphemeris > simpleEarthRotationModel =
-            boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
-                bodyMap[ "Earth" ]->getRotationalEphemeris( ) );
 
 
-    ( bodyMap[ "Mars" ] )->setRotationalEphemeris(
+    ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
                 createRotationModel(
                     boost::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Earth",
+                        spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                        initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Earth" ) );
+    ( bodyMap[ "Mars" ] )->setRotationalEphemeris(
+                createRotationModel(
+                    boost::make_shared< SimpleRotationModelSettings >(
+                        "ECLIPJ2000", "IAU_Mars",
                         spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Mars" ) );
 
-  
+
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
@@ -200,7 +196,7 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
 
     boost::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
-            boost::bind( &Ephemeris::getCartesianStateFromEphemeris, createReferencePointEphemeris< double, double >(
+            boost::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
                              bodyMap.at( "Earth" )->getEphemeris( ), bodyMap.at( "Earth" )->getRotationalEphemeris( ),
                              boost::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
                                           bodyMap[ "Earth" ]->getGroundStation( "Graz" ), _1 ) ), _1 );
@@ -214,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     // Calculate numerical partials w.r.t. Earth state.
     boost::shared_ptr< ConstantEphemeris > earthEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap[ "Earth" ]->getEphemeris( ) );
-    basic_mathematics::Vector6d earthUnperturbedState = earthEphemeris->getCartesianStateFromEphemeris( 0.0 );
+    basic_mathematics::Vector6d earthUnperturbedState = earthEphemeris->getCartesianState( 0.0 );
     basic_mathematics::Vector6d perturbedEarthState;
     Eigen::Matrix< double, 3, 3 > numericalPartialWrtReceiverPosition = Eigen::Matrix< double, 3, 3 >::Zero( );
 
@@ -236,16 +232,23 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     earthEphemeris->updateConstantState( earthUnperturbedState );
 
     Eigen::Vector3d numericalPartialWrtReceiverRotationrate = calculateNumericalObservationParameterPartial(
-                earthRotationRate, 1.0E-8, observationFunctionAtReception,
+                earthRotationRate, 1.0E-10, observationFunctionAtReception,
                 receptionTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationrate, numericalPartialWrtReceiverRotationrate, 1.0E-4 );
+
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationrate, numericalPartialWrtReceiverRotationrate, 1.0E-5 );
 
 
 
-    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( )<<1.0E-4, 1.0E-4 ).finished( );
+    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( )<<1.0E-5, 1.0E-5 ).finished( );
     Eigen::MatrixXd numericalPartialWrtReceiverPolePosition = calculateNumericalObservationParameterPartial(
                 earthPolePosition, polePositionPerturbation, observationFunctionAtReception, receptionTime );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPolePosition, numericalPartialWrtReceiverPolePosition, 1.0E-4 );
+
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ),
+                                       ( numericalPartialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ), 1.0E-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 1, 0, 2, 2 ) ),
+                                       ( numericalPartialWrtReceiverPolePosition.block( 1, 0, 2, 2 ) ), 1.0E-6 );
 }
 
 

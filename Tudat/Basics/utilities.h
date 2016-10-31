@@ -151,8 +151,6 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
     }
 }
 
-}
-
 } // namespace utilities
 
 } // namespace tudat

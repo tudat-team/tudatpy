@@ -113,11 +113,22 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
     boost::shared_ptr< RotationRate > marsRotationRate = boost::make_shared< RotationRate >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
+    boost::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation = boost::make_shared< ConstantRotationalOrientation >(
+                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
+    boost::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation = boost::make_shared< ConstantRotationalOrientation >(
+                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
 
 
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
     estimatableDoubleParameters.push_back( earthRotationRate );
     estimatableDoubleParameters.push_back( marsRotationRate );
+
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
+    estimatableVectorParameters.push_back( earthRotationOrientation );
+    estimatableVectorParameters.push_back( marsRotationOrientation );
+
 
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedInitialStateParameters;
     estimatedInitialStateParameters.push_back(
@@ -131,7 +142,7 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
 
     return boost::make_shared< EstimatableParameterSet< double > >(
                 estimatableDoubleParameters,
-                std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ),
+                estimatableVectorParameters,
                 estimatedInitialStateParameters );
 }
 
@@ -142,7 +153,7 @@ Eigen::Matrix< double, 1, 3 > calculatePartialWrtConstantBodyState(
     // Calculate numerical partials w.r.t. body state.
     boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap.at( bodyName )->getEphemeris( ) );
-    basic_mathematics::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianStateFromEphemeris( 0.0 );
+    basic_mathematics::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     basic_mathematics::Vector6d perturbedBodyState;
 
     Eigen::Matrix< double, 1, 3 > numericalPartialWrtBodyPosition = Eigen::Matrix< double, 1, 3 >::Zero( );
@@ -151,17 +162,20 @@ Eigen::Matrix< double, 1, 3 > calculatePartialWrtConstantBodyState(
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) += bodyPositionVariation( i );
         bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
         double upPerturbedObservation = observationFunction( observationTime );
 
         perturbedBodyState = bodyUnperturbedState;
         perturbedBodyState( i ) -= bodyPositionVariation( i );
         bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
         double downPerturbedObservation = observationFunction( observationTime );
 
         numericalPartialWrtBodyPosition( 0, i ) = ( upPerturbedObservation - downPerturbedObservation ) /
                 ( 2.0 * bodyPositionVariation( i ) );
     }
     bodyEphemeris->updateConstantState( bodyUnperturbedState );
+    bodyMap.at( bodyName )->recomputeStateOnNextCall( );
 
     return numericalPartialWrtBodyPosition;
 }
@@ -180,6 +194,25 @@ std::vector< double > calculateNumericalPartialsWrtDoubleParameters(
         partialVector.push_back( calculateNumericalObservationParameterPartial(
                                      doubleParameters.at( i ), parameterPerturbations.at( i ), observationFunction,
                                      observationTime, updateFunctions.at( i ) )( 0 ) );
+    }
+
+    return partialVector;
+}
+
+std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
+        const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
+        const std::vector< boost::function< void( ) > > updateFunctions,
+        const std::vector< Eigen::VectorXd >& parameterPerturbations,
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const double observationTime )
+{
+    std::vector< Eigen::MatrixXd > partialVector;
+
+    for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
+    {
+        partialVector.push_back( calculateNumericalObservationParameterPartial(
+                                     vectorParameters.at( i ), parameterPerturbations.at( i ), observationFunction,
+                                     observationTime, updateFunctions.at( i ) ) );
     }
 
     return partialVector;
@@ -292,6 +325,46 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         checkStationId = 0;
         std::pair< std::string, std::string > currentAssociatedLinkEndId =
                 estimatedParameters->getEstimatedDoubleParameters( ).at( i )->getParameterName( ).second;
+        if( currentAssociatedLinkEndId.second != "" )
+        {
+            checkStationId = 1;
+        }
+        currentPartialTimes.clear( );
+        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+        {
+            if( linkEndIterator->second.first == currentAssociatedLinkEndId.first )
+            {
+                addContribution = 0;
+                if( checkStationId )
+                {
+                    if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
+                    {
+                        currentPartialTimeIndices = getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                        addContribution = 1;
+                    }
+                }
+                else
+                {
+                    currentPartialTimeIndices = getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                    addContribution = 1;
+                }
+                if( addContribution )
+                {
+                    for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
+                    {
+                        currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
+                    }
+                }
+            }
+        }
+        partialTimes.push_back( currentPartialTimes );
+    }
+
+    for( unsigned int i = 0; i < estimatedParameters->getEstimatedVectorParameters( ).size( ); i++ )
+    {
+        checkStationId = 0;
+        std::pair< std::string, std::string > currentAssociatedLinkEndId =
+                estimatedParameters->getEstimatedVectorParameters( ).at( i )->getParameterName( ).second;
         if( currentAssociatedLinkEndId.second != "" )
         {
             checkStationId = 1;
