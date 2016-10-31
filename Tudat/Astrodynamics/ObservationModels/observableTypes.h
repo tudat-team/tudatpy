@@ -47,6 +47,8 @@ std::string getObservableName( const ObservableType observableType );
  */
 ObservableType getObservableType( const std::string& observableName );
 
+std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
+        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds = -1 );
 
 } // namespace observation_models
 

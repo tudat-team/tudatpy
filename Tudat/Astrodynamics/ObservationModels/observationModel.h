@@ -11,6 +11,7 @@
 #ifndef TUDAT_OBSERVATIONMODEL_H
 #define TUDAT_OBSERVATIONMODEL_H
 
+#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -182,7 +183,8 @@ public:
         // Check if any non-ideal models are set.
         if( isBiasNull_ )
         {
-            return computeObservations( time, linkEndAssociatedWithTime );
+            return computeIdealObservationsWithLinkEndData(
+                        time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
         }
         else
         {
@@ -209,6 +211,7 @@ public:
         }
         else
         {
+            std::cout<<observableType_<<" "<<observationEntry<<" "<<ObservationSize<<std::endl;
             throw std::runtime_error( "Error, requesting out-of-bounds index for observation model" );
         }
     }
