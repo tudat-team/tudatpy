@@ -82,6 +82,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeTypes.h"
 )
 
 # Add static libraries.
@@ -169,3 +170,8 @@ target_link_libraries(test_BodyShapeModels tudat_basic_astrodynamics tudat_basic
 add_executable(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp")
 setup_custom_test_program(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_UnifiedStateModelElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_TimeTypes "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestTimeTypes.cpp")
+setup_custom_test_program(test_TimeTypes "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_TimeTypes tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+

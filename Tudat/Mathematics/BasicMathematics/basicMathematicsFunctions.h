@@ -85,7 +85,7 @@ typedef boost::mt19937 GlobalRandomNumberGeneratorType;
  */
 GlobalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
 
-//! Compute modulo of double.
+//! Compute modulo of floating-point number (default double).
 /*!
  * Computes the remainder of division of one floating-point number by another. The modulo
  * computation is based on the mathematical definition of congruence, which is different from the
@@ -101,6 +101,28 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
 {
     return dividend - divisor * std::floor( dividend / divisor );
 }
+
+//! Compute modulo of floating-point number (default double).
+/*!
+ * Computes the remainder of division of one floating-point number by another. The modulo
+ * computation is based on the mathematical definition of congruence, which is different from the
+ * implementation of std::fmod() in the cmath standard library. For a description of congruence
+ * see: http://mathworld.wolfram.com/Congruence.html. The remainder is in the range [ 0, divisor ).
+ * This function also returns (by reference) the number of times divisor goes into dividend, i.e. the division from which
+ * the moduloValue is the remainder.
+ * \param dividend Number to be divided.
+ * \param divisor Number that is divided by.
+ * \param moduloValue Remainder of division of dividend by divisor (returned by reference).
+ * \param numberOfDivisors Number of times divisor goes into dividend (returned by reference).
+ */
+template< typename ScalarType >
+inline void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
+                                       ScalarType& moduloValue, int& numberOfDivisors )
+{
+    numberOfDivisors = std::floor( dividend / divisor );
+    moduloValue = dividend - divisor * static_cast< ScalarType >( numberOfDivisors );
+}
+
 
 //! Raise floating point variable to integer power.
 template< typename ScalarType >

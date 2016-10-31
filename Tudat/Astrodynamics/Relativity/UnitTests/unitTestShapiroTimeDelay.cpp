@@ -52,8 +52,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions;
     std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
-    perturbingBodyStateFunctions.push_back( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, ephemeris, _1,
-                                                         basic_astrodynamics::JULIAN_DAY_ON_J2000 ) );
+    perturbingBodyStateFunctions.push_back( boost::bind( &Ephemeris::getCartesianState, ephemeris, _1 ) );
     perturbingBodyGravitationalParameterFunctions.push_back( boost::lambda::constant( earthGravitationalParameter ) );
 
     FirstOrderLightTimeCorrectionCalculator correctionCalculator(
