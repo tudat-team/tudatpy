@@ -13,14 +13,17 @@ void OneWayRangeScaling::update( const std::vector< basic_mathematics::Vector6d 
                                  const observation_models::LinkEndType fixedLinkEnd )
 {
     Eigen::Vector3d rangeVector = linkEndStates[ 1 ].segment( 0, 3 ) - linkEndStates[ 0 ].segment( 0, 3 );
+
     Eigen::Matrix< double, 1, 3 > rangeVectorNormalized = rangeVector.transpose( ) / rangeVector.norm( );
-    baseScalingFactor_ = rangeVectorNormalized;
-    receiverReferenceScalingFactor_ =  rangeVectorNormalized /
-            ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
+
+    receiverReferenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
+            physical_constants::SPEED_OF_LIGHT );
+    receiverReferenceScalingFactor_ =  rangeVectorNormalized * receiverReferenceLightTimeCorrectionScaling_;
+
+    transmitterReferenceLightTimeCorrectionScaling_ =
+            1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
               physical_constants::SPEED_OF_LIGHT );
-    transmitterReferenceScalingFactor_ =  rangeVectorNormalized /
-            ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
-              physical_constants::SPEED_OF_LIGHT );
+    transmitterReferenceScalingFactor_ =  rangeVectorNormalized * transmitterReferenceLightTimeCorrectionScaling_;
 }
 
 Eigen::Matrix< double, 1, 3 > OneWayRangeScaling::getScalingFactor(
@@ -39,7 +42,7 @@ Eigen::Matrix< double, 1, 3 > OneWayRangeScaling::getScalingFactor(
     else
     {
         std::string errorMessage = "Error when getting one-way range scaling , link end type: " +
-                boost::lexical_cast< std::string >( linkEndType ) + " not compatible.";
+                boost::lexical_cast< std::string >( referenceTimeLinkEnd ) + " not compatible.";
         throw std::runtime_error( errorMessage );
     }
 
@@ -50,6 +53,29 @@ Eigen::Matrix< double, 1, 3 > OneWayRangeScaling::getScalingFactor(
 
     return scaling;
 }
+
+double OneWayRangeScaling::getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  )
+{
+    double scaling;
+
+    if( referenceTimeLinkEnd == observation_models::transmitter )
+    {
+        scaling = transmitterReferenceLightTimeCorrectionScaling_;
+    }
+    else if( referenceTimeLinkEnd == observation_models::receiver )
+    {
+        scaling = receiverReferenceLightTimeCorrectionScaling_;
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting one-way range light-time correction scaling , link end type: " +
+                boost::lexical_cast< std::string >( referenceTimeLinkEnd ) + " not compatible.";
+        throw std::runtime_error( errorMessage );
+    }
+    return scaling;
+
+}
+
 
 OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePartial(
         const std::vector< basic_mathematics::Vector6d >& states,
@@ -85,7 +111,8 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
     for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
     {
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
-        returnPartial[ returnPartial.size( ) - 1 ].first *= -1.0 * physical_constants::SPEED_OF_LIGHT;
+        returnPartial[ returnPartial.size( ) - 1 ].first *=
+                -1.0 * physical_constants::SPEED_OF_LIGHT * oneWayRangeScaler_->getLightTimePartialScalingFactor( linkEndOfFixedTime );
     }
 
     return returnPartial;

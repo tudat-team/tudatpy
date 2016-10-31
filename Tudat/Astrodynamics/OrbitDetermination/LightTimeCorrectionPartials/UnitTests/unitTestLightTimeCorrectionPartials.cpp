@@ -80,12 +80,16 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
     std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > partialList =
             createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate,
                                        oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+    boost::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
+
 
     std::vector< double > linkEndTimes;
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
     double testTime = 1.1E7;
     oneWayRangeModel->computeObservationsWithLinkEndData( testTime, transmitter, linkEndTimes, linkEndStates );
+
+    positionPartialScaler->update( linkEndStates, linkEndTimes, transmitter );
 
 
     boost::function< double( const double ) > observationFunction = boost::bind(
@@ -203,8 +207,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         }
 
         // Settings for body state partials
-        boost::function< double( const double ) > observationFunction = boost::bind(
-                    &ObservationModel< 1, double, double, double >::computeObservationEntry, oneWayRangeModel, _1, linkEndIterator->first, 0 );
+        boost::function< Eigen::VectorXd( const double ) > observationFunction = boost::bind(
+                    &ObservationModel< 1, double, double, double >::computeObservations, oneWayRangeModel, _1, linkEndIterator->first );
 
         // Settings for parameter partial functions.
         std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E18 )( 1.0E15 )( 1.0E15 );
@@ -214,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         updateFunctionList.push_back( emptyFunction2 );
 
         // Calculate and test analytical against numerical partials.
-        std::vector< double > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
+        std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
                     doubleParameterVector, updateFunctionList, parameterPerturbations, observationFunction, observationTime );
 
         double currentParameterPartial = 0.0;
@@ -228,10 +232,10 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
             }
 
-            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, -1.0 * numericalPartialsWrtDoubleParameters[ i ], 1.0E-4 );
+            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, -1.0 * numericalPartialsWrtDoubleParameters[ i ].x( ), 1.0E-4 );
         }
 
-        BOOST_CHECK_EQUAL( numericalPartialsWrtDoubleParameters[ 2 ], 0.0 );
+        BOOST_CHECK_EQUAL( numericalPartialsWrtDoubleParameters[ 2 ].x( ), 0.0 );
 
     }
 }

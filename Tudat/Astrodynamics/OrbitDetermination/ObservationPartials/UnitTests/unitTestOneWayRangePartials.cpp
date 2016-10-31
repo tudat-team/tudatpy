@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        testObservationPartials( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, true, true );
+        testObservationPartials< 1 >( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, true, true );
     }
 
     {
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        testObservationPartials( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, false, true );
+        testObservationPartials< 1 >( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, false, true );
     }
 }
 
