@@ -23,7 +23,7 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfRightAscensionWrtLinkEndPosition
     Eigen::Matrix< double, 1, 3 > partial = Eigen::Matrix< double, 1, 3 >::Zero( );
     partial( 0 ) = -relativeRangeVector( 1 );
     partial( 1 ) = relativeRangeVector( 0 );
-    partial /= ( -partialMultiplier * ( relativeRangeVector( 0 ) * relativeRangeVector( 0 ) +
+    partial /= ( partialMultiplier * ( relativeRangeVector( 0 ) * relativeRangeVector( 0 ) +
                                        relativeRangeVector( 1 ) * relativeRangeVector( 1 ) ) );
     return partial;
 }
@@ -43,10 +43,10 @@ Eigen::Matrix< double, 1, 3 > calculatePartialOfDeclinationWrtLinkEndPosition(
     }
 
     double range = relativeRangeVector.norm( );
-    Eigen::Matrix< double, 1, 3 > partial = -partialMultiplier * relativeRangeVector.transpose( ) / range;
+    Eigen::Matrix< double, 1, 3 > partial = partialMultiplier * relativeRangeVector.transpose( ) / range;
 
     partial *= relativeRangeVector( 2 ) / ( range * range );
-    partial += partialMultiplier * ( Eigen::Vector3d::UnitZ( ) ).transpose( ) / range;
+    partial += -partialMultiplier * ( Eigen::Vector3d::UnitZ( ) ).transpose( ) / range;
 
     return partial;
 }
@@ -70,72 +70,39 @@ void AngularPositionScaling::update( const std::vector< basic_mathematics::Vecto
     Eigen::Vector3d relativeRangeVector = ( linkEndStates[ 1 ] - linkEndStates[ 0 ] ).segment( 0, 3 );
     Eigen::Vector3d normalizedRelativeRangeVector = relativeRangeVector.normalized( );
 
-    scalingFactor_ = -calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true );
+    scalingFactor_ = calculatePartialOfAngularPositionWrtLinkEndPosition( relativeRangeVector, true );
 
-    receiverReferenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 0 ].segment( 3, 3 ) /
-            ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
-    receiverReferenceScalingFactor_ =
-            scalingFactor_ *
-            ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 0 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
-            ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
-
-    receiverReferenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 1 ].segment( 3, 3 ) /
-            ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
-    transmitterReferenceScalingFactor_ =
-            scalingFactor_ *
-            ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 1 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
-            ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
+    if( fixedLinkEnd == observation_models::receiver )
+    {
+        referenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 0 ].segment( 3, 3 ) /
+                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
+        referenceScalingFactor_ =
+                scalingFactor_ *
+                ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 0 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
+                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 0 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
+    }
+    else if( fixedLinkEnd == observation_models::transmitter )
+    {
+        referenceLightTimeCorrectionScaling_ = scalingFactor_ * linkEndStates[ 1 ].segment( 3, 3 ) /
+                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) );
+        referenceScalingFactor_ =
+                scalingFactor_ *
+                ( Eigen::Matrix3d::Identity( ) + linkEndStates[ 1 ].segment( 3, 3 ) * normalizedRelativeRangeVector.transpose( ) /
+                ( physical_constants::SPEED_OF_LIGHT - linkEndStates[ 1 ].segment( 3, 3 ).dot( normalizedRelativeRangeVector ) ) );
+    }
 
 }
 
 Eigen::Matrix< double, 2, 3 > AngularPositionScaling::getScalingFactor(
-        const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  )
+        const observation_models::LinkEndType linkEndType )
 {
-    Eigen::Matrix< double, 2, 3 > scaling;
+    return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
 
-    if( referenceTimeLinkEnd == observation_models::transmitter )
-    {
-        scaling = transmitterReferenceScalingFactor_;
-    }
-    else if( referenceTimeLinkEnd == observation_models::receiver )
-    {
-        scaling = receiverReferenceScalingFactor_;
-    }
-    else
-    {
-        std::string errorMessage = "Error when getting angular position scaling , link end type: " +
-                boost::lexical_cast< std::string >( linkEndType ) + " not compatible.";
-        throw std::runtime_error( errorMessage );
-    }
-
-    if( linkEndType == observation_models::receiver )
-    {
-        scaling *= -1.0;
-    }
-
-    return scaling;
 }
 
-Eigen::Vector2d AngularPositionScaling::getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  )
+Eigen::Vector2d AngularPositionScaling::getLightTimePartialScalingFactor( )
 {
-    Eigen::Vector2d scaling;
-
-    if( referenceTimeLinkEnd == observation_models::transmitter )
-    {
-        scaling = transmitterReferenceLightTimeCorrectionScaling_;
-    }
-    else if( referenceTimeLinkEnd == observation_models::receiver )
-    {
-        scaling = receiverReferenceLightTimeCorrectionScaling_;
-    }
-    else
-    {
-        std::string errorMessage = "Error when getting one-way range light-time correction scaling , link end type: " +
-                boost::lexical_cast< std::string >( referenceTimeLinkEnd ) + " not compatible.";
-        throw std::runtime_error( errorMessage );
-    }
-    return scaling;
-
+    return referenceLightTimeCorrectionScaling_;
 }
 
 AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial::calculatePartial(
@@ -164,16 +131,17 @@ AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial:
 
         returnPartial.push_back(
                     std::make_pair(
-                        angularPositionScaler_->getScalingFactor( positionPartialIterator_->first, linkEndOfFixedTime ) *
+                        angularPositionScaler_->getScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartial(
                               currentState, currentTime ) ), currentTime ) );
     }
 
     for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
     {
-//        returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
-//        returnPartial[ returnPartial.size( ) - 1 ].first *=
-//                angularPositionScaler_->getLightTimePartialScalingFactor( linkEndOfFixedTime );
+        currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
+        returnPartial.push_back(
+                    std::make_pair( angularPositionScaler_->getLightTimePartialScalingFactor( ) * currentLinkTimeCorrectionPartial_.first,
+                    currentLinkTimeCorrectionPartial_.second ) );
     }
 
 

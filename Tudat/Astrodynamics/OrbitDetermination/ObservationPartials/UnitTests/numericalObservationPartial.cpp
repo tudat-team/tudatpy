@@ -1,5 +1,5 @@
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 
 namespace tudat
 {

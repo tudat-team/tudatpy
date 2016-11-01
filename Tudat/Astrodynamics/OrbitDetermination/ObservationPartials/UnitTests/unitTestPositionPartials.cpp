@@ -37,7 +37,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     Eigen::MatrixXd partialWrtReceiverPosition =
             partialObjectWrtReceiverPosition->calculatePartial( currentState, currentTime );
 
-    Eigen::MatrixXd partialWrtReceiverRotationrate =
+    Eigen::MatrixXd partialWrtReceiverRotationRate =
             partialObjectWrtReceiverRotationRate->calculatePartial( currentState, currentTime );
 
     Eigen::MatrixXd partialWrtReceiverPolePosition =
@@ -231,12 +231,12 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     }
     earthEphemeris->updateConstantState( earthUnperturbedState );
 
-    Eigen::Vector3d numericalPartialWrtReceiverRotationrate = calculateNumericalObservationParameterPartial(
+    Eigen::Vector3d numericalPartialWrtReceiverRotationRate = calculateNumericalObservationParameterPartial(
                 earthRotationRate, 1.0E-10, observationFunctionAtReception,
                 receptionTime );
 
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationrate, numericalPartialWrtReceiverRotationrate, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate, numericalPartialWrtReceiverRotationRate, 1.0E-5 );
 
 
 

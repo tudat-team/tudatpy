@@ -75,12 +75,12 @@ set(OBSERVATION_PARTIALS_HEADERS
 # Set the header files.
 set(OBSERVATION_PARTIALS_TEST_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/observationPartialTestFunctions.h"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.h"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/numericalObservationPartial.h"
 )
 
 set(OBSERVATION_PARTIALS_TEST_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/observationPartialTestFunctions.cpp"
-  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/numericalObservationPartial.cpp"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/numericalObservationPartial.cpp"
 )
 # Add static libraries.
 add_library(tudat_observation_partials STATIC ${OBSERVATION_PARTIALS_SOURCES} ${OBSERVATION_PARTIALS_HEADERS})
