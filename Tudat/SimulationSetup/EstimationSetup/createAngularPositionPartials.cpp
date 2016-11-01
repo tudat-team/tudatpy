@@ -2,8 +2,8 @@
 
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createAngularPositionPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 
 namespace tudat
 {

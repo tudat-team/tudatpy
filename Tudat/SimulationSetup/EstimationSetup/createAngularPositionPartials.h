@@ -10,9 +10,9 @@
 
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/angularPositionPartial.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/createLightTimeCorrectionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 

@@ -36,7 +36,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
@@ -74,8 +74,6 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
-    double finalEphemerisTime = 1.2E7;
-    double buffer = 1000.0;
 
     // Create bodies.
     NamedBodyMap bodyMap;
