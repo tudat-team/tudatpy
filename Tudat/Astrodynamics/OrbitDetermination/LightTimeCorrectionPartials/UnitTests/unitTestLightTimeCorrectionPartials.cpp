@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
 
 
         BOOST_CHECK_CLOSE_FRACTION(
-                    -1.0 * calculateNumericalObservationParameterPartial(
+                    calculateNumericalObservationParameterPartial(
                         parametersToEstimate->getDoubleParameters( )[ partialIterator->first.first ],
                         perturbations.at( partialIterator->first.first ), observationFunction, testTime ).x( ), totalPartial.x( ),
                     tolerances.at( partialIterator->first.first ) );
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
             }
 
-            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, -1.0 * numericalPartialsWrtDoubleParameters[ i ].x( ), 1.0E-4 );
+            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters[ i ].x( ), 1.0E-4 );
         }
 
         BOOST_CHECK_EQUAL( numericalPartialsWrtDoubleParameters[ 2 ].x( ), 0.0 );

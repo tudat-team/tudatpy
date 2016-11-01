@@ -33,28 +33,24 @@ public:
                  const observation_models::LinkEndType fixedLinkEnd );
 
     Eigen::Matrix< double, 2, 3 > getScalingFactor(
-            const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  );
+            const observation_models::LinkEndType linkEndType );
 
-    Eigen::Vector2d getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  );
+    Eigen::Vector2d getLightTimePartialScalingFactor( );
 
 
 private:
     Eigen::Matrix< double, 2, 3 > scalingFactor_;
 
-    Eigen::Matrix< double, 2, 3 > receiverReferenceScalingFactor_;
+    Eigen::Matrix< double, 2, 3 > referenceScalingFactor_;
 
-    Eigen::Matrix< double, 2, 3 > transmitterReferenceScalingFactor_;
-
-    Eigen::Vector2d transmitterReferenceLightTimeCorrectionScaling_;
-
-    Eigen::Vector2d receiverReferenceLightTimeCorrectionScaling_;
-
+    Eigen::Vector2d referenceLightTimeCorrectionScaling_;
 };
 
 class AngularPositionPartial: public ObservationPartial< 2 >
 {
 public:
     typedef std::vector< std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, double > > AngularPositionPartialReturnType;
+    typedef std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > SingleOneWayRangePartialReturnType;
 
     AngularPositionPartial( const boost::shared_ptr< AngularPositionScaling > angularPositionScaler,
                             const std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >& positionPartialList,
@@ -63,7 +59,21 @@ public:
                 std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< 2 >( parameterIdentifier ),
         angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ),
-        lighTimeCorrectionPartials_( lighTimeCorrectionPartials ){ }
+        lighTimeCorrectionPartials_( lighTimeCorrectionPartials )
+    {
+        std::pair< boost::function< SingleOneWayRangePartialReturnType(
+                    const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
+
+        for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
+        {
+            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
+                        parameterIdentifier, lighTimeCorrectionPartials.at( i ) );
+            if( lightTimeCorrectionPartial.second != 0 )
+            {
+                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
+            }
+        }
+    }
 
     ~AngularPositionPartial( ){ }
 
@@ -79,11 +89,13 @@ protected:
 
     std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
 
-    std::vector< boost::function< AngularPositionPartialReturnType(
+    std::vector< boost::function< SingleOneWayRangePartialReturnType(
             const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
+
+    std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;
 };
 
 }

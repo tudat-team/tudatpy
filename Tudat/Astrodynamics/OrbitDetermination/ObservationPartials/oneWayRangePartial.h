@@ -30,18 +30,14 @@ public:
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd );
 
-    Eigen::Matrix< double, 1, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  );
+    Eigen::Matrix< double, 1, 3 > getScalingFactor( const observation_models::LinkEndType linkEndType );
 
-    double getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  );
+    double getLightTimePartialScalingFactor( );
 
 private:
-    Eigen::Matrix< double, 1, 3 > transmitterReferenceScalingFactor_;
+    Eigen::Matrix< double, 1, 3 > referenceScalingFactor_;
 
-    Eigen::Matrix< double, 1, 3 > receiverReferenceScalingFactor_;
-
-    double transmitterReferenceLightTimeCorrectionScaling_;
-
-    double receiverReferenceLightTimeCorrectionScaling_;
+    double referenceLightTimeCorrectionScaling_;
 
     observation_models::LinkEndType currentLinkEndType_;
 

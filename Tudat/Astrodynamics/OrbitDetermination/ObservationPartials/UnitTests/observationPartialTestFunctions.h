@@ -18,7 +18,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
@@ -121,7 +121,6 @@ inline void testObservationPartials(
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-
         // Evaluate nominal observation values
         std::vector< basic_mathematics::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
@@ -175,16 +174,15 @@ inline void testObservationPartials(
 
                 if( observableType != angular_position )
                 {
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( -1.0 * numericalPartialWrtBodyPosition ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                 }
                 else
                 {
-                    BOOST_CHECK_SMALL( std::fabs( bodyPositionPartial( 0, 2 ) + numericalPartialWrtBodyPosition( 0, 2 ) ), 1.0E-20 );
+                    BOOST_CHECK_SMALL( std::fabs( bodyPositionPartial( 0, 2 ) - numericalPartialWrtBodyPosition( 0, 2 ) ), 1.0E-20 );
                     bodyPositionPartial( 0, 2 ) = 0.0;
                     numericalPartialWrtBodyPosition( 0, 2 ) = 0.0;
 
-                    //std::cout<<"Partial: "<<std::endl<<bodyPositionPartial<<std::endl<<std::endl<<bodyPositionPartial + numericalPartialWrtBodyPosition<<std::endl<<std::endl;
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( -1.0 * numericalPartialWrtBodyPosition ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
 
                 }
             }
@@ -215,7 +213,7 @@ inline void testObservationPartials(
 
                     }
 
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentParameterPartial, ( -1.0 * numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
                 }
             }
 
@@ -248,7 +246,7 @@ inline void testObservationPartials(
 
                     }
 
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( currentParameterPartial ), ( -1.0 * numericalPartialsWrtVectorParameters[ i ] ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
                 }
             }
         }

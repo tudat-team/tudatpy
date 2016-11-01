@@ -16,64 +16,30 @@ void OneWayRangeScaling::update( const std::vector< basic_mathematics::Vector6d 
 
     Eigen::Matrix< double, 1, 3 > rangeVectorNormalized = rangeVector.transpose( ) / rangeVector.norm( );
 
-    receiverReferenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
-            physical_constants::SPEED_OF_LIGHT );
-    receiverReferenceScalingFactor_ =  rangeVectorNormalized * receiverReferenceLightTimeCorrectionScaling_;
-
-    transmitterReferenceLightTimeCorrectionScaling_ =
-            1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
-              physical_constants::SPEED_OF_LIGHT );
-    transmitterReferenceScalingFactor_ =  rangeVectorNormalized * transmitterReferenceLightTimeCorrectionScaling_;
+    if( fixedLinkEnd == observation_models::receiver )
+    {
+        referenceLightTimeCorrectionScaling_ = 1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 0 ].segment( 3, 3 ) ) /
+                physical_constants::SPEED_OF_LIGHT );
+        referenceScalingFactor_ =  rangeVectorNormalized * referenceLightTimeCorrectionScaling_;
+    }
+    else if( fixedLinkEnd == observation_models::transmitter )
+    {
+        referenceLightTimeCorrectionScaling_ =
+                1.0 / ( 1.0 - rangeVectorNormalized.transpose( ).dot( linkEndStates[ 1 ].segment( 3, 3 ) ) /
+                physical_constants::SPEED_OF_LIGHT );
+        referenceScalingFactor_ =  rangeVectorNormalized * referenceLightTimeCorrectionScaling_;
+    }
 }
 
 Eigen::Matrix< double, 1, 3 > OneWayRangeScaling::getScalingFactor(
-        const observation_models::LinkEndType linkEndType, const observation_models::LinkEndType referenceTimeLinkEnd  )
+        const observation_models::LinkEndType linkEndType )
 {
-    Eigen::Matrix< double, 1, 3 > scaling;
-
-    if( referenceTimeLinkEnd == observation_models::transmitter )
-    {
-        scaling = transmitterReferenceScalingFactor_;
-    }
-    else if( referenceTimeLinkEnd == observation_models::receiver )
-    {
-        scaling = receiverReferenceScalingFactor_;
-    }
-    else
-    {
-        std::string errorMessage = "Error when getting one-way range scaling , link end type: " +
-                boost::lexical_cast< std::string >( referenceTimeLinkEnd ) + " not compatible.";
-        throw std::runtime_error( errorMessage );
-    }
-
-    if( linkEndType == observation_models::receiver )
-    {
-        scaling *= -1.0;
-    }
-
-    return scaling;
+    return referenceScalingFactor_ * ( ( linkEndType == observation_models::transmitter ) ? ( -1.0 ) : ( 1.0 ) );
 }
 
-double OneWayRangeScaling::getLightTimePartialScalingFactor( const observation_models::LinkEndType referenceTimeLinkEnd  )
+double OneWayRangeScaling::getLightTimePartialScalingFactor( )
 {
-    double scaling;
-
-    if( referenceTimeLinkEnd == observation_models::transmitter )
-    {
-        scaling = transmitterReferenceLightTimeCorrectionScaling_;
-    }
-    else if( referenceTimeLinkEnd == observation_models::receiver )
-    {
-        scaling = receiverReferenceLightTimeCorrectionScaling_;
-    }
-    else
-    {
-        std::string errorMessage = "Error when getting one-way range light-time correction scaling , link end type: " +
-                boost::lexical_cast< std::string >( referenceTimeLinkEnd ) + " not compatible.";
-        throw std::runtime_error( errorMessage );
-    }
-    return scaling;
-
+   return referenceLightTimeCorrectionScaling_;
 }
 
 
@@ -103,7 +69,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
 
         returnPartial.push_back(
                     std::make_pair(
-                        oneWayRangeScaler_->getScalingFactor( positionPartialIterator_->first, linkEndOfFixedTime ) *
+                        oneWayRangeScaler_->getScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartial(
                               currentState, currentTime ) ), currentTime ) );
     }
@@ -112,7 +78,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
     {
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
         returnPartial[ returnPartial.size( ) - 1 ].first *=
-                -1.0 * physical_constants::SPEED_OF_LIGHT * oneWayRangeScaler_->getLightTimePartialScalingFactor( linkEndOfFixedTime );
+                physical_constants::SPEED_OF_LIGHT * oneWayRangeScaler_->getLightTimePartialScalingFactor( );
     }
 
     return returnPartial;

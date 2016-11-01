@@ -35,7 +35,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createObservationPartials.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/numericalObservationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
