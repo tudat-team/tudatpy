@@ -2,7 +2,7 @@
 
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createOneWayRangePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 
 namespace tudat
 {

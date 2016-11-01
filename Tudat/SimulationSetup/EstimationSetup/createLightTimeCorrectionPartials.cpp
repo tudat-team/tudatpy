@@ -1,6 +1,6 @@
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/firstOrderRelativisticLightTimeCorrectionPartial.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/LightTimeCorrectionPartials/createLightTimeCorrectionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 
 
 namespace tudat
