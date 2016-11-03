@@ -48,8 +48,8 @@ std::string getObservableName( const ObservableType observableType );
 ObservableType getObservableType( const std::string& observableName );
 
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_OBSERVABLETYPES_H

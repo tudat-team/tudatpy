@@ -15,8 +15,6 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 
-using std::string;
-
 namespace tudat
 {
 
@@ -88,8 +86,8 @@ private:
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CONSTANTROTATIONALORIENTATION_H

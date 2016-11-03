@@ -217,8 +217,8 @@ protected:
     //! List of environment models that are to be updated before computing the acceleration,
     /*!
      * List of environment models that are to be updated before computing the acceleration,
-    *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
-    */
+     *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
+     */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
 };
 

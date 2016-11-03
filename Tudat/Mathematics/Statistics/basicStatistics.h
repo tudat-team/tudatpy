@@ -107,6 +107,16 @@ Eigen::VectorXd computeSampleMean( const std::vector< Eigen::VectorXd >& sampleD
  */
 double computeSampleVariance( const std::vector< double >& sampleData );
 
+//! Compute Sample median
+/*!
+ * Computes the median of a set of data samples.
+ * (Montgomery, D. C. & Runger, G. C. Applied Statistics and Probability for engineers Wiley, 2014)
+ *
+ * \param sampleData Map containing sample data.
+ * \return Sample variance.
+ */
+double computeSampleMedian( std::vector< double > sampleData );
+
 //! Compute sample variance for a sample of VectorXd.
 /*!
  * Computes sample variance for a sample of VectorXd based on the following unbiased estimator

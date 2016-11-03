@@ -75,8 +75,8 @@ protected:
 
 };
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ENTRYGUIDANCE_H

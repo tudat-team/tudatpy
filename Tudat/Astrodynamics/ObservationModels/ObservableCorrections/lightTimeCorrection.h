@@ -82,8 +82,8 @@ protected:
 
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_LIGHTTIMECORRECTION_H

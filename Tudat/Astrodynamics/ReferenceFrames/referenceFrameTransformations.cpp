@@ -391,12 +391,13 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame )
     return std::atan2( velocityInVerticalFrame( 1 ), velocityInVerticalFrame( 0 ) );
 }
 
-//! Calculatre current flight path angle.
+//! Calculate current flight path angle.
 double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame )
 {
     return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
 }
 
+//! Get transformation quaternion ECEF to ENU V-frame
 Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
     double longitude, double latitude )
 {
@@ -404,11 +405,12 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
                 longitude, latitude ).inverse( );
 }
 
-// http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+//! Get transformation quaternion between V-frame and ECEF
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     double longitude, double latitude )
 {
     // Compute transformation quaternion.
+    // source: http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
     // Note the sign change (-1.0), because how angleAxisd is defined.
     Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
                 longitude + mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );

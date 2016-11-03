@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
@@ -183,6 +181,26 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
     }
 }
 
+//! Function to set the angle of attack to trimmed conditions.
+boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
+        const boost::shared_ptr< FlightConditions > flightConditions )
+{
+    // Create trim object.
+    boost::shared_ptr< TrimOrientationCalculator > trimOrientation =
+            boost::make_shared< TrimOrientationCalculator >(
+                flightConditions->getAerodynamicCoefficientInterface( ) );
+
+    // Create angle-of-attack function from trim object.
+    boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
+                             untrimmedIndependentVariablesFunction ) );
+
+    return trimOrientation;
 }
 
-}
+} // namespace aerodynamics
+
+} // namespace tudat

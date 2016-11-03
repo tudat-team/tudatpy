@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
-#define BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
+#ifndef TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
+#define TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 
 #include <boost/function.hpp>
 #include <boost/multi_array.hpp>
@@ -557,7 +557,7 @@ protected:
 
 };
 
-}
+} // namespace gravitation
 
-}
-#endif // BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
+} // namespace tudat
+#endif // TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H

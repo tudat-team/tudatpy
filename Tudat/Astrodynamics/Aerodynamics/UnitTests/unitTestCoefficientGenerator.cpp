@@ -67,7 +67,6 @@ namespace unit_tests
 
 using basic_mathematics::Vector6d;
 using mathematical_constants::PI;
-using std::vector;
 
 using namespace aerodynamics;
 
@@ -92,9 +91,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
             = boost::make_shared< geometric_shapes::SphereSegment >( 1.0 );
 
     // Set vehicle in analysis with 10,000 panels.
-    vector< int > numberOfLines( 1, 31 );
-    vector< int > numberOfPoints( 1, 31 );
-    vector< bool > invertOrder( 1, false );
+    std::vector< int > numberOfLines( 1, 31 );
+    std::vector< int > numberOfPoints( 1, 31 );
+    std::vector< bool > invertOrder( 1, false );
 
     // Create analysis object.
     std::vector< std::vector< double > > independentVariableDataPoints;
@@ -283,9 +282,9 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
             = boost::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
-    vector< int > numberOfLines( 4 );
-    vector< int > numberOfPoints( 4 );
-    vector< bool > invertOrders( 4 );
+    std::vector< int > numberOfLines( 4 );
+    std::vector< int > numberOfPoints( 4 );
+    std::vector< bool > invertOrders( 4 );
 
     // Set number of analysis points.
     numberOfLines[ 0 ] = 31;
