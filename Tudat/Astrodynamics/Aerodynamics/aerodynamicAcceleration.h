@@ -184,7 +184,6 @@ public:
         return computeAerodynamicAcceleration(
                     0.5 * currentDensity_ * currentAirspeed_ * currentAirspeed_,
                     currentReferenceArea_, currentForceCoefficients_, currentMass_ );
-
     }
 
     //! Update member variables used by the aerodynamic acceleration model.

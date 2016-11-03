@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef BOOSTPROBABILITYDISTRIBUTIONS_H
-#define BOOSTPROBABILITYDISTRIBUTIONS_H
+#ifndef TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H
+#define TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H
 
 #include <cmath>
 
@@ -105,9 +105,9 @@ private:
 boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
         const ContinuousBoostStatisticalDistributions boostDistribution, const std::vector< double >& parameters );
 
-}
+} // namespace statistics
 
-}
+} // namespace tudat
 
 
-#endif // BOOSTPROBABILITYDISTRIBUTIONS_H
+#endif // TUDAT_BOOSTPROBABILITYDISTRIBUTIONS_H

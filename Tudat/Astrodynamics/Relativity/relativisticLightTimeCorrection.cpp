@@ -8,10 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-
 #include "Tudat/Astrodynamics/Relativity/relativisticLightTimeCorrection.h"
 
 namespace tudat

@@ -78,8 +78,8 @@ private:
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
 #endif // TUDAT_RADIATIONPRESSURECOEFFICIENT_H

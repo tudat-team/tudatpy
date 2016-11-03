@@ -73,7 +73,8 @@ double computeBiGaussianPdf(
 
 BOOST_AUTO_TEST_SUITE( test_probability_distributions )
 
-//! Test if Multi-dimensional Gaussian distribution class works correctly for 2 dimensions.
+//! Test if Multi-dimensional Gaussian distribution class works correctly for 2 dimensions, using analytical solution for
+//! bigaussian distribution.
 BOOST_AUTO_TEST_CASE( testMultiDimensionalGaussianDistribution )
 {
     using namespace tudat::statistics;

@@ -117,8 +117,8 @@ private:
     int parameterSize_;
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 
-#endif // SPHERICALHARMONICSINECOEFFICIENTS_H
+#endif // TUDAT_SPHERICALHARMONICSINECOEFFICIENTS_H

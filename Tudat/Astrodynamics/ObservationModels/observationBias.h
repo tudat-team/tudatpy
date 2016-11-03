@@ -11,7 +11,6 @@
 #ifndef TUDAT_OBSERVATIONBIAS_H
 #define TUDAT_OBSERVATIONBIAS_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -112,8 +111,8 @@ private:
 
 };
 
-}
+} // namespace observation_models
 
-}
+} // namespace tudat
 
 #endif // TUDAT_OBSERVATIONMODEL_H

@@ -239,8 +239,8 @@ private:
     Eigen::Matrix3d currentPartialWrtPosition_;
 };
 
-}
+} // namespace acceleration_partials
 
-}
+} // namespace tudat
 
 #endif // TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H

@@ -173,7 +173,7 @@ public:
 
 };
 
-}
+} // namespace estimatable_parameters
 
-}
+} // namespace tudat
 #endif // TUDAT_ESTIMATABLEPARAMETERSETTINGS_H

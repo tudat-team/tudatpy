@@ -298,7 +298,7 @@ public:
     Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 #endif // TUDAT_THRUSTSETTINGS_H

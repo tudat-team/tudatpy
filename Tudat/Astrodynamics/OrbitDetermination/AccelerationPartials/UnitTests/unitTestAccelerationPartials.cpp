@@ -121,15 +121,15 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<< 10000.0, 10000.0, 10000.0;
+    positionPerturbation << 10000.0, 10000.0, 10000.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0, 1.0, 1.0;
+    velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
     boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1  );
+            boost::bind( &Body::setState, earth, _1 );
     boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1  );
+            boost::bind( &Body::setState, sun, _1 );
     boost::function< basic_mathematics::Vector6d ( ) > earthStateGetFunction =
             boost::bind( &Body::getState, earth );
     boost::function< basic_mathematics::Vector6d ( ) > sunStateGetFunction =
@@ -189,9 +189,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 
     // Create links to set and get state functions of bodies.
     boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1  );
+            boost::bind( &Body::setState, sun, _1 );
     boost::function< void( basic_mathematics::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, vehicle, _1  );
+            boost::bind( &Body::setState, vehicle, _1 );
     boost::function< basic_mathematics::Vector6d( ) > sunStateGetFunction =
             boost::bind( &Body::getState, sun );
     boost::function< basic_mathematics::Vector6d( ) > vehicleStateGetFunction =
@@ -247,9 +247,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<< 10000.0, 10000.0, 10000.0;
+    positionPerturbation << 10000.0, 10000.0, 10000.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0, 1.0, 1.0;
+    velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Calculate numerical partials.
     boost::function< void( ) > updateFunction =
@@ -368,17 +368,17 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<< 10000.0, 10000.0, 10000.0;
+    positionPerturbation << 10000.0, 10000.0, 10000.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0, 1.0, 1.0;
+    velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
     boost::function< void( basic_mathematics::Vector6d ) > moonStateSetFunction =
-            boost::bind( &Body::setState, moon, _1  );
+            boost::bind( &Body::setState, moon, _1 );
     boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1  );
+            boost::bind( &Body::setState, sun, _1 );
     boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1  );
+            boost::bind( &Body::setState, earth, _1 );
 
     // Calculate numerical partials.
     testPartialWrtMoonPosition = calculateAccelerationWrtStatePartials(

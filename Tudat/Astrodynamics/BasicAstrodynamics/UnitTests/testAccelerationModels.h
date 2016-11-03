@@ -266,7 +266,7 @@ private:
     TimeDataType time;
 };
 
-} // namespace tudat
 } // namespace unit_tests
+} // namespace tudat
 
 #endif // TUDAT_TEST_ACCELERATION_MODELS_H
