@@ -81,7 +81,8 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
     }
 }
 
-// Test if custom mass rate is properly computed in multi-type propagation.
+// Test if custom mass rate is properly computed in multi-type propagation
+// (majority of test copied form unitTestMultiTypeStatePropagation).
 BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
 {
     using namespace simulation_setup;
@@ -209,9 +210,9 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
          stateIterator != integratedState.end( ); stateIterator++ )
     {
         BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 8 );
+        BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 6 ) - ( 500.0 - 0.01 * stateIterator->first ) ), 1.0E-9 );
         BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 7 ) - ( 500.0 - 0.02 * stateIterator->first ) ), 1.0E-9 );
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

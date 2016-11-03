@@ -95,17 +95,13 @@ public:
             const std::vector< IntegratedStateType >& setIntegratedStatesFromEnvironment =
             std::vector< IntegratedStateType >( ) )
     {
-        int numberOfCustomStates =
-                ( ( integratedStatesToSet.count( propagators::custom_state ) > 0 ) ?
-                    1 : 0 );
         // Check consistency of input.
         if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
                                       boost::lexical_cast< std::string >( integratedStatesToSet.size( ) ) + " " +
                                       boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( numberOfCustomStates ) +
-                                      " " + boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
+                                      boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
         }
 
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )

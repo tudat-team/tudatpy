@@ -56,6 +56,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
+  "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
 )
 
 # Add static libraries.

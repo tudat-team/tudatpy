@@ -333,9 +333,17 @@ public:
     std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 };
 
+//! Function to evaluate a floating point state-derivative function as though it was a vector state function
+/*!
+ *  Function to evaluate a floating point state-derivative function as though it was a vector state function.
+ *  \param stateDerivativeFunction Function to compute the state derivative, as a function of current time and state.
+ *  \param currentTime Time at which to evaluate the state derivative function
+ *  \param currentStateVector Vector of size 1 containing the current state
+ *  \return Current state derivative (as vector of size 1).
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFunction(
-        const boost::function< StateScalarType( const TimeType, const StateScalarType ) > stateFunction,
+        const boost::function< StateScalarType( const TimeType, const StateScalarType ) > stateDerivativeFunction,
         const TimeType currentTime,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& currentStateVector )
 {
@@ -348,6 +356,12 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
 
 }
 
+//! Class used to provide settings for a custom state derivative model
+/*!
+ *  Class used to provide settings for a custom state derivative model. The custom state derivative function has to be
+ *  defined by the user and provided as input here. It may depend on the current state, and any dependent variables may
+ *  be computed for other state derivative models.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 class CustomStatePropagatorSettings: public PropagatorSettings< StateScalarType >
 {
@@ -355,6 +369,17 @@ public:
 
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > StateVectorType;
 
+    //! Constructor for scalar custom state
+    /*!
+     * Constructor for scalar custom state
+     * \param stateDerivativeFunction Function to compute the state derivative, as a function of current time and state.
+     * \param initialState Initial state value of custom state
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
     CustomStatePropagatorSettings(
             const boost::function< StateScalarType( const TimeType, const StateScalarType ) > stateDerivativeFunction,
             const StateScalarType initialState,
@@ -369,9 +394,19 @@ public:
                                                stateDerivativeFunction, _1, _2 ) ), stateSize_( 1 )
     { }
 
+    //! Constructor for vector custom state
+    /*!
+     * Constructor for vector custom state
+     * \param stateDerivativeFunction Function to compute the state derivative, as a function of current time and state.
+     * \param initialState Initial state value of custom state
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
     CustomStatePropagatorSettings(
             const boost::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
-            const int stateSize,
             const Eigen::VectorXd initialState,
             const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
@@ -379,12 +414,15 @@ public:
             const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( custom_state, initialState, terminationSettings,
                                                dependentVariablesToSave, printInterval ),
-        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( stateSize ){ }
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) ){ }
 
+    //! Destructor
     ~CustomStatePropagatorSettings( ){ }
 
+    //! Function to compute the state derivative, as a function of current time and state.
     boost::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction_;
 
+    //! Size of the state that is propagated.
     int stateSize_;
 
 };

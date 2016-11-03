@@ -13,8 +13,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/function.hpp>
-
 namespace tudat
 {
 
@@ -182,100 +180,6 @@ protected:
 
 };
 
-
-template< typename StateScalarType = double, typename TimeType = double >
-class CustomStateDerivative: public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
-{
-public:
-
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > StateVectorType;
-
-    CustomStateDerivative(
-            const boost::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel,
-            const int stateSize ):
-        SingleStateTypeDerivative< StateScalarType, TimeType >( custom_state ), stateDerivativeModel_( stateDerivativeModel ), stateSize_( stateSize ){ }
-
-    //! Calculates the state derivative of the system of equations for the mass dynamics
-    /*!
-     * Calculates the state derivative of the system of equations for the mass dynamics
-     * The environment and acceleration models (updateStateDerivativeModel) must be
-     * updated before calling this function.
-     * \param time Time at which the state derivative is to be calculated.
-     * \param stateOfSystemToBeIntegrated Current masses of the bodies that are propagated
-     * \param stateDerivative Mass rates of the bodies for which the mass is propagated, in the same order as
-     * bodiesToIntegrate_
-     */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
-    {
-        stateDerivative = stateDerivativeModel_( time, stateOfSystemToBeIntegrated );
-
-    }
-
-    //! Function to clear reference/cached values of body mass state derivative model
-    /*!
-     * Function to clear reference/cached values of body mass state derivative model. All mass rate models' current times
-     * are reset to ensure that they are all recalculated.
-     */
-    void clearStateDerivativeModel( )
-    {  }
-
-    //! Function to update the mass state derivative model to the current time.
-    /*!
-     * Function to update the mass state derivative model to the urrent time.
-     * cNote that this function only updates the state derivative model itself, the
-     * environment models must be updated before calling this function
-     * \param currentTime Time to which the mass state derivative is to be updated.
-     */
-    void updateStateDerivativeModel( const TimeType currentTime )
-    { }
-
-    //! Function included for compatibility purposes with base class, local and global representation is equal for mass rate
-    //! model. Function returns (by reference)  input internalSolution.
-    void convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
-    {
-        currentLocalSolution = internalSolution;
-    }
-
-    //! Function included for compatibility purposes with base class, input and output representation is equal for mass rate
-    //! model. Function returns input outputSolution.
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
-    {
-        return outputSolution;
-    }
-
-    //! Function included for compatibility purposes with base class, input and output representation is equal for mass rate
-    //! model. Function returns  (by reference) input internalSolution.
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution,
-            const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
-    {
-        currentLocalSolution = internalSolution;
-    }
-
-    //! Function to get the total size of the state of propagated masses.
-    /*!
-     * Function to get the total size of the state of propagated masses. Equal to number of bodies for which the mass
-     * is propagated.
-     * \return Size of propagated mass state.
-     */
-    virtual int getStateSize( )
-    {
-        return stateSize_;
-    }
-
-
-private:
-    boost::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel_;
-
-    int stateSize_;
-};
 
 } // namespace propagators
 
