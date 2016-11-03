@@ -365,7 +365,8 @@ public:
         PropagatorSettings< StateScalarType >(
             custom_state, ( StateVectorType( 1 ) << initialState ).finished( ), terminationSettings,
             dependentVariablesToSave, printInterval ),
-        stateDerivativeFunction_( boost::bind( &convertScalarToVectorStateFunction, stateDerivativeFunction, _1, _2 ) )
+        stateDerivativeFunction_( boost::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
+                                               stateDerivativeFunction, _1, _2 ) ), stateSize_( 1 )
     { }
 
     CustomStatePropagatorSettings(
@@ -597,6 +598,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
         std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > singleTypeIntegratedStateList;
 
+
         for( typename std::map< IntegratedStateType,
              std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
@@ -679,8 +681,15 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
         break;
     }
+    case custom_state:
+    {
+        std::vector< std::pair< std::string, std::string > > customList;
+        customList.push_back( std::make_pair( "N/A", "N/A" ) );
+        integratedStateList[ custom_state ] = customList;
+        break;
+    }
     default:
-        throw std::runtime_error( "Error, could not process integrated state type ingetIntegratedTypeAndBodyList " +
+        throw std::runtime_error( "Error, could not process integrated state type in getIntegratedTypeAndBodyList " +
                                   boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
     }
 

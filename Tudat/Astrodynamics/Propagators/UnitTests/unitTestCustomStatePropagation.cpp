@@ -1,0 +1,221 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#define BOOST_TEST_MAIN
+
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <Eigen/Core>
+
+#include <Tudat/Basics/testMacros.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include <Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h>
+#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
+#include <Tudat/InputOutput/basicInputOutput.h>
+
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include <Tudat/External/SpiceInterface/spiceInterface.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+
+namespace tudat
+{
+
+namespace unit_tests
+{
+
+using namespace tudat::propagators;
+using namespace tudat::simulation_setup;
+using namespace tudat::numerical_integrators;
+
+BOOST_AUTO_TEST_SUITE( test_body_mass_propagation )
+
+double getDummyCustomState1(
+        const double currentCustomState, const double currentTime )
+{
+    return -0.02;
+}
+
+// Test mass rate of single body, linearly decreasing with time
+BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
+{
+    // Crate bodyMap
+    NamedBodyMap bodyMap;
+
+    // Create settings for propagation
+    double initialCustomState = 500.0;
+    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< CustomStatePropagatorSettings< double > >(
+                boost::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+
+    // Create dynamics simulation object.
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    // Test propagated solution.
+    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
+         stateIterator != integratedState.end( ); stateIterator++ )
+    {
+        BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
+        BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 0 ) - ( 500.0 - 0.02 * stateIterator->first ) ), 1.0E-9 );
+    }
+}
+
+// Test if custom mass rate is properly computed in multi-type propagation.
+BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
+{
+    using namespace simulation_setup;
+    using namespace propagators;
+    using namespace numerical_integrators;
+    using namespace orbital_element_conversions;
+    using namespace basic_mathematics;
+    using namespace gravitation;
+    using namespace numerical_integrators;
+    using namespace unit_conversions;
+
+    // Load Spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 10.0;
+
+    // Define body settings for simulation.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                basic_mathematics::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+
+    // Create Earth object
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    // Create spacecraft object.
+    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Asterix" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                            boost::shared_ptr< interpolators::OneDimensionalInterpolator
+                                            < double, Vector6d  > >( ), "Earth", "J2000" ) );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define propagation settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                     basic_astrodynamics::central_gravity ) );
+    accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+    bodiesToPropagate.push_back( "Asterix" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+
+    // Set Keplerian elements for Asterix.
+    Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
+
+    // Convert Asterix state from Keplerian elements to Cartesian elements.
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements,
+                earthGravitationalParameter );
+
+
+    boost::shared_ptr< PropagatorSettings< double > > translationalPropagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+    // Create mass rate model and mass propagation settings
+    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                boost::lambda::constant( -0.01 ) );
+    Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
+    initialMass( 0 ) = 500.0;
+    boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+            boost::make_shared< MassPropagatorSettings< double > >(
+                boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
+                boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+    double initialCustomState = 500.0;
+    boost::shared_ptr< PropagatorSettings< double > > customPropagatorSettings =
+            boost::make_shared< CustomStatePropagatorSettings< double > >(
+                boost::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+
+    // Create total propagator settings, depending on current case.
+    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+
+    std::vector< boost::shared_ptr< PropagatorSettings< double > > >  propagatorSettingsList;
+    propagatorSettingsList.push_back( translationalPropagatorSettings );
+    propagatorSettingsList.push_back( massPropagatorSettings );
+    propagatorSettingsList.push_back( customPropagatorSettings );
+
+    propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
+                propagatorSettingsList,
+                boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+
+
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, 0.0, fixedStepSize );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, true );
+
+    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+    // Test propagated solution.
+    for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
+         stateIterator != integratedState.end( ); stateIterator++ )
+    {
+        BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 8 );
+        BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 7 ) - ( 500.0 - 0.02 * stateIterator->first ) ), 1.0E-9 );
+    }
+
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+
+} // namespace tudat

@@ -109,4 +109,8 @@ add_executable(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}/UnitTests/un
 setup_custom_test_program(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_StoppingConditions ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCustomStatePropagation.cpp")
+setup_custom_test_program(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_CustomStatePropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
