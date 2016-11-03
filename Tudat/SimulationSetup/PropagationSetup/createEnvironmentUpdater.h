@@ -135,6 +135,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
                         propagatorSettings )->massRateModels_, bodyMap );
         break;
     }
+    case custom_state:
+    {
+        environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
+                    boost::dynamic_pointer_cast<
+                    MassPropagatorSettings< StateScalarType > >(
+                        propagatorSettings )->massRateModels_, bodyMap );
+        break;
+    }
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +

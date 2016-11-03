@@ -112,6 +112,10 @@ public:
                                                                this, _1, stateReferencePoint, integratedStateType ), 1 );
             }
         }
+        case propagators::custom_state:
+        {
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error when getting state derivative partial acceleration model, dynamics type " +

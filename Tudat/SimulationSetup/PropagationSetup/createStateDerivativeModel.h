@@ -240,6 +240,24 @@ createStateDerivativeModel(
         }
         break;
     }
+    case custom_state:
+    {
+        // Check input consistency.
+        boost::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType > > customPropagatorSettings =
+                boost::dynamic_pointer_cast< CustomStatePropagatorSettings< StateScalarType, TimeType > >(
+                    propagatorSettings );
+        if( customPropagatorSettings == NULL )
+        {
+            throw std::runtime_error(
+                "Error, expected custom propagation settings when making state derivative model" );
+        }
+        else
+        {
+            stateDerivativeModel = boost::make_shared< CustomStateDerivative< StateScalarType, TimeType > >(
+                        customPropagatorSettings->stateDerivativeFunction_, customPropagatorSettings->stateSize_ );
+        }
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, could not process state type "

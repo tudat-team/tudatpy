@@ -333,6 +333,61 @@ public:
     std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 };
 
+template< typename StateScalarType = double, typename TimeType = double >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFunction(
+        const boost::function< StateScalarType( const TimeType, const StateScalarType ) > stateFunction,
+        const TimeType currentTime,
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& currentStateVector )
+{
+    if( currentStateVector.rows( ) != 1 )
+    {
+        throw std::runtime_error( "Error, expected vector of size one when converting scalar to vector state function" );
+    }
+    return ( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 1 )
+             << stateFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
+
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+class CustomStatePropagatorSettings: public PropagatorSettings< StateScalarType >
+{
+public:
+
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > StateVectorType;
+
+    CustomStatePropagatorSettings(
+            const boost::function< StateScalarType( const TimeType, const StateScalarType ) > stateDerivativeFunction,
+            const StateScalarType initialState,
+            const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+            const double printInterval = TUDAT_NAN ):
+        PropagatorSettings< StateScalarType >(
+            custom_state, ( StateVectorType( 1 ) << initialState ).finished( ), terminationSettings,
+            dependentVariablesToSave, printInterval ),
+        stateDerivativeFunction_( boost::bind( &convertScalarToVectorStateFunction, stateDerivativeFunction, _1, _2 ) )
+    { }
+
+    CustomStatePropagatorSettings(
+            const boost::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
+            const int stateSize,
+            const Eigen::VectorXd initialState,
+            const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+            const double printInterval = TUDAT_NAN ):
+        PropagatorSettings< StateScalarType >( custom_state, initialState, terminationSettings,
+                                               dependentVariablesToSave, printInterval ),
+        stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( stateSize ){ }
+
+    ~CustomStatePropagatorSettings( ){ }
+
+    boost::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction_;
+
+    int stateSize_;
+
+};
+
 //! Function to retrieve the state size for a list of propagator settings.
 /*!
  *  Function to retrieve the initial state for a list of propagator settings.
@@ -534,7 +589,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
     // Identify propagator type
     switch( propagatorSettings->stateType_ )
-    {    
+    {
     case hybrid:
     {
         boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
@@ -586,7 +641,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     {
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalPropagatorSettings = boost::dynamic_pointer_cast<
-                     TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
 
         if( translationalPropagatorSettings == NULL )
         {
@@ -607,7 +662,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     {
         boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
                 massPropagatorSettings = boost::dynamic_pointer_cast<
-                     MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+                MassPropagatorSettings< StateScalarType > >( propagatorSettings );
         if( massPropagatorSettings == NULL )
         {
             throw std::runtime_error( "Error getting integrated state type list, mass state input inconsistent" );
@@ -618,7 +673,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         for( unsigned int i = 0; i < massPropagatorSettings->bodiesWithMassToPropagate_.size( ); i++ )
         {
             integratedBodies.push_back( std::make_pair(
-                massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "" ) );
+                                            massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "" ) );
         }
         integratedStateList[ body_mass_state ] = integratedBodies;
 
