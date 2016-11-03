@@ -176,6 +176,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                 boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
                 boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
+    // Create custom state derivative model settings
     double initialCustomState = 500.0;
     boost::shared_ptr< PropagatorSettings< double > > customPropagatorSettings =
             boost::make_shared< CustomStatePropagatorSettings< double > >(

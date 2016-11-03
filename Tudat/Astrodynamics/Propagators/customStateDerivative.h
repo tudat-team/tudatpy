@@ -103,7 +103,7 @@ private:
     int stateSize_;
 };
 
-}
+} // namespace propagators
 
-}
+} // namespae tudat
 #endif // TUDAT_CUSTOMSTATEDERIVATIVE_H

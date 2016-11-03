@@ -352,7 +352,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
         throw std::runtime_error( "Error, expected vector of size one when converting scalar to vector state function" );
     }
     return ( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 1 )
-             << stateFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
+             << stateDerivativeFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
 
 }
 
