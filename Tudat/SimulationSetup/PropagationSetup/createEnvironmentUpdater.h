@@ -137,10 +137,6 @@ std::map< propagators::EnvironmentModelsToUpdate,
     }
     case custom_state:
     {
-        environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
-                    boost::dynamic_pointer_cast<
-                    MassPropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->massRateModels_, bodyMap );
         break;
     }
     default:
@@ -184,6 +180,7 @@ createEnvironmentUpdaterForDynamicalEquations(
     std::map< IntegratedStateType,
         std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );
+
     std::map< propagators::EnvironmentModelsToUpdate,
         std::vector< std::string > > environmentModelsToUpdate =
             createEnvironmentUpdaterSettings< StateScalarType >( propagatorSettings, bodyMap );

@@ -95,12 +95,16 @@ public:
             const std::vector< IntegratedStateType >& setIntegratedStatesFromEnvironment =
             std::vector< IntegratedStateType >( ) )
     {
+        int numberOfCustomStates =
+                ( ( integratedStatesToSet.count( propagators::custom_state ) > 0 ) ?
+                    1 : 0 );
         // Check consistency of input.
         if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
                                       boost::lexical_cast< std::string >( integratedStatesToSet.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) +
+                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) + " " +
+                                      boost::lexical_cast< std::string >( numberOfCustomStates ) +
                                       " " + boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
         }
 
@@ -154,7 +158,7 @@ private:
                                 integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
                 break;
-            };
+            }
             case body_mass_state:
             {
                 // Set mass for bodies provided as input.
@@ -167,7 +171,11 @@ private:
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
                 } 
                 break;
-            };
+            }
+            case custom_state:
+            {
+                break;
+            }
             default:
                 throw std::runtime_error( "Error, could not find integrated state settings for " +
                                           boost::lexical_cast< std::string >( integratedStateIterator_->first ) );
