@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
