@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
     for ( int index = 0; index < degree.size( ); index++ )
     {
         // Compute test value of Legendre polynomial.
-        computedTestValues( index ) = basic_mathematics::computeLegendrePolynomial(
+        computedTestValues( index ) = basic_mathematics::computeLegendrePolynomialFromCache(
                     degree( index ),
                     order( index ),
                     legendreCache );
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
     for ( int index = 0; index < degree.size( ); index++ )
     {
         // Compute test value of Legendre polynomial.
-        computedTestValues( index ) = basic_mathematics::computeGeodesyLegendrePolynomial(
+        computedTestValues( index ) = basic_mathematics::computeGeodesyLegendrePolynomialFromCache(
                     degree( index ),
                     order( index ), legendreCache );
         computedTestValuesDirect( index )  = basic_mathematics::computeGeodesyLegendrePolynomial(
