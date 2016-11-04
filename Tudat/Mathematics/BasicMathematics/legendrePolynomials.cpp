@@ -333,9 +333,9 @@ double LegendreCache::getLegendrePolynomialSecondDerivative(
 }
 
 //! Compute unnormalized associated Legendre polynomial.
-double computeLegendrePolynomial( const int degree,
-                                  const int order,
-                                  LegendreCache& legendreCache )
+double computeLegendrePolynomialFromCache( const int degree,
+                                           const int order,
+                                           LegendreCache& legendreCache )
 {
     if( legendreCache.getUseGeodesyNormalization( ) )
     {
@@ -412,14 +412,14 @@ double computeLegendrePolynomial( const int degree,
 {
     LegendreCache legendreCache( degree, order, 0 );
     legendreCache.update( legendreParameter );
-    return computeLegendrePolynomial( degree, order, legendreCache );
+    return computeLegendrePolynomialFromCache( degree, order, legendreCache );
 }
 
 
 //! Compute geodesy-normalized associated Legendre polynomial.
-double computeGeodesyLegendrePolynomial( const int degree,
-                                         const int order,
-                                         LegendreCache& geodesyLegendreCache )
+double computeGeodesyLegendrePolynomialFromCache( const int degree,
+                                                  const int order,
+                                                  LegendreCache& geodesyLegendreCache )
 {
 
     if( !geodesyLegendreCache.getUseGeodesyNormalization( ) )
@@ -490,13 +490,14 @@ double computeGeodesyLegendrePolynomial( const int degree,
     }
 }
 
+//! Compute geodesy-normalized associated Legendre polynomial.
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
                                          const double legendreParameter )
 {
     LegendreCache legendreCache( degree, order, 1 );
     legendreCache.update( legendreParameter );
-    return computeGeodesyLegendrePolynomial( degree, order, legendreCache );
+    return computeGeodesyLegendrePolynomialFromCache( degree, order, legendreCache );
 }
 
 //! Compute derivative of unnormalized Legendre polynomial.

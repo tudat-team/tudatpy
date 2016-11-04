@@ -110,7 +110,7 @@ double calculateSphericalHarmonicGravitationalPotential(
                                            order <= degree ); order++ )
         {
             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
-            legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
+            legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomialFromCache(
                         degree, order, legendreCacheReference );
 
             // Calculate contribution to potential from current degree and order
@@ -128,5 +128,7 @@ double calculateSphericalHarmonicGravitationalPotential(
     // Multiply by central term and return
     return potential * gravitationalParameter / bodyFixedPosition.norm( );
 }
-}
-}
+
+} // namespace gravitation
+
+} // namespace tudat
