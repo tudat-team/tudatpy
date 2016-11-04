@@ -36,6 +36,12 @@ boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::M
 createStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
 
+//! Function to reset the tabulated ephemeris of a body
+/*!
+ * Function to reset the tabulated ephemeris of a body
+ * \param ephemerisInput New state history that is to be set
+ * \param tabulatedEphemeris Ephemeris in which the ephemerisInput is to be set.
+ */
 template< typename StateTimeType, typename StateScalarType, typename EphemerisTimeType, typename EphemerisScalarType  >
 void resetIntegratedEphemerisOfBody(
         const std::map< StateTimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,

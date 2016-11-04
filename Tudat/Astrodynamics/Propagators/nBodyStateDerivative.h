@@ -293,6 +293,11 @@ public:
         return totalAcceleration;
     }
 
+    //! Function to retrieve the map containing the list of accelerations acting on each body.
+    /*!
+     * Function to retrieve the map containing the list of accelerations acting on each body.
+     * \return Map containing the list of accelerations acting on each body,
+     */
     basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
@@ -301,6 +306,8 @@ public:
 
 protected:
 
+    //! Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
+    //! acceleration models (accelerationModelsPerBody_).
     void createAccelerationModelList( )
     {
         accelerationModelList_.clear( );
@@ -380,6 +387,7 @@ protected:
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
+    //! Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
     std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
 
     //! Object responsible for providing the current integration origins from the global origins.

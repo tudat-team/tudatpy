@@ -225,11 +225,21 @@ public:
         currentLongState_ = currentState_.cast< long double >( );
     }
 
+    //! Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
+    /*!
+     * Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
+     * \return Class returning the state of this body's ephemeris origin w.r.t. the global origin
+     */
     boost::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( )
     {
         return ephemerisFrameToBaseFrame_;
     }
 
+    //! Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
+    /*!
+     * Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
+     * \param ephemerisFrameToBaseFrame Class returning the state of this body's ephemeris origin w.r.t. the global origin
+     */
     void setEphemerisFrameToBaseFrame( const boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame )
     {
         ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
@@ -984,13 +994,13 @@ private:
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
 
-
+    //! Time at which state was last set from ephemeris
     Time timeOfCurrentState_;
 
 
 
-    //! Function returning the state of this body's ephemeris origin w.r.t. the global origin
-    //! (as set by setGlobalFrameBodyEphemerides function).
+    //! Class returning the state of this body's ephemeris origin w.r.t. the global origin (as typically created by
+    //! setGlobalFrameBodyEphemerides function).
     boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame_;
 
     //! Current rotation from the global to the body-fixed frame.
