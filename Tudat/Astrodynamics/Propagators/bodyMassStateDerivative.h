@@ -51,7 +51,14 @@ public:
             const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::body_mass_state ),
-        massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+        bodiesToIntegrate_( bodiesToIntegrate )
+    {
+        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator
+             = massRateModels.begin( ); modelIterator != massRateModels.end( ); modelIterator++ )
+        {
+           massRateModels_[ modelIterator->first ].push_back( modelIterator->second );
+        }
+    }
 
     //! Constructor
     /*!
