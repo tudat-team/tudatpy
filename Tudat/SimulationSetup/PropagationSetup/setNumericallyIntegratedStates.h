@@ -227,7 +227,8 @@ void resetIntegratedEphemerides(
         throw std::runtime_error( "Error when resetting ephemerides, input vectors have inconsistent size" );
     }
 
-    if( equationsOfMotionNumericalSolution.begin( )->second.rows( ) < startIndexAndSize.first + startIndexAndSize.second )
+    if( static_cast< unsigned int >( equationsOfMotionNumericalSolution.begin( )->second.rows( ) )
+            < startIndexAndSize.first + startIndexAndSize.second )
     {
         throw std::runtime_error( "Error when resetting ephemerides, input solution inconsistent with start index and size." );
     }
