@@ -211,7 +211,6 @@ public:
         }
         else
         {
-            std::cout<<observableType_<<" "<<observationEntry<<" "<<ObservationSize<<std::endl;
             throw std::runtime_error( "Error, requesting out-of-bounds index for observation model" );
         }
     }

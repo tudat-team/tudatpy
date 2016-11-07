@@ -6,12 +6,14 @@ namespace tudat
 namespace observation_partials
 {
 
+//! Function to compute partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
 double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitationalParameter(
         const double singleBodyLightTimeCorrection, const double bodyGravitationalParameter )
 {
     return singleBodyLightTimeCorrection / bodyGravitationalParameter;
 }
 
+//! Function to compute partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
 double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma(
         const double totalLightTimeCorrection, const double ppnParameterGamma )
 {

@@ -1,5 +1,5 @@
-#ifndef POSITIONPARTIALS_H
-#define POSITIONPARTIALS_H
+#ifndef TUDAT_POSITIONPARTIALS_H
+#define TUDAT_POSITIONPARTIALS_H
 
 #include <vector>
 
@@ -21,20 +21,20 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Function to calculate the partial of position of a point on or in a body wrt position of that body.
+//! Function to calculate the partial of position of a point on body wrt position of that body.
 /*!
- *  Function to calculate the partial of position of a point on or in a body wrt position of that body,
- *  with both positions expressed in a non-corotating, non-body fixed frame.
+ *  Function to calculate the partial of position of a point on body wrt position of that body,
+ *  with both positions expressed in the same frame.
  *  \return Requested partial (3x3 identity matrix)
  */
 Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyPosition( );
 
 //! Function to calculate the partial of position of a point on a body wrt its body-fixed position
 /*!
- *  Function to calculate the partial of position of a point on a body (expressed
- *  in a non-corotating, non-body fixed frame) wrt its body-fixed position, i.e. the partial of a ground station's inertial
+ *  Function to calculate the partial of position of a point on a body (expressed in a non-corotating, non-body fixed frame)
+ *  wrt its body-fixed position, e.g. the partial of a ground station's inertial
  *  position wrt its body-fixed position.
- *  \param rotation matrix from body-fixed to inertial frame.
+ *  \param rotationMatrixToInertialFrame Rotation matrix from body-fixed to inertial frame.
  *  \return Partial of position of a point on a body wrt its body-fixed position
  */
 Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
@@ -44,8 +44,9 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
 //! Base class for calculating the partial of an inertial position wrt a parameter.
 /*!
  *  Base class for calculating the partial of an inertial position wrt a parameter. A derived class is implemented for
- *  each (type of) estimatable parameter (and current body state). Note that partials wrt parameters describing a property
- *  of a rotation matrix from a local to the inertial frame is implemented in the RotationMatrixPartial class, which is
+ *  each (type of) estimatable parameter. A separate instance of the class must be made for each distinct state.
+ *  Note that partials wrt parameters describing a property of a rotation matrix from a local to the inertial frame is
+ *  implemented in the RotationMatrixPartial class, which is
  *  then used by the PositionPartialWrtRotationMatrixParameter derived class of this class
  */
 class PositionPartial
@@ -53,9 +54,6 @@ class PositionPartial
 public:
 
     //! Destructor.
-    /*!
-     *  Destructor.
-     */
     virtual ~PositionPartial( ){ }
 
     //! Pure virtual base class function for determining partial at current time and body state.
@@ -212,10 +210,9 @@ protected:
     std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
 };
 
-
 }
 
 }
 
 
-#endif // POSITIONPARTIALS_H
+#endif // TUDAT_POSITIONPARTIALS_H

@@ -72,8 +72,9 @@ ObservableType getObservableType( const std::string& observableName )
     return observableType;
 }
 
+//! Function to get the indices in link end times/states for a given link end type and observable type
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
-        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds )
+        const ObservableType observableType, const LinkEndType linkEndType )
 {
     std::vector< int > linkEndIndices;
 
