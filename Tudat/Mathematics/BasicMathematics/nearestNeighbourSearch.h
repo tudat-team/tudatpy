@@ -77,6 +77,17 @@ namespace basic_mathematics
 int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
                                                  const double targetValueInVectorOfSortedData );
 
+//! Nearest neighbor binary search.
+/*!
+ * Searches for the nearest neighbor in a vector of sorted data using a
+ * binary algorithm (Press W.H., et al., 2002).
+ * \param vectorOfSortedData Vector of data sorted in ascending/descending order.
+ * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
+ * \return Index of nearest neighbor to target value.
+ */
+int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
+                                             const double targetValueInVectorOfSortedData );
+
 //! Nearest left neighbor binary search.
 /*!
  * Searches for the nearest left neighbor in a map of sorted data using a

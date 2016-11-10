@@ -48,6 +48,7 @@ set(STATEDERIVATIVEMODELS_HEADERS
   #"${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeMapKeplerian.h"
   #"${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeMapModifiedEquinoctial.h"
   "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/testStateDerivativeModels.h"
+  "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/unifiedStateModelStateDerivativeModel.h"
 )
 
 # Add static libraries.
