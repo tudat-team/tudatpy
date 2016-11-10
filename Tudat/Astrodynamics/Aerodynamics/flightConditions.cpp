@@ -42,10 +42,9 @@ FlightConditions::FlightConditions(
     bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
                 &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
 
-    if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) ==
-            NULL )
+    if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
-        throw std::runtime_error( "Error when making flight conditions, no atmosphere is found" );
+        updateLatitudeAndLongitude_ = 1;
     }
 
     if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )

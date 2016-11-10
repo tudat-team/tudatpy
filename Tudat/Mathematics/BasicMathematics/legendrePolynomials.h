@@ -286,9 +286,9 @@ private:
  * \param legendreCache Legendre cache from which to retrieve Legendre polynomial.
  * \return Unnormalized Legendre polynomial.
 */
-double computeLegendrePolynomial( const int degree,
-                                  const int order,
-                                  LegendreCache& legendreCache );
+double computeLegendrePolynomialFromCache( const int degree,
+                                           const int order,
+                                           LegendreCache& legendreCache );
 
 
 //! Compute unnormalized associated Legendre polynomial.
@@ -361,9 +361,9 @@ double computeLegendrePolynomial( const int degree,
  * \param geodesyLegendreCache Legendre cache from which to retrieve Legendre polynomial.
  * \return Geodesy-normalized Legendre polynomial.
 */
-double computeGeodesyLegendrePolynomial( const int degree,
-                                         const int order,
-                                         LegendreCache& geodesyLegendreCache );
+double computeGeodesyLegendrePolynomialFromCache( const int degree,
+                                                  const int order,
+                                                  LegendreCache& geodesyLegendreCache );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -643,8 +643,7 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 
 //! Predefine boost function for geodesy-normalized Legendre polynomial.
 static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
-        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache&  )>(
-                         &computeGeodesyLegendrePolynomial ), _1, _2, _3 );
+        boost::bind( &computeGeodesyLegendrePolynomialFromCache, _1, _2, _3 );
 
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
 /*!
@@ -660,8 +659,7 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
 
 //! Predefine boost function for unnormalized Legendre polynomial.
 const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
-        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache& )>(
-                         &computeLegendrePolynomial ), _1, _2, _3 );
+        boost::bind( &computeLegendrePolynomialFromCache, _1, _2, _3 );
 
 } // namespace basic_mathematics
 } // namespace tudat
