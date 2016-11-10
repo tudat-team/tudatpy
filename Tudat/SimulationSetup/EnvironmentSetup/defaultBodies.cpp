@@ -11,6 +11,7 @@
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #endif
+
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 
@@ -38,6 +39,19 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 
 
     return atmosphereSettings;
+}
+
+//! Function to create default settings for a body's ephemeris.
+boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+        const std::string& bodyName )
+{
+#if USE_CSPICE
+    // Create settings for an interpolated Spice ephemeris.
+    return boost::make_shared< DirectSpiceEphemerisSettings >(
+                "SSB", "ECLIPJ2000", false, false, false );
+#else
+    throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
+#endif
 }
 
 //! Function to create default settings for a body's ephemeris.
@@ -135,8 +149,22 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
                 body, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
                 body, initialTime, finalTime );
-    singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                body, initialTime, finalTime );
+
+    if( ( !( initialTime == initialTime ) && ( finalTime == finalTime ) ) ||
+            ( ( initialTime == initialTime ) && !( finalTime == finalTime ) ) )
+    {
+        throw std::runtime_error( "Error when getting default body settings, only one input time is NaN" );
+    }
+    else if( !( initialTime == initialTime ) )
+    {
+        singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
+                    body );
+    }
+    else
+    {
+        singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
+                    body, initialTime, finalTime );
+    }
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
                 body, initialTime, finalTime );
     singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
@@ -159,6 +187,23 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
                     bodies.at( i ), initialTime, finalTime );
+
+    }
+    return settingsMap;
+}
+
+//! Function to create default settings from which to create a set of body objects, without stringent limitations on
+//! time-interval of validity of environment.
+std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+        const std::vector< std::string >& bodies )
+{
+    std::map< std::string, boost::shared_ptr< BodySettings > > settingsMap;
+
+    // Iterative over all bodies and get default settings.
+    for( unsigned int i = 0; i < bodies.size( ); i++ )
+    {
+        settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
+                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN );
 
     }
     return settingsMap;
