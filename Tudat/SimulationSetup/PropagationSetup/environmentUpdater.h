@@ -106,7 +106,7 @@ public:
 
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
         {
-            resetFunctionVector_.at( i ).get< 2 >( )( );
+            resetFunctionVector_.at( i ).template get< 2 >( )( );
         }
 
         // Set integrated state variables in environment.
@@ -119,7 +119,7 @@ public:
         // determined by setUpdateFunctions
         for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
         {
-            updateFunctionVector_.at( i ).get< 2 >( )( currentTime );
+            updateFunctionVector_.at( i ).template get< 2 >( )( currentTime );
         }
     }
 
@@ -242,14 +242,15 @@ private:
         for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
         {
             // Check if environment model is rotational state.
-            if( updateFunctionVector_.at( i ).get< 0 >( ) == body_rotational_state_update )
+            if( updateFunctionVector_.at( i ).template get< 0 >( ) == body_rotational_state_update )
             {
                 // Check id body has no rotational ephemeris (i.e. if rotation comes from iterationNumber ).
-                if( bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getRotationalEphemeris( ) == NULL )
+                if( bodyList_.at( updateFunctionVector_.at( i ).template get< 1 >( ) )->getRotationalEphemeris( ) == NULL )
                 {
                     // Check if DependentOrientationCalculator is an AerodynamicAngleCalculator.
                     boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator =
-                            bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getDependentOrientationCalculator( );
+                            bodyList_.at( updateFunctionVector_.at( i ).template get< 1 >( ) )->
+                            getDependentOrientationCalculator( );
                     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
                             boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                                     dependentOrientationCalculator );
@@ -266,16 +267,16 @@ private:
                         // Check if the state or orientation of the central body of AerodynamicAngleCalculator is updated.
                         for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
                         {
-                            if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_transational_state_update ) &&
-                                   ( updateFunctionVector_.at( j ).get< 1 >( ) ==
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_transational_state_update ) &&
+                                   ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
                                     aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
                                 translationalUpdateIndex = j;
                                 translationalUpdateIndexSet = true;
                             }
 
-                            if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_rotational_state_update ) &&
-                                   ( updateFunctionVector_.at( j ).get< 1 >( ) ==
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_rotational_state_update ) &&
+                                   ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
                                     aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
                                 rotationalUpdateIndex = j;

@@ -69,6 +69,16 @@ public:
         engineModels_[ engineName ] = engineModel;
     }
 
+    //! Function to retrieve the total dry mass of the vehicle
+    /*!
+     * Function to retrieve the  total dry mass of the vehicle
+     * \return Total dry mass of the vehicle
+     */
+    double getDryMass( )
+    {
+        return dryMass_;
+    }
+
 private:
 
     //! Named list of engine models in the vehicle
