@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolatorWithMatlab )
                         targetIndependentVariableValue );
 
             // Check if test result match analytical result.
-            BOOST_CHECK_SMALL( std::fabs( matlabResults.at( i ) - interpolatedDependentVariableValue ), 1.0e-15 );
+            BOOST_CHECK_SMALL( std::fabs( matlabResults.at( i ) - interpolatedDependentVariableValue ), 2.0e-15 );
 
         }
     }

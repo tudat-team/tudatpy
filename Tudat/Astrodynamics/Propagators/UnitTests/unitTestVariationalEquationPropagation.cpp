@@ -12,7 +12,6 @@
 
 #include <string>
 #include <thread>
-#include <omp.h>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
