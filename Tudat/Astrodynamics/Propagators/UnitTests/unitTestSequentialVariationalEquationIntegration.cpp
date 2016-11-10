@@ -12,7 +12,6 @@
 
 #include <string>
 #include <thread>
-#include <omp.h>
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
