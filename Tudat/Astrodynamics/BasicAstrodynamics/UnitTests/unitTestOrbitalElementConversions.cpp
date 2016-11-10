@@ -773,7 +773,7 @@ void convertNonCircularNonEquatorialOrbitBackAndForth(
 
     // Check that computed Cartesian elements match.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+                computedCartesianElements, recomputedCartesianElements, ( 20.0 * tolerance ) );
 }
 
 //! Test if conversion from Cartesian elements to Keplerian elements is working correctly, using

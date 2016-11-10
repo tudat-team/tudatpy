@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisElliptical )
         BOOST_CHECK_CLOSE_FRACTION(
                     computedPropagationHistory[ stateIterator->first ]( 5 ),
                     expectedPropagationHistory[ stateIterator->first ]( 5 ),
-                    2.0e-14 );
+                    2.5e-14 );
     }
 }
 
