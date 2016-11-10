@@ -22,56 +22,51 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
-typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
-
-//! Function to return partial(s) of position of ground station(s) w.r.t. state of a single body.
+//! Function to return partial(s) of position of reference point w.r.t state of a single body.
 /*!
- *  Function to return partial(s) of position of ground station(s) w.r.t. state of a single body. A set of link ends and the name
- *  of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as key and
- *  pointer to position partial as value. An entry for the map is created for each link end which corresponds to the body wrt the position of
- *  which the partial is to be taken.
- *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the requested body and, if so,
- *  a partial object is created.
+ *  Function to return partial(s) of position of reference point w.r.t state of a single body. A set of link ends and the
+ *  name  of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as
+ *  key and  pointer to position partial as value. An entry for the map is created for each link end which corresponds to
+ *  the body wrt the position of which the partial is to be taken.
+ *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the
+ *  requested body and, if so, a partial object is created.
  *  \param bodyMap Map of body objects, used in the creation of the partials.
  *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
  *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
  */
 std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtBodyPosition(
-        const observation_models::LinkEnds linkEnds,
+        const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
 
-//! Function to return partial object(s) of position of ground station(s) w.r.t. a (double) parameter.
+//! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 /*!
- *  Function to return partial object(s) of position of ground station(s) w.r.t. a (double) parameter. A set of link ends and parameter object
- *  wrt which the partials are to be created. A map is returned, with the LinkEndType as key and pointer to position partial as value.
- *  An entry for the map is created for each entry of linkEnds for which there is a direct dependency between its position and
- *  the parameter in question.
- *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether a there is a direct dependency between its position and
- *  the parameter in question.
+ *  Function to return partial object(s) of position of reference point w.r.t. a (double) parameter. A set of link ends and
+ *  parameter object  wrt which the partials are to be created. A map is returned, with the LinkEndType as key and pointer
+ *  to position partial as value. An entry for the map is created for each entry of linkEnds for which there is a direct
+ *  dependency between its position and  the parameter in question.
+ *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether a there is a direct dependency
+ *  between its position and the parameter in question.
  *  \param bodyMap Map of body objects, used in the creation of the partials.
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
- *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
+ *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
-
 std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
 
-//! Function to return partial object(s) of position of ground station(s) w.r.t. a (vector) parameter.
+//! Function to return partial object(s) of position of reference point w.r.t. a (vector) parameter.
 /*!
- *  Function to return partial object(s) of position of ground station(s) w.r.t. a (vector) parameter. A set of link ends and parameter object
- *  wrt which the partials are to be created. A map is returned, with the LinkEndType as key and pointer to position partial as value.
- *  An entry for the map is created for each entry of linkEnds for which there is a direct dependency between its position and
- *  the parameter in question.
- *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether a there is a direct dependency between its position and
- *  the parameter in question.
+ *  Function to return partial object(s) of position of reference point w.r.t. a (vector) parameter. A set of link ends and
+ *  parameter object  wrt which the partials are to be created. A map is returned, with the LinkEndType as key and pointer
+ *  to position partial as value. An entry for the map is created for each entry of linkEnds for which there is a direct
+ *  dependency between its position and  the parameter in question.
+ *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether a there is a direct dependency
+ *  between its position and the parameter in question.
  *  \param bodyMap Map of body objects, used in the creation of the partials.
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
- *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
+ *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
 std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
@@ -166,24 +161,53 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
     return rotationMatrixPartials;
 }
 
+//! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
+typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
+
+//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+//! the position of a body.
+/*!
+ *  Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+ *  the position of a body.
+ *  \param linkEnds Set of link ends used for observation model of three-dimensional position
+ *  \param bodyMap List of bodies that comprise the environment
+ *  \param bodyToEstimate Name of body w.r.t. the position of which a partial is to be compured
+ *  \param positionObservableScaler Object that scales position partial to observable partial.
+ *  \return Single object that computes partial of given observable w.r.t. given parameter.
+ */
 boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
         const boost::shared_ptr< PositionObservationScaling > positionObservableScaler );
 
+//! Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable.
+/*!
+ *  Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable
+ *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken. Note that the
+ *  three-dimensional position observable is only sensitive to the position of the body under observation.
+ *  \param positionObservableLinkEnds Set of link ends used for observation model of three-dimensional position
+ *  \param bodyMap List of bodies that comprise the environment
+ *  \param parametersToEstimate List of parameters that is to be estimated.
+ *  \return Pair, first entry is map (key is start index and size of parameter; value is partial object), secod entry is
+ *  scaling object to be used for all partials.
+ */
 template< typename ParameterType >
-std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 3 > > >, boost::shared_ptr< PositionPartialScaling > >
-createPositionObservablePartials( const observation_models::LinkEnds positionObservableLinkEnds,
-                                  const simulation_setup::NamedBodyMap& bodyMap,
-                                  const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > >  createPositionObservablePartials(
+        const observation_models::LinkEnds positionObservableLinkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 
 {
+    // Create scaling object, to be used for each partial created here (i.e. same scaling for different parameters but same
+    // observable).
     boost::shared_ptr< PositionObservationScaling > positionObservableScaling =
             boost::make_shared< PositionObservationScaling >( );
 
     SingleLinkObservationThreePartialList positionObservablePartials;
 
+    // Define start index and size of current parameter under consideration
     int currentIndex = 0;
     std::pair< int, int > currentPair = std::pair< int, int >( currentIndex, 1 );
 
@@ -195,36 +219,54 @@ createPositionObservablePartials( const observation_models::LinkEnds positionObs
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) ) == NULL )
+                    initialDynamicalParameters.at( i ) ) != NULL )
         {
-            std::cerr<<"Error when making position observable partials, could not identify parameter"<<std::endl;
+
+            // Retrieve name of body w.r.t. position of which partial is to be taken.
+            std::string acceleratedBody = boost::dynamic_pointer_cast<
+                    estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
+                        initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
+
+            // Create partial (if needed)
+            boost::shared_ptr< PositionObervationPartial > currentObservablePartial = createPositionObservablePartialWrtPosition(
+                        positionObservableLinkEnds, bodyMap, acceleratedBody, positionObservableScaling );
+
+            // If partial exists, then dependency exists and parameter must be added.
+            if( currentObservablePartial != NULL )
+            {
+                currentPair = std::pair< int, int >( currentIndex, 3 );
+                positionObservablePartials[ currentPair ] = currentObservablePartial;
+            }
+
+            currentIndex += 6;
         }
-
-        std::string acceleratedBody = boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
-
-        boost::shared_ptr< PositionObervationPartial > currentObservablePartial = createPositionObservablePartialWrtPosition(
-                    positionObservableLinkEnds, bodyMap, acceleratedBody, positionObservableScaling );
-
-        if( currentObservablePartial != NULL )
-        {
-            currentPair = std::pair< int, int >( currentIndex, 3 );
-            positionObservablePartials[ currentPair ] = currentObservablePartial;
-        }
-
-        currentIndex += 6;
     }
 
     return std::make_pair( positionObservablePartials, positionObservableScaling );
 }
 
+//! Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable.
+/*!
+ *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable
+ *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
+ *  link ends. Note that the three-dimensional position observable is only sensitive to the position of the body under observation.
+ *  \param linkEnds List of sets of link ends used for observation models of three-dimensional position
+ *  \param bodyMap List of bodies that comprise the environment
+ *  \param parametersToEstimate List of parameters that is to be estimated.
+ *  \return For each set of link ends a single pair, containing:
+ *  First entry is map (key is start index and size of parameter; value is partial object), secod entry is
+ *  scaling object to be used for all partials.
+ */
 template< typename ParameterType >
-std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > > >
-createPositionObservablePartials( const std::vector<  observation_models::LinkEnds > linkEnds,
-                                  const simulation_setup::NamedBodyMap& bodyMap,
-                                  const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+std::map< observation_models::LinkEnds,
+std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > > >
+createPositionObservablePartials(
+        const std::vector<  observation_models::LinkEnds > linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 {
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationThreePartialList , boost::shared_ptr< PositionPartialScaling > > > positionObservablePartials;
+    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationThreePartialList,
+            boost::shared_ptr< PositionPartialScaling > > > positionObservablePartials;
 
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )
     {

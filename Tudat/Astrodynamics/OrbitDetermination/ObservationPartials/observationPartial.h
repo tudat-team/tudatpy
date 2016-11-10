@@ -79,18 +79,29 @@ protected:
 
 //! Typedef for map of observation partials.
 /*!
- *  Typedef for map of observation partials, for an observable of size 1. The key of the map is a pair denoting the start index of the parameter
- *  in the list of estimated parameters and the number of indices of the parameter wrt which the current partial (corresponding value in map) is taken.
+ *  Typedef for map of observation partials, for an observable of size 1.
+ *  The key of the map is a pair denoting the start index of the parameter
+ *  in the list of estimated parameters and the number of indices of the parameter
+ *  wrt which the current partial (corresponding value in map) is taken.
  */
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > > SingleLinkObservationPartialList;
 
 //! Typedef for map of observation partials.
 /*!
- *  Typedef for map of observation partials, for an observable of size 2. The key of the map is a pair denoting the start index of the parameter
- *  in the list of estimated parameters and the number of indices of the parameter wrt which the current partial (corresponding value in map) is taken.
+ *  Typedef for map of observation partials, for an observable of size 2.
+ *  The key of the map is a pair denoting the start index of the parameter
+ *  in the list of estimated parameters and the number of indices of the parameter
+ *  wrt which the current partial (corresponding value in map) is taken.
  */
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 2 > > > SingleLinkObservationTwoPartialList;
 
+//! Typedef for map of observation partials.
+/*!
+ *  Typedef for map of observation partials, for an observable of size 3.
+ *  The key of the map is a pair denoting the start index of the parameter
+ *  in the list of estimated parameters and the number of indices of the parameter
+ *  wrt which the current partial (corresponding value in map) is taken.
+ */
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
 

@@ -77,7 +77,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     {
         if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
         {
-            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", station not found.";
+            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
+                    linkEndId.second + ", station not found.";
             throw std::runtime_error( errorMessage );
         }
 
@@ -95,7 +96,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     else
     {
         // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+        linkEndCompleteEphemerisFunction =
+                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                                         bodyWithLinkEnd, _1 );
     }
     return linkEndCompleteEphemerisFunction;
@@ -114,7 +116,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getL
 {
     if( bodyMap.count( linkEndId.first ) == 0  )
     {
-        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", body not found.";
+        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
+                linkEndId.second + ", body not found.";
         throw std::runtime_error( errorMessage );
     }
     return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodyMap.at( linkEndId.first ), linkEndId );
@@ -191,4 +194,5 @@ createLightTimeCalculator(
 } // namespace observation_models
 
 } // namespace tudat
+
 #endif // TUDAT_CREATELIGHTTIMECALCULATOR_H
