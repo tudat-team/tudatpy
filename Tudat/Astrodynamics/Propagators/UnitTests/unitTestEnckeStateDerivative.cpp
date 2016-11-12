@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 #include <thread>
-#include <omp.h>
 
 #include <boost/make_shared.hpp>
 #include <boost/format.hpp>

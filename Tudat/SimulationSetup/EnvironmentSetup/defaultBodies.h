@@ -38,6 +38,15 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 
 //! Function to create default settings for a body's ephemeris.
 /*!
+ *  Function to create default settings for a body's ephemeris without a limitation on the time interval.
+ *  \param bodyName Name of body for which default ephemeris settings are to be retrieved.
+ *  \return Default settings for a body's ephemeris.
+ */
+boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+        const std::string& bodyName );
+
+//! Function to create default settings for a body's ephemeris.
+/*!
  *  Function to create default settings for a body's ephemeris. Currently set to a
  *  creating a 6th order Lagrange interpolator from Spice, with a 300 s time step.
  *  \param bodyName Name of body for which default ephemeris settings are to be retrieved.
@@ -155,6 +164,19 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
         const std::vector< std::string >& bodies,
         const double initialTime,
         const double finalTime );
+
+//! Function to create default settings from which to create a set of body objects, without stringent limitations on
+//! time-interval of validity of environment.
+/*!
+ *  Function to create default settings from which to create a set of body objects using
+ *  the code in createBodies.h/.cpp. This function is included to streamline and simplify the
+ *  creation of typical celestial bodies. The default settings for the various
+ *  environment models of the body are defined in the various functions defined in this file.
+ *  \param bodies List of bodies for which default settings are to be retrieved.
+ *  \return Default settings from which to create a set of body objects.
+ */
+std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+        const std::vector< std::string >& bodies );
 
 } // namespace simulation_setup
 

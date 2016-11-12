@@ -376,8 +376,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 
     }
 
+    Eigen::Matrix3d nominalGradientTransformationMatrixTranspose = nominalGradientTransformationMatrix.transpose( );
+    Eigen::Matrix3d computedTotalSphericalGradient  =
+            ( nominalGradientTransformationMatrix * cumulativeSphericalHessian  ) *
+            nominalGradientTransformationMatrixTranspose;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( nominalGradientTransformationMatrix * cumulativeSphericalHessian * nominalGradientTransformationMatrix.transpose( ) ),
+                computedTotalSphericalGradient,
                 numericalTotalSphericalGradient, 1.0E-6 );
 
 

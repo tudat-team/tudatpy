@@ -40,6 +40,7 @@
 #ifndef TUDAT_NUMERICAL_INTEGRATOR_H
 #define TUDAT_NUMERICAL_INTEGRATOR_H
 
+#include <iostream>
 #include <limits>
 
 #include <boost/function.hpp>
@@ -134,10 +135,13 @@ public:
      * \param intervalEnd The value of the independent variable at the end of the interval to
      *          integrate over.
      * \param initialStepSize The initial step size to use.
+     * \param finalTimeTolerance Tolerance to within which the final time should be reached.
      * \return The state at independentVariableEnd.
      */
-    virtual StateType integrateTo( const IndependentVariableType intervalEnd,
-                                   const TimeStepType initialStepSize );
+    virtual StateType integrateTo(
+            const IndependentVariableType intervalEnd,
+            const TimeStepType initialStepSize,
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
 
     //! Perform a single integration step.
     /*!
@@ -173,9 +177,10 @@ protected:
 
 //! Perform an integration to a specified independent variable value.
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
-StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::
-integrateTo( const IndependentVariableType intervalEnd,
-             const TimeStepType initialStepSize )
+StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::integrateTo(
+        const IndependentVariableType intervalEnd,
+        const TimeStepType initialStepSize,
+        const TimeStepType finalTimeTolerance )
 {
     TimeStepType stepSize = initialStepSize;
 
@@ -183,14 +188,15 @@ integrateTo( const IndependentVariableType intervalEnd,
     // reached.
     bool atIntegrationIntervalEnd = static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) )
             * stepSize / std::fabs( stepSize )
-            <= std::numeric_limits< TimeStepType >::epsilon( );
+            <= finalTimeTolerance;
 
+    int loopCounter = 0;
     while ( !atIntegrationIntervalEnd )
     {
         // Check if the remaining interval is smaller than the step size.
         if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
              <= std::fabs( stepSize ) *
-             ( 1.0 + std::numeric_limits< TimeStepType >::epsilon( ) ) )
+             ( 1.0 + finalTimeTolerance ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
             // step size accordingly.
@@ -200,24 +206,35 @@ integrateTo( const IndependentVariableType intervalEnd,
             // off errors, it may not be possible to use
             // ( currentIndependentVariable >= independentVariableEnd ) // in the while condition.
             atIntegrationIntervalEnd = true;
+
         }
 
         // Perform the step.
         performIntegrationStep( stepSize );
-
         stepSize = getNextStepSize( );
 
-	// Only applicable to adaptive step size methods:
+        // Only applicable to adaptive step size methods:
         // Perform additional step(s) to reach intervalEnd exactly, in case the last step was rejected by
         // the variable step size routine and a new step was used that was too small to get to intervalEnd.
         if ( atIntegrationIntervalEnd )
         {
             // As long as intervalEnd is not reached, perform additional steps with the remaining time
             // as suggested step size for the variable step size routine.
-            if( intervalEnd - getCurrentIndependentVariable( ) > std::fabs( stepSize ) *
-                    ( 1.0 + std::numeric_limits< IndependentVariableType >::epsilon( ) ) )
+            if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) >
+                    finalTimeTolerance )
             {
-                atIntegrationIntervalEnd = false;
+                // Ensure that integrateTo function does not get stuck in a loop.
+                if( loopCounter < 1000 )
+                {
+                    atIntegrationIntervalEnd = false;
+                    loopCounter++;
+                }
+                else
+                {
+                    std::cerr<<"Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is "<<
+                        intervalEnd - getCurrentIndependentVariable( ) <<", final time is: "<<
+                               getCurrentIndependentVariable( )<<std::endl;
+                }
             }
         }
     }
