@@ -216,7 +216,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
                     integratorSettings );
         if( variableStepIntegratorSettings == NULL )
         {
-           std::runtime_error( "Error, type of integrator settings not compatible with selected integrator" );
+           std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with selected integrator (derived class of IntegratorSettings must be RungeKuttaVariableStepSizeSettings for this type)" );
         }
         else
         {
