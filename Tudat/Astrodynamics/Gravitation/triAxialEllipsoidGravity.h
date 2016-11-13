@@ -1,8 +1,7 @@
-#ifndef TRIAXIALELLIPSOIDGRAVITY_H
-#define TRIAXIALELLIPSOIDGRAVITY_H
+#ifndef TUDAT_TRIAXIALELLIPSOIDGRAVITY_H
+#define TUDAT_TRIAXIALELLIPSOIDGRAVITY_H
 
 #include <Eigen/Core>
-
 
 namespace tudat
 {
@@ -94,12 +93,11 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHa
  *  \return Spherical harmonic cosine and coefficient matrix (normalized) pair of triaxial
  *  ellipsoid up to requested degree and order.
  */
-std::pair< Eigen::MatrixXd, Eigen::MatrixXd >
-createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
         const double axisA, const double axisB, const double axisC,
         const int maximumDegree, const int maximumOrder );
 }
 
 }
 
-#endif // TRIAXIALELLIPSOIDGRAVITY_H
+#endif // TUDAT_TRIAXIALELLIPSOIDGRAVITY_H
