@@ -17,7 +17,7 @@ namespace unit_tests
 using namespace tudat::gravitation;
 
 
-
+//! Function to get theoretical values of zonal gravity field coefficient of ellipsoid of revolution
 double getZonalTermForEllipsoidOfRevolution(
         const double axisA, const double axisC, const double referenceRadius, const int degree )
 {
@@ -36,16 +36,19 @@ double getZonalTermForEllipsoidOfRevolution(
 
 BOOST_AUTO_TEST_SUITE( test_tri_axial_ellipsoid_gravity )
 
+//! Test gravity field coefficients of homogeneous triaxial ellipsoid
 BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidGravity )
 {
     double axisA = 26.8E3;
     double axisB = 22.4E3;
     double axisC = 18.4E3;
 
+    // Compute coefficients
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > sphericalHarmonicCoefficients =
             createTriAxialEllipsoidSphericalHarmonicCoefficients( axisA, axisB, axisC, 4, 4 );
     double referenceRadius = calculateTriAxialEllipsoidReferenceRadius( axisA, axisB, axisC );
 
+    // Compute expected low-degree coefficients
     double expectedC20 = 1.0 / ( 5.0 * referenceRadius * referenceRadius ) *
             ( axisC * axisC - ( axisA * axisA + axisB * axisB ) / 2.0 );
     double expectedC22 = 1.0 / ( 20.0 * referenceRadius * referenceRadius ) *
@@ -71,6 +74,7 @@ BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidGravity )
                 expectedC44, sphericalHarmonicCoefficients.first( 4, 4 ),
                 2.0 * std::numeric_limits< double >::epsilon( ) );
 
+    // Check whether C-coefficients with odd degree or order, and all S-coefficients, are zero.
     for( unsigned int i = 0; i < 5; i++ )
     {
         for( unsigned int j = 0; j < 5; j++ )
@@ -84,17 +88,17 @@ BOOST_AUTO_TEST_CASE( testTriAxialEllipsoidGravity )
         }
     }
 
+    // Compute gravity field coefficients for ellipsoid of revolution
     axisB = axisA;
     referenceRadius = calculateTriAxialEllipsoidReferenceRadius( axisA, axisB, axisC );
-    sphericalHarmonicCoefficients =
-            createTriAxialEllipsoidSphericalHarmonicCoefficients( axisA, axisB, axisC, 20, 1 );
+    sphericalHarmonicCoefficients = createTriAxialEllipsoidSphericalHarmonicCoefficients( axisA, axisB, axisC, 20, 1 );
 
+    // Check computation against theoretical values.
     for( int i = 2; i < 21; i += 2 )
     {
         BOOST_CHECK_CLOSE_FRACTION(
                     sphericalHarmonicCoefficients.first( i, 0 ),
-                    getZonalTermForEllipsoidOfRevolution(
-                        axisA, axisC, referenceRadius, i ),
+                    getZonalTermForEllipsoidOfRevolution( axisA, axisC, referenceRadius, i ),
                     2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 }
