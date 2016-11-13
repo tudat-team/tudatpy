@@ -1,5 +1,15 @@
-#ifndef GRAVITYFIELDVARIATIONS_H
-#define GRAVITYFIELDVARIATIONS_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_GRAVITYFIELDVARIATIONS_H
+#define TUDAT_GRAVITYFIELDVARIATIONS_H
 
 #include <boost/function.hpp>
 #include <iostream>
@@ -136,7 +146,8 @@ public:
     GravityFieldVariations( const int minimumDegree, const int minimumOrder,
                             const int maximumDegree, const int maximumOrder ):
         minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+
+                maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
     {
         numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
         numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
@@ -332,10 +343,11 @@ public:
             const std::vector< BodyDeformationTypes > variationType,
             const std::vector< std::string > variationIdentifier,
             const std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >
-            createInterpolator,
-            const std::map< int, double > initialTimes,
-            const std::map< int, double > finalTimes,
-            const std::map< int, double > timeSteps );
+            createInterpolator =
+            std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >( ),
+            const std::map< int, double > initialTimes = std::map< int, double >( ),
+            const std::map< int, double > finalTimes = std::map< int, double >( ),
+            const std::map< int, double > timeSteps = std::map< int, double >( ) );
 
     //! Function to retrieve a variation object of given type (and name if necessary).
     /*!
@@ -425,8 +437,8 @@ private:
 
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 
-#endif // GRAVITYFIELDVARIATIONS_H
+#endif // TUDAT_GRAVITYFIELDVARIATIONS_H

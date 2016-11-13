@@ -85,15 +85,13 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
     if ( ( diagonal.size( ) < matrixSize ) || ( superDiagonal.size( ) < matrixSize - 1 ) ||
          ( rightHandSide.size( ) < matrixSize - 1 ) )
     {
-        std::cerr << "Error, input provided for diagonal and sub/super "
-                     " diagonals incorrect." << std::endl;
+        throw std::runtime_error( "Error, input provided for diagonal and sub/super diagonals incorrect." );
     }
 
     // Check whether solution will not be singular.
     if ( diagonal[ 0 ] == 0.0 )
     {
-        std::cerr <<"Error when inverting tridiagonal system, "
-                    "first entry of diagonal is zero" << std::endl;
+        throw std::runtime_error( "Error when inverting tridiagonal system, first entry of diagonal is zero" );
     }
 
     std::vector< IndependentVariableType > intermediateVector( matrixSize );
@@ -111,8 +109,7 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
         // Check whether solution will not be singular.
         if ( scalingFactor == 0.0 )
         {
-            std::cerr<<"Error when inverting tridiagonal system,"
-                       " scaling factor equals zero!"<<std::endl;
+            throw std::runtime_error( "Error when inverting tridiagonal system, scaling factor equals zero!" );
         }
         solution[ j ] = ( rightHandSide[ j ] - subDiagonal[ j - 1 ] * solution[ j - 1 ] ) /
                 scalingFactor;
@@ -157,8 +154,8 @@ public:
      * \param selectedLookupScheme Look-up scheme that is to be used when finding interval
      * of requested independent variable value.
      */
-    CubicSplineInterpolator( std::vector< IndependentVariableType > independentVariables,
-                             std::vector< DependentVariableType > dependentVariables,
+    CubicSplineInterpolator( const std::vector< IndependentVariableType >& independentVariables,
+                             const std::vector< DependentVariableType >& dependentVariables,
                              AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
 
     {
@@ -181,8 +178,7 @@ public:
 
         if ( dependentValues_.size( ) != independentValues_.size( ) )
         {
-            std::cerr << "Warning: independent and dependent variables"
-                         " not of same size in cubic spline constrcutor" << std::endl;
+            throw std::runtime_error( "Warning: independent and dependent variables not of same size in cubic spline constrcutor" );
         }
 
         // Calculate second derivatives of curve.

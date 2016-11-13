@@ -91,7 +91,7 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
             panelAreas_[ i ][ j ] = panelSurfaceNormals_[ i ][ j ].norm( );
             if ( panelAreas_[ i ][ j ] < std::numeric_limits< double >::epsilon( ) )
             {
-                std::cerr << "WARNING panel area is zero in part at panel" << i
+                std::cerr << "Warning, panel area is zero in part at panel" << i
                           << ", " << j << std::endl;
             }
 

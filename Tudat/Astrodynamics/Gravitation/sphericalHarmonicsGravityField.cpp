@@ -51,7 +51,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 namespace tudat
 {
 
@@ -61,8 +61,11 @@ namespace gravitation
 //! Function to calculate the gravitational potential from a spherical harmonic field expansion.
 double calculateSphericalHarmonicGravitationalPotential(
         const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
-        const double referenceRadius, const Eigen::MatrixXd& cosineCoefficients,
-        const Eigen::MatrixXd& sineCoefficients, const int minimumumDegree,
+        const double referenceRadius,
+        const Eigen::MatrixXd& cosineCoefficients,
+        const Eigen::MatrixXd& sineCoefficients,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const int minimumumDegree,
         const int minimumumOrder )
 {
     // Initialize (distance/reference radius)^n (n=ratioToPowerDegree)
@@ -91,8 +94,11 @@ double calculateSphericalHarmonicGravitationalPotential(
     else
     {
         startDegree = minimumumDegree;
-        ratioToPowerDegree *= std::pow( radiusRatio, startDegree - 1 );
+        ratioToPowerDegree *= basic_mathematics::raiseToIntegerPower< double >( radiusRatio, startDegree - 1 );
     }
+
+    basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+    legendreCacheReference.update( std::sin( latitude ) );
 
     // Iterate over all degrees
     for( int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
@@ -104,8 +110,8 @@ double calculateSphericalHarmonicGravitationalPotential(
                                            order <= degree ); order++ )
         {
             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
-            legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                        degree, order, std::sin( latitude ) );
+            legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomialFromCache(
+                        degree, order, legendreCacheReference );
 
             // Calculate contribution to potential from current degree and order
             singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *
@@ -122,5 +128,7 @@ double calculateSphericalHarmonicGravitationalPotential(
     // Multiply by central term and return
     return potential * gravitationalParameter / bodyFixedPosition.norm( );
 }
-}
-}
+
+} // namespace gravitation
+
+} // namespace tudat

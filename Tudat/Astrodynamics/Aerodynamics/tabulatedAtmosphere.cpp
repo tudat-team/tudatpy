@@ -60,8 +60,8 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     if ( containerOfAtmosphereTableFileData.rows( ) < 1
          || containerOfAtmosphereTableFileData.cols( ) < 1 )
     {
-        std::cerr << "The atmosphere table file is empty." << std::endl;
-        std::cerr << atmosphereTableFile_ << std::endl;
+        std::string errorMessage = "The atmosphere table file " + atmosphereTableFile_ + " is empty";
+        throw std::runtime_error( errorMessage );
     }
 
     // Initialize vectors.
