@@ -1,5 +1,15 @@
-#ifndef TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
-#define TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
+#define TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
 
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
@@ -32,30 +42,29 @@ public:
 
     //! Semi-dummy constructor, used for setting up gravity field and variations.
     /*!
-     *  Semi-dummy constructor, used for setting up gravity field and variations.
-     *  This constructor is neede, as some gravity field variations need to be linked to properties
-     *  of the nominal gravity field (for instance gravitational parameter), but the complete object
-     *  of this type cannot be created until all variations are created, causing a
-     *  circular dependency. The object is fully created when subsequently calling the
-     *  setFieldVariationSettings function and setting the field variation objects.
+     *  Semi-dummy constructor, used for setting up gravity field and variations.  This constructor
+     *  is neede, as some gravity field variations need to be linked to properties of the nominal
+     *  gravity field (for instance gravitational parameter), but the complete object of this type
+     *  cannot be created until all variations are created, causing a circular dependency. The
+     *  object is fully created when subsequently calling the setFieldVariationSettings function and
+     *  setting the field variation objects.
      *  \param gravitationalParameter Gravitational parameter of massive body.
      *  \param referenceRadius Reference radius of spherical harmonic field expansion.
      *  \param nominalCosineCoefficients Nominal (i.e. with zero variation) cosine spherical
      *  harmonic coefficients.
      *  \param nominalSineCoefficients Nominal (i.e. with zero variation) sine spherical harmonic
      *  coefficients.
-     *  \param rotationWrapper Object from which rotation between frame fixed to massive body and
-     *  inertial frame is retrieved.
+     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
+     *  fixed (optional).
      */
     TimeDependentSphericalHarmonicsGravityField(
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const boost::function< Eigen::Quaterniond( ) > rotationWrapper =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-            nominalSineCoefficients, rotationWrapper ),
+            nominalSineCoefficients, fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients )
     { }
@@ -71,20 +80,18 @@ public:
      *  coefficients.
      *  \param gravityFieldVariationUpdateSettings Object containing all gravity field variations
      *  and related settings.
-     *  \param rotationWrapper Object from which rotation between frame fixed to massive body
-     *  and inertial frame is retrieved.
+     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
+     *  fixed (optional).
      */
     TimeDependentSphericalHarmonicsGravityField(
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const boost::shared_ptr< GravityFieldVariationsSet >&
-            gravityFieldVariationUpdateSettings,
-            const boost::function< Eigen::Quaterniond( ) > rotationWrapper =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            const boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+            const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius,
-            nominalCosineCoefficients, nominalSineCoefficients, rotationWrapper ),
+            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )
@@ -116,8 +123,7 @@ public:
         // Check if field variation set exists.
         if( gravityFieldVariationsSet_ == NULL )
         {
-            std::cerr<<"Warning, gravity field coefficient update functions are NULL "<<
-                       " when requesting update"<<std::endl;
+            throw std::runtime_error( "Warning, gravity field coefficient update functions are NULL when requesting update" );
         }
         else
         {
@@ -183,7 +189,7 @@ public:
         }
         else
         {
-            std::cerr<<"Error when resetting nominal cosine coefficient"<<std::endl;
+            throw std::runtime_error( "Error when resetting nominal cosine coefficient" );
         }
     }
 
@@ -223,7 +229,7 @@ public:
         }
         else
         {
-            std::cerr<<"Error when resetting nominal sine coefficient"<<std::endl;
+            throw std::runtime_error( "Error when resetting nominal sine coefficient" );
         }
     }
 
@@ -262,7 +268,7 @@ private:
      *  GravityFieldVariations object directly.
      */
     std::vector< boost::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
-    correctionFunctions_;
+        correctionFunctions_;
 
     //! Object containing all GravityFieldVariations objects and update settings.
     /*!
@@ -273,8 +279,8 @@ private:
 
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 
-#endif // TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
+#endif // TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H

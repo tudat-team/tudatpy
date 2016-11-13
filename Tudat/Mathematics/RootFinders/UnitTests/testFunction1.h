@@ -166,4 +166,4 @@ private:
 } // namespace unit_tests
 } // namespace tudat
 
-#endif // TUDAT_TEST_FUNCTION_H
+#endif // TUDAT_TEST_FUNCTION1_H

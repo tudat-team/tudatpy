@@ -54,6 +54,19 @@ namespace tudat
 namespace linear_algebra
 {
 
+//! Function that returns that 'cross-product matrix'
+Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
+{
+    Eigen::Matrix3d crossProductMatrix = Eigen::Matrix3d::Zero( );
+    crossProductMatrix( 1, 0 ) = vector.z( );
+    crossProductMatrix( 0, 1 ) = -vector.z( );
+    crossProductMatrix( 2, 0 ) = -vector.y( );
+    crossProductMatrix( 0, 2 ) = vector.y( );
+    crossProductMatrix( 2, 1 ) = vector.x( );
+    crossProductMatrix( 1, 2 ) = -vector.x( );
+    return crossProductMatrix;
+}
+
 //! Compute cosine of the angle between two vectors.
 double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
                                            const Eigen::VectorXd& vector1 )
@@ -89,6 +102,34 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
     // Return arccosine of the above, which is effectively the angle.
     return std::acos( dotProductOfNormalizedVectors );
 }
+
+//! Computes the difference between two 3d vectors.
+Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
+                                         const Eigen::Vector3d& vector1 )
+{
+    return ( vector0 - vector1 );
+}
+
+//! Computes norm of the the difference between two 3d vectors.
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                      const Eigen::Vector3d& vector1 )
+{
+    return ( vector0 - vector1 ).norm( );
+}
+
+//! Computes the norm of a 3d vector
+double getVectorNorm( const Eigen::Vector3d& vector )
+{
+    return vector.norm( );
+}
+
+//! Computes the norm of a 3d vector from a vector-returning function.
+double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction )
+{
+    return getVectorNorm( vectorFunction( ) );
+}
+
+
 
 } // namespace linear_algebra
 

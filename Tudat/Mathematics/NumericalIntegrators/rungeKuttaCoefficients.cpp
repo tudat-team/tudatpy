@@ -441,6 +441,7 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
         RungeKuttaCoefficients::CoefficientSets coefficientSet )
 {
     static RungeKuttaCoefficients rungeKuttaFehlberg45Coefficients,
+                                  rungeKuttaFehlberg56Coefficients,
                                   rungeKuttaFehlberg78Coefficients,
                                   rungeKutta87DormandPrinceCoefficients;
 
@@ -452,6 +453,13 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
             initializeRungeKuttaFehlberg45Coefficients( rungeKuttaFehlberg45Coefficients );
         }
         return rungeKuttaFehlberg45Coefficients;
+
+    case rungeKuttaFehlberg56:
+        if ( rungeKuttaFehlberg56Coefficients.higherOrder != 6 )
+        {
+            initializeRungeKuttaFehlberg56Coefficients( rungeKuttaFehlberg56Coefficients );
+        }
+        return rungeKuttaFehlberg56Coefficients;
 
     case rungeKuttaFehlberg78:
         if ( rungeKuttaFehlberg78Coefficients.higherOrder != 8 )

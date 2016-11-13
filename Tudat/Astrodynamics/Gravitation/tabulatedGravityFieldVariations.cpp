@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/tabulatedGravityFieldVariations.h"
@@ -35,8 +45,7 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
     // Check consistency of map sizes.
     if( cosineCoefficientCorrections_.size( ) != sineCoefficientCorrections_.size( ) )
     {
-        std::cerr<<"Error when resetting tabulated gravity field corrections, sine and "<<
-                   "cosine data size incompatible"<<std::endl;
+        throw std::runtime_error( "Error when resetting tabulated gravity field corrections, sine and cosine data size incompatible" );
     }
 
     // Create iterators over maps.
@@ -59,19 +68,18 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
         // Check whether input times are consistent
         if( cosineIterator->first != sineIterator->first )
         {
-            std::cerr<<"Warning when resetting tabulated gravity field corrections, sine and "<<
-                       "cosine data time differ by "<<
-                       cosineIterator->first - sineIterator->first<<std::endl;
+            std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine data time differ by" +
+                    boost::lexical_cast< std::string >(  cosineIterator->first - sineIterator->first );
+            throw std::runtime_error( errorMessage );
         }
-
         // Check whether matrix sizes are consistent.
         if( ( cosineIterator->second.rows( ) != numberOfDegrees_ ) ||
                 ( sineIterator->second.rows( ) != numberOfDegrees_ ) ||
                 ( cosineIterator->second.cols( ) != numberOfOrders_ ) ||
                 ( sineIterator->second.cols( ) != numberOfOrders_ ) )
         {
-            std::cerr<<"Error when resetting tabulated gravity field corrections, sine and "<<
-                       "cosine blocks of inconsistent size"<<std::endl;
+            std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine blocks of inconsistent size";
+            throw std::runtime_error( errorMessage );
         }
 
         // Concatenate cosine and sine matrices
@@ -107,6 +115,6 @@ calculateSphericalHarmonicsCorrections(
                            cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat

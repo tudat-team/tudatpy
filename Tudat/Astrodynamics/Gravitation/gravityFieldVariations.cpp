@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
@@ -89,9 +99,12 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         // Provide warning if no matches are found
         if( isCorrectIdentifierFound == 0 )
         {
-            std::cerr<<"Error when retrieving gravity field variation of type "<<
-                       deformationType<<", none of "<<
-                       numberOfEntries<<" potential entries match identifier."<<std::endl;
+            std::string errorMessage = "Error when retrieving gravity field variation of typ " +
+                    boost::lexical_cast< std::string >( deformationType ) +
+                    ", none of " +
+                    boost::lexical_cast< std::string >( numberOfEntries ) +
+                    " potential entries match identifier.";
+            throw std::runtime_error( errorMessage );
         }
     }
 
@@ -174,11 +187,11 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     // Check consistency of input data vector sizes.
     if( variationObjects_.size( ) != variationType_.size( ) )
     {
-        std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 1"<<std::endl;
+        throw std::runtime_error( "Error when making GravityFieldVariationsSet, inconsistent input, type 1" );
     }
     if( variationObjects_.size( ) != variationIdentifier_.size( ) )
     {
-        std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 2"<<std::endl;
+        throw std::runtime_error(  "Error when making GravityFieldVariationsSet, inconsistent input, type 2" );
     }
 
     // Check if interpolation information is provided where required.
@@ -189,20 +202,23 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     {
         if( initialTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 4, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 4, " +
+                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+            throw std::runtime_error( errorMessage );
         }
 
         if( finalTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 5, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 5, " +
+                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+            throw std::runtime_error( errorMessage );
         }
 
         if( timeSteps_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 6, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 6, " +
+                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+            throw std::runtime_error( errorMessage );
         }
     }
 }
@@ -241,6 +257,6 @@ GravityFieldVariationsSet::getVariationFunctions( )
     return variationFunctions;
 }
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat

@@ -64,6 +64,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
 #include <cmath>
 #include <limits>
 
@@ -593,6 +594,60 @@ BOOST_AUTO_TEST_CASE( test_SphericalToCartesianGradientConversion )
 
     // Check if the computed Cartesian gradient matches the expected value.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianGradient, cartesianGradient, 1e-15 );
+}
+
+// Test derivative of Cartesian gradient, keeping spherical gradient constant.
+BOOST_AUTO_TEST_CASE( test_SphericalToCartesianGradientPartialDerivatives )
+{
+    // Define an arbitrary spherical gradient.
+    const Eigen::Vector3d sphericalGradient( -2.438146967844150, 1.103964186650749e4,
+                                             5.932496087870976e1 );
+
+    // Define an arbitrary spherical position vector.
+    const Eigen::Vector3d cartesianCoordinates( -7.0e6, 8.5e6, -6.5e6 );
+
+
+    // Define perturbation for numerical computation of partial
+    const Eigen::Vector3d cartesianCoordinatePerturbation( 10.0, 10.0, 10.0 );
+    Eigen::Vector3d perturbedCartesianCoordinates;
+
+    std::vector< Eigen::Matrix3d > matrixPartials;
+    matrixPartials.resize( 3 );
+
+    std::vector< Eigen::Matrix3d > subMatrices;
+    subMatrices.resize( 3 );
+    // Compute analytical partial (with sub-components)
+    coordinate_conversions::getDerivativeOfSphericalToCartesianGradient( sphericalGradient, cartesianCoordinates, subMatrices );
+
+    Eigen::Matrix3d uppPerturbedMatrix;
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        // Compute partial numerically.
+        perturbedCartesianCoordinates = cartesianCoordinates;
+        perturbedCartesianCoordinates( i ) += cartesianCoordinatePerturbation( i );
+        matrixPartials[ i ] = coordinate_conversions::getSphericalToCartesianGradientMatrix(
+                    perturbedCartesianCoordinates );
+
+        perturbedCartesianCoordinates = cartesianCoordinates;
+        perturbedCartesianCoordinates( i ) -= cartesianCoordinatePerturbation( i );
+        matrixPartials[ i ] -= coordinate_conversions::getSphericalToCartesianGradientMatrix(
+                    perturbedCartesianCoordinates );
+
+        matrixPartials[ i ] /= ( 2.0 * cartesianCoordinatePerturbation( i ) );
+
+        // Normalize components for uniform tolerance.
+        matrixPartials[ i ].block( 0, 0, 3, 1 ) = matrixPartials[ i ].block( 0, 0, 3, 1 ) / cartesianCoordinates.norm( );
+        subMatrices[ i ].block( 0, 0, 3, 1 ) = subMatrices[ i ].block( 0, 0, 3, 1 ) / cartesianCoordinates.norm( );
+
+        for( unsigned k = 0; k < 3; k++ )
+        {
+            for( unsigned l = 0; l < 3; l++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( matrixPartials[ i ]( k, l ) - subMatrices[ i ]( k, l ) ), 1.0E-23 );
+            }
+
+        }
+    }
 }
 
 // Test conversion from Cartesian (x, y, z, xdot, ydot, zdot) to Spherical (radius, azimuth,

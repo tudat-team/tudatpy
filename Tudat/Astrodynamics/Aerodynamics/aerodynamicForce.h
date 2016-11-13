@@ -45,10 +45,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Basics/utilityMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 
 namespace tudat
 {
@@ -68,10 +67,7 @@ namespace aerodynamics
  */
 Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
                                          const double referenceArea,
-                                         const Eigen::Vector3d& aerodynamicCoefficients )
-{
-    return dynamicPressure * referenceArea * aerodynamicCoefficients;
-}
+                                         const Eigen::Vector3d& aerodynamicCoefficients );
 
 //! Compute the aerodynamic force in same reference frame as input coefficients.
 /*!
@@ -87,12 +83,7 @@ Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
  */
 Eigen::Vector3d computeAerodynamicForce(
         const double dynamicPressure,
-        AerodynamicCoefficientInterfacePointer coefficientInterface )
-{
-    return computeAerodynamicForce( dynamicPressure,
-                                    coefficientInterface->getReferenceArea( ),
-                                    coefficientInterface->getCurrentForceCoefficients( ) );
-}
+        AerodynamicCoefficientInterfacePointer coefficientInterface );
 
 } // namespace aerodynamics
 } // namespace tudat
