@@ -154,4 +154,4 @@ typedef boost::shared_ptr< LambertTargeterGooding > LambertTargeterGoodingPointe
 } // namespace mission_segments
 } // namespace tudat
 
-#endif // TUDAT_LAMBERT_TARGETER_IZZO_H
+#endif // TUDAT_LAMBERT_TARGETER_GOODING_H

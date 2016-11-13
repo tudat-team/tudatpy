@@ -617,6 +617,26 @@ BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testEulerAngleRetrieval )
+{
+    const double angleX = 2.1;
+    const double angleZ = -0.3;
+    const double angleY = 1.45;
+
+    Eigen::Matrix3d rotationMatrix =
+            ( Eigen::AngleAxisd( -angleX, Eigen::Vector3d::UnitX( ) ) *
+            Eigen::AngleAxisd( -angleZ, Eigen::Vector3d::UnitZ( ) ) *
+            Eigen::AngleAxisd( -angleY, Eigen::Vector3d::UnitY( ) ) ).toRotationMatrix( );
+
+    Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(
+                rotationMatrix );
+
+    BOOST_CHECK_CLOSE_FRACTION( angleX, eulerAngles( 0 ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( angleZ, eulerAngles( 1 ), 1.0E-15 );
+    BOOST_CHECK_CLOSE_FRACTION( angleY, eulerAngles( 2 ), 1.0E-15 );
+
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests

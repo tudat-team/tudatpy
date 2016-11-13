@@ -110,6 +110,8 @@ set(BASICSDIR "/Basics")
 set(EXTERNALDIR "/External")
 set(INPUTOUTPUTDIR "/InputOutput")
 set(MATHEMATICSDIR "/Mathematics")
+set(SIMULATIONSETUPDIR "/SimulationSetup")
+
 
 # Include the top-level directories.
 include_directories(AFTER
@@ -180,8 +182,10 @@ endif()
 option(USE_CSPICE "build Tudat with CSPICE enabled" ON) # OFF is the default
 if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
+  add_definitions(-DUSE_CSPICE=0)
 else()
   message(STATUS "SPICE enabled!")
+add_definitions(-DUSE_CSPICE=1)
 
   # Find CSPICE library on local system.
   find_package(Spice)
@@ -207,15 +211,16 @@ endif( )
 #
 # NRLMSISE-00
 #
-# Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
+# Set whether to use the NRLMSISE-00 library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
-# is "OFF".
-option(USE_NRLMSISE00 "build Tudat with NRLMSISE-00 enabled" OFF)
+# is "ON").
+option(USE_NRLMSISE00 "build Tudat with NRLMSISE-00 enabled" ON)
 if(NOT USE_NRLMSISE00)
   message(STATUS "NRLMSISE-00 disabled!")
+  add_definitions(-DUSE_NRLMSISE00=0)
 else()
   message(STATUS "NRLMSISE-00 enabled!")
-
+  add_definitions(-DUSE_NRLMSISE00=1)
   # Find USE_NRLMSISE00 library on local system.
   find_package(NRLMSISE00)
 
@@ -227,8 +232,61 @@ else()
   endif( )
 endif()
 
+#
+# GSL
+#
+# Set whether to use the GSL library integration with Tudat or not. If it not supplied by the
+# user (either directly as an argument or through the "UserSettings.txt" file, the default setting
+# is "OFF").
+option(USE_GSL "build Tudat with GSL enabled" OFF)
+if(NOT USE_GSL)
+  message(STATUS "GSL disabled!")
+  add_definitions(-DUSE_GSL=0)
+else()
+  message(STATUS "GSL enabled!")
+  add_definitions(-DUSE_GSL=1)
+  # Find USE_NRLMSISE00 library on local system.
+  find_package(GSL)
+
+  # Include NRLMSISE00 directories.
+  if(NOT APPLE)
+    include_directories(SYSTEM AFTER "${GSL_INCLUDE_DIR}")
+  else( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${GSL_INCLUDE_DIR}\"")
+  endif( )
+endif()
+
+
+# Create lists of static libraries for ease of use
+list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
+if(USE_CSPICE)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES tudat_spice_interface cspice)
+endif()
+
+if(USE_NRLMSISE00)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
+endif()
+
+if(USE_GSL)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
+endif()
+
+
+list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_propagators
+    tudat_aerodynamics tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
+    tudat_electro_magnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames
+    tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators ${TUDAT_EXTERNAL_LIBRARIES})
+
+list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_observation_models tudat_acceleration_partials
+    tudat_observation_partials tudat_estimatable_parameters tudat_orbit_determination  tudat_propagators
+    tudat_aerodynamics tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
+    tudat_electro_magnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames
+    tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators ${TUDAT_EXTERNAL_LIBRARIES})
+
+
+
 # Set sub-directories.
-set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
+set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})
 
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})

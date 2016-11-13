@@ -42,6 +42,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 
 namespace tudat
 {
@@ -108,15 +109,18 @@ public:
      *  body undergoing acceleration (i.e. as expressed in an inertial frame)
      *  \param accelerationModelForCentralBody Acceleration model on central body
      *  (i.e. the body in a frame centered on which the third body acceleration is expressed)
+     *  \param centralBodyName Name of the central body w.r.t. which the acceleration is computed.
      */
     ThirdBodyAcceleration(
             const boost::shared_ptr< DirectAccelerationModelType >
             accelerationModelForBodyUndergoingAcceleration,
             const boost::shared_ptr< DirectAccelerationModelType >
-            accelerationModelForCentralBody ):
+            accelerationModelForCentralBody,
+            const std::string centralBodyName ):
         accelerationModelForBodyUndergoingAcceleration_(
             accelerationModelForBodyUndergoingAcceleration ),
-        accelerationModelForCentralBody_( accelerationModelForCentralBody ){ }
+        accelerationModelForCentralBody_( accelerationModelForCentralBody ),
+        centralBodyName_( centralBodyName ){ }
 
     //! Function to calculate the third body gravity acceleration.
     /*!
@@ -134,12 +138,27 @@ public:
     //! Update member variables to current state.
     /*!
      *  Update member variables to current state.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        // Update two constituent acceleration models.
-        accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
-        accelerationModelForCentralBody_->updateMembers( );
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            // Update two constituent acceleration models.
+            accelerationModelForBodyUndergoingAcceleration_->updateMembers( currentTime );
+            accelerationModelForCentralBody_->updateMembers( currentTime );
+        }
+    }
+
+    //! Function to reset the current time
+    /*!
+     * Function to reset the current time of the acceleration model.
+     * \param currentTime Current time (default NaN).
+     */
+    void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        accelerationModelForBodyUndergoingAcceleration_->resetTime( currentTime );
+        accelerationModelForCentralBody_->resetTime( currentTime );
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.
@@ -164,6 +183,16 @@ public:
         return accelerationModelForCentralBody_;
     }
 
+    //! Function to return the name of the central body w.r.t. which the acceleration is computed.
+    /*!
+     *  Function to return the name of the central body w.r.t. which the acceleration is computed.
+     *  \return Name of the central body w.r.t. which the acceleration is computed.
+     */
+     std::string getCentralBodyName( )
+     {
+         return centralBodyName_;
+     }
+
 private:
 
     //! Direct acceleration model on body undergoing acceleration.
@@ -180,6 +209,9 @@ private:
      *  body acceleration is expressed)
      */
     boost::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody_;
+
+    //! Name of the central body w.r.t. which the acceleration is computed.
+     std::string centralBodyName_;
 };
 
 //! Typedef for third body central gravity acceleration.
@@ -187,8 +219,13 @@ typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
 ThirdBodyCentralGravityAcceleration;
 
 //! Typedef for third body spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd >
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
+
+//! Typedef for third body mutual spherical harmonic gravity acceleration.
+typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
+ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
+
 
 } // namespace gravitation
 

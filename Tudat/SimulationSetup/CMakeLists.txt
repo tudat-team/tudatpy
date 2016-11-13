@@ -1,0 +1,33 @@
+#    Copyright (c) 2010-2016, Delft University of Technology
+#    All rigths reserved
+#
+#    This file is part of the Tudat. Redistribution and use in source and
+#    binary forms, with or without modification, are permitted exclusively
+#    under the terms of the Modified BSD license. You should have received
+#    a copy of the license with this file. If not, please or visit:
+#    http://tudat.tudelft.nl/LICENSE.
+#
+
+set(ESTIMATIONSETUPSDIR "${SIMULATIONSETUPDIR}/EstimationSetup")
+
+# Add source files.
+
+
+file(GLOB_RECURSE SIMULATION_SETUP_HEADERS ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.h)
+file(GLOB_RECURSE SIMULATION_SETUP_SOURCES ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.cpp)
+
+
+# Add static libraries.
+add_library(tudat_simulation_setup STATIC ${SIMULATION_SETUP_SOURCES} ${SIMULATION_SETUP_HEADERS} )
+setup_tudat_library_target(tudat_simulation_setup "${SRCROOT}${SIMULATIONSETUPDIR}")
+
+# Add unit tests.
+if(USE_CSPICE)
+add_executable(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestEnvironmentModelSetup.cpp")
+setup_custom_test_program(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
+target_link_libraries(test_EnvironmentSetup ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestAccelerationModelSetup.cpp")
+setup_custom_test_program(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
+target_link_libraries(test_AccelerationModelSetup ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+endif()
