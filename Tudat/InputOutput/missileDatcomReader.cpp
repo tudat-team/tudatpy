@@ -52,10 +52,6 @@ namespace tudat
 namespace input_output
 {
 
-using std::string;
-using std::stringstream;
-using std::vector;
-
 //! Default constructor.
 MissileDatcomReader::MissileDatcomReader ( const std::string& fileNameAndPath ) : dataFile_( )
 {
@@ -93,7 +89,7 @@ void MissileDatcomReader::readFor004( const std::string& fileNameAndPath )
 }
 
 //! Open data file.
-void MissileDatcomReader::openFile( const string& fileNameAndPath )
+void MissileDatcomReader::openFile( const std::string& fileNameAndPath )
 {
     // Open data file.
     dataFile_.open( fileNameAndPath.c_str( ), std::ios::binary );
@@ -114,16 +110,16 @@ void MissileDatcomReader::openFile( const string& fileNameAndPath )
 }
 
 //! Function to split a string consisting of line of entries in smaller strings.
-void MissileDatcomReader::split( const string& dataString, char separator,
-                                 vector< string >& dataVector )
+void MissileDatcomReader::split( const std::string& dataString, char separator,
+                                 std::vector< std::string >& dataVector )
 {
-    string::size_type i = 0;
-    string::size_type j = dataString.find( separator );
+    std::string::size_type i = 0;
+    std::string::size_type j = dataString.find( separator );
 
     // Loop over the whole string and place characters into new string until the separator is
     // found. Then start with a new string at the next entry in the vector. Until the end of the
     // original string is reached.
-    while ( j != string::npos )
+    while ( j != std::string::npos )
     {
         // to prevent placements of empty entries if multiple seperators after eachother are placed.
         if ( !dataString.substr( i, j-i ).empty() )
@@ -134,7 +130,7 @@ void MissileDatcomReader::split( const string& dataString, char separator,
         i = ++j;
         j = dataString.find( separator, j );
 
-        if ( j == string::npos )
+        if ( j == std::string::npos )
         {
             dataVector.push_back( dataString.substr(i, dataString.length( ) ) );
         }
@@ -142,7 +138,7 @@ void MissileDatcomReader::split( const string& dataString, char separator,
 }
 
 //! Read and store data.
-void MissileDatcomReader::readAndStoreData( const string& skipKeyword )
+void MissileDatcomReader::readAndStoreData( const std::string& skipKeyword )
 {
     // Local variable for reading a single line
     std::string stringOfData;
@@ -158,7 +154,7 @@ void MissileDatcomReader::readAndStoreData( const string& skipKeyword )
 
         // Check if string doesn't start with set starting character, if string
         // is not empty, and if the skip keyword is not in the string.
-        if ( ( ( !skipKeyword.empty( ) && stringOfData.find( skipKeyword ) == string::npos )
+        if ( ( ( !skipKeyword.empty( ) && stringOfData.find( skipKeyword ) == std::string::npos )
                || ( skipKeyword.empty( ) ) ) && !stringOfData.empty( ) )
         {
             // Store string in container.

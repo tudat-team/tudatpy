@@ -40,6 +40,7 @@ set(INTERPOLATORSDIR "${MATHEMATICSDIR}/Interpolators")
 set(NUMERICALINTEGRATORSDIR "${MATHEMATICSDIR}/NumericalIntegrators")
 set(ROOTFINDERSDIR "${MATHEMATICSDIR}/RootFinders")
 set(STATISTICSDIR "${MATHEMATICSDIR}/Statistics")
+set(NUMERICALQUADRATUREDIR "${MATHEMATICSDIR}/NumericalQuadrature")
 
 # Add sub-directories.
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
@@ -48,6 +49,7 @@ add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/Interpolators")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/RootFinders")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/Statistics")
+add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature")
 
 # Get target properties for static libraries.
 get_target_property(BASICMATHEMATICS tudat_basic_mathematics SOURCES)
@@ -56,3 +58,4 @@ get_target_property(INTERPOLATORSSOURCES tudat_interpolators SOURCES)
 get_target_property(NUMERICALINTEGRATORSSOURCES tudat_numerical_integrators SOURCES)
 get_target_property(ROOTFINDERSSOURCES tudat_root_finders SOURCES)
 get_target_property(STATISTICSSOURCES tudat_statistics SOURCES)
+get_target_property(NUMERICALQUADRATURESOURCES tudat_numerical_quadrature SOURCES)

@@ -35,6 +35,8 @@
 #ifndef TUDAT_LINEAR_ALGEBRA_H
 #define TUDAT_LINEAR_ALGEBRA_H
 
+#include <boost/function.hpp>
+
 #include <Eigen/Core>
 
 namespace tudat
@@ -42,6 +44,15 @@ namespace tudat
 
 namespace linear_algebra
 {
+
+//! Function that returns that 'cross-product matrix'
+/*!
+ *  Function that returns that 'cross-product matrix', i.e. for vectors a,b and c, with c = a x b, the matrix A such that
+ *  c = Ab.
+ *  \param leftHandVector The left-multiplying vector (a in above example)
+ *  \return The matrix by which to premultiply the right-multiplying vector to obtain the cross product of the two matrices.
+ */
+Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& leftHandVector );
 
 //! Compute cosine of the angle between two vectors.
 /*!
@@ -62,6 +73,43 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
  */
 double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
                                    const Eigen::VectorXd& vector1 );
+
+//! Computes the difference between two 3d vectors.
+/*!
+ * Computes the difference between two 3d vectors (first input minus second input, i.e vector from second input to
+ * first input).
+ * \param vector0 First vector.
+ * \param vector1 Second vector.
+ * \return Difference between vectors
+ */
+Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
+                                         const Eigen::Vector3d& vector1 );
+
+//! Computes norm of the the difference between two 3d vectors.
+/*!
+ * Computes the norm of the difference between two 3d vectors (i.e. distance between vectors)
+ * \param vector0 First vector.
+ * \param vector1 Second vector.
+ * \return Norm of difference between vectors
+ */
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                      const Eigen::Vector3d& vector1 );
+
+//! Computes the norm of a 3d vector
+/*!
+ * Computes the norm of a 3d vector
+ * \param vector Vector for which the norm is to be computed
+ * \return Vector norm
+ */
+double getVectorNorm( const Eigen::Vector3d& vector );
+
+//! Computes the norm of a 3d vector from a vector-returning function.
+/*!
+ * Computes the norm of a 3d vector from a vector-returning function.
+ * \param vectorFunction Function returning the vector for which the norm is to be computed
+ * \return Vector norm
+ */
+double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction );
 
 //! Flip matrix rows.
 /*!
@@ -85,6 +133,8 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
     }
 }
 
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                      const Eigen::Vector3d& vector1 );
 } // namespace linear_algebra
 
 } // namespace tudat

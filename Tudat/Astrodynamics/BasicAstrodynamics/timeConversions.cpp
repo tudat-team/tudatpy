@@ -35,7 +35,6 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
@@ -43,60 +42,72 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+//! Function to get the Julian day on J2000, in double precision.
 template< >
 double getJulianDayOnJ2000< double >( )
 {
     return JULIAN_DAY_ON_J2000;
 }
 
+//! Function to get the Julian day on J2000, in long double precision.
 template< >
 long double getJulianDayOnJ2000< long double >( )
 {
     return JULIAN_DAY_ON_J2000_LONG;
 }
 
+//! Function to get the Julian day on zero modified Julian day, in double precision.
 template< >
 double getJulianDayOnMjd0< double >( )
 {
     return JULIAN_DAY_AT_0_MJD;
 }
 
+//! Function to get the Julian day on zero modified Julian day, in long double precision.
 template< >
 long double getJulianDayOnMjd0< long double >( )
 {
     return JULIAN_DAY_AT_0_MJD_LONG;
 }
 
+//! Function to get the synchronization Julian day of TT, TCG, and TCB, in double precision.
 template< >
 double getTimeOfTaiSynchronizationJulianDay< double >( )
 {
     return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION;
 }
 
+//! Function to get the synchronization Julian day of TT, TCG, and TCB, in long double precision.
 template< >
 long double getTimeOfTaiSynchronizationJulianDay< long double >( )
 {
     return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG;
 }
 
+//! Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION,
+//! in double precision.
 template< >
-double getTimeOfTaiSynchronizationSinceJ2000< double >( )
+double getTdbSecondsOffsetAtSynchronization< double >( )
 {
-    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION * physical_constants::getJulianDay< double >( );
+    return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
 }
 
+//! Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION,
+//! in long double precision.
 template< >
-long double getTimeOfTaiSynchronizationSinceJ2000< long double >( )
+long double getTdbSecondsOffsetAtSynchronization< long double >( )
 {
-    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG * physical_constants::getJulianDay< long double >( );
+    return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG;
 }
 
+//! Function to get the offset of TT from TAI (constant by definition), in double precision.
 template< >
 double getTTMinusTai< double >( )
 {
     return TT_MINUS_TAI;
 }
 
+//! Function to get the offset of TT from TAI (constant by definition), in long double precision.
 template< >
 long double getTTMinusTai< long double >( )
 {

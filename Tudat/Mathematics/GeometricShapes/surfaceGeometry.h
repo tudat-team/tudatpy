@@ -1,13 +1,11 @@
-/*!   Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    Changelog
  *      YYMMDD    Author            Comment
@@ -23,15 +21,8 @@
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// 
-// `                                 comments.
-// 110204    K. Kumar          Minor comment and layout modifications.
-// 110905    S. Billemont      Reorganized includes.
-// Moved (con/de)structors and getter/setters to header.
-
-#ifndef SURFACEGEOMETRY_H
-#define SURFACEGEOMETRY_H
+#ifndef TUDAT_SURFACEGEOMETRY_H
+#define TUDAT_SURFACEGEOMETRY_H
 
 #include <iostream>
 
@@ -62,8 +53,6 @@ protected:
 private:
 };
 
-}
+} // namespace tudat
 
-#endif // SURFACEGEOMETRY_H
-
-// End of file.
+#endif // TUDAT_SURFACEGEOMETRY_H

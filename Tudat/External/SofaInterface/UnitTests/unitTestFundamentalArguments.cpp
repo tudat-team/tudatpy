@@ -20,6 +20,7 @@
 
 #include <limits>
 #include <string>
+#include <Eigen/LU>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>

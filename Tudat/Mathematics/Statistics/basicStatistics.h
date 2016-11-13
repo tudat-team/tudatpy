@@ -77,7 +77,21 @@ double computeStandardDeviationOfVectorComponents( const Eigen::VectorXd& vector
  */
 double computeSampleMean( const std::vector< double >& sampleData );
 
-//! Compute sample variance.
+//! Compute sample mean for a sample of VectorXd
+/*!
+ * Computes sample mean for a sample of VectorXd based on the following unbiased estimator
+ * (Spiegel and Stephens, 2008):
+ * \f[
+ *      \mu_{s} = \frac{ \sum_{i=1}^{N} X_{i} } { N }
+ * \f]
+ * where \f$\mu_{s}\f$ is the unbiased estimate of the sample mean,
+ * \f$ N \f$ is the number of samples, and \f$ X \f$ is the sample value.
+ * \param sampleData Sample data.
+ * \return Sample mean.
+ */
+Eigen::VectorXd computeSampleMean( const std::vector< Eigen::VectorXd >& sampleData );
+
+//! Compute sample variance .
 /*!
  * Computes sample variance based on the following unbiased estimator
  * (Spiegel and Stephens, 2008):
@@ -92,6 +106,32 @@ double computeSampleMean( const std::vector< double >& sampleData );
  * \return Sample variance.
  */
 double computeSampleVariance( const std::vector< double >& sampleData );
+
+//! Compute Sample median
+/*!
+ * Computes the median of a set of data samples.
+ * (Montgomery, D. C. & Runger, G. C. Applied Statistics and Probability for engineers Wiley, 2014)
+ *
+ * \param sampleData Map containing sample data.
+ * \return Sample variance.
+ */
+double computeSampleMedian( std::vector< double > sampleData );
+
+//! Compute sample variance for a sample of VectorXd.
+/*!
+ * Computes sample variance for a sample of VectorXd based on the following unbiased estimator
+ * (Spiegel and Stephens, 2008):
+ * \f[
+ *      s^{2}_{s} = \frac{ 1 }{ N - 1 } * \sum_{i=1}^{N} X_{i}
+ *                  ( X_{i} - \bar{ X } )^{ 2 } )
+ * \f]
+ * where \f$ s^{2}_{s} \f$ is the unbiased estimate of the sample variance,
+ * \f$ N \f$ is the number of samples, \f$ X \f$ is the sample value, and
+ * \f$ \bar{ X } \f$ is the sample mean.
+ * \param sampleData Map containing sample data.
+ * \return Sample variance.
+ */
+Eigen::VectorXd computeSampleVariance( const std::vector< Eigen::VectorXd >& sampleData );
 
 } // namespace statistics
 } // namespace tudat

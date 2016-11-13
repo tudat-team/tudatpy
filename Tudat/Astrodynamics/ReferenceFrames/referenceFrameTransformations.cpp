@@ -52,13 +52,72 @@
  */
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
 {
 namespace reference_frames
 {
+
+//! Get classical 1-3-2 Euler angles set from rotation matrix
+Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
+        const Eigen::Matrix3d& rotationMatrix )
+{
+    Eigen::Vector3d eulerAngles;
+    eulerAngles( 0 ) = std::atan2( -rotationMatrix( 2, 1 ), rotationMatrix( 1, 1 ) );
+    eulerAngles( 1 ) = std::asin( rotationMatrix( 0, 1 ) );
+    eulerAngles( 2 ) = std::atan2( -rotationMatrix( 0, 2 ), rotationMatrix( 0, 0 ) );
+    return eulerAngles;
+}
+
+//! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
+Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
+        const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame )
+{
+    Eigen::Vector3d rotationAngles;
+    rotationAngles.x( ) = basic_mathematics::computeModulo(
+                std::atan2( rotationMatrixFromInertialToPlanetFixedFrame( 2, 0 ),
+                            -rotationMatrixFromInertialToPlanetFixedFrame( 2, 1 ) ) - mathematical_constants::PI / 2.0,
+                2.0 * mathematical_constants::PI );//right ascension
+    rotationAngles.y( ) = -std::acos( rotationMatrixFromInertialToPlanetFixedFrame( 2, 2 ) ) + mathematical_constants::PI / 2.0 ; //declination
+    rotationAngles.z( ) = std::atan2( rotationMatrixFromInertialToPlanetFixedFrame( 0, 2 ),
+                                      rotationMatrixFromInertialToPlanetFixedFrame( 1, 2 ) );//longitude of prime meridian
+    return rotationAngles;
+}
+
+//! Wrapper function to transform a vector to a different frame from a single rotation function.
+Eigen::Vector3d transformVectorFromQuaternionFunction(
+        const Eigen::Vector3d& originalVector,
+        const boost::function< Eigen::Quaterniond( ) > rotation )
+{
+    return rotation( ) * originalVector;
+}
+
+//! Wrapper function to transform a vector to a different frame from a single transformation function.
+Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
+        const boost::function< Eigen::Vector3d( ) > originalVector,
+        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
+{
+    return transformationFunction( originalVector( ) );
+}
+
+//! Wrapper function to transform a vector to a different frame from a list of transformation function.
+Eigen::Vector3d transformVectorFromVectorFunctions(
+        const Eigen::Vector3d& originalVector,
+        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
+{
+    Eigen::Vector3d currentVector = originalVector;
+    Eigen::Vector3d newVector;
+
+    // Apply each of the required tranformations.
+    for( unsigned int i = 0; i < rotationsList.size( ); i++ )
+    {
+        newVector = rotationsList.at( i )( currentVector );
+        currentVector = newVector;
+    }
+    return currentVector;
+}
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d
@@ -325,6 +384,46 @@ Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternio
     return getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
             angleOfAttack, angleOfSideslip ).inverse( );
 }
+
+//! Calculate current heading angle.
+double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame )
+{
+    return std::atan2( velocityInVerticalFrame( 1 ), velocityInVerticalFrame( 0 ) );
+}
+
+//! Calculate current flight path angle.
+double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame )
+{
+    return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
+}
+
+//! Get transformation quaternion ECEF to ENU V-frame
+Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
+    double longitude, double latitude )
+{
+    return getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                longitude, latitude ).inverse( );
+}
+
+//! Get transformation quaternion between V-frame and ECEF
+Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+    double longitude, double latitude )
+{
+    // Compute transformation quaternion.
+    // source: http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+    // Note the sign change (-1.0), because how angleAxisd is defined.
+    Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
+                longitude + mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd RotationAroundXaxis =
+            Eigen::AngleAxisd( ( mathematical_constants::PI / 2.0 - latitude ),
+                               Eigen::Vector3d::UnitX( ) );
+    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
+                ( RotationAroundZaxis * RotationAroundXaxis ) );
+
+    // Return transformation quaternion.
+    return frameTransformationQuaternion;
+}
+
 
 } // namespace reference_frames
 } // namespace tudat

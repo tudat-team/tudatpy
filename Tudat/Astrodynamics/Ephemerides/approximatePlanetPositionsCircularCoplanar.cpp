@@ -37,6 +37,7 @@
  *
  */
 
+#include <vector>
 #include <cmath>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"

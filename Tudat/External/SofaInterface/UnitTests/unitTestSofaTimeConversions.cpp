@@ -206,8 +206,8 @@ BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
         BOOST_CHECK_SMALL( tdbMinusTt - dtr, std::numeric_limits< double >::epsilon( ) );
 
         // Check validity of using TT as subsititute for TDB in conversions
-        double dtr2 = iauDtdb ( tt1, tt2 + dtr / physical_constants::JULIAN_DAY, ut, elon, u/1e3, v/1e3 );
-        double dtr3 = iauDtdb ( tt1, tt2 + dtr2 / physical_constants::JULIAN_DAY, ut, elon, u/1e3, v/1e3 );
+        double dtr2 = iauDtdb ( tt1, tt2 + dtr / physical_constants::JULIAN_DAY, ut, elon, u/1.0e3, v/1.0e3 );
+        double dtr3 = iauDtdb ( tt1, tt2 + dtr2 / physical_constants::JULIAN_DAY, ut, elon, u/1.0e3, v/1.0e3 );
         BOOST_CHECK_SMALL( dtr - dtr2, 1.0E-12 );
         BOOST_CHECK_SMALL( dtr2 - dtr3, 1.0E-15 );
 

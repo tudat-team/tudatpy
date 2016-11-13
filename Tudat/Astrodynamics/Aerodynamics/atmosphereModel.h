@@ -43,6 +43,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 namespace aerodynamics
@@ -99,6 +101,18 @@ public:
     */
     virtual double getTemperature( const double altitude, const double longitude,
                                    const double latitude, const double time ) = 0;
+
+    //! Get local speed of sound.
+    /*!
+    * Returns the local speed of sound of the atmosphere in m/s.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return Atmospheric speed of sound.
+    */
+    virtual double getSpeedOfSound( const double altitude, const double longitude,
+                                    const double latitude, const double time ) = 0;
 
 protected:
 
