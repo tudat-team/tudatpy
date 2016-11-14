@@ -41,6 +41,7 @@
  *      120716    D. Dirkx          Updated with new nearest neighbour search algorithms.
  *      130114    D. Dirkx          Added missing include statements; corrected include guard
  *                                  name.
+ *      160930    M. Van den Broeck Added computeNearestNeighborUsingBinarySearch function
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
