@@ -27,6 +27,13 @@ namespace tudat
 namespace simulation_setup
 {
 
+enum ThrustFrames
+{
+    unspecified_thurst_frame = -1,
+    inertial_thurst_frame = 0,
+    lvlh_thrust_frame = 1
+};
+
 //! Class for providing settings for acceleration model.
 /*!
  *  Class for providing settings for acceleration model. This class is a functional (base) class for
@@ -141,22 +148,50 @@ class FullThrustInterpolationInterface
 {
 public:
     FullThrustInterpolationInterface(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator ):
-        thrustInterpolator_( thrustInterpolator ){ }
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator,
+            const boost::function< Eigen::Matrix3d( ) > rotationFunction = boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) ):
+        thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
+        currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
     double getThrustMagnitude( const double time )
     {
-        return thrustInterpolator_->interpolate( time ).norm( );
+        updateThrust( time );
+        return currentThrust_.norm( );
     }
 
     Eigen::Vector3d getThrustDirection( const double time )
     {
-        return thrustInterpolator_->interpolate( time ).normalized( );
+        updateThrust( time );
+        return currentThrust_.normalized( );
+    }
+
+    void resetRotationFunction( const boost::function< Eigen::Matrix3d( ) > rotationFunction )
+    {
+        rotationFunction_ = rotationFunction;
     }
 
 private:
 
+    void updateThrust( const double time )
+    {
+        if( !( time == currentTime_ ) )
+        {
+            currentThrust_ = rotationFunction_( ) * thrustInterpolator_->interpolate( time );
+            currentTime_ = time;
+        }
+    }
+
+
     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
+
+    boost::function< Eigen::Matrix3d( ) > rotationFunction_;
+
+    Eigen::Vector3d currentThrust_;
+
+    double currentTime_;
+
+
+
 };
 
 //! Class for providing acceleration settings for a thrust acceleration model
@@ -179,25 +214,33 @@ public:
             const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
-        thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
+        thrustMagnitudeSettings_( thrustMagnitudeSettings ),
+        thrustFrame_( unspecified_thurst_frame ){ }
 
     ThrustAccelerationSettings(
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustDirectionGuidanceSettings,
-            const boost::function< double( const double ) > specificImpulseFunction ):
-        AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+            const boost::function< double( const double ) > specificImpulseFunction,
+            const ThrustFrames thrustFrame = unspecified_thurst_frame,
+            const std::string centralBody = "" ):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration ), thrustFrame_( thrustFrame ), centralBody_( centralBody )
     {
-        boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface =
+        interpolatorInterface_ =
                 boost::make_shared< FullThrustInterpolationInterface >( thrustDirectionGuidanceSettings );
         thrustDirectionGuidanceSettings_ = boost::make_shared< CustomThrustDirectionSettings >(
-                    boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface, _1 ) );
+                    boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, _1 ) );
         thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
-                    boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface, _1 ),
+                    boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
                     specificImpulseFunction );
     }
 
-
     //! Destructor.
     ~ThrustAccelerationSettings( ){ }
+
+    boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
+
+    ThrustFrames thrustFrame_;
+
+    std::string centralBody_;
 
     //! Settings for the direction of the thrust
     boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;

@@ -424,6 +424,12 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     return frameTransformationQuaternion;
 }
 
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
+        const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
+        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction )
+{
+    return Eigen::Matrix3d::Identity( );
+}
 
 } // namespace reference_frames
 } // namespace tudat

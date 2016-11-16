@@ -786,6 +786,43 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
+    if( thrustAccelerationSettings->interpolatorInterface_ != NULL )
+    {
+        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thurst_frame )
+        {
+            throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
+        }
+        else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
+        {
+            if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
+            {
+                boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
+                        boost::bind( &Body::getState, bodyMap.at( nameOfBodyUndergoingThrust ) );
+                boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+                if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
+                {
+                    centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+                }
+                else
+                {
+                    if( bodyMap.count( thrustAccelerationSettings->centralBody_ ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
+                    }
+                    centralBodyStateFunction =
+                            boost::bind( &Body::getState, bodyMap.at( thrustAccelerationSettings->centralBody_ ) );
+                }
+                thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
+                            boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotation,
+                                         vehicleStateFunction, centralBodyStateFunction ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating thrust acceleration, input frame not recognized" );
+            }
+        }
+    }
+
     // Create thrust direction model.
     boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust,
