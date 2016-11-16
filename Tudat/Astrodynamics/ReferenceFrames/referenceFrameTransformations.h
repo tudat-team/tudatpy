@@ -38,6 +38,7 @@
  *      130121    K. Kumar          Updated functions to be const-correct.
  *      130219    D. Dirkx          Migrated from personal code.
  *      130312    A. Ronse          Added V-T, TA-AA and AA-B transformations.
+ *      161116    M. Van den Broeck Added planetocentric to TNW velocity frame transformation.
  *
  *
  *    References
@@ -172,6 +173,25 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
  */
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR );
+
+//! Get rotation from planet-fixed frame to TNW velocity frame.
+/*!
+ * Returns rotation from planet-fixed to the TNW velocity frame. The TNW velocity frame is
+ * a right-handed orthogonal frame defined as follows:
+ * x-axis tangent to the velocity direction,
+ * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * z-axis normal to the orbital plane.
+ * \param spacecraftKeplerianState containging the following elements:
+ *          semi-major axis -> not used
+ *          eccentricity
+ *          inclination
+ *          argumentOfPeriapsis
+ *          longitudeOfAscendingNode
+ *          trueAnomaly
+ * \return Computed rotation quaternion.
+ */
+Eigen::Quaterniond getPlanetocentricToTNWframeTransformationMatrix(
+        const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
