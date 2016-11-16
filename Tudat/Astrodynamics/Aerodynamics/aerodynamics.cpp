@@ -46,6 +46,15 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Astrodynamics/Aerodynamics/heatFluxFunction.h"
+
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
+#include "Tudat/Mathematics/RootFinders/bisection.h"
+#include "Tudat/Mathematics/RootFinders/secantRootFinder.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 namespace tudat
 {
@@ -518,6 +527,81 @@ double computeMeanFreePath( const double weightedAverageCollisionDiameter, const
 {
     return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
                    weightedAverageCollisionDiameter * averageNumberDensity );
+}
+
+//! Compute the aerodynamic load experienced by a vehicle.
+double computeAerodynamicLoad( const double airDensity,
+                               const double airSpeed,
+                               const double referenceArea,
+                               const double vehicleMass,
+                               const Eigen::Vector3d aerodynamicForceCoefficients )
+{
+    double aerodynamicLoad
+                = 0.5 * airDensity * airSpeed * airSpeed * referenceArea / vehicleMass / 9.80665 * sqrt(
+                    aerodynamicForceCoefficients(0)*aerodynamicForceCoefficients(0) +
+                    aerodynamicForceCoefficients(1)*aerodynamicForceCoefficients(1) +
+                    aerodynamicForceCoefficients(2)*aerodynamicForceCoefficients(2) );
+
+    return aerodynamicLoad;
+}
+
+//! Compute the heat flux experienced by a vehicle.
+double computeHeatFlux( const double airDensity,
+                        const double airSpeed,
+                        const double airTemperature,
+                        const double machNumber,
+                        const double noseRadius,
+                        double wallEmissivity = 0.80 )
+{
+    // Auxiliary constants.
+    const double heatFluxConstant
+            = 3.53E-4;
+
+    // Compute adiabatic wall temperature.
+    double adiabaticWallTemperature
+            = computeAdiabaticWallTemperature( airTemperature , machNumber );
+
+    // Create the object that contains the function who's root needs to be found.
+    boost::shared_ptr< HeatFluxFunction > heatFluxFunction
+            = boost::make_shared< HeatFluxFunction >( airSpeed , airDensity , noseRadius );
+
+    // Set all the auxiliary variables used by the root finder.
+    heatFluxFunction->setAdiabaticWallTemperature( adiabaticWallTemperature );
+    heatFluxFunction->setWallEmissivity( wallEmissivity );
+    heatFluxFunction->setCurrentFreestreamTemperature( airTemperature );
+
+    // Attempt to find the root using the secant method.
+    tudat::root_finders::SecantRootFinder::TerminationFunction terminationConditionFunction =
+            boost::bind( &tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double > >(
+                              ), _1, _2, _3, _4, _5 );
+
+    tudat::root_finders::SecantRootFinder secant( terminationConditionFunction );
+
+    double root = secant.execute( heatFluxFunction, heatFluxFunction->getInitialGuess() );
+
+    // Compute the current heat flux.
+    double currentHeatFlux
+            = heatFluxConstant * sqrt( airDensity * std::pow( airSpeed , 2.0 ) / noseRadius )
+            * ( 0.5 * std::pow( airSpeed , 2.0 ) + 1004 * ( airTemperature - root ) );
+
+    return currentHeatFlux;
+}
+
+//! Compute the adiabatic wall temperature experienced by a vehicle.
+double computeAdiabaticWallTemperature( double airTemperature , double machNumber )
+{
+    // Auxiliary constants.
+    const double ratioSpecificHeats = 1.4;
+    const double recoveryFactor     = 0.845;
+
+    double totalTemperature
+            = airTemperature * ( 1 + 0.5 * ( ratioSpecificHeats - 1 ) * machNumber * machNumber );
+
+    double adiabaticWallTemperature
+            = airTemperature + recoveryFactor * ( totalTemperature - airTemperature );
+
+    return adiabaticWallTemperature;
 }
 
 } // namespace aerodynamics
