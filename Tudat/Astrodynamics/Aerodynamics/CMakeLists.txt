@@ -67,6 +67,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/testApolloCapsuleCoefficients.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/heatFluxFunction.h"
 )
 
 if(USE_NRLMSISE00)
