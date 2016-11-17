@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 
 namespace tudat
@@ -28,8 +38,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         const Eigen::Vector3d initialOrientationAngles,//right ascension, declination, longitude of prime meridian.
         const double rotationRate, const double timeSinceEpoch )
 {
-    Eigen::Matrix3d commonTerm = Eigen::AngleAxisd( -1.0 * ( -initialOrientationAngles.z( ) - rotationRate * timeSinceEpoch ),
-                                                    Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+    Eigen::Matrix3d commonTerm = Eigen::AngleAxisd(
+                -1.0 * ( -initialOrientationAngles.z( ) - rotationRate * timeSinceEpoch ),
+                Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
 
 
     double rightAscension = initialOrientationAngles.x( );
@@ -65,6 +76,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
+//! Function to calculate the partial of the position of a vector, which is given in a body-fixed frame, in the inertial
+//! frame wrt a parameter.
 Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfRotatedVector(
         const double time,
         const Eigen::Vector3d vectorInLocalFrame )

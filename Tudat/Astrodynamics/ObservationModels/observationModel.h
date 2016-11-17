@@ -200,6 +200,16 @@ public:
         }
     }
 
+    //! Function to retrieve a single entry of the observation value
+    /*!
+     *  Function to retrieve a single entry of the observation value. Generally, the observable is a vector, this function
+     *  allows a single entry to be retrieve
+     *  \param time Time at which observable is to be evaluated.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \param observationEntry entry from observable vector that is to be retrieved.
+     *  \return Calculated (non-ideal, i.e with biases) observable value.
+     */
     ObservationScalarType computeObservationEntry(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
