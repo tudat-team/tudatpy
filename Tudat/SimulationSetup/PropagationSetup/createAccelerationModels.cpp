@@ -813,7 +813,7 @@ createThrustAcceleratioModel(
                             boost::bind( &Body::getState, bodyMap.at( thrustAccelerationSettings->centralBody_ ) );
                 }
                 thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
-                            boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotation,
+                            boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
                                          vehicleStateFunction, centralBodyStateFunction ) );
             }
             else

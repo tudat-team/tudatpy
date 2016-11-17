@@ -236,17 +236,19 @@ public:
     //! Destructor.
     ~ThrustAccelerationSettings( ){ }
 
-    boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
-
-    ThrustFrames thrustFrame_;
-
-    std::string centralBody_;
 
     //! Settings for the direction of the thrust
     boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
 
     //! Settings for the magnitude of the thrust
     boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
+
+    ThrustFrames thrustFrame_;
+
+    std::string centralBody_;
+
+    boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
+
 };
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the

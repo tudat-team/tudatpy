@@ -133,6 +133,7 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
+
 } // namespace utilities
 
 } // namespace tudat
