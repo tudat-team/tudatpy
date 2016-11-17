@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
 #define TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTIONPARTIAL_H
 
@@ -23,7 +33,7 @@ double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitation
 //! Function to compute partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
 /*!
  * Function to compute partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
- * \param singleBodyLightTimeCorrection Value of light-time correction for which partial is to be evaluated.
+ * \param totalLightTimeCorrection Value of light-time correction for which partial is to be evaluated.
  * \param ppnParameterGamma Value of PPN parameter gamma.
  * \return Partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
  */
@@ -56,9 +66,10 @@ public:
      * \return Partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
      */
     SingleOneWayRangePartialReturnType wrtBodyGravitationalParameter(
-            const std::vector< basic_mathematics::Vector6d >& states, const std::vector< double >& times, const int bodyIndex )
+            const std::vector< basic_mathematics::Vector6d >& states, const std::vector< double >& times,
+            const int bodyIndex )
     {
-        if( !( perturbingBodies_.size( ) > bodyIndex ) )
+        if( !( static_cast< int >( perturbingBodies_.size( ) ) > bodyIndex ) )
         {
             throw std::runtime_error( "Error, bodyIndex in FirstOrderRelativisticLightTimeCorrectionPartial not consistent with contents" );
         }
