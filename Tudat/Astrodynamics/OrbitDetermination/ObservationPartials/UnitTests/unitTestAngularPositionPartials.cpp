@@ -56,6 +56,7 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
 
+//! Test partial derivatives of angular position observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 {
 
@@ -65,6 +66,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
+    // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
         NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
@@ -86,6 +88,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4, true, true );
     }
 
+    // Test partials with real ephemerides (without test of position partials)
     {
         std::cout<<"Test 1"<<std::endl;
         // Create environment

@@ -35,21 +35,24 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-//std::vector< boost::shared_ptr< simulation_setup::BodyDeformationSettings > > getSunOnlyEarthDeformationModel( );
-
+//! Function to create environment for general observation partial tests.
 NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double initialEphemerisTime = 1.0E7,
                                const double finalEphemerisTime = 1.2E7,
                                const double stateEvaluationTime = 0.0,
                                const bool useConstantEphemerides = 1 );
 
+//! Function to create estimated parameters for general observation partial tests.
 boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
         const NamedBodyMap& bodyMap, const double initialTime );
 
+//! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime, const int observableSize );
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const double observationTime, const int observableSize );
 
+//! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
         const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
         const std::vector< boost::function< void( ) > > updateFunctions,
@@ -57,6 +60,7 @@ std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
         const boost::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime );
 
+//! Function to compute numerical partials w.r.t. vector parameters for general observation partial tests.
 std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
         const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
         const std::vector< boost::function< void( ) > > updateFunctions,
@@ -64,8 +68,10 @@ std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
         const boost::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime );
 
+//! Function to compute analytical partials w.r.t. estimated parameters for general observation partial tests.
 template< int ObservableSize >
-std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > > calculateAnalyticalPartials(
+std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > >
+calculateAnalyticalPartials(
         const std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
         const std::vector< basic_mathematics::Vector6d >& states,
         const std::vector< double >& times,
@@ -73,7 +79,8 @@ std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eige
 {
     std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > > partialList;
 
-    for( typename std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
+    for( typename std::map< std::pair< int, int >,
+         boost::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
          partialObjectList.begin( ); partialIterator != partialObjectList.end( ); partialIterator++ )
     {
         partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime ) );
@@ -81,25 +88,27 @@ std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eige
     return partialList;
 }
 
-std::vector< int > getSingleAnalyticalPartialSize(
-        const LinkEnds& linkEnds,
-        const std::pair< std::vector< std::string >, boost::shared_ptr< EstimatableParameterSet< double > > >& estimatedParameters );
-
+//! Function to retrieve times associated with partial derivatives for general observation partial tests.
 std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         const LinkEnds& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
         const boost::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters );
 
+//! Generalized test function for partial derivatives of observations
 template< int ObservableSize = 1 >
 inline void testObservationPartials(
-        const boost::shared_ptr< ObservationModel< ObservableSize, double, double, double > > observationModel, NamedBodyMap& bodyMap,
+        const boost::shared_ptr< ObservationModel< ObservableSize, double, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
         const boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
         const LinkEnds& linkEnds, const ObservableType observableType,
         const double tolerance = 1.0E-6,
         const bool testPositionPartial = 1,
         const bool testParameterPartial = 1 )
 {
+    // Retrieve double and vector parameters and estimate body states
+    std::vector< std::string > bodiesWithEstimatedState = estimatable_parameters::getListOfBodiesToEstimate(
+                fullEstimatableParameterSet );
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             fullEstimatableParameterSet->getEstimatedDoubleParameters( );
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameterVector =
@@ -107,17 +116,13 @@ inline void testObservationPartials(
 
     // Create observation partials.
     boost::shared_ptr< ObservationPartialCreator< ObservableSize, double > > observationPartialCreator;
-
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
                 observableType, boost::assign::list_of( linkEnds ), bodyMap, fullEstimatableParameterSet ).begin( )->second;
-
     boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
-    std::vector< std::string > bodiesWithEstimatedState = estimatable_parameters::getListOfBodiesToEstimate(
-                fullEstimatableParameterSet );
-
+    // Iterate over link ends, compute and test partials for observable referenced at each link end.
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
@@ -130,14 +135,17 @@ inline void testObservationPartials(
 
         // Calculate analytical observation partials.
         positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ) );
-        typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > ObservationPartialReturnType;
+        typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >
+                ObservationPartialReturnType;
         std::vector< ObservationPartialReturnType > analyticalObservationPartials =
-                calculateAnalyticalPartials< ObservableSize >( fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first );
+                calculateAnalyticalPartials< ObservableSize >(
+                    fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first );
 
         // Set and test expected partial size and time
         std::vector< std::vector< double > > expectedPartialTimes = getAnalyticalPartialEvaluationTimes(
                     linkEnds, observableType, vectorOfTimes, fullEstimatableParameterSet );
 
+        // Test analytical partial times.
         BOOST_CHECK_EQUAL( analyticalObservationPartials.size( ), expectedPartialTimes.size( ) );
 
         for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
@@ -151,34 +159,44 @@ inline void testObservationPartials(
 
         }
 
-        // Settings for body state partials
+        // Define observation function for current observable/link end
         boost::function< Eigen::VectorXd( const double ) > observationFunction = boost::bind(
-                    &ObservationModel< ObservableSize, double, double, double >::computeObservations, observationModel, _1, linkEndIterator->first );
-        Eigen::Vector3d bodyPositionVariation;
+                    &ObservationModel< ObservableSize, double, double, double >::computeObservations,
+                    observationModel, _1, linkEndIterator->first );
 
         if( testPositionPartial )
         {
+            // Set position perturbation for numerical partial
+            Eigen::Vector3d bodyPositionVariation;
             bodyPositionVariation << 1000.0E3, 1000.0E3, 1000.0E3;
 
-            // Calculate numerical partials w.r.t. Earth state.
-            Eigen::Matrix< double, Eigen::Dynamic, 3 > bodyPositionPartial = Eigen::Matrix< double, ObservableSize, 3 >::Zero( );
+            // Calculate numerical partials w.r.t. estimate body state.
+            Eigen::Matrix< double, Eigen::Dynamic, 3 > bodyPositionPartial =
+                    Eigen::Matrix< double, ObservableSize, 3 >::Zero( );
             for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
             {
-                Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition = calculatePartialWrtConstantBodyState(
-                            bodiesWithEstimatedState[ i ], bodyMap, bodyPositionVariation, observationFunction, observationTime, ObservableSize );
+                // Compute numerical position partial
+                Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
+                        calculatePartialWrtConstantBodyState(
+                            bodiesWithEstimatedState[ i ], bodyMap, bodyPositionVariation,
+                            observationFunction, observationTime, ObservableSize );
+
+                // Set total analytical partial
                 bodyPositionPartial.setZero( );
                 for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
                 {
                     bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first;
                 }
 
+                // Test position partial
                 if( observableType != angular_position )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                 }
                 else
                 {
-                    BOOST_CHECK_SMALL( std::fabs( bodyPositionPartial( 0, 2 ) - numericalPartialWrtBodyPosition( 0, 2 ) ), 1.0E-20 );
+                    BOOST_CHECK_SMALL( std::fabs( bodyPositionPartial( 0, 2 ) - numericalPartialWrtBodyPosition( 0, 2 ) ),
+                                       1.0E-20 );
                     bodyPositionPartial( 0, 2 ) = 0.0;
                     numericalPartialWrtBodyPosition( 0, 2 ) = 0.0;
 
@@ -191,17 +209,21 @@ inline void testObservationPartials(
         if( testParameterPartial )
         {
 
+            // Test double parameter partials
             {
                 // Settings for parameter partial functions.
                 std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E-10 )( 1.0E-10 );
                 std::vector< boost::function< void( ) > > updateFunctionList;
-                updateFunctionList.push_back( emptyFunction2 );
-                updateFunctionList.push_back( emptyFunction2 );
+                updateFunctionList.push_back( emptyVoidFunction );
+                updateFunctionList.push_back( emptyVoidFunction );
 
-                // Calculate and test analytical against numerical partials.
-                std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
-                            doubleParameterVector, updateFunctionList, parameterPerturbations, observationFunction, observationTime );
+                // Compute numerical partials.
+                std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters =
+                        calculateNumericalPartialsWrtDoubleParameters(
+                            doubleParameterVector, updateFunctionList, parameterPerturbations,
+                            observationFunction, observationTime );
 
+                // Compute analytical partial and test against numerical partial
                 Eigen::VectorXd currentParameterPartial;
                 int numberOfEstimatedBodies = bodiesWithEstimatedState.size( );
                 for( unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size( ); i++ )
@@ -213,13 +235,16 @@ inline void testObservationPartials(
 
                     }
 
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
                 }
             }
 
+            // Test vector parameter partials
             {
                 boost::function< Eigen::VectorXd( const double ) > vectorObservationFunction = boost::bind(
-                            &ObservationModel< ObservableSize, double, double, double >::computeObservations, observationModel, _1, linkEndIterator->first );
+                            &ObservationModel< ObservableSize, double, double, double >::computeObservations,
+                            observationModel, _1, linkEndIterator->first );
 
                 // Settings for parameter partial functions.
                 std::vector< Eigen::VectorXd > parameterPerturbations;
@@ -227,18 +252,22 @@ inline void testObservationPartials(
                 parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 ) );
 
                 std::vector< boost::function< void( ) > > updateFunctionList;
-                updateFunctionList.push_back( emptyFunction2 );
-                updateFunctionList.push_back( emptyFunction2 );
+                updateFunctionList.push_back( emptyVoidFunction );
+                updateFunctionList.push_back( emptyVoidFunction );
 
-                // Calculate and test analytical against numerical partials.
-                std::vector< Eigen::MatrixXd > numericalPartialsWrtVectorParameters = calculateNumericalPartialsWrtVectorParameters(
-                            vectorParameterVector, updateFunctionList, parameterPerturbations, vectorObservationFunction, observationTime );
+                // Compute numerical partials.
+                std::vector< Eigen::MatrixXd > numericalPartialsWrtVectorParameters =
+                        calculateNumericalPartialsWrtVectorParameters(
+                            vectorParameterVector, updateFunctionList, parameterPerturbations,
+                            vectorObservationFunction, observationTime );
 
+                // Compute analytical partial and test against numerical partial
                 Eigen::MatrixXd currentParameterPartial;
                 int startIndex = bodiesWithEstimatedState.size( ) + doubleParameterVector.size( );
                 for( unsigned int i = 0; i < numericalPartialsWrtVectorParameters.size( ); i++ )
                 {
-                    currentParameterPartial = Eigen::MatrixXd::Zero( ObservableSize, vectorParameterVector.at( i )->getParameterSize( ) );
+                    currentParameterPartial = Eigen::MatrixXd::Zero(
+                                ObservableSize, vectorParameterVector.at( i )->getParameterSize( ) );
 
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + startIndex ].size( ); j++ )
                     {
@@ -246,7 +275,8 @@ inline void testObservationPartials(
 
                     }
 
-                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
                 }
             }
         }

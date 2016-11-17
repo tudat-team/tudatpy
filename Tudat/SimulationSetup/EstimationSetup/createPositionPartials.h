@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_CREATEPOSITIONPARTIALS_H
 #define TUDAT_CREATEPOSITIONPARTIALS_H
 
@@ -194,7 +204,8 @@ boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWr
  *  scaling object to be used for all partials.
  */
 template< typename ParameterType >
-std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > >  createPositionObservablePartials(
+std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > >
+createPositionObservablePartials(
         const observation_models::LinkEnds positionObservableLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
@@ -228,7 +239,8 @@ std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPar
                         initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
 
             // Create partial (if needed)
-            boost::shared_ptr< PositionObervationPartial > currentObservablePartial = createPositionObservablePartialWrtPosition(
+            boost::shared_ptr< PositionObervationPartial > currentObservablePartial =
+                    createPositionObservablePartialWrtPosition(
                         positionObservableLinkEnds, bodyMap, acceleratedBody, positionObservableScaling );
 
             // If partial exists, then dependency exists and parameter must be added.
@@ -249,7 +261,8 @@ std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPar
 /*!
  *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable
  *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
- *  link ends. Note that the three-dimensional position observable is only sensitive to the position of the body under observation.
+ *  link ends. Note that the three-dimensional position observable is only sensitive to the position of the body under
+ * observation.
  *  \param linkEnds List of sets of link ends used for observation models of three-dimensional position
  *  \param bodyMap List of bodies that comprise the environment
  *  \param parametersToEstimate List of parameters that is to be estimated.
@@ -272,7 +285,7 @@ createPositionObservablePartials(
     {
         if( linkEnds[ i ].count( observation_models::observed_body ) == 0 || linkEnds[ i ].size( ) != 1 )
         {
-            std::cerr<<"Error when making position observable partial, link ends are wrong"<<std::endl;
+            throw std::runtime_error( "Error when making position observable partial, link ends are wrong" );
         }
 
         positionObservablePartials[ linkEnds[ i ] ] = createPositionObservablePartials(
@@ -285,4 +298,4 @@ createPositionObservablePartials(
 
 }
 
-#endif // CREATEPOSITIONPARTIALS_H
+#endif // TUDAT_CREATEPOSITIONPARTIALS_H

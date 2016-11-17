@@ -8,76 +8,10 @@ namespace observation_partials
 {
 
 
-void emptyFunction2( ){ }
-
-boost::function< void( ) > getNumericalObservationPartialUpdateFunction(
-        estimatable_parameters::EstimatebleParameterIdentifier parameter,
-        std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > transmittingBody,
-        std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > receivingBody,
-        std::string transmittingStationName,
-        std::string receivingStationName )
-{
-
-    using namespace tudat::estimatable_parameters;
-    boost::function< void( ) > updateFunction = emptyFunction2;
-
-    switch( parameter.first )
-    {
-    case gravitational_parameter:
-        break;
-    case constant_rotation_rate:
-        break;
-    case constant_drag_coefficient:
-        break;
-    case spherical_harmonics_cosine_coefficient_block:
-        break;
-    case spherical_harmonics_sine_coefficient_block:
-        break;
-    default:
-        std::cerr<<"Parameter "<<parameter.first<<"of body: "<<parameter.second.first<<" unknown when generating update function."<<std::endl;
-        break;
-    }
-
-    return boost::function< void( ) >( );
-}
-
-double receptionTimeFunction( double receptionTime,
-                              double transmissionTime )
-{
-    return receptionTime;
-}
-
-double transmissionTimeFunction( double receptionTime,
-                                 double transmissionTime )
-{
-    return transmissionTime;
-}
-
-void resetInitialDynamicalState(
-        const boost::shared_ptr< propagators::PropagatorSettings< double > > & propagatorSettings,
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        const double perturbedParameterValue, const int componentIndex )
-{
-    propagators::IntegratedStateType stateType;
-    switch( parameter->getParameterName( ).first )
-    {
-    case estimatable_parameters::initial_body_state:
-        stateType = propagators::transational_state;
-        break;
-    default:
-        std::cerr<<"Error when resetting initial dynamical state, did not recognize type "<<parameter->getParameterName( ).first<<std::endl;
-
-    }
+void emptyVoidFunction( ){ }
 
 
-    {
-        Eigen::VectorXd initialDynamicalState = propagatorSettings->getInitialStates( );
-        initialDynamicalState( componentIndex ) = perturbedParameterValue;
-        propagatorSettings->resetInitialStates( initialDynamicalState );
-    }
-}
-
-
+//! Function to compute numerical partial derivative of double observable w.r.t. double parameter.
 Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         const double parameterPerturbation,
@@ -104,6 +38,7 @@ Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
     return ( upPerturbedValue - downPerturbedValue ) / ( 2.0 * parameterPerturbation );
 }
 
+//! Function to compute numerical partial derivative of vector observable w.r.t. double parameter.
 Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParameterPartial(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         const double parameterPerturbation,
@@ -128,6 +63,7 @@ Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParamete
     return ( upPerturbedValue - downPerturbedValue ) / ( 2.0 * parameterPerturbation );
 }
 
+//! Function to compute numerical partial derivative of vector observable w.r.t. vector parameter.
 Eigen::MatrixXd calculateNumericalObservationParameterPartial(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const Eigen::VectorXd parameterPerturbation,

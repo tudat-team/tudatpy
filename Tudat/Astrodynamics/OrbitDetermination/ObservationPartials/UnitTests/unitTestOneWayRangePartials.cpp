@@ -56,6 +56,7 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
 
+//! Test partial derivatives of one-way range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 {
 
@@ -65,6 +66,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
+    // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
         NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
@@ -83,11 +85,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        testObservationPartials< 1 >( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, true, true );
+        testObservationPartials< 1 >(
+                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, true, true );
     }
 
+    // Test partials with real ephemerides (without test of position partials)
     {
-        std::cout<<"Test 1"<<std::endl;
         // Create environment
         NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
@@ -105,7 +108,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        testObservationPartials< 1 >( oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, false, true );
+        testObservationPartials< 1 >(
+                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, false, true );
     }
 }
 
