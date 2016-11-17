@@ -459,6 +459,10 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     const double longitude, const double latitude );
 
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
+        const basic_mathematics::Vector6d& vehicleStateFunction,
+        const basic_mathematics::Vector6d& centralBodyStateFunction );
+
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
         const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
         const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction );
 
