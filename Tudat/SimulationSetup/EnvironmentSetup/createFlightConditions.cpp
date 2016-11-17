@@ -131,7 +131,7 @@ createAerodynamicCoefficientInterface(
             throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
                        boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
         }
-
+        break;
     }
     default:
         throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
