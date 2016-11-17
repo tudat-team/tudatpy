@@ -51,7 +51,14 @@ public:
      * \param correctionCalculator Object used to compute light-time correction.
      */
     FirstOrderRelativisticLightTimeCorrectionPartial(
-            const boost::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator );
+            const boost::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator ):
+        LightTimeCorrectionPartial( observation_models::first_order_relativistic ),
+        correctionCalculator_( correctionCalculator )
+    {
+        perturbingBodies_ = correctionCalculator_->getPerturbingBodyNames( );
+        perturbingBodyGravitationalParameterFunctions_ =
+                correctionCalculator_->getPerturbingBodyGravitationalParameterFunctions( );
+    }
 
     //! Destructor.
     ~FirstOrderRelativisticLightTimeCorrectionPartial( ){ }

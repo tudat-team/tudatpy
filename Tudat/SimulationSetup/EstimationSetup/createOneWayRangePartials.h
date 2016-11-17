@@ -1,5 +1,16 @@
-#ifndef RANGEPARTIALMANAGER_H
-#define RANGEPARTIALMANAGER_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_CREATEONEWAYRANGEPARTIALS_H
+#define TUDAT_CREATEONEWAYRANGEPARTIALS_H
+
 
 #include <vector>
 #include <map>
@@ -54,7 +65,6 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
                 createPositionPartialsWrtParameter( oneWayRangeLinkEnds, bodyMap, parameterToEstimate );
 
         // Create one-range partials if any position partials are created (i.e. if any dependency exists).
-
         boost::shared_ptr< OneWayRangePartial > testOneWayRangePartial  = boost::make_shared< OneWayRangePartial >(
                     oneWayRangeScaler, positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
@@ -68,9 +78,9 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
     return oneWayRangePartial;
 }
 
-//! Function to generate one-way range partial wrt an position of a body.
+//! Function to generate one-way range partial wrt a position of a body.
 /*!
- *  Function to generate one-way range partial wrt an position of a body, for a single link ends (which must contain a
+ *  Function to generate one-way range partial wrt a position of a body, for a single link ends (which must contain a
  *  transmitter and receiever  linkEndType).
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
@@ -78,7 +88,7 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
  *  \param bodyToEstimate Name of body wrt position of which a partial is to be created.
  *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
- *  \return One-way range partial object wrt a single parameter (is NULL if no parameter dependency exists).
+ *  \return One-way range partial object wrt a current position of a body (is NULL if no parameter dependency exists).
  */
 boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
@@ -143,8 +153,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         }
         else
         {
-            std::cerr<<"Error when making one way range partials, could not identify parameter "<<
-                       initialDynamicalParameters.at( i )->getParameterName( ).first<<std::endl;
+            throw std::runtime_error( "Error when making one way range partials, could not identify parameter " +
+                       initialDynamicalParameters.at( i )->getParameterName( ).first );
         }
 
 
@@ -277,4 +287,5 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
 
 }
 
-#endif // RANGEPARTIALMANAGER_H
+#endif // TUDAT_CREATEONEWAYRANGEPARTIALS_H
+

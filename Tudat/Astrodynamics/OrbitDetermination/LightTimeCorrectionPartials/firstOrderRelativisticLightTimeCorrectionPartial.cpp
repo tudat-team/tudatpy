@@ -31,15 +31,6 @@ double getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma
 }
 
 
-FirstOrderRelativisticLightTimeCorrectionPartial::FirstOrderRelativisticLightTimeCorrectionPartial(
-        const boost::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator ):
-    LightTimeCorrectionPartial( observation_models::first_order_relativistic ),
-    correctionCalculator_( correctionCalculator )
-{
-    perturbingBodies_ = correctionCalculator_->getPerturbingBodyNames( );
-    perturbingBodyGravitationalParameterFunctions_ = correctionCalculator_->getPerturbingBodyGravitationalParameterFunctions( );
-
-}
 
 }
 

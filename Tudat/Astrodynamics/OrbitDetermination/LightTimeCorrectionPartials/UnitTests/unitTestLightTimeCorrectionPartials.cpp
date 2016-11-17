@@ -213,9 +213,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Settings for parameter partial functions.
         std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E18 )( 1.0E15 )( 1.0E15 );
         std::vector< boost::function< void( ) > > updateFunctionList;
-        updateFunctionList.push_back( emptyFunction2 );
-        updateFunctionList.push_back( emptyFunction2 );
-        updateFunctionList.push_back( emptyFunction2 );
+        updateFunctionList.push_back( emptyVoidFunction );
+        updateFunctionList.push_back( emptyVoidFunction );
+        updateFunctionList.push_back( emptyVoidFunction );
 
         // Calculate and test analytical against numerical partials.
         std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(

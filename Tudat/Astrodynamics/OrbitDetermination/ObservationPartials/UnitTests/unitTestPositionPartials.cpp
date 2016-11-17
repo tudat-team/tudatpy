@@ -62,9 +62,10 @@ using namespace tudat::observation_partials;
 
 BOOST_AUTO_TEST_SUITE( test_position_partials)
 
+//! Test partial derivatives of positions w.r.t. parameters. Partials of most observables are computed in terms of these
+//! partials
 BOOST_AUTO_TEST_CASE( testPositionPartials )
 {
-
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
@@ -82,8 +83,11 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     bodyMap[ "Sun" ] = boost::make_shared< Body >( );
     bodyMap[ "Mars" ] = boost::make_shared< Body >( );
 
-    ( bodyMap[ "Earth" ] )->setShapeModel( boost::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Earth" ) ) );
-    ( bodyMap[ "Mars" ] )->setShapeModel( boost::make_shared< SphericalBodyShapeModel >( spice_interface::getAverageRadius( "Mars" ) ) );
+    // Define properties of bodies
+    bodyMap[ "Earth" ]->setShapeModel( boost::make_shared< SphericalBodyShapeModel >(
+                                           spice_interface::getAverageRadius( "Earth" ) ) );
+    bodyMap[ "Mars" ]->setShapeModel( boost::make_shared< SphericalBodyShapeModel >(
+                                          spice_interface::getAverageRadius( "Mars" ) ) );
 
     bodyMap[ "Earth" ]->setEphemeris(
                 boost::make_shared< ConstantEphemeris >(
@@ -102,49 +106,50 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", 0.0 ),
                     "SSB", "ECLIPJ2000" ) );
 
-    ( bodyMap[ "Sun" ] )->setGravityFieldModel(
+    bodyMap[ "Sun" ]->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
-    ( bodyMap[ "Moon" ] )->setGravityFieldModel(
+    bodyMap[ "Moon" ]->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
-    ( bodyMap[ "Earth" ] )->setGravityFieldModel(
+    bodyMap[ "Earth" ]->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
 
 
 
-    ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
+    bodyMap[ "Earth" ]->setRotationalEphemeris(
                 createRotationModel(
                     boost::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Earth",
-                        spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                        spice_interface::computeRotationQuaternionBetweenFrames(
+                            "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Earth" ) );
-    ( bodyMap[ "Mars" ] )->setRotationalEphemeris(
+    bodyMap[ "Mars" ]->setRotationalEphemeris(
                 createRotationModel(
                     boost::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Mars",
-                        spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
+                        spice_interface::computeRotationQuaternionBetweenFrames(
+                            "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
                         initialEphemerisTime, 2.0 * mathematical_constants::PI / physical_constants::JULIAN_DAY ), "Mars" ) );
 
-
+    // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
+    // Create ground stations
     std::map< std::pair< std::string, std::string >, Eigen::Vector3d > groundStationsToCreate;
     groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
             ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
     groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
             ( Eigen::Vector3d( ) <<-2.5E5, 3.2E6, -2.65E4 ).finished( );
-
-
     createGroundStations( bodyMap, groundStationsToCreate );
 
 
 
-    // Define and create ground stations.
+    // Define list of ground station names.
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.push_back( std::make_pair( "Earth", "Graz" ) );
     groundStations.push_back( std::make_pair( "Mars", "MSL" ) );
 
-
+    // Create link ends set.
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = groundStations[ 0 ];
 
@@ -152,23 +157,25 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     linkEnds2[ observed_body ] = groundStations[ 1 ];
 
     boost::shared_ptr< GroundStation > receivingGroundStation =
-            ( bodyMap[ "Earth" ] )->getGroundStation( "Graz" );
+            bodyMap[ "Earth" ]->getGroundStation( "Graz" );
 
     //Create parameter objects.
     boost::shared_ptr< RotationRate > earthRotationRate = boost::make_shared< RotationRate >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap[ "Earth" ]->getRotationalEphemeris( ) ), "Earth");
-    boost::shared_ptr< ConstantRotationalOrientation > earthPolePosition = boost::make_shared< ConstantRotationalOrientation >(
+    boost::shared_ptr< ConstantRotationalOrientation > earthPolePosition =
+            boost::make_shared< ConstantRotationalOrientation >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap[ "Earth" ]->getRotationalEphemeris( ) ), "Earth" );
 
 
 
 
-    // Create explicit range partial objects.
+    // Create explicit position partial objects.
     boost::shared_ptr< PositionPartial > partialObjectWrtReceiverPosition =
             createPositionPartialsWrtBodyPosition( linkEnds, bodyMap, "Earth" ).begin( )->second;
 
+    // Create explicit parameter partial objects.
     boost::shared_ptr< PositionPartial > partialObjectWrtReceiverRotationRate =
             createPositionPartialsWrtParameter(
                 linkEnds, bodyMap, earthRotationRate ).begin( )->second;
@@ -183,16 +190,15 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
     double currentTime = receptionTime;
 
+    // Compute partials
     Eigen::MatrixXd partialWrtReceiverPosition =
             partialObjectWrtReceiverPosition->calculatePartial( currentState, currentTime );
-
     Eigen::MatrixXd partialWrtReceiverRotationRate =
             partialObjectWrtReceiverRotationRate->calculatePartial( currentState, currentTime );
-
     Eigen::MatrixXd partialWrtReceiverPolePosition =
             partialObjectWrtReceiverPolePosition->calculatePartial( currentState, currentTime );
 
-
+    // Define observation function
     boost::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
             boost::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
                              bodyMap.at( "Earth" )->getEphemeris( ), bodyMap.at( "Earth" )->getRotationalEphemeris( ),
@@ -200,18 +206,15 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
                                           bodyMap[ "Earth" ]->getGroundStation( "Graz" ), _1 ) ), _1 );
 
 
-    double rotationRateVariation = 1.0E-10;
-
-    Eigen::Vector3d bodyPositionVariation;
-    bodyPositionVariation << 10.0, 10.0, 10.0;
 
     // Calculate numerical partials w.r.t. Earth state.
+    Eigen::Vector3d bodyPositionVariation;
+    bodyPositionVariation << 10.0, 10.0, 10.0;
     boost::shared_ptr< ConstantEphemeris > earthEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap[ "Earth" ]->getEphemeris( ) );
     basic_mathematics::Vector6d earthUnperturbedState = earthEphemeris->getCartesianState( 0.0 );
     basic_mathematics::Vector6d perturbedEarthState;
     Eigen::Matrix< double, 3, 3 > numericalPartialWrtReceiverPosition = Eigen::Matrix< double, 3, 3 >::Zero( );
-
     for( int i = 0; i < 3; i++ )
     {
         perturbedEarthState = earthUnperturbedState;
@@ -229,20 +232,26 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     }
     earthEphemeris->updateConstantState( earthUnperturbedState );
 
+    // Test partial w.r.t. position
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPosition, numericalPartialWrtReceiverPosition, 1.0E-12 );
+
+
+    // Compute numerical partial w.r.t. rotation rate.
     Eigen::Vector3d numericalPartialWrtReceiverRotationRate = calculateNumericalObservationParameterPartial(
                 earthRotationRate, 1.0E-10, observationFunctionAtReception,
                 receptionTime );
 
-
+    // Test partial w.r.t. rotation rate
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate, numericalPartialWrtReceiverRotationRate, 1.0E-5 );
 
 
-
+    // Compute numerical partial w.r.t. pole position
     Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( )<<1.0E-5, 1.0E-5 ).finished( );
     Eigen::MatrixXd numericalPartialWrtReceiverPolePosition = calculateNumericalObservationParameterPartial(
                 earthPolePosition, polePositionPerturbation, observationFunctionAtReception, receptionTime );
 
 
+    // Test partials w.r.t. pole position (different tolernaces due to different magnitudes of partials).
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ),
                                        ( numericalPartialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ), 1.0E-4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 1, 0, 2, 2 ) ),
