@@ -57,6 +57,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
@@ -616,6 +617,87 @@ BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
         }
     }
 }
+
+// Test velocity based LVLH frame transformation.
+BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
+{
+    // Using declarations.
+    using std::atan2;
+    using std::cos;
+    using std::sin;
+    using std::pow;
+    using std::sqrt;
+
+
+    // Test 11: Test velocity based LVLH frame to inertial (I) frame transformation.
+    {
+        // Initialize initial thrust vector in velocity based LVLH frame.
+        Eigen::Vector3d startThrustVector;
+        startThrustVector( 0 ) = 2.0; // T direction
+        startThrustVector( 1 ) = 4.0; // N direction
+        startThrustVector( 2 ) = 1.0; // W direction
+        bool doesNaxisPointAwayFromCentralBody = false;
+
+        tudat::basic_mathematics::Vector6d vehicleStateCartesian, centralBodyStateCartesian;
+        vehicleStateCartesian << 0.0, -1.0, 0.0, -1.0, -0.5, 0.0;
+        centralBodyStateCartesian << 0.0, -2.0, 0.0, 0.5, 0.0, 0.0;
+
+        // Compute angle between positive T axis and negative y axis
+        double angle = atan( ( vehicleStateCartesian( 3 ) + centralBodyStateCartesian( 3 ) ) /
+                             ( vehicleStateCartesian( 4 ) + centralBodyStateCartesian( 4 ) ) );
+        // std::cout << "angle = " << convertRadiansToDegrees( angle ) << " deg" << std::endl;
+
+        // Declare the expected thrust vector in the inertial (I) reference frame.
+        Eigen::Vector3d expectedThrustVector;
+        expectedThrustVector( 0 ) = -startThrustVector( 0 ) * sin( angle ) - startThrustVector( 1 ) * cos( angle ); // x direction
+        expectedThrustVector( 1 ) = -startThrustVector( 0 ) * cos( angle ) + startThrustVector( 1 ) * sin( angle ); // y direction
+        expectedThrustVector( 2 ) = -startThrustVector( 2 ); // z direction
+
+        // Compute location of the point in the rotating frame subject to the transformation
+        // matrix.
+        Eigen::Vector3d transformedThrustVector;
+        transformedThrustVector = reference_frames::
+                getVelocityBasedLvlhToInertialRotation( vehicleStateCartesian,
+                                                        centralBodyStateCartesian,
+                                                        doesNaxisPointAwayFromCentralBody )
+                * startThrustVector;
+
+        // Check whether both vectors are equal within tolerances.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedThrustVector, transformedThrustVector,
+                                           1.0e-15 );
+    }
+
+    // Test 12: Test velocity based LVLH frame to planetocentric frame transformation with Keplerian elements.
+    {
+        // Initialize initial thrust vector in velocity based LVLH frame.
+        Eigen::Vector3d startThrustVector;
+        startThrustVector( 0 ) = 15.0; // T direction
+        startThrustVector( 1 ) = -1.0; // N direction
+        startThrustVector( 2 ) = 2.0; // W direction
+
+        tudat::basic_mathematics::Vector6d vehicleStateKeplerian;
+        vehicleStateKeplerian << 1.0, 0.5, convertDegreesToRadians( 60.0 ),
+                convertDegreesToRadians( 180.0 ), convertDegreesToRadians( 15.0 ), convertDegreesToRadians( 90.0 );
+
+        // Declare the expected thrust vector in the inertial (I) reference frame. Reference data comes from Matlab file
+        Eigen::Vector3d expectedThrustVector;
+        expectedThrustVector( 0 ) = 13.959420290978478079; // x direction
+        expectedThrustVector( 1 ) = -1.988147005863377672; // y direction
+        expectedThrustVector( 2 ) = -5.5840716885526107944; // z direction
+
+        // Compute location of the point in the rotating frame subject to the transformation
+        // matrix.
+        Eigen::Vector3d transformedThrustVector;
+        transformedThrustVector = reference_frames::
+                getVelocityBasedLvlhToPlanetocentricRotationKeplerian( vehicleStateKeplerian )
+                * startThrustVector;
+
+        // Check whether both vectors are equal within tolerances.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedThrustVector, transformedThrustVector,
+                                           1.0e-15 );
+    }
+}
+
 
 BOOST_AUTO_TEST_CASE( testEulerAngleRetrieval )
 {

@@ -38,6 +38,8 @@
  *      130121    K. Kumar          Updated functions to be const-correct.
  *      130219    D. Dirkx          Migrated from personal code.
  *      130312    A. Ronse          Added V-T, TA-AA and AA-B transformations.
+ *      161116    M. Van den Broeck Added velocity based LVLH to planetocentric frame transformation. (Keplerian input)
+ *      161117    M. Van den Broeck Added velocity based LVLH to Inertial frame transformation. (Cartesian input)
  *
  *
  *    References
@@ -61,6 +63,9 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+
 
 namespace tudat
 {
@@ -172,6 +177,55 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
  */
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR );
+
+//! Get rotation from velocity based LVLH frame to inertial (I) frame.
+/*!
+ * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
+ * a right-handed orthogonal frame defined as follows:
+ * x-axis tangent to the velocity direction,
+ * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * z-axis normal to the orbital plane.
+ * \param vehicleStateFunction
+ * \param centralBodyStateFunction
+ * \return Velocity based LVLH to inertial (I) frame transformation matrix.
+ */
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const basic_mathematics::Vector6d& vehicleStateFunction,
+        const basic_mathematics::Vector6d& centralBodyStateFunction , bool doesNaxisPointAwayFromCentralBody = true );
+
+//! Get rotation from velocity based LVLH frame to inertial (I) frame.
+/*!
+ * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
+ * a right-handed orthogonal frame defined as follows:
+ * x-axis tangent to the velocity direction,
+ * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * z-axis normal to the orbital plane.
+ * \param vehicleStateFunction
+ * \param centralBodyStateFunction
+ * \return Velocity based LVLH to inertial (I) frame transformation matrix.
+ */
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
+         const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
+         bool doesNaxisPointAwayFromCentralBody = true );
+
+//! Get rotation from velocity based LVLH frame to planet-fixed frame.
+/*!
+ * Returns rotation from the velocity based LVLH frame to the planet-fixed frame. The velocity based LVLH frame is
+ * a right-handed orthogonal frame defined as follows:
+ * x-axis tangent to the velocity direction,
+ * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * z-axis normal to the orbital plane.
+ * \param spacecraftKeplerianState containging the following elements:
+ *          semi-major axis -> not used
+ *          eccentricity
+ *          inclination
+ *          argumentOfPeriapsis
+ *          longitudeOfAscendingNode
+ *          trueAnomaly
+ * \return Computed rotation quaternion.
+ */
+//! Get rotation from velocity based LVLH frame to planetocentric frame.
+Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+        const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
