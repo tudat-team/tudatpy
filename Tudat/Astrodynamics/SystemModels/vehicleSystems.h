@@ -79,6 +79,26 @@ public:
         return dryMass_;
     }
 
+    void setNoseRadius( const double noseRadius )
+    {
+        noseRadius_ = noseRadius;
+    }
+
+    double getNoseRadius( )
+    {
+        return noseRadius_;
+    }
+
+    void setWallEmissivitys( const double wallEmissivity )
+    {
+        wallEmissivity_ = wallEmissivity;
+    }
+
+    double getWallEmissivity( )
+    {
+        return wallEmissivity_;
+    }
+
 private:
 
     //! Named list of engine models in the vehicle
@@ -86,6 +106,10 @@ private:
 
     //! Total dry mass of the vehicle
     double dryMass_;
+
+    double noseRadius_;
+
+    double wallEmissivity_;
 
 };
 

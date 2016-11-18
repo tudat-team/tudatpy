@@ -389,7 +389,14 @@ double computeAerodynamicLoad( const double airDensity,
                                const double airSpeed,
                                const double referenceArea,
                                const double vehicleMass,
-                               const Eigen::Vector3d aerodynamicForceCoefficients );
+                               const Eigen::Vector3d& aerodynamicForceCoefficients );
+
+//! Function to compute the aerodynamic load experienced by a vehicle.
+/*!
+ * Function that computes the aerodynamic load (a.k.a. load factor) experienced by a vehicle.
+ * \return Aerodynamic load experienced by the vehicle.
+ */
+double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynamicAccelerationVector );
 
 //! Function to compute the heat flux experienced by a vehicle.
 /*!
@@ -402,12 +409,12 @@ double computeAerodynamicLoad( const double airDensity,
  * \param wallEmissivity Wall emissivity of the vehicle.
  * \return Heat flux experienced by the vehicle.
  */
-double computeHeatFlux( const double airDensity,
-                        const double airSpeed,
-                        const double airTemperature,
-                        const double machNumber,
-                        const double noseRadius,
-                        double wallEmissivity );
+double computeFayRiddellHeatFlux( const double airDensity,
+                                  const double airSpeed,
+                                  const double airTemperature,
+                                  const double machNumber,
+                                  const double noseRadius,
+                                  const double wallEmissivity );
 
 //! Function to compute the adiabatic wall temperature experienced by a vehicle.
 /*!
@@ -416,7 +423,9 @@ double computeHeatFlux( const double airDensity,
  * \param machNumber Freestream Mach number.
  * \return Adiabatic wall temperature experienced by the vehicle.
  */
-double computeAdiabaticWallTemperature( double airTemperature , double machNumber );
+double computeAdiabaticWallTemperature(
+        const double airTemperature, const double machNumber, const double ratioSpecificHeats = 1.4,
+        const double recoveryFactor = 0.845 );
 
 } // namespace aerodynamics
 } // namespace tudat
