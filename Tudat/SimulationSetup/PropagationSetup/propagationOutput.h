@@ -34,12 +34,20 @@ namespace propagators
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
-OutputType evaluateReferenceFunction(
+OutputType evaluateBivariateReferenceFunction(
         const boost::function< OutputType( const InputType&, const InputType& ) > functionToEvaluate,
         const boost::function< InputType( ) > firstInput,
         const boost::function< InputType( ) > secondInput )
 {
     return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+template< typename OutputType, typename InputType >
+OutputType evaluateReferenceFunction(
+        const boost::function< OutputType( const InputType& ) > functionToEvaluate,
+        const boost::function< InputType( ) > firstInput )
+{
+    return functionToEvaluate( firstInput( ) );
 }
 
 //! Function to evaluate a function with two input variables from function pointers
@@ -52,12 +60,26 @@ OutputType evaluateReferenceFunction(
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
-OutputType evaluateFunction(
+OutputType evaluateBivariateFunction(
         const boost::function< OutputType( const InputType, const InputType ) > functionToEvaluate,
         const boost::function< InputType( ) > firstInput,
         const boost::function< InputType( ) > secondInput )
 {
     return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+template< typename OutputType, typename InputType >
+OutputType evaluateHexaVariateFunction(
+        const boost::function< OutputType(
+            const InputType, const InputType, const InputType, const InputType, const InputType, const InputType ) > functionToEvaluate,
+        const boost::function< InputType( ) > firstInput,
+        const boost::function< InputType( ) > secondInput,
+        const boost::function< InputType( ) > thirdInput,
+        const boost::function< InputType( ) > fourthInput,
+        const boost::function< InputType( ) > fifthInput,
+        const boost::function< InputType( ) > sixthInput )
+{
+    return functionToEvaluate( firstInput( ), secondInput( ), thirdInput( ), fourthInput( ), fifthInput( ), sixthInput( ) );
 }
 
 //! Funtion to get the size of a dependent variable
@@ -153,7 +175,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                              bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
 
 
-        variableFunction = boost::bind( &evaluateFunction< double, double >,
+        variableFunction = boost::bind( &evaluateBivariateFunction< double, double >,
                                         functionToEvaluate, firstInput, secondInput );
         break;
     }
@@ -206,7 +228,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
+                    &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
         break;
     }
     case relative_speed_dependent_variable:
@@ -220,7 +242,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                 boost::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
+                    &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
 
         break;
     }
@@ -249,7 +271,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
+                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
@@ -294,9 +316,102 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
 
         variableFunction = boost::bind( &reference_frames::AerodynamicAngleCalculator::getAerodynamicAngle,
-                                 bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                                         bodyAerodynamicAngleVariableSaveSettings->angle_ );
         break;
+    }
+    case total_aerodynamic_g_load_variable:
+    {
+        // Check input consistency
+        boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > aerodynamicAccelerationSettings =
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    basic_astrodynamics::aerodynamic, bodyWithProperty, secondaryBody, 0 );
+        boost::function< Eigen::VectorXd( ) > aerodynamicAccelerationFunction =
+                getVectorDependentVariableFunction( aerodynamicAccelerationSettings, bodyMap, stateDerivativeModels ).first;
+
+
+        boost::function< double( Eigen::Vector3d )> functionToEvaluate =
+                boost::bind( &aerodynamics::computeAerodynamicLoadFromAcceleration, _1 );
+        variableFunction = boost::bind(
+                    &evaluateReferenceFunction< double, Eigen::Vector3d >,
+                    functionToEvaluate, aerodynamicAccelerationFunction );
+
+        break;
+    }
+    case stagnation_point_heat_flux_dependent_variable:
+    {
+        boost::function< double( ) > densityFunction =
+                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
+                                                        local_density_dependent_variable, bodyWithProperty, secondaryBody ),
+                                                    bodyMap, stateDerivativeModels );
+        boost::function< double( ) > machNumberFunction =
+                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
+                                                        mach_number_dependent_variable, bodyWithProperty, secondaryBody ),
+                                                    bodyMap, stateDerivativeModels );
+        boost::function< double( ) > airspeedFunction =
+                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
+                                                        airspeed_dependent_variable, bodyWithProperty, secondaryBody ),
+                                                    bodyMap, stateDerivativeModels );
+        boost::function< double( ) > temperatureFunction =
+                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
+                                                        local_temperature_dependent_variable, bodyWithProperty, secondaryBody ),
+                                                    bodyMap, stateDerivativeModels );
+
+        if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
+        {
+            std::string errorMessage = "Error, no vehicle systems available when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::shared_ptr< system_models::VehicleSystems > vehicleSystems =
+                bodyMap.at( bodyWithProperty )->getVehicleSystems( );
+
+        boost::function< double( ) > noseRadiusFunction =
+                boost::bind( &system_models::VehicleSystems::getNoseRadius, vehicleSystems );
+        boost::function< double( ) > wallEmmisivityFunction =
+                boost::bind( &system_models::VehicleSystems::getWallEmissivity, vehicleSystems );
+
+        if( !( noseRadiusFunction( ) == noseRadiusFunction( ) ) )
+        {
+            std::string errorMessage = "Error, no nose radius available when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        if( !( wallEmmisivityFunction( ) == wallEmmisivityFunction( ) ) )
+        {
+            std::string errorMessage = "Error, no wall emmisivityavailable when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::function< double( const double, const double, const double, const double, const double, const double )> functionToEvaluate =
+                boost::bind( &aerodynamics::computeFayRiddellHeatFlux, _1, _2, _3, _4, _5, _6 );
+        variableFunction = boost::bind(
+                    &evaluateHexaVariateFunction< double, double >,
+                    functionToEvaluate,
+                    densityFunction, airspeedFunction, temperatureFunction, machNumberFunction, noseRadiusFunction,
+                    wallEmmisivityFunction );
+
+
+        break;
+    }
+    case local_temperature_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error, no flight conditions available when requesting temperature output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentFreestreamTemperature,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        break;
+    }
+    case geodetic_latitude_dependent_variable:
+    {
+
     }
     default:
         std::string errorMessage =
@@ -348,7 +463,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
+                    &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
         parameterSize = 3;
         break;
@@ -364,7 +479,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 boost::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
+                    &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
         parameterSize = 3;
 
@@ -408,7 +523,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
+                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }

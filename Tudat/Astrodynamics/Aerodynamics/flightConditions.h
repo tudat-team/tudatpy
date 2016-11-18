@@ -91,6 +91,13 @@ public:
         return currentDensity_;
     }
 
+    double getCurrentFreestreamTemperature( )
+    {
+        return atmosphereModel_->getTemperature(
+                    currentAltitude_, currentLongitude_,
+                    currentLatitude_, currentTime_ );;
+    }
+
     //! Function to return airspeed
     /*!
      *  Function to return airspeed that was set by previous call of updateConditions.
