@@ -13,11 +13,11 @@ class EquilibriumTemperatureFunction: public tudat::basic_mathematics::Function<
 public:
     //! Constructor.
     EquilibriumTemperatureFunction(
-            double currentAirspeed , double currentDensity , double noseRadius, double wallEmissivity,
-            double adiabaticWallTemperature, double currentFreestreamTemperature ):
-        currentAirspeed_( currentAirspeed ), currentDensity_( currentDensity ), noseRadius_( noseRadius ),
-        wallEmissivity_( wallEmissivity ),adiabaticWallTemperature_( adiabaticWallTemperature ),
-        currentFreestreamTemperature_( currentFreestreamTemperature ){ }
+            const boost::function< double( const double ) > heatTransferFunction,
+            const double wallEmissivity,
+            double adiabaticWallTemperature ):
+       heatTransferFunction_( heatTransferFunction ), wallEmissivity_( wallEmissivity ),
+       adiabaticWallTemperature_( adiabaticWallTemperature ){ }
 
 
     //! Destructor.
@@ -25,9 +25,8 @@ public:
 
     double evaluate( const double currentWallTemperature )
     {
-        return heatFluxConstant_ * sqrt( currentDensity_ * std::pow(currentAirspeed_,2.0) / noseRadius_ )
-                * ( 0.5 * std::pow(currentAirspeed_,2.0) + 1004.0 * ( currentFreestreamTemperature_ - currentWallTemperature ) )
-                - wallEmissivity_* tudat::physical_constants::STEFAN_BOLTZMANN_CONSTANT * std::pow(currentWallTemperature,4);
+        return heatTransferFunction_( currentWallTemperature )
+                - wallEmissivity_* tudat::physical_constants::STEFAN_BOLTZMANN_CONSTANT * std::pow( currentWallTemperature, 4.0 );
     }
 
     // FUNCTION NOT IMPLEMENTED
@@ -44,7 +43,7 @@ public:
         return TUDAT_NAN;
     }
 
-    double getLowerBound( ) { return 0.5; }
+    double getLowerBound( ) { return 0.0; }
 
     double getUpperBound( ) { return adiabaticWallTemperature_*0.25; }
 
@@ -54,15 +53,11 @@ protected:
 
 private:
     // Private variables.
-    double currentAirspeed_;
-    double currentDensity_;
-    double noseRadius_;
-    double wallEmissivity_;
-    double adiabaticWallTemperature_;
-    double currentFreestreamTemperature_;
+    boost::function< double( const double ) > heatTransferFunction_;
 
-    // Private constants.
-    const double heatFluxConstant_ = 3.53E-4;
+    const double wallEmissivity_;
+
+    double adiabaticWallTemperature_;
 };
 
 } //namespace_aerodynamics
