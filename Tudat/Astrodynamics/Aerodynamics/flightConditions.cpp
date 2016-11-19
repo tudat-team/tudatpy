@@ -34,8 +34,8 @@ FlightConditions::FlightConditions(
     atmosphereModel_( atmosphereModel ),
     altitudeFunction_( altitudeFunction ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
-    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),currentAltitude_( TUDAT_NAN ),
-    currentLatitude_( TUDAT_NAN ), currentLongitude_( TUDAT_NAN ), currentTime_( TUDAT_NAN )
+    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
+    currentTime_( TUDAT_NAN )
 {
     updateLatitudeAndLongitude_ = 0;
 
@@ -89,26 +89,6 @@ void FlightConditions::updateConditions( const double currentTime )
         // Calculate state of vehicle in global frame and corotating frame.
         currentBodyCenteredPseudoBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
 
-        // Calculate altitute and airspeed of vehicle.
-        currentAltitude_ =
-                altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
-        currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
-
-
-
-        // Update latitude and longitude (if required)
-        if( updateLatitudeAndLongitude_ )
-        {
-            currentLatitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                        reference_frames::latitude_angle );
-            currentLongitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                        reference_frames::longitude_angle );
-        }
-
-        // Update density
-        currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
-                                                        currentLatitude_, currentTime_ );
-
         updateAerodynamicCoefficientInput( );
 
         // Update angles from aerodynamic to body-fixed frame (if relevant).
@@ -136,10 +116,7 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
         {
         //Calculate Mach number if needed.
         case mach_number_dependent:
-            aerodynamicCoefficientIndependentVariables_.push_back(
-                        aerodynamics::computeMachNumber(
-                        currentAirspeed_, atmosphereModel_->getSpeedOfSound(
-                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) ) );
+            aerodynamicCoefficientIndependentVariables_.push_back( getCurrentMachNumber( ) );
             break;
         //Get angle of attack if needed.
         case angle_of_attack_dependent:

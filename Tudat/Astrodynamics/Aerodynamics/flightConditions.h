@@ -39,6 +39,20 @@ namespace aerodynamics
  */
 class FlightConditions
 {
+private:
+
+    enum FlightConditionVariables
+    {
+        altitude_flight_condition,
+        density_flight_condition,
+        temperature_flight_condition,
+        latitude_flight_condition,
+        longitude_flight_condition,
+        mach_number_flight_condition,
+        speed_of_sound_flight_condition,
+        airspeed_flight_condition
+    };
+
 public:
 
     //! Constructor, sets objects and functions from which relevant environment and state variables
@@ -75,10 +89,13 @@ public:
      *  Function to return altitude that was set by previous call of updateConditions function.
      *  \return Current altitude
      */
-    double getCurrentAltitude( ) const
+    double getCurrentAltitude( )
     {
-        return currentAltitude_;
-    }
+        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
+        return scalarFlightConditions_.at( altitude_flight_condition );    }
 
     //! Function to return density
     /*!
@@ -86,16 +103,22 @@ public:
      *  updateDensity function.
      *  \return Current density
      */
-    double getCurrentDensity( ) const
+    double getCurrentDensity( )
     {
-        return currentDensity_;
+        if( scalarFlightConditions_.count( density_flight_condition ) == 0 )
+        {
+            computeDensity( );
+        }
+        return scalarFlightConditions_.at( density_flight_condition );
     }
 
     double getCurrentFreestreamTemperature( )
     {
-        return atmosphereModel_->getTemperature(
-                    currentAltitude_, currentLongitude_,
-                    currentLatitude_, currentTime_ );;
+        if( scalarFlightConditions_.count( temperature_flight_condition ) == 0 )
+        {
+            computeTemperature( );
+        }
+        return scalarFlightConditions_.at( temperature_flight_condition );
     }
 
     //! Function to return airspeed
@@ -103,9 +126,13 @@ public:
      *  Function to return airspeed that was set by previous call of updateConditions.
      *  \return Current airspeed
      */
-    double getCurrentAirspeed( ) const
+    double getCurrentAirspeed( )
     {
-        return currentAirspeed_;
+        if( scalarFlightConditions_.count( airspeed_flight_condition ) == 0 )
+        {
+            computeAirspeed( );
+        }
+        return scalarFlightConditions_.at( airspeed_flight_condition );
     }
 
     //! Function to return speed of sound
@@ -115,8 +142,20 @@ public:
      */
     double getCurrentSpeedOfSound( )
     {
-        return atmosphereModel_->getSpeedOfSound(
-                    currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ );
+        if( scalarFlightConditions_.count( speed_of_sound_flight_condition ) == 0 )
+        {
+            computeSpeedOfSound( );
+        }
+        return scalarFlightConditions_.at( speed_of_sound_flight_condition );
+    }
+
+    double getCurrentMachNumber( )
+    {
+        if( scalarFlightConditions_.count( mach_number_flight_condition ) == 0 )
+        {
+            computeMachNumber( );
+        }
+        return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
     //! Function to return the current time of the FlightConditions
@@ -124,7 +163,7 @@ public:
      *  Function to return the current time of the FlightConditions.
      *  \return Current time of the FlightConditions
      */
-    double getCurrentTime( ) const
+    double getCurrentTime( )
     {
         return currentTime_;
     }
@@ -224,11 +263,91 @@ public:
      */
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
+        scalarFlightConditions_.clear( );
         currentTime_ = currentTime;
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
     }
 
 private:
+
+    void computeLatitudeAndLongitude( )
+    {
+        scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::latitude_angle );
+        scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::longitude_angle );
+    }
+
+    void computeAltitude( )
+    {
+        scalarFlightConditions_[ altitude_flight_condition ] =
+                altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+    }
+
+    void updateAtmosphereInput( )
+    {
+        if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
+              scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
+        {
+            if( updateLatitudeAndLongitude_ )
+            {
+                computeLatitudeAndLongitude( );
+            }
+            else
+            {
+               scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
+               scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
+            }
+
+        }
+
+        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
+    }
+
+    void computeDensity( )
+    {
+        updateAtmosphereInput( );
+        scalarFlightConditions_[ density_flight_condition ] =
+                atmosphereModel_->getDensity(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    void computeTemperature( )
+    {        updateAtmosphereInput( );
+
+             scalarFlightConditions_[ temperature_flight_condition ] =
+                     atmosphereModel_->getTemperature(
+                         scalarFlightConditions_.at( altitude_flight_condition ),
+                         scalarFlightConditions_.at( longitude_flight_condition ),
+                         scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    void computeSpeedOfSound( )
+    {
+        updateAtmosphereInput( );
+        scalarFlightConditions_[ speed_of_sound_flight_condition ]  =
+                atmosphereModel_->getSpeedOfSound(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    void computeAirspeed( )
+    {
+        scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
+    }
+
+
+    void computeMachNumber( )
+    {
+        scalarFlightConditions_[ mach_number_flight_condition ] =
+                getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
+    }
 
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
@@ -258,20 +377,9 @@ private:
     //! Current state of vehicle in body-fixed frame.
     basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
 
-    //! Current density at vehicle's position.
-    double currentDensity_;
 
-    //! Current airspeed at vehicle's position.
-    double currentAirspeed_;
 
-    //! Current altitude of vehicle above central body's shapeModel_
-    double currentAltitude_;
-
-    //! Current latitude of vehicle above central body.
-    double currentLatitude_;
-
-    //! Current longitude of vehicle above central body.
-    double currentLongitude_;
+    std::map< FlightConditionVariables, double > scalarFlightConditions_;
 
     //! Current time of propagation.
     double currentTime_;
