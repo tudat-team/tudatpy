@@ -125,6 +125,12 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
 
+
+double computeEquilibriumFayRiddellHeatFluxFromProperties(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems );
+
+
 //! Function to create a function returning a requested dependent variable value (of type double).
 /*!
  *  Function to create a function returning a requested dependent variable value (of type double), retrieved from
@@ -340,22 +346,16 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case stagnation_point_heat_flux_dependent_variable:
     {
-        boost::function< double( ) > densityFunction =
-                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
-                                                        local_density_dependent_variable, bodyWithProperty, secondaryBody ),
-                                                    bodyMap, stateDerivativeModels );
-        boost::function< double( ) > machNumberFunction =
-                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
-                                                        mach_number_dependent_variable, bodyWithProperty, secondaryBody ),
-                                                    bodyMap, stateDerivativeModels );
-        boost::function< double( ) > airspeedFunction =
-                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
-                                                        airspeed_dependent_variable, bodyWithProperty, secondaryBody ),
-                                                    bodyMap, stateDerivativeModels );
-        boost::function< double( ) > temperatureFunction =
-                getDoubleDependentVariableFunction( boost::make_shared< SingleDependentVariableSaveSettings >(
-                                                        local_temperature_dependent_variable, bodyWithProperty, secondaryBody ),
-                                                    bodyMap, stateDerivativeModels );
+
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error no flight conditions available when requesting stagnation point heating output of" +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
+                bodyMap.at( bodyWithProperty )->getFlightConditions( );
 
         if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
         {
@@ -367,33 +367,24 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         boost::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                 bodyMap.at( bodyWithProperty )->getVehicleSystems( );
 
-        boost::function< double( ) > noseRadiusFunction =
-                boost::bind( &system_models::VehicleSystems::getNoseRadius, vehicleSystems );
-        boost::function< double( ) > wallEmmisivityFunction =
-                boost::bind( &system_models::VehicleSystems::getWallEmissivity, vehicleSystems );
 
-        if( !( noseRadiusFunction( ) == noseRadiusFunction( ) ) )
+        if( !( vehicleSystems->getNoseRadius( ) == vehicleSystems->getNoseRadius( ) ) )
         {
             std::string errorMessage = "Error, no nose radius available when requesting stagnation point heating output of " +
                     bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 
-        if( !( wallEmmisivityFunction( ) == wallEmmisivityFunction( ) ) )
+        if( !( vehicleSystems->getWallEmissivity( ) == vehicleSystems->getWallEmissivity( ) ) )
         {
             std::string errorMessage = "Error, no wall emmisivityavailable when requesting stagnation point heating output of " +
                     bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 
-        boost::function< double( const double, const double, const double, const double, const double, const double )> functionToEvaluate =
-                boost::bind( &aerodynamics::computeEquilibriumFayRiddellHeatFlux, _1, _2, _3, _4, _5, _6 );
         variableFunction = boost::bind(
-                    &evaluateHexaVariateFunction< double, double >,
-                    functionToEvaluate,
-                    densityFunction, airspeedFunction, temperatureFunction, machNumberFunction, noseRadiusFunction,
-                    wallEmmisivityFunction );
-
+                    &computeEquilibriumFayRiddellHeatFluxFromProperties,
+                    flightConditions, vehicleSystems );
 
         break;
     }
@@ -411,7 +402,16 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case geodetic_latitude_dependent_variable:
     {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error, no flight conditions available when requesting geodetic latitude output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
 
+        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentGeodeticLatitude,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        break;
     }
     default:
         std::string errorMessage =

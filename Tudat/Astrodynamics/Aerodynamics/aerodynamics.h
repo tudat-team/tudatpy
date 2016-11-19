@@ -51,6 +51,8 @@
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
+#include "Tudat/Astrodynamics/SystemModels/vehicleSystems.h"
 
 namespace tudat
 {
