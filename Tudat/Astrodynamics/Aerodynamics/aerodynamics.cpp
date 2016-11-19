@@ -546,35 +546,55 @@ double computeAerodynamicLoad( const double airDensity,
 }
 
 //! Compute the heat flux experienced by a vehicle.
-double computeFayRiddellHeatFlux( const double airDensity,
-                                  const double airSpeed,
-                                  const double airTemperature,
-                                  const double machNumber,
-                                  const double noseRadius,
-                                  const double wallEmissivity = 0.80 )
+double computeEquilibriumHeatflux( const boost::function< double( const double ) > heatTransferFunction,
+                                   const double wallEmmisivity,
+                                   const double adiabaticWallTemperature )
 {
-    // Auxiliary constants.
-    const double heatFluxConstant
-            = 3.53E-4;
+    // Create the object that contains the function who's root needs to be found.
+    boost::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction
+            = boost::make_shared< EquilibriumTemperatureFunction >(
+                heatTransferFunction, wallEmmisivity, adiabaticWallTemperature  );
+
+    // Attempt to find the root using the secant method.
+    static tudat::root_finders::SecantRootFinder::TerminationFunction terminationConditionFunction =
+            boost::bind( &tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double > >(
+                             ), _1, _2, _3, _4, _5 );
+
+    static tudat::root_finders::SecantRootFinder secant( terminationConditionFunction );
+
+    double wallTemperature = secant.execute( equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
+
+    return heatTransferFunction( wallTemperature );
+}
+
+double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
+                                             const double airSpeed,
+                                             const double airTemperature,
+                                             const double machNumber,
+                                             const double noseRadius,
+                                             const double wallEmissivity )
+
+{
 
     // Compute adiabatic wall temperature.
     double adiabaticWallTemperature
             = computeAdiabaticWallTemperature( airTemperature , machNumber );
 
-    // Create the object that contains the function who's root needs to be found.
-    boost::shared_ptr< EquilibriumTemperatureFunction > heatFluxFunction
-            = boost::make_shared< EquilibriumTemperatureFunction >(
-                airSpeed, airDensity, noseRadius, adiabaticWallTemperature, wallEmissivity, airTemperature  );
+    boost::function< double( const double ) > heatTransferFunction = boost::bind(
+                &computeFayRiddellHeatFlux, airDensity, airSpeed, airTemperature, noseRadius, _1 );
 
-    // Attempt to find the root using the secant method.
-    tudat::root_finders::SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double > >(
-                             ), _1, _2, _3, _4, _5 );
+    return computeEquilibriumHeatflux( heatTransferFunction, wallEmissivity, adiabaticWallTemperature );
+}
 
-    tudat::root_finders::SecantRootFinder secant( terminationConditionFunction );
-
-    double wallTemperature = secant.execute( heatFluxFunction, heatFluxFunction->getInitialGuess( ) );
+double computeFayRiddellHeatFlux( const double airDensity,
+                                  const double airSpeed,
+                                  const double airTemperature,
+                                  const double noseRadius,
+                                  const double wallTemperature )
+{
+    // Auxiliary constants.
+    const double heatFluxConstant = 3.53E-4;
 
     // Compute the current heat flux.
     double currentHeatFlux

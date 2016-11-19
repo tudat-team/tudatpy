@@ -387,7 +387,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
 
         boost::function< double( const double, const double, const double, const double, const double, const double )> functionToEvaluate =
-                boost::bind( &aerodynamics::computeFayRiddellHeatFlux, _1, _2, _3, _4, _5, _6 );
+                boost::bind( &aerodynamics::computeEquilibriumFayRiddellHeatFlux, _1, _2, _3, _4, _5, _6 );
         variableFunction = boost::bind(
                     &evaluateHexaVariateFunction< double, double >,
                     functionToEvaluate,

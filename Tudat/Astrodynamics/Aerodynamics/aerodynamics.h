@@ -44,6 +44,8 @@
 #ifndef TUDAT_AERODYNAMICS_H
 #define TUDAT_AERODYNAMICS_H
 
+#include <boost/function.hpp>
+
 #include <Eigen/Core>
 
 #include <cmath>
@@ -398,6 +400,17 @@ double computeAerodynamicLoad( const double airDensity,
  */
 double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynamicAccelerationVector );
 
+double computeEquilibriumHeatflux( const boost::function< double( const double ) > heatTransferFunction,
+                                   const double wallEmmisivity,
+                                   const double adiabaticWallTemperature );
+
+double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
+                                             const double airSpeed,
+                                             const double airTemperature,
+                                             const double machNumber,
+                                             const double noseRadius,
+                                             const double wallEmissivity = 0.80 );
+
 //! Function to compute the heat flux experienced by a vehicle.
 /*!
  * Function that computes the heat flux experienced by a vehicle. This function is an implementation of the
@@ -412,9 +425,8 @@ double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynami
 double computeFayRiddellHeatFlux( const double airDensity,
                                   const double airSpeed,
                                   const double airTemperature,
-                                  const double machNumber,
                                   const double noseRadius,
-                                  const double wallEmissivity );
+                                  const double wallTemperature );
 
 //! Function to compute the adiabatic wall temperature experienced by a vehicle.
 /*!
