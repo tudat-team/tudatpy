@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
@@ -50,7 +51,8 @@ private:
         longitude_flight_condition,
         mach_number_flight_condition,
         speed_of_sound_flight_condition,
-        airspeed_flight_condition
+        airspeed_flight_condition,
+        geodetic_latitude_condition
     };
 
 public:
@@ -69,7 +71,7 @@ public:
      *  of the vehicle are calculated.
      */
     FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
-                      const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
+                      const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
                       const boost::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
@@ -156,6 +158,15 @@ public:
             computeMachNumber( );
         }
         return scalarFlightConditions_.at( mach_number_flight_condition );
+    }
+
+    double getCurrentGeodeticLatitude( )
+    {
+        if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
+        {
+            computeGeodeticLAtitude( );
+        }
+        return scalarFlightConditions_.at( geodetic_latitude_condition );
     }
 
     //! Function to return the current time of the FlightConditions
@@ -281,7 +292,7 @@ private:
     void computeAltitude( )
     {
         scalarFlightConditions_[ altitude_flight_condition ] =
-                altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+                shapeModel_->getAltitude( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
     }
 
     void updateAtmosphereInput( )
@@ -295,8 +306,8 @@ private:
             }
             else
             {
-               scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
-               scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
+                scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
+                scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
             }
 
         }
@@ -349,6 +360,23 @@ private:
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
     }
 
+    void computeGeodeticLAtitude( )
+    {
+        if( !geodeticLatitudeFunction_.empty( ) )
+        {
+            scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
+                        currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+        }
+        else
+        {
+            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 )
+            {
+                computeLatitudeAndLongitude( );
+            }
+            scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
+        }
+    }
+
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
 
@@ -358,8 +386,8 @@ private:
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
-    //! Function returning the altitude of the vehicle as a function of its body-fixed position.
-    const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
+    const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
     boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
@@ -389,6 +417,8 @@ private:
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
+
+    boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
 
     //! Current list of independent variables of the aerodynamic coefficient interface
     std::vector< double > aerodynamicCoefficientIndependentVariables_;

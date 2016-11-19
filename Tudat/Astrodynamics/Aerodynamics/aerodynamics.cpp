@@ -615,5 +615,6 @@ double computeAdiabaticWallTemperature(
     return airTemperature + recoveryFactor * ( totalTemperature - airTemperature );
 }
 
+
 } // namespace aerodynamics
 } // namespace tudat

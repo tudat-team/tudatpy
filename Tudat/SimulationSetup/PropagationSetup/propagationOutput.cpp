@@ -53,6 +53,7 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
     return currentRotationMatrix;
 }
 
+
 //! Get the quaternion formulation of an orthonormal matrix, from input of a vector with 9 entries corresponding to matrix
 //! entries.
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
@@ -60,6 +61,17 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
 {
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
+
+double computeEquilibriumFayRiddellHeatFluxFromProperties(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
+{
+    return aerodynamics::computeEquilibriumFayRiddellHeatFlux(
+                flightConditions->getCurrentDensity( ), flightConditions->getCurrentAirspeed( ),
+                flightConditions->getCurrentFreestreamTemperature( ), flightConditions->getCurrentMachNumber( ),
+                vehicleSystems->getNoseRadius( ), vehicleSystems->getWallEmissivity( ) );
+}
+
 
 //! Function to evaluate a set of double and vector-returning functions and concatenate the results.
 Eigen::VectorXd evaluateListOfFunctions(
