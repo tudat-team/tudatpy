@@ -148,7 +148,7 @@ Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
  * \return Reference frame (R) to inertial reference frame (I) transformation quaternion.
  */
 Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
-    const double angleFromXItoXR );
+        const double angleFromXItoXR );
 
 //! Get rotation from planet-fixed to inertial frame.
 /*!
@@ -183,29 +183,38 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
  * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
  * a right-handed orthogonal frame defined as follows:
  * x-axis tangent to the velocity direction,
- * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false),
+ * i.e. to the left when looking in velocity-direction,
  * z-axis normal to the orbital plane.
- * \param vehicleStateFunction
- * \param centralBodyStateFunction
+ * \param vehicleState State of the vehicle for which the LVLH frame is to be computed.
+ * \param centralBodyState State of the central body w.r.t. which the LVLH frame is to be computed.
+ * \param doesNaxisPointAwayFromCentralBody Boolean denoting whether the local y-axis points away from (if true) or
+ * towards (if false) central body.
  * \return Velocity based LVLH to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const basic_mathematics::Vector6d& vehicleStateFunction,
-        const basic_mathematics::Vector6d& centralBodyStateFunction , bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const basic_mathematics::Vector6d& vehicleState,
+                                                       const basic_mathematics::Vector6d& centralBodyState,
+                                                       const bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based LVLH frame to inertial (I) frame.
 /*!
  * Returns rotation from inertial (i) to the velocity based LVLH frame. The velocity based LVLH frame is
  * a right-handed orthogonal frame defined as follows:
  * x-axis tangent to the velocity direction,
- * y-axis in the orbital plane and pointing inwards, i.e. to the left when looking in velocity-direction,
+ * y-axis in the orbital plane and pointing inwards (if doesNaxisPointAwayFromCentralBody is false),
+ * i.e. to the left when looking in velocity-direction,
  * z-axis normal to the orbital plane.
- * \param vehicleStateFunction
- * \param centralBodyStateFunction
+ * \param vehicleStateFunction Function returning the state of the vehicle for which the LVLH frame is to be computed
+ * \param centralBodyStateFunction Function returning the state of the central body w.r.t. which the LVLH frame is to be
+ * computed
+ * \param doesNaxisPointAwayFromCentralBody Boolean denoting whether the local y-axis points away from (if true) or
+ * towards (if false) central body.
  * \return Velocity based LVLH to inertial (I) frame transformation matrix.
  */
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
-         const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
-         bool doesNaxisPointAwayFromCentralBody = true );
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+        const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
+        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
+        bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based LVLH frame to planet-fixed frame.
 /*!
@@ -287,7 +296,7 @@ Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
  * \return Transformation matrix from Planetocentric (R) to the local vertical (V) frame.
  */
 Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 //! Get transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
 /*!
@@ -301,7 +310,7 @@ Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatri
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
 Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 //! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
 /*!
@@ -315,11 +324,11 @@ Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQu
  * \return Transformation matrix from local vertical (V) to the Planetocentric (R) frame.
  */
 Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 /*!
- * Returns the frame transformation quaternion from the local vertical (V) to the 
+ * Returns the frame transformation quaternion from the local vertical (V) to the
  * Planetocentric (R) reference frame. The Z-axis is aligned with the local gravity vector.
  * Whether or not, this is in the direction of the center of the central body, depends which kind
  * of latitude is provided (geocentric, geodetic, gravitation latitude).
@@ -329,7 +338,7 @@ Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatri
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
 Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 //! Get transformation matrix from the TA/TG to the V-frame.
 /*!
@@ -406,7 +415,7 @@ Eigen::Matrix3d getTrajectoryToAerodynamicFrameTransformationMatrix( const doubl
  * \return Transformation quaternion from the TA- to the AA-frame.
  */
 Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion( 
-    const double bankAngle );
+        const double bankAngle );
 
 //! Get transformation matrix from the AA- to the TA-frame.
 /*!
@@ -498,7 +507,7 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
  *  \return Transformation quaternion.
  */
 Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 //! Get V-frame to ECEF quaternion
 /*!
@@ -509,7 +518,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
  *  \return Transformation quaternion.
  */
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-    const double longitude, const double latitude );
+        const double longitude, const double latitude );
 
 } // namespace reference_frames
 
