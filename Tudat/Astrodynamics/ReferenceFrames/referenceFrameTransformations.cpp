@@ -188,39 +188,39 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
-        const basic_mathematics::Vector6d& vehicleStateFunction,
-        const basic_mathematics::Vector6d& centralBodyStateFunction,
-        bool doesNaxisPointAwayFromCentralBody )
+        const basic_mathematics::Vector6d& vehicleState,
+        const basic_mathematics::Vector6d& centralBodyState,
+        const bool doesNaxisPointAwayFromCentralBody )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
-    vehicleRadius = vehicleStateFunction.head( 3 ) + centralBodyStateFunction.head( 3 );
-    vehicleVelocity = vehicleStateFunction.tail( 3 ) + centralBodyStateFunction.tail( 3 );
-    Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm();
-    if ( vehicleRadius.cross( vehicleVelocity ).norm() == 0.0 )
+    vehicleRadius = vehicleState.head( 3 ) - centralBodyState.head( 3 );
+    vehicleVelocity = vehicleState.tail( 3 ) - centralBodyState.tail( 3 );
+
+    Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm( );
+    if ( vehicleRadius.cross( vehicleVelocity ).norm( ) == 0.0 )
     {
-        std::stringstream errorMessage;
-        errorMessage << "Division by zero: radius and velocity are in the same direction." << std::endl;
-
-        // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        std::string errorMessage = "Division by zero: radius and velocity are in the same direction.";
+        throw std::runtime_error( errorMessage );
     }
-    Eigen::Vector3d unitW = vehicleRadius.cross( vehicleVelocity) / vehicleRadius.cross( vehicleVelocity ).norm();
 
-    Eigen::Vector3d unitN = ( ( doesNaxisPointAwayFromCentralBody == true ) ? 1.0 : -1.0 ) *
-            vehicleVelocity.cross( unitW ) / vehicleVelocity.cross( unitW ).norm( );
+    Eigen::Vector3d unitW =  ( ( ( doesNaxisPointAwayFromCentralBody == true ) ? -1.0 : 1.0 ) *
+            ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
+
+    Eigen::Vector3d unitN = ( unitW.cross( unitT ) ).normalized( );
 
     Eigen::Matrix3d transformationMatrix;
-    transformationMatrix << unitT( 0 ), unitT( 1 ), unitT( 2 ),
-                            unitN( 0 ), unitN( 1 ), unitN( 2 ),
-                            unitW( 0 ), unitW( 1 ), unitW( 2 );
-    transformationMatrix = transformationMatrix.inverse().eval();
+    transformationMatrix << unitT( 0 ), unitN( 0 ), unitW( 0 ),
+                            unitT( 1 ), unitN( 1 ), unitW( 1 ),
+                            unitT( 2 ), unitN( 2 ), unitW( 2 );
 
     return transformationMatrix;
 }
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
-Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
-        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction , bool doesNaxisPointAwayFromCentralBody )
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+        const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
+        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
+        const bool doesNaxisPointAwayFromCentralBody )
 {
     return getVelocityBasedLvlhToInertialRotation( vehicleStateFunction( ), centralBodyStateFunction( ) );
 }
@@ -229,6 +229,7 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(const boost:
 Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState )
 {
+
     double eccentricity = spacecraftKeplerianState( 1 );
     double inclination = spacecraftKeplerianState( 2 );
     double argumentOfPeriapsis = spacecraftKeplerianState( 3 );
@@ -241,13 +242,13 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
     // Compute first rotation around Z axis.
     Eigen::AngleAxisd firstRotationAroundZaxis(
                 -( -mathematical_constants::PI * 0.5 + flightPathAngle - ( trueAnomaly + argumentOfPeriapsis ) ),
-                Eigen::Vector3d::UnitZ() );
+                Eigen::Vector3d::UnitZ( ) );
 
     // Compute rotation around X axis.
-    Eigen::AngleAxisd rotationAroundXaxis( inclination, Eigen::Vector3d::UnitX() );
+    Eigen::AngleAxisd rotationAroundXaxis( inclination, Eigen::Vector3d::UnitX( ) );
 
     // Compute second rotation around Z axis.
-    Eigen::AngleAxisd secondRotationAroundZaxis( rightAscensionOfAscendingNode, Eigen::Vector3d::UnitZ() );
+    Eigen::AngleAxisd secondRotationAroundZaxis( rightAscensionOfAscendingNode, Eigen::Vector3d::UnitZ( ) );
 
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( secondRotationAroundZaxis * rotationAroundXaxis * firstRotationAroundZaxis) );
