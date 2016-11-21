@@ -85,7 +85,7 @@ using numerical_integrators::RungeKuttaCoefficients;
 
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
 using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative ;
-using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE ;
+using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
 
 //! Test Runge-Kutta-Fehlberg 78 integrator using benchmark ODE of Fehlberg (1968)
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg78_Integrator_Fehlberg_Benchmark )
