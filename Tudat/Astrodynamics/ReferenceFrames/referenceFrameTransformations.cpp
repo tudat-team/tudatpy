@@ -222,7 +222,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
         const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation( vehicleStateFunction( ), centralBodyStateFunction( ) );
+    return getVelocityBasedLvlhToInertialRotation( 
+            vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
 }
 
 //! Get rotation from velocity based LVLH frame to planetocentric frame.
