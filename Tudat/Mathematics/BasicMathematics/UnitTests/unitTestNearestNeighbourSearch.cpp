@@ -211,12 +211,12 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         vectorOfSortedData << 1.0, 4.5, 10.6, 14.98, 54.65, 88.9, 101.31, 144.63, 180.01, 201.94;
 
         // Declare vector of target values.
-        Eigen::VectorXd vectorOfTargetValues( 8 );
-        vectorOfTargetValues << 1.1, 2.74, 2.75, 2.76, 4.6, 10.5, 54.55, 181.63;
+        Eigen::VectorXd vectorOfTargetValues( 10 );
+        vectorOfTargetValues << 1.1, 2.74, 2.75, 2.76, 4.6, 10.5, 54.55, 181.63, 200.0, 205.0;
 
         // Declare vector of expected indices.
-        Eigen::VectorXi vectorOfExpectedIndices( 8 );
-        vectorOfExpectedIndices << 0, 0, 0, 1, 1, 2, 4, 8;
+        Eigen::VectorXi vectorOfExpectedIndices( 10 );
+        vectorOfExpectedIndices << 0, 0, 0, 1, 1, 2, 4, 8, 9, 9;
 
         // Compute nearest left neighbors and check if they match expectations.
         for ( int i = 0; i < vectorOfTargetValues.rows( ); i++ )
