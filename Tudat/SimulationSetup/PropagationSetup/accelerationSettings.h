@@ -143,22 +143,44 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
-
+//! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
+//! thrust implementation)
 class FullThrustInterpolationInterface
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustInterpolator Object that returns the total thrust vector, expressed in some reference frame B
+     * \param rotationFunction Function that returns the rotation matrix from the frame B to teh frame in which the
+     * propagation is performed.
+     */
     FullThrustInterpolationInterface(
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator,
             const boost::function< Eigen::Matrix3d( ) > rotationFunction = boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) ):
         thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
+    //! Function to retrieve the current thrust magnitude
+    /*!
+     * Function to retrieve the current thrust magnitude, updates thrust to current time if needed.
+     * \param time Time at which thrust must be evaluated.
+     * \return  Current thrust magnitude.
+     */
     double getThrustMagnitude( const double time )
     {
         updateThrust( time );
         return currentThrust_.norm( );
     }
 
+    //! Function to retrieve the current thrust direction (in the propagation frame).
+    /*!
+     * Function to retrieve the current thrust direction (in the propagation frame)., updates thrust to current time if
+     * needed.
+     * \param time Time at which thrust must be evaluated.
+     * \return  Current thrust direction in propagation frame..
+     */
     Eigen::Vector3d getThrustDirection( const double time )
     {
         updateThrust( time );
@@ -181,13 +203,16 @@ private:
         }
     }
 
-
+    //! Object that returns the total thrust vector, expressed in some reference frame B
     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
 
+    //! Function that returns the rotation matrix from the frame B to teh frame in which the propagation is performed.
     boost::function< Eigen::Matrix3d( ) > rotationFunction_;
 
+    //! Total thrust vector (in propagation frame) computed by last call to updateThrust function.
     Eigen::Vector3d currentThrust_;
 
+    //! Time at which the last call to updateThrust was made (e.g. time associated with current thrust).
     double currentTime_;
 
 
