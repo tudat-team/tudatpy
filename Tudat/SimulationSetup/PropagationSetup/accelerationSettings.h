@@ -136,6 +136,29 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
+
+class FullThrustInterpolationInterface
+{
+public:
+    FullThrustInterpolationInterface(
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator ):
+        thrustInterpolator_( thrustInterpolator ){ }
+
+    double getThrustMagnitude( const double time )
+    {
+        return thrustInterpolator_->interpolate( time ).norm( );
+    }
+
+    Eigen::Vector3d getThrustDirection( const double time )
+    {
+        return thrustInterpolator_->interpolate( time ).normalized( );
+    }
+
+private:
+
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
+};
+
 //! Class for providing acceleration settings for a thrust acceleration model
 /*!
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -157,6 +180,21 @@ public:
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
         thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
+
+    ThrustAccelerationSettings(
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustDirectionGuidanceSettings,
+            const boost::function< double( const double ) > specificImpulseFunction ):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration )
+    {
+        boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface =
+                boost::make_shared< FullThrustInterpolationInterface >( thrustDirectionGuidanceSettings );
+        thrustDirectionGuidanceSettings_ = boost::make_shared< CustomThrustDirectionSettings >(
+                    boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface, _1 ) );
+        thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
+                    boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface, _1 ),
+                    specificImpulseFunction );
+    }
+
 
     //! Destructor.
     ~ThrustAccelerationSettings( ){ }
