@@ -255,7 +255,7 @@ public:
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
     /*!
-     * \Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
+     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
      * \param thrustDirectionGuidanceSettings Interpolator that returns the thrust as a function of time in
      * frame defined by thrustFrame
      * \param specificImpulseFunction Function returning the specific impulse as a function of time

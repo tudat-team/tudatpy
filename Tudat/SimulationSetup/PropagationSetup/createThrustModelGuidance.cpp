@@ -407,11 +407,11 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
                 break;
             case propulsion::dynamic_pressure_dependent_thrust:
                 inputFunctions.push_back(
-                            boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentDynamicPressure, vehicleFlightConditions ) );
                 break;
             case propulsion::pressure_dependent_thrust:
                 inputFunctions.push_back(
-                            boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentPressure, vehicleFlightConditions ) );
                 break;
             case propulsion::guidance_input_dependent_thrust:
                 inputFunctions.push_back( parameterizedThrustMagnitudeSettings->guidanceInputVariables_.at( numberOfCustomInputs ) );

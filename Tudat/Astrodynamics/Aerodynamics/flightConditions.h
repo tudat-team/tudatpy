@@ -91,6 +91,17 @@ public:
         return currentDensity_;
     }
 
+    double getCurrentDynamicPressure( )
+    {
+        return 0.5 * getCurrentDensity( ) * getCurrentAirspeed( ) * getCurrentAirspeed( );
+    }
+
+    double getCurrentPressure( )
+    {
+        return atmosphereModel_->getPressure( currentAltitude_, currentLongitude_,
+                                             currentLatitude_, currentTime_ );
+    }
+
     //! Function to return airspeed
     /*!
      *  Function to return airspeed that was set by previous call of updateConditions.
