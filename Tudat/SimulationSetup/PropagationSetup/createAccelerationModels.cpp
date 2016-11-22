@@ -786,19 +786,23 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
+    // Check if user-supplied interpolator for full thrust ius present.
     if( thrustAccelerationSettings->interpolatorInterface_ != NULL )
     {
+        // Check input consisten
         if( thrustAccelerationSettings->thrustFrame_ == unspecified_thurst_frame )
         {
             throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
         }
         else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
         {
+            // Create rotation function from thrust-frame to propagation frame.
             if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
             {
                 boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
                         boost::bind( &Body::getState, bodyMap.at( nameOfBodyUndergoingThrust ) );
                 boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+
                 if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
                 {
                     centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
