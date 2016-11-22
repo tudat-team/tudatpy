@@ -219,9 +219,6 @@ private:
 
     //! Time at which the last call to updateThrust was made (e.g. time associated with current thrust).
     double currentTime_;
-
-
-
 };
 
 
