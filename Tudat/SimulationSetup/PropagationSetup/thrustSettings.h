@@ -13,6 +13,9 @@
 
 #include <boost/function.hpp>
 
+#include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
+
 namespace tudat
 {
 
@@ -166,7 +169,8 @@ enum ThrustMagnitudeTypes
 {
     constant_thrust_magnitude,
     from_engine_properties_thrust_magnitude,
-    thrust_magnitude_from_time_function
+    thrust_magnitude_from_time_function,
+    thrust_magnitude_from_dependent_variables
 };
 
 //! Class defining settings for the thrust magnitude
@@ -296,6 +300,43 @@ public:
 
     //! Direction of thrust force in body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
+};
+
+class ParameterizedThrustMagnitudeSettings: public ThrustEngineSettings
+{
+public:
+    ParameterizedThrustMagnitudeSettings(
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+            const boost::function< double( ) > specificImpulseFunction,
+            const std::vector< boost::function< double( ) > > guidanceInputVariables =
+            std::vector< boost::function< double( ) > >( ) ):
+        ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
+        thrustMagnitudeInterpolator_( thrustMagnitudeInterpolator ),
+    thrustDependentVariables_( thrustDependentVariables ), specificImpulseFunction_( specificImpulseFunction ),
+    guidanceInputVariables_( guidanceInputVariables )
+    {
+        int numberOfUserSpecifiedInputs = std::count(
+                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust );
+        if( numberOfUserSpecifiedInputs != static_cast< int >( guidanceInputVariables.size( ) ) )
+        {
+            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
+        }
+
+        if( numberOfUserSpecifiedInputs != thrustMagnitudeInterpolator->getNumberOfDimensions( ) )
+        {
+            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables with interpolator" );
+        }
+    }
+
+    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator_;
+
+    std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
+
+    boost::function< double( ) > specificImpulseFunction_;
+
+    std::vector< boost::function< double( ) > > guidanceInputVariables_;
+
 };
 
 } // namespace simulation_setup
