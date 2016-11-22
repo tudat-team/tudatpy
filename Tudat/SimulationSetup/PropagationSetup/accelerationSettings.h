@@ -27,12 +27,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-enum ThrustFrames
-{
-    unspecified_thurst_frame = -1,
-    inertial_thurst_frame = 0,
-    lvlh_thrust_frame = 1
-};
 
 //! Class for providing settings for acceleration model.
 /*!
@@ -179,7 +173,7 @@ public:
      * Function to retrieve the current thrust direction (in the propagation frame)., updates thrust to current time if
      * needed.
      * \param time Time at which thrust must be evaluated.
-     * \return  Current thrust direction in propagation frame..
+     * \return Current thrust direction in propagation frame..
      */
     Eigen::Vector3d getThrustDirection( const double time )
     {
@@ -187,6 +181,12 @@ public:
         return currentThrust_.normalized( );
     }
 
+    //! Function to reset the function to rotate to propation frame
+    /*!
+     *  Function to reset the function to rotate to propation frame
+     *  \param rotationFunction New function that returns the rotation matrix from the frame B to teh frame in which the
+     *  propagation is performed.
+     */
     void resetRotationFunction( const boost::function< Eigen::Matrix3d( ) > rotationFunction )
     {
         rotationFunction_ = rotationFunction;
@@ -194,6 +194,11 @@ public:
 
 private:
 
+    //! Function to update the thrust vector to the current time
+    /*!
+     * Function to update the thrust vector to the current time
+     * \param time Time at which thrust must be evaluated.
+     */
     void updateThrust( const double time )
     {
         if( !( time == currentTime_ ) )
@@ -219,6 +224,15 @@ private:
 
 };
 
+
+//! Enum defining identifiers of frames in which a user-specifief thrust is defined.
+enum ThrustFrames
+{
+    unspecified_thurst_frame = -1,
+    inertial_thurst_frame = 0,
+    lvlh_thrust_frame = 1
+};
+
 //! Class for providing acceleration settings for a thrust acceleration model
 /*!
  *  Class for providing acceleration settings for a thrust acceleration model. Settings for the direction and magnitude
@@ -228,9 +242,9 @@ class ThrustAccelerationSettings: public AccelerationSettings
 {
 public:
 
-    //! Constructor
+    //! Constructor from separate magnitude and diretion settings.
     /*!
-     * Constructor
+     * Constructor from separate magnitude and diretion settings.
      * \param thrustDirectionGuidanceSettings Settings for the direction of the thrust
      * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
      */
@@ -242,12 +256,23 @@ public:
         thrustMagnitudeSettings_( thrustMagnitudeSettings ),
         thrustFrame_( unspecified_thurst_frame ){ }
 
+    //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
+    /*!
+     * \Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
+     * \param thrustDirectionGuidanceSettings Interpolator that returns the thrust as a function of time in
+     * frame defined by thrustFrame
+     * \param specificImpulseFunction Function returning the specific impulse as a function of time
+     * \param thrustFrame Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed
+     * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
+     */
     ThrustAccelerationSettings(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustDirectionGuidanceSettings,
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
+            thrustDirectionGuidanceSettings,
             const boost::function< double( const double ) > specificImpulseFunction,
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
-        AccelerationSettings( basic_astrodynamics::thrust_acceleration ), thrustFrame_( thrustFrame ), centralBody_( centralBody )
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration ), thrustFrame_( thrustFrame ),
+        centralBody_( centralBody )
     {
         interpolatorInterface_ =
                 boost::make_shared< FullThrustInterpolationInterface >( thrustDirectionGuidanceSettings );
@@ -268,10 +293,21 @@ public:
     //! Settings for the magnitude of the thrust
     boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
 
+    //! Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed.
+    /*!
+     *  Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed. Unspecifief by default,
+     *  only used if interpolatorInterface_ is set
+     */
     ThrustFrames thrustFrame_;
 
+    //! Central body identifier for thrustFrame.
+    /*!
+     *  Central body identifier for thrustFrame. Empty by default,
+     *  only used if interpolatorInterface_ is set
+     */
     std::string centralBody_;
 
+    //! Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation.
     boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
 
 };
