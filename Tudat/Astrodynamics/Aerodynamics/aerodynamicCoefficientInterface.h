@@ -66,8 +66,7 @@ enum AerodynamicCoefficientsIndependentVariables
     mach_number_dependent = 0,
     angle_of_attack_dependent = 1,
     angle_of_sideslip_dependent = 2,
-    altitude_dependent = 3,
-    undefined_independent_variable = 4
+    undefined_independent_variable = 3
 };
 
 //! Base class to hold an aerodynamic coefficient interface.
