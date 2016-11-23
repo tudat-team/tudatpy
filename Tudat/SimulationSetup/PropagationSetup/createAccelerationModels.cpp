@@ -1004,13 +1004,14 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
                 int indexCounter = 0;
                 for( unsigned int i = 0; i < aerodynamicAccelerationIndices.size( ); i++ )
                 {
-                    orderedAccelerationSettings[ indexList.at( indexCounter++ ) ]
+                    orderedAccelerationSettings[ indexList.at( indexCounter ) ]
                             = currentBodyAccelerations[ aerodynamicAccelerationIndices.at( i ) ];
                     indexCounter++;
                 }
+
                 for( unsigned int i = 0; i < thrustAccelerationIndices.size( ); i++ )
                 {
-                    orderedAccelerationSettings[ indexList.at( indexCounter++ ) ]
+                    orderedAccelerationSettings[ indexList.at( indexCounter ) ]
                             = currentBodyAccelerations[ thrustAccelerationIndices.at( i ) ];
                     indexCounter++;
                 }
