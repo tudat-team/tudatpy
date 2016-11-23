@@ -311,8 +311,11 @@ public:
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
-typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<
-AccelerationSettings > > > > SelectedAccelerationMap;
+typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > >
+SelectedAccelerationMap;
+
+typedef std::map< std::string, std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > > >
+SelectedAccelerationList;
 
 } // namespace simulation_setup
 
