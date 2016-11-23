@@ -12,7 +12,6 @@
 #define TUDAT_CREATEFLIGHTCONDITIONS_H
 
 #include <boost/multi_array.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <vector>
 
@@ -316,11 +315,10 @@ private:
 };
 
 
-//! Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1).
+//! Object for setting aerodynamic coefficients from a user-defined N-dimensional table.
 /*!
- *  Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1). The N=1 case has its
- *  own template specialization.
- *  The user must provide the force (and moment) coefficients in boost multi_arrays, and
+ *  Object for setting aerodynamic coefficients from a user-defined N-dimensional table.
+ *  The user must provide the force and moment coefficients in boost multi_arrays, and
  *  define the physical meaning of each of the independent variables.
  */
 template< int NumberOfDimensions >
@@ -375,42 +373,6 @@ public:
         forceCoefficients_( forceCoefficients ),
         momentCoefficients_( momentCoefficients ){ }
 
-    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-    /*!
-     *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients
-     *  \param independentVariables Values of indepependent variables at which the coefficients
-     *  in the input multi arrays are defined.
-     *  \param forceCoefficients Values of force coefficients at independent variables defined
-     *  by independentVariables.
-     *  \param referenceArea Reference area with which aerodynamic forces and moments are
-     *  non-dimensionalized.
-     *  \param independentVariableNames Vector with identifiers the physical meaning of each
-     *  independent variable of the aerodynamic coefficients.
-     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
-     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
-     *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
-     */
-    TabulatedAerodynamicCoefficientSettings(
-            const std::vector< std::vector< double > > independentVariables,
-            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
-            const double referenceArea,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
-            tabulated_coefficients, TUDAT_NAN, referenceArea,
-            TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
-            independentVariableNames, areCoefficientsInAerodynamicFrame,
-            areCoefficientsInNegativeAxisDirection ),
-        independentVariables_( independentVariables ),
-        forceCoefficients_( forceCoefficients ){ }
-
-    ~TabulatedAerodynamicCoefficientSettings( ){ }
-
     //! Function to return the values of the indepependent variables of tables of coefficients.
     /*!
      *  Function to return the values of the indepependent variables of tables of coefficients.
@@ -455,174 +417,8 @@ private:
 
     //! Values of moment coefficients at independent variables defined  by independentVariables_.
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
-};
-
-//! Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
-/*!
- *  Object for setting aerodynamic coefficients from a user-defined 1-dimensional table.
- *  The user must provide the force (and moment) coefficients in std::vectors, and
- *  define the physical meaning of the independent variables.
- */
-template< >
-class TabulatedAerodynamicCoefficientSettings< 1 >: public AerodynamicCoefficientSettings
-{
-public:
-
-    //! Constructor, sets properties of aerodynamic coefficients.
-    /*!
-     *  Constructor, sets properties of aerodynamic coefficients.
-     *  \param independentVariables Values of indepependent variables at which the coefficients
-     *  in the input multi vector are defined.
-     *  \param forceCoefficients Values of force coefficients at independent variables defined
-     *  by independentVariables.
-     *  \param momentCoefficients Values of moment coefficients at independent variables defined
-     *  by independentVariables.
-     *  \param referenceLength Reference length with which aerodynamic moments
-     *  (about x- and z- axes) are non-dimensionalized.
-     *  \param referenceArea Reference area with which aerodynamic forces and moments are
-     *  non-dimensionalized.
-     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
-     *  is non-dimensionalized.
-     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
-     *  \param independentVariableName Identifiers the of physical meaning of the
-     *  independent variable of the aerodynamic coefficients.
-     *  \param interpolationSettings Settings to be used for creating the one-dimensional interpoaltor of data.
-     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
-     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
-     *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
-     */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
-            const std::vector< double > independentVariables,
-            const std::vector< Eigen::Vector3d > forceCoefficients,
-            const std::vector< Eigen::Vector3d > momentCoefficients,
-            const double referenceLength,
-            const double referenceArea,
-            const double lateralReferenceLength,
-            const Eigen::Vector3d& momentReferencePoint,
-            const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
-            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
-            tabulated_coefficients, referenceLength, referenceArea,
-            lateralReferenceLength, momentReferencePoint,
-            boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
-            areCoefficientsInNegativeAxisDirection ),
-        interpolationSettings_( interpolationSettings )
-    {
-        if( forceCoefficients.size( ) != independentVariables.size( ) )
-        {
-            throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
-        }
-
-        if( momentCoefficients.size( ) != independentVariables.size( ) )
-        {
-            throw std::runtime_error( "Error, moment coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
-        }
-
-        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
-        {
-            forceCoefficients_[ independentVariables.at( i ) ] = forceCoefficients.at( i );
-            momentCoefficients_[ independentVariables.at( i ) ] = momentCoefficients.at( i );
-        }
-    }
-
-    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-    /*!
-     *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
-     *  \param independentVariables Values of indepependent variables at which the coefficients
-     *  in the input multi vector are defined.
-     *  \param forceCoefficients Values of force coefficients at independent variables defined
-     *  by independentVariables.
-     *  \param referenceArea Reference area with which aerodynamic forces and moments are
-     *  non-dimensionalized.
-     *  \param independentVariableName Identifiers the of physical meaning of the
-     *  independent variable of the aerodynamic coefficients.
-     *  \param interpolationSettings Settings to be used for creating the one-dimensional interpoaltor of data.
-     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
-     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
-     *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
-     */
-    TabulatedAerodynamicCoefficientSettings< 1 >(
-            const std::vector< double > independentVariables,
-            const std::vector< Eigen::Vector3d > forceCoefficients,
-            const double referenceArea,
-            const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
-            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
-            tabulated_coefficients, TUDAT_NAN, referenceArea,
-            TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
-            boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
-            areCoefficientsInNegativeAxisDirection ),
-        interpolationSettings_( interpolationSettings )
-    {
-        if( forceCoefficients.size( ) != independentVariables.size( ) )
-        {
-            throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
-        }
-
-        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
-        {
-            forceCoefficients_[ independentVariables.at( i ) ] = forceCoefficients.at( i );
-            momentCoefficients_[ independentVariables.at( i ) ] = Eigen::Vector3d::Zero( );
-        }
-    }
-
-    //! Destructor
-    ~TabulatedAerodynamicCoefficientSettings< 1 >( ){ }
 
 
-    //! Function to return values of force coefficients in table.
-    /*!
-     * Function to return values of force coefficients in table.
-     * \return Values of force coefficients in table.
-     */
-    std::map< double, Eigen::Vector3d >  getForceCoefficients( )
-    {
-        return forceCoefficients_;
-    }
-
-    //! Function to return values of moment coefficients in table.
-    /*!
-     * Function to return values of moment coefficients in table.
-     * \return Values of moment coefficients in table.
-     */
-    std::map< double, Eigen::Vector3d >  getMomentCoefficients( )
-    {
-        return momentCoefficients_;
-    }
-
-    //! Function to return settings to be used for creating the one-dimensional interpoaltor of data.
-    /*!
-     * Function to return settings to be used for creating the one-dimensional interpoaltor of data.
-     * \return Settings to be used for creating the one-dimensional interpoaltor of data.
-     */
-    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolationSettings( )
-    {
-        return interpolationSettings_;
-    }
-
-
-private:
-
-    //! Values of force coefficients at independent variables defined  by independentVariables_.
-    std::map< double, Eigen::Vector3d > forceCoefficients_;
-
-    //! Values of moment coefficients at independent variables defined  by independentVariables_.
-    std::map< double, Eigen::Vector3d > momentCoefficients_;
-
-    //! Settings to be used for creating the one-dimensional interpoaltor of data.
-    boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
@@ -736,19 +532,6 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                 independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
-
-//! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
-/*!
- *  Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
- *  \param coefficientSettings Settings for aerodynamic coefficient interface, must be of derived
- *  type TabulatedAerodynamicCoefficientSettings< 1 >
- *  \param body Name of body for which coefficient interface is to be made.
- *  \return Tabulated aerodynamic coefficient interface pointer.
- */
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
-        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
-        const std::string& body );
 
 //! Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
 /*!

@@ -104,10 +104,6 @@ add_executable(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/
 setup_custom_test_program(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_TabulatedAtmosphere tudat_aerodynamics tudat_interpolators tudat_basic_mathematics tudat_input_output ${Boost_LIBRARIES})
 
-add_executable(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp")
-setup_custom_test_program(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_TabulatedAerodynamicCoefficients ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")
     setup_custom_test_program(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}")
