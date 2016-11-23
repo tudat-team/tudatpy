@@ -88,6 +88,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case local_temperature_dependent_variable:
         variableName = "Local freestream temperature ";
         break;
+    case geodetic_latitude_dependent_variable:
+        variableName = "Geodetic latitude ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +
