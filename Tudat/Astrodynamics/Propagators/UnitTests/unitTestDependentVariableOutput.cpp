@@ -265,7 +265,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         BOOST_CHECK_SMALL(
                     std::fabs( variableIterator->second( 19 ) ), 1.0E-14 );
 
-
     }
 
 }
