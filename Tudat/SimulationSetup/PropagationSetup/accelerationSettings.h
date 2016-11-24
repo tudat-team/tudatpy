@@ -137,7 +137,6 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
-<<<<<<< HEAD
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 //! thrust implementation)
 class FullThrustInterpolationInterface
@@ -259,7 +258,7 @@ public:
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
     /*!
-     * \Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
+     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
      * \param thrustDirectionGuidanceSettings Interpolator that returns the thrust as a function of time in
      * frame defined by thrustFrame
      * \param specificImpulseFunction Function returning the specific impulse as a function of time
