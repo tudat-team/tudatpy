@@ -137,6 +137,7 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
+<<<<<<< HEAD
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 //! thrust implementation)
 class FullThrustInterpolationInterface
