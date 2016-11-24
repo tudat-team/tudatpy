@@ -607,21 +607,6 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
     accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
-    double specificImpulse = 300.0;
-    boost::function< double( const double ) > thrustMagnitudeFunction = boost::lambda::constant( 50000.0 );
-    accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                       boost::make_shared< ThrustDirectionGuidanceSettings >(
-                                                           thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                       boost::make_shared< FromFunctionThrustEngineSettings >(
-                                                           thrustMagnitudeFunction, boost::lambda::constant( specificImpulse ) ) ) );
-
-
-    dependentVariables.push_back(
-                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
-
-
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
