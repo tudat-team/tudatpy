@@ -386,7 +386,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
     if( !angleOfSideslipFunction.empty( ) )
     {
-        if( !angleOfAttackFunction_.empty( ) )
+        if( !angleOfSideslipFunction_.empty( ) )
         {
             std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -395,7 +395,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
     if( !bankAngleFunction.empty( ) )
     {
-        if( !angleOfAttackFunction_.empty( ) )
+        if( !bankAngleFunction_.empty( ) )
         {
             std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
         }
