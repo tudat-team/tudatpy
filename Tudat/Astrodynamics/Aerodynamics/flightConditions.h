@@ -277,6 +277,7 @@ public:
         scalarFlightConditions_.clear( );
         currentTime_ = currentTime;
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        isLatitudeAndLongitudeSet_ = 0;
     }
 
 private:
@@ -287,6 +288,7 @@ private:
                     reference_frames::latitude_angle );
         scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
                     reference_frames::longitude_angle );
+        isLatitudeAndLongitudeSet_ = 1;
     }
 
     void computeAltitude( )
@@ -300,7 +302,7 @@ private:
         if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
               scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
         {
-            if( updateLatitudeAndLongitude_ )
+            if( updateLatitudeAndLongitudeForAtmosphere_ )
             {
                 computeLatitudeAndLongitude( );
             }
@@ -369,7 +371,7 @@ private:
         }
         else
         {
-            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 )
+            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
             {
                 computeLatitudeAndLongitude( );
             }
@@ -416,7 +418,9 @@ private:
     std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
-    bool updateLatitudeAndLongitude_;
+    bool updateLatitudeAndLongitudeForAtmosphere_;
+
+    bool isLatitudeAndLongitudeSet_;
 
     boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
 

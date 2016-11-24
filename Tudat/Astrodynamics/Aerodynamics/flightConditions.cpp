@@ -45,17 +45,18 @@ FlightConditions::FlightConditions(
                     boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
                     _1, 1.0E-4 );
     }
-    updateLatitudeAndLongitude_ = 0;
+    updateLatitudeAndLongitudeForAtmosphere_ = 0;
+    isLatitudeAndLongitudeSet_ = 0;
 
     bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
                 &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
 
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
-        updateLatitudeAndLongitude_ = 1;
+        updateLatitudeAndLongitudeForAtmosphere_ = 1;
     }
 
-    if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )
+    if( updateLatitudeAndLongitudeForAtmosphere_ && aerodynamicAngleCalculator_== NULL )
     {
         throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
