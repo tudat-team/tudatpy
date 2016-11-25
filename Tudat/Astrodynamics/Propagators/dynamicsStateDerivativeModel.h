@@ -131,6 +131,7 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
+        std::cout<<"Computing state deirvative "<<time<<" "<<state.transpose( )<<std::endl;
         // Initialize state derivative
         if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
         {
