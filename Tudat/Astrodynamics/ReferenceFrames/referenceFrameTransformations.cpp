@@ -53,6 +53,9 @@
  *
  */
 
+#include <iostream>
+#include <iomanip>
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"

@@ -786,6 +786,8 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
+
+
     // Check if user-supplied interpolator for full thrust ius present.
     if( thrustAccelerationSettings->interpolatorInterface_ != NULL )
     {

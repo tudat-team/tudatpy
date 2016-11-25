@@ -373,7 +373,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         thrustMagnitudeWrapper = boost::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
                     fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
                     fromFunctionThrustMagnitudeSettings->specificImpulseFunction_,
-                    fromFunctionThrustMagnitudeSettings->isEngineOnFunction_ );
+                    fromFunctionThrustMagnitudeSettings->isEngineOnFunction_,
+                    fromFunctionThrustMagnitudeSettings->customThrustResetFunction_ );
         break;
 
     }
