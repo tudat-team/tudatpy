@@ -72,10 +72,10 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class EulerIntegrator :
         public numerical_integrators::ReinitializableNumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType >
+        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
 
@@ -85,7 +85,7 @@ public:
      */
     typedef numerical_integrators::ReinitializableNumericalIntegrator<
     IndependentVariableType, StateType,
-    StateDerivativeType > ReinitializableNumericalIntegratorBase;
+    StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
 
     //! Typedef to the state derivative function.
     /*!
@@ -117,7 +117,7 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
     //! Get current state.
     /*!
@@ -145,7 +145,7 @@ public:
      * \param stepSize The size of the step to take.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
+    virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
@@ -197,7 +197,7 @@ protected:
     /*!
      * Last used step size, passed to either integrateTo() or performIntegrationStep().
      */
-    IndependentVariableType stepSize_;
+    TimeStepType stepSize_;
 
     //! Current independent variable.
     /*!

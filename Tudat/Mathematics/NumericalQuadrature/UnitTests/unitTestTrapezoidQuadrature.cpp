@@ -33,7 +33,7 @@ std::vector< double > linspace( double start, double end, int numberOfSamples )
     std::vector< double > vector(0);
     for( int i = 0 ; i < numberOfSamples ; i++ )
     {
-        vector.push_back( start + static_cast< double >(i) * spacing );
+        vector.push_back( start + static_cast< double >( i ) * spacing );
     }
 
     return vector;
