@@ -35,7 +35,7 @@
  *    References
  *
  *    Notes
- *      If tabs are used as spaces, it doesn't work. The seperator should also be tabs then.
+ *      If tabs are used as spaces, it doesn't work. The separator should also be tabs then.
  *
  */
 
