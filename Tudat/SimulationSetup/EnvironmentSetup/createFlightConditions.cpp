@@ -46,6 +46,49 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
+//! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
+        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body )
+{
+    // Check consistency of type.
+    boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulatedCoefficientSettings =
+            boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                coefficientSettings );
+    if( tabulatedCoefficientSettings == NULL )
+    {
+        throw std::runtime_error(
+                    "Error, expected tabulated aerodynamic coefficients of size " +
+                    boost::lexical_cast<  std::string >( 1 ) + "for body " + body );
+    }
+    else
+    {
+        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > forceInterpolator =
+                interpolators::createOneDimensionalInterpolator(
+                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    tabulatedCoefficientSettings->getInterpolationSettings( ) );
+        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > momentInterpolator =
+                interpolators::createOneDimensionalInterpolator(
+                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    tabulatedCoefficientSettings->getInterpolationSettings( ) );
+
+        // Create aerodynamic coefficient interface.
+        return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                    boost::bind( &interpolators::Interpolator
+                                 < double, Eigen::Vector3d >::interpolate, forceInterpolator, _1 ),
+                    boost::bind( &interpolators::Interpolator
+                                 < double, Eigen::Vector3d >::interpolate, momentInterpolator, _1 ),
+                    tabulatedCoefficientSettings->getReferenceLength( ),
+                    tabulatedCoefficientSettings->getReferenceArea( ),
+                    tabulatedCoefficientSettings->getReferenceLength( ),
+                    tabulatedCoefficientSettings->getMomentReferencePoint( ),
+                    tabulatedCoefficientSettings->getIndependentVariableNames( ),
+                    tabulatedCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
+                    tabulatedCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+    }
+}
+
 //! Function to create and aerodynamic coefficient interface.
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createAerodynamicCoefficientInterface(
@@ -93,7 +136,7 @@ createAerodynamicCoefficientInterface(
         {
         case 1:
         {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 1 >(
+            coefficientInterface = createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
                         coefficientSettings, body );
             break;
         }
