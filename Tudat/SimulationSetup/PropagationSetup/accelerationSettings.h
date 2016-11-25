@@ -151,8 +151,10 @@ public:
      * propagation is performed.
      */
     FullThrustInterpolationInterface(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator,
-            const boost::function< Eigen::Matrix3d( ) > rotationFunction = boost::lambda::constant( Eigen::Matrix3d::Identity( ) ) ):
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator<
+            double, Eigen::Vector3d > > thrustInterpolator,
+            const boost::function< Eigen::Matrix3d( ) > rotationFunction =
+            boost::lambda::constant( Eigen::Matrix3d::Identity( ) ) ):
         thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
