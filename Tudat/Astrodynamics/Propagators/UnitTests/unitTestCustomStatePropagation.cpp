@@ -42,15 +42,34 @@ using namespace tudat::propagators;
 using namespace tudat::simulation_setup;
 using namespace tudat::numerical_integrators;
 
-BOOST_AUTO_TEST_SUITE( test_body_mass_propagation )
+BOOST_AUTO_TEST_SUITE( test_body_custom_state_propagation )
 
 double getDummyCustomState1(
-        const double currentCustomState, const double currentTime )
+        const double currentTime, const double currentCustomState )
 {
     return -0.02;
 }
 
-// Test mass rate of single body, linearly decreasing with time
+double getDummyCustomState2(
+        const double currentTime, const double currentCustomState )
+{
+    return -0.02 * currentTime;
+}
+
+double getDummyCustomState3(
+        const double currentTime, const double currentCustomState )
+{
+    return -0.002 * currentCustomState;
+}
+
+double getDummyCustomState4(
+        const double currentTime, const double currentCustomState )
+{
+    return -0.00002 * currentCustomState * currentTime;
+}
+
+
+// Test custom state propagation, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 {
     // Crate bodyMap
@@ -78,6 +97,102 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
     {
         BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
         BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 0 ) - ( 500.0 - 0.02 * stateIterator->first ) ), 1.0E-9 );
+    }
+}
+
+// Test custom state propagation, quadratically decreasing with time
+BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
+{
+    // Crate bodyMap
+    NamedBodyMap bodyMap;
+
+    // Create settings for propagation
+    double initialCustomState = 500.0;
+    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< CustomStatePropagatorSettings< double > >(
+                boost::bind( &getDummyCustomState2, _1, _2 ), initialCustomState,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+
+    // Create dynamics simulation object.
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    // Test propagated solution.
+    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
+         stateIterator != integratedState.end( ); stateIterator++ )
+    {
+        BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
+        BOOST_CHECK_SMALL( std::fabs( stateIterator->second( 0 ) -
+                                      ( 500.0 - 0.5 * 0.02 * stateIterator->first  * stateIterator->first ) ), 1.0E-9 );
+    }
+}
+
+// Test custom state propagation, exponentially decreasing with time
+BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
+{
+    // Crate bodyMap
+    NamedBodyMap bodyMap;
+
+    // Create settings for propagation
+    double initialCustomState = 500.0;
+    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< CustomStatePropagatorSettings< double > >(
+                boost::bind( &getDummyCustomState3, _1, _2 ), initialCustomState,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+
+    // Create dynamics simulation object.
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    // Test propagated solution.
+    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
+         stateIterator != integratedState.end( ); stateIterator++ )
+    {
+        BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ), 500.0 * std::exp( -stateIterator->first * 0.002 ), 1.0E-9 );
+    }
+}
+
+// Test custom state propagation, exponentially decreasing with square of time
+BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
+{
+    // Crate bodyMap
+    NamedBodyMap bodyMap;
+
+    // Create settings for propagation
+    double initialCustomState = 500.0;
+    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< CustomStatePropagatorSettings< double > >(
+                boost::bind( &getDummyCustomState4, _1, _2 ), initialCustomState,
+                boost::make_shared< PropagationTimeTerminationSettings >( 100.0 ) );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 0.01 );
+
+    // Create dynamics simulation object.
+    SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    // Test propagated solution.
+    std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
+         stateIterator != integratedState.end( ); stateIterator++ )
+    {
+
+        BOOST_CHECK_EQUAL( stateIterator->second.rows( ), 1 );
+        BOOST_CHECK_CLOSE_FRACTION( stateIterator->second( 0 ),
+                                    500.0 * std::exp( -0.5 * stateIterator->first * stateIterator->first * 0.00002 ), 1.0E-9 );
     }
 }
 
