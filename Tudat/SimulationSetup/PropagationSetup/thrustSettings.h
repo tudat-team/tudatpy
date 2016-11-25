@@ -270,6 +270,8 @@ public:
      * \param isEngineOnFunction Function returning boolean denoting whether thrust is to be used (thrust and mass rate
      * set to zero if false, regardless of output of thrustMagnitudeFunction).
      * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
+     * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
+     * being started (empty by default)
      */
     FromFunctionThrustEngineSettings(
             const boost::function< double( const double ) > thrustMagnitudeFunction,

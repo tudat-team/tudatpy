@@ -97,6 +97,8 @@ public:
      * \param thrustMagnitudeFunction Function returning thrust as a function of time.
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
      * \param isEngineOnFunction Function returning whether the function is on (returns true if so) at a given time.
+     * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
+     * being started (empty by default)
      */
     CustomThrustMagnitudeWrapper(
             const boost::function< double( const double ) > thrustMagnitudeFunction,
