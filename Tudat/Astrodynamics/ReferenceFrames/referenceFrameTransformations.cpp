@@ -37,6 +37,8 @@
  *      130121    K. Kumar          Updated functions to be const-correct.
  *      130219    D. Dirkx          Migrated from personal code.
  *      130312    A. Ronse          Added V-T, TA-AA and AA-B transformations.
+ *      161116    M. Van den Broeck Added velocity based LVLH to planetocentric frame transformation. (Keplerian input)
+ *      161117    M. Van den Broeck Added velocity based LVLH to Inertial frame transformation. (Cartesian input)
  *
  *    References
  *      Mooij, E. The Motion of a Vehicle in a Planetary Atmosphere, TU Delft, 1997.
@@ -182,6 +184,78 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
 
     // Return transformation matrix.
     return eigenRotationObject.toRotationMatrix( );
+}
+
+//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
+        const basic_mathematics::Vector6d& vehicleState,
+        const basic_mathematics::Vector6d& centralBodyState,
+        const bool doesNaxisPointAwayFromCentralBody )
+{
+    Eigen::Vector3d vehicleVelocity, vehicleRadius;
+    vehicleRadius = vehicleState.head( 3 ) - centralBodyState.head( 3 );
+    vehicleVelocity = vehicleState.tail( 3 ) - centralBodyState.tail( 3 );
+
+    Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm( );
+    if ( vehicleRadius.cross( vehicleVelocity ).norm( ) == 0.0 )
+    {
+        std::string errorMessage = "Division by zero: radius and velocity are in the same direction.";
+        throw std::runtime_error( errorMessage );
+    }
+
+    Eigen::Vector3d unitW =  ( ( ( doesNaxisPointAwayFromCentralBody == true ) ? -1.0 : 1.0 ) *
+            ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
+
+    Eigen::Vector3d unitN = ( unitW.cross( unitT ) ).normalized( );
+
+    Eigen::Matrix3d transformationMatrix;
+    transformationMatrix << unitT( 0 ), unitN( 0 ), unitW( 0 ),
+                            unitT( 1 ), unitN( 1 ), unitW( 1 ),
+                            unitT( 2 ), unitN( 2 ), unitW( 2 );
+
+    return transformationMatrix;
+}
+
+//! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
+Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
+        const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
+        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
+        const bool doesNaxisPointAwayFromCentralBody )
+{
+    return getVelocityBasedLvlhToInertialRotation( 
+            vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
+}
+
+//! Get rotation from velocity based LVLH frame to planetocentric frame.
+Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
+        const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState )
+{
+
+    double eccentricity = spacecraftKeplerianState( 1 );
+    double inclination = spacecraftKeplerianState( 2 );
+    double argumentOfPeriapsis = spacecraftKeplerianState( 3 );
+    double rightAscensionOfAscendingNode = spacecraftKeplerianState( 4 );
+    double trueAnomaly = spacecraftKeplerianState( 5 );
+
+    double flightPathAngle = std::atan( ( eccentricity * std::sin( trueAnomaly ) ) /
+                                        ( 1.0 + eccentricity * std::cos( trueAnomaly ) ) );
+
+    // Compute first rotation around Z axis.
+    Eigen::AngleAxisd firstRotationAroundZaxis(
+                -( -mathematical_constants::PI * 0.5 + flightPathAngle - ( trueAnomaly + argumentOfPeriapsis ) ),
+                Eigen::Vector3d::UnitZ( ) );
+
+    // Compute rotation around X axis.
+    Eigen::AngleAxisd rotationAroundXaxis( inclination, Eigen::Vector3d::UnitX( ) );
+
+    // Compute second rotation around Z axis.
+    Eigen::AngleAxisd secondRotationAroundZaxis( rightAscensionOfAscendingNode, Eigen::Vector3d::UnitZ( ) );
+
+    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
+                ( secondRotationAroundZaxis * rotationAroundXaxis * firstRotationAroundZaxis) );
+
+    // Return transformation quaternion.
+    return frameTransformationQuaternion;
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
