@@ -549,7 +549,7 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     bodyExertingAcceleration->getGravityFieldModel( ) );
         if( sphericalHarmonicsGravityField == NULL )
-        {            
+        {
             std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a spherical harmonics gravity field " +
                     "when making third body spherical harmonics gravity acceleration on " +
                     nameOfBodyUndergoingAcceleration;
@@ -785,6 +785,8 @@ createThrustAcceleratioModel(
 
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
+
+
 
     // Check if user-supplied interpolator for full thrust ius present.
     if( thrustAccelerationSettings->interpolatorInterface_ != NULL )

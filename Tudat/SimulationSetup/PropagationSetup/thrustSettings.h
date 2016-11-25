@@ -275,12 +275,14 @@ public:
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
             const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ),
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ),
+            const boost::function< void(  const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
         ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
+    customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Destructor.
     ~FromFunctionThrustEngineSettings( ){ }
@@ -296,6 +298,8 @@ public:
 
     //! Direction of thrust force in body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
+
+    boost::function< void( const double ) > customThrustResetFunction_;
 };
 
 } // namespace simulation_setup

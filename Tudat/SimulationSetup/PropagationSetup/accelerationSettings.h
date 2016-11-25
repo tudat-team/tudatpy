@@ -193,6 +193,11 @@ public:
         rotationFunction_ = rotationFunction;
     }
 
+    void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+    }
+
 private:
 
     //! Function to update the thrust vector to the current time
@@ -202,10 +207,8 @@ private:
      */
     void updateThrust( const double time )
     {
-        //if( !( time == currentTime_ ) )
+        if( !( time == currentTime_ ) )
         {
-            std::cout<<"Rotation when updating: "<<time<<std::endl<<std::setprecision( 16 )<<rotationFunction_( )<<std::endl;
-
             currentThrust_ = rotationFunction_( ) * thrustInterpolator_->interpolate( time );
             currentTime_ = time;
         }
@@ -262,15 +265,15 @@ public:
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
     /*!
      * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
-     * \param thrustDirectionGuidanceSettings Interpolator that returns the thrust as a function of time in
+     * \param fullThrustInterpolator Interpolator that returns the thrust as a function of time in
      * frame defined by thrustFrame
      * \param specificImpulseFunction Function returning the specific impulse as a function of time
-     * \param thrustFrame Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed
+     * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
-            thrustDirectionGuidanceSettings,
+            fullThrustInterpolator,
             const boost::function< double( const double ) > specificImpulseFunction,
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
@@ -278,12 +281,14 @@ public:
         centralBody_( centralBody )
     {
         interpolatorInterface_ =
-                boost::make_shared< FullThrustInterpolationInterface >( thrustDirectionGuidanceSettings );
+                boost::make_shared< FullThrustInterpolationInterface >( fullThrustInterpolator );
         thrustDirectionGuidanceSettings_ = boost::make_shared< CustomThrustDirectionSettings >(
                     boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, _1 ) );
         thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
                     boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
-                    specificImpulseFunction );
+                    specificImpulseFunction, boost::lambda::constant( true ),
+                    Eigen::Vector3d::UnitX( ),
+                    boost::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
     }
 
     //! Destructor.
@@ -296,9 +301,9 @@ public:
     //! Settings for the magnitude of the thrust
     boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
 
-    //! Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed.
+    //! Identifier of frame in which thrust returned by fullThrustInterpolator is expressed.
     /*!
-     *  Identifier of frame in which thrust returned by thrustDirectionGuidanceSettings is expressed. Unspecifief by default,
+     *  Identifier of frame in which thrust returned by fullThrustInterpolator is expressed. Unspecifief by default,
      *  only used if interpolatorInterface_ is set
      */
     ThrustFrames thrustFrame_;

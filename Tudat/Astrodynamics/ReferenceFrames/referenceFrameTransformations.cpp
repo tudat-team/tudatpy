@@ -199,9 +199,6 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
     vehicleRadius = vehicleState.head( 3 ) - centralBodyState.head( 3 );
     vehicleVelocity = vehicleState.tail( 3 ) - centralBodyState.tail( 3 );
 
-    std::cout<<"Vehcle state: when updating: "<<std::setprecision( 16 )<<vehicleState.transpose( )<<std::endl;
-    std::cout<<"Central body state when updating: "<<centralBodyState.transpose( )<<std::endl;
-
     Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm( );
     if ( vehicleRadius.cross( vehicleVelocity ).norm( ) == 0.0 )
     {
