@@ -409,6 +409,8 @@ public:
             }
             case body_mass_state:
                 break;
+            case custom_state:
+                break;
             default:
                 throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
                 break;
