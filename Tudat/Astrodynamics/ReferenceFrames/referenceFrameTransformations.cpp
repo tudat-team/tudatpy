@@ -53,6 +53,9 @@
  *
  */
 
+#include <iostream>
+#include <iomanip>
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -195,6 +198,9 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
     vehicleRadius = vehicleState.head( 3 ) - centralBodyState.head( 3 );
     vehicleVelocity = vehicleState.tail( 3 ) - centralBodyState.tail( 3 );
+
+    std::cout<<"Vehcle state: when updating: "<<std::setprecision( 16 )<<vehicleState.transpose( )<<std::endl;
+    std::cout<<"Central body state when updating: "<<centralBodyState.transpose( )<<std::endl;
 
     Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm( );
     if ( vehicleRadius.cross( vehicleVelocity ).norm( ) == 0.0 )

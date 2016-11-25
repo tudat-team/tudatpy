@@ -100,6 +100,7 @@ void integrateEquations(
 
             if( !dependentVariableFunction.empty( ) )
             {
+                std::cout<<std::endl<<"Saving dependent data: "<<newState.transpose( )<<std::endl;
                 integrator->getStateDerivativeFunction( )( currentTime, newState );
                 dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
             }

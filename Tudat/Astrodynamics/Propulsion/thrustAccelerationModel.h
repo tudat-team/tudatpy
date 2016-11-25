@@ -81,6 +81,8 @@ public:
      */
     Eigen::Vector3d getAcceleration( )
     {
+        this->updateMembers( currentTime_ );
+
         return currentAcceleration_;
     }
 
@@ -136,6 +138,7 @@ public:
 
             // Reset current time.
             currentTime_ = currentTime;
+
         }
 
     }

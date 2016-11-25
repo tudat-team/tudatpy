@@ -111,7 +111,7 @@ public:
      */
     void update( const double time )
     {
-        if( !( currentTime_ = time ) )
+        if( !( currentTime_ == time ) )
         {
             // If engine is one, update engine.
             if( isEngineOnFunction_( time ) )
@@ -125,6 +125,7 @@ public:
                 currentThrustMagnitude_ = 0.0;
                 currentSpecificImpulse_ = TUDAT_NAN;
             }
+            currentTime_ = time;
         }
     }
 

@@ -152,7 +152,7 @@ public:
      */
     FullThrustInterpolationInterface(
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator,
-            const boost::function< Eigen::Matrix3d( ) > rotationFunction = boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) ):
+            const boost::function< Eigen::Matrix3d( ) > rotationFunction = boost::lambda::constant( Eigen::Matrix3d::Identity( ) ) ):
         thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
@@ -165,6 +165,7 @@ public:
     double getThrustMagnitude( const double time )
     {
         updateThrust( time );
+
         return currentThrust_.norm( );
     }
 
@@ -201,8 +202,10 @@ private:
      */
     void updateThrust( const double time )
     {
-        if( !( time == currentTime_ ) )
+        //if( !( time == currentTime_ ) )
         {
+            std::cout<<"Rotation when updating: "<<time<<std::endl<<std::setprecision( 16 )<<rotationFunction_( )<<std::endl;
+
             currentThrust_ = rotationFunction_( ) * thrustInterpolator_->interpolate( time );
             currentTime_ = time;
         }
