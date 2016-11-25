@@ -41,6 +41,7 @@
  *      120716    D. Dirkx          Updated with new nearest neighbour search algorithms.
  *      130114    D. Dirkx          Added missing include statements; corrected include guard
  *                                  name.
+ *      160930    M. Van den Broeck Added computeNearestNeighborUsingBinarySearch function
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -76,6 +77,17 @@ namespace basic_mathematics
  */
 int computeNearestLeftNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
                                                  const double targetValueInVectorOfSortedData );
+
+//! Nearest neighbor binary search.
+/*!
+ * Searches for the nearest neighbor in a vector of sorted data using a
+ * binary algorithm (Press W.H., et al., 2002).
+ * \param vectorOfSortedData Vector of data sorted in ascending/descending order.
+ * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
+ * \return Index of nearest neighbor to target value.
+ */
+int computeNearestNeighborUsingBinarySearch( const Eigen::VectorXd& vectorOfSortedData,
+                                             const double targetValueInVectorOfSortedData );
 
 //! Nearest left neighbor binary search.
 /*!

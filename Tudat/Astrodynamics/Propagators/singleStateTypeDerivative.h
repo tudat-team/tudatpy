@@ -26,7 +26,8 @@ enum IntegratedStateType
 {
     hybrid = 0,
     transational_state = 1,
-    body_mass_state = 2
+    body_mass_state = 2,
+    custom_state = 3
 };
 
 
@@ -178,6 +179,7 @@ protected:
     IntegratedStateType integratedStateType_;
 
 };
+
 
 } // namespace propagators
 
