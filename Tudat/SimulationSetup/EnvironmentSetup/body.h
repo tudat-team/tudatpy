@@ -42,6 +42,158 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Base class used for the determination of the inertial state of a Body's ephemeris origin
+/*!
+ *  Base class used for the determination of the inertial state of a Body's ephemeris origin. This base class is used
+ *  to provide an untemplated interface class through which to call the base frame state. The state may be defined
+ *  in a templated manner in the derived class.
+ */
+class BaseStateInterface
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
+     */
+    BaseStateInterface(
+            const std::string baseFrameId ):
+        baseFrameId_( baseFrameId ){ }
+
+    //! Destructor
+    virtual ~BaseStateInterface( ){ }
+
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    template< typename OutputTimeType, typename OutputStateScalarType >
+    Eigen::Matrix< OutputStateScalarType, 6, 1 > getBaseFrameState(
+            const OutputTimeType time );
+
+protected:
+
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time ) = 0;
+
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double long state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time ) = 0;
+
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    virtual Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time ) = 0;
+
+    //! Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Pure virtual function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and long double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    virtual Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time ) = 0;
+
+    //! Name of frame origin for which inertial state is computed by this class
+    std::string baseFrameId_;
+};
+
+//! Class used for the determination of the inertial state of a Body's ephemeris origin
+template< typename TimeType, typename StateScalarType >
+class BaseStateInterfaceImplementation: public BaseStateInterface
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param baseFrameId Name of frame origin for which inertial state is computed by this class
+     * \param stateFunction Function returning frame's inertial state as a function of time.
+     */
+    BaseStateInterfaceImplementation(
+            const std::string baseFrameId,
+            const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction ):
+        BaseStateInterface( baseFrameId ),
+        stateFunction_( stateFunction ){ }
+
+    //! Destructor
+    ~BaseStateInterfaceImplementation( ){ }
+
+
+protected:
+
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
+    {
+        return stateFunction_( time ).template cast< double >( );
+    }
+
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (double time and double long state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
+    {
+        return stateFunction_( time ).template cast< long double >( );
+    }
+
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time )
+    {
+        return stateFunction_( time ).template cast< double >( );
+    }
+
+    //! Function through which the state of baseFrameId_ in the inertial frame can be determined
+    /*!
+     *  Function through which the state of baseFrameId_ in the inertial frame can be determined
+     *  (Time object time and long double state scalar).
+     *  \param time Time at which state is to be computed
+     *  \return Inertial state of frame origin at requested time
+     */
+    Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
+    {
+        return stateFunction_( time ).template cast< long double >( );
+    }
+
+private:
+
+    //! Function returning frame's inertial state as a function of time.
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
+};
+
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
  *  Body class representing the properties of a celestial body (natural or artificial). By storing
@@ -62,9 +214,9 @@ public:
      */
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ) )
-        : currentState_( state ),
-          ephemerisFrameToBaseFrameFunction_( boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ),
-          ephemerisFrameToBaseFrameLongFunction_( boost::lambda::constant( Eigen::Matrix< long double, 6, 1 >::Zero( ) ) ),
+        : currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
+          ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
+                                          "", boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
@@ -73,6 +225,25 @@ public:
         currentLongState_ = currentState_.cast< long double >( );
     }
 
+    //! Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
+    /*!
+     * Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
+     * \return Class returning the state of this body's ephemeris origin w.r.t. the global origin
+     */
+    boost::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( )
+    {
+        return ephemerisFrameToBaseFrame_;
+    }
+
+    //! Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
+    /*!
+     * Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
+     * \param ephemerisFrameToBaseFrame Class returning the state of this body's ephemeris origin w.r.t. the global origin
+     */
+    void setEphemerisFrameToBaseFrame( const boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame )
+    {
+        ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
+    }
 
 
     //! Set current state of body manually
@@ -100,70 +271,6 @@ public:
         currentState_ = longState.cast< double >( );
     }
 
-    //! Function to get the state of the current body from the ephemeris in the global frame
-    /*!
-     * Function to get the state of the current body from the ephemeris in the global frame. Calling
-     * this function calls the bodyEphemeris_ object, not the currentState_ variable. In addition,
-     * it adds the global frame origin w.r.t. the ephemeris origin using the
-     * ephemerisFrameToBaseFrameFunction_ variable.
-     * \param time Time at which the global state is to be retrieved.
-     * \return Global state at current time, obtained from ephemeris and ephemerisFrameToBaseFrameFunction_
-     */
-    basic_mathematics::Vector6d getStateInBaseFrameFromEphemeris( const double& time )
-    {
-        return bodyEphemeris_->getCartesianStateFromEphemeris( time ) + ephemerisFrameToBaseFrameFunction_( time );
-    }
-
-    //! Function to get the long precisien state of the current body from ephemeris in the global frame
-    /*!
-     * Function to get the state of the current body, in long double precision, from the ephemeris
-     * in the global frame.  Calling this function calls the bodyEphemeris_ object, not the
-     * currentLongState_ variable.  In addition, it adds the global frame origin w.r.t. the
-     * ephemeris origin using the ephemerisFrameToBaseFrameLongFunction_ variable.
-     * \param time Time at which the global state is to be retrieved.
-     * \return Global state in long double precision at current time, obtained from ephemeris and
-     * ephemerisFrameToBaseFrameLongFunction_
-     */
-    Eigen::Matrix< long double, 6, 1 > getLongStateInBaseFrameFromEphemeris( const double& time )
-    {
-        return bodyEphemeris_->getCartesianLongStateFromEphemeris( time ) + ephemerisFrameToBaseFrameLongFunction_( time );
-    }
-
-
-
-    //! Function to set the state of the current body from the ephemeris in the global frame
-    /*!
-     * Function to set the state of the current body from the ephemeris in the global frame
-     * (currentState_ variable).  Calling this function uses the bodyEphemeris_ object, and adds the
-     * global frame origin w.r.t. the ephemeris origin using the ephemerisFrameToBaseFrameFunction_
-     * variable.Note that this function does not set the currentLongState_, use the setLongState
-     * when needing the use of the long precision current state.
-     * \param time Time at which the global state is to be set.
-     */
-    void setStateFromEphemeris( const double& time )
-    {
-        currentState_ = bodyEphemeris_->getCartesianStateFromEphemeris( time ) + ephemerisFrameToBaseFrameFunction_( time );
-    }
-
-    //! Function to set long precision state of the current body from ephemeris in the global frame.
-    /*!
-     * Function to set the state of the current body from the ephemeris in the global frame in long
-     * double precision (currentLongState_ variable). Calling this function uses the bodyEphemeris_
-     * object, and adds the global frame origin w.r.t. the ephemeris origin using the
-     * ephemerisFrameToBaseFrameLongFunction_ variable.  Note that this function sets both the
-     * currentState_ and currentLongState_ variables (currentLongState_ directly and currentState_
-     * by casting the input to double entries).
-     * \param time Time at which the global state is to be set.
-     */
-    void setLongStateFromEphemeris( const double& time )
-    {
-        currentLongState_ = bodyEphemeris_->getCartesianLongStateFromEphemeris( time ) +
-                ephemerisFrameToBaseFrameLongFunction_( time );
-        currentState_ = currentLongState_.cast< double >( );
-    }
-
-
-
     //! Templated function to set the state manually.
     /*!
      * Templated function to set the state manually, calls either setState or setLongState function.
@@ -176,23 +283,58 @@ public:
     //! global-to-ephemeris-frame function.
     /*!
      * Templated function to set the current state of the body from its ephemeris and
-     * global-to-ephemeris-frame function. It calls either the setStateFromEphemeris or
-     * setLongStateFromEphemeris function.
+     * global-to-ephemeris-frame function. It sets both the currentState_ and currentLongState_ variables. F
+     * FUndamental coputation is done on state with StateScalarType precision as a function of TimeType time
      * \param time Time at which the global state is to be set.
      */
-    template< typename StateScalarType, typename TimeType >
-    void setTemplatedStateFromEphemeris( const TimeType& time );
+    template< typename StateScalarType = double, typename TimeType = double >
+    void setStateFromEphemeris( const TimeType& time )
+    {
+        if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
+        {
+            if( sizeof( StateScalarType ) == 8 )
+            {
+                currentState_ =
+                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                        template cast< double >( );
+                currentLongState_ = currentState_.template cast< long double >( );
+            }
+            else
+            {
+                currentLongState_ =
+                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                        template cast< long double >( );
+                currentState_ = currentLongState_.template cast< double >( );
+            }
+
+            timeOfCurrentState_ = static_cast< TimeType >( time );
+        }
+    }
 
     //! Templated function to get the current state of the body from its ephemeris and
     //! global-to-ephemeris-frame function.
     /*!
-     * Templated function to sgt the current state of the body from its ephemeris and
-     * global-to-ephemeris-frame function.  It calls either the getStateInBaseFrameFromEphemeris or
-     * getLongStateInBaseFrameFromEphemeris function.
-     * \param time Time at which the global state is to be set.
+     * Templated function to get the current state of the body from its ephemeris and
+     * global-to-ephemeris-frame function.  It calls the setStateFromEphemeris state, resetting the currentState_ /
+     * currentLongState_ variables, and returning the state with the requested precision
+     * \return State at requested time
      */
-    template< typename StateScalarType, typename TimeType >
-    Eigen::Matrix< StateScalarType, 6, 1 > getTemplatedStateInBaseFrameFromEphemeris( const TimeType& time );
+    template< typename StateScalarType = double, typename TimeType = double >
+    Eigen::Matrix< StateScalarType, 6, 1 > getStateInBaseFrameFromEphemeris( const TimeType time )
+    {
+       setStateFromEphemeris< StateScalarType, TimeType >( time );
+       if( sizeof( StateScalarType ) == 8 )
+       {
+           return currentState_.template cast< StateScalarType >( );
+       }
+       else
+       {
+           return currentLongState_.template cast< StateScalarType >( );
+       }
+
+    }
 
     //! Get current state.
     /*!
@@ -237,6 +379,11 @@ public:
      */
     Eigen::Matrix< long double, 3, 1 > getLongVelocity( ) { return currentLongState_.segment( 3, 3 ); }
 
+    //! Templated function to retrieve the state.
+    /*!
+     * Templated function to retrieve the state, calls either getState or getLongState function.
+     * \return  Current state of the body, with StateScalarType precision.
+     */
     template< typename ScalarStateType >
     Eigen::Matrix< ScalarStateType, 6, 1 > getTemplatedState( );
 
@@ -401,33 +548,6 @@ public:
     void setEphemeris( const boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
-    }
-
-    //! Function to set the function returning the state of this body's ephemeris origin
-    /*!
-     *  Function to set the function returning the state of this body's ephemeris origin w.r.t. the
-     *  global origin (typically done by setGlobalFrameBodyEphemerides function).
-     *  \param ephemerisFrameToBaseFrameFunction Function providing state of ephemeris origin w.r.t
-     *  global origin.
-     */
-    void setBaseFrameFunction( const boost::function< basic_mathematics::Vector6d( const double& ) >
-                               ephemerisFrameToBaseFrameFunction )
-    {
-        ephemerisFrameToBaseFrameFunction_ = ephemerisFrameToBaseFrameFunction;
-    }
-
-    //! Function to set the function returning the state (in long double) of body's ephemeris origin
-    /*!
-     *  Function to set the function returning the state of this body's ephemeris origin w.r.t. the
-     *  global origin, with long double precision (typically done by setGlobalFrameBodyEphemerides
-     *  function).
-     *  \param ephemerisFrameToBaseFrameLongFunction Function providing state of ephemeris origin
-     *  w.r.t global origin, with long double precision.
-     */
-    void setBaseFrameLongFunction( const boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) >
-                                   ephemerisFrameToBaseFrameLongFunction )
-    {
-        ephemerisFrameToBaseFrameLongFunction_ = ephemerisFrameToBaseFrameLongFunction;
     }
 
     //! Function to set the gravity field of the body.
@@ -823,6 +943,7 @@ public:
         {
             std::cerr<<"Warning, station "<<stationName<<" does not exist"<<std::endl;
         }
+
         return groundStationMap.at( stationName );
     }
 
@@ -852,6 +973,15 @@ public:
         }
     }
 
+    //! Function to indicate that the state needs to be recomputed on next call to setStateFromEphemeris.
+    /*!
+     * Function to reset the time to which the state was last updated using setStateFromEphemeris function to nan, thereby
+     * singalling that it needs to be recomputed upon next call.
+     */
+    void recomputeStateOnNextCall( )
+    {
+        timeOfCurrentState_ = Time( TUDAT_NAN );
+    }
 
 protected:
 
@@ -864,21 +994,14 @@ private:
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
 
+    //! Time at which state was last set from ephemeris
+    Time timeOfCurrentState_;
 
 
 
-    //! Function returning the state of this body's ephemeris origin w.r.t. the global origin
-    //! (as set by setGlobalFrameBodyEphemerides function).
-    boost::function< basic_mathematics::Vector6d( const double& ) >
-    ephemerisFrameToBaseFrameFunction_;
-
-    //! Function returning the state of this body's ephemeris origin w.r.t. the global origin
-    //! (as set by setGlobalFrameBodyEphemerides function), with long double precision
-    boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) >
-    ephemerisFrameToBaseFrameLongFunction_;
-
-
-
+    //! Class returning the state of this body's ephemeris origin w.r.t. the global origin (as typically created by
+    //! setGlobalFrameBodyEphemerides function).
+    boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame_;
 
     //! Current rotation from the global to the body-fixed frame.
     Eigen::Quaterniond currentRotationToLocalFrame_;

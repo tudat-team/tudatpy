@@ -29,11 +29,16 @@ public:
      *  Constructor for spice ephemeris, sets frames between which rotation is determined.
      * \param baseFrameOrientation Base frame identifier.
      * \param targetFrameOrientation Target frame identifier.
+     * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
      */
     SpiceRotationalEphemeris( const std::string& baseFrameOrientation = "ECLIPJ2000",
-                              const std::string& targetFrameOrientation = ""  ):
+                              const std::string& targetFrameOrientation = "",
+                              const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
-    { }
+    {
+        referenceDayOffSet_ = ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY;
+    }
 
     //! Destructor
     /*!
@@ -46,34 +51,26 @@ public:
      *  Function to calculate the rotation quaternion from target frame to original frame at
      *  specified time, calculated by call to pxform_c spice function
      *  (through computeRotationQuaternionBetweenFrames function)
-     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     *  at which rotation is to be calculated.
-     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *  in secondsSinceEpoch are counted.
+     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated...
      *  \return Rotation from target (typically local) to original (typically global) frame at
      *  specified time.
      */
     Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
 
     //! Function to calculate the rotation quaternion from original frame to target frame.
     /*!
      *  Function to calculate the rotation quaternion from original frame to target frame at
      *  specified time, calculated by call to pxform_c spice function
      *  (through computeRotationQuaternionBetweenFrames function)
-     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     *  at which rotation is to be calculated.
-     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *  in secondsSinceEpoch are counted.
+     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
      *  \return Rotation from original (typically global) to target (typically local)
      *  frame at specified time.
      */
     Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+            const double secondsSinceEpoch )
     {
-        return getRotationToBaseFrame( secondsSinceEpoch, julianDayAtEpoch ).inverse( );
+        return getRotationToBaseFrame( secondsSinceEpoch ).inverse( );
     }
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original
@@ -81,15 +78,12 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time, calculated by SPICE sx_form function.
-     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
 
 
     //! Function to calculate the derivative of the rotation matrix from original frame to target
@@ -97,18 +91,14 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time, calculated by SPICE sx_form function.
-     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+            const double secondsSinceEpoch )
     {
-        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch, julianDayAtEpoch ).
-                transpose( );
+        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ). transpose( );
     }
 
     //! Function to calculate the full rotational state at given time
@@ -120,16 +110,18 @@ public:
      * frame (returned by reference)
      * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed
      * in global frame (returned by reference)
-     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
-     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     * counted (default J2000).
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated...
      */
     void getFullRotationalQuantitiesToTargetFrame(
             Eigen::Quaterniond& currentRotationToLocalFrame,
             Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
             Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
+
+private:
+
+    //! Offset of reference julian day (from J2000) w.r.t. which ephemeris is evaluated.
+    double referenceDayOffSet_;
 
 };
 

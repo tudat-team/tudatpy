@@ -62,7 +62,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
 public:
@@ -95,7 +95,7 @@ public:
      * last step size that was computed or passed to performIntegrationStep( ).
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const = 0;
+    virtual TimeStepType getNextStepSize( ) const = 0;
 
     //! Get current state.
     /*!
@@ -140,8 +140,8 @@ public:
      */
     virtual StateType integrateTo(
             const IndependentVariableType intervalEnd,
-            const IndependentVariableType initialStepSize,
-            const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( )  );
+            const TimeStepType initialStepSize,
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
 
     //! Perform a single integration step.
     /*!
@@ -153,7 +153,7 @@ public:
      * \param stepSize The step size of this step.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize ) = 0;
+    virtual StateType performIntegrationStep( const TimeStepType stepSize ) = 0;
 
     //! Function to return the function that computes and returns the state derivative
     /*!
@@ -176,24 +176,26 @@ protected:
 };
 
 //! Perform an integration to a specified independent variable value.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
-StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType >::
-integrateTo( const IndependentVariableType intervalEnd,
-             const IndependentVariableType initialStepSize,
-             const IndependentVariableType finalTimeTolerance )
+template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::integrateTo(
+        const IndependentVariableType intervalEnd,
+        const TimeStepType initialStepSize,
+        const TimeStepType finalTimeTolerance )
 {
-    IndependentVariableType stepSize = initialStepSize;
+    TimeStepType stepSize = initialStepSize;
 
     // Flag to indicate that the integration end value of the independent variable has been
     // reached.
-    bool atIntegrationIntervalEnd = ( intervalEnd - getCurrentIndependentVariable( ) )
-            * stepSize / std::fabs( stepSize ) <= finalTimeTolerance;
+    bool atIntegrationIntervalEnd = static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) )
+            * stepSize / std::fabs( stepSize )
+            <= finalTimeTolerance;
 
     int loopCounter = 0;
     while ( !atIntegrationIntervalEnd )
     {
         // Check if the remaining interval is smaller than the step size.
-        if ( std::fabs( intervalEnd - getCurrentIndependentVariable( ) ) <= std::fabs( stepSize ) *
+        if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
+             <= std::fabs( stepSize ) *
              ( 1.0 + finalTimeTolerance ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
@@ -218,7 +220,8 @@ integrateTo( const IndependentVariableType intervalEnd,
         {
             // As long as intervalEnd is not reached, perform additional steps with the remaining time
             // as suggested step size for the variable step size routine.
-            if( std::fabs( intervalEnd - getCurrentIndependentVariable( ) ) > finalTimeTolerance )
+            if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) >
+                    finalTimeTolerance )
             {
                 // Ensure that integrateTo function does not get stuck in a loop.
                 if( loopCounter < 1000 )

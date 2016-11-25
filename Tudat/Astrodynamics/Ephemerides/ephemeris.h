@@ -43,9 +43,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
+#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
 
 namespace tudat
 {
@@ -82,35 +84,59 @@ public:
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given Julian date.
-     * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+    virtual basic_mathematics::Vector6d getCartesianState(
+            const double secondsSinceEpoch ) = 0;
 
     //! Get state from ephemeris (with long double as state scalar).
     /*!
      * Returns state from ephemeris with long double as state scalar at given time. By default, this
-     * function casts the double getCartesianStateFromEphemeris to long double. It may be overridden
+     * function casts the double getCartesianState to long double. It may be overridden
      * by derived classes to make use of full long double computations.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State from ephemeris with long double as state scalar
      */
-    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
+            const double secondsSinceEpoch )
     {
-        return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
+        return getCartesianState( secondsSinceEpoch ).cast< long double >( );
+    }
+
+
+    //! Get state from ephemeris (with double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with double as state scalar at given time (as custom Time type). By default, this
+     * function casts the double getCartesianState to double. It may be overridden
+     * by derived classes.
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with double as state scalar
+     */
+    virtual basic_mathematics::Vector6d getCartesianStateFromExtendedTime(
+            const Time& currentTime )
+    {
+        return getCartesianState( currentTime.getSeconds< double >( ) );
+    }
+
+    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type). By default, this
+     * function casts the double getCartesianState to long double. It may be overridden
+     * by derived classes to make use of full long double computations.
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with long double as state scalar
+     */
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
+            const Time& currentTime )
+    {
+        return getCartesianLongState( currentTime.getSeconds< double >( ) );
     }
 
     //! Get state from ephemeris, with state scalar as template type.
     /*!
      * Returns state from ephemeris (state scalar as template type) at given time.
-     * \param time Time at which ephemeris is to be evaluated (JULIAN_DAY_ON_J2000 used as reference
-              julian day when needed).
+     * \param time Time at which ephemeris is to be evaluated
      * \return State from ephemeris with requested state scalar type.
      */
     template< typename StateScalarType, typename TimeType >
