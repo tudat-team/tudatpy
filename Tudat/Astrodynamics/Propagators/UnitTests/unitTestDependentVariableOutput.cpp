@@ -41,7 +41,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
 //! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
-//! are compred against theoretical/manual values in this test.
+//! are compared against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 {
     using namespace tudat;
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
     bodiesToPropagate.push_back( "Apollo" );
     centralBodies.push_back( "Earth" );
@@ -188,14 +188,14 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
             dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    std::map< double, Eigen::VectorXd > dependentVariableSoution =
+    std::map< double, Eigen::VectorXd > dependentVariableSolution =
             dynamicsSimulator.getDependentVariableHistory( );
 
     // Iterate over results for dependent variables, and check against manually retrieved values.
     basic_mathematics::Vector6d currentStateDerivative;
     Eigen::Vector3d manualCentralGravity;
-    for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSoution.begin( );
-         variableIterator != dependentVariableSoution.end( ); variableIterator++ )
+    for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
+         variableIterator != dependentVariableSolution.end( ); variableIterator++ )
     {
         currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                     variableIterator->first, numericalSolution.at( variableIterator->first ) );

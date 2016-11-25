@@ -135,6 +135,10 @@ std::map< propagators::EnvironmentModelsToUpdate,
                         propagatorSettings )->massRateModels_, bodyMap );
         break;
     }
+    case custom_state:
+    {
+        break;
+    }
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +
@@ -176,6 +180,7 @@ createEnvironmentUpdaterForDynamicalEquations(
     std::map< IntegratedStateType,
         std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );
+
     std::map< propagators::EnvironmentModelsToUpdate,
         std::vector< std::string > > environmentModelsToUpdate =
             createEnvironmentUpdaterSettings< StateScalarType >( propagatorSettings, bodyMap );
