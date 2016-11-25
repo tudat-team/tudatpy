@@ -37,6 +37,7 @@
  *      110913    K. Kumar          Implemented automatic root-path functions based on
  *                                  suggestions by M. Persson.
  *      111117    K. Kumar          Added listAllFilesInDirectory( ) function.
+ *      160930    M. Van den Broeck Added computeNearestNeighborUsingBinarySearch function
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -102,6 +103,67 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Set current position to left limit.
     currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
+
+    // Return current position in vector.
+    return currentPositionInVectorOfSortedData;
+}
+
+//! Nearest neighbor binary search.
+int computeNearestNeighborUsingBinarySearch(
+        const Eigen::VectorXd& vectorOfSortedData,
+        const double targetValueInVectorOfSortedData )
+{
+    // Declare local variables.
+    // Declare bounds of vector of sorted data and current position.
+    int leftLimitOfVectorOfSortedData = 0;
+    int rightLimitOfVectorOfSortedData = vectorOfSortedData.rows( ) - 1;
+    int currentPositionInVectorOfSortedData;
+
+    // Check if data is sorted in ascending order.
+    // ( true if ascending, else false ).
+    bool isVectorOfSortedDataAscending
+            = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
+                >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
+
+    // Loop through vector of sorted data until left and right limits
+    // are neighbours.
+    while ( rightLimitOfVectorOfSortedData
+            - leftLimitOfVectorOfSortedData > 1 ) // No rounding off errors because limits are integers
+    {
+        // Compute midpoint ( bitshift is same as division by 2.0 ).
+        currentPositionInVectorOfSortedData
+                = ( rightLimitOfVectorOfSortedData
+                    + leftLimitOfVectorOfSortedData ) >> 1;
+
+        // Check which limit to replace ( if ascending and target datum
+        // is in right half, replace left limit ).
+        if ( targetValueInVectorOfSortedData
+             >= vectorOfSortedData[ currentPositionInVectorOfSortedData ]
+             && isVectorOfSortedDataAscending )
+        {
+            // Set left limit to current position in vector of sorted data.
+            leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
+        }
+
+        else
+        {
+            // Set right limit to current position in vector of sorted data.
+            rightLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
+        }
+    }
+
+    // Set current position to left or right limit, whichever is closer.
+    currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
+    if( ( ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ] +
+              vectorOfSortedData[ leftLimitOfVectorOfSortedData ] ) / 2.0 ) < targetValueInVectorOfSortedData )
+    {
+        currentPositionInVectorOfSortedData = rightLimitOfVectorOfSortedData;
+    }
+
+    else
+    {
+        currentPositionInVectorOfSortedData = leftLimitOfVectorOfSortedData;
+    }
 
     // Return current position in vector.
     return currentPositionInVectorOfSortedData;
