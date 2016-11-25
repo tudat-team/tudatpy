@@ -67,7 +67,14 @@ public:
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
+        resetDerivedClassCurrentTime( currentTime );
     }
+
+    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+
+    }
+
 
 protected:
 
@@ -91,16 +98,20 @@ public:
      * \param thrustMagnitudeFunction Function returning thrust as a function of time.
      * \param specificImpulseFunction Function returning specific impulse as a function of time.
      * \param isEngineOnFunction Function returning whether the function is on (returns true if so) at a given time.
+     * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
+     * being started (empty by default)
      */
     CustomThrustMagnitudeWrapper(
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
-            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
+            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ,
+            const boost::function< void( const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
-        currentSpecificImpulse_( TUDAT_NAN ){ }
+        currentSpecificImpulse_( TUDAT_NAN ),
+        customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Destructor.
     ~CustomThrustMagnitudeWrapper( ){ }
@@ -112,7 +123,7 @@ public:
      */
     void update( const double time )
     {
-        if( !( currentTime_ = time ) )
+        if( !( currentTime_ == time ) )
         {
             // If engine is one, update engine.
             if( isEngineOnFunction_( time ) )
@@ -126,6 +137,7 @@ public:
                 currentThrustMagnitude_ = 0.0;
                 currentSpecificImpulse_ = TUDAT_NAN;
             }
+            currentTime_ = time;
         }
     }
 
@@ -157,6 +169,14 @@ public:
         }
     }
 
+    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        if( !( customThrustResetFunction_.empty( ) ) )
+        {
+            customThrustResetFunction_( currentTime );\
+        }
+    }
+
 private:
 
     //! Function returning thrust as a function of time..
@@ -173,6 +193,8 @@ private:
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
+
+    boost::function< void( const double ) > customThrustResetFunction_;
 
 };
 

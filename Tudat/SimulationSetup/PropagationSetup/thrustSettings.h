@@ -274,17 +274,21 @@ public:
      * \param isEngineOnFunction Function returning boolean denoting whether thrust is to be used (thrust and mass rate
      * set to zero if false, regardless of output of thrustMagnitudeFunction).
      * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
+     * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
+     * being started (empty by default)
      */
     FromFunctionThrustEngineSettings(
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
             const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ),
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ),
+            const boost::function< void(  const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
         ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
+    customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Destructor.
     ~FromFunctionThrustEngineSettings( ){ }
@@ -300,6 +304,8 @@ public:
 
     //! Direction of thrust force in body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
+
+    boost::function< void( const double ) > customThrustResetFunction_;
 };
 
 class ParameterizedThrustMagnitudeSettings: public ThrustEngineSettings
