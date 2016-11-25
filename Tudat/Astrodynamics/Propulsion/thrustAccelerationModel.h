@@ -81,8 +81,6 @@ public:
      */
     Eigen::Vector3d getAcceleration( )
     {
-        this->updateMembers( currentTime_ );
-
         return currentAcceleration_;
     }
 
