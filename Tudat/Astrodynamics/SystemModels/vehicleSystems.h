@@ -104,7 +104,7 @@ public:
      * Function to (re)set the vehicle wall emissivity
      * \param wallEmissivity The vehicle wall emissivity that is to be set
      */
-    void setWallEmissivitys( const double wallEmissivity )
+    void setWallEmissivity( const double wallEmissivity )
     {
         wallEmissivity_ = wallEmissivity;
     }
