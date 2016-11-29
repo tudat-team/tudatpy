@@ -24,8 +24,7 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Constructor, sets objects and functions from which relevant environment and state variables
-//! are retrieved.
+//! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
@@ -38,6 +37,7 @@ FlightConditions::FlightConditions(
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
     currentTime_( TUDAT_NAN )
 {
+    // Check if given body shape is an oblate spheroid and set geodetic latitude function if so
     if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != NULL )
     {
         geodeticLatitudeFunction_ = boost::bind(
@@ -45,16 +45,19 @@ FlightConditions::FlightConditions(
                     boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
                     _1, 1.0E-4 );
     }
-    updateLatitudeAndLongitudeForAtmosphere_ = 0;
-    isLatitudeAndLongitudeSet_ = 0;
 
+    // Link body-state function.
     bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
                 &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
 
+    // Check if atmosphere requires latitude and longitude update.
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
         updateLatitudeAndLongitudeForAtmosphere_ = 1;
     }
+    updateLatitudeAndLongitudeForAtmosphere_ = 0;
+    isLatitudeAndLongitudeSet_ = 0;
+
 
     if( updateLatitudeAndLongitudeForAtmosphere_ && aerodynamicAngleCalculator_== NULL )
     {
@@ -114,6 +117,7 @@ void FlightConditions::updateConditions( const double currentTime )
     }
 }
 
+//! Function to update the independent variables of the aerodynamic coefficient interface
 void FlightConditions::updateAerodynamicCoefficientInput( )
 {
     aerodynamicCoefficientIndependentVariables_.clear( );
@@ -154,7 +158,7 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
             {
                 throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
             }
-            aerodynamicCoefficientIndependentVariables_.push_back( currentAltitude_ );
+            aerodynamicCoefficientIndependentVariables_.push_back( getCurrentAltitude( ) );
             break;
         default:
             if( customCoefficientDependencies_.count(

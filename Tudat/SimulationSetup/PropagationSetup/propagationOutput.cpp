@@ -62,6 +62,7 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
+//! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
         const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
