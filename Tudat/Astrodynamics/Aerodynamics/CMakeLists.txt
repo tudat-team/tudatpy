@@ -45,6 +45,7 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/trimOrientation.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.cpp"
 )
 
 # Set the header files.
@@ -67,7 +68,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/testApolloCapsuleCoefficients.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/heatFluxFunction.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.h"
 )
 
 if(USE_NRLMSISE00)
@@ -88,7 +89,6 @@ add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMI
 setup_custom_test_program(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicMomentAndAerodynamicForce ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics ${Boost_LIBRARIES})
@@ -108,6 +108,10 @@ target_link_libraries(test_TabulatedAtmosphere tudat_aerodynamics tudat_interpol
 add_executable(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp")
 setup_custom_test_program(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_TabulatedAerodynamicCoefficients ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestHeatTransfer.cpp")
+setup_custom_test_program(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_HeatTransfer tudat_aerodynamics tudat_root_finders tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")

@@ -46,12 +46,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
-#include "Tudat/Astrodynamics/Aerodynamics/heatFluxFunction.h"
-
-#include "Tudat/Mathematics/RootFinders/rootFinder.h"
-#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
-#include "Tudat/Mathematics/RootFinders/bisection.h"
-#include "Tudat/Mathematics/RootFinders/secantRootFinder.h"
+#include "Tudat/Astrodynamics/Aerodynamics/equilibriumWallTemperature.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -525,15 +520,9 @@ double computeMachNumber( const double speed, const double speedOfSound )
 //! Function to compute the mean free path of a particle.
 double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
 {
-    return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
+    return 1.0 / ( std::sqrt( 2.0 ) * mathematical_constants::PI * weightedAverageCollisionDiameter *
                    weightedAverageCollisionDiameter * averageNumberDensity );
 }
-
-double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynamicAccelerationVector )
-{
-    return aerodynamicAccelerationVector.norm( ) / physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;
-}
-
 
 //! Compute the aerodynamic load experienced by a vehicle.
 double computeAerodynamicLoad( const double airDensity,
@@ -542,32 +531,27 @@ double computeAerodynamicLoad( const double airDensity,
                                const double vehicleMass,
                                const Eigen::Vector3d& aerodynamicForceCoefficients )
 {
-    return computeAerodynamicLoadFromAcceleration( 0.5 * airDensity * airSpeed * airSpeed * referenceArea * aerodynamicForceCoefficients / vehicleMass );
+    return computeAerodynamicLoadFromAcceleration(
+                0.5 * airDensity * airSpeed * airSpeed * referenceArea * aerodynamicForceCoefficients / vehicleMass );
 }
 
-//! Compute the heat flux experienced by a vehicle.
+
+//! Function to compute the aerodynamic load experienced by a vehicle.
+double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynamicAccelerationVector )
+{
+    return aerodynamicAccelerationVector.norm( ) / physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;
+}
+
+//! Funtion to compute the equilibrium heat flux experienced by a vehicle
 double computeEquilibriumHeatflux( const boost::function< double( const double ) > heatTransferFunction,
                                    const double wallEmmisivity,
                                    const double adiabaticWallTemperature )
 {
-    // Create the object that contains the function who's root needs to be found.
-    boost::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction
-            = boost::make_shared< EquilibriumTemperatureFunction >(
-                heatTransferFunction, wallEmmisivity, adiabaticWallTemperature  );
-
-    // Attempt to find the root using the secant method.
-    static tudat::root_finders::SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< tudat::root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double > >(
-                             ), _1, _2, _3, _4, _5 );
-
-    static tudat::root_finders::SecantRootFinder secant( terminationConditionFunction );
-
-    double wallTemperature = secant.execute( equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
-
-    return heatTransferFunction( wallTemperature );
+    return heatTransferFunction( computeEquilibiumWallTemperature(
+                                     heatTransferFunction, wallEmmisivity, adiabaticWallTemperature ) );
 }
 
+//! Function to compute the heat flux experienced by a vehicle, assuming an equlibrium wall temperature.
 double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
                                              const double airSpeed,
                                              const double airTemperature,
@@ -587,21 +571,17 @@ double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
     return computeEquilibriumHeatflux( heatTransferFunction, wallEmissivity, adiabaticWallTemperature );
 }
 
+//! Function to compute the heat flux experienced by a vehicle.
 double computeFayRiddellHeatFlux( const double airDensity,
                                   const double airSpeed,
                                   const double airTemperature,
                                   const double noseRadius,
                                   const double wallTemperature )
 {
-    // Auxiliary constants.
-    const double heatFluxConstant = 3.53E-4;
 
     // Compute the current heat flux.
-    double currentHeatFlux
-            = heatFluxConstant * sqrt( airDensity * std::pow( airSpeed , 2.0 ) / noseRadius )
+    return FAY_RIDDEL_HEAT_FLUX_CONSTANT * sqrt( airDensity * std::pow( airSpeed , 2.0 ) / noseRadius )
             * ( 0.5 * std::pow( airSpeed , 2.0 ) + 1004.0 * ( airTemperature - wallTemperature ) );
-
-    return currentHeatFlux;
 }
 
 //! Compute the adiabatic wall temperature experienced by a vehicle.
