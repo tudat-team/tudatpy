@@ -644,14 +644,15 @@ void testIsIdentityMatrix( const Eigen::Matrix3d matrixToTest )
 void testIsRotationMatrixRightHanded( const Eigen::Matrix3d matrixToTest )
 {
     Eigen::Vector3d expectedUnitVectorZ =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 0, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 1, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorX =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 1, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 2, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorY  =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 2, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 0, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) );
+
     for( unsigned int i = 0; i < 3; i++ )\
     {
         BOOST_CHECK_CLOSE_FRACTION(
