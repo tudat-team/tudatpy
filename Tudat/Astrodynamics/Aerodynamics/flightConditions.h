@@ -177,7 +177,7 @@ public:
     {
         if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
         {
-            computeGeodeticLAtitude( );
+            computeGeodeticLatitude( );
         }
         return scalarFlightConditions_.at( geodetic_latitude_condition );
     }
@@ -318,7 +318,7 @@ private:
         if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
               scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
         {
-            if( updateLatitudeAndLongitudeForAtmosphere_ )
+           if( updateLatitudeAndLongitudeForAtmosphere_ )
             {
                 computeLatitudeAndLongitude( );
             }
@@ -327,7 +327,6 @@ private:
                 scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
                 scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
             }
-
         }
 
         if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
@@ -383,7 +382,7 @@ private:
     }
 
     //! Function to compute and set the current geodetic latitude.
-    void computeGeodeticLAtitude( )
+    void computeGeodeticLatitude( )
     {
         if( !geodeticLatitudeFunction_.empty( ) )
         {

@@ -55,7 +55,10 @@ FlightConditions::FlightConditions(
     {
         updateLatitudeAndLongitudeForAtmosphere_ = 1;
     }
-    updateLatitudeAndLongitudeForAtmosphere_ = 0;
+    else
+    {
+        updateLatitudeAndLongitudeForAtmosphere_ = 0;
+    }
     isLatitudeAndLongitudeSet_ = 0;
 
 
