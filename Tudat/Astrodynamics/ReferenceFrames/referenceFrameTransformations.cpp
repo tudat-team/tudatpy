@@ -53,6 +53,9 @@
  *
  */
 
+#include <iostream>
+#include <iomanip>
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -222,8 +225,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
         const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
-    return getVelocityBasedLvlhToInertialRotation( 
-            vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
+    return getVelocityBasedLvlhToInertialRotation(
+                vehicleStateFunction( ), centralBodyStateFunction( ), doesNaxisPointAwayFromCentralBody );
 }
 
 //! Get rotation from velocity based LVLH frame to planetocentric frame.
