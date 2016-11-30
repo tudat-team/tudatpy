@@ -713,10 +713,10 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         relativeState = vehicleStateCartesian - centralBodyStateCartesian;
 
         // Test if n axis indeed points away from body
-        double positionDotProuctWithNAwayFromBody =
+        double positionDotProductWithNAwayFromBody =
                 Eigen::Vector3d( nAxisAwayFromBodyMatrix.block( 0, 1, 3, 1 ) ).dot(
                     relativeState.segment( 0, 3 ).normalized( ) );
-        BOOST_CHECK_EQUAL( positionDotProuctWithNAwayFromBody > 0, 1 );
+        BOOST_CHECK_EQUAL( positionDotProductWithNAwayFromBody > 0, 1 );
 
         // Test if n axis indeed points towards body
         double positionDotProuctWithNTowardsBody =
@@ -725,7 +725,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         BOOST_CHECK_EQUAL( positionDotProuctWithNTowardsBody < 0, 1 );
 
         // Check if axes point exactly in opposite directions
-        BOOST_CHECK_CLOSE_FRACTION( positionDotProuctWithNAwayFromBody, -positionDotProuctWithNTowardsBody,
+        BOOST_CHECK_CLOSE_FRACTION( positionDotProductWithNAwayFromBody, -positionDotProuctWithNTowardsBody,
                                     std::numeric_limits< double >::epsilon( ) );
 
         // Test if two matrices compare as they should
