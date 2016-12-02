@@ -644,14 +644,15 @@ void testIsIdentityMatrix( const Eigen::Matrix3d matrixToTest )
 void testIsRotationMatrixRightHanded( const Eigen::Matrix3d matrixToTest )
 {
     Eigen::Vector3d expectedUnitVectorZ =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 0, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 1, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorX =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 1, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 2, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorY  =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 2, 0, 3 ) ) ).cross(
-                Eigen::Vector3d( matrixToTest.block( 0, 0, 0, 3 ) ) );
+           ( Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) ).cross(
+                Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) );
+
     for( unsigned int i = 0; i < 3; i++ )\
     {
         BOOST_CHECK_CLOSE_FRACTION(
@@ -712,10 +713,10 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         relativeState = vehicleStateCartesian - centralBodyStateCartesian;
 
         // Test if n axis indeed points away from body
-        double positionDotProuctWithNAwayFromBody =
+        double positionDotProductWithNAwayFromBody =
                 Eigen::Vector3d( nAxisAwayFromBodyMatrix.block( 0, 1, 3, 1 ) ).dot(
                     relativeState.segment( 0, 3 ).normalized( ) );
-        BOOST_CHECK_EQUAL( positionDotProuctWithNAwayFromBody > 0, 1 );
+        BOOST_CHECK_EQUAL( positionDotProductWithNAwayFromBody > 0, 1 );
 
         // Test if n axis indeed points towards body
         double positionDotProuctWithNTowardsBody =
@@ -724,7 +725,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         BOOST_CHECK_EQUAL( positionDotProuctWithNTowardsBody < 0, 1 );
 
         // Check if axes point exactly in opposite directions
-        BOOST_CHECK_CLOSE_FRACTION( positionDotProuctWithNAwayFromBody, -positionDotProuctWithNTowardsBody,
+        BOOST_CHECK_CLOSE_FRACTION( positionDotProductWithNAwayFromBody, -positionDotProuctWithNTowardsBody,
                                     std::numeric_limits< double >::epsilon( ) );
 
         // Test if two matrices compare as they should
