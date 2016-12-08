@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
 
         // Get manual and automatic coefficients anf coompare.
         Eigen::Vector3d automaticCoefficients = coefficientInterface->getCurrentForceCoefficients( );
-        coefficientInterface->updateCurrentCoefficients(
+        coefficientInterface->updateFullCurrentCoefficients(
                     boost::assign::list_of( machNumber )( angleOfAttack )( angleOfSideslip  ) );
         Eigen::Vector3d manualCoefficients = coefficientInterface->getCurrentForceCoefficients( );
 

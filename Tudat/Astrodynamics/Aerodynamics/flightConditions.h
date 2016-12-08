@@ -28,7 +28,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-
 //! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
 //! integration.
 /*!
@@ -60,7 +59,9 @@ public:
                       aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                       aerodynamicAngleCalculator =
-            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
+            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ),
+                      const boost::function< double( const std::string& )> controlSurfaceDeflectionFunction =
+            boost::function< double( const std::string& )>( ) );
 
     //! Function to update all flight conditions.
     /*!
@@ -223,6 +224,10 @@ public:
 
 private:
 
+    double getAerodynamicCoefficientIndependentVariable(
+            const AerodynamicCoefficientsIndependentVariables independentVariableType,
+            const std::string& secondaryIdentifier = "" );
+
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
 
@@ -244,6 +249,8 @@ private:
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+
+    boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
 
     //! Current state of vehicle in base frame for Body objects.
     basic_mathematics::Vector6d currentBodyCenteredState_;
@@ -278,6 +285,7 @@ private:
     //! Current list of independent variables of the aerodynamic coefficient interface
     std::vector< double > aerodynamicCoefficientIndependentVariables_;
 
+    std::map< std::string, std::vector< double > > controlSurfaceAerodynamicCoefficientIndependentVariables_;
 };
 
 } // namespace aerodynamics

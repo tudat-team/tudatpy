@@ -86,7 +86,7 @@ double TrimOrientationCalculator::getPerturbedMomentCoefficient(
     // Update coefficients to perturbed independent variables
     std::vector< double > perturbedConditions = unperturbedConditions;
     perturbedConditions[ variableIndex_ ] = perturbedAngleOfAttack;
-    coefficientInterface_->updateCurrentCoefficients( perturbedConditions );
+    coefficientInterface_->updateFullCurrentCoefficients( perturbedConditions );
 
     // Get pitch moment coefficient
     return coefficientInterface_->getCurrentMomentCoefficients( )( 1 );

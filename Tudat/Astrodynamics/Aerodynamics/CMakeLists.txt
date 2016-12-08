@@ -63,6 +63,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/controlSurfaceAerodynamicCoefficientInterface.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
   "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/testApolloCapsuleCoefficients.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"

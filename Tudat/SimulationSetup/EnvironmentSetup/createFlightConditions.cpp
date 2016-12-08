@@ -41,7 +41,7 @@ createConstantCoefficientAerodynamicCoefficientInterface(
                 referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
                 std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
-    coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
+    coefficientInterface->updateFullCurrentCoefficients( std::vector< double >( ) );
 
     return coefficientInterface;
 }
@@ -252,10 +252,18 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 
 
     // Create flight conditions.
+    boost::function< double( const std::string& )> controlSurfaceDeflectionFunction;
+    if( bodyWithFlightConditions->getVehicleSystems( ) != NULL )
+    {
+        controlSurfaceDeflectionFunction = boost::bind(
+                    &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
+                    bodyWithFlightConditions->getVehicleSystems( ), _1 );
+    }
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getAtmosphereModel( ), altitudeFunction,
-                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator );
+                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator,
+                controlSurfaceDeflectionFunction );
 
 
 

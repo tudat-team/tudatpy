@@ -625,6 +625,35 @@ private:
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
+template< int NumberOfDimensions >
+boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::string forceCoefficientFile,
+        const std::string momentCoefficientFile,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = 1,
+        const bool areCoefficientsInNegativeAxisDirection = 1 )
+{
+
+}
+
+template< int NumberOfDimensions >
+boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::string forceCoefficientFile,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = 1,
+        const bool areCoefficientsInNegativeAxisDirection = 1 )
+{
+
+}
+
+
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
 /*!
  *  Function to create an aerodynamic coefficient interface containing constant coefficients,
