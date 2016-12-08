@@ -58,6 +58,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/exception/all.hpp>
 
 #include <Eigen/Core>
@@ -215,10 +216,24 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
     // Initialize return variable for new nearest left neighbor.
     int newNearestLowerIndex = 0;
 
+    for( unsigned int i = 0; i < independentValues_.size( ); i++ )
+    {
+        std::cout<<"Entry: "<<i<<" "<<independentValues_.at( i )<<std::endl;
+    }
+    std::cout<<"Previous index: "<<previousNearestLowerIndex_<<std::endl;
+    std::cout<<"Independent value: "<<independentVariableValue<<std::endl;
+
+
     // Initialize boolean denoting whether the new value has been found.
     bool isFound = 0;
 
     int independentValueVectorSize = static_cast< int >( independentValues_.size( ) );
+
+    if( independentValueVectorSize < 2 )
+    {
+        throw std::runtime_error( "Error in nearest neighbour search, size of input vector is " +
+                                  boost::lexical_cast< std::string >( independentValueVectorSize ) );
+    }
 
     // Check whether initial estimate is possible.
     if ( previousNearestLowerIndex_ < 0 ||
@@ -254,6 +269,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
         int jumpDirection;
 
         // Check direction of jumps that is needed.
+        std::cout<<"Test 1 "<<previousNearestLowerIndex_<<" "<<independentValues_.size( )<<std::endl;
         if ( independentVariableValue >= independentValues_[ previousNearestLowerIndex_ ] )
         {
             jumpDirection = 1;
@@ -266,6 +282,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
             lowerIndex = previousNearestLowerIndex_ - 1;
             upperIndex = previousNearestLowerIndex_;
         }
+        std::cout<<"Test 1.1 "<<lowerIndex<<" "<<upperIndex<<" "<<jumpDirection<<std::endl;
 
         // Boolean to denote whether the value is in te interval under consideration.
         bool isRegionReached = 0;
@@ -274,6 +291,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
         while ( !isFound )
         {
             // Check if value is in regio under consideration.
+            std::cout<<"Test 2 "<<lowerIndex<<" "<<upperIndex<<std::endl;
             if( independentVariableValue >= independentValues_[ lowerIndex ] &&
                     independentVariableValue <= independentValues_[ upperIndex ] )
             {
@@ -321,7 +339,12 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                 {
 
                     int middleIndex;
-                    assert( upperIndex - lowerIndex > 0 );
+                    if( ! ( upperIndex - lowerIndex ) > 0 )
+                    {
+                        throw std::runtime_error( "Error, upper and lower indices are inconsistent in nearest neighbour search" +
+                                                  boost::lexical_cast< std::string >( upperIndex ) + " " +
+                                                  boost::lexical_cast< std::string >( lowerIndex ) );
+                    }
 
                     // If the upper and lower indices have a difference of exactly one, the
                     // interval has been found.
@@ -336,6 +359,7 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                         jumpSize /= 2;
                         middleIndex = lowerIndex + jumpSize;
 
+                        std::cout<<"Test 3 "<<middleIndex<<std::endl;
                         // Check which half of interval is to be new interval.
                         if ( independentVariableValue < independentValues_[ middleIndex ] )
                         {
