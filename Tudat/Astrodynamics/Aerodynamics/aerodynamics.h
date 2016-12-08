@@ -53,6 +53,24 @@ namespace tudat
 namespace aerodynamics
 {
 
+
+//! Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
+/*!
+ *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
+ *  Note that for a custom coefficient interface with other variables, you may use the
+ *  undefined_independent_variable variable type, but at the expense of being able to use the
+ *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
+ */
+enum AerodynamicCoefficientsIndependentVariables
+{
+    mach_number_dependent = 0,
+    angle_of_attack_dependent = 1,
+    angle_of_sideslip_dependent = 2,
+    altitude_dependent = 3,
+    control_surface_deflection = 4,
+    undefined_independent_variable = 5
+};
+
 //! Maximum Prandtl-Meyer function value.
 /*!
  * Maximum Prandtl-Meyer function value for ratio of specific heats = 1.4.

@@ -79,6 +79,18 @@ public:
         return dryMass_;
     }
 
+    void setCurrentControlSurfaceDeflection(
+            const std::string& controlSurfaceId, const double deflectionAngle )
+    {
+        currentControlSurfaceDeflections_[ controlSurfaceId ] =  deflectionAngle;
+    }
+
+    double getCurrentControlSurfaceDeflection(
+            const std::string& controlSurfaceId )
+    {
+        return currentControlSurfaceDeflections_.at( controlSurfaceId );
+    }
+
 private:
 
     //! Named list of engine models in the vehicle
@@ -86,6 +98,8 @@ private:
 
     //! Total dry mass of the vehicle
     double dryMass_;
+
+    std::map< std::string, double > currentControlSurfaceDeflections_;
 
 };
 

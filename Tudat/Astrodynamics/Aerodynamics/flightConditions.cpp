@@ -29,12 +29,13 @@ FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
         const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
-        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-        aerodynamicAngleCalculator ):
+        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction ):
     atmosphereModel_( atmosphereModel ),
     altitudeFunction_( altitudeFunction ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
-    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),currentAltitude_( TUDAT_NAN ),
+    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
+    controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction ), currentAltitude_( TUDAT_NAN ),
     currentLatitude_( TUDAT_NAN ), currentLongitude_( TUDAT_NAN ), currentTime_( TUDAT_NAN )
 {
     updateLatitudeAndLongitude_ = 0;
@@ -120,9 +121,74 @@ void FlightConditions::updateConditions( const double currentTime )
         }
 
         // Update aerodynamic coefficients.
-        aerodynamicCoefficientInterface_->updateCurrentCoefficients(
-                    aerodynamicCoefficientIndependentVariables_ );
+        aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
+                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_ );
     }
+}
+
+double FlightConditions::getAerodynamicCoefficientIndependentVariable(
+        const AerodynamicCoefficientsIndependentVariables independentVariableType,
+        const std::string& secondaryIdentifier )
+{
+    double currentIndependentVariable;
+    switch( independentVariableType )
+    {
+    //Calculate Mach number if needed.
+    case mach_number_dependent:
+        currentIndependentVariable = aerodynamics::computeMachNumber(
+                    currentAirspeed_, atmosphereModel_->getSpeedOfSound(
+                        currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) );
+        break;
+        //Get angle of attack if needed.
+    case angle_of_attack_dependent:
+
+        if( aerodynamicAngleCalculator_== NULL )
+        {
+            throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
+        }
+        currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::angle_of_attack );
+        break;
+        //Get angle of sideslip if needed.
+    case angle_of_sideslip_dependent:
+        if( aerodynamicAngleCalculator_== NULL )
+        {
+            throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
+        }
+        currentIndependentVariable = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::angle_of_sideslip );
+        break;
+    case altitude_dependent:
+        if( aerodynamicAngleCalculator_== NULL )
+        {
+            throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
+        }
+        currentIndependentVariable = ( currentAltitude_ );
+        break;
+    case control_surface_deflection:
+        try
+    {
+        currentIndependentVariable = controlSurfaceDeflectionFunction_( secondaryIdentifier );
+    }
+        catch( std::runtime_error )
+        {
+            throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
+        }
+
+        break;
+    default:
+        if( customCoefficientDependencies_.count( independentVariableType ) == 0 )
+        {
+            throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
+                                      + boost::lexical_cast< std::string >( independentVariableType ) );
+        }
+        else
+        {
+            currentIndependentVariable = customCoefficientDependencies_.at( independentVariableType )( );
+        }
+    }
+
+    return currentIndependentVariable;
 }
 
 void FlightConditions::updateAerodynamicCoefficientInput( )
@@ -130,60 +196,23 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
     aerodynamicCoefficientIndependentVariables_.clear( );
 
     // Calculate independent variables for aerodynamic coefficients.
-    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->
-         getNumberOfIndependentVariables( ); i++ )
+    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
     {
-        switch( aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )
-        {
-        //Calculate Mach number if needed.
-        case mach_number_dependent:
-            aerodynamicCoefficientIndependentVariables_.push_back(
-                        aerodynamics::computeMachNumber(
-                        currentAirspeed_, atmosphereModel_->getSpeedOfSound(
-                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) ) );
-            break;
-        //Get angle of attack if needed.
-        case angle_of_attack_dependent:
+        aerodynamicCoefficientIndependentVariables_.push_back(
+                    getAerodynamicCoefficientIndependentVariable(
+                        aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+    }
 
-            if( aerodynamicAngleCalculator_== NULL )
-            {
-                throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
-            }
-            aerodynamicCoefficientIndependentVariables_.push_back(
-                        aerodynamicAngleCalculator_->getAerodynamicAngle(
-                            reference_frames::angle_of_attack ) );
-            break;
-        //Get angle of sideslip if needed.
-        case angle_of_sideslip_dependent:
-            if( aerodynamicAngleCalculator_== NULL )
-            {
-                throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
-            }
-            aerodynamicCoefficientIndependentVariables_.push_back(
-                        aerodynamicAngleCalculator_->getAerodynamicAngle(
-                            reference_frames::angle_of_sideslip ) );
-            break;
-        case altitude_dependent:
-            if( aerodynamicAngleCalculator_== NULL )
-            {
-                throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
-            }
-            aerodynamicCoefficientIndependentVariables_.push_back( currentAltitude_ );
-            break;
-        default:
-            if( customCoefficientDependencies_.count(
-                        aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) == 0 )
-            {
-                throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
-                                          + boost::lexical_cast< std::string >(
-                                              aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
-            }
-            else
-            {
-                aerodynamicCoefficientIndependentVariables_.push_back(
-                            customCoefficientDependencies_.at(
-                                aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )( ) );
-            }
+    controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
+    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ); i++ )
+    {
+        std::string currentControlSurface = aerodynamicCoefficientInterface_->getControlSurfaceName( i );
+        for( unsigned int j = 0; j < aerodynamicCoefficientInterface_->getNumberOfControlSurfaceIndependentVariables( currentControlSurface ); j++ )
+        {
+            controlSurfaceAerodynamicCoefficientIndependentVariables_[ currentControlSurface ].push_back(
+                        getAerodynamicCoefficientIndependentVariable(
+                            aerodynamicCoefficientInterface_->getControlSurfaceIndependentVariableName(
+                                currentControlSurface, j ), currentControlSurface ) );
         }
     }
 }
