@@ -187,6 +187,9 @@ int getDependentVariableSize(
     case control_surface_deflection_dependent_variable:
         variableSize = 1;
         break;
+    case total_mass_rate_dependent_variables:
+        variableSize = 1;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 boost::lexical_cast< std::string >( dependentVariableSettings );

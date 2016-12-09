@@ -31,7 +31,7 @@ public:
 
     //! Constructor
     ThrustMagnitudeWrapper( ):
-    currentTime_( TUDAT_NAN ){ }
+        currentTime_( TUDAT_NAN ){ }
 
     //! Destructor.
     virtual ~ThrustMagnitudeWrapper( ){ }
@@ -292,11 +292,14 @@ protected:
 
 enum ThrustDependentVariables
 {
+    time_dependent_thrust,
+    mach_number_dependent_thrust,
     altitude_dependent_thrust,
     density_dependent_thrust,
     dynamic_pressure_dependent_thrust,
     pressure_dependent_thrust,
-    guidance_input_dependent_thrust
+    guidance_input_dependent_thrust,
+    maximum_thrust_multiplier
 };
 
 class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
@@ -311,28 +314,33 @@ public:
      * \param isEngineOnFunction Function returning whether the function is on (returns true if so) at a given time.
      */
     ParameterizedThrustMagnitudeWrapper(
-            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
-            const std::vector< boost::function< double( ) > > inputVariableFunctions,
-            const boost::function< double( ) > specificImpulseFunction,
-            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables ):
-        thrustMagnitudeInterpolator_( thrustMagnitudeInterpolator ),
-        inputVariableFunctions_( inputVariableFunctions ),
+            const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
+            const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
+            const std::vector< boost::function< double( const double ) > > thrustInputVariableFunctions,
+            const std::vector< boost::function< double( const double ) > > specificImpulseInputVariableFunctions,
+            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables ):
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
+        thrustInputVariableFunctions_( thrustInputVariableFunctions ),
+        specificImpulseInputVariableFunctions_( specificImpulseInputVariableFunctions ),
         thrustDependentVariables_( thrustDependentVariables ),
+        specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN )
     {
-        if( thrustDependentVariables.size( ) != inputVariableFunctions.size( ) )
+        if( thrustInputVariableFunctions_.size( ) != thrustDependentVariables_.size( ) )
         {
-            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables" );
+            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables for thrust" );
         }
 
-        if( static_cast< int >( thrustDependentVariables.size( ) ) != thrustMagnitudeInterpolator->getNumberOfDimensions( ) )
+        if( specificImpulseInputVariableFunctions_.size( ) != specificImpulseDependentVariables_.size( ) )
         {
-            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables with interpolator" );
+            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables for Isp" );
         }
 
-        currentInputVariables_.resize( inputVariableFunctions_.size( ) );
+        currentThrustInputVariables_.resize( thrustInputVariableFunctions.size( ) );
+        currentSpecificImpulseInputVariables_.resize( specificImpulseInputVariableFunctions.size( ) );
     }
 
     //! Destructor.
@@ -345,15 +353,21 @@ public:
      */
     void update( const double time )
     {
-        if( !( currentTime_ = time ) )
+        if( !( currentTime_ == time ) )
         {
-            for( unsigned int i = 0; i < inputVariableFunctions_.size( ); i++ )
+            for( unsigned int i = 0; i < thrustInputVariableFunctions_.size( ); i++ )
             {
-                currentInputVariables_[ i ] = inputVariableFunctions_.at( i )( );
+                currentThrustInputVariables_[ i ] = thrustInputVariableFunctions_.at( i )( time );
             }
 
-            currentThrustMagnitude_ = thrustMagnitudeInterpolator_->interpolate( currentInputVariables_ );
-            currentSpecificImpulse_ = specificImpulseFunction_( );
+            currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );
+
+            for( unsigned int i = 0; i < specificImpulseInputVariableFunctions_.size( ); i++ )
+            {
+                currentSpecificImpulseInputVariables_[ i ] = specificImpulseInputVariableFunctions_.at( i )( time );
+            }
+
+            currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
         }
     }
 
@@ -374,21 +388,28 @@ public:
      */
     double getCurrentMassRate( )
     {
-            return propulsion::computePropellantMassRateFromSpecificImpulse(
-                        currentThrustMagnitude_, currentSpecificImpulse_ );
+        return propulsion::computePropellantMassRateFromSpecificImpulse(
+                    currentThrustMagnitude_, currentSpecificImpulse_ );
     }
 
 private:
 
-    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator_;
 
-    std::vector< boost::function< double( ) > > inputVariableFunctions_;
+    boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
 
-    boost::function< double( ) > specificImpulseFunction_;
+    boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
+
+    std::vector< boost::function< double( const double ) > > thrustInputVariableFunctions_;
+
+    std::vector< boost::function< double( const double ) > > specificImpulseInputVariableFunctions_;
 
     std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
 
-    std::vector< double > currentInputVariables_;
+    std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
+
+    std::vector< double > currentThrustInputVariables_;
+
+    std::vector< double > currentSpecificImpulseInputVariables_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;

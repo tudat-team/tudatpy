@@ -11,6 +11,7 @@
 #ifndef TUDAT_THRUSTSETTINGS_H
 #define TUDAT_THRUSTSETTINGS_H
 
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
@@ -288,7 +289,7 @@ public:
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
         bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-    customThrustResetFunction_( customThrustResetFunction ){ }
+        customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Destructor.
     ~FromFunctionThrustEngineSettings( ){ }
@@ -314,35 +315,75 @@ public:
     ParameterizedThrustMagnitudeSettings(
             const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
-            const boost::function< double( ) > specificImpulseFunction,
-            const std::vector< boost::function< double( ) > > guidanceInputVariables =
-            std::vector< boost::function< double( ) > >( ) ):
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
-        thrustMagnitudeInterpolator_( thrustMagnitudeInterpolator ),
-    thrustDependentVariables_( thrustDependentVariables ), specificImpulseFunction_( specificImpulseFunction ),
-    guidanceInputVariables_( guidanceInputVariables )
+        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, thrustMagnitudeInterpolator, _1 ) ),
+        specificImpulseFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, specificImpulseInterpolator, _1 ) ),
+        thrustDependentVariables_( thrustDependentVariables ),
+        specificImpulseDependentVariables_( specificImpulseDependentVariables ),
+        thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
+        specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
-        int numberOfUserSpecifiedInputs = std::count(
-                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust );
-        if( numberOfUserSpecifiedInputs != static_cast< int >( guidanceInputVariables.size( ) ) )
+        int numberOfUserSpecifiedThrustInputs = std::count(
+                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
+                std::count( thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
+
+        if( numberOfUserSpecifiedThrustInputs != static_cast< int >( thrustGuidanceInputVariables.size( ) ) )
         {
             throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
         }
 
-        if( numberOfUserSpecifiedInputs != thrustMagnitudeInterpolator->getNumberOfDimensions( ) )
+        int numberOfUserSpecifiedSpecificImpulseInputs = std::count(
+                    specificImpulseDependentVariables.begin( ), specificImpulseDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
+                std::count( specificImpulseDependentVariables.begin( ), specificImpulseDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
+
+        if( numberOfUserSpecifiedSpecificImpulseInputs != static_cast< int >( specificImpulseGuidanceInputVariables.size( ) ) )
         {
-            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables with interpolator" );
+            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
         }
     }
 
-    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator_;
+    ParameterizedThrustMagnitudeSettings(
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+            const double constantSpecificImpulse,
+            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
+        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, thrustMagnitudeInterpolator, _1 ) ),
+        specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
+        thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
+    {
+        int numberOfUserSpecifiedThrustInputs = std::count(
+                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
+                std::count( thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
+
+        if( numberOfUserSpecifiedThrustInputs != static_cast< int >( thrustGuidanceInputVariables.size( ) ) )
+        {
+            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
+        }
+
+    }
+
+    boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
+
+    boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
 
     std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
 
-    boost::function< double( ) > specificImpulseFunction_;
+    std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
 
-    std::vector< boost::function< double( ) > > guidanceInputVariables_;
+    std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables_;
 
+    std::vector< boost::function< double( const double  ) > > specificImpulseGuidanceInputVariables_;
+
+    Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
 } // namespace simulation_setup

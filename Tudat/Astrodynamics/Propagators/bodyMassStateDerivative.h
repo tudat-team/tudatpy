@@ -91,7 +91,7 @@ public:
      * bodiesToIntegrate_
      */
     void calculateSystemStateDerivative(
-                const TimeType time,
+            const TimeType time,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
@@ -193,6 +193,38 @@ public:
     virtual int getStateSize( )
     {
         return bodiesToIntegrate_.size( );
+    }
+
+    std::vector< std::string > getBodiesToIntegrate( )
+    {
+        return bodiesToIntegrate_;
+    }
+
+
+    double getTotalMassRateForBody( const std::string bodyName )
+    {
+        // Check if body is propagated.
+        double totalMassRate = 0.0;
+
+        if( std::find( bodiesToIntegrate_.begin( ),
+                       bodiesToIntegrate_.end( ),
+                       bodyName ) == bodiesToIntegrate_.end( ) )
+        {
+            std::string errorMessage = "Error when getting total mass rate for body " + bodyName +
+                    ", no such acceleration is found";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( massRateModels_.count( bodyName ) != 0 )
+            {
+                for( unsigned int i = 0; i < massRateModels_.at( bodyName ).size( ); i++  )
+                {
+                    totalMassRate += massRateModels_.at( bodyName ).at ( i )->getMassRate( );
+                }
+            }
+        }
+        return totalMassRate;
     }
 
 private:
