@@ -61,7 +61,8 @@ public:
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttack(
-            const std::vector< double > untrimmedIndependentVariables );
+            const std::vector< double > untrimmedIndependentVariables,
+            const std::map< std::string, std::vector< double > > controlSurfaceIndependentVariables );
 
     //! Function to find the trimmed angle of attack for a given set of independent  variables
     /*!
@@ -74,9 +75,12 @@ public:
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttackFromFunction(
-            const boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction )
+            const boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction,
+            const boost::function< std::map< std::string, std::vector< double > >( ) >
+            untrimmedControlSurfaceIndependentVariablesFunction )
     {
-        return findTrimAngleOfAttack( untrimmedIndependentVariablesFunction( ) );
+        return findTrimAngleOfAttack( untrimmedIndependentVariablesFunction( ),
+                                      untrimmedControlSurfaceIndependentVariablesFunction( ) );
     }
 
 private:
@@ -92,7 +96,8 @@ private:
      */
     double getPerturbedMomentCoefficient(
             const double perturbedAngleOfAttack,
-            const std::vector< double >& unperturbedConditions );
+            const std::vector< double >& unperturbedConditions,
+            const std::map< std::string, std::vector< double > > unperturbedControlSurfaceIndependentVariables );
 
     //! Object containing used to retrieve aerodynamic coefficients as function of independent variables.
     boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface_;
@@ -103,6 +108,8 @@ private:
 
     //! Index in independent variable list of coefficientInterface_ corresponding to the angle of attack.
     int variableIndex_;
+
+    std::map< std::string, int > controlSurfaceVariableIndex_;
 };
 
 } // namespace aerodynamics
