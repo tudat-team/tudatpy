@@ -679,9 +679,14 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
         {
             boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
                     boost::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
-                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+                        stateDerivativeModels.at( propagators::body_mass_state ).at( i ) );
+            if( massRateModel == NULL )
+            {
+                throw std::runtime_error( "Error when finding body's mass rate model, model type is inconsistent" );
+            }
 
             std::vector< std::string > propagatedBodies = massRateModel->getBodiesToIntegrate( );
+
             // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration
             if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingAcceleration )
                     != propagatedBodies.end( ) )
@@ -706,6 +711,7 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
                 bodyUndergoingAcceleration + " no mass rate models found";
         throw std::runtime_error( errorMessage );
     }
+
     return modelForBody;
 }
 
