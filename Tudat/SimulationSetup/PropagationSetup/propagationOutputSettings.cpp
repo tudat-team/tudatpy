@@ -79,6 +79,18 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
         break;
+    case total_aerodynamic_g_load_variable:
+        variableName = "Aerodynamic g-load ";
+        break;
+    case stagnation_point_heat_flux_dependent_variable:
+        variableName = "Stagnation-point heat flux ";
+        break;
+    case local_temperature_dependent_variable:
+        variableName = "Local freestream temperature ";
+        break;
+    case geodetic_latitude_dependent_variable:
+        variableName = "Geodetic latitude ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +

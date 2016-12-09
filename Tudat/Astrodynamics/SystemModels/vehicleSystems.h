@@ -91,6 +91,46 @@ public:
         return currentControlSurfaceDeflections_.at( controlSurfaceId );
     }
 
+    //! Function to (re)set the vehicle nose radius
+    /*!
+     * Function to (re)set the vehicle nose radius
+     * \param noseRadius The  vehicle nose radius that is to be set
+     */
+    void setNoseRadius( const double noseRadius )
+    {
+        noseRadius_ = noseRadius;
+    }
+
+    //! Function to retrieve the vehicle nose radius
+    /*!
+     * Function to retrieve the vehicle nose radius
+     * \return The vehicle nose radius
+     */
+    double getNoseRadius( )
+    {
+        return noseRadius_;
+    }
+
+    //! Function to (re)set the vehicle wall emissivity
+    /*!
+     * Function to (re)set the vehicle wall emissivity
+     * \param wallEmissivity The vehicle wall emissivity that is to be set
+     */
+    void setWallEmissivity( const double wallEmissivity )
+    {
+        wallEmissivity_ = wallEmissivity;
+    }
+
+    //! Function to retrieve the vehicle wall emissivity
+    /*!
+     * Function to retrieve the vehicle wall emissivity
+     * \return The vehicle wall emissivity
+     */
+    double getWallEmissivity( )
+    {
+        return wallEmissivity_;
+    }
+
 private:
 
     //! Named list of engine models in the vehicle
@@ -101,6 +141,11 @@ private:
 
     std::map< std::string, double > currentControlSurfaceDeflections_;
 
+    //! Nose radius of the vehicle (used for heating computations)
+    double noseRadius_;
+
+    //! Wall emissivity of the vehicle (used for heating computations)
+    double wallEmissivity_;
 };
 
 

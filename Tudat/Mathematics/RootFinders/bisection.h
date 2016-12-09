@@ -231,8 +231,6 @@ public:
         while( !this->terminationFunction( rootValue, previousRootValue, rootFunctionValue,
                                            previousRootFunctionValue, counter ) );
 
-        //std::cout<<"Ecc B: "<<rootValue<<" "<<this->rootFunction->evaluate( rootValue )<<std::endl;
-
         return rootValue;
 
     }

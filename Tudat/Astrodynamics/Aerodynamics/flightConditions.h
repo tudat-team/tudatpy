@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
@@ -38,16 +39,30 @@ namespace aerodynamics
  */
 class FlightConditions
 {
+private:
+
+    //! List of variables that can be computed by flight condition
+    enum FlightConditionVariables
+    {
+        altitude_flight_condition,
+        density_flight_condition,
+        temperature_flight_condition,
+        latitude_flight_condition,
+        longitude_flight_condition,
+        mach_number_flight_condition,
+        speed_of_sound_flight_condition,
+        airspeed_flight_condition,
+        geodetic_latitude_condition
+    };
+
 public:
 
-    //! Constructor, sets objects and functions from which relevant environment and state variables
-    //! are retrieved.
+    //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
     /*!
      *  Constructor, sets objects and functions from which relevant environment and state variables
      *  are retrieved.
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
-     *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
-     *  its body-fixed position.
+     *  \param shapeModel Model describing the shape of the body w.r.t. which the flight is taking place.
      *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
      *  coefficients are retrieved
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
@@ -56,7 +71,7 @@ public:
      *  surface identifier.
      */
     FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
-                      const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
+                      const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
                       const boost::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
@@ -73,46 +88,101 @@ public:
      */
     void updateConditions( const double currentTime );
 
-    //! Function to return altitude
+    //! Function to retrieve (and compute if necessary) the current altitude
     /*!
-     *  Function to return altitude that was set by previous call of updateConditions function.
-     *  \return Current altitude
+     * Function to retrieve (and compute if necessary) the current altitude
+     * \return Current altitude
      */
-    double getCurrentAltitude( ) const
+    double getCurrentAltitude( )
     {
-        return currentAltitude_;
+        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
+        return scalarFlightConditions_.at( altitude_flight_condition );    }
+
+    //! Function to retrieve (and compute if necessary) the current freestream density
+    /*!
+     * Function to retrieve (and compute if necessary) the current freestream density
+     * \return Current freestream density
+     */
+    double getCurrentDensity( )
+    {
+        if( scalarFlightConditions_.count( density_flight_condition ) == 0 )
+        {
+            computeDensity( );
+        }
+        return scalarFlightConditions_.at( density_flight_condition );
     }
 
-    //! Function to return density
+    //! Function to retrieve (and compute if necessary) the current freestream temperature
     /*!
-     *  Function to return density that was set by previous call of updateConditions or
-     *  updateDensity function.
-     *  \return Current density
+     * Function to retrieve (and compute if necessary) the current freestream temperature
+     * \return Current freestream temperature
      */
-    double getCurrentDensity( ) const
+    double getCurrentFreestreamTemperature( )
     {
-        return currentDensity_;
+        if( scalarFlightConditions_.count( temperature_flight_condition ) == 0 )
+        {
+            computeTemperature( );
+        }
+        return scalarFlightConditions_.at( temperature_flight_condition );
     }
 
-    //! Function to return airspeed
+    //! Function to retrieve (and compute if necessary) the current airspeed
     /*!
-     *  Function to return airspeed that was set by previous call of updateConditions.
-     *  \return Current airspeed
+     * Function to retrieve (and compute if necessary) the current airspeed
+     * \return Current airspeed
      */
-    double getCurrentAirspeed( ) const
+    double getCurrentAirspeed( )
     {
-        return currentAirspeed_;
+        if( scalarFlightConditions_.count( airspeed_flight_condition ) == 0 )
+        {
+            computeAirspeed( );
+        }
+        return scalarFlightConditions_.at( airspeed_flight_condition );
     }
 
-    //! Function to return speed of sound
+    //! Function to retrieve (and compute if necessary) the current speed of sound
     /*!
-     *  Function to return speed of from quantities computed by previous call of updateConditions.
-     *  \return Current speed of sound.
+     * Function to retrieve (and compute if necessary) the current speed of sound
+     * \return Current speed of sound
      */
     double getCurrentSpeedOfSound( )
     {
-        return atmosphereModel_->getSpeedOfSound(
-                    currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ );
+        if( scalarFlightConditions_.count( speed_of_sound_flight_condition ) == 0 )
+        {
+            computeSpeedOfSound( );
+        }
+        return scalarFlightConditions_.at( speed_of_sound_flight_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current Mach number
+    /*!
+     * Function to retrieve (and compute if necessary) the current Mach number
+     * \return Current Mach number
+     */
+    double getCurrentMachNumber( )
+    {
+        if( scalarFlightConditions_.count( mach_number_flight_condition ) == 0 )
+        {
+            computeMachNumber( );
+        }
+        return scalarFlightConditions_.at( mach_number_flight_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current geodetic latitude
+    /*!
+     * Function to retrieve (and compute if necessary) the current geodetic latitude
+     * \return Current geodetic latitude
+     */
+    double getCurrentGeodeticLatitude( )
+    {
+        if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
+        {
+            computeGeodeticLatitude( );
+        }
+        return scalarFlightConditions_.at( geodetic_latitude_condition );
     }
 
     //! Function to return the current time of the FlightConditions
@@ -120,7 +190,7 @@ public:
      *  Function to return the current time of the FlightConditions.
      *  \return Current time of the FlightConditions
      */
-    double getCurrentTime( ) const
+    double getCurrentTime( )
     {
         return currentTime_;
     }
@@ -220,8 +290,10 @@ public:
      */
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
+        scalarFlightConditions_.clear( );
         currentTime_ = currentTime;
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        isLatitudeAndLongitudeSet_ = 0;
     }
 
 private:
@@ -229,6 +301,109 @@ private:
     double getAerodynamicCoefficientIndependentVariable(
             const AerodynamicCoefficientsIndependentVariables independentVariableType,
             const std::string& secondaryIdentifier = "" );
+    //! Function to compute and set the current latitude and longitude
+    void computeLatitudeAndLongitude( )
+    {
+        scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::latitude_angle );
+        scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::longitude_angle );
+        isLatitudeAndLongitudeSet_ = 1;
+    }
+
+    //! Function to compute and set the current altitude
+    void computeAltitude( )
+    {
+        scalarFlightConditions_[ altitude_flight_condition ] =
+                shapeModel_->getAltitude( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+    }
+
+    //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
+    void updateAtmosphereInput( )
+    {
+        if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
+              scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
+        {
+           if( updateLatitudeAndLongitudeForAtmosphere_ )
+            {
+                computeLatitudeAndLongitude( );
+            }
+            else
+            {
+                scalarFlightConditions_[ latitude_flight_condition ] = 0.0;
+                scalarFlightConditions_[ longitude_flight_condition ] = 0.0;
+            }
+        }
+
+        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
+    }
+
+    //! Function to compute and set the current freestream density
+    void computeDensity( )
+    {
+        updateAtmosphereInput( );
+        scalarFlightConditions_[ density_flight_condition ] =
+                atmosphereModel_->getDensity(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    //! Function to compute and set the current freestream temperature
+    void computeTemperature( )
+    {        updateAtmosphereInput( );
+
+             scalarFlightConditions_[ temperature_flight_condition ] =
+                     atmosphereModel_->getTemperature(
+                         scalarFlightConditions_.at( altitude_flight_condition ),
+                         scalarFlightConditions_.at( longitude_flight_condition ),
+                         scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    //! Function to compute and set the current speed of sound
+    void computeSpeedOfSound( )
+    {
+        updateAtmosphereInput( );
+        scalarFlightConditions_[ speed_of_sound_flight_condition ]  =
+                atmosphereModel_->getSpeedOfSound(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
+    //! Function to compute and set the current airspeed
+    void computeAirspeed( )
+    {
+        scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
+    }
+
+    //! Function to compute and set the current Mach number
+    void computeMachNumber( )
+    {
+        scalarFlightConditions_[ mach_number_flight_condition ] =
+                getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
+    }
+
+    //! Function to compute and set the current geodetic latitude.
+    void computeGeodeticLatitude( )
+    {
+        if( !geodeticLatitudeFunction_.empty( ) )
+        {
+            scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
+                        currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+        }
+        else
+        {
+            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
+            {
+                computeLatitudeAndLongitude( );
+            }
+            scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
+        }
+    }
 
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
@@ -239,12 +414,10 @@ private:
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
-    //! Function returning the altitude of the vehicle as a function of its body-fixed position.
-    const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
+    const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
     boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
-
 
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
@@ -260,20 +433,8 @@ private:
     //! Current state of vehicle in body-fixed frame.
     basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
 
-    //! Current density at vehicle's position.
-    double currentDensity_;
-
-    //! Current airspeed at vehicle's position.
-    double currentAirspeed_;
-
-    //! Current altitude of vehicle above central body's shapeModel_
-    double currentAltitude_;
-
-    //! Current latitude of vehicle above central body.
-    double currentLatitude_;
-
-    //! Current longitude of vehicle above central body.
-    double currentLongitude_;
+    //! List of atmospheric/flight properties computed at current time step.
+    std::map< FlightConditionVariables, double > scalarFlightConditions_;
 
     //! Current time of propagation.
     double currentTime_;
@@ -282,7 +443,14 @@ private:
     std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
-    bool updateLatitudeAndLongitude_;
+    bool updateLatitudeAndLongitudeForAtmosphere_;
+
+    //! Boolean denoting whether the current latitude and longitude have been computed at current time step.
+    bool isLatitudeAndLongitudeSet_;
+
+    //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
+    //! geographic latitude).
+    boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
 
     //! Current list of independent variables of the aerodynamic coefficient interface
     std::vector< double > aerodynamicCoefficientIndependentVariables_;

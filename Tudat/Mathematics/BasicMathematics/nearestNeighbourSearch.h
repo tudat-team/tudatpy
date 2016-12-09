@@ -58,6 +58,7 @@
 #include <stdexcept>
 #include <vector>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/exception/all.hpp>
 
 #include <Eigen/Core>
@@ -220,6 +221,12 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
 
     int independentValueVectorSize = static_cast< int >( independentValues_.size( ) );
 
+    if( independentValueVectorSize < 2 )
+    {
+        throw std::runtime_error( "Error in nearest neighbour search, size of input vector is " +
+                                  boost::lexical_cast< std::string >( independentValueVectorSize ) );
+    }
+
     // Check whether initial estimate is possible.
     if ( previousNearestLowerIndex_ < 0 ||
          previousNearestLowerIndex_ > static_cast< int >( independentValues_.size( ) - 2 ) )
@@ -321,7 +328,12 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                 {
 
                     int middleIndex;
-                    assert( upperIndex - lowerIndex > 0 );
+                    if( ! ( upperIndex - lowerIndex ) > 0 )
+                    {
+                        throw std::runtime_error( "Error, upper and lower indices are inconsistent in nearest neighbour search" +
+                                                  boost::lexical_cast< std::string >( upperIndex ) + " " +
+                                                  boost::lexical_cast< std::string >( lowerIndex ) );
+                    }
 
                     // If the upper and lower indices have a difference of exactly one, the
                     // interval has been found.

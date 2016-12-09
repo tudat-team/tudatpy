@@ -31,7 +31,6 @@ class AerodynamicCoefficientReader
 {
 public:
 
-
     static boost::multi_array< double, NumberOfDimensions > readMultiArray(
             const std::string fileName );
 
