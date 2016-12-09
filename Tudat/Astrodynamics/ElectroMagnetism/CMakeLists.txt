@@ -40,6 +40,7 @@ set(ELECTROMAGNETISM_SOURCES
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticForce.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.h"
+  "${SRCROOT}${ELECTROMAGNETISMDIR}/basicElectroMagnetism.h"
 )
 
 # Set the header files.

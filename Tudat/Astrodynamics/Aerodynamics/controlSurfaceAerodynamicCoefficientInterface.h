@@ -172,8 +172,6 @@ public:
 protected:
 
     boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) > coefficientFunction_;
-
-    std::vector< double > fullIndependentVariables_;
 };
 
 }

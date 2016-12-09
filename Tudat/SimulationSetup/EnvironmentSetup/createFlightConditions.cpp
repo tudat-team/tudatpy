@@ -309,10 +309,6 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                     " has no aerodynamic coefficients." );
     }
 
-    // Create function to calculate the altitude from current body-fixed state
-    boost::function< double( const Eigen::Vector3d ) > altitudeFunction =
-            boost::bind( &basic_astrodynamics::BodyShapeModel::getAltitude,
-                         centralBody->getShapeModel( ), _1 );
 
     // Create function to rotate state from intertial to body-fixed frame.
     boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
@@ -348,12 +344,9 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
     }
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(
-                centralBody->getAtmosphereModel( ), altitudeFunction,
+                centralBody->getAtmosphereModel( ), centralBody->getShapeModel( ),
                 bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator,
                 controlSurfaceDeflectionFunction );
-
-
-
 
     return flightConditions;
 

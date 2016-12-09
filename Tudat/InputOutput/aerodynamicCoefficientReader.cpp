@@ -29,7 +29,7 @@ boost::multi_array< Eigen::Vector3d, 1 > mergeOneDimensionalCoefficients(
     return vectorArray;
 }
 
-boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficient(
+boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients(
         const boost::multi_array< double, 2 > xComponents,
         const boost::multi_array< double, 2 > yComponents,
         const boost::multi_array< double, 2 > zComponents )
