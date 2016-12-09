@@ -190,7 +190,6 @@ double FlightConditions::getAerodynamicCoefficientIndependentVariable(
 void FlightConditions::updateAerodynamicCoefficientInput( )
 {
     aerodynamicCoefficientIndependentVariables_.clear( );
-
     // Calculate independent variables for aerodynamic coefficients.
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ); i++ )
     {
@@ -226,9 +225,12 @@ boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
     boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
             boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
                          flightConditions );
+    boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariablesFunction =
+            boost::bind( &FlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction ) );
+                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariablesFunction ) );
 
     return trimOrientation;
 }

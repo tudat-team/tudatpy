@@ -367,9 +367,13 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
     boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
             boost::bind( &aerodynamics::FlightConditions::getAerodynamicCoefficientIndependentVariables,
                          flightConditions );
+    boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
+            boost::bind( &aerodynamics::FlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction ) );
+                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
 
     return trimOrientation;
 }

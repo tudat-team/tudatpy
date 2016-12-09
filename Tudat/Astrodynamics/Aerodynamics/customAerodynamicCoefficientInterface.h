@@ -186,8 +186,9 @@ public:
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
             throw std::runtime_error(
-                        "Error in CustomAerodynamicCoefficientInterface, number of "
-                        "input variables is inconsistent " );
+                        "Error in CustomAerodynamicCoefficientInterface, number of input variables is inconsistent " +
+                        boost::lexical_cast< std::string >( independentVariables.size( ) ) + ", " +
+                        boost::lexical_cast< std::string >( numberOfIndependentVariables_ ) );
         }
 
         // Update current coefficients.

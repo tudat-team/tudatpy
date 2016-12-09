@@ -303,6 +303,19 @@ public:
         return controlSurfaceIncrementInterfaces_.at( controlSurface )->getNumberOfIndependentVariables( );
     }
 
+    std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > > getControlSurfaceIndependentVariables( )
+    {
+        std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > > controlSurfaceIndependentVariables;
+        for( std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator
+             contolSurfaceIterator = controlSurfaceIncrementInterfaces_.begin( );
+             contolSurfaceIterator != controlSurfaceIncrementInterfaces_.end( ); contolSurfaceIterator++ )
+        {
+            controlSurfaceIndependentVariables[ contolSurfaceIterator->first ] = contolSurfaceIterator->second->getIndependentVariableNames( );
+        }
+
+        return controlSurfaceIndependentVariables;
+    }
+
     AerodynamicCoefficientsIndependentVariables getControlSurfaceIndependentVariableName(
             const std::string& controlSurface,
             const unsigned int index )

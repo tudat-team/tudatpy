@@ -299,8 +299,26 @@ public:
      */
     std::vector< double > getAerodynamicCoefficientIndependentVariables( )
     {
+        if( aerodynamicCoefficientIndependentVariables_.size( ) !=
+                aerodynamicCoefficientInterface_->getNumberOfIndependentVariables( ) )
+        {
+            updateAerodynamicCoefficientInput( );
+        }
+
         return aerodynamicCoefficientIndependentVariables_;
     }
+
+    std::map< std::string, std::vector< double > > getControlSurfaceAerodynamicCoefficientIndependentVariables( )
+    {
+        if( controlSurfaceAerodynamicCoefficientIndependentVariables_.size( ) !=
+                aerodynamicCoefficientInterface_->getNumberOfControlSurfaces( ) )
+        {
+            updateAerodynamicCoefficientInput( );
+        }
+
+        return controlSurfaceAerodynamicCoefficientIndependentVariables_;
+    }
+
 
     //! Function to reset the current time of the flight conditions.
     /*!
@@ -311,9 +329,13 @@ public:
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         scalarFlightConditions_.clear( );
-        currentTime_ = currentTime;
-        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
         isLatitudeAndLongitudeSet_ = 0;
+
+        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+        aerodynamicCoefficientIndependentVariables_.clear( );
+        controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
+
+        currentTime_ = currentTime;
     }
 
 private:
