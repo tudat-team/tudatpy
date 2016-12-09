@@ -153,7 +153,7 @@ public:
 
     //! Constructor
     /*!
-     * Constructor
+     * Constructor.
      * \param associatedBody Body for which the orientation angle is to be saved.
      * \param angle Orientation angle that is to be saved.
      */

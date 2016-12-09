@@ -46,13 +46,15 @@ private:
     {
         altitude_flight_condition,
         density_flight_condition,
+        pressure_flight_condition,
         temperature_flight_condition,
         latitude_flight_condition,
         longitude_flight_condition,
         mach_number_flight_condition,
         speed_of_sound_flight_condition,
         airspeed_flight_condition,
-        geodetic_latitude_condition
+        geodetic_latitude_condition,
+        dynamic_pressure_condition
     };
 
 public:
@@ -129,7 +131,25 @@ public:
         return scalarFlightConditions_.at( temperature_flight_condition );
     }
 
-    //! Function to retrieve (and compute if necessary) the current airspeed
+
+    double getCurrentDynamicPressure( )
+    {
+        if( scalarFlightConditions_.count( dynamic_pressure_condition ) == 0 )
+        {
+            computeDynamicPressure( );
+        }
+        return scalarFlightConditions_.at( dynamic_pressure_condition );
+    }
+
+    double getCurrentPressure( )
+    {
+        if( scalarFlightConditions_.count( pressure_flight_condition ) == 0 )
+        {
+            computeFreestreamPressure( );
+        }
+        return scalarFlightConditions_.at( pressure_flight_condition );
+    }
+
     /*!
      * Function to retrieve (and compute if necessary) the current airspeed
      * \return Current airspeed
@@ -354,7 +374,8 @@ private:
 
     //! Function to compute and set the current freestream temperature
     void computeTemperature( )
-    {        updateAtmosphereInput( );
+    {
+        updateAtmosphereInput( );
 
              scalarFlightConditions_[ temperature_flight_condition ] =
                      atmosphereModel_->getTemperature(
@@ -362,6 +383,18 @@ private:
                          scalarFlightConditions_.at( longitude_flight_condition ),
                          scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
     }
+
+    void computeFreestreamPressure( )
+    {
+        updateAtmosphereInput( );
+
+             scalarFlightConditions_[ pressure_flight_condition ] =
+                     atmosphereModel_->getPressure(
+                         scalarFlightConditions_.at( altitude_flight_condition ),
+                         scalarFlightConditions_.at( longitude_flight_condition ),
+                         scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+    }
+
 
     //! Function to compute and set the current speed of sound
     void computeSpeedOfSound( )
@@ -378,6 +411,13 @@ private:
     void computeAirspeed( )
     {
         scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
+    }
+
+    void computeDynamicPressure( )
+    {
+        double currentAirspeed = getCurrentAirspeed( );
+        scalarFlightConditions_[ dynamic_pressure_condition ] = 0.5 *
+                getCurrentDensity( ) * currentAirspeed * currentAirspeed;
     }
 
     //! Function to compute and set the current Mach number

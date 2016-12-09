@@ -461,10 +461,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             BOOST_CHECK_SMALL(
                         std::fabs( momentCoefficients( 2 ) ), 1.0E-14 );
 
-
         }
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

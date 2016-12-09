@@ -15,6 +15,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include <Tudat/Basics/testMacros.h>
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
@@ -666,12 +667,226 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
                         ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection )( i ) ),
                         outputIterator->second( i ), 2.0E-15 );
         }
-
     }
-
 }
 
+BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
+{
+    using namespace tudat;
+    using namespace ephemerides;
+    using namespace interpolators;
+    using namespace numerical_integrators;
+    using namespace spice_interface;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
+    using namespace propagators;
+    using namespace aerodynamics;
+    using namespace basic_mathematics;
+    using namespace input_output;
 
+    // Load Spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 3300.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 1.0;
+
+
+    // Set Keplerian elements for Capsule.
+    Vector6d apolloInitialStateInKeplerianElements;
+    apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+    apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    // Convert apollo state from Keplerian elements to Cartesian elements.
+    const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+                apolloInitialStateInKeplerianElements,
+                getBodyGravitationalParameter( "Earth" ) );
+
+    // Define simulation body settings.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
+                                    simulationEndEpoch + 10.0 * fixedStepSize );
+    bodySettings[ "Earth" ]->gravityFieldSettings =
+            boost::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+
+    // Create Earth object
+    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
+    double vehicleMass = 5.0E3;
+    bodyMap[ "Apollo" ]->setConstantBodyMass( vehicleMass );
+
+    // Create vehicle aerodynamic coefficients
+    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+                unit_tests::getApolloCoefficientInterface( ) );
+    bodyMap[ "Apollo" ]->setEphemeris(
+                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    boost::shared_ptr< interpolators::OneDimensionalInterpolator<
+                    double, basic_mathematics::Vector6d  > >( ), "Earth" ) );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+
+    double thrustMagnitude = 1.0E-3;
+    double specificImpulse = 250.0;
+    //double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
+    accelerationsOfApollo[ "Apollo" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                      boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                                          thrust_direction_from_existing_body_orientation, "Earth" ),
+                                                      boost::make_shared< ConstantThrustEngineSettings >(
+                                                          thrustMagnitude, specificImpulse ) ) );
+
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+
+    bodiesToPropagate.push_back( "Apollo" );
+    centralBodies.push_back( "Earth" );
+
+    // Set initial state
+    basic_mathematics::Vector6d systemInitialState = apolloInitialState;
+
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    setTrimmedConditions( bodyMap.at( "Apollo" ) );
+
+    // Define list of dependent variables to save.
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_attack ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_sideslip ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::bank_angle ) );
+    dependentVariables.push_back(
+                boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    rotation_matrix_to_body_fixed_frame_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    aerodynamic, "Apollo", "Earth", 0 ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    thrust_acceleration, "Apollo", "Apollo", 0 ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
+
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              boost::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ), cowell,
+              boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    // Retrieve numerical solutions for state and dependent variables
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
+            dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableSolution =
+            dynamicsSimulator.getDependentVariableHistory( );
+
+    // Iterate over results for dependent variables, and check against computed values.
+    Eigen::Matrix3d rotationToBodyFixedFrame1, rotationToBodyFixedFrame2;
+    Eigen::Vector3d expectedThrustDirection, computedThrustDirection;
+    Eigen::Vector3d aerodynamicCoefficients;
+
+    Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
+
+    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > vehicelCoefficientInterface =
+            bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
+
+    for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
+         variableIterator != dependentVariableSolution.end( ); variableIterator++ )
+    {
+        vehicelCoefficientInterface->updateCurrentCoefficients(
+                    boost::assign::list_of( variableIterator->second( 0 ) )(
+                        variableIterator->second( 1 ) )( variableIterator->second( 2 ) ) );
+        aerodynamicCoefficients = vehicelCoefficientInterface->getCurrentForceCoefficients( );
+
+        rotationToBodyFixedFrame1 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 4, 9 ) );
+        rotationToBodyFixedFrame2 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 13, 9 ) );
+
+        expectedThrustDirection = rotationToBodyFixedFrame1.transpose( ) * bodyFixedThrustDirection;
+        computedThrustDirection = variableIterator->second.segment( 25, 3 ).normalized( );
+
+        // Check thrust magnitude
+        BOOST_CHECK_CLOSE_FRACTION(
+                    ( variableIterator->second.segment( 25, 3 ) ).norm( ), thrustMagnitude / vehicleMass,
+                    2.0 * std::numeric_limits< double >::epsilon( ) );
+        for( unsigned int i = 0; i < 3; i ++ )
+        {
+            // Check rotation matrices
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( rotationToBodyFixedFrame1( i, j ) - rotationToBodyFixedFrame2( i, j ) ),
+                                    8.0 * std::numeric_limits< double >::epsilon( ) );
+            }
+            // Check thrust direction
+            BOOST_CHECK_SMALL( std::fabs( expectedThrustDirection( i ) - computedThrustDirection( i ) ),
+                                15.0 * std::numeric_limits< double >::epsilon( ) );
+
+            // Check aerodynamic coefficients
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 28 ) - aerodynamicCoefficients( 0 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 29 ) - aerodynamicCoefficients( 1 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 30 ) - aerodynamicCoefficients( 2 ) ), 1.0E-10 );
+
+            // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 31 ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 32 ) ), 1.0E-10 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 33 ) ), 1.0E-14 );
+        }
+    }
+}
 
 BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 {

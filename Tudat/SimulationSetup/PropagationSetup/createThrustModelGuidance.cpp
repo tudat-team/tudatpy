@@ -378,6 +378,58 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         break;
 
     }
+    case thrust_magnitude_from_dependent_variables:
+    {
+        // Check input consistency
+        boost::shared_ptr< ParameterizedThrustMagnitudeSettings > parameterizedThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< ParameterizedThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        if( parameterizedThrustMagnitudeSettings == NULL )
+        {
+            throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
+        }
+
+        std::vector< boost::function< double( ) > > inputFunctions;
+
+        boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
+                bodyMap.at( nameOfBodyWithGuidance )->getFlightConditions( );
+
+        int numberOfCustomInputs = 0;
+        for( unsigned int i = 0; i < parameterizedThrustMagnitudeSettings->thrustDependentVariables_.size( ); i++ )
+        {
+            switch( parameterizedThrustMagnitudeSettings->thrustDependentVariables_.at( i ) )
+            {
+            case propulsion::altitude_dependent_thrust:
+                inputFunctions.push_back(
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
+                break;
+            case propulsion::density_dependent_thrust:
+                inputFunctions.push_back(
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentDensity, vehicleFlightConditions ) );
+                break;
+            case propulsion::dynamic_pressure_dependent_thrust:
+                inputFunctions.push_back(
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentDynamicPressure, vehicleFlightConditions ) );
+                break;
+            case propulsion::pressure_dependent_thrust:
+                inputFunctions.push_back(
+                            boost::bind( &aerodynamics::FlightConditions::getCurrentPressure, vehicleFlightConditions ) );
+                break;
+            case propulsion::guidance_input_dependent_thrust:
+                inputFunctions.push_back( parameterizedThrustMagnitudeSettings->guidanceInputVariables_.at( numberOfCustomInputs ) );
+                numberOfCustomInputs++;
+                break;
+            }
+        }
+
+        thrustMagnitudeWrapper = boost::make_shared< propulsion::ParameterizedThrustMagnitudeWrapper >(
+                    parameterizedThrustMagnitudeSettings->thrustMagnitudeInterpolator_,
+                    inputFunctions,
+                    parameterizedThrustMagnitudeSettings->specificImpulseFunction_,
+                    parameterizedThrustMagnitudeSettings->thrustDependentVariables_ );
+
+        break;
+
+    }
     default:
         throw std::runtime_error( "Error when creating thrust magnitude wrapper, type not identified" );
     }
