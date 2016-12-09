@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/InputOutput/aerodynamicCoefficientReader.h"
 
 namespace tudat
 {
@@ -578,6 +579,32 @@ public:
         }
     }
 
+    TabulatedAerodynamicCoefficientSettings(
+            const std::vector< std::vector< double > > independentVariables,
+            const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
+            const double referenceArea,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+        AerodynamicCoefficientSettings(
+            tabulated_coefficients, TUDAT_NAN, referenceArea,
+            TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
+            independentVariableNames, areCoefficientsInAerodynamicFrame,
+            areCoefficientsInNegativeAxisDirection ),
+        interpolationSettings_( boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) )
+    {
+        if( forceCoefficients.shape( )[ 0 ] != independentVariables.size( ) )
+        {
+            throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
+        }
+
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        {
+            forceCoefficients_[ independentVariables.at( 0 ).at( i ) ] = forceCoefficients[ i ];
+            momentCoefficients_[ independentVariables.at( 0 ).at( i ) ] = Eigen::Vector3d::Zero( );
+        }
+    }
+
     //! Destructor
     ~TabulatedAerodynamicCoefficientSettings< 1 >( ){ }
 
@@ -625,11 +652,12 @@ private:
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
-template< int NumberOfDimensions >
-boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >
-readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::string forceCoefficientFile,
-        const std::string momentCoefficientFile,
+
+template< int NumberOfIndependentVariables >
+boost::shared_ptr< AerodynamicCoefficientSettings >
+readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFile,
+        const std::vector< std::string > momentCoefficientFile,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -638,20 +666,60 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicForceCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
+                forceCoefficientFile );
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicMomentCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
+                momentCoefficientFile );
 
+    if( !input_output::compareIndependentVariables(
+                aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, force and moment independent variables are inconsistent" );
+    }
+
+    if( independentVariableNames.size( ) != NumberOfIndependentVariables )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
+    }
+
+    return boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+                aerodynamicForceCoefficients.second, aerodynamicForceCoefficients.first, aerodynamicMomentCoefficients.first,
+                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint, independentVariableNames,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
-template< int NumberOfDimensions >
-boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >
-readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::string forceCoefficientFile,
+template< int NumberOfIndependentVariables >
+boost::shared_ptr< AerodynamicCoefficientSettings >
+readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFile,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
+                forceCoefficientFile );
 
+    if( independentVariableNames.size( ) != NumberOfIndependentVariables )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
+    }
+
+    return boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+                aerodynamicCoefficients.second, aerodynamicCoefficients.first, referenceArea, independentVariableNames,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
+
+boost::shared_ptr< AerodynamicCoefficientSettings >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFile,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = 1,
+        const bool areCoefficientsInNegativeAxisDirection = 1 );
 
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
