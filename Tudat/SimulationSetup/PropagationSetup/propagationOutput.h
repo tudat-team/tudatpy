@@ -419,6 +419,20 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
         break;
     }
+    case control_surface_deflection_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
+        {
+            std::string errorMessage = "Error, no vehicle systems available when requesting control surface deflection output of " +
+                    bodyWithProperty + "with surface" + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind( &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
+                                        bodyMap.at( bodyWithProperty )->getVehicleSystems( ),
+                                        dependentVariableSettings->secondaryBody_ );
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize double dependent variable type when making variable function: " +
