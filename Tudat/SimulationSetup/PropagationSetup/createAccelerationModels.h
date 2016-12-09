@@ -352,7 +352,7 @@ createAccelerationModel(
  * \param selectedAccelerationPerBody List of acceleration settings per body.
  * \return selectedAccelerationPerBody, put in order to ensure correct model creation.
  */
-SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
+SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
 } // namespace simulation_setup
 

@@ -16,6 +16,7 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 namespace tudat
 {
@@ -197,6 +198,7 @@ private:
 
 };
 
+
 //! Class to compute the engine thrust and mass rate from EngineModel object(s).
 class ThrustMagnitudeFromEngineWrapper: public ThrustMagnitudeWrapper
 {
@@ -286,6 +288,114 @@ protected:
 
     //! Current mass rate, as computed by last call to update member function.
     double currentMassRate_;
+};
+
+enum ThrustDependentVariables
+{
+    altitude_dependent_thrust,
+    density_dependent_thrust,
+    dynamic_pressure_dependent_thrust,
+    pressure_dependent_thrust,
+    guidance_input_dependent_thrust
+};
+
+class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustMagnitudeFunction Function returning thrust as a function of time.
+     * \param specificImpulseFunction Function returning specific impulse as a function of time.
+     * \param isEngineOnFunction Function returning whether the function is on (returns true if so) at a given time.
+     */
+    ParameterizedThrustMagnitudeWrapper(
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+            const std::vector< boost::function< double( ) > > inputVariableFunctions,
+            const boost::function< double( ) > specificImpulseFunction,
+            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables ):
+        thrustMagnitudeInterpolator_( thrustMagnitudeInterpolator ),
+        inputVariableFunctions_( inputVariableFunctions ),
+        specificImpulseFunction_( specificImpulseFunction ),
+        thrustDependentVariables_( thrustDependentVariables ),
+        currentThrustMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN )
+    {
+        if( thrustDependentVariables.size( ) != inputVariableFunctions.size( ) )
+        {
+            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables" );
+        }
+
+        if( static_cast< int >( thrustDependentVariables.size( ) ) != thrustMagnitudeInterpolator->getNumberOfDimensions( ) )
+        {
+            throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables with interpolator" );
+        }
+
+        currentInputVariables_.resize( inputVariableFunctions_.size( ) );
+    }
+
+    //! Destructor.
+    ~ParameterizedThrustMagnitudeWrapper( ){ }
+
+    //! Function to update the thrust magnitude to the current time.
+    /*!
+     *  Function to update the thrust magnitude to the current time.
+     *  \param time Time to which the model is to be updated.
+     */
+    void update( const double time )
+    {
+        if( !( currentTime_ = time ) )
+        {
+            for( unsigned int i = 0; i < inputVariableFunctions_.size( ); i++ )
+            {
+                currentInputVariables_[ i ] = inputVariableFunctions_.at( i )( );
+            }
+
+            currentThrustMagnitude_ = thrustMagnitudeInterpolator_->interpolate( currentInputVariables_ );
+            currentSpecificImpulse_ = specificImpulseFunction_( );
+        }
+    }
+
+    //! Function to return the current thrust magnitude
+    /*!
+     * Function to return the current thrust magnitude, as computed by last call to update member function.
+     * \return Current thrust magnitude
+     */
+    double getCurrentThrustMagnitude( )
+    {
+        return currentThrustMagnitude_;
+    }
+
+    //! Function to return the current mass rate.
+    /*!
+     * Function to return the current mass rate, computed from quantities set by last call to update member function.
+     * \return Current mass rate.
+     */
+    double getCurrentMassRate( )
+    {
+            return propulsion::computePropellantMassRateFromSpecificImpulse(
+                        currentThrustMagnitude_, currentSpecificImpulse_ );
+    }
+
+private:
+
+    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator_;
+
+    std::vector< boost::function< double( ) > > inputVariableFunctions_;
+
+    boost::function< double( ) > specificImpulseFunction_;
+
+    std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
+
+    std::vector< double > currentInputVariables_;
+
+    //! Current thrust magnitude, as computed by last call to update member function.
+    double currentThrustMagnitude_;
+
+    //! Current specific impulse, as computed by last call to update member function.
+    double currentSpecificImpulse_;
+
 };
 
 } // namespace propulsion

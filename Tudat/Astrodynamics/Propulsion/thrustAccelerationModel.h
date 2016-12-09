@@ -27,6 +27,15 @@ namespace tudat
 namespace propulsion
 {
 
+inline void mergeUpdateFunctions(
+        const boost::function< void( const double ) > updateFunction1,
+        const boost::function< void( const double ) > updateFunction2,
+        const double time )
+{
+    updateFunction1( time );
+    updateFunction2( time );
+}
+
 //! Class used for computing an acceleration due to a continuous thrust.
 /*!
  *  Class used for computing an acceleration due to a continuous thrust. The thrust magnitude and direction (in the
@@ -169,6 +178,18 @@ public:
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > getRequiredModelUpdates( )
     {
         return requiredModelUpdates_;
+    }
+
+    void setThrustUpdateFunction( const boost::function< void( const double ) > thrustUpdateFunction )
+    {
+        if( thrustUpdateFunction_.empty( ) )
+        {
+            thrustUpdateFunction_ = thrustUpdateFunction;
+        }
+        else
+        {
+            thrustUpdateFunction_ = boost::bind( &mergeUpdateFunctions, thrustUpdateFunction, thrustUpdateFunction_, _1 );
+        }
     }
 
 
