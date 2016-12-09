@@ -49,7 +49,8 @@ enum PropagationDependentVariables
     stagnation_point_heat_flux_dependent_variable = 20,
     local_temperature_dependent_variable = 21,
     geodetic_latitude_dependent_variable = 22,
-    control_surface_deflection_dependent_variable = 23
+    control_surface_deflection_dependent_variable = 23,
+    total_mass_rate_dependent_variables = 24
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation

@@ -23,6 +23,7 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
@@ -656,6 +657,53 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
     {
         std::string errorMessage = "Error when getting translational dynamics model for " +
                 bodyUndergoingAcceleration + " no translational dynamics models found";
+        throw std::runtime_error( errorMessage );
+    }
+    return modelForBody;
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyMassStateDerivativeModelForBody(
+        const std::string bodyUndergoingAcceleration,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+
+{
+    bool modelFound = 0;
+    boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > modelForBody;
+
+    // Check if translational state derivative models exists
+    if( stateDerivativeModels.count( propagators::body_mass_state ) > 0 )
+    {
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::body_mass_state ).size( ); i++ )
+        {
+            boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
+                    boost::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
+                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+
+            std::vector< std::string > propagatedBodies = massRateModel->getBodiesToIntegrate( );
+            // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration
+            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingAcceleration )
+                    != propagatedBodies.end( ) )
+            {
+                if( modelFound == true )
+                {
+                    std::string errorMessage = "Error when getting mass rate  model for " +
+                            bodyUndergoingAcceleration + ", multiple models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    modelForBody = massRateModel;
+                    modelFound = true;
+                }
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting mass rate model for " +
+                bodyUndergoingAcceleration + " no mass rate models found";
         throw std::runtime_error( errorMessage );
     }
     return modelForBody;

@@ -94,6 +94,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case control_surface_deflection_dependent_variable:
         variableName = "Control Surface Deflection";
         break;
+    case total_mass_rate_dependent_variables:
+        variableName = "Body mass rate";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +

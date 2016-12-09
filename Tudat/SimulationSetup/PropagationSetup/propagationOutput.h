@@ -433,6 +433,17 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                                         dependentVariableSettings->secondaryBody_ );
         break;
     }
+    case total_mass_rate_dependent_variables:
+    {
+        // Retrieve model responsible for computing accelerations of requested bodies.
+        boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                getBodyMassStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        variableFunction =
+                boost::bind( &BodyMassStateDerivative< StateScalarType, TimeType >::getTotalMassRateForBody, nBodyModel,
+                             bodyWithProperty );
+
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize double dependent variable type when making variable function: " +
