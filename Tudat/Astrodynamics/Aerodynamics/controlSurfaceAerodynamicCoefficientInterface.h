@@ -28,7 +28,7 @@ public:
         int numberOfControlSurfaceDeflections = 0;
         for( unsigned int i = 0; i < independentVariableNames_.size( ); i++ )
         {
-            if( independentVariableNames_.at( i ) == control_surface_deflection )
+            if( independentVariableNames_.at( i ) == control_surface_deflection_dependent )
             {
                 numberOfControlSurfaceDeflections++;
             }

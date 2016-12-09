@@ -328,14 +328,14 @@ public:
      */
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
+        currentTime_ = currentTime;
+
         scalarFlightConditions_.clear( );
         isLatitudeAndLongitudeSet_ = 0;
 
         aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
         aerodynamicCoefficientIndependentVariables_.clear( );
         controlSurfaceAerodynamicCoefficientIndependentVariables_.clear( );
-
-        currentTime_ = currentTime;
     }
 
 private:

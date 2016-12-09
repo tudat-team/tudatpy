@@ -40,6 +40,8 @@ public:
     VehicleSystems( const double dryMass = TUDAT_NAN ):
         dryMass_( dryMass ){ }
 
+    ~VehicleSystems( ){ }
+
     //! Function to retrieve the engine models
     /*!
      * Function to retrieve the engine models

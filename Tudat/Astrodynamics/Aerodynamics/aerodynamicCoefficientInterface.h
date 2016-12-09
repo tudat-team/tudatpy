@@ -150,7 +150,7 @@ public:
     virtual void updateCurrentCoefficients(
             const std::vector< double >& independentVariables ) = 0;
 
-    virtual void updateCurrentControlSurfaceCoefficientsCoefficients(
+    void updateCurrentControlSurfaceCoefficientsCoefficients(
             const std::string& currentControlSurface,
             std::vector< double > controlSurfaceIndependentVariables )
     {
@@ -160,9 +160,12 @@ public:
         }
         controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
                     controlSurfaceIndependentVariables );
+        currentForceCoefficients_ += controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
+        currentMomentCoefficients_ += controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
+
     }
 
-    virtual void updateFullCurrentCoefficients(
+    void updateFullCurrentCoefficients(
             const std::vector< double >& independentVariables,
             const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
             std::map< std::string, std::vector< double > > ( ) )
@@ -320,7 +323,7 @@ public:
             const std::string& controlSurface,
             const unsigned int index )
     {
-        if( controlSurfaceIncrementInterfaces_.count( controlSurface ) )
+        if( controlSurfaceIncrementInterfaces_.count( controlSurface ) == 0 )
         {
             throw std::runtime_error(
                         std::string( "Error when retrieving control surface aerodynamic coefficient interface variable name, requested surface " ) +

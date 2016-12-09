@@ -158,7 +158,7 @@ double FlightConditions::getAerodynamicCoefficientIndependentVariable(
         }
         currentIndependentVariable = getCurrentAltitude( );
         break;
-    case control_surface_deflection:
+    case control_surface_deflection_dependent:
     {
         try
         {

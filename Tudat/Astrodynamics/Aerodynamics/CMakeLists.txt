@@ -114,6 +114,10 @@ add_executable(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTes
 setup_custom_test_program(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_HeatTransfer tudat_aerodynamics tudat_root_finders tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
+add_executable(test_ControlSurfaceIncrements "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestControlSurfaceIncrements.cpp")
+setup_custom_test_program(test_ControlSurfaceIncrements "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_ControlSurfaceIncrements ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")
     setup_custom_test_program(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}")
