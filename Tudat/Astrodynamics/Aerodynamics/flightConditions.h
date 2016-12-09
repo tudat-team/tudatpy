@@ -52,6 +52,8 @@ public:
      *  coefficients are retrieved
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
+     *  \param controlSurfaceDeflectionFunction Function returning control surface deflection, with input the control
+     *  surface identifier.
      */
     FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
                       const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,

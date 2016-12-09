@@ -8,6 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
@@ -20,6 +31,82 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+boost::shared_ptr< AerodynamicCoefficientSettings >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFile,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame,
+        const bool areCoefficientsInNegativeAxisDirection )
+{
+    // Open file and create file stream.
+    std::fstream stream( forceCoefficientFile.at( 0 ).c_str( ), std::ios::in );
+
+    // Check if file opened correctly.
+    if ( stream.fail( ) )
+    {
+        boost::throw_exception(
+                    std::runtime_error( boost::str(
+                                            boost::format( "Data file '%s' could not be opened." ) %
+                                            forceCoefficientFile.at( 0 ).c_str( ) ) ) );
+    }
+
+    std::string line;
+    std::vector< std::string > vectorOfIndividualStrings;
+
+    int numberOfIndependentVariables = -1;
+
+    while ( !stream.fail( ) && !stream.eof( ) && ( numberOfIndependentVariables < 0 ) )
+    {
+        // Get line from stream
+        std::getline( stream, line );
+        boost::algorithm::trim( line );
+
+        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        {
+            boost::algorithm::split( vectorOfIndividualStrings,
+                                     line,
+                                     boost::algorithm::is_any_of( "\t ;, " ),
+                                     boost::algorithm::token_compress_on );
+            try
+            {
+                numberOfIndependentVariables = boost::lexical_cast< double >( vectorOfIndividualStrings.at( 0 ).at( 0 ) );
+            }
+            catch( std::runtime_error )
+            {
+                throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, input is inconsistent" );
+            }
+        }
+    }
+
+    boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
+    if( numberOfIndependentVariables == 1 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
+                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    }
+    else if( numberOfIndependentVariables == 2 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
+                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    }
+    else if( numberOfIndependentVariables == 3 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
+                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
+                                  boost::lexical_cast< std::string >( numberOfIndependentVariables ) +
+                                  " independent variables, up to 3 currently supported" );
+    }
+    return coefficientSettings;
+}
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
@@ -172,7 +259,7 @@ createAerodynamicCoefficientInterface(
         }
         default:
             throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
-                       boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
+                                      boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
         }
         break;
     }

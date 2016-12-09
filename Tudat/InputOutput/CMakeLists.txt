@@ -52,6 +52,8 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.cpp"
 )
 
 # Add header files.
@@ -80,6 +82,8 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.h"
 )
 
 # Add unit test files.
@@ -153,3 +157,7 @@ target_link_libraries(test_LinearFieldTransform tudat_input_output ${Boost_LIBRA
 add_executable(test_SolarActivityData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestSolarActivityData.cpp")
 setup_custom_test_program(test_SolarActivityData "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_SolarActivityData tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_MultiArrayReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMultiArrayReader.cpp")
+setup_custom_test_program(test_MultiArrayReader "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_MultiArrayReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
