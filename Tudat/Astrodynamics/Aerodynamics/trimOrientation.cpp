@@ -37,21 +37,28 @@ TrimOrientationCalculator::TrimOrientationCalculator(
     }
     variableIndex_ = std::distance( independentVariables.begin( ), variableIterator );
 
+    // Find indices of angle of attack in control surface interfaces.
     std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > > controlSurfaceIndependentVariables =
             coefficientInterface->getControlSurfaceIndependentVariables( );
     for( std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >::iterator
          controlSurfaceIterator = controlSurfaceIndependentVariables.begin( );
          controlSurfaceIterator != controlSurfaceIndependentVariables.end( ); controlSurfaceIterator++ )
     {
-        std::vector< AerodynamicCoefficientsIndependentVariables > currentIndependentVariables = controlSurfaceIterator->second;
+        std::vector< AerodynamicCoefficientsIndependentVariables > currentIndependentVariables =
+                controlSurfaceIterator->second;
         variableIterator =
-                    std::find( currentIndependentVariables.begin( ), currentIndependentVariables.end( ), angle_of_attack_dependent );
+                    std::find(
+                    currentIndependentVariables.begin( ), currentIndependentVariables.end( ), angle_of_attack_dependent );
         if( !( variableIterator == currentIndependentVariables.end( ) ) )
         {
-            throw std::runtime_error( "Error when getting trim angle of attack, no angle of attack dependency is found" );
+            std::cerr<<"Error when getting trim angle of attack, no angle of attack dependency is found for control surface "
+                       + controlSurfaceIterator->first<<std::endl;
         }
+        else
+        {
         controlSurfaceVariableIndex_[ controlSurfaceIterator->first ] =
                 std::distance( currentIndependentVariables.begin( ), variableIterator );
+        }
     }
 
     // If no root finder provided, use default value.
@@ -69,12 +76,12 @@ TrimOrientationCalculator::TrimOrientationCalculator(
 //! Function to find the trimmed angle of attack for a given set of independent  variables
 double TrimOrientationCalculator::findTrimAngleOfAttack(
         const std::vector< double > untrimmedIndependentVariables,
-        const std::map< std::string, std::vector< double > > controlSurfaceIndependentVariables )
+        const std::map< std::string, std::vector< double > > untrimmedControlSurfaceIndependentVariables )
 {
     // Determine function for which the root is to be determined.
     boost::function< double( const double ) > coefficientFunction =
             boost::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
-                         this, _1, untrimmedIndependentVariables, controlSurfaceIndependentVariables );
+                         this, _1, untrimmedIndependentVariables, untrimmedControlSurfaceIndependentVariables );
 
     double trimmedAngleOfAttack = TUDAT_NAN;
 

@@ -131,7 +131,11 @@ public:
         return scalarFlightConditions_.at( temperature_flight_condition );
     }
 
-
+    //! Function to retrieve (and compute if necessary) the current freestream dynamic pressure
+    /*!
+     * Function to retrieve (and compute if necessary) the current freestream dynamic pressure
+     * \return Current freestream dynamic pressure
+     */
     double getCurrentDynamicPressure( )
     {
         if( scalarFlightConditions_.count( dynamic_pressure_condition ) == 0 )
@@ -141,6 +145,11 @@ public:
         return scalarFlightConditions_.at( dynamic_pressure_condition );
     }
 
+    //! Function to retrieve (and compute if necessary) the current freestream pressure
+    /*!
+     * Function to retrieve (and compute if necessary) the current freestream pressure
+     * \return Current freestream dynamic pressure
+     */
     double getCurrentPressure( )
     {
         if( scalarFlightConditions_.count( pressure_flight_condition ) == 0 )
@@ -308,6 +317,12 @@ public:
         return aerodynamicCoefficientIndependentVariables_;
     }
 
+    //! Function to return list of independent variables of the control surface aerodynamic coefficient interface
+    /*!
+     *  Function to return list of independent variables of the control surface aerodynamic coefficient interface
+     *  \return List of independent variables of the control surface aerodynamic coefficient interface, with map key
+     *  the control surface identifiers.
+     */
     std::map< std::string, std::vector< double > > getControlSurfaceAerodynamicCoefficientIndependentVariables( )
     {
         if( controlSurfaceAerodynamicCoefficientIndependentVariables_.size( ) !=
@@ -343,6 +358,7 @@ private:
     double getAerodynamicCoefficientIndependentVariable(
             const AerodynamicCoefficientsIndependentVariables independentVariableType,
             const std::string& secondaryIdentifier = "" );
+
     //! Function to compute and set the current latitude and longitude
     void computeLatitudeAndLongitude( )
     {
@@ -406,6 +422,7 @@ private:
                          scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
     }
 
+    //! Function to compute and set the current freestream pressure.
     void computeFreestreamPressure( )
     {
         updateAtmosphereInput( );
@@ -435,6 +452,7 @@ private:
         scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
     }
 
+    //! Function to compute and set the current freestream dynamic pressure.
     void computeDynamicPressure( )
     {
         double currentAirspeed = getCurrentAirspeed( );
@@ -476,6 +494,7 @@ private:
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
+    //! <odel describing the shape of the body w.r.t. which the flight is taking place.
     const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
@@ -487,6 +506,7 @@ private:
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
+    //! Function returning control surface deflection, with input the control surface identifier.
     boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
 
     //! Current state of vehicle in base frame for Body objects.
@@ -507,7 +527,7 @@ private:
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitudeForAtmosphere_;
 
-    //! Boolean denoting whether the current latitude and longitude have been computed at current time step.
+    //! Boolean denoting whether the current latitude and longitude have been computed at current time step
     bool isLatitudeAndLongitudeSet_;
 
     //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
@@ -517,6 +537,8 @@ private:
     //! Current list of independent variables of the aerodynamic coefficient interface
     std::vector< double > aerodynamicCoefficientIndependentVariables_;
 
+    //! List of independent variables of the control surface aerodynamic coefficient interface, with map key
+    //! control surface identifiers.
     std::map< std::string, std::vector< double > > controlSurfaceAerodynamicCoefficientIndependentVariables_;
 };
 

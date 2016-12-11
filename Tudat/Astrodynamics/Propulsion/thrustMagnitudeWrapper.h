@@ -290,6 +290,7 @@ protected:
     double currentMassRate_;
 };
 
+//! Variables on which parameterized thrust can depend.
 enum ThrustDependentVariables
 {
     time_dependent_thrust,
@@ -302,6 +303,8 @@ enum ThrustDependentVariables
     maximum_thrust_multiplier
 };
 
+//! Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
+//! variables.
 class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
 {
 public:
