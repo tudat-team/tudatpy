@@ -610,10 +610,11 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
 
 //! Function to retrieve the state derivative models for translational dynamics of given body.
 /*!
- * Function to retrieve the state derivative models for translational dynamics (object of derived class from
- * NBodyStateDerivative) of given body from full list of state derivative models
+ *  Function to retrieve the state derivative models for translational dynamics (object of derived class from
+ *  NBodyStateDerivative) of given body from full list of state derivative models
  *  \param bodyUndergoingAcceleration Name of body for which state derivative model is to be retrieved
  *  \param stateDerivativeModels Complete list of state derivativ models
+ *  \return State derivative model computing derivative of translational state of requested body.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTranslationalStateDerivativeModelForBody(
@@ -662,9 +663,17 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
     return modelForBody;
 }
 
+//! Function to retrieve the state derivative models for body mass of given body.
+/*!
+ *  Function to retrieve the state derivative models for body mass (object of class BodyMassStateDerivative)
+ *  of given body from full list of state derivative models
+ *  \param bodyWithMassDerivative Name of body for which mass derivative model is to be retrieved
+ *  \param stateDerivativeModels Complete list of state derivative models
+ *  \return State derivative model computing derivative of body mass of requested body.
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyMassStateDerivativeModelForBody(
-        const std::string bodyUndergoingAcceleration,
+        const std::string bodyWithMassDerivative,
         const std::unordered_map< IntegratedStateType,
         std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
 
@@ -672,11 +681,12 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
     bool modelFound = 0;
     boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > modelForBody;
 
-    // Check if translational state derivative models exists
+    // Check if body mass derivative models exists
     if( stateDerivativeModels.count( propagators::body_mass_state ) > 0 )
     {
         for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::body_mass_state ).size( ); i++ )
         {
+            // Test consistency of current object
             boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
                     boost::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::body_mass_state ).at( i ) );
@@ -687,14 +697,14 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
 
             std::vector< std::string > propagatedBodies = massRateModel->getBodiesToIntegrate( );
 
-            // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration
-            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingAcceleration )
+            // Check if bodyWithMassDerivative is propagated by bodyWithMassDerivative
+            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyWithMassDerivative )
                     != propagatedBodies.end( ) )
             {
                 if( modelFound == true )
                 {
                     std::string errorMessage = "Error when getting mass rate  model for " +
-                            bodyUndergoingAcceleration + ", multiple models found";
+                            bodyWithMassDerivative + ", multiple models found";
                     throw std::runtime_error( errorMessage );
                 }
                 else
@@ -708,7 +718,7 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
     else
     {
         std::string errorMessage = "Error when getting mass rate model for " +
-                bodyUndergoingAcceleration + " no mass rate models found";
+                bodyWithMassDerivative + " no mass rate models found";
         throw std::runtime_error( errorMessage );
     }
 

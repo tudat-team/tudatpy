@@ -57,12 +57,15 @@ public:
      * returns the value of the trimmed angle of attack. Note that this function will typically have some small numerical
      * error in the result, as a result of the error tolerances in the root finder.
      * \param untrimmedIndependentVariables Untrimmed list of independent variables (in order required as input for
-     * coefficientInterface_
+     * coefficientInterface_)
+     * \param untrimmedControlSurfaceIndependentVariables Untrimmed list of independent variables for control surfaces
+     * with map key denoting the control surface name (in order required as input for coefficient interfaces)
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttack(
             const std::vector< double > untrimmedIndependentVariables,
-            const std::map< std::string, std::vector< double > > controlSurfaceIndependentVariables );
+            const std::map< std::string, std::vector< double > > untrimmedControlSurfaceIndependentVariables =
+            std::map< std::string, std::vector< double > >( ) );
 
     //! Function to find the trimmed angle of attack for a given set of independent  variables
     /*!
@@ -109,6 +112,7 @@ private:
     //! Index in independent variable list of coefficientInterface_ corresponding to the angle of attack.
     int variableIndex_;
 
+    //! Index in list of each of the control surface interfaces corresponding to the angle of attack.
     std::map< std::string, int > controlSurfaceVariableIndex_;
 };
 

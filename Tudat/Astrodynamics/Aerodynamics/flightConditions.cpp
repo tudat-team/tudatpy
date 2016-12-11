@@ -121,6 +121,7 @@ void FlightConditions::updateConditions( const double currentTime )
     }
 }
 
+//! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
 double FlightConditions::getAerodynamicCoefficientIndependentVariable(
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
         const std::string& secondaryIdentifier )
