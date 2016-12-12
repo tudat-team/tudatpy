@@ -11,11 +11,16 @@
 #ifndef TUDAT_THRUSTSETTINGS_H
 #define TUDAT_THRUSTSETTINGS_H
 
+#include <Eigen/Geometry>
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
+#include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
 {
@@ -263,6 +268,14 @@ public:
 };
 
 //! Class to define custom settings for thrust magnitude/specific impulse.
+/*!
+ * Class to define custom settings for thrust magnitude/specific impulse. Using this function, the thrust magnitude and
+ * specific impulse are defined by arbitrary functions of time, the implementation for which is completely open to the user.
+ * Also, a reset-function can be added, which is used to signal that a new time step is being computed (if applicable).
+ * Note that for the definition of thrust and specific impulse as a function of a number independent variables with
+ * clear physical meaning (e.g. dynamic pressure, Mach number, freestream density, etc.), the
+ * ParameterizedThrustMagnitudeSettings settings object can be used.
+ */
 class FromFunctionThrustEngineSettings: public ThrustEngineSettings
 {
 public:
@@ -309,81 +322,147 @@ public:
     boost::function< void( const double ) > customThrustResetFunction_;
 };
 
+//! Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
+/*!
+ * Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
+ * \param maximumThrustFunction Function returning the maxumum thrust as a function of a number of independent variables
+ * \param maximumThrustMultiplier Function returning a value by which the output of maximumThrustFunction is to be multiplied
+ * to obtain the actual thrust.
+ * \param maximumThrustIndependentVariables List of variables to be passed as input to maximumThrustFunction
+ * \return
+ */
+double multiplyMaximumThrustByScalingFactor(
+        const boost::function< double( const std::vector< double >& ) > maximumThrustFunction,
+        const boost::function< double( const double ) > maximumThrustMultiplier,
+        const std::vector< double >& maximumThrustIndependentVariables );
+
+//! Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
+/*!
+ *  Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables.
+ *  The physical meaning of the variables must be defined here, selecting from the options in the ThrustDependentVariables
+ *  enum, and they are automatically retrieved from the relevant environment models during the propagation.
+ *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
+ *  maximum_thrust_multiplier. In the case of the maximum_thrust_multiplier, the thrustMagnitudeInterpolator input variable
+ *  is assumed to define the maximum possible thrust, which is then multiplied by the function defining the
+ *  maximum_thrust_multiplier.
+ */
 class ParameterizedThrustMagnitudeSettings: public ThrustEngineSettings
 {
 public:
+
+    //! Constructor for parameterized thrust and specific impulse.
+    /*!
+     * Constructor, defines the interpolators for thrust and specific impulse, as well as the physical meaning of each of the
+     * independent variables.
+     * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
+     * thrustDependentVariables contains an maximum_thrust_multiplier entry) as a function of the independent variables.
+     * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+     * the 'interpolate' function of thrustMagnitudeInterpolator.
+     * \param specificImpulseInterpolator  Interpolator returning the current specific impulse as a function of the
+     * independent variables.
+     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+     * input to the 'interpolate' function of specificImpulseInterpolator.
+     * \param thrustGuidanceInputVariables List of functions returning user-defined guidance input variables for the thrust
+     * (default none). The order of the functions in this vector is passed to the thrustMagnitudeInterpolator
+     * in the order of the maximum_thrust_multiplier and guidance_input_dependent_thrust in the thrustDependentVariables
+     * vector
+     * \param specificImpulseGuidanceInputVariables List of functions returning user-defined guidance input variables
+     * for the specific impulse (default none). The order of the functions in this vector is passed to the
+     * specificImpulseInterpolator in the order of the and guidance_input_dependent_thrust in the thrustDependentVariables
+     * vector
+     * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
+     * vehicle front).
+     */
     ParameterizedThrustMagnitudeSettings(
             const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
-            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
-            const std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables =
+            std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables =
+            std::vector< boost::function< double( const double ) > >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
-        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, thrustMagnitudeInterpolator, _1 ) ),
-        specificImpulseFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, specificImpulseInterpolator, _1 ) ),
+        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
+                                               thrustMagnitudeInterpolator, _1 ) ),
+        specificImpulseFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
+                                               specificImpulseInterpolator, _1 ) ),
         thrustDependentVariables_( thrustDependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
         bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
-        int numberOfUserSpecifiedThrustInputs = std::count(
-                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
-                std::count( thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
-
-        if( numberOfUserSpecifiedThrustInputs != static_cast< int >( thrustGuidanceInputVariables.size( ) ) )
-        {
-            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
-        }
-
-        int numberOfUserSpecifiedSpecificImpulseInputs = std::count(
-                    specificImpulseDependentVariables.begin( ), specificImpulseDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
-                std::count( specificImpulseDependentVariables.begin( ), specificImpulseDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
-
-        if( numberOfUserSpecifiedSpecificImpulseInputs != static_cast< int >( specificImpulseGuidanceInputVariables.size( ) ) )
-        {
-            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
-        }
+        parseInputDataAndCheckConsistency( thrustMagnitudeInterpolator, specificImpulseInterpolator );
     }
 
+    //! Constructor for parameterized thrust and constant specific impulse.
+    /*!
+     * Constructor, defines a constant thrust and an interpolator for thrust, as well as the physical meaning of each of the
+     * independent variables.
+     * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
+     * thrustDependentVariables contains an maximum_thrust_multiplier entry) as a function of the independent variables.
+     * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+     * the 'interpolate' function of thrustMagnitudeInterpolator.
+     * \param constantSpecificImpulse Constant specific impulse
+     * \param thrustGuidanceInputVariables List of functions returning user-defined guidance input variables for the thrust
+     * (default none). The order of the functions in this vector is passed to the thrustMagnitudeInterpolator
+     * in the order of the maximum_thrust_multiplier and guidance_input_dependent_thrust in the thrustDependentVariables
+     * vector
+     * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
+     * vehicle front).
+     */
     ParameterizedThrustMagnitudeSettings(
             const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const double constantSpecificImpulse,
-            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables = std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables =
+            std::vector< boost::function< double( const double ) > >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
-        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate, thrustMagnitudeInterpolator, _1 ) ),
+        thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
+                                               thrustMagnitudeInterpolator, _1 ) ),
         specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
-        int numberOfUserSpecifiedThrustInputs = std::count(
-                    thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::guidance_input_dependent_thrust ) +
-                std::count( thrustDependentVariables.begin( ), thrustDependentVariables.end( ), propulsion::maximum_thrust_multiplier ) ;
-
-        if( numberOfUserSpecifiedThrustInputs != static_cast< int >( thrustGuidanceInputVariables.size( ) ) )
-        {
-            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
-        }
-
+        parseInputDataAndCheckConsistency(
+                    thrustMagnitudeInterpolator, boost::shared_ptr< interpolators::Interpolator< double, double > >( ) );
     }
 
+    //! Function returning the thrust as a function of the independent variables.
     boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
 
+    //! Function returning the specific impulse as a function of the independent variables.
     boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
 
+    //! List of identifiers for the physical meaning of each of the entries of the input to thrustMagnitudeFunction_.
     std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
 
+    //! List of identifiers for the physical meaning of each of the entries of the input to specificImpulseDependentVariables_.
     std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
 
+    //! List of functions returning user-defined guidance input variables for the thrust
     std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables_;
 
-    std::vector< boost::function< double( const double  ) > > specificImpulseGuidanceInputVariables_;
+    //! List of functions returning user-defined guidance input variables for the specific impulse
+    std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables_;
 
+    //! Direction of the thrust vector in the body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
+
+private:
+
+    //! Function to check the validity of the input data, and process the maximum thrust multiplier if provided
+    /*!
+     *  Function to check the validity of the input data, and process the maximum thrust multiplier if provided.
+     *  \param thrustMagnitudeInterpolator Interpolator for the (maximum) thrust provided to the constructor
+     *  \param specificImpulseInterpolator Interpolator for the specific impulse provided to the constructor
+     */
+    void parseInputDataAndCheckConsistency(
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator );
 };
 
 } // namespace simulation_setup

@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
         expectedForceCoefficients = coefficientInterface->getCurrentForceCoefficients( );
         expectedMomentCoefficients = coefficientInterface->getCurrentMomentCoefficients( );
 
-        // Test expected against actual aerodynamic coefficients
+        // Test expected against actual aerodynamic coefficients.
         for( unsigned int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( expectedForceCoefficients( i ) - currentForceCoefficients( i ) ), 1.0E-14 );

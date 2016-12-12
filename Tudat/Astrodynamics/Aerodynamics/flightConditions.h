@@ -355,6 +355,13 @@ public:
 
 private:
 
+    //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
+    /*!
+     * Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
+     * \param independentVariableType Identifier for type of independent variable
+     * \param secondaryIdentifier String used as secondary identifier of independent variable (e.g. control surface name).
+     * \return Current value of requested independent variable.
+     */
     double getAerodynamicCoefficientIndependentVariable(
             const AerodynamicCoefficientsIndependentVariables independentVariableType,
             const std::string& secondaryIdentifier = "" );

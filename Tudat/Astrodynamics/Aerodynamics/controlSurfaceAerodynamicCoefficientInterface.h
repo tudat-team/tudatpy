@@ -11,6 +11,7 @@
 #ifndef TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H
 #define TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H
 
+#include <iostream>
 #include <vector>
 
 #include <boost/function.hpp>

@@ -697,7 +697,7 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
 
             std::vector< std::string > propagatedBodies = massRateModel->getBodiesToIntegrate( );
 
-            // Check if bodyWithMassDerivative is propagated by bodyWithMassDerivative
+            // Check if bodyWithMassDerivative is propagated by massRateModel
             if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyWithMassDerivative )
                     != propagatedBodies.end( ) )
             {

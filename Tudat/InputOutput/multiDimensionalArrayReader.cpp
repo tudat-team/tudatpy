@@ -18,34 +18,46 @@ namespace tudat
 namespace input_output
 {
 
-boost::multi_array< double, 1 > readOneDimensionalCoefficientFile(
+//! Function to parse a block of values read from a file into a multi-array of size 1.
+boost::multi_array< double, 1 > parseRawOneDimensionalCoefficientsFromFile(
         const std::vector< int > independentVariableSize,
         const Eigen::MatrixXd& coefficientsBlock )
 {
     boost::multi_array< double, 1 > coefficientMultiarray;
 
+    // Check input consistency
     if( independentVariableSize.size( ) == 1 )
     {
+        // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ] );
 
+        // Parse data
         for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
         {
             coefficientMultiarray[ i ] = coefficientsBlock( i, 0 );
         }
     }
+    else
+    {
+        throw std::runtime_error( "Error, expected size of 1 dimension when parsing 1-dimensional data into multi-array" );
+    }
     return coefficientMultiarray;
 }
 
-boost::multi_array< double, 2 > readTwoDimensionalCoefficientFile(
+//! Function to parse a block of values read from a file into a multi-array of size 2.
+boost::multi_array< double, 2 > parseRawTwoDimensionalCoefficientsFromFile(
         const std::vector< int > independentVariableSize,
         const Eigen::MatrixXd& coefficientsBlock )
 {
     boost::multi_array< double, 2 > coefficientMultiarray;
 
+    // Check input consistency
     if( independentVariableSize.size( ) == 2 )
     {
+        // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ][ independentVariableSize.at( 1 ) ]  );
 
+        // Parse data
         for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
         {
             for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
@@ -53,19 +65,29 @@ boost::multi_array< double, 2 > readTwoDimensionalCoefficientFile(
                 coefficientMultiarray[ i ][ j ] = coefficientsBlock( i, j );
             }
         }
+    }    
+    else
+    {
+        throw std::runtime_error( "Error, expected size of 2 dimensions when parsing 1-dimensional data into multi-array" );
     }
     return coefficientMultiarray;
 }
 
-boost::multi_array< double, 3 > readThreeDimensionalCoefficientFile(
+//! Function to parse a block of values read from a file into a multi-array of size 3.
+boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
         const std::vector< int > independentVariableSize,
         const Eigen::MatrixXd& coefficientsBlock )
 {
     boost::multi_array< double, 3 > coefficientMultiarray;
 
+    // Check input consistency
     if( independentVariableSize.size( ) == 3 )
     {
-        coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ][ independentVariableSize.at( 1 ) ][ independentVariableSize.at( 2 ) ] );
+        // Define size of multi-array
+        coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ]
+                [ independentVariableSize.at( 1 ) ][ independentVariableSize.at( 2 ) ] );
+
+        // Parse data
         int currentStartRow = 0;
         for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
         {
@@ -79,9 +101,15 @@ boost::multi_array< double, 3 > readThreeDimensionalCoefficientFile(
             currentStartRow += independentVariableSize.at( 0 );
         }
     }
+
+    else
+    {
+        throw std::runtime_error( "Error, expected size of 3 dimensions when parsing 1-dimensional data into multi-array" );
+    }
     return coefficientMultiarray;
 }
 
+//! Function to read a coefficient file (data on a structured grid as a function of N independent variables)
 void readCoefficientsFile(
         const std::string fileName,
         std::vector< std::vector< double > >& independentVariables,
@@ -94,7 +122,8 @@ void readCoefficientsFile(
     if ( stream.fail( ) )
     {
         boost::throw_exception( std::runtime_error( boost::str(
-                                                        boost::format( "Data file '%s' could not be opened." ) % fileName.c_str( ) ) ) );
+                                                        boost::format( "Data file '%s' could not be opened." ) %
+                                                        fileName.c_str( ) ) ) );
     }
 
     // Initialize boolean that gets set to true once the file header is passed.
@@ -106,6 +135,7 @@ void readCoefficientsFile(
     std::string line;
     std::vector< std::string > vectorOfIndividualStrings;
 
+    // Read file line-by-line
     int numberOfDataLinesParsed = 0;
     int numberOfIndependentVariables = -1;
     while ( !stream.fail( ) && !stream.eof( ) )
@@ -116,14 +146,16 @@ void readCoefficientsFile(
         // Trim input string (removes all leading and trailing whitespaces).
         boost::algorithm::trim( line );
 
+        // Skip empty and comment lines
         if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
         {
-            // Split string into multiple strings, each containing one element from a line from the
-            // data file.
+            // Split string into multiple strings, each containing one element from a line from the data file.
             boost::algorithm::split( vectorOfIndividualStrings,
                                      line,
                                      boost::algorithm::is_any_of( "\t ;, " ),
                                      boost::algorithm::token_compress_on );
+
+            // If this is the first line that is read, it should contain the number of independent variables
             if( !isFirstLinePassed )
             {
                 if( vectorOfIndividualStrings.size( ) != 1 )
@@ -132,7 +164,8 @@ void readCoefficientsFile(
                 }
                 numberOfIndependentVariables = boost::lexical_cast< int >( vectorOfIndividualStrings.at( 0 ) );
                 isFirstLinePassed = true;
-            }
+            }            
+            // If the file header is not passed, this should contain the independent variables
             else if( !isHeaderPassed )
             {
                 std::vector< double > currentDataPoints;
@@ -144,35 +177,44 @@ void readCoefficientsFile(
             }
             else if( isHeaderPassed )
             {
+                // Check line consistency
                 if( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
                 {
-                    throw std::runtime_error( "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                                              " found " + boost::lexical_cast< std::string >( vectorOfIndividualStrings.size( ) ) +
-                                              " columns, but expected " +  boost::lexical_cast< std::string >( coefficientBlock.cols( ) ) );
+                    throw std::runtime_error(
+                                "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
+                                " found " + boost::lexical_cast< std::string >( vectorOfIndividualStrings.size( ) ) +
+                                " columns, but expected " + boost::lexical_cast< std::string >( coefficientBlock.cols( ) ) );
                 }
                 else if( numberOfDataLinesParsed > coefficientBlock.rows( ) )
                 {
-                    throw std::runtime_error( "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                                              " expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
+                    throw std::runtime_error(
+                                "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
+                                " expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
                 }
                 else
                 {
+                    // Parse data from current line into output matrix.
                     for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
                     {
-                        coefficientBlock( numberOfDataLinesParsed, i ) = boost::lexical_cast< double >( vectorOfIndividualStrings.at( i ) );
+                        coefficientBlock( numberOfDataLinesParsed, i ) =
+                                boost::lexical_cast< double >( vectorOfIndividualStrings.at( i ) );
                     }
                     numberOfDataLinesParsed++;
                 }
             }
 
+            // If the number of independent variables read is the same as the number of independent variables that
+            // should be defined, allocate memory for output matrix.
             if( ( static_cast< int >( independentVariables.size( ) ) == numberOfIndependentVariables ) && !isHeaderPassed )
             {
+                // Check input consistency
                 if( independentVariables.size( ) == 0 )
                 {
                     throw std::runtime_error( "Error when reading multi-array, no header found" );
                 }
                 else
                 {
+                    // Define size of output matrix, and allocate memory
                     int numberOfRows = independentVariables.at( 0 ).size( );
                     int numberOfColumns = 1;
                     if( independentVariables.size( ) > 1 )
@@ -193,8 +235,10 @@ void readCoefficientsFile(
 
     if( numberOfDataLinesParsed != coefficientBlock.rows( ) )
     {
-        throw std::runtime_error( "Error at end of coefficient file reader, found " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                                  " lines, but expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
+        throw std::runtime_error(
+                    "Error at end of coefficient file reader, found " +
+                    boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
+                    " lines, but expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
     }
 }
 
