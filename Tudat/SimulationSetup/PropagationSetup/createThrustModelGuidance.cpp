@@ -309,12 +309,12 @@ double dummyTimeReturningFunction( const double currentTime )
     return currentTime;
 }
 
-std::vector< boost::function< double( const double ) > > getPropulsionInputVariables(
+std::vector< boost::function< double( ) > > getPropulsionInputVariables(
         const boost::shared_ptr< Body > bodyWithGuidance,
         const std::vector< propulsion::ThrustDependentVariables > dependentVariables,
-        const std::vector< boost::function< double( const double ) > > guidanceInputFunctions )
+        const std::vector< boost::function< double( ) > > guidanceInputFunctions )
 {
-    std::vector< boost::function< double( const double ) > > inputFunctions;
+    std::vector< boost::function< double( ) > > inputFunctions;
 
     boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
             bodyWithGuidance->getFlightConditions( );
@@ -324,9 +324,6 @@ std::vector< boost::function< double( const double ) > > getPropulsionInputVaria
     {
         switch( dependentVariables.at( i ) )
         {
-        case propulsion::time_dependent_thrust:
-            inputFunctions.push_back( &dummyTimeReturningFunction );
-            break;
         case propulsion::altitude_dependent_thrust:
             inputFunctions.push_back(
                         boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
@@ -355,8 +352,12 @@ std::vector< boost::function< double( const double ) > > getPropulsionInputVaria
             inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
             numberOfCustomInputs++;
             break;
+        default:
+            throw std::runtime_error( "Error when getting parameterized thrust input variables, variable " +
+                                      boost::lexical_cast< std::string >( dependentVariables.at( i ) ) + "not found" );
         }
     }
+
     return inputFunctions;
 }
 
@@ -459,11 +460,11 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
         }
 
-        std::vector< boost::function< double( const double ) > > thrustInputVariableFunctions =
+        std::vector< boost::function< double( ) > > thrustInputVariableFunctions =
                 getPropulsionInputVariables(
                     bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
                     parameterizedThrustMagnitudeSettings->thrustGuidanceInputVariables_ );
-        std::vector< boost::function< double( const double ) > > specificInputVariableFunctions =
+        std::vector< boost::function< double( ) > > specificInputVariableFunctions =
                 getPropulsionInputVariables(
                     bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseGuidanceInputVariables_ );

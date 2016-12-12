@@ -19,11 +19,10 @@ namespace simulation_setup
 //! Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
 double multiplyMaximumThrustByScalingFactor(
         const boost::function< double( const std::vector< double >& ) > maximumThrustFunction,
-        const boost::function< double( const double ) > maximumThrustMultiplier,
+        const boost::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables )
 {
-    throw std::runtime_error( "Error, issue with time-dependent maximum trust multiplier not yet resolved" );
-    return maximumThrustMultiplier( TUDAT_NAN ) * maximumThrustFunction( maximumThrustIndependentVariables );
+    return maximumThrustMultiplier( ) * maximumThrustFunction( maximumThrustIndependentVariables );
 }
 
 

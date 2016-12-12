@@ -333,7 +333,7 @@ public:
  */
 double multiplyMaximumThrustByScalingFactor(
         const boost::function< double( const std::vector< double >& ) > maximumThrustFunction,
-        const boost::function< double( const double ) > maximumThrustMultiplier,
+        const boost::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables );
 
 //! Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
@@ -378,10 +378,10 @@ public:
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
-            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables =
-            std::vector< boost::function< double( const double ) > >( ),
-            const std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables =
-            std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( ) > > thrustGuidanceInputVariables =
+            std::vector< boost::function< double( ) > >( ),
+            const std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables =
+            std::vector< boost::function< double( ) > >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
@@ -417,8 +417,8 @@ public:
             const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const double constantSpecificImpulse,
-            const std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables =
-            std::vector< boost::function< double( const double ) > >( ),
+            const std::vector< boost::function< double( ) > > thrustGuidanceInputVariables =
+            std::vector< boost::function< double( ) > >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
@@ -444,10 +444,10 @@ public:
     std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
 
     //! List of functions returning user-defined guidance input variables for the thrust
-    std::vector< boost::function< double( const double ) > > thrustGuidanceInputVariables_;
+    std::vector< boost::function< double( ) > > thrustGuidanceInputVariables_;
 
     //! List of functions returning user-defined guidance input variables for the specific impulse
-    std::vector< boost::function< double( const double ) > > specificImpulseGuidanceInputVariables_;
+    std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables_;
 
     //! Direction of the thrust vector in the body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
