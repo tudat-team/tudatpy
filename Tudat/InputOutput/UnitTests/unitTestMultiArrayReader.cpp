@@ -78,41 +78,51 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_multi_array_reader )
 
+// Test if multi-array file reader is working correctly
 BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 {
-    std::string fileName = tudat::input_output::getTudatRootPath( )
-            + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
-
-    for( unsigned int i = 0; i < 2; i++)
+    // Test functionality of 3-dimensional multi-array reader
     {
-        boost::multi_array< double, 3 > multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+        std::string fileName = tudat::input_output::getTudatRootPath( )
+                + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
 
-        if( i == 0 )
+        for( unsigned int i = 0; i < 2; i++)
         {
-            multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+            boost::multi_array< double, 3 > multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+
+            // Read only multi-array from file
+            if( i == 0 )
+            {
+                multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+            }
+            // Read multi-array and independent variable values
+            else
+            {
+                std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > fileContents =
+                        tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables( fileName );
+                multiArrayFromFile = fileContents.first;
+                std::vector< std::vector< double > > independentVariables = fileContents.second;
+
+                // Test independent variable sizes
+                BOOST_CHECK_EQUAL( independentVariables.size( ), 3 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
+
+
+            }
+
+            // Test multi-array size
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
+
+            // Test selected multi-array values
+            BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ), std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ), std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ), std::numeric_limits< double >::epsilon( ) );
         }
-        else
-        {
-            std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > fileContents =
-                    tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables( fileName );
-            multiArrayFromFile = fileContents.first;
-            std::vector< std::vector< double > > independentVariables = fileContents.second;
-            BOOST_CHECK_EQUAL( independentVariables.size( ), 3 );
-            BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
-            BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
-            BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
-
-
-        }
-
-        BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
-        BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
-        BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
-
-        BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ), std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ), std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ), std::numeric_limits< double >::epsilon( ) );
     }
 }
 

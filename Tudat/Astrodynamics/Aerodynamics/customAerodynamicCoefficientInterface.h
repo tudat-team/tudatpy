@@ -113,7 +113,6 @@ public:
     //! Constructor.
     /*!
      *  Constructor.
-
      *  \param coefficientFunction Function returning the concatenated aerodynamic force and moment
      *  coefficients as function of the set of independent variables.
      *  \param referenceLength Reference length with which aerodynamic moments

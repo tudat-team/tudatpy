@@ -75,6 +75,9 @@ public:
      * error in the result, as a result of the error tolerances in the root finder.
      * \param untrimmedIndependentVariablesFunction Function returning untrimmed list of independent variables
      * (in order required as input for coefficientInterface_
+     * \param untrimmedControlSurfaceIndependentVariablesFunction Function returning untrimmed list of independent variables
+     * for control surfaces with map key denoting the control surface name (in order required as input for coefficient
+     * interfaces)
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttackFromFunction(
@@ -95,6 +98,8 @@ private:
      * \param perturbedAngleOfAttack Angle of attack to use
      * \param unperturbedConditions Untrimmed list of independent variables (in order required as input for
      * coefficientInterface_
+     * \param unperturbedControlSurfaceIndependentVariables Untrimmed list of independent variables for control surfaces
+     * with map key denoting the control surface name (in order required as input for coefficient interfaces)
      * \return Moment coefficient at given independent variables.
      */
     double getPerturbedMomentCoefficient(

@@ -195,12 +195,22 @@ public:
         return bodiesToIntegrate_.size( );
     }
 
+    //! Get list of bodies for which the mass is to be propagated.
+    /*!
+     * Get list of bodies for which the mass is to be propagated.
+     * \return List of bodies for which the mass is to be propagated.
+     */
     std::vector< std::string > getBodiesToIntegrate( )
     {
         return bodiesToIntegrate_;
     }
 
-
+    //! Function to return the current mass rate for a single body
+    /*!
+     *  Function to return the current mass rate for a single body
+     * \param bodyName Name of body fo which the mass rate is to be returned.
+     * \return Current mass rate for requested body
+     */
     double getTotalMassRateForBody( const std::string bodyName )
     {
         // Check if body is propagated.
