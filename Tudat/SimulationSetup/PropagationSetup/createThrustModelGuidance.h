@@ -54,10 +54,10 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
 
 double dummyTimeReturningFunction( const double currentTime );
 
-std::vector< boost::function< double( const double ) > > getPropulsionInputVariables(
+std::vector< boost::function< double( ) > > getPropulsionInputVariables(
         const boost::shared_ptr< Body > bodyWithGuidance,
         const std::vector< propulsion::ThrustDependentVariables > dependentVariables,
-        const std::vector< boost::function< double( const double ) > > guidanceInputFunctions );
+        const std::vector< boost::function< double( ) > > guidanceInputFunctions );
 
 //! Function to create a wrapper object that computes the thrust magnitude
 /*!

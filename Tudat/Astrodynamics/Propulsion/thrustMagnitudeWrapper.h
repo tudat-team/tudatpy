@@ -293,7 +293,6 @@ protected:
 //! Variables on which parameterized thrust can depend.
 enum ThrustDependentVariables
 {
-    time_dependent_thrust,
     mach_number_dependent_thrust,
     altitude_dependent_thrust,
     density_dependent_thrust,
@@ -309,18 +308,11 @@ class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
 {
 public:
 
-    //! Constructor
-    /*!
-     * Constructor
-     * \param thrustMagnitudeFunction Function returning thrust as a function of time.
-     * \param specificImpulseFunction Function returning specific impulse as a function of time.
-     * \param isEngineOnFunction Function returning whether the function is on (returns true if so) at a given time.
-     */
     ParameterizedThrustMagnitudeWrapper(
             const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
             const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
-            const std::vector< boost::function< double( const double ) > > thrustInputVariableFunctions,
-            const std::vector< boost::function< double( const double ) > > specificImpulseInputVariableFunctions,
+            const std::vector< boost::function< double( ) > > thrustInputVariableFunctions,
+            const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
@@ -360,14 +352,14 @@ public:
         {
             for( unsigned int i = 0; i < thrustInputVariableFunctions_.size( ); i++ )
             {
-                currentThrustInputVariables_[ i ] = thrustInputVariableFunctions_.at( i )( time );
+                currentThrustInputVariables_[ i ] = thrustInputVariableFunctions_.at( i )( );
             }
 
             currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );
 
             for( unsigned int i = 0; i < specificImpulseInputVariableFunctions_.size( ); i++ )
             {
-                currentSpecificImpulseInputVariables_[ i ] = specificImpulseInputVariableFunctions_.at( i )( time );
+                currentSpecificImpulseInputVariables_[ i ] = specificImpulseInputVariableFunctions_.at( i )( );
             }
 
             currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
@@ -402,9 +394,9 @@ private:
 
     boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
 
-    std::vector< boost::function< double( const double ) > > thrustInputVariableFunctions_;
+    std::vector< boost::function< double( ) > > thrustInputVariableFunctions_;
 
-    std::vector< boost::function< double( const double ) > > specificImpulseInputVariableFunctions_;
+    std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions_;
 
     std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
 
