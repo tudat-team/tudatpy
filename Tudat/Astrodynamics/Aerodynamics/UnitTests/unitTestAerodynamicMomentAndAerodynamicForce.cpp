@@ -364,11 +364,9 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
