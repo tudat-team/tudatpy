@@ -435,7 +435,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case total_mass_rate_dependent_variables:
     {
-        // Retrieve model responsible for computing accelerations of requested bodies.
+        // Retrieve model responsible for computing mass rate of requested bodies.
         boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getBodyMassStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
         variableFunction =

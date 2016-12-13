@@ -40,6 +40,7 @@ public:
     VehicleSystems( const double dryMass = TUDAT_NAN ):
         dryMass_( dryMass ){ }
 
+    //! Destructor
     ~VehicleSystems( ){ }
 
     //! Function to retrieve the engine models
@@ -81,12 +82,24 @@ public:
         return dryMass_;
     }
 
+    //! Function to set the current deflection of a single control surface
+    /*!
+     * Function to set the current deflection of a single control surface
+     * \param controlSurfaceId Name of control surface for which deflection is to be set
+     * \param deflectionAngle Current deflection of control surface that is to be set.
+     */
     void setCurrentControlSurfaceDeflection(
             const std::string& controlSurfaceId, const double deflectionAngle )
     {
         currentControlSurfaceDeflections_[ controlSurfaceId ] =  deflectionAngle;
     }
 
+    //! Function to retrieve the current deflection of a single control surface
+    /*!
+     * Function to retrieve the current deflection of a single control surface
+     * \param controlSurfaceId Name of control surface for which deflection is to be set
+     * \return Current deflection of control surface that is requested.
+     */
     double getCurrentControlSurfaceDeflection(
             const std::string& controlSurfaceId )
     {

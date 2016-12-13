@@ -532,6 +532,68 @@ public:
         }
     }
 
+    //! Constructor, sets properties of aerodynamic coefficients.
+    /*!
+     *  Constructor, sets properties of aerodynamic coefficients.
+     *  \param independentVariables Values of indepependent variables at which the coefficients
+     *  in the input multi vector are defined.
+     *  \param forceCoefficients Values of force coefficients at independent variables defined
+     *  by independentVariables.
+     *  \param momentCoefficients Values of moment coefficients at independent variables defined
+     *  by independentVariables.
+     *  \param referenceLength Reference length with which aerodynamic moments
+     *  (about x- and z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+     *  is non-dimensionalized.
+     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+     *  \param independentVariableName Identifiers the of physical meaning of the
+     *  independent variable of the aerodynamic coefficients  (size 1).
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positive along the positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
+     */
+    TabulatedAerodynamicCoefficientSettings< 1 >(
+            const std::vector< std::vector< double > > independentVariables,
+            const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
+            const boost::multi_array< Eigen::Vector3d, 1 > momentCoefficients,
+            const double referenceLength,
+            const double referenceArea,
+            const double lateralReferenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableName,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+        AerodynamicCoefficientSettings(
+            tabulated_coefficients, referenceLength, referenceArea,
+            lateralReferenceLength, momentReferencePoint,
+            independentVariableName, areCoefficientsInAerodynamicFrame,
+            areCoefficientsInNegativeAxisDirection ),
+        interpolationSettings_( boost::make_shared< interpolators::InterpolatorSettings >(
+                                    interpolators::linear_interpolator )     )
+    {
+        if( forceCoefficients.size( ) != independentVariables.size( ) )
+        {
+            throw std::runtime_error( "Error, force coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
+        }
+
+        if( momentCoefficients.size( ) != independentVariables.size( ) )
+        {
+            throw std::runtime_error( "Error, moment coefficient size is inconsistent in TabulatedAerodynamicCoefficientSettings< 1 >" );
+        }
+
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        {
+            forceCoefficients_[ independentVariables.at( 0 ).at( i ) ] = forceCoefficients[ i ];
+            momentCoefficients_[ independentVariables.at( 0 ).at( i ) ] = momentCoefficients[ i ];
+        }
+    }
+
     //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
     /*!
      *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
@@ -579,7 +641,26 @@ public:
         }
     }
 
-    TabulatedAerodynamicCoefficientSettings(
+    //! Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
+    /*!
+     *  Constructor, sets properties of aerodynamic force coefficients, zero moment coefficients.
+     *  \param independentVariables Values of indepependent variables at which the coefficients
+     *  in the input multi vector are defined (size 1).
+     *  \param forceCoefficients Values of force coefficients at independent variables defined
+     *  by independentVariables.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param independentVariableNames Identifiers the of physical meaning of the
+     *  independent variable of the aerodynamic coefficients (size 1).
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positive along the positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
+     */
+    TabulatedAerodynamicCoefficientSettings< 1 >(
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
             const double referenceArea,
@@ -591,7 +672,8 @@ public:
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, areCoefficientsInAerodynamicFrame,
             areCoefficientsInNegativeAxisDirection ),
-        interpolationSettings_( boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator ) )
+        interpolationSettings_( boost::make_shared< interpolators::InterpolatorSettings >(
+                                    interpolators::linear_interpolator ) )
     {
         if( forceCoefficients.shape( )[ 0 ] != independentVariables.size( ) )
         {
@@ -652,12 +734,37 @@ private:
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
-
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients.  The file format is discussed in AAAA
+ *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
+ *  the case, the readTabulatedAerodynamicCoefficientsFromFiles function should be used.
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
+ *  \param momentCoefficientFiles List (size 3) of files containing the aerodynamic moment coefficients
+ *  \param referenceLength Reference length with which aerodynamic moments
+ *  (about x- and z- axes) are non-dimensionalized.
+ *  \param referenceArea Reference area with which aerodynamic forces and moments are
+ *  non-dimensionalized.
+ *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+ *  is non-dimensionalized.
+ *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positive along the positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
+ *  forceCoefficientFiles and reference data given as input
+ */
 template< int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFile,
-        const std::vector< std::string > momentCoefficientFile,
+        const std::vector< std::string > forceCoefficientFiles,
+        const std::vector< std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -667,11 +774,11 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicForceCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
-                forceCoefficientFile );
+            aerodynamicForceCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
+            readAerodynamicCoefficients( forceCoefficientFiles );
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicMomentCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
-                momentCoefficientFile );
+            aerodynamicMomentCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
+            readAerodynamicCoefficients( momentCoefficientFiles );
 
     if( !input_output::compareIndependentVariables(
                 aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
@@ -690,32 +797,107 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
+ *  cases). The file format is discussed in AAAA
+ *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
+ *  the case, the readTabulatedAerodynamicCoefficientsFromFiles function should be used.
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic coefficients
+ *  \param referenceArea Reference area of aerodynamic coefficients
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positive along the positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
+ *  forceCoefficientFiles and reference data given as input
+ */
 template< int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFile,
+        const std::vector< std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::readAerodynamicCoefficients(
-                forceCoefficientFile );
+            aerodynamicCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
+            readAerodynamicCoefficients( forceCoefficientFiles );
 
+    // Check input consistency
     if( independentVariableNames.size( ) != NumberOfIndependentVariables )
     {
         throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
     }
 
+    // Create coefficient settings.
     return boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
                 aerodynamicCoefficients.second, aerodynamicCoefficients.first, referenceArea, independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients.  The file format is discussed in AAAA
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
+ *  \param momentCoefficientFiles List (size 3) of files containing the aerodynamic moment coefficients
+ *  \param referenceLength Reference length with which aerodynamic moments
+ *  (about x- and z- axes) are non-dimensionalized.
+ *  \param referenceArea Reference area with which aerodynamic forces and moments are
+ *  non-dimensionalized.
+ *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+ *  is non-dimensionalized.
+ *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positive along the positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
+ *  forceCoefficientFiles and reference data given as input
+ */
+boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFiles,
+        const std::vector< std::string > momentCoefficientFiles,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame = 1,
+        const bool areCoefficientsInNegativeAxisDirection = 1 );
+
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ * Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ * the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
+ * cases). The file format is discussed in AAAA
+ * \param forceCoefficientFiles List (size 3) of files containing the aerodynamic coefficients
+ * \param referenceArea Reference area of aerodynamic coefficients
+ * \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positive along the positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
+ *  forceCoefficientFiles and reference data given as input
+ */
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFile,
+        const std::vector< std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = 1,
