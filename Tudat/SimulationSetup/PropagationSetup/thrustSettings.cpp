@@ -25,7 +25,7 @@ double multiplyMaximumThrustByScalingFactor(
     return maximumThrustMultiplier( ) * maximumThrustFunction( maximumThrustIndependentVariables );
 }
 
-
+//! Function to check the validity of the input data, and process the maximum thrust multiplier if provided
 void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
         const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator )
@@ -41,9 +41,10 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     if( ( numberOfUserSpecifiedThrustInputs + numberOfMaximumThrustMultipliers ) !=
             static_cast< int >( thrustGuidanceInputVariables_.size( ) ) )
     {
-        throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
+        throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables for thrust" );
     }
-    if( thrustMagnitudeInterpolator->getNumberOfDimensions( ) != numberOfUserSpecifiedThrustInputs )
+    if( thrustMagnitudeInterpolator->getNumberOfDimensions( ) !=
+            ( static_cast< int >( thrustDependentVariables_.size( ) ) - numberOfMaximumThrustMultipliers ) )
     {
         throw std::runtime_error( "Error in parameterized thrust settings, thrust interpolator size has inconsistent size" );
     }
@@ -97,13 +98,14 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
                             propulsion::maximum_thrust_multiplier );
 
         if( numberOfUserSpecifiedSpecificImpulseInputs !=
-                static_cast< int >( specificImpulseGuidanceInputVariables_.size( ) ) );
+                static_cast< int >( specificImpulseGuidanceInputVariables_.size( ) ) )
         {
-            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables" );
+            throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables for specific impulse " );
         }
-        if( specificImpulseInterpolator->getNumberOfDimensions( ) != numberOfUserSpecifiedSpecificImpulseInputs )
+        if( specificImpulseInterpolator->getNumberOfDimensions( ) !=  static_cast< int >(
+                    specificImpulseDependentVariables_.size( ) ) )
         {
-            throw std::runtime_error( "Error in parameterized thrust settings, thrust interpolator size has inconsistent size" );
+            throw std::runtime_error( "Error in parameterized thrust settings, specific impulse interpolator size has inconsistent size" );
         }
         if( numberOfMaximumThrustMultipliersForSpecificImpulse != 0 )
         {
