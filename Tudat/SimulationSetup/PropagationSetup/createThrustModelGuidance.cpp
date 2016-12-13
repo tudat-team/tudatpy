@@ -304,25 +304,21 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     return thrustDirectionFunction;
 }
 
-double dummyTimeReturningFunction( const double currentTime )
-{
-    return currentTime;
-}
-
+//! Function to create a list of functions that (compute and) return independent variables for thrust
 std::vector< boost::function< double( ) > > getPropulsionInputVariables(
         const boost::shared_ptr< Body > bodyWithGuidance,
-        const std::vector< propulsion::ThrustDependentVariables > dependentVariables,
+        const std::vector< propulsion::ThrustDependentVariables > independentVariables,
         const std::vector< boost::function< double( ) > > guidanceInputFunctions )
 {
     std::vector< boost::function< double( ) > > inputFunctions;
-
     boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
             bodyWithGuidance->getFlightConditions( );
 
-    int numberOfCustomInputs = 0;
-    for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
+    // Iterate over all dependent variables and create requested function.
+    unsigned int numberOfCustomInputs = 0;
+    for( unsigned int i = 0; i < independentVariables.size( ); i++ )
     {
-        switch( dependentVariables.at( i ) )
+        switch( independentVariables.at( i ) )
         {
         case propulsion::altitude_dependent_thrust:
             inputFunctions.push_back(
@@ -349,13 +345,23 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
             numberOfCustomInputs++;
             break;
         case propulsion::maximum_thrust_multiplier:
+            if( guidanceInputFunctions.size( ) >= numberOfCustomInputs )
+            {
+                throw std::runtime_error( "Error when creating propulsion indput dependent variables, insufficient user-defined inputs found" );
+            }
             inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
             numberOfCustomInputs++;
             break;
         default:
             throw std::runtime_error( "Error when getting parameterized thrust input variables, variable " +
-                                      boost::lexical_cast< std::string >( dependentVariables.at( i ) ) + "not found" );
+                                      boost::lexical_cast< std::string >( independentVariables.at( i ) ) + "not found" );
         }
+    }
+
+    // Check input consistency
+    if( numberOfCustomInputs != guidanceInputFunctions.size( ) )
+    {
+        std::cerr<<"Warning when creating propulsion indput dependent variables, not all user-defined inputs have been parsed"<<std::endl;
     }
 
     return inputFunctions;
@@ -460,6 +466,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
         }
 
+        // Create indpendent variable functions
         std::vector< boost::function< double( ) > > thrustInputVariableFunctions =
                 getPropulsionInputVariables(
                     bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
@@ -469,6 +476,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
                     bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseGuidanceInputVariables_ );
 
+        // Create thrust magnitude wrapper
         thrustMagnitudeWrapper = boost::make_shared< propulsion::ParameterizedThrustMagnitudeWrapper >(
                     parameterizedThrustMagnitudeSettings->thrustMagnitudeFunction_,
                     parameterizedThrustMagnitudeSettings->specificImpulseFunction_,

@@ -304,10 +304,38 @@ enum ThrustDependentVariables
 
 //! Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
 //! variables.
+/*!
+ *  Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
+ *  variables.  The physical meaning of the variables must be defined here, selecting from the options in the
+ *  ThrustDependentVariables enum, and they are automatically retrieved from the relevant environment models during the
+ *  propagation.
+ *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
+ *  maximum_thrust_multiplier. Note that a maximum_thrust_multiplier may not be used as one of the independent variables
+ *  of the thrust magnitude for this class. This setting is parsed through the ParameterizedThrustMagnitudeSettings
+ *  class, which is the class that is typically used to create this class.
+ */
 class ParameterizedThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
 {
 public:
 
+    //! Constructor for parameterized thrust and specific impulse.
+    /*!
+     * Constructor, defines the functions for thrust and specific impulse, as well as the physical meaning of each of the
+     * independent variables.
+     * \param thrustMagnitudeFunction Function returning the current thrust as a function of the independent variables.
+     * \param specificImpulseFunction  Function returning the current specific impulse as a function of the
+     * independent variables.
+     * \param thrustInputVariableFunctions List of functions returning input variables for the thrust
+     * The order of the functions in this vector is passed to the thrustMagnitudeFunction in the same order as
+     * entries of this vector.
+     * \param specificImpulseInputVariableFunctions List of functions returning input variables for the
+     * specific impulse. The order of the functions in this vector is passed to the specificImpulseFunction in the same order
+     * as entries of this vector.
+     * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+     * the thrustMagnitudeFunction function.
+     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+     * input to the specificImpulseDependentVariables function.
+     */
     ParameterizedThrustMagnitudeWrapper(
             const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
             const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
@@ -350,18 +378,22 @@ public:
     {
         if( !( currentTime_ == time ) )
         {
+            // Retrieve thrust independent variables
             for( unsigned int i = 0; i < thrustInputVariableFunctions_.size( ); i++ )
             {
                 currentThrustInputVariables_[ i ] = thrustInputVariableFunctions_.at( i )( );
             }
 
+            // Compute thrust
             currentThrustMagnitude_ = thrustMagnitudeFunction_( currentThrustInputVariables_ );
 
+            // Retrieve specific impulse independent variables
             for( unsigned int i = 0; i < specificImpulseInputVariableFunctions_.size( ); i++ )
             {
                 currentSpecificImpulseInputVariables_[ i ] = specificImpulseInputVariableFunctions_.at( i )( );
             }
 
+            // Compute specific impulse
             currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
         }
     }
@@ -389,21 +421,30 @@ public:
 
 private:
 
-
+    //! Function returning the current thrust as a function of its independent variables
     boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
 
+    //! Function returning the current specific impulse as a function of its independent variables
     boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
 
+    //!  List of functions returning input variables for thrustMagnitudeFunction_.
     std::vector< boost::function< double( ) > > thrustInputVariableFunctions_;
 
+    //!  List of functions returning input variables for specificImpulseFunction_.
     std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions_;
 
+    //! List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction
+    //! function.
     std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
 
+    //! List of identifiers for the physical meaning of each of the entries of the input to the
+    //! specificImpulseDependentVariables function.
     std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
 
+    //! List of current input data to thrust function
     std::vector< double > currentThrustInputVariables_;
 
+    //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
     //! Current thrust magnitude, as computed by last call to update member function.

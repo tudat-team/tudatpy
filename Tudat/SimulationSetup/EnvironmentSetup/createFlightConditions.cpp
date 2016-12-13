@@ -32,16 +32,20 @@ namespace tudat
 namespace simulation_setup
 {
 
-boost::shared_ptr< AerodynamicCoefficientSettings >
-readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFile,
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFiles,
+        const std::vector< std::string > momentCoefficientFiles,
+        const double referenceLength,
         const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-        const bool areCoefficientsInAerodynamicFrame,
+        const bool areCoefficientsInAerodynamicFrame ,
         const bool areCoefficientsInNegativeAxisDirection )
 {
     // Open file and create file stream.
-    std::fstream stream( forceCoefficientFile.at( 0 ).c_str( ), std::ios::in );
+    std::fstream stream( forceCoefficientFiles.at( 0 ).c_str( ), std::ios::in );
 
     // Check if file opened correctly.
     if ( stream.fail( ) )
@@ -49,14 +53,14 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         boost::throw_exception(
                     std::runtime_error( boost::str(
                                             boost::format( "Data file '%s' could not be opened." ) %
-                                            forceCoefficientFile.at( 0 ).c_str( ) ) ) );
+                                            forceCoefficientFiles.at( 0 ).c_str( ) ) ) );
     }
 
     std::string line;
     std::vector< std::string > vectorOfIndividualStrings;
 
+    // Retrieve number of independent variables from file.
     int numberOfIndependentVariables = -1;
-
     while ( !stream.fail( ) && !stream.eof( ) && ( numberOfIndependentVariables < 0 ) )
     {
         // Get line from stream
@@ -80,23 +84,104 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         }
     }
 
+    // Call approriate file reading function for N independent variables
     boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
     if( numberOfIndependentVariables == 1 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
-                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
+                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection );
+    }
+    else if( numberOfIndependentVariables == 2 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
+                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection );
+    }
+    else if( numberOfIndependentVariables == 3 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
+                    forceCoefficientFiles, momentCoefficientFiles, referenceLength, referenceArea, lateralReferenceLength,
+                    momentReferencePoint, independentVariableNames, areCoefficientsInAerodynamicFrame,
+                    areCoefficientsInNegativeAxisDirection );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
+                                  boost::lexical_cast< std::string >( numberOfIndependentVariables ) +
+                                  " independent variables, up to 3 currently supported" );
+    }
+    return coefficientSettings;
+}
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+boost::shared_ptr< AerodynamicCoefficientSettings >
+readTabulatedAerodynamicCoefficientsFromFiles(
+        const std::vector< std::string > forceCoefficientFiles,
+        const double referenceArea,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const bool areCoefficientsInAerodynamicFrame,
+        const bool areCoefficientsInNegativeAxisDirection )
+{
+    // Open file and create file stream.
+    std::fstream stream( forceCoefficientFiles.at( 0 ).c_str( ), std::ios::in );
+
+    // Check if file opened correctly.
+    if ( stream.fail( ) )
+    {
+        boost::throw_exception(
+                    std::runtime_error( boost::str(
+                                            boost::format( "Data file '%s' could not be opened." ) %
+                                            forceCoefficientFiles.at( 0 ).c_str( ) ) ) );
+    }
+
+    std::string line;
+    std::vector< std::string > vectorOfIndividualStrings;
+
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables = -1;
+    while ( !stream.fail( ) && !stream.eof( ) && ( numberOfIndependentVariables < 0 ) )
+    {
+        // Get line from stream
+        std::getline( stream, line );
+        boost::algorithm::trim( line );
+
+        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        {
+            boost::algorithm::split( vectorOfIndividualStrings,
+                                     line,
+                                     boost::algorithm::is_any_of( "\t ;, " ),
+                                     boost::algorithm::token_compress_on );
+            try
+            {
+                numberOfIndependentVariables = boost::lexical_cast< double >( vectorOfIndividualStrings.at( 0 ).at( 0 ) );
+            }
+            catch( std::runtime_error )
+            {
+                throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, input is inconsistent" );
+            }
+        }
+    }
+
+    // Call approriate file reading function for N independent variables
+    boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
+    if( numberOfIndependentVariables == 1 )
+    {
+        coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 1 >(
+                    forceCoefficientFiles, referenceArea, independentVariableNames,
                     areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
     }
     else if( numberOfIndependentVariables == 2 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 2 >(
-                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    forceCoefficientFiles, referenceArea, independentVariableNames,
                     areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
     }
     else if( numberOfIndependentVariables == 3 )
     {
         coefficientSettings = readGivenSizeTabulatedAerodynamicCoefficientsFromFiles< 3 >(
-                    forceCoefficientFile, referenceArea, independentVariableNames,
+                    forceCoefficientFiles, referenceArea, independentVariableNames,
                     areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
     }
     else
