@@ -296,7 +296,7 @@ public:
             const boost::function< double( const double ) > specificImpulseFunction,
             const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ),
-            const boost::function< void(  const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
+            const boost::function< void( const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
         ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
@@ -382,6 +382,7 @@ public:
             std::vector< boost::function< double( ) > >( ),
             const std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables =
             std::vector< boost::function< double( ) > >( ),
+            const boost::function< void( const double) > inputUpdateFunction = boost::function< void( const double) >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
@@ -392,7 +393,8 @@ public:
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection )
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
+        inputUpdateFunction_( inputUpdateFunction )
     {
         parseInputDataAndCheckConsistency( thrustMagnitudeInterpolator, specificImpulseInterpolator );
     }
@@ -419,13 +421,16 @@ public:
             const double constantSpecificImpulse,
             const std::vector< boost::function< double( ) > > thrustGuidanceInputVariables =
             std::vector< boost::function< double( ) > >( ),
+            const boost::function< void( const double ) > inputUpdateFunction = boost::function< void( const double) >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( boost::bind( &interpolators::Interpolator< double, double >::interpolate,
                                                thrustMagnitudeInterpolator, _1 ) ),
         specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
+        thrustDependentVariables_( thrustDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection )
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
+        inputUpdateFunction_( inputUpdateFunction )
     {
         parseInputDataAndCheckConsistency(
                     thrustMagnitudeInterpolator, boost::shared_ptr< interpolators::Interpolator< double, double > >( ) );
@@ -448,6 +453,8 @@ public:
 
     //! List of functions returning user-defined guidance input variables for the specific impulse
     std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables_;
+
+    boost::function< void( const double ) > inputUpdateFunction_;
 
     //! Direction of the thrust vector in the body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;

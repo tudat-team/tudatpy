@@ -342,13 +342,15 @@ public:
             const std::vector< boost::function< double( ) > > thrustInputVariableFunctions,
             const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
-            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables ):
+            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+            const boost::function< void( const double) > inputUpdateFunction ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
         specificImpulseInputVariableFunctions_( specificImpulseInputVariableFunctions ),
         thrustDependentVariables_( thrustDependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
+        inputUpdateFunction_( inputUpdateFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN )
     {
@@ -378,6 +380,10 @@ public:
     {
         if( !( currentTime_ == time ) )
         {
+            if( !inputUpdateFunction_.empty( ) )
+            {
+                inputUpdateFunction_( time );
+            }
             // Retrieve thrust independent variables
             for( unsigned int i = 0; i < thrustInputVariableFunctions_.size( ); i++ )
             {
@@ -453,6 +459,8 @@ private:
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
 
+
+    const boost::function< void( const double) > inputUpdateFunction_;
 };
 
 } // namespace propulsion

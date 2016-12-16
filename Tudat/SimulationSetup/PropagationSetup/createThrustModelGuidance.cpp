@@ -483,7 +483,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
                     thrustInputVariableFunctions,
                     specificInputVariableFunctions,
                     parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
-                    parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_);
+                    parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
+                    parameterizedThrustMagnitudeSettings->inputUpdateFunction_ );
 
         break;
 
