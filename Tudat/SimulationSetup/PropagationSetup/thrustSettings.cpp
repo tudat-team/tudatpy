@@ -36,7 +36,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     int numberOfMaximumThrustMultipliers =
             std::count( thrustDependentVariables_.begin( ), thrustDependentVariables_.end( ),
                         propulsion::maximum_thrust_multiplier );
-
+;
     // Check consistency of user-defined thrust input.
     if( ( numberOfUserSpecifiedThrustInputs + numberOfMaximumThrustMultipliers ) !=
             static_cast< int >( thrustGuidanceInputVariables_.size( ) ) )
