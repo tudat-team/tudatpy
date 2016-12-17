@@ -194,7 +194,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case altitude_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
