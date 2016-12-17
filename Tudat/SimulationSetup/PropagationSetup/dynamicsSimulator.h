@@ -456,7 +456,7 @@ public:
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
         // Integrate equations of motion numerically.
-        integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
+        EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_,

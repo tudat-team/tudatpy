@@ -154,11 +154,11 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Test if Earth, Sun and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Moon" )->getState( ), testState,
@@ -175,15 +175,15 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         boost::assign::list_of( transational_state ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( 0.5 * testTime ),
+                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( 0.5 * testTime ),
+                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Moon" )->getState( ),
-                        bodyMap.at( "Moon" )->getEphemeris( )->getCartesianStateFromEphemeris( 0.5 * testTime ),
+                        bodyMap.at( "Moon" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Mars" )->getState( ), basic_mathematics::Vector6d::Zero( ),
@@ -234,18 +234,18 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Test if Earth, Sun, Mars and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Moon" )->getState( ), testState,
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Mars" )->getState( ),
-                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Venus is not updated
@@ -309,18 +309,18 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Test if Earth, Sun, Mars and Moon are updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
-                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Sun" )->getState( ),
-                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Moon" )->getState( ), testState,
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Mars" )->getState( ),
-                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                        bodyMap.at( "Mars" )->getEphemeris( )->getCartesianState( testTime ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Venus is not updated
@@ -417,8 +417,8 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     // Define test time and state.
     double testTime = 2.0 * 86400.0;
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
-    Eigen::VectorXd testState = 1.1 * bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianStateFromEphemeris( testTime ) +
-            bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime );
+    Eigen::VectorXd testState = 1.1 * bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( testTime ) +
+            bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime );
     integratedStateToSet[ transational_state ] = testState;
 
     {
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     bodyMap.at( "Sun" )->getState( ),
-                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     bodyMap.at( "Vehicle" )->getState( ), testState,
@@ -541,11 +541,11 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         // Test if Earth, Sun and Vehicle states are updated.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     bodyMap.at( "Earth" )->getState( ),
-                    bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                    bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     bodyMap.at( "Sun" )->getState( ),
-                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime ),
+                    bodyMap.at( "Sun" )->getEphemeris( )->getCartesianState( testTime ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     bodyMap.at( "Vehicle" )->getState( ), testState,

@@ -405,9 +405,9 @@ public:
     *  \param referenceFrameOrigin Origin of reference frame (string identifier).
     *  \param referenceFrameOrientation Orientation of reference frame (string identifier)
     *  \param rootFinderAbsoluteTolerance Convergence tolerance for root finder used to
-    *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+    *  convert mean to eccentric anomaly on each call to getCartesianState.
     *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
-    *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+    *  convert mean to eccentric anomaly on each call to getCartesianState.
     */
     KeplerEphemerisSettings( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
                              const double epochOfInitialState,

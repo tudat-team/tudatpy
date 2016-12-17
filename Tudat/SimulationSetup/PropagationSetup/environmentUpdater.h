@@ -203,7 +203,7 @@ private:
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
-                            template setTemplatedStateFromEphemeris< StateScalarType, TimeType >( currentTime );
+                            template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
 
                 }
                 break;
@@ -428,11 +428,21 @@ private:
                             boost::function< void( const TimeType ) > stateSetFunction =
                                     boost::bind(
                                         &simulation_setup::Body
+<<<<<<< HEAD
                                         ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
+=======
+                                            ::setStateFromEphemeris< StateScalarType, TimeType >,
+>>>>>>> ObservationPartials
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
+
+                            resetFunctionVector_.push_back(
+                                        boost::make_tuple(
+                                            body_transational_state_update, currentBodies.at( i ),
+                                            boost::bind( &simulation_setup::Body::recomputeStateOnNextCall,
+                                                         bodyList_.at( currentBodies.at( i ) ) ) ) );
                         }
                         break;
                     }

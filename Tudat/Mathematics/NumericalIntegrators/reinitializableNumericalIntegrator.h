@@ -57,10 +57,10 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class ReinitializableNumericalIntegrator :
         public numerical_integrators::NumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType >
+        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 protected:
 
@@ -69,7 +69,7 @@ protected:
      * Typedef of the base class with all template parameters filled in.
      */
     typedef numerical_integrators::NumericalIntegrator<
-    IndependentVariableType, StateType, StateDerivativeType > NumericalIntegratorBase;
+    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > NumericalIntegratorBase;
 
 public:
 

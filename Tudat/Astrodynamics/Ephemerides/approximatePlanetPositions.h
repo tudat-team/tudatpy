@@ -65,6 +65,8 @@ class ApproximatePlanetPositions : public ApproximatePlanetPositionsBase
 {
 public:
 
+    using Ephemeris::getCartesianState;
+
     //! Default constructor.
     /*!
      * Default constructor that initializes the class from the body for which the position is
@@ -73,11 +75,14 @@ public:
      *
      * \param bodyWithEphemerisData The body for which the position is approximated.
      * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
+     * \param referenceJulianDate Reference julian day w.r.t. which ephemeris is evaluated.
      * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositions( BodiesWithEphemerisData bodyWithEphemerisData,
-                                const double aSunGravitationalParameter = 1.32712440018e20 )
+                                const double aSunGravitationalParameter = 1.32712440018e20,
+                                const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
         : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+          referenceJulianDate_( referenceJulianDate ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
@@ -90,27 +95,25 @@ public:
     /*!
      * Returns cartesian state from ephemeris.
      * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000  );
+    basic_mathematics::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
     //! Get keplerian state from ephemeris.
     /*!
      * Returns keplerian state in from ephemeris.
      * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Keplerian elements from ephemeris.
      */
     basic_mathematics::Vector6d getKeplerianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch  = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch );
 
 protected:
 
 private:
+
+    double referenceJulianDate_;
 
     //! Eccentric anomaly at given Julian date.
     /*!
