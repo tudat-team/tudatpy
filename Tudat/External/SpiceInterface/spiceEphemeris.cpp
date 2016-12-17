@@ -26,7 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120717    D. Dirkx          Creation of file.
  *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
- *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
+ *      130226    K. Kumar          Updated return-type for getCartesianState().
  *
  *    References
  *
@@ -55,10 +55,13 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
                                 const bool correctForStellarAbberation,
                                 const bool correctForLightTimeAbberation,
                                 const bool convergeLighTimeAbberation,
-                                const std::string& referenceFrameName )
+                                const std::string& referenceFrameName,
+                                const double referenceJulianDay )
     : Ephemeris( observerBodyName, referenceFrameName ),
       targetBodyName_( targetBodyName )
 {
+    referenceDayOffSet_ = ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+
     // Check consistency of input.
     if ( correctForLightTimeAbberation == 0 && convergeLighTimeAbberation == 1 )
     {
@@ -103,8 +106,8 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
 }
 
 //! Get Cartesian state from ephemeris.
-basic_mathematics::Vector6d SpiceEphemeris::getCartesianStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+basic_mathematics::Vector6d SpiceEphemeris::getCartesianState(
+        const double secondsSinceEpoch )
 {
     using namespace basic_astrodynamics;
 
@@ -112,14 +115,13 @@ basic_mathematics::Vector6d SpiceEphemeris::getCartesianStateFromEphemeris(
     // object.
 
     // Calculate ephemeris time at which cartesian state is to be determind.
-    const double ephemerisTime = secondsSinceEpoch + ( JULIAN_DAY_ON_J2000 - julianDayAtEpoch ) *
-            physical_constants::JULIAN_DAY;
+    const double ephemerisTime = secondsSinceEpoch;
 
     // Retrieve Cartesian state from spice.
     const basic_mathematics::Vector6d cartesianStateAtEpoch =
             spice_interface::getBodyCartesianStateAtEpoch(
                 targetBodyName_, referenceFrameOrigin_, referenceFrameOrientation_,
-                abberationCorrections_, ephemerisTime );
+                abberationCorrections_, ephemerisTime + referenceDayOffSet_ );
 
     return cartesianStateAtEpoch;
 }

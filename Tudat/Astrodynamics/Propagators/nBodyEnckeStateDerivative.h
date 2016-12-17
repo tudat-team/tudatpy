@@ -118,6 +118,7 @@ public:
                                  RootAbsoluteToleranceTerminationCondition< StateScalarType > >(
                                      20.0 * std::numeric_limits< StateScalarType >::epsilon( ), 1000 ),
                                  _1, _2, _3, _4, _5 ) );
+        this->createAccelerationModelList( );
     }
 
     //! Function to clear reference values of Encke state derivative model

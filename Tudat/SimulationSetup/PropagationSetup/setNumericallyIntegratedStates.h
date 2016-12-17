@@ -11,6 +11,7 @@
 #ifndef TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 #define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
@@ -23,19 +24,50 @@ namespace tudat
 namespace propagators
 {
 
+
+//! Function to create an interpolator for the new translational state of a body.
+/*!
+ * Function to create an interpolator for the new translational state of a body.
+ * \param stateMap New state history, w.r.t. the required ephemeris origin.
+ * \return Lagrange interpolator (order 6) that produces the required continuous state.
+ */
+template< typename TimeType, typename StateScalarType >
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+createStateInterpolator(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
+
+//! Function to reset the tabulated ephemeris of a body
+/*!
+ * Function to reset the tabulated ephemeris of a body
+ * \param ephemerisInput New state history that is to be set
+ * \param tabulatedEphemeris Ephemeris in which the ephemerisInput is to be set.
+ */
+template< typename StateTimeType, typename StateScalarType, typename EphemerisTimeType, typename EphemerisScalarType  >
+void resetIntegratedEphemerisOfBody(
+        const std::map< StateTimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
+        const boost::shared_ptr< ephemerides::TabulatedCartesianEphemeris< EphemerisScalarType, EphemerisTimeType > > tabulatedEphemeris )
+{
+    std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > castEphemerisInput;
+    utilities::castMatrixMap< StateTimeType, StateScalarType, EphemerisTimeType, EphemerisScalarType, 6, 1 >(
+                ephemerisInput, castEphemerisInput );
+
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > >
+            ephemerisInterpolator = createStateInterpolator( castEphemerisInput );
+    tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
+}
+
 //! Function to reset the tabulated ephemeris of a body
 /*!
  * Function to reset the tabulated ephemeris of a body, this requires the requested body to possess
  * an ephemeris of type TabulatedCartesianEphemeris< StateScalarType, TimeType >
  * \param bodyMap List of bodies used in simulations.
- * \param ephemerisInterpolator Interpolator providing the new state of the body as a function of time.
+ * \param ephemerisInput New state history of the body
  * \param bodyToIntegrate Name of body for which the ephemeris is to be reset.
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedEphemerisOfBody(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< interpolators::OneDimensionalInterpolator<
-        TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > ephemerisInterpolator,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
         const std::string& bodyToIntegrate )
 {
     using namespace tudat::interpolators;
@@ -49,21 +81,61 @@ void resetIntegratedEphemerisOfBody(
     }
 
     // If current ephemeris is not already a tabulated ephemeris, give error message.
-    else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) == NULL )
+    else if( !isTabulatedEphemeris( bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) )
     {
         throw std::runtime_error( "Error when resetting integrated ephemeris of body " +
-                                  bodyToIntegrate + "no tabulated ephemeris found" );
+                                  bodyToIntegrate + " no tabulated ephemeris found" );
 
     }
     // Else, update existing tabulated ephemeris
     else
     {
-
-        boost::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
-                boost::dynamic_pointer_cast< TabulatedCartesianEphemeris<  StateScalarType, TimeType > >(
-                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) );
-        tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
+        std::cerr<<"Warning, tabulated ephemeris is being reset using data at different precision"<<std::endl;
+        if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+        {
+            boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+                    ephemerisInterpolator = createStateInterpolator( ephemerisInput );
+            boost::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
+                    boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) );
+            tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
+        }
+        else
+        {
+            if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            {
+                resetIntegratedEphemerisOfBody(
+                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+                                bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
+            }
+            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            {
+                resetIntegratedEphemerisOfBody(
+                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+                                bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
+            }
+            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            {
+                resetIntegratedEphemerisOfBody(
+                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
+                                bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
+            }
+            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            {
+                resetIntegratedEphemerisOfBody(
+                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                                bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error, no tabulated ephemeris found when resetting ephemeris" );
+            }
+        }
     }
 }
 
@@ -118,16 +190,6 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > convertNumericalSol
     return ephemerisTable;
 }
 
-//! Function to create an interpolator for the new translational state of a body.
-/*!
- * Function to create an interpolator for the new translational state of a body.
- * \param stateMap New state history, w.r.t. the required ephemeris origin.
- * \return Lagrange interpolator (order 6) that produces the required continuous state.
- */
-template< typename TimeType, typename StateScalarType >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
-createStateInterpolator(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
 
 //! Create and reset ephemerides interpolator
 /*!
@@ -179,14 +241,11 @@ void createAndSetInterpolatorsForEphemerides(
         }
 
         // Create and reset interpolator.
-        boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
-                ephemerisInterpolator =
-                createStateInterpolator(
-                    convertNumericalSolutionToEphemerisInput(
-                        bodyIndex, startIndex, equationsOfMotionNumericalSolution, integrationToEphemerisFrameFunction ) );
+        std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > ephemerisInput = convertNumericalSolutionToEphemerisInput(
+            bodyIndex, startIndex, equationsOfMotionNumericalSolution, integrationToEphemerisFrameFunction );
 
         resetIntegratedEphemerisOfBody(
-                    bodyMap, ephemerisInterpolator, bodiesToIntegrate.at( bodyIndex ) );
+                    bodyMap, ephemerisInput, bodiesToIntegrate.at( bodyIndex ) );
     }
 }
 
@@ -475,71 +534,12 @@ private:
 /*!
  * Function to check the feasibility of resetting the translational dynamics of a set of
  * bodies. Function throws error if not feasible.
-  * \param bodiesToIntegrate List of bodies to integrate.
+ * \param bodiesToIntegrate List of bodies to integrate.
  * \param bodyMap List of bodies used in simulations.
  */
-template< typename TimeType, typename StateScalarType >
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const simulation_setup::NamedBodyMap& bodyMap )
-{
-    // Check feasibility of ephemeris origins.
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
-    {
-        if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator->first ) ==
-                bodiesToIntegrate.end( ) )
-        {
-            std::string ephemerisOrigin
-                    = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
-            if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
-                    != bodiesToIntegrate.end( ) )
-            {
-                throw std::runtime_error(
-                            "Warning, found non-integrated body with an integrated body as ephemeris origin" +
-                            bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
-                            bodyIterator->first );
-            }
-        }
-
-    }
-
-    // Check whether each integrated body exists, and whether it has a TabulatedEphemeris
-    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
-    {
-        std::string bodyToIntegrate = bodiesToIntegrate.at( i );
-
-        if( bodyMap.count( bodyToIntegrate ) == 0 )
-        {
-            if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == NULL )
-            {
-                throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + "no such body found" );
-            }
-        }
-        else
-        {
-            if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == NULL )
-            {
-                throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + "no ephemeris found" );
-            }
-
-            // If current ephemeris is not already a tabulated ephemeris, give error message.
-            else if( boost::dynamic_pointer_cast<
-                     ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) == NULL )
-            {
-                throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + "no tabulated ephemeris found" );
-
-            }
-        }
-
-    }
-
-}
-
+        const simulation_setup::NamedBodyMap& bodyMap );
 
 template< typename TimeType, typename StateScalarType >
 //! Function to create list objects for processing numerically integrated results.
@@ -631,7 +631,7 @@ createIntegratedStateProcessors(
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
-        checkTranslationalStatesFeasibility< TimeType, StateScalarType >(
+        checkTranslationalStatesFeasibility(
                     translationalPropagatorSettings->bodiesToIntegrate_, bodyMap );
 
         // Create state processors
