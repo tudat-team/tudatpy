@@ -133,8 +133,7 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-<<<<<<< HEAD
-=======
+
 //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
 /*!
  *  Function to produce a map of Eigen matrices, cast from one set of key/matrix scalar type set to another set.
@@ -152,7 +151,108 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
 }
->>>>>>> ObservationPartials
+template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns = 1 >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedEigenMatrixFromMapValues(
+        const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >& inputMap )
+{
+    // Create and size return vector.
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > outputVector;
+
+    int columns;
+    if( NumberOfColumns != Eigen::Dynamic )
+    {
+        columns = NumberOfColumns;
+    }
+    else
+    {
+        columns = inputMap.begin( )->second.cols( );
+    }
+
+    if( NumberOfRows != Eigen::Dynamic )
+    {
+        int counter = 0;
+
+        outputVector.resize( inputMap.size( ) * NumberOfRows, columns );
+        for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
+             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+        {
+            outputVector.block( counter, 0, NumberOfRows, columns ) = mapIterator->second;
+            counter += NumberOfRows;
+        }
+    }
+    else
+    {
+        int concatenatedSize = 0;
+
+        for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
+             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+        {
+            concatenatedSize += mapIterator->second.rows( );
+        }
+
+        outputVector.resize( concatenatedSize, columns );
+        int currentSize;
+        int counter = 0;
+
+        for( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >::const_iterator mapIterator =
+             inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++ )
+        {
+            currentSize = mapIterator->second.rows( );
+            outputVector.block( counter, 0, currentSize, columns ) = mapIterator->second;
+            counter += currentSize;
+        }
+    }
+
+    return outputVector;
+}
+
+template< typename T >
+std::vector< T > convertEigenVectorToStlVector( const Eigen::Matrix< T, Eigen::Dynamic, 1 >& eigenVector )
+{
+    std::vector< T > stlVector;
+    stlVector.resize( eigenVector.rows( ) );
+    for( int i = 0; i < eigenVector.rows( ); i++ )
+    {
+        stlVector[ i ] = eigenVector( i );
+    }
+    return stlVector;
+}
+
+
+template< typename T >
+Eigen::Matrix< T, Eigen::Dynamic, 1 > convertStlVectorToEigenVector( const std::vector< T >& stlVector )
+{
+    Eigen::Matrix< T, Eigen::Dynamic, 1 > eigenVector = Eigen::Matrix< T, Eigen::Dynamic, 1 >::Zero( stlVector.size( ) );
+    for( unsigned int i = 0; i < stlVector.size( ); i++ )
+    {
+        eigenVector[ i ] = stlVector[ i ];
+    }
+    return eigenVector;
+}
+
+//! Function to add a double to all entries in an STL vector.
+/*!
+ *  Function to add a double to all entries in an STL vector (addition of a double must be defined for Argument type).
+ *  \param vector Vector to which a double is to be added.
+ *  \param scalar Value that is to be added to vector
+ *  \return New vector with scalar added to all entries of input vector.
+ */
+template< typename Argument >
+std::vector< Argument > addScalarToVector( const std::vector< Argument >& vector, const double scalar )
+{
+    // Declare and resize return vector.
+    std::vector< Argument > addedVector;
+    addedVector.resize( vector.size( ) );
+
+    // Add scalar to all entries of input vector
+    for( unsigned int i = 0; i < vector.size( ); i++ )
+    {
+        addedVector[ i ] = vector[ i ] + scalar;
+    }
+
+    return addedVector;
+}
+
 
 } // namespace utilities
 

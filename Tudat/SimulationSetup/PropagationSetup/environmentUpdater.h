@@ -428,11 +428,7 @@ private:
                             boost::function< void( const TimeType ) > stateSetFunction =
                                     boost::bind(
                                         &simulation_setup::Body
-<<<<<<< HEAD
-                                        ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-=======
                                             ::setStateFromEphemeris< StateScalarType, TimeType >,
->>>>>>> ObservationPartials
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(

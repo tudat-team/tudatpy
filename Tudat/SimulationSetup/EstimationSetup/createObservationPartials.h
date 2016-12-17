@@ -107,6 +107,27 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
     return lightTimeCorrectionsList;
 }
 
+template< int ObservationSize >
+void splitObservationPartialsAndScalers(
+        const std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
+        boost::shared_ptr< PositionPartialScaling > > >& observationPartialsAndScalers,
+        std::map< observation_models::LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
+        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >& observationPartialScalers )
+{
+    observationPartials.clear( );
+    observationPartialScalers.clear( );
+    // Put one-way range partials and scalers in member variables.
+    for( typename std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
+         boost::shared_ptr< PositionPartialScaling > > >::const_iterator
+         rangePartialPairIterator = observationPartialsAndScalers.begin( ); rangePartialPairIterator != observationPartialsAndScalers.end( );
+         rangePartialPairIterator++ )
+    {
+        observationPartials[ rangePartialPairIterator->first ] = rangePartialPairIterator->second.first;
+        observationPartialScalers[ rangePartialPairIterator->first ] = rangePartialPairIterator->second.second;
+    }
+}
+
+
 //! Interface class for creating observation partials
 /*!
  *  Interface class for creating observation partials. This class is used instead of a single templated free function to

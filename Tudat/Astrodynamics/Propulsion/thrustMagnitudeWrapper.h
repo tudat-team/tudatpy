@@ -453,6 +453,8 @@ private:
     //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
+    const boost::function< void( const double) > inputUpdateFunction_;
+
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
 
@@ -460,7 +462,6 @@ private:
     double currentSpecificImpulse_;
 
 
-    const boost::function< void( const double) > inputUpdateFunction_;
 };
 
 } // namespace propulsion
