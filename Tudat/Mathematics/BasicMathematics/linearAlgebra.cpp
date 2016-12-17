@@ -46,8 +46,10 @@
 #include <cassert>
 #include <cmath>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include <Eigen/LU>
 
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Basics/utilities.h"
 namespace tudat
 {
 
@@ -129,6 +131,169 @@ double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > ve
     return getVectorNorm( vectorFunction( ) );
 }
 
+
+double getConditionNumberOfInformationMatrix( const Eigen::MatrixXd informationMatrix )
+{
+    return getConditionNumberOfDecomposedMatrix( getSVDDecompositionOfInformationMatrix( informationMatrix ) );
+}
+
+double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition )
+{
+    Eigen::VectorXd singularValues = singularValueDecomposition.singularValues( );
+    return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
+}
+
+Eigen::JacobiSVD< Eigen::MatrixXd > getSVDDecompositionOfInformationMatrix( const Eigen::MatrixXd& informationMatrix )
+{
+    return informationMatrix.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeFullV );
+}
+
+Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
+                                               const Eigen::VectorXd rightHandSideVector,
+                                               const bool checkConditionNumber,
+                                               const double maximumAllowedConditionNumber )
+{
+    Eigen::JacobiSVD< Eigen::MatrixXd > svdDecomposition = matrixToInvert.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV );
+    if( checkConditionNumber )
+    {
+        double conditionNumber = getConditionNumberOfDecomposedMatrix( svdDecomposition );
+
+        if( conditionNumber > maximumAllowedConditionNumber )
+        {
+            std::cerr<<"Warning when performing least squares, condition number is "<<conditionNumber<<std::endl;
+        }
+    }
+    return svdDecomposition.solve( rightHandSideVector );
+}
+
+Eigen::MatrixXd multiplyInformationMatrixByDiagonalWeightMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix )
+{
+    Eigen::MatrixXd weightedInformationMatrix = Eigen::MatrixXd::Zero( informationMatrix.rows( ), informationMatrix.cols( ) );
+
+    for( unsigned int i = 0; i < informationMatrix.cols( ); i++ )
+    {
+        weightedInformationMatrix.block( 0, i, informationMatrix.rows( ), 1 ) =
+                informationMatrix.block( 0, i, informationMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
+    }
+
+    return weightedInformationMatrix;
+}
+
+Eigen::MatrixXd calculateCovarianceMatrixWithConsiderParameters(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const Eigen::MatrixXd& considerInformationMatrix,
+        const Eigen::MatrixXd& considerCovarianceMatrix )
+{
+    Eigen::MatrixXd noiseOnlyCovariance = calculateInverseOfUpdatedCovarianceMatrix(
+                informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix ).inverse( );
+    Eigen::MatrixXd auxiliaryMatrix = noiseOnlyCovariance * multiplyInformationMatrixByDiagonalWeightMatrix(
+                informationMatrix, diagonalOfWeightMatrix ).transpose( );
+
+    return noiseOnlyCovariance + ( auxiliaryMatrix * considerInformationMatrix ) * considerCovarianceMatrix *
+            ( considerInformationMatrix.transpose( ) * auxiliaryMatrix.transpose( ) );
+}
+
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix )
+{
+    //output::writeMatrixToFile( inverseOfAPrioriCovarianceMatrix, "currentInverseAprioriCovarianceMatrix.dat" );
+    //output::writeMatrixToFile( informationMatrix.transpose( ) * multiplyInformationMatrixByDiagonalWeightMatrix(
+    //                               informationMatrix, diagonalOfWeightMatrix ), "currentInverseNominalCovarianceMatrix.dat" );
+
+    return inverseOfAPrioriCovarianceMatrix + informationMatrix.transpose( ) * multiplyInformationMatrixByDiagonalWeightMatrix(
+                informationMatrix, diagonalOfWeightMatrix );
+}
+
+Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& diagonalOfWeightMatrix )
+{
+    return calculateInverseOfUpdatedCovarianceMatrix( informationMatrix, diagonalOfWeightMatrix,
+                                                      Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
+}
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
+        const Eigen::VectorXd& aPrioriAdjustmentEstimate,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber )
+{
+    Eigen::VectorXd rightHandSide = informationMatrix.transpose( ) *
+            ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
+    Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
+                informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
+    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide,
+                                                          checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
+}
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const Eigen::VectorXd& diagonalOfWeightMatrix,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber )
+{
+    return performLeastSquaresAdjustmentFromInformationMatrix(
+                informationMatrix, observationResiduals, diagonalOfWeightMatrix,
+                Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ),
+                Eigen::VectorXd::Zero( observationResiduals.size( ) ), checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber )
+{
+    return performLeastSquaresAdjustmentFromInformationMatrix(
+                informationMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
+                checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+Eigen::VectorXd getLeastSquaresPolynomialFit(
+        const Eigen::VectorXd& independentValues,
+        const Eigen::VectorXd& dependentValues,
+        const std::vector< double >& polynomialPowers )
+{
+    if( independentValues.rows( ) != dependentValues.rows( ) )
+    {
+        std::cerr<<"Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal"<<std::endl;
+    }
+
+    Eigen::MatrixXd partialMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
+
+    for( unsigned int i = 0; i < independentValues.rows( ); i++ )
+    {
+        for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
+        {
+            partialMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
+        }
+    }
+
+    return performLeastSquaresAdjustmentFromInformationMatrix( partialMatrix, dependentValues ).first;
+}
+
+std::vector< double > getLeastSquaresPolynomialFit(
+        const std::map< double, double >& independentDependentValueMap,
+        const std::vector< double >& polynomialPowers )
+{
+    return utilities::convertEigenVectorToStlVector(
+                getLeastSquaresPolynomialFit(
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapKeys( independentDependentValueMap ) ),
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapValues( independentDependentValueMap ) ), polynomialPowers ) );
+
+}
 
 
 } // namespace linear_algebra

@@ -393,8 +393,8 @@ public:
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-        inputUpdateFunction_( inputUpdateFunction )
+        inputUpdateFunction_( inputUpdateFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
         parseInputDataAndCheckConsistency( thrustMagnitudeInterpolator, specificImpulseInterpolator );
     }
@@ -429,8 +429,8 @@ public:
         specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
         thrustDependentVariables_( thrustDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-        inputUpdateFunction_( inputUpdateFunction )
+        inputUpdateFunction_( inputUpdateFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
         parseInputDataAndCheckConsistency(
                     thrustMagnitudeInterpolator, boost::shared_ptr< interpolators::Interpolator< double, double > >( ) );

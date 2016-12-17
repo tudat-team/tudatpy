@@ -134,7 +134,7 @@ public:
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
 
         dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
-                    propagatorSettings_->getInitialStates( ), 0 );
+                    propagatorSettings_->getInitialStates( ) );
 
         // Check if re-integration of variational equations is requested
         if( areVariationalEquationsToBeIntegrated )

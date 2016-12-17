@@ -434,11 +434,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
             }
             thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
                         utilities::createVectorFromMapValues< boost::shared_ptr< system_models::EngineModel >, std::string >(
-<<<<<<< HEAD
                             bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
-=======
-                                    bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ) );
->>>>>>> ObservationPartials
+
         }
         break;
 
