@@ -121,6 +121,26 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     }
 }
 
+//boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+//        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+//        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+//        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+//        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+//        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables )
+//{
+//    return boost::make_shared< ParameterizedThrustMagnitudeSettings >
+//            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+//            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+//            const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+//            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+//            const std::vector< boost::function< double( ) > > thrustGuidanceInputVariables =
+//            std::vector< boost::function< double( ) > >( ),
+//            const std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables =
+//            std::vector< boost::function< double( ) > >( ),
+//            const boost::function< void( const double) > inputUpdateFunction = boost::function< void( const double) >( ),
+//            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+//}
+
 } // namespace simulation_setup
 
 } // namespace tudat

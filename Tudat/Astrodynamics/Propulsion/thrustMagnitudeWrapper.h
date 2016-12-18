@@ -335,6 +335,10 @@ public:
      * the thrustMagnitudeFunction function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
+     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+     * input to the specificImpulseDependentVariables function.
+     * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
+     * (empty by default).
      */
     ParameterizedThrustMagnitudeWrapper(
             const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
@@ -343,7 +347,8 @@ public:
             const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
             const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
             const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
-            const boost::function< void( const double) > inputUpdateFunction ):
+            const boost::function< void( const double) > inputUpdateFunction =
+            boost::function< void( const double) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
@@ -453,14 +458,14 @@ private:
     //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
+    //! Function that is called to update the user-defined guidance to the current time
+    const boost::function< void( const double) > inputUpdateFunction_;
+
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
-
-
-    const boost::function< void( const double) > inputUpdateFunction_;
 };
 
 } // namespace propulsion

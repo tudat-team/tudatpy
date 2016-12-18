@@ -81,44 +81,54 @@ void integrateEquations(
 
     int saveIndex = 0;
 
+    bool breakPropagation = 0;
     // Perform numerical integration steps until end time reached.
     do
     {
-        previousTime = currentTime;
-
-        // Perform integration step.
-        newState = integrator->performIntegrationStep( timeStep );
-        currentTime = integrator->getCurrentIndependentVariable( );
-        timeStep = integrator->getNextStepSize( );
-
-        // Save integration result in map
-        saveIndex++;
-        saveIndex = saveIndex % saveFrequency;
-        if( saveIndex == 0 )
+        try
         {
-            solutionHistory[ currentTime ] = newState;
+            previousTime = currentTime;
 
-            if( !dependentVariableFunction.empty( ) )
+            // Perform integration step.
+            newState = integrator->performIntegrationStep( timeStep );
+            currentTime = integrator->getCurrentIndependentVariable( );
+            timeStep = integrator->getNextStepSize( );
+
+            // Save integration result in map
+            saveIndex++;
+            saveIndex = saveIndex % saveFrequency;
+            if( saveIndex == 0 )
             {
-                integrator->getStateDerivativeFunction( )( currentTime, newState );
-                dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                solutionHistory[ currentTime ] = newState;
+
+                if( !dependentVariableFunction.empty( ) )
+                {
+                    integrator->getStateDerivativeFunction( )( currentTime, newState );
+                    dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                }
+            }
+
+            // Print solutions
+            if( printInterval == printInterval )
+            {
+                if( ( static_cast<int>( std::fabs( currentTime - initialTime ) ) %
+                      static_cast< int >( printInterval ) ) <
+                        ( static_cast< int >( std::fabs( previousTime - initialTime ) ) %
+                          static_cast<int>( printInterval ) )  )
+                {
+                    std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
+                               timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+                }
             }
         }
-
-        // Print solutions
-        if( printInterval == printInterval )
+        catch( std::runtime_error )
         {
-            if( ( static_cast<int>( std::fabs( currentTime - initialTime ) ) %
-                  static_cast< int >( printInterval ) ) <
-                    ( static_cast< int >( std::fabs( previousTime - initialTime ) ) %
-                      static_cast<int>( printInterval ) )  )
-            {
-                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
-                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
-            }
+            std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
+                       ", returning propagation data up to current time"<<std::endl;
+            breakPropagation = 1;
         }
     }
-    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) );
+    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
 }
 
 //! Function to numerically integrate a given first order differential equation

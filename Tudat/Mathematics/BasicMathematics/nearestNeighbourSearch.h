@@ -221,6 +221,11 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
 
     int independentValueVectorSize = static_cast< int >( independentValues_.size( ) );
 
+    if( !( independentVariableValue == independentVariableValue ) )
+    {
+        throw std::runtime_error( "Error in nearest left neighbour search, input is NaN" );
+    }
+
     if( independentValueVectorSize < 2 )
     {
         throw std::runtime_error( "Error in nearest neighbour search, size of input vector is " +
