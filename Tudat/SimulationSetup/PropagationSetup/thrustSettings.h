@@ -336,6 +336,94 @@ double multiplyMaximumThrustByScalingFactor(
         const boost::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables );
 
+class ThrustInputParameterGuidance
+{
+public:
+    ThrustInputParameterGuidance(
+            const int numberOfThrustInputParameters,
+            const int numberOfSpecificImpulseInputParameters,
+            const bool includeThrottleSetting = false,
+            const int throttleSettingIndex = -1 ):
+        numberOfThrustInputParameters_( numberOfThrustInputParameters ),
+        numberOfSpecificImpulseInputParameters_( numberOfSpecificImpulseInputParameters ),
+        includeThrottleSetting_( includeThrottleSetting ), throttleSettingIndex_( throttleSettingIndex )
+    {
+        if( includeThrottleSetting && ( throttleSettingIndex < 0 || throttleSettingIndex >= numberOfThrustInputParameters ) )
+        {
+            throw std::runtime_error( "Error when creating ThrustInputParameterGuidance, inconsistent throttle input" );
+        }
+        else if( !includeThrottleSetting && throttleSettingIndex >= 0 )
+        {
+            throw std::runtime_error( "Error when creating ThrustInputParameterGuidance, no throttle input with positive throttle index" );
+        }
+    }
+
+    int getNumberOfThrustInputParameters( )
+    {
+        return numberOfThrustInputParameters_;
+    }
+
+    int getNumberOfSpecificImpulseInputParameters( )
+    {
+        return numberOfSpecificImpulseInputParameters_;
+    }
+
+    double getThrustInputGuidanceParameter( const int inputParameterIndex )
+    {
+        return currentThrustGuidanceParameters_.at( inputParameterIndex );
+    }
+
+    double getSpecificImpulseInputGuidanceParameter( const int inputParameterIndex )
+    {
+        return currentSpecificImpulseParameters_.at( inputParameterIndex );
+    }
+
+    bool getIncludeThrottleSetting( )
+    {
+        return includeThrottleSetting_;
+    }
+
+    int getThrottleSettingIndex( )
+    {
+        return throttleSettingIndex_;
+    }
+
+    void updateGuidanceParameters( ) = 0;
+
+    void update( const double time )
+    {
+        if( time != time )
+        {
+            currentTime_ = time;
+        }
+        else
+        {
+            if( !( currentTime_ == time ) )
+            {
+                currentTime_ =  time;
+                updateGuidanceParameters( );
+            }
+        }
+    }
+
+protected:
+
+    std::vector< double > currentThrustGuidanceParameters_;
+
+    std::vector< double > currentSpecificImpulseParameters_;
+
+    int numberOfThrustInputParameters_;
+
+    int numberOfSpecificImpulseInputParameters_;
+
+    bool includeThrottleSetting_;
+
+    int throttleSettingIndex_;
+
+    double currentTime_;
+
+};
+
 //! Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
 /*!
  *  Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables.
@@ -370,6 +458,8 @@ public:
      * for the specific impulse (default none). The order of the functions in this vector is passed to the
      * specificImpulseInterpolator in the order of the and guidance_input_dependent_thrust in the thrustDependentVariables
      * vector
+     * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
+     * (empty by default).
      * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
      * vehicle front).
      */
@@ -393,8 +483,8 @@ public:
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         specificImpulseGuidanceInputVariables_( specificImpulseGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-        inputUpdateFunction_( inputUpdateFunction )
+        inputUpdateFunction_( inputUpdateFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
         parseInputDataAndCheckConsistency( thrustMagnitudeInterpolator, specificImpulseInterpolator );
     }
@@ -412,6 +502,8 @@ public:
      * (default none). The order of the functions in this vector is passed to the thrustMagnitudeInterpolator
      * in the order of the maximum_thrust_multiplier and guidance_input_dependent_thrust in the thrustDependentVariables
      * vector
+     * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
+     * (empty by default).
      * \param bodyFixedThrustDirection Direction of the thrust vector in the body-fixed frame (default in x-direction; to
      * vehicle front).
      */
@@ -429,8 +521,8 @@ public:
         specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
         thrustDependentVariables_( thrustDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ),
-        inputUpdateFunction_( inputUpdateFunction )
+        inputUpdateFunction_( inputUpdateFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection )
     {
         parseInputDataAndCheckConsistency(
                     thrustMagnitudeInterpolator, boost::shared_ptr< interpolators::Interpolator< double, double > >( ) );
@@ -454,6 +546,7 @@ public:
     //! List of functions returning user-defined guidance input variables for the specific impulse
     std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables_;
 
+    //! Function that is called to update the user-defined guidance to the current time
     boost::function< void( const double ) > inputUpdateFunction_;
 
     //! Direction of the thrust vector in the body-fixed frame
@@ -471,6 +564,13 @@ private:
             const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
             const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator );
 };
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
 
 } // namespace simulation_setup
 
