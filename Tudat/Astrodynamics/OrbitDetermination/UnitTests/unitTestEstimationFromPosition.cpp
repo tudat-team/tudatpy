@@ -33,7 +33,7 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 
 
-template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
+template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType  = double >
 Eigen::VectorXd  executeParameterEstimation( )
 {
     //Load spice kernels.
@@ -51,6 +51,8 @@ Eigen::VectorXd  executeParameterEstimation( )
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Jupiter" );
+    bodyNames.push_back( "Saturn" );
 
     // Specify initial time
     TimeType initialEphemerisTime = TimeType( 1.0E7 );
@@ -75,6 +77,8 @@ Eigen::VectorXd  executeParameterEstimation( )
     accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+//    accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+//    accelerationsOfEarth[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
@@ -107,6 +111,9 @@ Eigen::VectorXd  executeParameterEstimation( )
                                   "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                                       "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
                               centralBodyMap[ "Earth" ] ) );
+//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Jupiter", gravitational_parameter ) );
+//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Saturn", gravitational_parameter ) );
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
@@ -116,7 +123,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
             ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, 2.0, 3600.0, 5.0E-12, 5.0E-12 );
+              RungeKuttaCoefficients::rungeKuttaFehlberg78, 2.0, 3600.0, 1.0E-12, 1.0E-12 );
 
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
@@ -147,9 +154,9 @@ Eigen::VectorXd  executeParameterEstimation( )
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
 
-    double observationTimeStep = 10000.0;
+    double observationTimeStep = 1000.0;
     TimeType observationTime = Time( initialEphemerisTime + 10.0E4 );
-    int numberOfObservations = 1800;
+    int numberOfObservations = 18000;
 
     std::vector< TimeType > initialObservationTimes;
     initialObservationTimes.resize( numberOfObservations );
@@ -189,6 +196,9 @@ Eigen::VectorXd  executeParameterEstimation( )
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-1;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-1;
     }
+//    initialParameterEstimate( 6 ) *= ( 1.0 + 1.0E-5 );
+//    initialParameterEstimate( 7 ) *= ( 1.0 + 1.0E-4 );
+//    initialParameterEstimate( 8 ) *= ( 1.0 + 1.0E-4 );
 
     std::cout<<truthParameters<<std::endl<<std::endl<<initialParameterEstimate<<std::endl;
 
@@ -205,18 +215,59 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    Eigen::VectorXd totalError = executeParameterEstimation< double, double, double >( );
-
-    for( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 0; i < 8; i++ )
     {
-        BOOST_CHECK_SMALL( totalError( i ), 1.0E-3 );
+        std::cout<<"=============================================== Running Case: "<<i<<std::endl;
+
+        Eigen::VectorXd totalError;
+        if( i == 0 )
+        {
+            totalError = executeParameterEstimation< double, double, double >( );
+        }
+        else if( i == 1 )
+        {
+            totalError = executeParameterEstimation< double, double, long double >( );
+        }
+//        else if( i == 2 )
+//        {
+//            totalError = executeParameterEstimation< double, Time, double >( );
+//        }
+        else if( i == 2 )
+        {
+            totalError = executeParameterEstimation< long double, double, double >( );
+        }
+//        else if( i == 4 )
+//        {
+//            totalError = executeParameterEstimation< double, Time, long double >( );
+//        }
+//        else if( i == 5 )
+//        {
+//            totalError = executeParameterEstimation< long double, Time, double >( );
+//        }
+        else if( i == 3 )
+        {
+            totalError = executeParameterEstimation< long double, double, long double >( );
+        }
+//        else if( i == 7 )
+//        {
+//            totalError = executeParameterEstimation< long double, Time, long double >( );
+//        }
+
+
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( totalError( i ), 1.0E-2 );
+        }
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( totalError( i + 3 ), 1.0E-7 );
+        }
+
+        std::cout<<totalError<<std::endl;
     }
 
-    for( unsigned int i = 0; i < 3; i++ )
-    {
-        BOOST_CHECK_SMALL( totalError( i + 3 ), 1.0E-8 );
-    }
-    std::cout<<totalError<<std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

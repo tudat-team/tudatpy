@@ -118,8 +118,8 @@ public:
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< TimeType >& linkEndTimes,
-                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                    std::vector< double >& linkEndTimes,
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -150,11 +150,11 @@ public:
         observation *= physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Set link end states and times.
-        linkEndTimes.push_back( transmissionTime );
-        linkEndTimes.push_back( receptionTime );
+        linkEndTimes.push_back( static_cast< double >( transmissionTime ) );
+        linkEndTimes.push_back( static_cast< double >( receptionTime ) );
 
-        linkEndStates.push_back( transmitterState);
-        linkEndStates.push_back( receiverState );
+        linkEndStates.push_back( transmitterState.template cast< double >( ) );
+        linkEndStates.push_back( receiverState.template cast< double >( ) );
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << observation ).finished( );
     }

@@ -107,8 +107,8 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) = 0;
+                std::vector< double >& linkEndTimes,
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -125,8 +125,8 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes ,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                std::vector< double >& linkEndTimes ,
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check if any non-ideal models are set.
         if( isBiasNull_ )
@@ -252,10 +252,10 @@ protected:
 
 
     //! Pre-define list of times used when calling function returning link-end states/times from interface function.
-    std::vector< TimeType > linkEndTimes_;
+    std::vector< double > linkEndTimes_;
 
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
-    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > linkEndStates_;
+    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
 

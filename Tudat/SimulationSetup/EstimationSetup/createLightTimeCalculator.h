@@ -46,7 +46,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
                                                < StateScalarType, TimeType >, bodyWithReferencePoint, _1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
-    std::map< int, boost::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
+    std::map< int, boost::function< StateType( const double, const StateType& ) > > stationRotationVector;
     stationRotationVector[ 1 ] =  boost::bind( &ephemerides::transformStateToGlobalFrame
                                                < StateScalarType, TimeType >, _2, _1, bodyRotationModel );
 
@@ -184,9 +184,9 @@ createLightTimeCalculator(
 
     // Get link end state functions and create light time calculator.
     return createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+                getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >(
                     transmittingLinkEnd, bodyMap ),
-                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+                getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >(
                     receivingLinkEnd, bodyMap ),
                 bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
 }

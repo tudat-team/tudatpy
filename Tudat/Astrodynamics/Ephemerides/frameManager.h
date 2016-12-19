@@ -154,9 +154,6 @@ public:
                 }
             }
 
-            typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-
-
             // Create composite ephemeris
             ephemerisBetweenFrames = boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
                         totalEphemerisList,
