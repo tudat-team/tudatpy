@@ -75,8 +75,8 @@ public:
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< TimeType >& linkEndTimes,
-                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                    std::vector< double >& linkEndTimes,
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
 
     {
         // Check link end associated with input time and compute observable
@@ -111,18 +111,18 @@ public:
         // Set link end times and states.
         linkEndTimes.clear( );
         linkEndStates.clear( );
-        linkEndStates.push_back( transmitterState );
-        linkEndStates.push_back( receiverState );
+        linkEndStates.push_back( transmitterState.template cast< double >( ) );
+        linkEndStates.push_back( receiverState.template cast< double >( ) );
 
         if( isTimeAtReception )
         {
-            linkEndTimes.push_back( time - lightTime );
-            linkEndTimes.push_back( time );
+            linkEndTimes.push_back( static_cast< double >( time - lightTime ) );
+            linkEndTimes.push_back( static_cast< double >( time ) );
         }
         else
         {
-            linkEndTimes.push_back( time );
-            linkEndTimes.push_back( time + lightTime );
+            linkEndTimes.push_back( static_cast< double >( time ) );
+            linkEndTimes.push_back( static_cast< double >( time + lightTime ) );
         }
 
         // Return observable

@@ -268,7 +268,7 @@ public:
             observationModel = boost::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType, StateScalarType > >(
                         boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
-                                     StateScalarType, TimeType >,
+                                     ObservationScalarType, TimeType >,
                                      bodyMap.at( linkEnds.at( observed_body ).first ), _1 ), observationBiasCalculator );
 
             break;

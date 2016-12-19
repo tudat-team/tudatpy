@@ -558,7 +558,7 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( boost::assign::list_of( transational_state ), 0, 1 );
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
-            std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
+            std::map< double, Eigen::VectorXd > dependentVariableHistory;
 
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
