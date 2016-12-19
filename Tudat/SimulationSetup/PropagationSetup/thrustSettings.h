@@ -388,7 +388,7 @@ public:
         return throttleSettingIndex_;
     }
 
-    void updateGuidanceParameters( ) = 0;
+    virtual void updateGuidanceParameters( ) = 0;
 
     void update( const double time )
     {
