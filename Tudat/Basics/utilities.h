@@ -17,6 +17,7 @@
 #include <map>
 
 #include <boost/function.hpp>
+#include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
 
@@ -131,6 +132,17 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     {
         std::cout<<mapIterator->first<<", "<<mapIterator->second<<std::endl;
     }
+}
+
+template< typename S, int NumberOfDimensions >
+void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToCopy,
+                     boost::multi_array< S, NumberOfDimensions >& targetArray )
+{
+    std::vector< size_t > ex;
+    const size_t* shape = arrayToCopy.shape( );
+    ex.assign( shape, shape + arrayToCopy.num_dimensions( ) );
+    targetArray.resize( ex );
+    targetArray = arrayToCopy;
 }
 
 

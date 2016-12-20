@@ -34,8 +34,8 @@ namespace simulation_setup
 
 //! Function to create aerodynamic coefficient settings fom coefficients stored in data files
 boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
-        const std::vector< std::string > momentCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -45,7 +45,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
         const bool areCoefficientsInNegativeAxisDirection )
 {
     // Open file and create file stream.
-    std::fstream stream( forceCoefficientFiles.at( 0 ).c_str( ), std::ios::in );
+    std::fstream stream( forceCoefficientFiles.begin( )->second.c_str( ), std::ios::in );
 
     // Check if file opened correctly.
     if ( stream.fail( ) )
@@ -53,7 +53,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
         boost::throw_exception(
                     std::runtime_error( boost::str(
                                             boost::format( "Data file '%s' could not be opened." ) %
-                                            forceCoefficientFiles.at( 0 ).c_str( ) ) ) );
+                                            forceCoefficientFiles.begin( )->second.c_str( ) ) ) );
     }
 
     std::string line;
@@ -118,7 +118,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
 //! Function to create aerodynamic coefficient settings fom coefficients stored in data files
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame,

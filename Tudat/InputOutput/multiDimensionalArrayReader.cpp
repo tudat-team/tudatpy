@@ -65,7 +65,7 @@ boost::multi_array< double, 2 > parseRawTwoDimensionalCoefficientsFromFile(
                 coefficientMultiarray[ i ][ j ] = coefficientsBlock( i, j );
             }
         }
-    }    
+    }
     else
     {
         throw std::runtime_error( "Error, expected size of 2 dimensions when parsing 1-dimensional data into multi-array" );

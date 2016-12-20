@@ -979,8 +979,8 @@ private:
 template< int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
-        const std::vector< std::string > momentCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -1036,7 +1036,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
 template< int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = 1,
@@ -1083,8 +1083,8 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  forceCoefficientFiles and reference data given as input
  */
 boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
-        const std::vector< std::string > momentCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -1113,7 +1113,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
  */
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::vector< std::string > forceCoefficientFiles,
+        const std::map< int, std::string > forceCoefficientFiles,
         const double referenceArea,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = 1,
