@@ -242,6 +242,50 @@ void readCoefficientsFile(
     }
 }
 
+int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileName )
+{
+    // Open file and create file stream.
+    std::fstream stream( fileName.c_str( ), std::ios::in );
+
+    // Check if file opened correctly.
+    if ( stream.fail( ) )
+    {
+        boost::throw_exception(
+                    std::runtime_error( boost::str(
+                                            boost::format( "Data file '%s' could not be opened." ) %
+                                            fileName.c_str( ) ) ) );
+    }
+
+    std::string line;
+    std::vector< std::string > vectorOfIndividualStrings;
+
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables = -1;
+    while ( !stream.fail( ) && !stream.eof( ) && ( numberOfIndependentVariables < 0 ) )
+    {
+        // Get line from stream
+        std::getline( stream, line );
+        boost::algorithm::trim( line );
+
+        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        {
+            boost::algorithm::split( vectorOfIndividualStrings,
+                                     line,
+                                     boost::algorithm::is_any_of( "\t ;, " ),
+                                     boost::algorithm::token_compress_on );
+            try
+            {
+                numberOfIndependentVariables = boost::lexical_cast< double >( vectorOfIndividualStrings.at( 0 ).at( 0 ) );
+            }
+            catch( std::runtime_error )
+            {
+                throw std::runtime_error( "Error when reading coefficicent file size, input is inconsistent" );
+            }
+        }
+    }
+    return numberOfIndependentVariables;
+}
+
 }
 
 }

@@ -61,6 +61,8 @@ void readCoefficientsFile(
         std::vector< std::vector< double > >& independentVariables,
         Eigen::MatrixXd& coefficientBlock );
 
+int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileName );
+
 //! Interface class for reading coefficients as a function of N independent variables from a file.
 /*!
  *  Interface class for reading coefficients as a function of N independent variables from a file. This class is used instead
@@ -251,8 +253,8 @@ public:
                     parseRawThreeDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ),
                     independentVariables );
     }
-    };
 
+    };
 }
 
 }

@@ -574,6 +574,13 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
 
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const std::string specificImpulseDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
+
 } // namespace simulation_setup
 
 } // namespace tudat

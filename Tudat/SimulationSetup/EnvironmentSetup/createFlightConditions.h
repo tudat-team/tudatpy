@@ -169,6 +169,108 @@ protected:
     const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
 };
 
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients.  The file format is discussed in AAAA
+ *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
+ *  the case, the readTabulatedAerodynamicCoefficientsFromFiles function should be used.
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
+ *  \param momentCoefficientFiles List (size 3) of files containing the aerodynamic moment coefficients
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficient
+ *  \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from files
+ *  defined in forceCoefficientFiles and momentCoefficientFiles
+ */
+template< int NumberOfIndependentVariables >
+boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
+{
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicForceCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicMomentCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( momentCoefficientFiles );
+
+    if( !input_output::compareIndependentVariables(
+                aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, force and moment independent variables are inconsistent" );
+    }
+
+    if( independentVariableNames.size( ) != NumberOfIndependentVariables )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
+    }
+
+    return boost::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+                aerodynamicForceCoefficients.second, aerodynamicForceCoefficients.first, aerodynamicMomentCoefficients.first,
+                independentVariableNames );
+}
+
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
+ *  cases). The file format is discussed in AAAA
+ *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
+ *  the case, the readTabulatedAerodynamicCoefficientsFromFiles function should be used.
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic coefficients
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from files
+ *   defined in forceCoefficientFiles and reference data given as input
+ */
+template< int NumberOfIndependentVariables >
+boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
+{
+    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
+            aerodynamicCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
+
+    // Check input consistency
+    if( independentVariableNames.size( ) != NumberOfIndependentVariables )
+    {
+        throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
+    }
+
+    // Create coefficient settings.
+    return boost::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+                aerodynamicCoefficients.second, aerodynamicCoefficients.first, independentVariableNames );
+}
+
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  the three components of the force coefficients.  The file format is discussed in AAAA
+ *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
+ *  \param momentCoefficientFiles List (size 3) of files containing the aerodynamic moment coefficients
+ *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ *  \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from files
+ *  defined in forceCoefficientFiles and momentCoefficientFiles.
+ */
+boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string > momentCoefficientFiles,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames );
+
+//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+/*!
+ * Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ * the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
+ * cases). The file format is discussed in AAAA
+ * \param forceCoefficientFiles List (size 3) of files containing the aerodynamic coefficients
+ * \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
+ * \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from
+ * files defined in forceCoefficientFiles
+ */
+boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
+        const std::map< int, std::string > forceCoefficientFiles,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames );
+
 template< int NumberOfDimensions >
 boost::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
 createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
@@ -990,11 +1092,9 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicForceCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
-            readAerodynamicCoefficients( forceCoefficientFiles );
+            aerodynamicForceCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicMomentCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
-            readAerodynamicCoefficients( momentCoefficientFiles );
+            aerodynamicMomentCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( momentCoefficientFiles );
 
     if( !input_output::compareIndependentVariables(
                 aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
@@ -1043,8 +1143,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicCoefficients = input_output::AerodynamicCoefficientReader< NumberOfIndependentVariables >::
-            readAerodynamicCoefficients( forceCoefficientFiles );
+            aerodynamicCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
 
     // Check input consistency
     if( independentVariableNames.size( ) != NumberOfIndependentVariables )
