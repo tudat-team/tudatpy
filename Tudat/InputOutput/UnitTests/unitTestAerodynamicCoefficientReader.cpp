@@ -86,14 +86,14 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
         std::string fileName = tudat::input_output::getTudatRootPath( )
                 + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
 
-        std::vector< std::string > files;
-        files.push_back( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Tmax_test.txt" );
-        files.push_back( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt" );
-        files.push_back( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt" );
+        std::map< int, std::string > files;
+        files[ 0 ] = ( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Tmax_test.txt" );
+        files[ 1 ] = ( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt" );
+        files[ 2 ] = ( tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt" );
 
 
         std::pair< boost::multi_array< Eigen::Vector3d, 2 >, std::vector< std::vector< double > > > outputArray =
-                input_output::AerodynamicCoefficientReader< 2 >::readAerodynamicCoefficients( files );
+                input_output::readAerodynamicCoefficients< 2 >( files );
         std::cout<<outputArray.first.shape( )[ 0 ]<<" "<<outputArray.first.shape( )[ 1 ]<<std::endl;
 
 
