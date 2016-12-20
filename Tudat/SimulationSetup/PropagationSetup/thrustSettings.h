@@ -358,6 +358,8 @@ public:
         }
     }
 
+    virtual ~ThrustInputParameterGuidance( ){ }
+
     int getNumberOfThrustInputParameters( )
     {
         return numberOfThrustInputParameters_;

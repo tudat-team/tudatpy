@@ -51,6 +51,7 @@
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -74,6 +75,30 @@ enum AerodynamicCoefficientsIndependentVariables
     control_surface_deflection_dependent = 4,
     undefined_independent_variable = 5
 };
+
+
+//! Function to combined the force and moment coefficients from separate function pointers.
+/*!
+ *  Function to combined the force and moment coefficients from separate function pointers.
+ *  The output is the concatenated force and moment coefficient vector, evaluated
+ *  at the current set of independent variables.
+ *  \param forceCoefficientFunction Function returning the aerodynamic force coefficients as
+ *  function of the set of independent variables.
+ *  \param momentCoefficientFunction Function returning the aerodynamic force coefficients as
+ *  function of the set of independent variables.
+ *  \param independentVariables Current list of values of the independent variables upon
+ *  which the coefficients depend.
+ */
+inline basic_mathematics::Vector6d concatenateForceAndMomentCoefficients(
+        const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
+        forceCoefficientFunction,
+        const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
+        momentCoefficientFunction,
+        const std::vector< double >& independentVariables )
+{
+    return ( basic_mathematics::Vector6d( )<<forceCoefficientFunction( independentVariables ),
+             momentCoefficientFunction( independentVariables ) ).finished( );
+}
 
 //! Maximum Prandtl-Meyer function value.
 /*!

@@ -261,6 +261,74 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
     }
 }
 
+boost::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
+createControlSurfaceIncrementAerodynamicCoefficientInterface(
+        const boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body )
+{
+    using namespace tudat::aerodynamics;
+
+    boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > coefficientInterface;
+
+    // Check type of interface that is to be created.
+    switch( coefficientSettings->getAerodynamicCoefficientType( ) )
+    {
+    case tabulated_coefficients:
+    {
+        // Check number of dimensions of tabulated coefficients.
+        int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
+        switch( numberOfDimensions )
+        {
+        case 1:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 1 >(
+                        coefficientSettings, body );
+            break;
+        }
+        case 2:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 2 >(
+                        coefficientSettings, body );
+            break;
+        }
+        case 3:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 3 >(
+                        coefficientSettings, body );
+            break;
+        }
+        case 4:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 4 >(
+                        coefficientSettings, body );
+            break;
+        }
+        case 5:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 5 >(
+                        coefficientSettings, body );
+            break;
+        }
+        case 6:
+        {
+            coefficientInterface = createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface< 6 >(
+                        coefficientSettings, body );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error when making tabulated control surface aerodynamic coefficient interface, " +
+                                      boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, do not recognize control surface aerodynamic coefficient settings for " + body );
+    }
+
+
+    return coefficientInterface;
+}
+
 //! Function to create and aerodynamic coefficient interface.
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createAerodynamicCoefficientInterface(
@@ -351,6 +419,25 @@ createAerodynamicCoefficientInterface(
     default:
         throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
+
+    if( coefficientSettings->getControlSurfaceSettings( ).size( ) != 0 )
+    {
+        std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+                controlSurfaceIncrementInterfaces;
+        std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
+                controlSurfaceSettings = coefficientSettings->getControlSurfaceSettings( );
+        for( std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >::iterator
+             settingIterator = controlSurfaceSettings.begin( ); settingIterator != controlSurfaceSettings.end( );
+             settingIterator++ )
+        {
+            controlSurfaceIncrementInterfaces[ settingIterator->first ] =
+                    createControlSurfaceIncrementAerodynamicCoefficientInterface(
+                        settingIterator->second, body );
+        }
+        coefficientInterface->setControlSurfaceIncrements( controlSurfaceIncrementInterfaces );
+
+    }
+
     return coefficientInterface;
 }
 

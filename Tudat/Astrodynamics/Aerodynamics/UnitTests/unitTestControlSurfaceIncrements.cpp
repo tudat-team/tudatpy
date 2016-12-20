@@ -423,7 +423,6 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
             BOOST_CHECK_SMALL( std::fabs( expectedForceCoefficients( i ) - currentForceCoefficients( i ) ), 1.0E-14 );
             BOOST_CHECK_SMALL( std::fabs( expectedMomentCoefficients( i ) - currentMomentCoefficients( i ) ), 1.0E-14 );
         }
-
     }
 }
 
