@@ -164,7 +164,7 @@ public:
     static boost::multi_array< double, 2 > readMultiArray(
             const std::string fileName )
     {
-        return readMultiArrayAndIndependentVariables( fileName ).first;
+       return readMultiArrayAndIndependentVariables( fileName ).first;
     }
 
     //! Function to read a multi-array from the file, and the values of the independent variables at which it is defined
