@@ -39,7 +39,7 @@ boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readT
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.at( 0 ) );
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
 
     // Call approriate file reading function for N independent variables
     boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings;
@@ -65,6 +65,7 @@ boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > readT
                                   boost::lexical_cast< std::string >( numberOfIndependentVariables ) +
                                   " independent variables, up to 3 currently supported" );
     }
+
     return coefficientSettings;
 }
 
@@ -76,7 +77,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.at( 0 ) );
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
 
     // Call approriate file reading function for N independent variables
     boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings;
@@ -118,7 +119,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.at( 0 ) );
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
 
     // Call approriate file reading function for N independent variables
     boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
@@ -163,7 +164,7 @@ readTabulatedAerodynamicCoefficientsFromFiles(
 {
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.at( 0 ) );
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( forceCoefficientFiles.begin( )->second );
 
     // Call approriate file reading function for N independent variables
     boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings;
