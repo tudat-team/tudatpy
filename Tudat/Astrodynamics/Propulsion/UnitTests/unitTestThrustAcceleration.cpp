@@ -1177,7 +1177,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     int numberOfCasesPerSet = 5;
-    for( unsigned int i = 0; i < numberOfCasesPerSet * 2; i++ )
+    for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
     {
         std::cout<<"Test case: "<<i<<std::endl;
         // Define propagator settings variables.

@@ -227,7 +227,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 
                 coefficientArrays[ i ].resize( sizeVector );
 
-                std::fill( coefficientArrays[ i ].data(), coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
+                std::fill( coefficientArrays[ i ].data( ), coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
             }
         }
     }

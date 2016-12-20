@@ -47,17 +47,17 @@ TrimOrientationCalculator::TrimOrientationCalculator(
         std::vector< AerodynamicCoefficientsIndependentVariables > currentIndependentVariables =
                 controlSurfaceIterator->second;
         variableIterator =
-                    std::find(
+                std::find(
                     currentIndependentVariables.begin( ), currentIndependentVariables.end( ), angle_of_attack_dependent );
-        if( !( variableIterator == currentIndependentVariables.end( ) ) )
+        if( ( variableIterator == currentIndependentVariables.end( ) ) )
         {
-            std::cerr<<"Error when getting trim angle of attack, no angle of attack dependency is found for control surface "
+            std::cerr<<"Warning when getting trim angle of attack, no angle of attack dependency is found for control surface "
                        + controlSurfaceIterator->first<<std::endl;
         }
         else
         {
-        controlSurfaceVariableIndex_[ controlSurfaceIterator->first ] =
-                std::distance( currentIndependentVariables.begin( ), variableIterator );
+            controlSurfaceVariableIndex_[ controlSurfaceIterator->first ] =
+                    std::distance( currentIndependentVariables.begin( ), variableIterator );
         }
     }
 

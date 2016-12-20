@@ -208,8 +208,6 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterface )
                                               forceWithoutIncrement( i ) - manualControlIncrements( i ) ), 1.0E-14 );
                 BOOST_CHECK_SMALL( std::fabs( momentWithIncrement( i ) -
                                               momentWithoutIncrement( i ) - manualControlIncrements( i + 3 ) ), 1.0E-14 );
-
-
             }
         }
     }

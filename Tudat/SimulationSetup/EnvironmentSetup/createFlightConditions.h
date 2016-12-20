@@ -125,7 +125,13 @@ public:
         independentVariables_( independentVariables ),
         forceCoefficients_( forceCoefficients )
     {
+        std::vector< size_t > sizeVector;
+        const size_t* arrayShape = forceCoefficients_.shape( );
+        sizeVector.assign( arrayShape, arrayShape + forceCoefficients_.num_dimensions( ) );
 
+        momentCoefficients_.resize( sizeVector );
+
+        std::fill( momentCoefficients_.data( ), momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
     }
 
     ~TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings( ){ }
@@ -164,9 +170,9 @@ protected:
 
     const std::vector< std::vector< double > > independentVariables_;
 
-    const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients_;
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients_;
 
-    const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
 };
 
 //! Function to create aerodynamic coefficient settings fom coefficients stored in data files
@@ -726,7 +732,16 @@ public:
             independentVariableNames, areCoefficientsInAerodynamicFrame,
             areCoefficientsInNegativeAxisDirection ),
         independentVariables_( independentVariables ),
-        forceCoefficients_( forceCoefficients ){ }
+        forceCoefficients_( forceCoefficients )
+    {
+        std::vector< size_t > sizeVector;
+        const size_t* arrayShape = forceCoefficients_.shape( );
+        sizeVector.assign( arrayShape, arrayShape+ forceCoefficients_.num_dimensions( ) );
+
+        momentCoefficients_.resize( sizeVector );
+
+        std::fill( momentCoefficients_.data( ), momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
+    }
 
     ~TabulatedAerodynamicCoefficientSettings( ){ }
 
