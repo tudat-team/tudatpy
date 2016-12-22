@@ -336,9 +336,31 @@ double multiplyMaximumThrustByScalingFactor(
         const boost::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables );
 
+
+//! Interface base class that can be defined by user to make the use of the ParameterizedThrustMagnitudeSettings class easier
+/*!
+ *  For a specific user-defined guidance approach, a derived class must be defined, that computes the guidance/throttle
+ *  commands at each time step/vehicle state. Using the createParameterizedThrustMagnitudeSettings functions, a
+ *  ParameterizedThrustMagnitudeSettings can then be made.
+ *  In the derived class, the user must define an updateGuidanceParameters function, which sets the entries of the
+ *  currentThrustGuidanceParameters_ and currentSpecificImpulseParameters_ vectors (size must be compatible with
+ *  ThrustInputParameterGuidance constructor). Note that the throttle setting is simply defined as one of the entries of
+ *  currentThrustGuidanceParameters_.
+ */
 class ThrustInputParameterGuidance
 {
 public:
+
+    //! Constructor
+    /*!
+     *  Constructor
+     *  \param numberOfThrustInputParameters Number of guidance-input parameters that are computed for the thrust
+     *  \param numberOfSpecificImpulseInputParameters Number of guidance-input parameters that are computed for the
+     *  specific impulse
+     *  \param includeThrottleSetting Boolean that denotes whether any of the guidance-input parameters for the thrust
+     *  define a throttle setting
+     *  \param throttleSettingIndex Index in list of thrust guidance parameters that denotes the throttle setting (if any)
+     */
     ThrustInputParameterGuidance(
             const int numberOfThrustInputParameters,
             const int numberOfSpecificImpulseInputParameters,
@@ -361,49 +383,89 @@ public:
         currentSpecificImpulseParameters_.resize( numberOfSpecificImpulseInputParameters_ );
     }
 
+    //! Destructor
     virtual ~ThrustInputParameterGuidance( ){ }
 
+    //! Function to retrieve the number of guidance-input parameters that are computed for the thrust
+    /*!
+     * Function to retrieve the number of guidance-input parameters that are computed for the thrust
+     * \return Number of guidance-input parameters that are computed for the thrust
+     */
     int getNumberOfThrustInputParameters( )
     {
         return numberOfThrustInputParameters_;
     }
 
+    //! Function to retrieve the number of guidance-input parameters that are computed for the specific impulse
+    /*!
+     * Function to retrieve the number of guidance-input parameters that are computed for the specific impulse
+     * \return Number of guidance-input parameters that are computed for the specific impulse
+     */
     int getNumberOfSpecificImpulseInputParameters( )
     {
         return numberOfSpecificImpulseInputParameters_;
     }
 
+    //! Function to retrieve a guidance-input parameter that for the thrust
+    /*!
+     * Function to retrieve a guidance-input parameter that for the thrust
+     * \param inputParameterIndex Entry of guidance-input vector for thrust that is to be retrieved.
+     * \return Guidance-input parameters that for the thrust at given index
+     */
     double getThrustInputGuidanceParameter( const int inputParameterIndex )
     {
         return currentThrustGuidanceParameters_.at( inputParameterIndex );
     }
 
+    //! Function to retrieve a guidance-input parameter that for the specific impulse
+    /*!
+     * Function to retrieve a guidance-input parameter that for the specific impulse
+     * \param inputParameterIndex Entry of guidance-input vector for specific impulse that is to be retrieved.
+     * \return Guidance-input parameters that for the specific impulse at given index
+     */
     double getSpecificImpulseInputGuidanceParameter( const int inputParameterIndex )
     {
         return currentSpecificImpulseParameters_.at( inputParameterIndex );
     }
 
+    //! Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting
+    /*!
+     * Function to retrieve whether any of the guidance-input parameters for the thrust define a throttle setting
+     * \return Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting.
+     */
     bool getIncludeThrottleSetting( )
     {
         return includeThrottleSetting_;
     }
 
+    //! Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting
+    /*!
+     * Function to retrieve the index in list of thrust guidance parameters that denotes the throttle setting (-1 if none)
+     * \return Index in list of thrust guidance parameters that denotes the throttle setting
+     */
     int getThrottleSettingIndex( )
     {
         return throttleSettingIndex_;
     }
 
+    //! Pure virtual function that updates the guidance algorithm to the current time/state
     virtual void updateGuidanceParameters( ) = 0;
 
+    //! Update function for the guidance algorithm
+    /*!
+     * Update function for the guidance algorithm, calls the updateGuidanceParameters that is to be implemented in derived
+     * class. Calling this function with NaN time signals that a new time step has commenced.
+     * \param time Time to which guidance object is to be updated
+     */
     void update( const double time )
     {
-//        if( time != time )
-//        {
-//            currentTime_ = time;
-//        }
-//        else
+        if( time != time )
         {
-            //if( !( currentTime_ == time ) )
+            currentTime_ = time;
+        }
+        else
+        {
+            if( !( currentTime_ == time ) )
             {
                 currentTime_ =  time;
                 updateGuidanceParameters( );
@@ -413,18 +475,25 @@ public:
 
 protected:
 
+    //! Vector of guidance-input parameters that are computed for the thrust
     std::vector< double > currentThrustGuidanceParameters_;
 
+    //! Vector of guidance-input parameters that are computed for the specific impulse
     std::vector< double > currentSpecificImpulseParameters_;
 
+    //! Number of guidance-input parameters that are computed for the thrust
     int numberOfThrustInputParameters_;
 
+    //! Number of guidance-input parameters that are computed for the specific impulse
     int numberOfSpecificImpulseInputParameters_;
 
+    //! Boolean that denotes whether any of the guidance-input parameters for the thrust define a throttle setting
     bool includeThrottleSetting_;
 
+    //! Index in list of thrust guidance parameters that denotes the throttle setting (if any)
     int throttleSettingIndex_;
 
+    //! Current time of interface object (e.g. time to which object was last updated).
     double currentTime_;
 
 };
@@ -435,9 +504,9 @@ protected:
  *  The physical meaning of the variables must be defined here, selecting from the options in the ThrustDependentVariables
  *  enum, and they are automatically retrieved from the relevant environment models during the propagation.
  *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
- *  maximum_thrust_multiplier. In the case of the maximum_thrust_multiplier, the thrustMagnitudeInterpolator input variable
+ *  throttle_dependent_thrust. In the case of the throttle_dependent_thrust, the thrustMagnitudeInterpolator input variable
  *  is assumed to define the maximum possible thrust, which is then multiplied by the function defining the
- *  maximum_thrust_multiplier.
+ *  throttle_dependent_thrust.
  */
 class ParameterizedThrustMagnitudeSettings: public ThrustEngineSettings
 {
@@ -448,7 +517,7 @@ public:
      * Constructor, defines the interpolators for thrust and specific impulse, as well as the physical meaning of each of the
      * independent variables.
      * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
-     * thrustDependentVariables contains an maximum_thrust_multiplier entry) as a function of the independent variables.
+     * thrustDependentVariables contains an throttle_dependent_thrust entry) as a function of the independent variables.
      * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
      * the 'interpolate' function of thrustMagnitudeInterpolator.
      * \param specificImpulseInterpolator  Interpolator returning the current specific impulse as a function of the
@@ -457,7 +526,7 @@ public:
      * input to the 'interpolate' function of specificImpulseInterpolator.
      * \param thrustGuidanceInputVariables List of functions returning user-defined guidance input variables for the thrust
      * (default none). The order of the functions in this vector is passed to the thrustMagnitudeInterpolator
-     * in the order of the maximum_thrust_multiplier and guidance_input_dependent_thrust in the thrustDependentVariables
+     * in the order of the throttle_dependent_thrust and guidance_input_dependent_thrust in the thrustDependentVariables
      * vector
      * \param specificImpulseGuidanceInputVariables List of functions returning user-defined guidance input variables
      * for the specific impulse (default none). The order of the functions in this vector is passed to the
@@ -499,13 +568,13 @@ public:
      * Constructor, defines a constant thrust and an interpolator for thrust, as well as the physical meaning of each of the
      * independent variables.
      * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
-     * thrustDependentVariables contains an maximum_thrust_multiplier entry) as a function of the independent variables.
+     * thrustDependentVariables contains an throttle_dependent_thrust entry) as a function of the independent variables.
      * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
      * the 'interpolate' function of thrustMagnitudeInterpolator.
      * \param constantSpecificImpulse Constant specific impulse
      * \param thrustGuidanceInputVariables List of functions returning user-defined guidance input variables for the thrust
      * (default none). The order of the functions in this vector is passed to the thrustMagnitudeInterpolator
-     * in the order of the maximum_thrust_multiplier and guidance_input_dependent_thrust in the thrustDependentVariables
+     * in the order of the throttle_dependent_thrust and guidance_input_dependent_thrust in the thrustDependentVariables
      * vector
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
      * (empty by default).
@@ -570,6 +639,22 @@ private:
             const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator );
 };
 
+//! Function to create thrust magnitude settings from guidance input and tables
+/*!
+ * Function to create thrust magnitude settings from guidance input and tables
+ * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
+ * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
+ * thrustDependentVariables and specificImpulseDependentVariables
+ * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
+ * thrustDependentVariables contains an throttle_dependent_thrust entry) as a function of the independent variables.
+ * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+ * the 'interpolate' function of thrustMagnitudeInterpolator.
+ * \param specificImpulseInterpolator  Interpolator returning the current specific impulse as a function of the
+ * independent variables.
+ * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+ * input to the 'interpolate' function of specificImpulseInterpolator.
+ * \return Thrust magnitude settings for given input.
+ */
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -577,6 +662,21 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
 
+//! Function to create thrust magnitude settings from guidance input and tables
+/*!
+ * Function to create thrust magnitude settings from guidance input and tables
+ * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
+ * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
+ * thrustDependentVariables and specificImpulseDependentVariables
+ * \param thrustMagnitudeDataFile File containing data for the thrust (or maximum thrust if
+ * thrustDependentVariables contains an throttle_dependent_thrust entry) and associated independent variables
+ * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+ * the 'interpolate' function of thrustMagnitudeInterpolator.
+ * \param specificImpulseDataFile File containing data for the specific impulse and associated independent variables.
+ * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+ * input to the 'interpolate' function of specificImpulseInterpolator.
+ * \return Thrust magnitude settings for given input.
+ */
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
@@ -584,12 +684,38 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::string specificImpulseDataFile,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
 
+//! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
+/*!
+ * Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
+ * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
+ * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
+ * thrustDependentVariables and specificImpulseDependentVariables
+ * \param thrustMagnitudeInterpolator Interpolator returning the current thrust (or maximum thrust if
+ * thrustDependentVariables contains an throttle_dependent_thrust entry) as a function of the independent variables.
+ * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+ * the 'interpolate' function of thrustMagnitudeInterpolator.
+ * \param constantSpecificImpulse Specific impulse that is to be used at all times.
+ * \return Thrust magnitude settings for given input.
+ */
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
         const double constantSpecificImpulse );
 
+//! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
+/*!
+ * Function to create thrust magnitude settings from guidance input and tables
+ * \param thrustInputParameterGuidance Object that computes all guidance-input parameters as a function of time/state
+ * Note that the number of implemented parameters must be consistent with the numbet of associated entries in
+ * thrustDependentVariables and specificImpulseDependentVariables
+ * \param thrustMagnitudeDataFile File containing data for the thrust (or maximum thrust if
+ * thrustDependentVariables contains an throttle_dependent_thrust entry) and associated independent variables
+ * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+ * the 'interpolate' function of thrustMagnitudeInterpolator.
+ * \param constantSpecificImpulse Specific impulse that is to be used at all times.
+ * \return Thrust magnitude settings for given input.
+ */
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
