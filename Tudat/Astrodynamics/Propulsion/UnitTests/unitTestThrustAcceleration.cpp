@@ -1074,37 +1074,42 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     }
 }
 
-class ThrustMultiplierComputation
+class ThrustMultiplierComputation: public simulation_setup::ThrustInputParameterGuidance
 {
-    public:
-    ThrustMultiplierComputation( const double startTime, const double endTime ):
-        startTime_( startTime ), endTime_( endTime ){ }
+public:
+    ThrustMultiplierComputation( const double startTime, const double endTime,
+                                 const bool useDummyMachNumber, const bool useThrustMultiplier ):
+        ThrustInputParameterGuidance(
+            static_cast< int >( useDummyMachNumber ) + static_cast< int >( useThrustMultiplier ), 0,
+            useThrustMultiplier, ( useThrustMultiplier == true ) ? static_cast< int >( useDummyMachNumber ) : -1 ),
+        startTime_( startTime ), endTime_( endTime ),
+        useDummyMachNumber_( useDummyMachNumber ), useThrustMultiplier_( useThrustMultiplier ){ }
 
-    double getThrustMultiplier( )
+    void updateGuidanceParameters(  )
     {
-        return currentThrustMultiplier_;
+        if( useDummyMachNumber_ )
+        {
+            currentThrustGuidanceParameters_[ 0 ] = ( currentTime_ - startTime_ ) / ( endTime_ - startTime_ ) * 15.0;
+            if( useThrustMultiplier_ )
+            {
+                currentThrustGuidanceParameters_[ 1 ] = 1.0 - ( currentTime_ - startTime_ ) / ( endTime_ - startTime_ );
+            }
+        }
+        else if( useThrustMultiplier_ )
+        {
+            currentThrustGuidanceParameters_[ 0 ] = 1.0 - ( currentTime_ - startTime_ ) / ( endTime_ - startTime_ );
+        }
     }
 
-    double getGuidanceInput( )
-    {
-        return dummyMachNumber_;
-    }
-
-    void updateComputation( const double time  )
-    {
-        currentThrustMultiplier_ = 1.0 - ( time - startTime_ ) / ( endTime_ - startTime_ );
-        dummyMachNumber_ = ( time - startTime_ ) / ( endTime_ - startTime_ ) * 15.0;
-    }
-
-    private:
-
-    double currentThrustMultiplier_;
-
-    double dummyMachNumber_;
+private:
 
     double startTime_;
 
     double endTime_;
+
+    bool useDummyMachNumber_;
+
+    bool useThrustMultiplier_;
 };
 
 BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironmentDependentThrust )
@@ -1176,10 +1181,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
-    int numberOfCasesPerSet = 5;
+    int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
     {
-        std::cout<<"Test case: "<<i<<std::endl;
+
+        std::cout<<"Current simulation: "<<i<<std::endl;
+
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
@@ -1199,7 +1206,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
         specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
-        std::vector< boost::function< double( ) > > thrustGuidanceInputVariables;
+        boost::shared_ptr< ThrustMultiplierComputation > thrustInputParameterGuidance;
 
         if( ( i % numberOfCasesPerSet == 0 ) )
         {
@@ -1212,52 +1219,27 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
             thrustDependencies.push_back( propulsion::maximum_thrust_multiplier );
 
-            boost::shared_ptr< ThrustMultiplierComputation > throttleObject =
-                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getThrustMultiplier, throttleObject ) );
-            inputUpdateFunction = boost::bind( &ThrustMultiplierComputation::updateComputation, throttleObject, _1 );
+             thrustInputParameterGuidance =
+                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 0, 1 );
         }
         else if( ( i % numberOfCasesPerSet == 2 ) )
         {
             thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
-            boost::shared_ptr< ThrustMultiplierComputation > throttleObject =
-                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getGuidanceInput, throttleObject ) );
-            inputUpdateFunction = boost::bind( &ThrustMultiplierComputation::updateComputation, throttleObject, _1 );
+            thrustInputParameterGuidance =
+                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 1, 0 );
         }
         else if( ( i % numberOfCasesPerSet == 3 ) )
         {
-            thrustDependencies.push_back( propulsion::maximum_thrust_multiplier );
-            thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
-            thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
-
-            boost::shared_ptr< ThrustMultiplierComputation > throttleObject =
-                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getThrustMultiplier, throttleObject ) );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getGuidanceInput, throttleObject ) );
-            inputUpdateFunction = boost::bind( &ThrustMultiplierComputation::updateComputation, throttleObject, _1 );
-        }
-        else if( ( i % numberOfCasesPerSet == 4 ) )
-        {
             thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
             thrustDependencies.push_back( propulsion::maximum_thrust_multiplier );
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
-            boost::shared_ptr< ThrustMultiplierComputation > throttleObject =
-                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getGuidanceInput, throttleObject ) );
-            thrustGuidanceInputVariables.push_back(
-                        boost::bind( &ThrustMultiplierComputation::getThrustMultiplier, throttleObject ) );;
-            inputUpdateFunction = boost::bind( &ThrustMultiplierComputation::updateComputation, throttleObject, _1 );
-        }
+            thrustInputParameterGuidance =
+                    boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 1, 1 );
 
+        }
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
@@ -1276,26 +1258,53 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         double constantSpecificImpulse = 1000.0;
         if( i < numberOfCasesPerSet )
         {
-            accelerationsOfApollo[ "Apollo" ].push_back(
-                        boost::make_shared< ThrustAccelerationSettings >(
-                            boost::make_shared< ThrustDirectionGuidanceSettings >(
-                                thrust_direction_from_existing_body_orientation, "Earth" ),
-                            boost::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                thrustMagnitudeInterpolator, thrustDependencies,
-                                specificImpulseInterpolator, specificImpulseDependencies,
-                                thrustGuidanceInputVariables, std::vector< boost::function< double( ) > >( ),
-                                inputUpdateFunction ) ) );
+            if( !( i % numberOfCasesPerSet == 0 ) )
+            {
+                accelerationsOfApollo[ "Apollo" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                createParameterizedThrustMagnitudeSettings(
+                                    thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
+                                    specificImpulseInterpolator, specificImpulseDependencies ) ) );
+            }
+            else
+            {
+                std::cout<<"T1"<<std::endl;
+                accelerationsOfApollo[ "Apollo" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                boost::make_shared< ParameterizedThrustMagnitudeSettings >(
+                                    thrustMagnitudeInterpolator, thrustDependencies,
+                                    specificImpulseInterpolator, specificImpulseDependencies ) ) );
+            }
+
+
+
         }
         else
         {
-            accelerationsOfApollo[ "Apollo" ].push_back(
-                        boost::make_shared< ThrustAccelerationSettings >(
-                            boost::make_shared< ThrustDirectionGuidanceSettings >(
-                                thrust_direction_from_existing_body_orientation, "Earth" ),
-                            boost::make_shared< ParameterizedThrustMagnitudeSettings >(
-                                thrustMagnitudeInterpolator, thrustDependencies,
-                                constantSpecificImpulse, thrustGuidanceInputVariables,
-                                inputUpdateFunction ) ) );
+            if( !( i % numberOfCasesPerSet == 0 ) )
+            {
+                accelerationsOfApollo[ "Apollo" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                createParameterizedThrustMagnitudeSettings(
+                                    thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
+                                    constantSpecificImpulse ) ) );
+            }
+            else
+            {
+                accelerationsOfApollo[ "Apollo" ].push_back(
+                            boost::make_shared< ThrustAccelerationSettings >(
+                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                                    thrust_direction_from_existing_body_orientation, "Earth" ),
+                                boost::make_shared< ParameterizedThrustMagnitudeSettings >(
+                                    thrustMagnitudeInterpolator, thrustDependencies,
+                                    constantSpecificImpulse ) ) );
+            }
         }
 
 
@@ -1379,9 +1388,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         std::vector< double > currentThrustInput;
         std::vector< double > specificImpulseInput;
 
-        boost::shared_ptr< ThrustMultiplierComputation > throttleObject =
-                boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch );
-
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
         {
@@ -1392,10 +1398,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             currentMachNumber = variableIterator->second( 0 );
             currentThrustForce = variableIterator->second( 3 ) * currentMass;
 
-
             currentMassRate = -variableIterator->second( 4 );
 
-            throttleObject->updateComputation( variableIterator->first );
+            if( !( i % numberOfCasesPerSet == 0 ) )
+            {
+                thrustInputParameterGuidance->update( variableIterator->first );
+            }
             currentThrustInput.clear( );
 
             if( ( i % numberOfCasesPerSet == 0 )  || ( i % numberOfCasesPerSet == 1 ) )
@@ -1404,14 +1412,15 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             }
             else
             {
-                currentThrustInput.push_back( throttleObject->getGuidanceInput( ) );
+                currentThrustInput.push_back( thrustInputParameterGuidance->getThrustInputGuidanceParameter( 0 ) );
             }
             currentThrustInput.push_back( currentDynamicPressure );
 
             expectedThrust = thrustMagnitudeInterpolator->interpolate( currentThrustInput );
             if( ( i % numberOfCasesPerSet == 1 ) || ( i % numberOfCasesPerSet == 3 ) || ( i % numberOfCasesPerSet == 4 ) )
             {
-                expectedThrust *= throttleObject->getThrustMultiplier( );
+                expectedThrust *= thrustInputParameterGuidance->getThrustInputGuidanceParameter(
+                            thrustInputParameterGuidance->getThrottleSettingIndex( ) );
             }
 
             specificImpulseInput.clear( );
@@ -1426,7 +1435,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             {
                 currentSpecificImpulse = specificImpulseInterpolator->interpolate( specificImpulseInput );
             }
-
 
             expectedMassRate = expectedThrust /
                     ( currentSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
