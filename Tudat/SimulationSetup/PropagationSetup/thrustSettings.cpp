@@ -37,7 +37,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
                         propulsion::guidance_input_dependent_thrust );
     int numberOfMaximumThrustMultipliers =
             std::count( thrustDependentVariables_.begin( ), thrustDependentVariables_.end( ),
-                        propulsion::maximum_thrust_multiplier );
+                        propulsion::throttle_dependent_thrust );
 ;
     // Check consistency of user-defined thrust input.
     if( ( numberOfUserSpecifiedThrustInputs + numberOfMaximumThrustMultipliers ) !=
@@ -60,7 +60,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     {
         std::vector< propulsion::ThrustDependentVariables >::iterator findIterator =
                 std::find( thrustDependentVariables_.begin( ), thrustDependentVariables_.end( ),
-                           propulsion::maximum_thrust_multiplier );
+                           propulsion::throttle_dependent_thrust );
         int entryForMaximumThrustMultiplierInIndependentVariables =
                 std::distance( thrustDependentVariables_.begin( ), findIterator );
         int entryForMaximumThrustMultiplierInGuidanceFunctions = 0;
@@ -71,7 +71,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
             {
                 entryForMaximumThrustMultiplierInGuidanceFunctions++;
             }
-            else if( thrustDependentVariables_.at( i ) == propulsion::maximum_thrust_multiplier)
+            else if( thrustDependentVariables_.at( i ) == propulsion::throttle_dependent_thrust)
             {
                 break;
             }
@@ -97,7 +97,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
                             propulsion::guidance_input_dependent_thrust );
         int numberOfMaximumThrustMultipliersForSpecificImpulse =
                 std::count( specificImpulseDependentVariables_.begin( ), specificImpulseDependentVariables_.end( ),
-                            propulsion::maximum_thrust_multiplier );
+                            propulsion::throttle_dependent_thrust );
 
         if( numberOfUserSpecifiedSpecificImpulseInputs !=
                 static_cast< int >( specificImpulseGuidanceInputVariables_.size( ) ) )
@@ -123,6 +123,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     }
 }
 
+//! Function to create thrust magnitude settings from guidance input and tables
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
@@ -130,6 +131,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables )
 {
+    // Create guidance input functions.
     std::vector< boost::function< double( ) > > thrustGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfThrustInputParameters( ); i++ )
     {
@@ -138,6 +140,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
                                  thrustInputParameterGuidance, i ) );
     }
 
+    // Create specific impulse input functions.
     std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfSpecificImpulseInputParameters( ); i++ )
     {
@@ -146,6 +149,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
                                  thrustInputParameterGuidance, i ) );
     }
 
+    // Create thrust magnitude settings object.
     return boost::make_shared< ParameterizedThrustMagnitudeSettings >(
                 thrustMagnitudeInterpolator,
                 thrustDependentVariables,
@@ -156,6 +160,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
                 boost::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
 }
 
+//! Function to create thrust magnitude settings from guidance input and tables
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
@@ -163,7 +168,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::string specificImpulseDataFile,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables )
 {
-
+    // Read thrust files.
     boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator;
     int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
                 thrustMagnitudeDataFile );
@@ -197,7 +202,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
     }
 
 
-
+    // Read specific impulse files.
     boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator;
     int numberOfSpecificImpulseIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
                 specificImpulseDataFile );
@@ -230,17 +235,20 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         throw std::runtime_error( "Error, reading of specific impulse files of mroe than 3 independent variables not yet implemented" );
     }
 
+    // Create thrust magnitude settings object.
     return createParameterizedThrustMagnitudeSettings(
                 thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependentVariables,
                 specificImpulseInterpolator, specificImpulseDependentVariables );
 }
 
+//! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
         const double constantSpecificImpulse )
 {
+    // Create guidance input functions.
     std::vector< boost::function< double( ) > > thrustGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfThrustInputParameters( ); i++ )
     {
@@ -249,14 +257,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
                                  thrustInputParameterGuidance, i ) );
     }
 
-    std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables;
-    for( int i = 0; i < thrustInputParameterGuidance->getNumberOfSpecificImpulseInputParameters( ); i++ )
-    {
-        specificImpulseGuidanceInputVariables.push_back(
-                    boost::bind( &ThrustInputParameterGuidance::getSpecificImpulseInputGuidanceParameter,
-                                 thrustInputParameterGuidance, i ) );
-    }
-
+    // Create thrust magnitude settings object.
     return boost::make_shared< ParameterizedThrustMagnitudeSettings >(
                 thrustMagnitudeInterpolator,
                 thrustDependentVariables,
@@ -265,6 +266,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
                 boost::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
 }
 
+//! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
@@ -274,6 +276,8 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
     boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator;
     int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
                 thrustMagnitudeDataFile );
+
+    // Read thrust files.
     if( numberOfThrustIndependentVariables == 1 )
     {
         std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > thrustData =
@@ -303,6 +307,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         throw std::runtime_error( "Error, reading of thrust magnitude files of mroe than 3 independent variables not yet implemented" );
     }
 
+    // Create thrust magnitude settings object.
     return createParameterizedThrustMagnitudeSettings(
                 thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependentVariables,
                 constantSpecificImpulse );

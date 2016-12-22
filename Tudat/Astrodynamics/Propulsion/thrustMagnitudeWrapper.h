@@ -70,6 +70,13 @@ public:
         resetDerivedClassCurrentTime( currentTime );
     }
 
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities. This function can be redefined in
+     *  derived class
+     *  \param currentTime New current time to be set in model.
+     */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
 
@@ -169,6 +176,13 @@ public:
         }
     }
 
+
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities.
+     *  \param currentTime New current time to be set in model.
+     */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
         if( !( customThrustResetFunction_.empty( ) ) )
@@ -406,6 +420,20 @@ public:
 
             // Compute specific impulse
             currentSpecificImpulse_ = specificImpulseFunction_( currentSpecificImpulseInputVariables_ );
+        }
+    }
+
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities.
+     *  \param currentTime New current time to be set in model.
+     */
+    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        if( !( inputUpdateFunction_.empty( ) ) )
+        {
+            inputUpdateFunction_( currentTime );
         }
     }
 
