@@ -356,6 +356,9 @@ public:
         {
             throw std::runtime_error( "Error when creating ThrustInputParameterGuidance, no throttle input with positive throttle index" );
         }
+
+        currentThrustGuidanceParameters_.resize( numberOfThrustInputParameters_ );
+        currentSpecificImpulseParameters_.resize( numberOfSpecificImpulseInputParameters_ );
     }
 
     virtual ~ThrustInputParameterGuidance( ){ }
@@ -394,13 +397,13 @@ public:
 
     void update( const double time )
     {
-        if( time != time )
+//        if( time != time )
+//        {
+//            currentTime_ = time;
+//        }
+//        else
         {
-            currentTime_ = time;
-        }
-        else
-        {
-            if( !( currentTime_ == time ) )
+            //if( !( currentTime_ == time ) )
             {
                 currentTime_ =  time;
                 updateGuidanceParameters( );
@@ -580,6 +583,18 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
         const std::string specificImpulseDataFile,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double constantSpecificImpulse );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double constantSpecificImpulse );
 
 } // namespace simulation_setup
 
