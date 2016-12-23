@@ -1535,20 +1535,10 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
     specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
-    std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
-            MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Tmax_test.txt" );
-    std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > specificImpulseValues =
-            MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt" );
-
-    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                thrustValues.second, thrustValues.first );
-    boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                specificImpulseValues.second, specificImpulseValues.first );
-
+    std::string thrustFile =
+            tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Tmax_test.txt";
+    std::string specificImpulseFile =
+            tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Isp_test.txt";
 
     accelerationsOfApollo[ "Apollo" ].push_back(
                 boost::make_shared< ThrustAccelerationSettings >(
@@ -1556,8 +1546,8 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
                         thrust_direction_from_existing_body_orientation, "Earth" ),
                     createAccelerationLimitedParameterizedThrustMagnitudeSettings(
                         bodyMap, "Apollo", physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION,
-                        thrustMagnitudeInterpolator, thrustDependencies,
-                        specificImpulseInterpolator, specificImpulseDependencies, "Earth" ) ) );
+                        thrustFile, thrustDependencies,
+                        specificImpulseFile, specificImpulseDependencies, "Earth" ) ) );
 
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
