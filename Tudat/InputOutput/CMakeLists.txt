@@ -164,4 +164,4 @@ target_link_libraries(test_MultiArrayReader tudat_input_output tudat_basic_astro
 
 add_executable(test_AerodynamicCoefficientReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestAerodynamicCoefficientReader.cpp" )
 setup_custom_test_program(test_AerodynamicCoefficientReader "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_AerodynamicCoefficientReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicCoefficientReader tudat_input_output tudat_basic_astrodynamics tudat_basics ${Boost_LIBRARIES})
