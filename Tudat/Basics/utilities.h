@@ -146,6 +146,24 @@ void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToC
 }
 
 
+template< int NumberOfDimensions >
+typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
+        const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
+        const unsigned short int direction)
+{
+    int offset = requestedElement - m.origin( );
+    return( offset / m.strides( )[ direction] % m.shape( )[ direction ] +  m.index_bases( )[direction] );
+}
+
+boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 1 >& m, const double* requestedElement );
+
+boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 2 >& m, const double* requestedElement );
+
+boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 3 >& m, const double* requestedElement );
+
 } // namespace utilities
 
 } // namespace tudat
