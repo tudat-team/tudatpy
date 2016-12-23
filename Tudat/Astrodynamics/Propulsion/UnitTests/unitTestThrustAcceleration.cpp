@@ -1217,7 +1217,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         {
             thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
-            thrustDependencies.push_back( propulsion::maximum_thrust_multiplier );
+            thrustDependencies.push_back( propulsion::throttle_dependent_thrust );
 
              thrustInputParameterGuidance =
                     boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 0, 1 );
@@ -1233,7 +1233,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         else if( ( i % numberOfCasesPerSet == 3 ) )
         {
             thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
-            thrustDependencies.push_back( propulsion::maximum_thrust_multiplier );
+            thrustDependencies.push_back( propulsion::throttle_dependent_thrust );
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
             thrustInputParameterGuidance =

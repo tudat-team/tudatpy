@@ -313,7 +313,7 @@ enum ThrustDependentVariables
     dynamic_pressure_dependent_thrust,
     pressure_dependent_thrust,
     guidance_input_dependent_thrust,
-    maximum_thrust_multiplier
+    throttle_dependent_thrust
 };
 
 //! Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
@@ -324,7 +324,7 @@ enum ThrustDependentVariables
  *  ThrustDependentVariables enum, and they are automatically retrieved from the relevant environment models during the
  *  propagation.
  *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
- *  maximum_thrust_multiplier. Note that a maximum_thrust_multiplier may not be used as one of the independent variables
+ *  throttle_dependent_thrust. Note that a throttle_dependent_thrust may not be used as one of the independent variables
  *  of the thrust magnitude for this class. This setting is parsed through the ParameterizedThrustMagnitudeSettings
  *  class, which is the class that is typically used to create this class.
  */
