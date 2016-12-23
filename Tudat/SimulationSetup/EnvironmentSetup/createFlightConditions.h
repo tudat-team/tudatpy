@@ -29,8 +29,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
-
 //! Function to create a flight conditions object
 /*!
  * Function to create a flight conditions object, which is responsible for calculating the various
