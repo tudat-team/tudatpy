@@ -21,55 +21,6 @@ namespace tudat
 namespace input_output
 {
 
-template< int NumberOfDimensions >
-typename boost::multi_array< double ,NumberOfDimensions >::index getIndex(
-        const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
-        const unsigned short int direction)
-{
-    int offset = requestedElement - m.origin( );
-    return( offset / m.strides( )[ direction] % m.shape( )[ direction ] +  m.index_bases( )[direction] );
-}
-
-inline boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 1 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 1 > NMultiArray;
-    boost::array< NMultiArray::index, 1 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 1; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 1 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-inline boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 2 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 2 > NMultiArray;
-    boost::array< NMultiArray::index, 2 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 2; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 2 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-inline boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 3 >& m, const double* requestedElement )
-{
-    typedef boost::multi_array< double, 3 > NMultiArray;
-    boost::array< NMultiArray::index, 3 >  currentIndices;
-    for ( unsigned int dir = 0; dir < 3; dir++ )
-    {
-        currentIndices[ dir ] = getIndex< 3 >( m, requestedElement, dir );
-    }
-
-    return currentIndices;
-}
-
-
 //! Function to merge three double multi-arrays of N dimension into a single Vector3d multi-array
 /*!
  *  Function to merge three double multi-arrays of N dimension into a single Vector3d multi-array, where the three
@@ -117,7 +68,7 @@ boost::multi_array< Eigen::Vector3d, NumberOfDimensions > mergeNDimensionalCoeff
     tIndexArray index;
     for( unsigned int i = 0; i < numberOfEntries; i++ )
     {
-        index = getMultiArrayIndexArray( xComponents, p );
+        index = utilities::getMultiArrayIndexArray( xComponents, p );
 
         vectorVector[ i ] = ( Eigen::Vector3d( )<<xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
         ++p;
