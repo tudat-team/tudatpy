@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -37,6 +38,24 @@ enum ThrustDirectionGuidanceTypes
     custom_thrust_orientation
 
 };
+
+//! Function to create a list of functions that (compute and) return independent variables for thrust
+/*!
+ * Function to create a list of functions that (compute and) return independent variables for thrust and/or specific impulse.
+ * This parameterization is used in the thrust mangitude type is thrust_magnitude_from_dependent_variables. This function
+ * retrieves all input functions from the environment and a list of user-defined functions.
+ * \param bodyWithGuidance Name of body for which the propulsion settings are to be retrieved.
+ * \param independentVariables List of variables for which function returning them are to be created. Note that the number
+ * of guidance_input_dependent_thrust entries must be equal to the size of guidanceInputFunctions. No entries of type
+ * throttle_dependent_thrust are allowed.
+ * \param guidanceInputFunctions Functions returning user-defined variables on which the thrust/specific impulse depends
+ * \return List of functions that (compute and) return independent variables for thrust
+ */
+std::vector< boost::function< double( ) > > getPropulsionInputVariables(
+        const boost::shared_ptr< Body > bodyWithGuidance,
+        const std::vector< propulsion::ThrustDependentVariables > independentVariables,
+        const std::vector< boost::function< double( ) > > guidanceInputFunctions =
+         std::vector< boost::function< double( ) > >( ) );
 
 //! Class defining settings for the thrust direction
 /*!
@@ -498,6 +517,90 @@ protected:
 
 };
 
+class AccelerationLimitedThrottleGuidance: public ThrustInputParameterGuidance
+{
+public:
+    AccelerationLimitedThrottleGuidance(
+            const NamedBodyMap& bodyMap,
+            const std::string nameOfBodyWithGuidance,
+            const std::string nameOfCentralBody,
+            const std::vector< propulsion::ThrustDependentVariables > independentVariables,
+            const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustInterpolator,
+            const double maximumAcceleration ): ThrustInputParameterGuidance( 1, 0, true, 0 ),
+        bodyWithGuidance_( bodyMap.at( nameOfBodyWithGuidance ) ), thrustInterpolator_( thrustInterpolator ),
+        maximumAcceleration_( maximumAcceleration )
+    {
+        int numberOfThrottles = 0;
+        std::vector< propulsion::ThrustDependentVariables > guidanceFreeIndependentVariables;
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        {
+            if( independentVariables.at( i ) == propulsion::throttle_dependent_thrust )
+            {
+                numberOfThrottles ++;
+            }
+            else if( independentVariables.at( i ) == propulsion::guidance_input_dependent_thrust )
+            {
+                throw std::runtime_error( "Error in AccelerationLimitedThrottleGuidance, guidance input not supported" );
+            }
+            else
+            {
+                guidanceFreeIndependentVariables.push_back( independentVariables.at( i ) );
+            }
+        }
+
+        if( numberOfThrottles > 1 )
+        {
+            throw std::runtime_error( "Error in AccelerationLimitedThrottleGuidance, multiple throttles detected" );
+        }
+
+        if( bodyWithGuidance_->getFlightConditions( ) == NULL && nameOfCentralBody != "" )
+        {
+            bodyWithGuidance_->setFlightConditions(
+                        createFlightConditions( bodyWithGuidance_,
+                                                bodyMap.at( nameOfCentralBody ),
+                                                nameOfBodyWithGuidance,
+                                                nameOfCentralBody ) );
+        }
+
+        thrustInputFunctions_ = getPropulsionInputVariables(
+                    bodyWithGuidance_, guidanceFreeIndependentVariables );
+        currentThrustInput_.resize( thrustInputFunctions_.size( ) );
+    }
+
+    void updateGuidanceParameters( )
+    {
+        for( unsigned int i = 0; i < thrustInputFunctions_.size( ); i++ )
+        {
+            currentThrustInput_[ i ] = thrustInputFunctions_.at( i )( );
+        }
+
+        double currentThrust = thrustInterpolator_->interpolate( currentThrustInput_ );
+        double currentMass = bodyWithGuidance_->getBodyMass( );
+
+        if( currentThrust / currentMass < maximumAcceleration_ )
+        {
+            currentThrustGuidanceParameters_[ 0 ] = 1.0;
+        }
+        else
+        {
+            currentThrustGuidanceParameters_[ 0 ] = maximumAcceleration_ * currentMass / currentThrust;
+        }
+    }
+
+private:
+
+    boost::shared_ptr< simulation_setup::Body > bodyWithGuidance_;
+
+    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustInterpolator_;
+
+    double maximumAcceleration_;
+
+    std::vector< boost::function< double( ) > >  thrustInputFunctions_;
+
+    std::vector< double >  currentThrustInput_;
+
+};
+
 //! Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
 /*!
  *  Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables.
@@ -639,6 +742,9 @@ private:
             const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator );
 };
 
+boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficientInterpolatorFromFile(
+        const std::string coefficientFile );
+
 //! Function to create thrust magnitude settings from guidance input and tables
 /*!
  * Function to create thrust magnitude settings from guidance input and tables
@@ -721,6 +827,45 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::string thrustMagnitudeDataFile,
         const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
         const double constantSpecificImpulse );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double specificImpulse,
+        const std::string nameOfCentralBody = "" );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double specificImpulse,
+        const std::string nameOfCentralBody = "" );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+        const std::string nameOfCentralBody = "" );
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const std::string specificImpulseDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+        const std::string nameOfCentralBody = "" );
+
 
 } // namespace simulation_setup
 

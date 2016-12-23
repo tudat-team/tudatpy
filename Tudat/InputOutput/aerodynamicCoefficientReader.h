@@ -30,13 +30,13 @@ namespace input_output
  *  \param zComponents Multi-array containing the z-components of the Vector3d
  *  \return Single multi-array containing Vector3ds according to double multi-arrays.
  */
-template< int NumberOfDimensions >
-boost::multi_array< Eigen::Vector3d, NumberOfDimensions > mergeNDimensionalCoefficients(
-        boost::multi_array< double, NumberOfDimensions > xComponents,
-        boost::multi_array< double, NumberOfDimensions > yComponents,
-        boost::multi_array< double, NumberOfDimensions > zComponents )
+template< unsigned int NumberOfDimensions >
+boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > mergeNDimensionalCoefficients(
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > xComponents,
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > yComponents,
+        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > zComponents )
 {
-    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > vectorArray;
+    boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > vectorArray;
 
     // Check input consistency
     for( unsigned int i = 0; i < NumberOfDimensions; i++ )
@@ -101,8 +101,9 @@ bool compareIndependentVariables( const std::vector< std::vector< double > >& li
  *  \return  Pair: first entry containing multi-array of aerodynamic coefficients, second containing list of independent
  *  variables at which coefficients are defined.
  */
-template< int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, NumberOfDimensions >, std::vector< std::vector< double > > >
+template< unsigned int NumberOfDimensions >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
 {
     if( fileNames.size( ) != 3 )
@@ -119,20 +120,22 @@ readAerodynamicCoefficients( const std::vector< std::string >& fileNames )
     return readAerodynamicCoefficients< NumberOfDimensions >( fileNameMap );
 }
 
-template< int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, NumberOfDimensions >, std::vector< std::vector< double > > >
+template< unsigned int NumberOfDimensions >
+std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+std::vector< std::vector< double > > >
 readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 {
     // Read data from files.
-    std::map< int, boost::multi_array< double, NumberOfDimensions > > rawCoefficientArrays;
+    std::map< int, boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > rawCoefficientArrays;
 
-    std::vector< boost::multi_array< double, NumberOfDimensions > > coefficientArrays;
+    std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > coefficientArrays;
     std::vector< std::vector< double > > independentVariables;
 
     for( std::map< int, std::string >::const_iterator fileIterator = fileNames.begin( ); fileIterator != fileNames.end( );
          fileIterator++ )
     {
-        std::pair< boost::multi_array< double, NumberOfDimensions >, std::vector< std::vector< double > > > currentCoefficients =
+        std::pair< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) >,
+                std::vector< std::vector< double > > > currentCoefficients =
                 MultiArrayFileReader< NumberOfDimensions >::readMultiArrayAndIndependentVariables( fileIterator->second );
         if( rawCoefficientArrays.size( ) == 0 )
         {
@@ -161,7 +164,8 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     else
     {
         coefficientArrays.resize( 3 );
-        boost::multi_array< double, NumberOfDimensions > firstMultiArray = rawCoefficientArrays.begin( )->second;
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
+                rawCoefficientArrays.begin( )->second;
 
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -178,7 +182,8 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 
                 coefficientArrays[ i ].resize( sizeVector );
 
-                std::fill( coefficientArrays[ i ].data( ), coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
+                std::fill( coefficientArrays[ i ].data( ),
+                           coefficientArrays[ i ].data() + coefficientArrays[ i ].num_elements( ), 0.0 );
             }
         }
     }

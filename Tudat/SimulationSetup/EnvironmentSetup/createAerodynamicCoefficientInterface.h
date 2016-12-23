@@ -149,7 +149,8 @@ public:
         return areCoefficientsInNegativeAxisDirection_;
     }
 
-    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > > getControlSurfaceSettings( )
+    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
+    getControlSurfaceSettings( )
     {
         return controlSurfaceSettings_;
     }
@@ -211,7 +212,8 @@ private:
      */
     bool areCoefficientsInNegativeAxisDirection_;
 
-    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > > controlSurfaceSettings_;
+    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
+    controlSurfaceSettings_;
 };
 
 //! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
@@ -322,7 +324,7 @@ private:
  *  The user must provide the force (and moment) coefficients in boost multi_arrays, and
  *  define the physical meaning of each of the independent variables.
  */
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 class TabulatedAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
 public:
@@ -355,8 +357,8 @@ public:
      */
     TabulatedAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
-            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
-            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
+            const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
+            const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients,
             const double referenceLength,
             const double referenceArea,
             const double lateralReferenceLength,
@@ -395,7 +397,7 @@ public:
      */
     TabulatedAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
-            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
+            const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
             const double referenceArea,
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
@@ -414,7 +416,8 @@ public:
 
         momentCoefficients_.resize( sizeVector );
 
-        std::fill( momentCoefficients_.data( ), momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
+        std::fill( momentCoefficients_.data( ),
+                   momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
     }
 
     ~TabulatedAerodynamicCoefficientSettings( ){ }
@@ -434,7 +437,7 @@ public:
      * Function to return values of force coefficients in table.
      * \return Values of force coefficients in table.
      */
-    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getForceCoefficients( )
+    boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > getForceCoefficients( )
     {
         return forceCoefficients_;
     }
@@ -444,7 +447,7 @@ public:
      * Function to return values of moment coefficients in table.
      * \return Values of moment coefficients in table.
      */
-    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getMomentCoefficients( )
+    boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > getMomentCoefficients( )
     {
         return momentCoefficients_;
     }
@@ -767,7 +770,7 @@ private:
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
  */
-template< int NumberOfIndependentVariables >
+template< unsigned int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
@@ -780,10 +783,14 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
-    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicForceCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
-    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicMomentCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( momentCoefficientFiles );
+    std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfIndependentVariables ) >,
+            std::vector< std::vector< double > > >
+            aerodynamicForceCoefficients =
+            input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
+    std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfIndependentVariables ) >,
+            std::vector< std::vector< double > > >
+            aerodynamicMomentCoefficients =
+            input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( momentCoefficientFiles );
 
     if( !input_output::compareIndependentVariables(
                 aerodynamicForceCoefficients.second, aerodynamicMomentCoefficients.second ) )
@@ -822,7 +829,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
  */
-template< int NumberOfIndependentVariables >
+template< unsigned int NumberOfIndependentVariables >
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
@@ -831,8 +838,10 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
-    std::pair< boost::multi_array< Eigen::Vector3d, NumberOfIndependentVariables >, std::vector< std::vector< double > > >
-            aerodynamicCoefficients = input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
+    std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfIndependentVariables ) >,
+            std::vector< std::vector< double > > >
+            aerodynamicCoefficients =
+            input_output::readAerodynamicCoefficients< NumberOfIndependentVariables >( forceCoefficientFiles );
 
     // Check input consistency
     if( independentVariableNames.size( ) != NumberOfIndependentVariables )
@@ -968,12 +977,12 @@ createConstantCoefficientAerodynamicCoefficientInterface(
  *  coefficients are typically defined in negative direction.
  *  \return Tabulated aerodynamic coefficient interface pointer.
  */
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createTabulatedCoefficientAerodynamicCoefficientInterface(
         const std::vector< std::vector< double > > independentVariables,
-        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
-        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
+        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
+        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
         independentVariableNames,
         const double referenceLength,
@@ -1044,7 +1053,7 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
  *  \param body Name of body for which coefficient interface is to be made.
  *  \return Tabulated aerodynamic coefficient interface pointer.
  */
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createTabulatedCoefficientAerodynamicCoefficientInterface(
         const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,

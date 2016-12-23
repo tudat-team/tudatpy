@@ -268,6 +268,7 @@ createAerodynamicCoefficientInterface(
         throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
 
+    // Create and set control surfaces
     if( coefficientSettings->getControlSurfaceSettings( ).size( ) != 0 )
     {
         std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >

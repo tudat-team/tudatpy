@@ -52,23 +52,6 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         const NamedBodyMap& bodyMap,
         const std::string bodyName );
 
-//! Function to create a list of functions that (compute and) return independent variables for thrust
-/*!
- * Function to create a list of functions that (compute and) return independent variables for thrust and/or specific impulse.
- * This parameterization is used in the thrust mangitude type is thrust_magnitude_from_dependent_variables. This function
- * retrieves all input functions from the environment and a list of user-defined functions.
- * \param bodyWithGuidance Name of body for which the propulsion settings are to be retrieved.
- * \param independentVariables List of variables for which function returning them are to be created. Note that the number
- * of guidance_input_dependent_thrust entries must be equal to the size of guidanceInputFunctions. No entries of type
- * maximum_thrust_multiplier are allowed.
- * \param guidanceInputFunctions Functions returning user-defined variables on which the thrust/specific impulse depends
- * \return List of functions that (compute and) return independent variables for thrust
- */
-std::vector< boost::function< double( ) > > getPropulsionInputVariables(
-        const boost::shared_ptr< Body > bodyWithGuidance,
-        const std::vector< propulsion::ThrustDependentVariables > independentVariables,
-        const std::vector< boost::function< double( ) > > guidanceInputFunctions );
-
 //! Function to create a wrapper object that computes the thrust magnitude
 /*!
  * Function to create a wrapper object that computes the thrust magnitude
