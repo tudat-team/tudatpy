@@ -344,7 +344,7 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
             inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
             numberOfCustomInputs++;
             break;
-        case propulsion::maximum_thrust_multiplier:
+        case propulsion::throttle_dependent_thrust:
             if( guidanceInputFunctions.size( ) >= numberOfCustomInputs )
             {
                 throw std::runtime_error( "Error when creating propulsion indput dependent variables, insufficient user-defined inputs found" );
