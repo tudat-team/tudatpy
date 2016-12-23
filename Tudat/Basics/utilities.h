@@ -146,7 +146,7 @@ void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToC
 }
 
 
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
         const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
         const unsigned short int direction)

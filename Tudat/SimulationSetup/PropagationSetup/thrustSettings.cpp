@@ -18,6 +18,70 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create a list of functions that (compute and) return independent variables for thrust
+std::vector< boost::function< double( ) > > getPropulsionInputVariables(
+        const boost::shared_ptr< Body > bodyWithGuidance,
+        const std::vector< propulsion::ThrustDependentVariables > independentVariables,
+        const std::vector< boost::function< double( ) > > guidanceInputFunctions )
+{
+    std::vector< boost::function< double( ) > > inputFunctions;
+    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
+            bodyWithGuidance->getFlightConditions( );
+
+    // Iterate over all dependent variables and create requested function.
+    unsigned int numberOfCustomInputs = 0;
+    for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+    {
+        switch( independentVariables.at( i ) )
+        {
+        case propulsion::altitude_dependent_thrust:
+            inputFunctions.push_back(
+                        boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
+            break;
+        case propulsion::density_dependent_thrust:
+            inputFunctions.push_back(
+                        boost::bind( &aerodynamics::FlightConditions::getCurrentDensity, vehicleFlightConditions ) );
+            break;
+        case propulsion::dynamic_pressure_dependent_thrust:
+            inputFunctions.push_back(
+                        boost::bind( &aerodynamics::FlightConditions::getCurrentDynamicPressure, vehicleFlightConditions ) );
+            break;
+        case propulsion::mach_number_dependent_thrust:
+            inputFunctions.push_back(
+                        boost::bind( &aerodynamics::FlightConditions::getCurrentMachNumber, vehicleFlightConditions ) );
+            break;
+        case propulsion::pressure_dependent_thrust:
+            inputFunctions.push_back(
+                        boost::bind( &aerodynamics::FlightConditions::getCurrentPressure, vehicleFlightConditions ) );
+            break;
+        case propulsion::guidance_input_dependent_thrust:
+            inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
+            numberOfCustomInputs++;
+            break;
+        case propulsion::throttle_dependent_thrust:
+            if( guidanceInputFunctions.size( ) >= numberOfCustomInputs )
+            {
+                throw std::runtime_error( "Error when creating propulsion indput dependent variables, insufficient user-defined inputs found" );
+            }
+            inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
+            numberOfCustomInputs++;
+            break;
+        default:
+            throw std::runtime_error( "Error when getting parameterized thrust input variables, variable " +
+                                      boost::lexical_cast< std::string >( independentVariables.at( i ) ) + "not found" );
+        }
+    }
+
+    // Check input consistency
+    if( numberOfCustomInputs != guidanceInputFunctions.size( ) )
+    {
+        std::cerr<<"Warning when creating propulsion indput dependent variables, not all user-defined inputs have been parsed"<<std::endl;
+    }
+
+    return inputFunctions;
+}
+
+
 //! Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
 double multiplyMaximumThrustByScalingFactor(
         const boost::function< double( const std::vector< double >& ) > maximumThrustFunction,
@@ -45,11 +109,13 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     {
         throw std::runtime_error( "Error in parameterized thrust settings, inconsistent number of user-defined input variables for thrust" );
     }
+
     if( thrustMagnitudeInterpolator->getNumberOfDimensions( ) !=
             ( static_cast< int >( thrustDependentVariables_.size( ) ) - numberOfMaximumThrustMultipliers ) )
     {
         throw std::runtime_error( "Error in parameterized thrust settings, thrust interpolator size has inconsistent size" );
     }
+
     if( numberOfMaximumThrustMultipliers > 1 )
     {
         throw std::runtime_error( "Error  in parameterized thrust settings, only 1 maximum thrust multiplier may be defined." );
@@ -123,6 +189,43 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
     }
 }
 
+boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficientInterpolatorFromFile(
+        const std::string coefficientFile )
+{
+    boost::shared_ptr< interpolators::Interpolator< double, double > > coefficientInterpolator;
+    int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
+                coefficientFile );
+    if( numberOfThrustIndependentVariables == 1 )
+    {
+        std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > coefficientData =
+                input_output::MultiArrayFileReader< 1 >::readMultiArrayAndIndependentVariables(
+                    coefficientFile );
+        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+                    coefficientData.second, coefficientData.first );
+    }
+    else if( numberOfThrustIndependentVariables == 2 )
+    {
+        std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > coefficientData =
+                input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
+                    coefficientFile );
+        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+                    coefficientData.second, coefficientData.first );
+    }
+    else if( numberOfThrustIndependentVariables == 3 )
+    {
+        std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > coefficientData =
+                input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
+                    coefficientFile );
+        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
+                    coefficientData.second, coefficientData.first );
+    }
+    else
+    {
+        throw std::runtime_error( "Error, reading of thrust magnitude files of mroe than 3 independent variables not yet implemented" );
+    }
+    return coefficientInterpolator;
+}
+
 //! Function to create thrust magnitude settings from guidance input and tables
 boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
         const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
@@ -168,77 +271,11 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::string specificImpulseDataFile,
         const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables )
 {
-    // Read thrust files.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator;
-    int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
-                thrustMagnitudeDataFile );
-    if( numberOfThrustIndependentVariables == 1 )
-    {
-        std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 1 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else if( numberOfThrustIndependentVariables == 2 )
-    {
-        std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else if( numberOfThrustIndependentVariables == 3 )
-    {
-        std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else
-    {
-        throw std::runtime_error( "Error, reading of thrust magnitude files of mroe than 3 independent variables not yet implemented" );
-    }
-
-
-    // Read specific impulse files.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator;
-    int numberOfSpecificImpulseIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
-                specificImpulseDataFile );
-    if( numberOfSpecificImpulseIndependentVariables == 1 )
-    {
-        std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > specificImpulseData =
-                input_output::MultiArrayFileReader< 1 >::readMultiArrayAndIndependentVariables(
-                    specificImpulseDataFile );
-        specificImpulseInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
-                    specificImpulseData.second, specificImpulseData.first );
-    }
-    else if( numberOfSpecificImpulseIndependentVariables == 2 )
-    {
-        std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > specificImpulseData =
-                input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    specificImpulseDataFile );
-        specificImpulseInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                    specificImpulseData.second, specificImpulseData.first );
-    }
-    else if( numberOfSpecificImpulseIndependentVariables == 3 )
-    {
-        std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > specificImpulseData =
-                input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
-                    specificImpulseDataFile );
-        specificImpulseInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
-                    specificImpulseData.second, specificImpulseData.first );
-    }
-    else
-    {
-        throw std::runtime_error( "Error, reading of specific impulse files of mroe than 3 independent variables not yet implemented" );
-    }
-
     // Create thrust magnitude settings object.
     return createParameterizedThrustMagnitudeSettings(
-                thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependentVariables,
-                specificImpulseInterpolator, specificImpulseDependentVariables );
+                thrustInputParameterGuidance, readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile) ,
+                thrustDependentVariables, readCoefficientInterpolatorFromFile( specificImpulseDataFile ),
+                specificImpulseDependentVariables );
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
@@ -273,46 +310,81 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
         const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
         const double constantSpecificImpulse )
 {
-    boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator;
-    int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
-                thrustMagnitudeDataFile );
-
-    // Read thrust files.
-    if( numberOfThrustIndependentVariables == 1 )
-    {
-        std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 1 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else if( numberOfThrustIndependentVariables == 2 )
-    {
-        std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else if( numberOfThrustIndependentVariables == 3 )
-    {
-        std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > thrustData =
-                input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
-                    thrustMagnitudeDataFile );
-        thrustMagnitudeInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
-                    thrustData.second, thrustData.first );
-    }
-    else
-    {
-        throw std::runtime_error( "Error, reading of thrust magnitude files of mroe than 3 independent variables not yet implemented" );
-    }
-
     // Create thrust magnitude settings object.
     return createParameterizedThrustMagnitudeSettings(
-                thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependentVariables,
+                thrustInputParameterGuidance, readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile ),
+                thrustDependentVariables,
                 constantSpecificImpulse );
 }
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double specificImpulse,
+        const std::string nameOfCentralBody )
+{
 
+    boost::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
+            boost::make_shared< AccelerationLimitedThrottleGuidance >( bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustDependentVariables,
+               thrustMagnitudeInterpolator, maximumAcceleration );
+    return createParameterizedThrustMagnitudeSettings(
+                thrustGuidance, thrustMagnitudeInterpolator, thrustDependentVariables, specificImpulse );
+}
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const double specificImpulse,
+        const std::string nameOfCentralBody )
+{
+    return createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+                bodyMap, nameOfBodyWithGuidance, maximumAcceleration,
+                readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile ),
+                thrustDependentVariables, specificImpulse, nameOfCentralBody );
+}
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+        const std::string nameOfCentralBody )
+{
+
+    boost::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
+            boost::make_shared< AccelerationLimitedThrottleGuidance >(
+                bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustDependentVariables,
+               thrustMagnitudeInterpolator, maximumAcceleration );
+    return createParameterizedThrustMagnitudeSettings(
+                thrustGuidance, thrustMagnitudeInterpolator, thrustDependentVariables,
+                specificImpulseInterpolator, specificImpulseDependentVariables );
+}
+
+boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+        const NamedBodyMap& bodyMap,
+        const std::string nameOfBodyWithGuidance,
+        const double maximumAcceleration,
+        const std::string thrustMagnitudeDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
+        const std::string specificImpulseDataFile,
+        const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+        const std::string nameOfCentralBody  )
+{
+    return createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+                bodyMap, nameOfBodyWithGuidance, maximumAcceleration,
+                readCoefficientInterpolatorFromFile( thrustMagnitudeDataFile ),
+                thrustDependentVariables,
+                readCoefficientInterpolatorFromFile( specificImpulseDataFile ),
+                specificImpulseDependentVariables, nameOfCentralBody );
+}
 
 
 } // namespace simulation_setup
