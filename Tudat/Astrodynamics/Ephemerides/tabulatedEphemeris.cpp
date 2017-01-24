@@ -15,62 +15,125 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Get cartesian state from ephemeris (in double precision), for double class StateScalarType
+//! Get cartesian state from ephemeris (in double precision), for double StateScalarType
 template< >
-basic_mathematics::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState(
+        const double ephemerisTime)
 {
-    if( julianDayAtEpoch != julianDayAtEpoch_ )
-    {
-        throw std::runtime_error(
-                    "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-    }
-
     return interpolator_->interpolate( ephemerisTime );
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for double class StateScalarType
+//! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
 template< >
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongState(
+        const double secondsSinceEpoch )
 {
-    if( julianDayAtEpoch != julianDayAtEpoch_ )
-    {
-        throw std::runtime_error(
-                    "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-    }
-
     return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
 }
 
-
-//! Get cartesian state from ephemeris (in double precision), for long double class StateScalarType
+//! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
 template< >
-basic_mathematics::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianStateFromExtendedTime(
+        const Time& time )
 {
-    if( julianDayAtEpoch != julianDayAtEpoch_ )
-    {
-        throw std::runtime_error(
-                    "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-    }
+    return interpolator_->interpolate( time.getSeconds< double >( ) );
+}
 
+//! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
+}
+
+
+
+
+
+//! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
+template< >
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianState(
+        const double ephemerisTime )
+{
     return interpolator_->interpolate( ephemerisTime ).cast< double >( );
 }
 
-//! Get cartesian state from ephemeris (in long double precision), for long double class StateScalarType
+//! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
 template< >
-Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongStateFromEphemeris(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongState(
+        const double secondsSinceEpoch )
 {
-    if( julianDayAtEpoch != julianDayAtEpoch_ )
-    {
-        throw std::runtime_error(
-                    "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-    }
-
     return interpolator_->interpolate( secondsSinceEpoch );
 }
+
+//! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
+template< >
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesianStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< double >( );
+}
+
+//! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, double >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time.getSeconds< double >( ) );
+}
+
+
+
+
+
+
+//! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
+template< >
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianState(
+        const double ephemerisTime )
+{
+    return interpolator_->interpolate( Time( ephemerisTime ) ).cast< double >( );
+}
+
+//! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongState(
+        const double secondsSinceEpoch )
+{
+    return interpolator_->interpolate( Time( secondsSinceEpoch ) );
+}
+
+//! Get cartesian state from ephemeris (in double precision from Time input).
+template< >
+basic_mathematics::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time ).cast< double >( );
+}
+
+//! Get cartesian state from ephemeris (in long double precision from Time input).
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Time >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time );
+}
+
+
+bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris )
+{
+    bool objectIsTabulated = 0;
+    if( ( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != NULL ) ||
+            ( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != NULL ) ||
+            ( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != NULL ) ||
+            ( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != NULL ) )
+    {
+        objectIsTabulated = 1;
+    }
+    return objectIsTabulated;
+}
+
 
 
 } // namespace ephemerides

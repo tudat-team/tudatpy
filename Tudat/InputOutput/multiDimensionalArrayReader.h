@@ -62,9 +62,9 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
  * Function to read a coefficient file (data on a structured grid as a function of N independent variables). This function
  * reads the file as raw data, converting teh data into a multi-array of the correct size can be done using the
  * MultiArrayFileReader class if needed. The file format is defined in the Tudat wiki.
- * \param fileName
- * \param independentVariables
- * \param coefficientBlock
+ * \param fileName Name of file containing coefficients,
+ * \param independentVariables Independent variables of coefficients, as read from file (returned by reference)
+ * \param coefficientBlock Block of coefficients, as read from file (returned by reference)
  */
 void readCoefficientsFile(
         const std::string fileName,

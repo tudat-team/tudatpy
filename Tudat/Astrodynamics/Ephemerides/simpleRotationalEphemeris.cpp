@@ -46,15 +46,10 @@ namespace ephemerides
 
 //! Get rotation quaternion to target frame from base frame.
 Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+        const double secondsSinceEpoch )
 {
     // Determine number of seconds since initial rotational state, as set by constructor.
     double inputSecondsSinceEpoch = secondsSinceEpoch;
-    if ( julianDayAtEpoch != inputReferenceJulianDay_ )
-    {
-        inputSecondsSinceEpoch -= ( inputReferenceJulianDay_ - julianDayAtEpoch )
-                * physical_constants::JULIAN_DAY;
-    }
 
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
@@ -68,15 +63,10 @@ Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
 
 //! Function to calculate the derivative of the rotation matrix from target frame to original frame.
 Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
-        const double secondsSinceEpoch, const double julianDayAtEpoch )
+        const double secondsSinceEpoch )
 {
     // Determine number of seconds since initial rotational state, as set by constructor.
     double inputSecondsSinceEpoch = secondsSinceEpoch;
-    if ( julianDayAtEpoch != inputReferenceJulianDay_ )
-    {
-        inputSecondsSinceEpoch -= ( inputReferenceJulianDay_ - julianDayAtEpoch )
-                * physical_constants::JULIAN_DAY;
-    }
 
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
@@ -90,8 +80,8 @@ Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
 }
 
 //! Function to reset the right ascension and declination of body's north pole.
-void SimpleRotationalEphemeris::resetInitialPoleRightAscensionAndDeclination( const double rightAscension,
-                                                   const double declination )
+void SimpleRotationalEphemeris::resetInitialPoleRightAscensionAndDeclination(
+        const double rightAscension, const double declination )
 {
     // Recalculate initial rotation quaternion
     initialRotationToTargetFrame_ =

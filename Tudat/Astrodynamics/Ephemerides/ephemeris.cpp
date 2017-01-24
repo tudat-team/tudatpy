@@ -18,14 +18,28 @@ namespace ephemerides
 template<  >
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    return getCartesianState( time );
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization).
 template<  >
 Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    return getCartesianLongState( time );
+}
+
+//! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
+template<  >
+Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianStateFromExtendedTime( time );
+}
+
+//! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
+template<  >
+Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianLongStateFromExtendedTime( time );
 }
 
 //! Function to compute the relative state from two state functions.

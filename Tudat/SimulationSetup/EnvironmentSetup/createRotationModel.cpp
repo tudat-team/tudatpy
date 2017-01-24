@@ -53,7 +53,6 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         simpleRotationSettings->getInitialOrientation( ),
                         simpleRotationSettings->getRotationRate( ),
                         simpleRotationSettings->getInitialTime( ),
-                        basic_astrodynamics::JULIAN_DAY_ON_J2000,
                         simpleRotationSettings->getOriginalFrame( ),
                         simpleRotationSettings->getTargetFrame( ) );
         }

@@ -509,7 +509,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 {
     setAerodynamicDependentOrientationCalculatorClosure(
                 boost::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                             rotationalEphemeris, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+                             rotationalEphemeris, _1 ),
                 aerodynamicAngleCalculator );
 }
 
