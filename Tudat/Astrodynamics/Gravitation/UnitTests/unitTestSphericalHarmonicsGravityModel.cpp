@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
                 -2.095860391422327e-9, -6.479563983539470e-10, -1.254667924094711e-9 );
 
     // Check if expected result matches computed result.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, acceleration, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, acceleration, 2.0e-15 );
 }
 
 // Check single harmonics term of degree = 2 and order = 2.

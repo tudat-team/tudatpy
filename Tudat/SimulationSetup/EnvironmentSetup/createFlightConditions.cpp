@@ -8,6 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <iomanip>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
@@ -20,167 +31,6 @@ namespace tudat
 
 namespace simulation_setup
 {
-
-//! Function to create an aerodynamic coefficient interface containing constant coefficients.
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createConstantCoefficientAerodynamicCoefficientInterface(
-        const Eigen::Vector3d constantForceCoefficient,
-        const Eigen::Vector3d constantMomentCoefficient,
-        const double referenceLength,
-        const double referenceArea,
-        const double lateralReferenceLength,
-        const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection  )
-{
-    // Create coefficient interface
-    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
-            boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                boost::lambda::constant( constantForceCoefficient ),
-                boost::lambda::constant( constantMomentCoefficient ),
-                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
-                std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
-    coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
-
-    return coefficientInterface;
-}
-
-//! Factory function for tabulated (1-D independent variables) aerodynamic coefficient interface from coefficient settings.
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
-        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
-        const std::string& body )
-{
-    // Check consistency of type.
-    boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulatedCoefficientSettings =
-            boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >(
-                coefficientSettings );
-    if( tabulatedCoefficientSettings == NULL )
-    {
-        throw std::runtime_error(
-                    "Error, expected tabulated aerodynamic coefficients of size " +
-                    boost::lexical_cast<  std::string >( 1 ) + "for body " + body );
-    }
-    else
-    {
-        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > forceInterpolator =
-                interpolators::createOneDimensionalInterpolator(
-                    tabulatedCoefficientSettings->getForceCoefficients( ),
-                    tabulatedCoefficientSettings->getInterpolationSettings( ) );
-        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > momentInterpolator =
-                interpolators::createOneDimensionalInterpolator(
-                    tabulatedCoefficientSettings->getForceCoefficients( ),
-                    tabulatedCoefficientSettings->getInterpolationSettings( ) );
-
-        // Create aerodynamic coefficient interface.
-        return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                    boost::bind( &interpolators::Interpolator
-                                 < double, Eigen::Vector3d >::interpolate, forceInterpolator, _1 ),
-                    boost::bind( &interpolators::Interpolator
-                                 < double, Eigen::Vector3d >::interpolate, momentInterpolator, _1 ),
-                    tabulatedCoefficientSettings->getReferenceLength( ),
-                    tabulatedCoefficientSettings->getReferenceArea( ),
-                    tabulatedCoefficientSettings->getReferenceLength( ),
-                    tabulatedCoefficientSettings->getMomentReferencePoint( ),
-                    tabulatedCoefficientSettings->getIndependentVariableNames( ),
-                    tabulatedCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
-                    tabulatedCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
-    }
-}
-
-//! Function to create and aerodynamic coefficient interface.
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-createAerodynamicCoefficientInterface(
-        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
-        const std::string& body )
-{
-    using namespace tudat::aerodynamics;
-
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface;
-
-    // Check type of interface that is to be created.
-    switch( coefficientSettings->getAerodynamicCoefficientType( ) )
-    {
-    case constant_aerodynamic_coefficients:
-    {
-        // Check consistency of type.
-        boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantCoefficientSettings =
-                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >(
-                    coefficientSettings );
-        if( constantCoefficientSettings == NULL )
-        {
-            throw std::runtime_error(
-                        "Error, expected constant aerodynamic coefficients for body " + body );
-        }
-        else
-        {
-            // create constant interface.
-            coefficientInterface = createConstantCoefficientAerodynamicCoefficientInterface(
-                        constantCoefficientSettings->getConstantForceCoefficient( ),
-                        constantCoefficientSettings->getConstantMomentCoefficient( ),
-                        constantCoefficientSettings->getReferenceLength( ),
-                        constantCoefficientSettings->getReferenceArea( ),
-                        constantCoefficientSettings->getReferenceLength( ),
-                        constantCoefficientSettings->getMomentReferencePoint( ),
-                        constantCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
-                        constantCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
-        }
-        break;
-    }
-    case tabulated_coefficients:
-    {
-        // Check number of dimensions of tabulated coefficients.
-        int numberOfDimensions = coefficientSettings->getIndependentVariableNames( ).size( );
-        switch( numberOfDimensions )
-        {
-        case 1:
-        {
-            coefficientInterface = createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
-                        coefficientSettings, body );
-            break;
-        }
-        case 2:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 2 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 3:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 3 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 4:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 4 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 5:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 5 >(
-                        coefficientSettings, body );
-            break;
-        }
-        case 6:
-        {
-            coefficientInterface = createTabulatedCoefficientAerodynamicCoefficientInterface< 6 >(
-                        coefficientSettings, body );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
-                       boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
-        }
-        break;
-    }
-    default:
-        throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
-    }
-    return coefficientInterface;
-}
 
 //! Function to create a flight conditions object
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
@@ -222,10 +72,6 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                     " has no aerodynamic coefficients." );
     }
 
-    // Create function to calculate the altitude from current body-fixed state
-    boost::function< double( const Eigen::Vector3d ) > altitudeFunction =
-            boost::bind( &basic_astrodynamics::BodyShapeModel::getAltitude,
-                         centralBody->getShapeModel( ), _1 );
 
     // Create function to rotate state from intertial to body-fixed frame.
     boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
@@ -252,13 +98,18 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 
 
     // Create flight conditions.
+    boost::function< double( const std::string& )> controlSurfaceDeflectionFunction;
+    if( bodyWithFlightConditions->getVehicleSystems( ) != NULL )
+    {
+        controlSurfaceDeflectionFunction = boost::bind(
+                    &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
+                    bodyWithFlightConditions->getVehicleSystems( ), _1 );
+    }
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(
-                centralBody->getAtmosphereModel( ), altitudeFunction,
-                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator );
-
-
-
+                centralBody->getAtmosphereModel( ), centralBody->getShapeModel( ),
+                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator,
+                controlSurfaceDeflectionFunction );
 
     return flightConditions;
 
@@ -279,9 +130,13 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
     boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
             boost::bind( &aerodynamics::FlightConditions::getAerodynamicCoefficientIndependentVariables,
                          flightConditions );
+    boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
+            boost::bind( &aerodynamics::FlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
-                             untrimmedIndependentVariablesFunction ) );
+                             untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
 
     return trimOrientation;
 }

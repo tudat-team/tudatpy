@@ -66,7 +66,6 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
-
 namespace tudat
 {
 namespace reference_frames
@@ -519,6 +518,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
  */
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude );
+
 
 } // namespace reference_frames
 
