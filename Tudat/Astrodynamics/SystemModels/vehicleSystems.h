@@ -154,6 +154,7 @@ private:
     //! Total dry mass of the vehicle
     double dryMass_;
 
+    //! List if current control surface deflections (with key the control surface id).
     std::map< std::string, double > currentControlSurfaceDeflections_;
 
     //! Nose radius of the vehicle (used for heating computations)
