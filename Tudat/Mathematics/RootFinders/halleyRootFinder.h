@@ -43,8 +43,6 @@
 #ifndef TUDAT_HALLEY_ROOT_FINDER_H
 #define TUDAT_HALLEY_ROOT_FINDER_H
 
-#include <assert.h>
-
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
