@@ -734,11 +734,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-    //testAerodynamicForceDirection( 0, 0, 0 );
+    testAerodynamicForceDirection( 0, 0, 0 );
     testAerodynamicForceDirection( 1, 0, 0 );
-    //testAerodynamicForceDirection( 1, 1, 0 );
-    //testAerodynamicForceDirection( 1, 0, 1 );
-    //testAerodynamicForceDirection( 1, 1, 1 );
+    testAerodynamicForceDirection( 1, 1, 0 );
+    testAerodynamicForceDirection( 1, 0, 1 );
+    testAerodynamicForceDirection( 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

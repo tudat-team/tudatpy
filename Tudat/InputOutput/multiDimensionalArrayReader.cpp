@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+
 #include <map>
 #include <fstream>
 #include <sstream>
@@ -65,7 +76,7 @@ boost::multi_array< double, 2 > parseRawTwoDimensionalCoefficientsFromFile(
                 coefficientMultiarray[ i ][ j ] = coefficientsBlock( i, j );
             }
         }
-    }    
+    }
     else
     {
         throw std::runtime_error( "Error, expected size of 2 dimensions when parsing 1-dimensional data into multi-array" );
@@ -240,6 +251,51 @@ void readCoefficientsFile(
                     boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
                     " lines, but expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
     }
+}
+
+//! Function to retrieve the number of independent variables that the coefficients in a file are given for.
+int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileName )
+{
+    // Open file and create file stream.
+    std::fstream stream( fileName.c_str( ), std::ios::in );
+
+    // Check if file opened correctly.
+    if ( stream.fail( ) )
+    {
+        boost::throw_exception(
+                    std::runtime_error( boost::str(
+                                            boost::format( "Data file '%s' could not be opened." ) %
+                                            fileName.c_str( ) ) ) );
+    }
+
+    std::string line;
+    std::vector< std::string > vectorOfIndividualStrings;
+
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables = -1;
+    while ( !stream.fail( ) && !stream.eof( ) && ( numberOfIndependentVariables < 0 ) )
+    {
+        // Get line from stream
+        std::getline( stream, line );
+        boost::algorithm::trim( line );
+
+        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        {
+            boost::algorithm::split( vectorOfIndividualStrings,
+                                     line,
+                                     boost::algorithm::is_any_of( "\t ;, " ),
+                                     boost::algorithm::token_compress_on );
+            try
+            {
+                numberOfIndependentVariables = boost::lexical_cast< double >( vectorOfIndividualStrings.at( 0 ).at( 0 ) );
+            }
+            catch( std::runtime_error )
+            {
+                throw std::runtime_error( "Error when reading coefficicent file size, input is inconsistent" );
+            }
+        }
+    }
+    return numberOfIndependentVariables;
 }
 
 }

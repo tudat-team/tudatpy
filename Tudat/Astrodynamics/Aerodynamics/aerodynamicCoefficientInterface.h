@@ -174,7 +174,6 @@ public:
                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
         currentMomentCoefficients_ +=
                 controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
-
     }
 
     //! Function to update the aerodynamic coefficients of the full body with control surfaces

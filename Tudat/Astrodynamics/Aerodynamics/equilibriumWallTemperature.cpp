@@ -19,6 +19,7 @@ namespace tudat
 
 namespace aerodynamics
 {
+//! Function to compute the equilibrium wall temperature from the heat input and emmisivity
 double computeEquilibiumWallTemperature( const boost::function< double( const double ) > heatTransferFunction,
                                          const double wallEmmisivity,
                                          const double adiabaticWallTemperature )

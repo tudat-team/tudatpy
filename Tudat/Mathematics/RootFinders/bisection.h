@@ -43,8 +43,6 @@
 #ifndef TUDAT_BISECTION_H
 #define TUDAT_BISECTION_H
 
-#include <assert.h>
-
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/format.hpp>

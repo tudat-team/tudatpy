@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include <Eigen/Core>
 
@@ -218,6 +219,17 @@ public:
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ),
         coefficientFunction_( coefficientFunction ){ }
+
+    CustomControlSurfaceIncrementAerodynamicInterface(
+            const boost::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+            const boost::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
+            const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
+        ControlSurfaceIncrementAerodynamicInterface( independentVariableNames )
+    {
+        coefficientFunction_ = boost::bind(
+                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, _1 );
+    }
+
 
     //! Destructor
     ~CustomControlSurfaceIncrementAerodynamicInterface( ){ }

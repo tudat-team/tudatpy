@@ -96,7 +96,7 @@ boost::multi_array< Eigen::Vector3d, 3 > mergeThreeDimensionalCoefficients(
     {
         for( unsigned int j = 0; j < xComponents.shape( )[ 1 ]; j++ )
         {
-            for( unsigned int k = 0; k < xComponents.shape( )[ 1 ]; k++ )
+            for( unsigned int k = 0; k < xComponents.shape( )[ 2 ]; k++ )
             {
                 vectorArray[ i ][ j ][ k ] = ( Eigen::Vector3d( )<<xComponents[ i ][ j ][ k ], yComponents[ i ][ j ][ k ], zComponents[ i ][ j ][ k ] ).finished( );
             }
