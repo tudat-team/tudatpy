@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE( testSequentialVariationalEquationIntegration )
 
     // Test dynamics solution.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                concurrentResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),
-                sequentialResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),
+                concurrentResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
+                sequentialResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
                 std::numeric_limits< double >::epsilon( ) );
 
 }

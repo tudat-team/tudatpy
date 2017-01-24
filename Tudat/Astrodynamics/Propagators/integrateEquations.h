@@ -18,6 +18,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
@@ -45,10 +46,10 @@ namespace propagators
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
  */
-template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
-void integrateEquations(
-        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator,
-        const double initialTimeStep,
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+void integrateEquationsFromIntegrator(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const TimeStepType initialTimeStep,
         const boost::function< bool( const double ) > stopPropagationFunction,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
@@ -76,7 +77,7 @@ void integrateEquations(
     }
 
     // Set initial time step and total integration time.
-    TimeType timeStep = initialTimeStep;
+    TimeStepType timeStep = initialTimeStep;
     TimeType previousTime = currentTime;
 
     int saveIndex = 0;
@@ -108,12 +109,13 @@ void integrateEquations(
                 }
             }
 
+
             // Print solutions
             if( printInterval == printInterval )
             {
-                if( ( static_cast<int>( std::fabs( currentTime - initialTime ) ) %
+                if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
                       static_cast< int >( printInterval ) ) <
-                        ( static_cast< int >( std::fabs( previousTime - initialTime ) ) %
+                        ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
                           static_cast<int>( printInterval ) )  )
                 {
                     std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
@@ -131,45 +133,128 @@ void integrateEquations(
     while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
 }
 
-//! Function to numerically integrate a given first order differential equation
-/*!
- *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
- *  a single independent variable and the current state
- *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
- *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
- *  \param initialState Initial state
- *  \param integratorSettings Settings for numerical integrator.
- *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
- *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
- *  (time as key; returned by reference)
- *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
- *  derivative model).
- *  \param printInterval Frequency with which to print progress to console (nan = never).
- */
+
+
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
-void integrateEquations(
-        boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
-        std::map< TimeType, StateType >& solutionHistory,
-        const StateType initialState,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::function< bool( const double ) > stopPropagationFunction,
-        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
-        boost::function< Eigen::VectorXd( ) >( ),
-        const TimeType printInterval = TUDAT_NAN )
+class EquationIntegrationInterface
 {
-    // Create numerical integrator.
-    boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator =
-            numerical_integrators::createIntegrator< TimeType, StateType >(
-                stateDerivativeFunction, initialState, integratorSettings );
+public:
 
-    integrateEquations< StateType, TimeType >(
-                integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
-                dependentVariableHistory,
-                dependentVariableFunction,
-                integratorSettings->saveFrequency_, printInterval );
+    //! Function to numerically integrate a given first order differential equation
+    /*!
+     *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+     *  a single independent variable and the current state
+     *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
+     *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
+     *  \param initialState Initial state
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
+     *  (time as key; returned by reference)
+     *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+     *  derivative model).
+     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     */
+    static void integrateEquations(
+            boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
+            std::map< TimeType, StateType >& solutionHistory,
+            const StateType initialState,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::function< bool( const double ) > stopPropagationFunction,
+            std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
+            boost::function< Eigen::VectorXd( ) >( ),
+            const TimeType printInterval = TUDAT_NAN );
+};
 
-}
+template< typename StateType >
+class EquationIntegrationInterface< StateType, double >
+{
+public:
+
+    //! Function to numerically integrate a given first order differential equation
+    /*!
+     *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+     *  a single independent variable and the current state
+     *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
+     *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
+     *  \param initialState Initial state
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
+     *  (time as key; returned by reference)
+     *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+     *  derivative model).
+     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     */
+    static void integrateEquations(
+            boost::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
+            std::map< double, StateType >& solutionHistory,
+            const StateType initialState,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+            const boost::function< bool( const double ) > stopPropagationFunction,
+            std::map< double, Eigen::VectorXd >& dependentVariableHistory,
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
+            boost::function< Eigen::VectorXd( ) >( ),
+            const double printInterval = TUDAT_NAN )
+    {
+        // Create numerical integrator.
+        boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
+                numerical_integrators::createIntegrator< double, StateType >(
+                    stateDerivativeFunction, initialState, integratorSettings );
+
+        integrateEquationsFromIntegrator< StateType, double >(
+                    integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
+                    dependentVariableHistory,
+                    dependentVariableFunction,
+                    integratorSettings->saveFrequency_, printInterval );
+    }
+};
+
+
+template< typename StateType >
+class EquationIntegrationInterface< StateType, Time >
+{
+public:
+
+    //! Function to numerically integrate a given first order differential equation
+    /*!
+     *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+     *  a single independent variable and the current state
+     *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
+     *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
+     *  \param initialState Initial state
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
+     *  (time as key; returned by reference)
+     *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+     *  derivative model).
+     *  \param printInterval Frequency with which to print progress to console (nan = never).
+     */
+    static void integrateEquations(
+            boost::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
+            std::map< Time, StateType >& solutionHistory,
+            const StateType initialState,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
+            const boost::function< bool( const double ) > stopPropagationFunction,
+            std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
+            boost::function< Eigen::VectorXd( ) >( ),
+            const Time printInterval = TUDAT_NAN )
+    {
+        // Create numerical integrator.
+        boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
+                numerical_integrators::createIntegrator< Time, StateType, long double  >(
+                    stateDerivativeFunction, initialState, integratorSettings );
+
+        integrateEquationsFromIntegrator< StateType, Time, long double >(
+                    integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
+                    dependentVariableHistory,
+                    dependentVariableFunction,
+                    integratorSettings->saveFrequency_, printInterval );
+    }
+};
 
 } // namespace propagators
 

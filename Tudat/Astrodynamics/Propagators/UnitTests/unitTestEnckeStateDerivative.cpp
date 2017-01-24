@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianStateFromEphemeris( currentTestTime );
+                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         while( currentTestTime < finalTestTime )
         {
             enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
-                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianStateFromEphemeris( currentTestTime );
+                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
