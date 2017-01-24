@@ -60,7 +60,7 @@
 #include <boost/format.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
-//  #include <boost/test/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <Eigen/Core>
@@ -88,7 +88,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
         for( unsigned int i = 0; i < 2; i++)
         {
-            boost::multi_array< double, 3 > multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+            boost::multi_array< double, 3 > multiArrayFromFile =
+                    tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
 
             // Read only multi-array from file
             if( i == 0 )
@@ -119,9 +120,12 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
             // Test selected multi-array values
             BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ), std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ), std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ), std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ),
+                    std::numeric_limits< double >::epsilon( ) );
         }
     }
 
@@ -132,7 +136,8 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
         for( unsigned int i = 0; i < 2; i++)
         {
-            boost::multi_array< double, 2 > multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 2 >::readMultiArray( fileName );
+            boost::multi_array< double, 2 > multiArrayFromFile =
+                    tudat::input_output::MultiArrayFileReader< 2 >::readMultiArray( fileName );
 
             // Read only multi-array from file
             if( i == 0 )
@@ -154,17 +159,23 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 
 
             }
-/*
+
             // Test multi-array size
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 17 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 5 );
 
             // Test selected multi-array values
-            BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ), std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ), std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ), std::numeric_limits< double >::epsilon( ) )*/;
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 0 ][ 0 ] - 1900.0 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ] - 2750.0 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 5 ][ 2 ] - 3100.0 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 16 ][ 0 ] - 590.0 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 16 ][ 4 ] - 888.0 ),
+                    std::numeric_limits< double >::epsilon( ) );
+
         }
     }
 }

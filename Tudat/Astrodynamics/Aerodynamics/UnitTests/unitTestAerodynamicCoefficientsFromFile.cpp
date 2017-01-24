@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         ////////////////////////////////////// Variable thrust calculations /////////////////////////////////////////////
         // Define thrustdependent variables
-        std::vector< propulsion::ThrustDependentVariables > thrustDependencies;
+        std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
         thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
         thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 

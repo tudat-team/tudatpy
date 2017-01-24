@@ -68,19 +68,6 @@ OutputType evaluateBivariateFunction(
     return functionToEvaluate( firstInput( ), secondInput( ) );
 }
 
-template< typename OutputType, typename InputType >
-OutputType evaluateHexaVariateFunction(
-        const boost::function< OutputType(
-            const InputType, const InputType, const InputType, const InputType, const InputType, const InputType ) > functionToEvaluate,
-        const boost::function< InputType( ) > firstInput,
-        const boost::function< InputType( ) > secondInput,
-        const boost::function< InputType( ) > thirdInput,
-        const boost::function< InputType( ) > fourthInput,
-        const boost::function< InputType( ) > fifthInput,
-        const boost::function< InputType( ) > sixthInput )
-{
-    return functionToEvaluate( firstInput( ), secondInput( ), thirdInput( ), fourthInput( ), fifthInput( ), sixthInput( ) );
-}
 
 //! Funtion to get the size of a dependent variable
 /*!

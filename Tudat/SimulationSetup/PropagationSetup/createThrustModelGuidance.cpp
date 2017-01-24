@@ -406,7 +406,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         // Create indpendent variable functions
         std::vector< boost::function< double( ) > > thrustInputVariableFunctions =
                 getPropulsionInputVariables(
-                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
+                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->thrustGuidanceInputVariables_ );
         std::vector< boost::function< double( ) > > specificInputVariableFunctions =
                 getPropulsionInputVariables(
@@ -419,7 +419,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
                     parameterizedThrustMagnitudeSettings->specificImpulseFunction_,
                     thrustInputVariableFunctions,
                     specificInputVariableFunctions,
-                    parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
+                    parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->inputUpdateFunction_ );
 

@@ -1227,12 +1227,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
         // Define specific impulse dependencies.
-        std::vector< propulsion::ThrustDependentVariables > specificImpulseDependencies;
+        std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependencies;
         specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
         specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
         // Define variables (thrust dependencies and guidance object) that are different per case.
-        std::vector< propulsion::ThrustDependentVariables > thrustDependencies;
+        std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
         boost::shared_ptr< ThrustMultiplierComputation > thrustInputParameterGuidance;
 
         // Use no guidance input
@@ -1527,7 +1527,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 6.0E3;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-            1.0 mathematical_constants::PI / 180.0;
+            1.0 * mathematical_constants::PI / 180.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
     // Convert apollo state from spherical elements to Cartesian elements.
@@ -1571,12 +1571,12 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
-    std::vector< propulsion::ThrustDependentVariables > thrustDependencies;
+    std::vector< propulsion::ThrustIndependentVariables > thrustDependencies;
     thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
     thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
     thrustDependencies.push_back( propulsion::throttle_dependent_thrust );
 
-    std::vector< propulsion::ThrustDependentVariables > specificImpulseDependencies;
+    std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependencies;
     specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
     specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 

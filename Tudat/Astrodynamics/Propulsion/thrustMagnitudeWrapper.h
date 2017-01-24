@@ -305,7 +305,7 @@ protected:
 };
 
 //! Variables on which parameterized thrust can depend.
-enum ThrustDependentVariables
+enum ThrustIndependentVariables
 {
     mach_number_dependent_thrust,
     altitude_dependent_thrust,
@@ -321,7 +321,7 @@ enum ThrustDependentVariables
 /*!
  *  Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
  *  variables.  The physical meaning of the variables must be defined here, selecting from the options in the
- *  ThrustDependentVariables enum, and they are automatically retrieved from the relevant environment models during the
+ *  ThrustIndependentVariables enum, and they are automatically retrieved from the relevant environment models during the
  *  propagation.
  *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
  *  throttle_dependent_thrust. Note that a throttle_dependent_thrust may not be used as one of the independent variables
@@ -345,7 +345,7 @@ public:
      * \param specificImpulseInputVariableFunctions List of functions returning input variables for the
      * specific impulse. The order of the functions in this vector is passed to the specificImpulseFunction in the same order
      * as entries of this vector.
-     * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+     * \param thrustIndependentVariables List of identifiers for the physical meaning of each of the entries of the input to
      * the thrustMagnitudeFunction function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
@@ -359,21 +359,21 @@ public:
             const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
             const std::vector< boost::function< double( ) > > thrustInputVariableFunctions,
             const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
-            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
-            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
+            const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
+            const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
             const boost::function< void( const double) > inputUpdateFunction =
             boost::function< void( const double) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
         specificImpulseInputVariableFunctions_( specificImpulseInputVariableFunctions ),
-        thrustDependentVariables_( thrustDependentVariables ),
+        thrustIndependentVariables_( thrustIndependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         inputUpdateFunction_( inputUpdateFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN )
     {
-        if( thrustInputVariableFunctions_.size( ) != thrustDependentVariables_.size( ) )
+        if( thrustInputVariableFunctions_.size( ) != thrustIndependentVariables_.size( ) )
         {
             throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables for thrust" );
         }
@@ -474,11 +474,11 @@ private:
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction
     //! function.
-    std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
+    std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables_;
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the
     //! specificImpulseDependentVariables function.
-    std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
+    std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables_;
 
     //! List of current input data to thrust function
     std::vector< double > currentThrustInputVariables_;
