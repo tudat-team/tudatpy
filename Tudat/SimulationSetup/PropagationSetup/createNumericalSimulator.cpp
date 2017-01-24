@@ -28,11 +28,11 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
     basic_astrodynamics::AccelerationMap accelerationModelMap;
 
     // Put selectedAccelerationPerBody in correct order
-    SelectedAccelerationMap orderedAccelerationPerBody =
+    SelectedAccelerationList orderedAccelerationPerBody =
             orderSelectedAccelerationMap( selectedAccelerationPerBody );
 
     // Iterate over all bodies which are undergoing acceleration
-    for( SelectedAccelerationMap::const_iterator bodyIterator =
+    for( SelectedAccelerationList::const_iterator bodyIterator =
          orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
          bodyIterator++ )
     {
@@ -73,16 +73,17 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 
         // Retrieve list of required acceleration model types and bodies exerting accelerationd on
         // current body.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
+        std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > >
                 accelerationsForBody = bodyIterator->second;
 
+        std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
+
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
         // Iterate over all bodies exerting an acceleration
-        for( std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >::
-             iterator body2Iterator = accelerationsForBody.begin( );
-             body2Iterator != accelerationsForBody.end( ); body2Iterator++ )
+        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
         {
             // Retrieve name of body exerting acceleration.
-            std::string bodyExertingAcceleration = body2Iterator->first;
+            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
 
             // Check if body exerting acceleration is included in bodyMap
             if( bodyMap.count( bodyExertingAcceleration ) ==  0 )
@@ -94,24 +95,46 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
                             ", but no such body found in map of bodies" );
             }
 
-            // Retrieve list of accelerations due to current body.
-            std::vector< boost::shared_ptr< AccelerationSettings > > accelerationList =
-                    body2Iterator->second;
-
-            for( unsigned int i = 0; i < accelerationList.size( ); i++ )
+            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
             {
+                currentAcceleration = createAccelerationModel( bodyMap.at( bodyUndergoingAcceleration ),
+                                                               bodyMap.at( bodyExertingAcceleration ),
+                                                               accelerationsForBody.at( i ).second,
+                                                               bodyUndergoingAcceleration,
+                                                               bodyExertingAcceleration,
+                                                               currentCentralBody,
+                                                               currentCentralBodyName,
+                                                               bodyMap );
+
+
                 // Create acceleration model.
                 mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
-                            createAccelerationModel( bodyMap.at( bodyUndergoingAcceleration ),
-                                                     bodyMap.at( bodyExertingAcceleration ),
-                                                     accelerationList.at( i ),
-                                                     bodyUndergoingAcceleration,
-                                                     bodyExertingAcceleration,
-                                                     currentCentralBody,
-                                                     currentCentralBodyName,
-                                                     bodyMap ) );
+                            currentAcceleration );
             }
+            else
+            {
+                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+            }
+
         }
+
+        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
+        {
+            currentAcceleration = createAccelerationModel( bodyMap.at( bodyUndergoingAcceleration ),
+                                                           bodyMap.at( thrustAccelerationSettings.at( i ).first ),
+                                                           thrustAccelerationSettings.at( i ).second,
+                                                           bodyUndergoingAcceleration,
+                                                           thrustAccelerationSettings.at( i ).first,
+                                                           currentCentralBody,
+                                                           currentCentralBodyName,
+                                                           bodyMap );
+
+
+            // Create acceleration model.
+            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
+                        currentAcceleration );
+        }
+
 
         // Put acceleration models on current body in return map.
         accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
