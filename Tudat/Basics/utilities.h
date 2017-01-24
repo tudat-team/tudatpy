@@ -134,7 +134,6 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-<<<<<<< HEAD
 //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
 /*!
  *  Function to produce a map of Eigen matrices, cast from one set of key/matrix scalar type set to another set.
@@ -153,7 +152,6 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
     }
 }
 
-=======
 //! Function to copy a multi-array into another multi-array
 /*!
  *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
