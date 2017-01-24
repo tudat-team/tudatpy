@@ -155,6 +155,12 @@ public:
         return controlSurfaceSettings_;
     }
 
+    //! Function to define settings for the aerodynamic coefficients of a single control surface
+    /*!
+     * Function to define settings for the aerodynamic coefficients of a single control surface
+     * \param controlSurfaceSetting Settings for the arodynamic coefficients of control surface.
+     * \param controlSurfaceName Id of control surface.
+     */
     void setControlSurfaceSettings(
             const boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > controlSurfaceSetting,
             const std::string controlSurfaceName )
@@ -212,6 +218,7 @@ private:
      */
     bool areCoefficientsInNegativeAxisDirection_;
 
+    //! Settings for the aerodynamic coefficients of control surfaces, with map key denoting surface ID.
     std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > >
     controlSurfaceSettings_;
 };
@@ -420,6 +427,7 @@ public:
                    momentCoefficients_.data( ) + momentCoefficients_.num_elements( ), Eigen::Vector3d::Zero( ) );
     }
 
+    //! Destructor
     ~TabulatedAerodynamicCoefficientSettings( ){ }
 
     //! Function to return the values of the indepependent variables of tables of coefficients.
