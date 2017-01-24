@@ -134,6 +134,12 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
+//! Function to copy a multi-array into another multi-array
+/*!
+ *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
+ *  \param arrayToCopy Multi-array that is to be copied
+ *  \param targetArray New multi-array into which arrayToCopy is to be copied (returned by reference).
+ */
 template< typename S, int NumberOfDimensions >
 void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToCopy,
                      boost::multi_array< S, NumberOfDimensions >& targetArray )

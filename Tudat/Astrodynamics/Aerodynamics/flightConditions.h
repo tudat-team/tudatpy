@@ -501,7 +501,7 @@ private:
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
-    //! <odel describing the shape of the body w.r.t. which the flight is taking place.
+    //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.

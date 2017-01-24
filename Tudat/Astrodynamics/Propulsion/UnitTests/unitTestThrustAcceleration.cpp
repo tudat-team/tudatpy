@@ -42,7 +42,11 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
-BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
+//! In this test, the thrust acceleration is tested for a constant thrust force. A trajectory with only the thrusta
+//! acceleration, as well as the associated mass, is  propagated and teh result is compared against Tsiolkovsky's
+//! equation, the assumptions for which are equal to the simulation settings here (no gravity, constant thrust force
+//! direction and magnitude).
+BOOST_AUTO_TEST_CASE( testConstantThrustForce )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -169,6 +173,10 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     }
 }
 
+//! In this unit test, the thrust acceleration is tested for the case where the thrust force is taken from a (set of)
+//! engine objects stored in the VehicleSystems object. This is tested for a single engine (out of two), two engines, as
+//! well as the (unrealistic) case of thrust from 2 engines and mass flow from only of these engines (for the purposes of
+//! mass propagation).
 BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 {
     using namespace tudat;
@@ -193,8 +201,8 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
-                        "SSB" ) );
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator<
+                        double, basic_mathematics::Vector6d  > >( ), "SSB" ) );
 
 
         double thrustMagnitude1 = 1.0E3;
@@ -382,6 +390,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
 }
 
+//! In this unit test, the thrust force set to be colinear with the position and velocity vectors is checked.
 BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 {
     using namespace tudat;
@@ -513,25 +522,32 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         {
             double angularVelocity = circularVelocity / radius;
 
+            // Check if the spacecraft is in a circular orbit, with the orbit being maintained exactly by the radial thrust.
             for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
                  numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
             {
                 double currentAngle = angularVelocity * outputIterator->first;
 
+                // Check constancy of position and velocoty scalars.
                 BOOST_CHECK_CLOSE_FRACTION(
                             ( outputIterator->second.segment( 0, 3 ).norm( ) ), radius, 1.0E-10 * radius );
                 BOOST_CHECK_CLOSE_FRACTION(
-                            ( outputIterator->second.segment( 3, 3 ).norm( ) ), circularVelocity, 1.0E-10 * circularVelocity );
+                            ( outputIterator->second.segment( 3, 3 ).norm( ) ),
+                            circularVelocity, 1.0E-10 * circularVelocity );
+
+                // Check whether orbit is planar (in xy-plane) with a constant angular motion at the prescribed mean motion.
                 BOOST_CHECK_SMALL(
                             std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-10 * radius );
                 BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-10 * radius  );
+                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-10 * radius );
                 BOOST_CHECK_SMALL(
                             std::fabs( outputIterator->second( 2 ) ), 1.0E-15 );
                 BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ), 1.0E-10 * circularVelocity  );
+                            std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ),
+                            1.0E-10 * circularVelocity  );
                 BOOST_CHECK_SMALL(
-                            std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ), 1.0E-10 * circularVelocity  );
+                            std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ),
+                            1.0E-10 * circularVelocity  );
                 BOOST_CHECK_SMALL(
                             std::fabs( outputIterator->second( 5 ) ), 1.0E-15 );
             }
@@ -541,6 +557,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
             for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
                  numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
             {
+                // Check if the thrust acceleration is of the correct magnitude, and in the same direction as the velocity.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
                             ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
@@ -551,6 +568,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
 
 }
 
+//! Test the thrust force direction when it is taken from a predetermined vehicle rotation (RotationalEphemeris)
 BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
 {
     using namespace tudat;
@@ -664,6 +682,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
                     outputIterator->first );
         for( unsigned int i = 0; i < 3; i++ )
         {
+            // Test thrust direction during propagation against rotational ephemeris of vehicle.
             BOOST_CHECK_CLOSE_FRACTION(
                         ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection )( i ) ),
                         outputIterator->second( i ), 2.0E-15 );
@@ -671,6 +690,8 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     }
 }
 
+//! Test whether the concurrent use of aerodynamic and thrust forces is handled correctly. In particular, this test checks
+//! whether the aerodynamic orientation is correctly used to determine the inertial thrust direction.
 BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 {
     using namespace tudat;
@@ -757,7 +778,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
     double thrustMagnitude = 1.0E-3;
     double specificImpulse = 250.0;
-    //double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
     accelerationsOfApollo[ "Apollo" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                      boost::make_shared< ThrustDirectionGuidanceSettings >(
                                                          thrust_direction_from_existing_body_orientation, "Earth" ),
@@ -777,6 +797,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+    // Set trim conditions for the vehicle.
     setTrimmedConditions( bodyMap.at( "Apollo" ) );
 
     // Define list of dependent variables to save.
@@ -889,6 +910,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     }
 }
 
+//! Test whether the thrust is properly computed if the full vector (*magnitude and direction) is imposed in either the
+//! inertial or LVLH frame.
 BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 {
 
@@ -1047,18 +1070,20 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         if( testCase == 0 )
         {
+            // Test whether thrust direction is indeed the imposed direction (in inertial frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                 thrustDifference =  outputIterator->second.segment( 0, 3 ) - thrustInterpolator->interpolate( outputIterator->first );
                 for( unsigned int i = 0; i < 3; i++ )
                 {
-                    //BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-14 );
+                    BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-14 );
                 }
             }
         }
         else if( testCase == 1 )
         {
+            // Test whether thrust direction is indeed the imposed direction (in lvlh frame).
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
@@ -1074,6 +1099,10 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     }
 }
 
+//! Class that is used in the following unit test to check whether the parameterized thrust guidance is working correctly.
+//! This class sets (using an algorithm with no physical basis). It computes a 'regular' guidance input, as well as a thrust
+//! multiplier (throttle) if required. The regular guidance input is used as the Mach number when interpolating the thrust
+//! tables.
 class ThrustMultiplierComputation: public simulation_setup::ThrustInputParameterGuidance
 {
 public:
@@ -1112,6 +1141,8 @@ private:
     bool useThrustMultiplier_;
 };
 
+//! Test to check whether the parameterized thrust settings (i.e. thrust as a function of environment and/or guidance input)
+//! is working correctly
 BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironmentDependentThrust )
 {
     using namespace tudat;
@@ -1184,9 +1215,6 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     int numberOfCasesPerSet = 4;
     for( int i = 0; i < numberOfCasesPerSet * 2; i++ )
     {
-
-        std::cout<<"Current simulation: "<<i<<std::endl;
-
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
@@ -1198,21 +1226,22 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
-        std::vector< propulsion::ThrustDependentVariables > thrustDependencies;
-
-        boost::function< void( const double ) > inputUpdateFunction;
-
+        // Define specific impulse dependencies.
         std::vector< propulsion::ThrustDependentVariables > specificImpulseDependencies;
         specificImpulseDependencies.push_back( propulsion::mach_number_dependent_thrust );
         specificImpulseDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
 
+        // Define variables (thrust dependencies and guidance object) that are different per case.
+        std::vector< propulsion::ThrustDependentVariables > thrustDependencies;
         boost::shared_ptr< ThrustMultiplierComputation > thrustInputParameterGuidance;
 
+        // Use no guidance input
         if( ( i % numberOfCasesPerSet == 0 ) )
         {
             thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
             thrustDependencies.push_back( propulsion::dynamic_pressure_dependent_thrust );
         }
+        // Use guidance for throttling the thrust
         if( ( i % numberOfCasesPerSet == 1 ) )
         {
             thrustDependencies.push_back( propulsion::mach_number_dependent_thrust );
@@ -1222,6 +1251,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             thrustInputParameterGuidance =
                     boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 0, 1 );
         }
+        // Use guidance input to generate a 'fake' Mach number
         else if( ( i % numberOfCasesPerSet == 2 ) )
         {
             thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
@@ -1230,6 +1260,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             thrustInputParameterGuidance =
                     boost::make_shared< ThrustMultiplierComputation >( simulationStartEpoch, simulationEndEpoch, 1, 0 );
         }
+        // Use guidance input to generate a 'fake' Mach number and a throttle
         else if( ( i % numberOfCasesPerSet == 3 ) )
         {
             thrustDependencies.push_back( propulsion::guidance_input_dependent_thrust );
@@ -1241,6 +1272,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         }
 
+        // Load thrust tables from files (as a function of Mach number and specific impulse) and create interpolators.
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > thrustValues =
                 MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
                     tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Propulsion/UnitTests/Tmax_test.txt" );
@@ -1256,8 +1288,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                     specificImpulseValues.second, specificImpulseValues.first );
 
         double constantSpecificImpulse = 1000.0;
+
+        // Test with interpolated specific impulse
         if( i < numberOfCasesPerSet )
         {
+            // Thrust requires no guidance.
             if( !( i % numberOfCasesPerSet == 0 ) )
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
@@ -1268,9 +1303,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     specificImpulseInterpolator, specificImpulseDependencies ) ) );
             }
+            // Thrust requires guidance.
             else
             {
-                std::cout<<"T1"<<std::endl;
                 accelerationsOfApollo[ "Apollo" ].push_back(
                             boost::make_shared< ThrustAccelerationSettings >(
                                 boost::make_shared< ThrustDirectionGuidanceSettings >(
@@ -1283,8 +1318,10 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
 
         }
+        // Test with constant specific impulse
         else
         {
+            // Thrust requires no guidance.
             if( !( i % numberOfCasesPerSet == 0 ) )
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
@@ -1295,6 +1332,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                                     thrustInputParameterGuidance, thrustMagnitudeInterpolator, thrustDependencies,
                                     constantSpecificImpulse ) ) );
             }
+            // Thrust requires guidance.
             else
             {
                 accelerationsOfApollo[ "Apollo" ].push_back(
@@ -1307,9 +1345,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
             }
         }
 
-
+        // Finalize acceleration settings.
         accelerationMap[ "Apollo" ] = accelerationsOfApollo;
-
         bodiesToPropagate.push_back( "Apollo" );
         centralBodies.push_back( "Earth" );
 
@@ -1321,6 +1358,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+        // Set trimmed conditions for body orientation.
         setTrimmedConditions( bodyMap.at( "Apollo" ) );
 
         // Define list of dependent variables to save.
@@ -1341,7 +1379,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                     boost::make_shared< SingleDependentVariableSaveSettings >(
                         total_mass_rate_dependent_variables, "Apollo" ) );
 
-
+        // Define propagation settings.
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
@@ -1362,12 +1400,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings = //translationalPropagatorSettings;
+        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                     boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
-
+        // Define integration settings.
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                 boost::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -1382,6 +1420,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         std::map< double, Eigen::VectorXd > dependentVariableSolution =
                 dynamicsSimulator.getDependentVariableHistory( );
 
+        // Declare test variables
         double currentDynamicPressure, currentMachNumber, currentMass;
         double currentThrustForce, currentMassRate, expectedThrust, expectedMassRate;
         double currentSpecificImpulse;
@@ -1391,6 +1430,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
         {
+            // Retrieve data from dependent variables/propagated dynamics
             currentMass = numericalSolution.at( variableIterator->first )( 6 );
 
             currentDynamicPressure =
@@ -1445,6 +1485,9 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     }
 }
 
+
+//! Test to check whether the acceleration-limited thrust guidance (i.e throttle from a maximum impoised acceleration)
+//! works correctly
 BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 {
     using namespace tudat;
@@ -1478,11 +1521,13 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Set spherical elements for Apollo.
     Vector6d apolloSphericalEntryState;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) = spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+            spice_interface::getAverageRadius( "Earth" ) + 50.0E3;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 6.0E3;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) = 1.0 * mathematical_constants::PI / 180.0;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
+            1.0 mathematical_constants::PI / 180.0;
     apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
     // Convert apollo state from spherical elements to Cartesian elements.
@@ -1591,7 +1636,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings = //translationalPropagatorSettings;
+    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ),
                 boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
