@@ -541,6 +541,7 @@ void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+
 template< typename TimeType, typename StateScalarType >
 //! Function to create list objects for processing numerically integrated results.
 /*!

@@ -17,6 +17,7 @@
 #include <map>
 
 #include <boost/function.hpp>
+#include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
 
@@ -150,6 +151,42 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
 }
+
+//! Function to copy a multi-array into another multi-array
+/*!
+ *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
+ *  \param arrayToCopy Multi-array that is to be copied
+ *  \param targetArray New multi-array into which arrayToCopy is to be copied (returned by reference).
+ */
+template< typename S, int NumberOfDimensions >
+void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToCopy,
+                     boost::multi_array< S, NumberOfDimensions >& targetArray )
+{
+    std::vector< size_t > ex;
+    const size_t* shape = arrayToCopy.shape( );
+    ex.assign( shape, shape + arrayToCopy.num_dimensions( ) );
+    targetArray.resize( ex );
+    targetArray = arrayToCopy;
+}
+
+
+template< unsigned int NumberOfDimensions >
+typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
+        const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
+        const unsigned short int direction)
+{
+    int offset = requestedElement - m.origin( );
+    return( offset / m.strides( )[ direction] % m.shape( )[ direction ] +  m.index_bases( )[direction] );
+}
+
+boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 1 >& m, const double* requestedElement );
+
+boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 2 >& m, const double* requestedElement );
+
+boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 3 >& m, const double* requestedElement );
 
 } // namespace utilities
 

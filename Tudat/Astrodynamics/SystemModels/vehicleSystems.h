@@ -40,6 +40,9 @@ public:
     VehicleSystems( const double dryMass = TUDAT_NAN ):
         dryMass_( dryMass ){ }
 
+    //! Destructor
+    ~VehicleSystems( ){ }
+
     //! Function to retrieve the engine models
     /*!
      * Function to retrieve the engine models
@@ -79,6 +82,70 @@ public:
         return dryMass_;
     }
 
+    //! Function to set the current deflection of a single control surface
+    /*!
+     * Function to set the current deflection of a single control surface
+     * \param controlSurfaceId Name of control surface for which deflection is to be set
+     * \param deflectionAngle Current deflection of control surface that is to be set.
+     */
+    void setCurrentControlSurfaceDeflection(
+            const std::string& controlSurfaceId, const double deflectionAngle )
+    {
+        currentControlSurfaceDeflections_[ controlSurfaceId ] =  deflectionAngle;
+    }
+
+    //! Function to retrieve the current deflection of a single control surface
+    /*!
+     * Function to retrieve the current deflection of a single control surface
+     * \param controlSurfaceId Name of control surface for which deflection is to be set
+     * \return Current deflection of control surface that is requested.
+     */
+    double getCurrentControlSurfaceDeflection(
+            const std::string& controlSurfaceId )
+    {
+        return currentControlSurfaceDeflections_.at( controlSurfaceId );
+    }
+
+    //! Function to (re)set the vehicle nose radius
+    /*!
+     * Function to (re)set the vehicle nose radius
+     * \param noseRadius The  vehicle nose radius that is to be set
+     */
+    void setNoseRadius( const double noseRadius )
+    {
+        noseRadius_ = noseRadius;
+    }
+
+    //! Function to retrieve the vehicle nose radius
+    /*!
+     * Function to retrieve the vehicle nose radius
+     * \return The vehicle nose radius
+     */
+    double getNoseRadius( )
+    {
+        return noseRadius_;
+    }
+
+    //! Function to (re)set the vehicle wall emissivity
+    /*!
+     * Function to (re)set the vehicle wall emissivity
+     * \param wallEmissivity The vehicle wall emissivity that is to be set
+     */
+    void setWallEmissivity( const double wallEmissivity )
+    {
+        wallEmissivity_ = wallEmissivity;
+    }
+
+    //! Function to retrieve the vehicle wall emissivity
+    /*!
+     * Function to retrieve the vehicle wall emissivity
+     * \return The vehicle wall emissivity
+     */
+    double getWallEmissivity( )
+    {
+        return wallEmissivity_;
+    }
+
 private:
 
     //! Named list of engine models in the vehicle
@@ -87,6 +154,14 @@ private:
     //! Total dry mass of the vehicle
     double dryMass_;
 
+    //! List if current control surface deflections (with key the control surface id).
+    std::map< std::string, double > currentControlSurfaceDeflections_;
+
+    //! Nose radius of the vehicle (used for heating computations)
+    double noseRadius_;
+
+    //! Wall emissivity of the vehicle (used for heating computations)
+    double wallEmissivity_;
 };
 
 

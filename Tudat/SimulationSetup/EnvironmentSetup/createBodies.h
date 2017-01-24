@@ -60,6 +60,7 @@ struct BodySettings
     //! Settings for the aerodynamic coefficients that the body is to contain.
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
+    //! Settings for variations of the gravity field of the body.
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
 };

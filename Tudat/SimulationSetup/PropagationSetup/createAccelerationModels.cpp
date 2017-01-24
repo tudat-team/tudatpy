@@ -549,7 +549,7 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     bodyExertingAcceleration->getGravityFieldModel( ) );
         if( sphericalHarmonicsGravityField == NULL )
-        {            
+        {
             std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a spherical harmonics gravity field " +
                     "when making third body spherical harmonics gravity acceleration on " +
                     nameOfBodyUndergoingAcceleration;
@@ -786,6 +786,49 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
+
+
+    // Check if user-supplied interpolator for full thrust ius present.
+    if( thrustAccelerationSettings->interpolatorInterface_ != NULL )
+    {
+        // Check input consisten
+        if( thrustAccelerationSettings->thrustFrame_ == unspecified_thurst_frame )
+        {
+            throw std::runtime_error( "Error when creating thrust acceleration, input frame is inconsistent with interface" );
+        }
+        else if( thrustAccelerationSettings->thrustFrame_ != inertial_thurst_frame )
+        {
+            // Create rotation function from thrust-frame to propagation frame.
+            if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
+            {
+                boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
+                        boost::bind( &Body::getState, bodyMap.at( nameOfBodyUndergoingThrust ) );
+                boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+
+                if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
+                {
+                    centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+                }
+                else
+                {
+                    if( bodyMap.count( thrustAccelerationSettings->centralBody_ ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when creating thrust acceleration, input central body not found" );
+                    }
+                    centralBodyStateFunction =
+                            boost::bind( &Body::getState, bodyMap.at( thrustAccelerationSettings->centralBody_ ) );
+                }
+                thrustAccelerationSettings->interpolatorInterface_->resetRotationFunction(
+                            boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
+                                         vehicleStateFunction, centralBodyStateFunction, true ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when creating thrust acceleration, input frame not recognized" );
+            }
+        }
+    }
+
     // Create thrust direction model.
     boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust,
@@ -804,7 +847,7 @@ createThrustAcceleratioModel(
 
     // Set DependentOrientationCalculator for body if required.
     if( !( thrustAccelerationSettings->thrustDirectionGuidanceSettings_->thrustDirectionType_ ==
-            thrust_direction_from_existing_body_orientation ) )
+           thrust_direction_from_existing_body_orientation ) )
     {
         bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
     }
@@ -891,10 +934,10 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
 }
 
 //! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
-SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationsPerBody )
+SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationsPerBody )
 {
     // Declare map of acceleration models acting on current body.
-    SelectedAccelerationMap orderedAccelerationsPerBody;
+    SelectedAccelerationList orderedAccelerationsPerBody;
 
     // Iterate over all bodies which are undergoing acceleration
     for( SelectedAccelerationMap::const_iterator bodyIterator =
@@ -909,6 +952,13 @@ SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAcceleration
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
                 accelerationsForBody = bodyIterator->second;
 
+        // Retrieve indices of all acceleration anf thrust models.
+        std::vector< int > aerodynamicAccelerationIndices;
+        std::vector< int > thrustAccelerationIndices;
+
+        std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > >
+                currentBodyAccelerations;
+        int counter = 0;
         // Iterate over all bodies exerting an acceleration
         for( std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >::
              iterator body2Iterator = accelerationsForBody.begin( );
@@ -916,50 +966,63 @@ SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAcceleration
         {
             // Retrieve name of body exerting acceleration.
             std::string bodyExertingAcceleration = body2Iterator->first;
-
-            // Retrieve list of accelerations due to current body.
-            std::vector< boost::shared_ptr< AccelerationSettings > > accelerationList =
-                    body2Iterator->second;
-
-            // Retrieve indices of all acceleration anf thrust models.
-            std::vector< int > aerodynamicAccelerationIndex;
-            std::vector< int > thrustAccelerationIndices;
+            std::vector< boost::shared_ptr< AccelerationSettings > > accelerationList = body2Iterator->second;
             for( unsigned int i = 0; i < accelerationList.size( ); i++ )
             {
                 if( accelerationList.at( i )->accelerationType_ == basic_astrodynamics::thrust_acceleration )
                 {
-                    thrustAccelerationIndices.push_back( i );
+                    thrustAccelerationIndices.push_back( counter );
                 }
                 else if( accelerationList.at( i )->accelerationType_ == basic_astrodynamics::aerodynamic )
                 {
-                    aerodynamicAccelerationIndex.push_back( i );
+                    aerodynamicAccelerationIndices.push_back( counter );
                 }
+                std::pair< std::string, boost::shared_ptr< AccelerationSettings > >  currentAccelerationPair =
+                        std::make_pair( bodyExertingAcceleration, accelerationList.at( i ) );
+                currentBodyAccelerations.push_back( currentAccelerationPair );
+                counter++;
             }
-
-            std::vector< boost::shared_ptr< AccelerationSettings > > orderedAccelerationList = accelerationList;
-
-            // Put aerodynamic and thrust accelerations in correct order (ensure aerodynamic acceleration created first).
-            if( ( thrustAccelerationIndices.size( ) > 0 ) && ( aerodynamicAccelerationIndex.size( ) > 0 ) )
-            {
-                if( aerodynamicAccelerationIndex.at( aerodynamicAccelerationIndex.size( ) - 1 ) >
-                        thrustAccelerationIndices.at( 0 ) )
-                {
-                    if( ( aerodynamicAccelerationIndex.size( ) == 1 ) )
-                    {
-                        std::iter_swap( orderedAccelerationList.begin( ) + aerodynamicAccelerationIndex.at( 0 ),
-                                        orderedAccelerationList.begin( ) + thrustAccelerationIndices.at(
-                                            thrustAccelerationIndices.size( ) - 1 ) );
-                    }
-                    else
-                    {
-                        throw std::runtime_error(
-                                    "Error when ordering accelerations, cannot yet handle multple aerodynamic and thrust accelerations" );
-                    }
-                }
-            }
-
-            orderedAccelerationsPerBody[ bodyUndergoingAcceleration ][ bodyExertingAcceleration ] = orderedAccelerationList;
         }
+
+        if( thrustAccelerationIndices.size( ) > 0 && aerodynamicAccelerationIndices.size( ) > 0 )
+        {
+            std::vector< int > indexList;
+            for( unsigned int i = 0; i < aerodynamicAccelerationIndices.size( ); i++ )
+            {
+                indexList.push_back( aerodynamicAccelerationIndices.at( i ) );
+            }
+            for( unsigned int i = 0; i < thrustAccelerationIndices.size( ); i++ )
+            {
+                indexList.push_back( thrustAccelerationIndices.at( i ) );
+            }
+
+            std::vector< int > unorderedIndexList = indexList;
+            std::sort( indexList.begin( ), indexList.end( ) );
+            if( !( indexList == unorderedIndexList ) )
+            {
+                std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > >
+                        orderedAccelerationSettings = currentBodyAccelerations;
+
+                int indexCounter = 0;
+                for( unsigned int i = 0; i < aerodynamicAccelerationIndices.size( ); i++ )
+                {
+                    orderedAccelerationSettings[ indexList.at( indexCounter ) ]
+                            = currentBodyAccelerations[ aerodynamicAccelerationIndices.at( i ) ];
+                    indexCounter++;
+                }
+
+                for( unsigned int i = 0; i < thrustAccelerationIndices.size( ); i++ )
+                {
+                    orderedAccelerationSettings[ indexList.at( indexCounter ) ]
+                            = currentBodyAccelerations[ thrustAccelerationIndices.at( i ) ];
+                    indexCounter++;
+                }
+
+                currentBodyAccelerations = orderedAccelerationSettings;
+            }
+        }
+
+        orderedAccelerationsPerBody[ bodyUndergoingAcceleration ] = currentBodyAccelerations;
     }
 
     return orderedAccelerationsPerBody;

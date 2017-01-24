@@ -43,7 +43,6 @@
  *
  */
 
-#include <cassert>
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -71,7 +70,10 @@ Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
 double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
                                            const Eigen::VectorXd& vector1 )
 {
-    assert( vector0.size( ) == vector1.size( ) );
+    if( !( vector0.size( ) == vector1.size( ) ) )
+    {
+        throw std::runtime_error( "Error when computing angle between vectors; size is incompatible" );
+    }
 
     // Get the cosine of the angle by dotting the normalized vectors.
     double dotProductOfNormalizedVectors = vector0.normalized( ).dot( vector1.normalized( ) );

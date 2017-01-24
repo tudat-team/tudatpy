@@ -364,11 +364,9 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -736,11 +734,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-    //testAerodynamicForceDirection( 0, 0, 0 );
+    testAerodynamicForceDirection( 0, 0, 0 );
     testAerodynamicForceDirection( 1, 0, 0 );
-    //testAerodynamicForceDirection( 1, 1, 0 );
-    //testAerodynamicForceDirection( 1, 0, 1 );
-    //testAerodynamicForceDirection( 1, 1, 1 );
+    testAerodynamicForceDirection( 1, 1, 0 );
+    testAerodynamicForceDirection( 1, 0, 1 );
+    testAerodynamicForceDirection( 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

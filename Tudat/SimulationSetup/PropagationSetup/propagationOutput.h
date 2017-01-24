@@ -34,12 +34,20 @@ namespace propagators
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
-OutputType evaluateReferenceFunction(
+OutputType evaluateBivariateReferenceFunction(
         const boost::function< OutputType( const InputType&, const InputType& ) > functionToEvaluate,
         const boost::function< InputType( ) > firstInput,
         const boost::function< InputType( ) > secondInput )
 {
     return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+template< typename OutputType, typename InputType >
+OutputType evaluateReferenceFunction(
+        const boost::function< OutputType( const InputType& ) > functionToEvaluate,
+        const boost::function< InputType( ) > firstInput )
+{
+    return functionToEvaluate( firstInput( ) );
 }
 
 //! Function to evaluate a function with two input variables from function pointers
@@ -52,13 +60,14 @@ OutputType evaluateReferenceFunction(
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
-OutputType evaluateFunction(
+OutputType evaluateBivariateFunction(
         const boost::function< OutputType( const InputType, const InputType ) > functionToEvaluate,
         const boost::function< InputType( ) > firstInput,
         const boost::function< InputType( ) > secondInput )
 {
     return functionToEvaluate( firstInput( ), secondInput( ) );
 }
+
 
 //! Funtion to get the size of a dependent variable
 /*!
@@ -102,6 +111,18 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
  */
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
+
+//! Function to compute the Fay-Riddell equilibrium heat flux from body properties
+/*!
+ * Function to compute the Fay-Riddell equilibrium heat flux from body properties
+ * \param flightConditions Object describing the current atmospheric flight conditions of the vehicle
+ * \param vehicleSystems Object describing the physical properties of the vehicle
+ * \return Equilibrium heat flux according to Fay-Riddell model
+ */
+double computeEquilibriumFayRiddellHeatFluxFromProperties(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems );
+
 
 //! Function to create a function returning a requested dependent variable value (of type double).
 /*!
@@ -153,14 +174,16 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                              bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
 
 
-        variableFunction = boost::bind( &evaluateFunction< double, double >,
+        variableFunction = boost::bind( &evaluateBivariateFunction< double, double >,
                                         functionToEvaluate, firstInput, secondInput );
         break;
     }
     case altitude_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -206,7 +229,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
+                    &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
         break;
     }
     case relative_speed_dependent_variable:
@@ -220,7 +243,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                 boost::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
+                    &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
 
         break;
     }
@@ -249,7 +272,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
+                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
@@ -294,8 +317,120 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
 
         variableFunction = boost::bind( &reference_frames::AerodynamicAngleCalculator::getAerodynamicAngle,
-                                 bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                                         bodyAerodynamicAngleVariableSaveSettings->angle_ );
+        break;
+    }
+    case total_aerodynamic_g_load_variable:
+    {
+        // Check input consistency
+        boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > aerodynamicAccelerationSettings =
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    basic_astrodynamics::aerodynamic, bodyWithProperty, secondaryBody, 0 );
+        boost::function< Eigen::VectorXd( ) > aerodynamicAccelerationFunction =
+                getVectorDependentVariableFunction( aerodynamicAccelerationSettings, bodyMap, stateDerivativeModels ).first;
+
+
+        boost::function< double( Eigen::Vector3d )> functionToEvaluate =
+                boost::bind( &aerodynamics::computeAerodynamicLoadFromAcceleration, _1 );
+        variableFunction = boost::bind(
+                    &evaluateReferenceFunction< double, Eigen::Vector3d >,
+                    functionToEvaluate, aerodynamicAccelerationFunction );
+
+        break;
+    }
+    case stagnation_point_heat_flux_dependent_variable:
+    {
+
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error no flight conditions available when requesting stagnation point heating output of" +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
+                bodyMap.at( bodyWithProperty )->getFlightConditions( );
+
+        if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
+        {
+            std::string errorMessage = "Error, no vehicle systems available when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::shared_ptr< system_models::VehicleSystems > vehicleSystems =
+                bodyMap.at( bodyWithProperty )->getVehicleSystems( );
+
+
+        if( !( vehicleSystems->getNoseRadius( ) == vehicleSystems->getNoseRadius( ) ) )
+        {
+            std::string errorMessage = "Error, no nose radius available when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        if( !( vehicleSystems->getWallEmissivity( ) == vehicleSystems->getWallEmissivity( ) ) )
+        {
+            std::string errorMessage = "Error, no wall emmisivityavailable when requesting stagnation point heating output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind(
+                    &computeEquilibriumFayRiddellHeatFluxFromProperties,
+                    flightConditions, vehicleSystems );
+
+        break;
+    }
+    case local_temperature_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error, no flight conditions available when requesting temperature output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentFreestreamTemperature,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        break;
+    }
+    case geodetic_latitude_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage = "Error, no flight conditions available when requesting geodetic latitude output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentGeodeticLatitude,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        break;
+    }
+    case control_surface_deflection_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
+        {
+            std::string errorMessage = "Error, no vehicle systems available when requesting control surface deflection output of " +
+                    bodyWithProperty + "with surface" + secondaryBody;
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind( &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
+                                        bodyMap.at( bodyWithProperty )->getVehicleSystems( ),
+                                        dependentVariableSettings->secondaryBody_ );
+        break;
+    }
+    case total_mass_rate_dependent_variables:
+    {
+        // Retrieve model responsible for computing mass rate of requested bodies.
+        boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                getBodyMassStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        variableFunction =
+                boost::bind( &BodyMassStateDerivative< StateScalarType, TimeType >::getTotalMassRateForBody, nBodyModel,
+                             bodyWithProperty );
+
         break;
     }
     default:
@@ -348,7 +483,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
+                    &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
         parameterSize = 3;
         break;
@@ -364,7 +499,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 boost::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
-                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
+                    &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
         parameterSize = 3;
 
@@ -408,7 +543,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
+                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
