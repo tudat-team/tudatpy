@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_MULTIDIMENSIONALARRAYREADER_H
 #define TUDAT_MULTIDIMENSIONALARRAYREADER_H
 
@@ -51,7 +61,7 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
 /*!
  * Function to read a coefficient file (data on a structured grid as a function of N independent variables). This function
  * reads the file as raw data, converting teh data into a multi-array of the correct size can be done using the
- * MultiArrayFileReader class if needed. The file format is defined in AAAAAA.
+ * MultiArrayFileReader class if needed. The file format is defined in the Tudat wiki.
  * \param fileName
  * \param independentVariables
  * \param coefficientBlock
@@ -61,6 +71,14 @@ void readCoefficientsFile(
         std::vector< std::vector< double > >& independentVariables,
         Eigen::MatrixXd& coefficientBlock );
 
+//! Function to retrieve the number of independent variables that the coefficients in a file are given for.
+/*!
+ *  Function to retrieve the number of independent variables that the coefficients in a file are given for.
+ *  \param fileName Name of the file containing the coefficients.
+ *  \return Number of independent variables that the coefficients in a file are given for.
+ */
+int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileName );
+
 //! Interface class for reading coefficients as a function of N independent variables from a file.
 /*!
  *  Interface class for reading coefficients as a function of N independent variables from a file. This class is used instead
@@ -68,7 +86,7 @@ void readCoefficientsFile(
  *  NOTE: The possibility of using a single  templated implementation for arbitrary multi-array size should be investigated
  *  in the future.
  */
-template< int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 class MultiArrayFileReader
 {
 public:
@@ -80,7 +98,7 @@ public:
      *  \param fileName Name of the coefficient file
      *  \return Multi-array containing file contents.
      */
-    static boost::multi_array< double, NumberOfDimensions > readMultiArray(
+    static boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > readMultiArray(
             const std::string fileName );
 
     //! Function to read a multi-array from the file, and the values of the independent variables at which it is defined
@@ -142,7 +160,8 @@ public:
         independentVariableSize.push_back( independentVariables.at( 0 ).size( ) );
 
         // Parse data from file
-        return std::make_pair( parseRawOneDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ), independentVariables );
+        return std::make_pair( parseRawOneDimensionalCoefficientsFromFile(
+                                   independentVariableSize, coefficientBlock ), independentVariables );
     }
 };
 
@@ -162,7 +181,7 @@ public:
     static boost::multi_array< double, 2 > readMultiArray(
             const std::string fileName )
     {
-        return readMultiArrayAndIndependentVariables( fileName ).first;
+       return readMultiArrayAndIndependentVariables( fileName ).first;
     }
 
     //! Function to read a multi-array from the file, and the values of the independent variables at which it is defined
@@ -194,7 +213,8 @@ public:
         independentVariableSize.push_back( independentVariables.at( 1 ).size( ) );
 
         // Parse data from file
-        return std::make_pair( parseRawTwoDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ), independentVariables );
+        return std::make_pair( parseRawTwoDimensionalCoefficientsFromFile(
+                                   independentVariableSize, coefficientBlock ), independentVariables );
     }
 };
 
@@ -251,8 +271,8 @@ public:
                     parseRawThreeDimensionalCoefficientsFromFile( independentVariableSize, coefficientBlock ),
                     independentVariables );
     }
-    };
 
+    };
 }
 
 }

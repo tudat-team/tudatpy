@@ -304,69 +304,6 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     return thrustDirectionFunction;
 }
 
-//! Function to create a list of functions that (compute and) return independent variables for thrust
-std::vector< boost::function< double( ) > > getPropulsionInputVariables(
-        const boost::shared_ptr< Body > bodyWithGuidance,
-        const std::vector< propulsion::ThrustDependentVariables > independentVariables,
-        const std::vector< boost::function< double( ) > > guidanceInputFunctions )
-{
-    std::vector< boost::function< double( ) > > inputFunctions;
-    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
-            bodyWithGuidance->getFlightConditions( );
-
-    // Iterate over all dependent variables and create requested function.
-    unsigned int numberOfCustomInputs = 0;
-    for( unsigned int i = 0; i < independentVariables.size( ); i++ )
-    {
-        switch( independentVariables.at( i ) )
-        {
-        case propulsion::altitude_dependent_thrust:
-            inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
-            break;
-        case propulsion::density_dependent_thrust:
-            inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentDensity, vehicleFlightConditions ) );
-            break;
-        case propulsion::dynamic_pressure_dependent_thrust:
-            inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentDynamicPressure, vehicleFlightConditions ) );
-            break;
-        case propulsion::mach_number_dependent_thrust:
-            inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentMachNumber, vehicleFlightConditions ) );
-            break;
-        case propulsion::pressure_dependent_thrust:
-            inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentPressure, vehicleFlightConditions ) );
-            break;
-        case propulsion::guidance_input_dependent_thrust:
-            inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
-            numberOfCustomInputs++;
-            break;
-        case propulsion::maximum_thrust_multiplier:
-            if( guidanceInputFunctions.size( ) >= numberOfCustomInputs )
-            {
-                throw std::runtime_error( "Error when creating propulsion indput dependent variables, insufficient user-defined inputs found" );
-            }
-            inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
-            numberOfCustomInputs++;
-            break;
-        default:
-            throw std::runtime_error( "Error when getting parameterized thrust input variables, variable " +
-                                      boost::lexical_cast< std::string >( independentVariables.at( i ) ) + "not found" );
-        }
-    }
-
-    // Check input consistency
-    if( numberOfCustomInputs != guidanceInputFunctions.size( ) )
-    {
-        std::cerr<<"Warning when creating propulsion indput dependent variables, not all user-defined inputs have been parsed"<<std::endl;
-    }
-
-    return inputFunctions;
-}
-
 //! Function to create a wrapper object that computes the thrust magnitude
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
@@ -435,7 +372,6 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
             thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
                         utilities::createVectorFromMapValues< boost::shared_ptr< system_models::EngineModel >, std::string >(
                             bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
-
         }
         break;
 
@@ -470,7 +406,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         // Create indpendent variable functions
         std::vector< boost::function< double( ) > > thrustInputVariableFunctions =
                 getPropulsionInputVariables(
-                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
+                    bodyMap.at( nameOfBodyWithGuidance ), parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->thrustGuidanceInputVariables_ );
         std::vector< boost::function< double( ) > > specificInputVariableFunctions =
                 getPropulsionInputVariables(
@@ -483,7 +419,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
                     parameterizedThrustMagnitudeSettings->specificImpulseFunction_,
                     thrustInputVariableFunctions,
                     specificInputVariableFunctions,
-                    parameterizedThrustMagnitudeSettings->thrustDependentVariables_,
+                    parameterizedThrustMagnitudeSettings->thrustIndependentVariables_,
                     parameterizedThrustMagnitudeSettings->specificImpulseDependentVariables_,
                     parameterizedThrustMagnitudeSettings->inputUpdateFunction_ );
 

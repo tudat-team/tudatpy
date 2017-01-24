@@ -70,6 +70,13 @@ public:
         resetDerivedClassCurrentTime( currentTime );
     }
 
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities. This function can be redefined in
+     *  derived class
+     *  \param currentTime New current time to be set in model.
+     */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
 
@@ -169,6 +176,13 @@ public:
         }
     }
 
+
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities.
+     *  \param currentTime New current time to be set in model.
+     */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
         if( !( customThrustResetFunction_.empty( ) ) )
@@ -291,7 +305,7 @@ protected:
 };
 
 //! Variables on which parameterized thrust can depend.
-enum ThrustDependentVariables
+enum ThrustIndependentVariables
 {
     mach_number_dependent_thrust,
     altitude_dependent_thrust,
@@ -299,7 +313,7 @@ enum ThrustDependentVariables
     dynamic_pressure_dependent_thrust,
     pressure_dependent_thrust,
     guidance_input_dependent_thrust,
-    maximum_thrust_multiplier
+    throttle_dependent_thrust
 };
 
 //! Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
@@ -307,10 +321,10 @@ enum ThrustDependentVariables
 /*!
  *  Class to compute the engine thrust and specific impulse as a parameterized function of any number of indepedent
  *  variables.  The physical meaning of the variables must be defined here, selecting from the options in the
- *  ThrustDependentVariables enum, and they are automatically retrieved from the relevant environment models during the
+ *  ThrustIndependentVariables enum, and they are automatically retrieved from the relevant environment models during the
  *  propagation.
  *  Note that any number of user-specific functions may be included, as a  guidance_input_dependent_thrust type or
- *  maximum_thrust_multiplier. Note that a maximum_thrust_multiplier may not be used as one of the independent variables
+ *  throttle_dependent_thrust. Note that a throttle_dependent_thrust may not be used as one of the independent variables
  *  of the thrust magnitude for this class. This setting is parsed through the ParameterizedThrustMagnitudeSettings
  *  class, which is the class that is typically used to create this class.
  */
@@ -331,30 +345,35 @@ public:
      * \param specificImpulseInputVariableFunctions List of functions returning input variables for the
      * specific impulse. The order of the functions in this vector is passed to the specificImpulseFunction in the same order
      * as entries of this vector.
-     * \param thrustDependentVariables List of identifiers for the physical meaning of each of the entries of the input to
+     * \param thrustIndependentVariables List of identifiers for the physical meaning of each of the entries of the input to
      * the thrustMagnitudeFunction function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
+     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
+     * input to the specificImpulseDependentVariables function.
+     * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
+     * (empty by default).
      */
     ParameterizedThrustMagnitudeWrapper(
             const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
             const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
             const std::vector< boost::function< double( ) > > thrustInputVariableFunctions,
             const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
-            const std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables,
-            const std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables,
-            const boost::function< void( const double) > inputUpdateFunction ):
+            const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
+            const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
+            const boost::function< void( const double) > inputUpdateFunction =
+            boost::function< void( const double) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
         specificImpulseInputVariableFunctions_( specificImpulseInputVariableFunctions ),
-        thrustDependentVariables_( thrustDependentVariables ),
+        thrustIndependentVariables_( thrustIndependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         inputUpdateFunction_( inputUpdateFunction ),
         currentThrustMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN )
     {
-        if( thrustInputVariableFunctions_.size( ) != thrustDependentVariables_.size( ) )
+        if( thrustInputVariableFunctions_.size( ) != thrustIndependentVariables_.size( ) )
         {
             throw std::runtime_error( "Error in parameterized thrust, inconsistent number of user-defined input variables for thrust" );
         }
@@ -404,6 +423,20 @@ public:
         }
     }
 
+    //! Function to reset the current time of the thrust model derived class.
+    /*!
+     *  Function to reset the current time of the thrust model derived class. Function is typically used to reset the time
+     *  to NaN, signalling the need for a recomputation of all required quantities.
+     *  \param currentTime New current time to be set in model.
+     */
+    virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        if( !( inputUpdateFunction_.empty( ) ) )
+        {
+            inputUpdateFunction_( currentTime );
+        }
+    }
+
     //! Function to return the current thrust magnitude
     /*!
      * Function to return the current thrust magnitude, as computed by last call to update member function.
@@ -441,11 +474,11 @@ private:
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction
     //! function.
-    std::vector< propulsion::ThrustDependentVariables > thrustDependentVariables_;
+    std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables_;
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the
     //! specificImpulseDependentVariables function.
-    std::vector< propulsion::ThrustDependentVariables > specificImpulseDependentVariables_;
+    std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables_;
 
     //! List of current input data to thrust function
     std::vector< double > currentThrustInputVariables_;
@@ -453,6 +486,8 @@ private:
     //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
+
+    //! Function that is called to update the user-defined guidance to the current time
     const boost::function< void( const double) > inputUpdateFunction_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
@@ -460,7 +495,6 @@ private:
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
-
 
 };
 

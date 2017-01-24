@@ -77,7 +77,7 @@ public:
     double getUpperBound( ) { return adiabaticWallTemperature_; }
 
     //! Function to retrieve the initial guess of the wall temperature.
-    double getInitialGuess( ) { return adiabaticWallTemperature_*0.01; }
+    double getInitialGuess( ) { return adiabaticWallTemperature_ * 0.01; }
 
 protected:
 
@@ -92,6 +92,16 @@ private:
     double adiabaticWallTemperature_;
 };
 
+//! Function to compute the equilibrium wall temperature from the heat input and emmisivity
+/*!
+ * Function to compute the equilibrium wall temperature from the heat input and emmisivity. This function calls a root-
+ * finder to determine the wall temperature where the heat input equals the radiative output.
+ * \param heatTransferFunction Function that returns the heat input as a function of current temperature
+ * \param wallEmmisivity Value of the material emmisivity
+ * \param adiabaticWallTemperature Adiabatic wall temperature. This variables is only used as an upper bound, and to
+ * generate an initial giess for the equilibrium temperature
+ * \return Wall temperature at which input and output of heat are in equilibrium.
+ */
 double computeEquilibiumWallTemperature(
         const boost::function< double( const double ) > heatTransferFunction,
         const double wallEmmisivity,
