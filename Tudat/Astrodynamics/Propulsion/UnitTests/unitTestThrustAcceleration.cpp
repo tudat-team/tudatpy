@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include <Tudat/Basics/testMacros.h>
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include <Tudat/External/SpiceInterface/spiceEphemeris.h>
@@ -814,6 +815,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
                 boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Apollo", reference_frames::bank_angle ) );
     dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    airspeed_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    local_density_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
                 boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                     "Apollo", reference_frames::inertial_frame, reference_frames::body_frame ) );
     dependentVariables.push_back(
@@ -831,6 +838,12 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     dependentVariables.push_back(
                 boost::make_shared< SingleDependentVariableSaveSettings >(
                     aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    "Apollo", reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) );
+    dependentVariables.push_back(
+                boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    "Apollo", reference_frames::aerodynamic_frame, reference_frames::body_frame ) );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -854,6 +867,8 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     // Iterate over results for dependent variables, and check against computed values.
     Eigen::Matrix3d rotationToBodyFixedFrame1, rotationToBodyFixedFrame2;
     Eigen::Vector3d expectedThrustDirection, computedThrustDirection;
+    Eigen::Vector3d expectedAerodynamicForceDirection;
+
     Eigen::Vector3d aerodynamicCoefficients;
 
     Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
@@ -864,48 +879,99 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
          variableIterator != dependentVariableSolution.end( ); variableIterator++ )
     {
+        double currentMachNumber = variableIterator->second( 0 );
+        double currentAngleOfAttack = variableIterator->second( 1 );
+        double currentAngleOfSideSlip = variableIterator->second( 2 );
+
+        double currentBankAngle = variableIterator->second( 3 );
+        double currentAirspeed = variableIterator->second( 4 );
+        double currentDensity = variableIterator->second( 5 );
+
+        rotationToBodyFixedFrame1 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 6, 9 ) );
+        rotationToBodyFixedFrame2 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 15, 9 ) );
+
+        Eigen::Vector3d currentAerodynamicAcceleration = variableIterator->second.segment( 24, 3 );
+        Eigen::Vector3d currentThrustAcceleration = variableIterator->second.segment( 27, 3 );
+
+        Eigen::Vector3d currentAerodynamicForceCoefficients = variableIterator->second.segment( 30, 3 );
+        Eigen::Vector3d currentAerodynamicMomentCoefficients = variableIterator->second.segment( 33, 3 );
+
+        Eigen::Matrix3d currentRotationFromInertialToAerodynamicFrame =
+                 getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 36, 9 ) );
+
+        Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame =
+                 getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 45, 9 ) );
+
         vehicelCoefficientInterface->updateCurrentCoefficients(
-                    boost::assign::list_of( variableIterator->second( 0 ) )(
-                        variableIterator->second( 1 ) )( variableIterator->second( 2 ) ) );
+                    boost::assign::list_of( currentMachNumber )(
+                        currentAngleOfAttack )( currentAngleOfSideSlip ) );
         aerodynamicCoefficients = vehicelCoefficientInterface->getCurrentForceCoefficients( );
 
-        rotationToBodyFixedFrame1 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 4, 9 ) );
-        rotationToBodyFixedFrame2 = getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 13, 9 ) );
+
 
         expectedThrustDirection = rotationToBodyFixedFrame1.transpose( ) * bodyFixedThrustDirection;
-        computedThrustDirection = variableIterator->second.segment( 25, 3 ).normalized( );
+        computedThrustDirection = currentThrustAcceleration.normalized( );
 
         // Check thrust magnitude
         BOOST_CHECK_CLOSE_FRACTION(
-                    ( variableIterator->second.segment( 25, 3 ) ).norm( ), thrustMagnitude / vehicleMass,
+                    ( currentThrustAcceleration ).norm( ), thrustMagnitude / vehicleMass,
                     2.0 * std::numeric_limits< double >::epsilon( ) );
+
+
+
+
+        Eigen::Vector3d expectedAerodynamicAcceleration = 0.5 * currentDensity * currentAirspeed * currentAirspeed *
+                bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( )->getReferenceArea( ) *
+                ( currentRotationFromInertialToAerodynamicFrame.inverse( ) ) *
+                 currentAerodynamicForceCoefficients / vehicleMass;
+
+
+        // Check aerodynamic coefficients
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicForceCoefficients( 0 ) - aerodynamicCoefficients( 0 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicForceCoefficients( 1 ) - aerodynamicCoefficients( 1 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicForceCoefficients( 2 ) - aerodynamicCoefficients( 2 ) ), 1.0E-10 );
+
+        // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicMomentCoefficients( 0 ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicMomentCoefficients( 1 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( currentAerodynamicMomentCoefficients( 2 ) ), 1.0E-14 );
+        Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame2 =
+                rotationToBodyFixedFrame1 * ( currentRotationFromInertialToAerodynamicFrame.inverse( ) );
+        Eigen::Matrix3d computedAerodynamicToBodyFixedFrame =
+                reference_frames::getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+                    currentAngleOfAttack, 0.0 );
+
+
         for( unsigned int i = 0; i < 3; i ++ )
         {
             // Check rotation matrices
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( rotationToBodyFixedFrame1( i, j ) - rotationToBodyFixedFrame2( i, j ) ),
-                                   8.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL(
+                            std::fabs( rotationToBodyFixedFrame1( i, j ) - rotationToBodyFixedFrame2( i, j ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL(
+                            std::fabs( currentRotationFromAerodynamicToBodyFixedFrame( i, j ) -
+                                       computedAerodynamicToBodyFixedFrame( i, j ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL(
+                            std::fabs( currentRotationFromAerodynamicToBodyFixedFrame2( i, j ) -
+                                       computedAerodynamicToBodyFixedFrame( i, j ) ),
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
             }
             // Check thrust direction
             BOOST_CHECK_SMALL( std::fabs( expectedThrustDirection( i ) - computedThrustDirection( i ) ),
                                15.0 * std::numeric_limits< double >::epsilon( ) );
 
-            // Check aerodynamic coefficients
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 28 ) - aerodynamicCoefficients( 0 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 29 ) - aerodynamicCoefficients( 1 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 30 ) - aerodynamicCoefficients( 2 ) ), 1.0E-10 );
-
-            // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 31 ) ), 1.0E-14 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 32 ) ), 1.0E-10 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( variableIterator->second( 33 ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( expectedAerodynamicAcceleration( i ) - currentAerodynamicAcceleration( i ) ),
+                               std::max( 10.0 * currentAerodynamicAcceleration.norm( ) * std::numeric_limits< double >::epsilon( ),
+                                         std::numeric_limits< double >::epsilon( ) ) );
         }
     }
 }
