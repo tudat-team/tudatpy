@@ -56,10 +56,10 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Single acceleration norm of type ";
         break;
     case total_acceleration_dependent_variable:
-        variableName = "Total acceleration ";
+        variableName = "Total acceleration in inertial frame ";
         break;
     case single_acceleration_dependent_variable:
-        variableName = "Single acceleration of type ";
+        variableName = "Single acceleration in inertial frame of type ";
         break;
     case aerodynamic_force_coefficients_dependent_variable:
         variableName = "Aerodynamic force coefficients ";
