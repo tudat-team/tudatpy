@@ -255,6 +255,7 @@ std::vector< Argument > addScalarToVector( const std::vector< Argument >& vector
 }
 
 
+
 //! Function to copy a multi-array into another multi-array
 /*!
  *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
@@ -290,6 +291,7 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
 
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
         const boost::multi_array< double, 3 >& m, const double* requestedElement );
+
 
 } // namespace utilities
 

@@ -93,6 +93,10 @@ public:
 };
 
 //! Class to define settings for saving a single acceleration (norm or vector) during propagation
+/*!
+ * Class to define settings for saving a single acceleration (norm or vector) during propagation. NOTE: This acceleration
+ * is returned in the inertial frame!
+ */\
 class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
