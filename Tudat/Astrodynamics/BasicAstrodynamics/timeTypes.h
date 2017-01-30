@@ -583,7 +583,8 @@ public:
         {
             return true;
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) > timeToCompare2.getSecondsIntoFullPeriod( ) )
+        else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                ( timeToCompare1.getSecondsIntoFullPeriod( ) > timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
@@ -606,7 +607,8 @@ public:
         {
             return true;
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) )
+        else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
@@ -629,7 +631,8 @@ public:
         {
             return true;
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) < timeToCompare2.getSecondsIntoFullPeriod( ) )
+        else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                ( timeToCompare1.getSecondsIntoFullPeriod( ) < timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
@@ -652,14 +655,16 @@ public:
         {
             return true;
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) <= timeToCompare2.getSecondsIntoFullPeriod( ) )
+        else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                 ( timeToCompare1.getSecondsIntoFullPeriod( ) <= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
         else
         {
             return false;
-        }    }
+        }
+    }
 
 
     //!Output operator for Time object

@@ -77,8 +77,8 @@ Eigen::VectorXd  executeParameterEstimation( )
     accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-//    accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-//    accelerationsOfEarth[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
@@ -111,9 +111,9 @@ Eigen::VectorXd  executeParameterEstimation( )
                                   "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                                       "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
                               centralBodyMap[ "Earth" ] ) );
-//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
-//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Jupiter", gravitational_parameter ) );
-//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Saturn", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Jupiter", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Saturn", gravitational_parameter ) );
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
@@ -121,15 +121,19 @@ Eigen::VectorXd  executeParameterEstimation( )
 
     // Define integrator settings.
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
-            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, 2.0, 3600.0, 1.0E-12, 1.0E-12 );
+            boost::make_shared< IntegratorSettings< TimeType > >(
+                rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 900.0 );
+//            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
+//            ( rungeKuttaVariableStepSize,
+//              RungeKuttaCoefficients::rungeKuttaFehlberg78, 2.0, 3600.0, 1.0E-12, 1.0E-12 );
 
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
-            ( centralBodies, accelerationModelMap, bodiesToIntegrate, getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
-              TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ) );
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate,
+              getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
+              TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
+              cowell, boost::shared_ptr< DependentVariableSaveSettings >( ), 600.0 );
 
     // Define light-time corrections.
     std::map< ObservableType, std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > >
@@ -149,6 +153,11 @@ Eigen::VectorXd  executeParameterEstimation( )
                 bodyMap, parametersToEstimate,
                 linkEndsMap, integratorSettings, propagatorSettings, observableCorrections );
 
+    input_output::writeDataMapToTextFile(
+                boost::dynamic_pointer_cast< SingleArcVariationalEquationsSolver<
+                StateScalarType, TimeType, StateScalarType > >(
+                    orbitDeterminationManager.getVariationalEquationsSolver( ) )->getDynamicsSimulator( )->
+                getEquationsOfMotionNumericalSolution( ), "longDoubleStateHistoryOdTest.dat" );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
@@ -196,11 +205,9 @@ Eigen::VectorXd  executeParameterEstimation( )
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-1;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-1;
     }
-//    initialParameterEstimate( 6 ) *= ( 1.0 + 1.0E-5 );
-//    initialParameterEstimate( 7 ) *= ( 1.0 + 1.0E-4 );
-//    initialParameterEstimate( 8 ) *= ( 1.0 + 1.0E-4 );
-
-    std::cout<<truthParameters<<std::endl<<std::endl<<initialParameterEstimate<<std::endl;
+    initialParameterEstimate( 6 ) *= ( 1.0 + 1.0E-5 );
+    initialParameterEstimate( 7 ) *= ( 1.0 + 1.0E-4 );
+    initialParameterEstimate( 8 ) *= ( 1.0 + 1.0E-4 );
 
 
     boost::shared_ptr< PodInput< ObservationScalarType, TimeType, StateScalarType, StateScalarType > > podInput =
@@ -208,14 +215,14 @@ Eigen::VectorXd  executeParameterEstimation( )
                 observationsAndTimes, initialParameterEstimate - truthParameters, 1 );
 
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, true, boost::make_shared< EstimationConvergenceChecker >( ) );
+                podInput, true, boost::make_shared< EstimationConvergenceChecker >( ), 1, 0 );
 
     return( podOutput->parameterEstimate_.template cast< double >( ) - truthParameters .template cast< double >( ) );
 }
 
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( unsigned int i = 0; i < 8; i++ )
+    for( unsigned int i = 0; i < 8 ; i++ )
     {
         std::cout<<"=============================================== Running Case: "<<i<<std::endl;
 
@@ -228,44 +235,56 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         {
             totalError = executeParameterEstimation< double, double, long double >( );
         }
-//        else if( i == 2 )
-//        {
-//            totalError = executeParameterEstimation< double, Time, double >( );
-//        }
         else if( i == 2 )
         {
-            totalError = executeParameterEstimation< long double, double, double >( );
+            totalError = executeParameterEstimation<  long double, double, double >( );
         }
-//        else if( i == 4 )
-//        {
-//            totalError = executeParameterEstimation< double, Time, long double >( );
-//        }
-//        else if( i == 5 )
-//        {
-//            totalError = executeParameterEstimation< long double, Time, double >( );
-//        }
         else if( i == 3 )
         {
             totalError = executeParameterEstimation< long double, double, long double >( );
         }
-//        else if( i == 7 )
-//        {
-//            totalError = executeParameterEstimation< long double, Time, long double >( );
-//        }
-
-
-
-        for( unsigned int i = 0; i < 3; i++ )
+        else if( i == 4 )
         {
-            BOOST_CHECK_SMALL( totalError( i ), 1.0E-2 );
+            totalError = executeParameterEstimation< double, Time, double >( );
+        }
+        else if( i == 5 )
+        {
+            totalError = executeParameterEstimation< double, Time, long double >( );
+        }
+        else if( i == 6 )
+        {
+            totalError = executeParameterEstimation< long double, Time, double >( );
+        }
+        else if( i == 7 )
+        {
+            totalError = executeParameterEstimation< long double, Time, long double >( );
+        }
+
+
+
+
+        double toleranceMultiplier = 1.0;
+        if( i % 2 == 1 )
+        {
+            toleranceMultiplier *= 1.0E-3;
         }
 
         for( unsigned int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( totalError( i + 3 ), 1.0E-7 );
+            BOOST_CHECK_SMALL( totalError( i ), toleranceMultiplier * 1.0E-2 );
         }
 
-        std::cout<<totalError<<std::endl;
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( totalError( i + 3 ), toleranceMultiplier * 1.0E-7 );
+        }
+
+        BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
+        BOOST_CHECK_SMALL( totalError( 7 ), toleranceMultiplier * 1.0E9 );
+        BOOST_CHECK_SMALL( totalError( 8 ), toleranceMultiplier * 1.0E9 );
+
+
+        std::cout<<totalError.transpose( )<<std::endl;
     }
 
 }

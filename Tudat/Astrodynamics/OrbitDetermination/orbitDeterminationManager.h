@@ -403,7 +403,6 @@ public:
                 // Set current observation partials in matrix of all partials
                 residualsAndPartials.second.block( startIndex, 0, dataIterator->second.first.size( ), parameterVectorSize ) =
                         observationsWithPartials.second;
-
                 // Increment current index of observation.
                 startIndex += dataIterator->second.first.size( );
 
@@ -453,7 +452,8 @@ public:
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType, StateScalarType, ParameterScalarType > >& podInput,
             const int reintegrateVariationalEquations = 1,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker = ( boost::make_shared< EstimationConvergenceChecker >( ) ),
-            const bool saveInformationmatrix = 1 )
+            const bool saveInformationmatrix = 1,
+            const bool printOutput = 1 )
     {
 
         // Get size of parameter vector and number of observations (total and per type)
@@ -494,7 +494,10 @@ public:
             }
             oldParameterEstimate = newParameterEstimate;
 
-            std::cout<<"Calculating residuals and partials "<<totalNumberOfObservations<<std::endl;
+            if( printOutput )
+            {
+                std::cout<<"Calculating residuals and partials "<<totalNumberOfObservations<<std::endl;
+            }
             // Calculate residuals and observation matrix for current parameter estimate.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
             calculateObservationMatrixAndResiduals(
@@ -509,10 +512,8 @@ public:
             {
                 normalizedInverseAprioriCovarianceMatrix( j, j ) = podInput->inverseOfAprioriCovariance_( j, j ) /
                         ( transformationData( j ) * transformationData( j ) );
-                //std::cout<<normalizedInverseAprioriCovarianceMatrix( j, j )<<" "<<podInput->inverseOfAprioriCovariance_( j, j )<<" "<<transformationData( j )<<std::endl;
             }
 
-            //std::cout<<std::endl<<transformationData.transpose( )<<std::endl;
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
@@ -524,14 +525,14 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ParameterScalarType >( );
 
-
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate - parameterAddition;
             oldParameterEstimate = newParameterEstimate;
 
-            //std::cout<<"New parameter "<<newParameterEstimate.transpose( )<<std::endl;
-            std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
-
+            if( printOutput )
+            {
+                std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
+            }
             // Calculate mean residual for current iteration.
             residualRms = 0.0;
             double residualSum = 1.0;
@@ -542,7 +543,10 @@ public:
             }
             residualRms = residualRms / ( residualSum );
             rmsResidualHistory.push_back( residualRms );
-            std::cout<<"Current residual: "<<residualRms<<std::endl;
+            if( printOutput )
+            {
+                std::cout<<"Current residual: "<<residualRms<<std::endl;
+            }
 
             // If current iteration is better than previous one, update 'best' data.
             if( residualRms < bestResidual )
