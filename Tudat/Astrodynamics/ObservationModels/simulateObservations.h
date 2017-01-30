@@ -64,6 +64,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< 
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput<
                 ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
                     tabulatedObservationSettings->simulationTimes_, observationModel, observationsToSimulate->linkEndType_ );
+
     }
 
     return simulatedObservations;
