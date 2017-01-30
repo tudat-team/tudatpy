@@ -571,95 +571,100 @@ public:
     }
 
     //! Greater-than operator for two Time objects
-    /*!
-     * Greater-than operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
-     * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
-     */
-    friend bool operator> ( const Time& timeToCompare1, const Time& timeToCompare2 )
-    {
-        if( timeToCompare1.getFullPeriods( ) > timeToCompare2.getFullPeriods( ) )
+        /*!
+         * Greater-than operator for two Time objects
+         * \param timeToCompare1 First time to compare
+         * \param timeToCompare2 Second time to compare
+         * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
+         */
+        friend bool operator> ( const Time& timeToCompare1, const Time& timeToCompare2 )
         {
-            return true;
+            if( timeToCompare1.getFullPeriods( ) > timeToCompare2.getFullPeriods( ) )
+            {
+                return true;
+            }
+            else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                    ( timeToCompare1.getSecondsIntoFullPeriod( ) > timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) > timeToCompare2.getSecondsIntoFullPeriod( ) )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
-    //! Greater-than-or-equal-to operator for two Time objects
-    /*!
-     * Greater-than-or-equal-to-than operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
-     * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
-     */
-    friend bool operator>= ( const Time& timeToCompare1, const Time& timeToCompare2 )
-    {
-        if( timeToCompare1.getFullPeriods( ) >= timeToCompare2.getFullPeriods( ) )
+        //! Greater-than-or-equal-to operator for two Time objects
+        /*!
+         * Greater-than-or-equal-to-than operator for two Time objects
+         * \param timeToCompare1 First time to compare
+         * \param timeToCompare2 Second time to compare
+         * \return True if timeToCompare1 is larger than or equal to timeToCompare2, false otherwise.
+         */
+        friend bool operator>= ( const Time& timeToCompare1, const Time& timeToCompare2 )
         {
-            return true;
+            if( timeToCompare1.getFullPeriods( ) >= timeToCompare2.getFullPeriods( ) )
+            {
+                return true;
+            }
+            else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                    ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
-    //! Smaller-than operator for two Time objects
-    /*!
-     * Smaller-than operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
-     * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
-     */
-    friend bool operator< ( const Time& timeToCompare1, const Time& timeToCompare2 )
-    {
-        if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
+        //! Smaller-than operator for two Time objects
+        /*!
+         * Smaller-than operator for two Time objects
+         * \param timeToCompare1 First time to compare
+         * \param timeToCompare2 Second time to compare
+         * \return True if timeToCompare1 is larger than timeToCompare2, false otherwise.
+         */
+        friend bool operator< ( const Time& timeToCompare1, const Time& timeToCompare2 )
         {
-            return true;
+            if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
+            {
+                return true;
+            }
+            else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                    ( timeToCompare1.getSecondsIntoFullPeriod( ) < timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) < timeToCompare2.getSecondsIntoFullPeriod( ) )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 
-    //! Smaller-than-or-equal-to operator for two Time objects
-    /*!
-     * Smaller-than-or-equal-to-than operator for two Time objects
-     * \param timeToCompare1 First time to compare
-     * \param timeToCompare2 Second time to compare
-     * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
-     */
-    friend bool operator<= ( const Time& timeToCompare1, const Time& timeToCompare2 )
-    {
-        if( timeToCompare1.getFullPeriods( ) <= timeToCompare2.getFullPeriods( ) )
+        //! Smaller-than-or-equal-to operator for two Time objects
+        /*!
+         * Smaller-than-or-equal-to-than operator for two Time objects
+         * \param timeToCompare1 First time to compare
+         * \param timeToCompare2 Second time to compare
+         * \return True if timeToCompare1 is smaller than or equal to timeToCompare2, false otherwise.
+         */
+        friend bool operator<= ( const Time& timeToCompare1, const Time& timeToCompare2 )
         {
-            return true;
+            if( timeToCompare1.getFullPeriods( ) <= timeToCompare2.getFullPeriods( ) )
+            {
+                return true;
+            }
+            else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
+                     ( timeToCompare1.getSecondsIntoFullPeriod( ) <= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else if( timeToCompare1.getSecondsIntoFullPeriod( ) <= timeToCompare2.getSecondsIntoFullPeriod( ) )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }    }
 
 
     //!Output operator for Time object
