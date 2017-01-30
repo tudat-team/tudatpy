@@ -109,6 +109,7 @@ void integrateEquationsFromIntegrator(
                 }
             }
 
+
             // Print solutions
             if( printInterval == printInterval )
             {
