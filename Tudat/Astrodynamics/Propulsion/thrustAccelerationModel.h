@@ -136,6 +136,7 @@ public:
 
             // Reset current time.
             currentTime_ = currentTime;
+
         }
 
     }
