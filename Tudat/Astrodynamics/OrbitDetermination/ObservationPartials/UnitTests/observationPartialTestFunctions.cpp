@@ -46,16 +46,16 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     if( useConstantEphemerides )
     {
         basic_mathematics::Vector6d bodyState = basic_mathematics::Vector6d::Zero( );
-        bodyState.segment( 0, 6 ) = getBodyCartesianPositionAtEpoch(
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 6 ) = getBodyCartesianPositionAtEpoch(
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Mars", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 6 ) = getBodyCartesianPositionAtEpoch(
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodyMap[ "Moon" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
-        bodyState.segment( 0, 6 ) = getBodyCartesianPositionAtEpoch(
+        bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Sun", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodyMap[ "Sun" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
     }

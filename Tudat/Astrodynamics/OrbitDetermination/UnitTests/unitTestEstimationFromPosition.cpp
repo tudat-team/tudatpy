@@ -113,8 +113,6 @@ Eigen::VectorXd  executeParameterEstimation(
                                       "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
                               centralBodyMap[ "Earth" ] ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
-    //parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Jupiter", gravitational_parameter ) );
-    //parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Saturn", gravitational_parameter ) );
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
@@ -289,8 +287,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
             }
 
             BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-
-
             std::cout<<totalError.transpose( )<<std::endl;
         }
     }
