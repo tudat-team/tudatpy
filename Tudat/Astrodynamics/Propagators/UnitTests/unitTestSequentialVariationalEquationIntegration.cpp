@@ -152,16 +152,16 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Perform requested propagation
-    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double, double > > variationalEquationSolver;
+    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double> > variationalEquationSolver;
     if( !performIntegrationsSequentially )
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate );
     }
     else
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
                     integratorSettings );
@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE( testSequentialVariationalEquationIntegration )
 
     // Test dynamics solution.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                concurrentResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),
-                sequentialResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),
+                concurrentResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
+                sequentialResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
                 std::numeric_limits< double >::epsilon( ) );
 
 }

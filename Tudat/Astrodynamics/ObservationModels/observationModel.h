@@ -11,6 +11,7 @@
 #ifndef TUDAT_OBSERVATIONMODEL_H
 #define TUDAT_OBSERVATIONMODEL_H
 
+#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -40,8 +41,7 @@ namespace observation_models
  *  empty by default. Also, the observable may be a with/without returning (by reference) the times and states
  *  at each of the link ends. Returning these times/states prevents recomputations of these quantities in later calculations.
  */
-template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationModel
 {
 public:
@@ -106,8 +106,8 @@ public:
     virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) = 0;
+                std::vector< double >& linkEndTimes,
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
 
     //! Function to compute full observation at given time.
     /*!
@@ -124,8 +124,8 @@ public:
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes ,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                std::vector< double >& linkEndTimes ,
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check if any non-ideal models are set.
         if( isBiasNull_ )
@@ -182,7 +182,8 @@ public:
         // Check if any non-ideal models are set.
         if( isBiasNull_ )
         {
-            return computeObservations( time, linkEndAssociatedWithTime );
+            return computeIdealObservationsWithLinkEndData(
+                        time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
         }
         else
         {
@@ -198,6 +199,16 @@ public:
         }
     }
 
+    //! Function to retrieve a single entry of the observation value
+    /*!
+     *  Function to retrieve a single entry of the observation value. Generally, the observable is a vector, this function
+     *  allows a single entry to be retrieve
+     *  \param time Time at which observable is to be evaluated.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \param observationEntry entry from observable vector that is to be retrieved.
+     *  \return Calculated (non-ideal, i.e with biases) observable value.
+     */
     ObservationScalarType computeObservationEntry(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
@@ -240,10 +251,10 @@ protected:
 
 
     //! Pre-define list of times used when calling function returning link-end states/times from interface function.
-    std::vector< TimeType > linkEndTimes_;
+    std::vector< double > linkEndTimes_;
 
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
-    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > linkEndStates_;
+    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
 

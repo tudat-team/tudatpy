@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisElliptical )
         // Compute next entry.
         computedPropagationHistory[ stateIterator->first ] =
                 orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianStateFromEphemeris( stateIterator->first ),
+                    keplerEphemeris.getCartesianState( stateIterator->first ),
                     earthGravitationalParameter );
 
         // Check that computed results match expected results.
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisHyperbolic )
         // Compute next entry.
         computedPropagationHistory[ stateIterator->first ] =
                 orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianStateFromEphemeris( stateIterator->first ),
+                    keplerEphemeris.getCartesianState( stateIterator->first ),
                     getGTOPGravitationalParameter( ) );
 
         // Check that computed results match expected results.

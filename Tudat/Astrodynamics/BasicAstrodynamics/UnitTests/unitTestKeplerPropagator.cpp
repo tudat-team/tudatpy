@@ -321,18 +321,10 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
 
     for( unsigned int i = 0; i < doubleErrors.size( ); i++ )
     {
-        if( std::fabs( doubleErrors.at( i ) ) > 0.0 )
-        {
-            BOOST_CHECK_SMALL(
-                        static_cast< double >( std::fabs( longDoubleErrors.at( i ) / doubleErrors.at( i ) ) ),
-                        static_cast< double >( 5.0 * std::numeric_limits< long double >::epsilon( ) /
-                        std::numeric_limits< double >::epsilon( ) ) );
-        }
-        else
-        {
-            BOOST_CHECK_SMALL( static_cast< double >( longDoubleErrors.at( i ) ),
-                               static_cast< double >( 5.0 * std::numeric_limits< long double >::epsilon( ) ) );
-        }
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( longDoubleErrors.at( i ) ) ),
+                           static_cast< double >( 5.0 * std::numeric_limits< long double >::epsilon( ) ) );
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( doubleErrors.at( i ) ) ),
+                           static_cast< double >( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
 }
 } // namespace unit_tests

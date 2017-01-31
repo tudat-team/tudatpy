@@ -60,7 +60,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                 {
                     // Set state function.
                     perturbingBodyStateFunctions.push_back(
-                                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris,
+                                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
                                                                          bodyMap.at( perturbingBodies[ i ] ), _1 ) );
 
                     // Set gravitational parameter function.

@@ -295,10 +295,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     using namespace tudat;
 
     // Load Spice kernels
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Get settings for celestial bodies
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -343,9 +342,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
     bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" )->updateInterface( testTime );
 
 
@@ -375,10 +374,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
     using namespace tudat;
 
     // Load Spice kernels
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Test creation with coefficients positive/negative in body/aerodynamic frame (4 cases).
     for( unsigned int testCase = 0; testCase < 4; testCase++ )
@@ -564,10 +562,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     using namespace tudat;
 
     // Load Spice kernels
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Get settings for Earth.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -666,16 +663,15 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     vehicleFlightConditions->getCurrentAltitude( ), 0.0, 0.0, 0.0 );
         double machNumber = velocity / speedOfSound;
 
-        // Get manual and automatic coefficients anf coompare.
+        // Get manual and automatic coefficients and compare.
         Eigen::Vector3d automaticCoefficients = coefficientInterface->getCurrentForceCoefficients( );
-        coefficientInterface->updateCurrentCoefficients(
+        coefficientInterface->updateFullCurrentCoefficients(
                     boost::assign::list_of( machNumber )( angleOfAttack )( angleOfSideslip  ) );
         Eigen::Vector3d manualCoefficients = coefficientInterface->getCurrentForceCoefficients( );
 
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     automaticCoefficients, manualCoefficients, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
-
     }
 }
 
