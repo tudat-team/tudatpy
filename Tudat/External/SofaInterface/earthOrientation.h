@@ -48,14 +48,14 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
  *  Function to calculate GMST (Greenwich Mean Sidereal Time) according to requested IAU conventions
  *  using Sofa implementation.  Note that this function does not include empirical corrections, as published as daily
  *  values by IERS.
- *  \param terrestrialTimeJulianDaysSinceJ2000 Time in TT in seconds since J2000
- *  \param universalTime1JulianDaysSinceJ2000 Time in UT1 in seconds since J2000
+ *  \param terrestrialTime Time in TT in seconds since reference julian day.
+ *  \param universalTime1 Time in UT1 in seconds since reference julian day.
  *  \param referenceJulianDay Julian day wrt which input times are referenced (default = J2000)
  *  \param iauConvention IAU conventions that are to be used for calculation (i.e. determining which Sofa function to call)
  *  \return Current GMST (normalized to [0,2 pi]).
  */
 double calculateGreenwichMeanSiderealTime(
-        const double terrestrialTimeJulianDaysSinceJ2000, const double universalTime1JulianDaysSinceJ2000,
+        const double terrestrialTime, const double universalTime1,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
         const IAUConventions iauConvention = iau_2000_b );
 

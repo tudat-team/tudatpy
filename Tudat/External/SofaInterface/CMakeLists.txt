@@ -47,10 +47,4 @@ add_executable(test_SofaTimeConversions "${SRCROOT}${EXTERNALDIR}/SofaInterface/
 setup_custom_test_program(test_SofaTimeConversions "${SRCROOT}${EXTERNALDIR}/SofaInterface")
 target_link_libraries(test_SofaTimeConversions tudat_basic_astrodynamics tudat_basic_mathematics tudat_sofa_interface sofa ${Boost_LIBRARIES})
 
-
-#add_executable(test_UtcTdbConversion "${SRCROOT}${EXTERNALDIR}/SofaInterface/UnitTests/unitTestUtcTdbConversion.cpp")
-#setup_custom_test_program(test_UtcTdbConversion "${SRCROOT}${EXTERNALDIR}/SofaInterface")
-#target_link_libraries(test_UtcTdbConversion ilr_input_output tudat_input_output ilr_basic_astrodynamics tudat_basic_astrodynamics tudat_sofa_interface sofa gomp ${Boost_LIBRARIES})
-
-
 # End of file.
