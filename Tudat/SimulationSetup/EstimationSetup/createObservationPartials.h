@@ -37,10 +37,10 @@ PerLinkEndPerLightTimeSolutionCorrections;
  *  \param observationModels Map of observation models (may not be of mixed type) with LinkEnds of observable as map key
  *  \return Map of light-time corrections, with associated link ends as key.
  */
-template< typename ObservationScalarType, typename TimeType, typename StateScalarType, int ObservationSize  >
+template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
 PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
-        ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > observationModels )
+        ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
@@ -50,7 +50,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
 
     // Iterate over link ends
     for( typename  std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
-         ObservationSize, ObservationScalarType, TimeType, StateScalarType > > >::const_iterator
+         ObservationSize, ObservationScalarType, TimeType> > >::const_iterator
          observationModelIterator = observationModels.begin( );
          observationModelIterator != observationModels.end( ); observationModelIterator++ )
     {
@@ -69,9 +69,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             case observation_models::oneWayRange:
             {
                 boost::shared_ptr< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType, StateScalarType > > oneWayRangeModel =
+                        < ObservationScalarType, TimeType> > oneWayRangeModel =
                         boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
-                        < ObservationScalarType, TimeType, StateScalarType > >
+                        < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 currentLightTimeCorrections.push_back(
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
@@ -80,9 +80,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             case observation_models::angular_position:
             {
                 boost::shared_ptr< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType, StateScalarType > > angularPositionModel =
+                        < ObservationScalarType, TimeType> > angularPositionModel =
                         boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
-                        < ObservationScalarType, TimeType, StateScalarType > >
+                        < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 currentLightTimeCorrections.push_back(
                             angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );

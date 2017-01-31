@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
         // Generate one-way range model
         boost::shared_ptr< ObservationModel< 2 > > angularPositionModel =
-                observation_models::ObservationModelCreator< 2, double, double, double >::createObservationModel(
+                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
                     angular_position, linkEnds, bodyMap  );
 
         // Create parameter objects.
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
         // Generate one-way range model
         boost::shared_ptr< ObservationModel< 2 > > angularPositionModel =
-                observation_models::ObservationModelCreator< 2, double, double, double >::createObservationModel(
+                observation_models::ObservationModelCreator< 2, double, double >::createObservationModel(
                     angular_position, linkEnds, bodyMap  );
 
         // Create parameter objects.

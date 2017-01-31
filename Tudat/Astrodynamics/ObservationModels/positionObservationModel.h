@@ -29,8 +29,8 @@ namespace observation_models
  *  Class for simulating observations of three-dimensional position. This observable is typically not realized in
  *  practice, but its use can be very valuable in simulation studies
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-class PositionObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class PositionObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType >
 {
 public:
 
@@ -44,7 +44,7 @@ public:
     PositionObservationModel(
             const boost::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
             const boost::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
-        ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType >(
+        ObservationModel< 3, ObservationScalarType, TimeType >(
             position_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
     //! Destructor

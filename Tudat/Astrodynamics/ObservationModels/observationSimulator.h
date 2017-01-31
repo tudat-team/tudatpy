@@ -13,11 +13,10 @@ namespace observation_models
 {
 
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > simulateObservationWithCheck(
         const TimeType& observationTime,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationModel,
+        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime )
 {
     // Initialize vector with reception times.
@@ -34,12 +33,11 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
     return std::make_pair( calculatedObservation, isObservationFeasible );
 }
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > >
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationModel,
+        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
@@ -47,7 +45,7 @@ simulateObservationsWithCheck(
 
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
-        simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
+        simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                     observationTimes.at( i ), observationModel, linkEndAssociatedWithTime );
 
         // Check if receiving station can view transmitting station.
@@ -63,12 +61,11 @@ simulateObservationsWithCheck(
                            utilities::createVectorFromMapKeys( observations ) );
 }
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, LinkEndType > >
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationModel,
+        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime )
 {
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
@@ -79,14 +76,14 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
 
 
 
-template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationSimulator
 {
 public:
 
     ObservationSimulator(
             const ObservableType observableType,
-            const std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > >& observationModels ):
+            const std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >& observationModels ):
         observableType_( observableType ), observationModels_( observationModels ){ }
 
     //! Virtual destructor
@@ -105,7 +102,7 @@ public:
         return observationModels_.at( linkEnds )->getObservationSize( );
     }
 
-    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > getObservationModel(
+    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
         if( observationModels_.count( linkEnds ) == 0 )
@@ -115,7 +112,7 @@ public:
         return observationModels_.at( linkEnds );
     }
 
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > getObservationModels( )
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > getObservationModels( )
     {
         return observationModels_;
     }
@@ -127,10 +124,10 @@ public:
                          const LinkEndType linkEndAssociatedWithTime,
                          const bool checkTimes = true )
     {
-        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > selectedObservationModel =
+        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationModels_.at( linkEnds );
 
-        return simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
+        return simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                     observationTime, selectedObservationModel, linkEndAssociatedWithTime );
     }
 
@@ -155,10 +152,10 @@ public:
             std::cerr<<"Error when simulating observtions, could not find observation model for given linke ends"<<std::endl;
         }
 
-        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > selectedObservationModel =
+        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationModels_.at( linkEnds );
 
-        return simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
+        return simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType >(
                     observationTimes, selectedObservationModel, linkEndAssociatedWithTime );
     }
 
@@ -178,7 +175,7 @@ protected:
 
     ObservableType observableType_;
 
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > observationModels_;
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels_;
 };
 
 }

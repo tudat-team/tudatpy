@@ -134,12 +134,10 @@ protected:
  *  Top-level class for performing orbit determination. Acceleration models, parameters to estimate, observable types and link ends
  *  as well as various settings for observation and dynamical simulation are provided to the class (see constructor). The parameter
  *  estimation process is then performed by providing measurement data and related metadata (as PodInput) to the estimateParameters function.
- *  \tparam ObservationScalarType Scalar Data type for observations (double, long double)
+ *  \tparam ObservationScalarType Scalar Data type for observations/state vector of integrated bodies  (double, long double)
  *  \tparam ObservationScalarType TimeType Data type for time representation (double, tudat::Time)
- *  \tparam StateScalarType Data type for time entries of state vector of integrated bodies (double, tudat::Time)
- *  (double, long double)
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 class OrbitDeterminationManager
 {
 public:
@@ -148,7 +146,7 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
 
     //! Typedef for vector of parameters.
-    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
+    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
 
 
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
@@ -180,10 +178,10 @@ public:
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
             const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >& linkEndsPerObservable,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >& observableCorrections =
             ( std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >( ) ),
             const int integrateOnCreation = 1 ):
@@ -194,7 +192,7 @@ public:
         using namespace observation_models;
 
         std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > initialDynamicalStates =
-                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< StateScalarType >( parametersToEstimate );
+                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >( parametersToEstimate );
 
         if( initialDynamicalStates.size( ) > 0 )
         {
@@ -203,7 +201,7 @@ public:
                 integrateAndEstimateOrbit_ = true;
 
                     variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < StateScalarType, TimeType, StateScalarType > >(
+                            < ObservationScalarType, TimeType > >(
                                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
                                 boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
             }
@@ -212,7 +210,7 @@ public:
                 integrateAndEstimateOrbit_ = true;
 
                     variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < StateScalarType, TimeType, StateScalarType > >(
+                            < ObservationScalarType, TimeType > >(
                                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
                                 boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
             }
@@ -261,7 +259,7 @@ public:
 
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
-                    createObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >(
+                    createObservationManagerBase< ObservationScalarType, TimeType >(
                         observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate,
                         stateTransitionAndSensitivityMatrixInterface_,
                         singleObservableCorrections );
@@ -270,7 +268,7 @@ public:
         std::cout<<"Observation managers created "<<std::endl;
 
         // Set current parameter estimate from body initial states and parameter set.
-        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< StateScalarType >( );
+        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
     }
 
     //! Function to retrieve map of all observation managers
@@ -279,7 +277,7 @@ public:
      *  calculate observation partials for all link ends involved in the given observable type.
      *  \return Map of observation managers for all observable types involved in current orbit determination.
      */
-    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > >
+    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
     getObservationManagers( ) const
     {
         return observationManagers_;
@@ -444,8 +442,8 @@ public:
      *  estimate for covariance matrix and parameter adjustment.
      *  \return Object containing estimated parameter value and associated data, such as residuals and observation partials.
      */
-    boost::shared_ptr< PodOutput< StateScalarType > > estimateParameters(
-            const boost::shared_ptr< PodInput< ObservationScalarType, TimeType, StateScalarType > >& podInput,
+    boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
+            const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
             const int reintegrateVariationalEquations = 1,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker = ( boost::make_shared< EstimationConvergenceChecker >( ) ),
             const bool saveInformationmatrix = 1,
@@ -520,7 +518,7 @@ public:
                         normalizedInverseAprioriCovarianceMatrix, Eigen::VectorXd::Zero( numberOfEstimatedParameters, 0.0 ) );
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
-                    template cast< StateScalarType >( );
+                    template cast< ObservationScalarType >( );
 
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
@@ -570,7 +568,7 @@ public:
 
         std::cout<<"Final residual: "<<bestResidual<<std::endl;
 
-        return boost::make_shared< PodOutput< StateScalarType > >(
+        return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual );
     }
@@ -588,7 +586,7 @@ public:
         }
         else
         {
-            parametersToEstimate_->template resetParameterValues< StateScalarType>( newParameterEstimate );
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType>( newParameterEstimate );
         }
         currentParameterEstimate_ = newParameterEstimate;
     }
@@ -651,7 +649,7 @@ public:
      *  Function to retrieve the object to numerical integrate and update the variational equations and equations of motion
      *  \return Object to numerical integrate and update the variational equations and equations of motion
      */
-    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, StateScalarType > >
+    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
     getVariationalEquationsSolver( ) const
     {
         return variationalEquationsSolver_;
@@ -664,7 +662,7 @@ public:
      *  \param observation_models::ObservableType Type of observable for which manager is to be retrieved.
      *  \return Observation manager for given observable type.
      */
-    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > getObservationManager(
+    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > getObservationManager(
             const observation_models::ObservableType observableType ) const
     {
         // Check if manager exists for requested observable type.
@@ -706,12 +704,12 @@ protected:
 
     bool integrateAndEstimateOrbit_;
 
-    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, StateScalarType > > variationalEquationsSolver_;
+    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > > variationalEquationsSolver_;
 
-    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > >
+    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
     observationManagers_;
 
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
 
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable_;
 

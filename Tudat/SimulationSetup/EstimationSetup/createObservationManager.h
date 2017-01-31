@@ -17,15 +17,15 @@ namespace tudat
 namespace observation_models
 {
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > createObservationSimulator(
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
         const ObservableType observableType,
         const std::vector< LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
         const LightTimeCorrectionSettingsMap& singleObservableCorrections =
         LightTimeCorrectionSettingsMap( ) )
 {
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > > observationModels;
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels;
 
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )
     {
@@ -44,23 +44,23 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
             currentLightTimeCorrections = singleObservableCorrections.at( linkEnds.at( i ) );
         }
 
-        observationModels[ linkEnds[ i ] ] = ObservationModelCreator< ObservationSize, ObservationScalarType, TimeType, StateScalarType >::createObservationModel(
+        observationModels[ linkEnds[ i ] ] = ObservationModelCreator< ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
                     observableType, linkEnds.at( i ), bodyMap, currentLightTimeCorrections );
 
     }
 
-    return boost::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > >(
+    return boost::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
                 observableType, observationModels );
 
 
 }
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > createObservationManager(
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
         const std::vector< LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const LightTimeCorrectionSettingsMap& singleObservableCorrections =
         LightTimeCorrectionSettingsMap( ) )
@@ -68,16 +68,16 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, Stat
     using namespace observation_models;
     using namespace observation_partials;
 
-    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > observationManager;
+    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
 
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationSimulator =
-            createObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
+    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator =
+            createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, linkEnds, bodyMap, singleObservableCorrections );
 
 
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionList =
             getLightTimeCorrectionsList( observationSimulator->getObservationModels( ) );
-    boost::shared_ptr< ObservationPartialCreator< ObservationSize, StateScalarType > > observationPartialCreator;
+    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType > > observationPartialCreator;
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
             boost::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
 
@@ -94,35 +94,35 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, Stat
     splitObservationPartialsAndScalers( observationPartialsAndScaler, observationPartials, observationPartialScalers );
 
 
-    observationManager = boost::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType, StateScalarType > >(
+    observationManager = boost::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
                 observableType, observationSimulator, observationPartials, observationPartialScalers, stateTransitionMatrixInterface );
 
     return observationManager;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > createObservationManagerBase(
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
         const std::vector< LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const LightTimeCorrectionSettingsMap& singleObservableCorrections =
         LightTimeCorrectionSettingsMap( ) )
 {
-    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > observationManager;
+    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
     switch( observableType )
     {
     case oneWayRange:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType, StateScalarType >(
+        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
                     observableType, linkEnds, bodyMap, parametersToEstimate, stateTransitionMatrixInterface, singleObservableCorrections );
         break;
     case angular_position:
-        observationManager = createObservationManager< 2, ObservationScalarType, TimeType, StateScalarType >(
+        observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
                     observableType, linkEnds, bodyMap, parametersToEstimate, stateTransitionMatrixInterface, singleObservableCorrections );
         break;
     case position_observable:
-        observationManager = createObservationManager< 3, ObservationScalarType, TimeType, StateScalarType >(
+        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
                     observableType, linkEnds, bodyMap, parametersToEstimate, stateTransitionMatrixInterface, singleObservableCorrections );
         break;
     default:
@@ -131,17 +131,17 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, Stat
     return observationManager;
 }
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > createObservationManagerBaseWithInterfaceCreator(
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBaseWithInterfaceCreator(
         const ObservableType observableType,
         const std::vector< LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
         const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
         const LightTimeCorrectionSettingsMap& singleObservableCorrections =
         LightTimeCorrectionSettingsMap( ) )
 {
-    return createObservationManagerBase< ObservationScalarType, TimeType, StateScalarType, StateScalarType >(
+    return createObservationManagerBase< ObservationScalarType, TimeType >(
                 observableType, linkEnds, bodyMap, parametersToEstimate, stateTransitionMatrixInterface, singleObservableCorrections );
 }
 

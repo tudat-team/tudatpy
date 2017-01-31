@@ -25,7 +25,7 @@ namespace observation_models
 {
 
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 class ObservationManagerBase
 {
 public:
@@ -118,25 +118,25 @@ protected:
  *  single kind (i.e. between different link ends) are all handled by a single derived class object of this type.
  * \tparam ObservationSize Number of values in single observation (i.e. 1 for range, 2 for VLBI)
  */
-template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-class ObservationManager: public ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
+class ObservationManager: public ObservationManagerBase< ObservationScalarType, TimeType >
 {
 public:
 
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
-    using ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >::stateTransitionMatrixSize_;
-    using ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >::updatePartials;
-    using ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >::stateTransitionMatrixInterface_;
+    using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixSize_;
+    using ObservationManagerBase< ObservationScalarType, TimeType >::updatePartials;
+    using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixInterface_;
 
 
     ObservationManager(
             const ObservableType observableType,
-            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > >& observationSimulator,
+            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >& observationSimulator,
             const std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
             const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers,
             const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface ):
-        ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >(
+        ObservationManagerBase< ObservationScalarType, TimeType >(
             observableType, stateTransitionMatrixInterface, observationPartialScalers ),
         observationSimulator_( observationSimulator ), observationPartials_( observationPartials ){ }
 
@@ -152,13 +152,13 @@ public:
     }
 
 
-    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > getObservationModel(
+    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
        return observationSimulator_->getObservationModel( linkEnds );
     }
 
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > getObservationSimulator( )
+    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > getObservationSimulator( )
     {
         return observationSimulator_;
     }
@@ -173,7 +173,7 @@ public:
         std::map< TimeType, Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > > observationMatrices;
 
         // Get observation model.
-        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > selectedObservationModel =
+        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationSimulator_->getObservationModel( linkEnds );
 
         // Initialize vectors of states and times of link ends to be used in calculations.
@@ -296,7 +296,7 @@ protected:
         return partialMatrix;
     }
 
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationSimulator_;
+    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator_;
 
     //! Map of observation partials.
     /*!

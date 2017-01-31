@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );
-    boost::shared_ptr< ObservationModel< 2, double, double, double > > observationModel =
-           ObservationModelCreator< 2, double, double, double >::createObservationModel(
+    boost::shared_ptr< ObservationModel< 2, double, double > > observationModel =
+           ObservationModelCreator< 2, double, double >::createObservationModel(
                 angular_position, linkEnds, bodyMap, lightTimeCorrectionSettings, observationBias );
 
     // Compute observation separately with two functions.
