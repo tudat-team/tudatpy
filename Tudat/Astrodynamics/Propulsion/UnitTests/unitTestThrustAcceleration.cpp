@@ -980,7 +980,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
 
                 BOOST_CHECK_SMALL( std::fabs( expectedAerodynamicAcceleration( i ) - currentAerodynamicAcceleration( i ) ),
                                    std::max( 10.0 * currentAerodynamicAcceleration.norm( ), 1.0 ) *
-                                             std::numeric_limits< double >::epsilon( ) ) );
+                                             std::numeric_limits< double >::epsilon( ) );
             }
         }
     }
