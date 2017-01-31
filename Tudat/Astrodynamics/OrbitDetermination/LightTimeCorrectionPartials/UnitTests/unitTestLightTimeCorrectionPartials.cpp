@@ -166,8 +166,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             parametersToEstimate->getEstimatedDoubleParameters( );
 
-    std::cout<<"Number of parameters "<<doubleParameterVector.size( )<<std::endl;
-
     // Create observation partials.
     boost::shared_ptr< ObservationPartialCreator< 1, double > > observationPartialCreator;
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >,
