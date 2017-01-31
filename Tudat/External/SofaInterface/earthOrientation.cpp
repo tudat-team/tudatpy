@@ -46,7 +46,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
 
 //! Function to calculate GMST according to requested IAU conventions
 double calculateGreenwichMeanSiderealTime(
-        const double terrestrialTime, const double universalTime1JulianDaysSinceJ2000,
+        const double terrestrialTime, const double universalTime1,
         const double referenceJulianDay, const IAUConventions iauConvention )
 {
     // Declare GMST variable
@@ -56,17 +56,17 @@ double calculateGreenwichMeanSiderealTime(
     switch( iauConvention )
     {
     case iau_2000_a:
-        gmst = iauGmst00( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+        gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
     case iau_2000_b:
-        gmst = iauGmst00( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+        gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
     case iau_2006:
-        gmst = iauGmst06( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+        gmst = iauGmst06( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
     default:

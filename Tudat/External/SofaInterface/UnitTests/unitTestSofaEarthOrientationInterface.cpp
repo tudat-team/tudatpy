@@ -53,9 +53,9 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
     {
         // Get output data from SOFA cookbook.
         Eigen::Vector2d expectedPolePosition;
-        double expectedCioLocator;
-        double dXTest;
-        double dYTest;
+        double expectedCioLocator = 0.0;
+        double dXTest = 0.0;
+        double dYTest = 0.0;
         IAUConventions iauConventions;
         if( i == 0 )
         {
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
             dXTest = 0.0001750 * arcSecondToRadian;
             dYTest = -0.000265 * arcSecondToRadian;
         }
-        else if( i == 1 )
+        else
         {
             iauConventions = iau_2006;
 
@@ -147,7 +147,11 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     double earthRotationAngle = calculateEarthRotationAngle(
                 testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
     double expectedEarthRotationAngle = 13.318492966097;
-    BOOST_CHECK_CLOSE_FRACTION( expectedEarthRotationAngle, earthRotationAngle, 1.0E-9 );
+
+    std::cout<<expectedEarthRotationAngle<<" "<<earthRotationAngle<<" "<<
+               expectedEarthRotationAngle - earthRotationAngle<<std::endl;
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedEarthRotationAngle, earthRotationAngle, 1.0E-10 );
 }
 
 

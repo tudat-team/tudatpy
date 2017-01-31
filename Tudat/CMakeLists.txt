@@ -198,16 +198,28 @@ add_definitions(-DUSE_CSPICE=1)
   endif( )
 endif()
 
+#
+# SOFA
+#
+option(USE_SOFA "build Tudat with SOFA enabled" ON)
+if(NOT USE_SOFA)
+  message(STATUS "SOFA disabled!")
+  add_definitions(-DUSE_SOFA=0)
+else()
+  message(STATUS "SOFAenabled!")
+  add_definitions(-DUSE_SOFA=1)
+  # Find USE_NRLMSISE00 library on local system.
+  # Find CSPICE library on local system.
+  find_package(Sofa)
 
-# Find CSPICE library on local system.
-find_package(Sofa)
-
-# Include CSpice directories.
-if(NOT APPLE)
-  include_directories(SYSTEM AFTER "${SOFA_INCLUDE_DIR}")
-else( )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SOFA_INCLUDE_DIR}\"")
+  # Include CSpice directories.
+  if(NOT APPLE)
+    include_directories(SYSTEM AFTER "${SOFA_INCLUDE_DIR}")
+  else( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SOFA_INCLUDE_DIR}\"")
+  endif( )
 endif( )
+
 #
 # NRLMSISE-00
 #
@@ -259,6 +271,11 @@ endif()
 
 # Create lists of static libraries for ease of use
 list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
+
+if(USE_SOFA)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES tudat_sofa_interface sofa)
+endif()
+
 if(USE_CSPICE)
   list(APPEND TUDAT_EXTERNAL_LIBRARIES tudat_spice_interface cspice)
 endif()
@@ -270,6 +287,7 @@ endif()
 if(USE_GSL)
   list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
 endif()
+
 
 
 list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_propagators

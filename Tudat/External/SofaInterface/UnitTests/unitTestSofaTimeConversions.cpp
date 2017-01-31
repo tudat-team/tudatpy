@@ -86,6 +86,7 @@ void testTimeConversions( )
 
 }
 
+//! Test TDB<->TT conversions using SOFA cookbook data
 BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
 {
 

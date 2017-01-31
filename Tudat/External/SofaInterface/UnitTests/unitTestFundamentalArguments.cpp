@@ -27,6 +27,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
+#include "Tudat/External/SofaInterface/earthOrientation.h"
 
 
 namespace tudat
@@ -71,6 +72,22 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
     {
         BOOST_CHECK_SMALL( expectedFundamentalArgumentValues( i ) - fundamentalArgumentValues( i ), 1.0E-13  );
     }
+
+    // Calculate Delaunay arguments with GMST.
+    Eigen::Matrix< double, 6, 1 > fundamentalArgumentValuesWithGmst =
+            calculateDelaunayFundamentalArgumentsWithGmst( testSecondsSinceJ2000 );
+    for( unsigned int i = 0; i < 5; i++ )
+    {
+        BOOST_CHECK_SMALL( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ), 1.0E-15  );
+    }
+
+    // Manually compute GMST
+    double expectedGmst = calculateGreenwichMeanSiderealTime(
+                testSecondsSinceJ2000,
+                convertTTtoUTC( testSecondsSinceJ2000 ),
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, iau_2006 );
+
+    BOOST_CHECK_SMALL( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ), 1.0E-15  );
 
     // Calculate Doodson arguments directly and from Delaunay arguments and compare.
     Eigen::Matrix< double, 6, 1 > doodsonArguments = calculateDoodsonFundamentalArguments( testSecondsSinceJ2000 );
