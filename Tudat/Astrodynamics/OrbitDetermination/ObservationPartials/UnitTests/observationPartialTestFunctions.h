@@ -98,7 +98,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 //! Generalized test function for partial derivatives of observations
 template< int ObservableSize = 1 >
 inline void testObservationPartials(
-        const boost::shared_ptr< ObservationModel< ObservableSize, double, double, double > > observationModel,
+        const boost::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
         NamedBodyMap& bodyMap,
         const boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
         const LinkEnds& linkEnds, const ObservableType observableType,
@@ -161,7 +161,7 @@ inline void testObservationPartials(
 
         // Define observation function for current observable/link end
         boost::function< Eigen::VectorXd( const double ) > observationFunction = boost::bind(
-                    &ObservationModel< ObservableSize, double, double, double >::computeObservations,
+                    &ObservationModel< ObservableSize, double, double >::computeObservations,
                     observationModel, _1, linkEndIterator->first );
 
         if( testPositionPartial )
@@ -243,7 +243,7 @@ inline void testObservationPartials(
             // Test vector parameter partials
             {
                 boost::function< Eigen::VectorXd( const double ) > vectorObservationFunction = boost::bind(
-                            &ObservationModel< ObservableSize, double, double, double >::computeObservations,
+                            &ObservationModel< ObservableSize, double, double >::computeObservations,
                             observationModel, _1, linkEndIterator->first );
 
                 // Settings for parameter partial functions.

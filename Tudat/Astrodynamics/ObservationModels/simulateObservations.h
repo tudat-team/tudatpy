@@ -45,11 +45,11 @@ struct TabulatedObservationSimulationTimeSettings: public ObservationSimulationT
     std::vector< TimeType > simulationTimes_;
 };
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
+template< typename ObservationScalarType = double, typename TimeType = double,
           int ObservationSize = 1 >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< std::vector< TimeType >, LinkEndType > > simulateSingleObservationSet(
         const boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > observationsToSimulate,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationModel )
+        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel )
 {
     // Delcare return type.
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, LinkEndType > > simulatedObservations;
@@ -62,7 +62,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< 
 
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput<
-                ObservationSize, ObservationScalarType, TimeType, StateScalarType >(
+                ObservationSize, ObservationScalarType, TimeType >(
                     tabulatedObservationSettings->simulationTimes_, observationModel, observationsToSimulate->linkEndType_ );
 
     }
@@ -80,10 +80,10 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< 
  *  \return Pair of first: vector of observations; second: vector of times at which observations are taken (reference to link end defined in
  *  observationsToSimulate).
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType, int ObservationSize = 1 >
+template< typename ObservationScalarType = double, typename TimeType = double, int ObservationSize = 1 >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< std::vector< TimeType >, LinkEndType > > simulateSingleObservationSet(
         const boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > observationsToSimulate,
-        const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > observationManager,
+        const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationManager,
         const LinkEnds& linkEnds )
 {
     if( observationManager == NULL )
@@ -91,7 +91,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< 
         std::cerr<<"Error when simulating single observation set, observable size is not 1 when making dynamic cast"<<std::endl;
     }
 
-    return simulateSingleObservationSet< ObservationScalarType, TimeType, StateScalarType, ObservationSize >(
+    return simulateSingleObservationSet< ObservationScalarType, TimeType, ObservationSize >(
                 observationsToSimulate, observationManager->getObservationModel( linkEnds ) );
 }
 
@@ -134,14 +134,14 @@ createObservationSimulationTimeSettingsMap(
  *  \param observationManagers List of observation managers per link end set per observable type.
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
 std::pair< std::vector< TimeType >, LinkEndType > > > >
 simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > >& observationsToSimulate,
-        const std::map< ObservableType, boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > >& observationManagers )
+        const std::map< ObservableType, boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers )
 {
-    return simulateObservations< ObservationScalarType, TimeType, StateScalarType >(
+    return simulateObservations< ObservationScalarType, TimeType >(
                 createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationManagers );
 }
 
@@ -153,12 +153,12 @@ simulateObservations(
  *  \param observationManagers List of observation managers per link end set per observable type.
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
 std::pair< std::vector< TimeType >, LinkEndType > > > >
 simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
-        const std::map< ObservableType, boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > >& observationManagers )
+        const std::map< ObservableType, boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers )
 {
     // Declare return map.
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
@@ -179,8 +179,8 @@ simulateObservations(
             {
             case 1:
             {
-                boost::shared_ptr< ObservationManager< 1, ObservationScalarType, TimeType, StateScalarType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 1, ObservationScalarType, TimeType, StateScalarType > >(
+                boost::shared_ptr< ObservationManager< 1, ObservationScalarType, TimeType > > derivedObservationManager =
+                        boost::dynamic_pointer_cast< ObservationManager< 1, ObservationScalarType, TimeType > >(
                             observationManagers.at( observationIterator->first ) );
 
                 if( derivedObservationManager == NULL )
@@ -190,14 +190,14 @@ simulateObservations(
 
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, StateScalarType, 1 >(
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
                             linkEndIterator->second, derivedObservationManager->getObservationSimulator( ), linkEndIterator->first );
                 break;
             }
             case 2:
             {
-                boost::shared_ptr< ObservationManager< 2, ObservationScalarType, TimeType, StateScalarType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 2, ObservationScalarType, TimeType, StateScalarType > >(
+                boost::shared_ptr< ObservationManager< 2, ObservationScalarType, TimeType > > derivedObservationManager =
+                        boost::dynamic_pointer_cast< ObservationManager< 2, ObservationScalarType, TimeType > >(
                             observationManagers.at( observationIterator->first ) );
 
                 if( derivedObservationManager == NULL )
@@ -207,14 +207,14 @@ simulateObservations(
 
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, StateScalarType, 2 >(
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
                             linkEndIterator->second, derivedObservationManager->getObservationSimulator( ), linkEndIterator->first );
                 break;
             }
             case 3:
             {
-                boost::shared_ptr< ObservationManager< 3, ObservationScalarType, TimeType, StateScalarType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 3, ObservationScalarType, TimeType, StateScalarType > >(
+                boost::shared_ptr< ObservationManager< 3, ObservationScalarType, TimeType > > derivedObservationManager =
+                        boost::dynamic_pointer_cast< ObservationManager< 3, ObservationScalarType, TimeType > >(
                             observationManagers.at( observationIterator->first ) );
 
                 if( derivedObservationManager == NULL )
@@ -224,7 +224,7 @@ simulateObservations(
 
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
-                        simulateSingleObservationSet< ObservationScalarType, TimeType, StateScalarType, 3 >(
+                        simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
                             linkEndIterator->second, derivedObservationManager->getObservationSimulator( ), linkEndIterator->first );
                 break;
             }

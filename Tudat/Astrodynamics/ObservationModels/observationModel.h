@@ -41,8 +41,7 @@ namespace observation_models
  *  empty by default. Also, the observable may be a with/without returning (by reference) the times and states
  *  at each of the link ends. Returning these times/states prevents recomputations of these quantities in later calculations.
  */
-template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationModel
 {
 public:

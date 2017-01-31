@@ -17,7 +17,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
 struct PodInput
 {
 
@@ -27,7 +27,7 @@ public:
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     PodInput( const PodInputDataType& observationsAndTimes,
-              const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate,
+              const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate,
               const bool reintegrateEquationsOnFirstIteration = 1,
               const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
               const double constantWeight = 1.0 ):
@@ -64,7 +64,7 @@ public:
 
     PodInputDataType observationsAndTimes_;
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate_;
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate_;
 
     bool reintegrateEquationsOnFirstIteration_;
 
@@ -76,10 +76,10 @@ public:
 };
 
 
-template< typename StateScalarType = double >
+template< typename ObservationScalarType = double >
 struct PodOutput
 {
-    PodOutput( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
+    PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
                const Eigen::MatrixXd& normalizedInformationMatrix,
                const Eigen::VectorXd& weightsMatrixDiagonal,
@@ -93,7 +93,7 @@ struct PodOutput
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         meanAbsoluteResidual_( meanAbsoluteResidual ){ }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
     Eigen::VectorXd residuals_;
     Eigen::MatrixXd normalizedInformationMatrix_;
     Eigen::VectorXd weightsMatrixDiagonal_;

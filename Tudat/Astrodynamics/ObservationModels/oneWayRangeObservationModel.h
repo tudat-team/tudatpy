@@ -37,13 +37,12 @@ namespace observation_models
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
-class OneWayRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >
+          typename TimeType = double >
+class OneWayRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
 public:    
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-    typedef Eigen::Matrix< StateScalarType, 3, 1 > PositionType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
 
     //! Constructor.
     /*!
@@ -54,9 +53,9 @@ public:
      */
     OneWayRangeObservationModel(
             const boost::shared_ptr< observation_models::LightTimeCalculator
-            < ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
+            < ObservationScalarType, TimeType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >( oneWayRange, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( oneWayRange, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
@@ -164,7 +163,7 @@ public:
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
@@ -176,7 +175,7 @@ private:
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     lightTimeCalculator_;
 
     //! Pre-declared receiver state, to prevent many (de-)allocations
