@@ -166,6 +166,13 @@ private:
     StateInterpolatorPointer interpolator_;
 };
 
+//! Function to check whether an ephemeris is a (type of) tabulated ephemeris
+/*!
+ *  Function to check whether an ephemeris is a (type of) tabulated ephemeris, it checks all typical combinations of
+ *  class template arguments are returns true if a dynamic cast is succesful
+ *  \param ephemeris Ephemeris pointer for which it is to be checked whether it is a tabulated ephemeris
+ *  \return True if ephemeris is a tabulated ephemeris
+ */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
 
 } // namespace ephemerides
