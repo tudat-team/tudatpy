@@ -68,7 +68,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
 
     double* p = xComponents.data();
     tIndexArray index;
-    for( unsigned int i = 0; i < numberOfEntries; i++ )
+    for( int i = 0; i < numberOfEntries; i++ )
     {
         index = utilities::getMultiArrayIndexArray( xComponents, p );
 
