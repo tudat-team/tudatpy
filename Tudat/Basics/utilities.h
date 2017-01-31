@@ -133,7 +133,7 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-//! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
+  //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
 /*!
  *  Function to produce a map of Eigen matrices, cast from one set of key/matrix scalar type set to another set.
  *  \param originalMap Map in original types
@@ -150,6 +150,7 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
 }
+
 
 } // namespace utilities
 
