@@ -168,22 +168,13 @@ simulateObservations(
     for( typename std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > >  > >::const_iterator observationIterator =
          observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
     {
-        //std::cout<<"Simulating observable of type: ";
-        //printObservableType( observationIterator->first );
-        std::cout<<std::endl;
 
         // Iterate over all link ends for current observable.
         for( typename std::map< LinkEnds, boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > >::const_iterator linkEndIterator =
              observationIterator->second.begin( ); linkEndIterator != observationIterator->second.end( ); linkEndIterator++ )
         {
-            //std::cout<<"Link ends: ";
-            //printLinkEnds( linkEndIterator->first );
-
-            //std::cout<<"Obs: "<<observationManagers.count( observationIterator->first )<<std::endl;
-
             int observationSize = observationManagers.at( observationIterator->first )->getObservationSize( linkEndIterator->first );
 
-            //std::cout<<"Obs. size: "<<observationSize<<std::endl;
             switch( observationSize )
             {
             case 1:
@@ -205,12 +196,9 @@ simulateObservations(
             }
             case 2:
             {
-                std::cout<<"Derived obs. set"<<std::endl;
                 boost::shared_ptr< ObservationManager< 2, ObservationScalarType, TimeType, StateScalarType > > derivedObservationManager =
                         boost::dynamic_pointer_cast< ObservationManager< 2, ObservationScalarType, TimeType, StateScalarType > >(
                             observationManagers.at( observationIterator->first ) );
-                std::cout<<"Derived obs. set"<<( derivedObservationManager == NULL )<<
-                           std::endl;
 
                 if( derivedObservationManager == NULL )
                 {
@@ -243,9 +231,6 @@ simulateObservations(
             default:
                 std::cerr<<"Error, simulation of observations not yet implemented for size "<<observationSize<<std::endl;
             }
-
-
-            std::cout<<". Number of observations: "<<observations[ observationIterator->first ][ linkEndIterator->first ].second.first.size( )<<std::endl;
         }
     }
     return observations;

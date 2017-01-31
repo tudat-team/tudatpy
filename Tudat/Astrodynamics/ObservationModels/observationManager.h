@@ -184,6 +184,8 @@ public:
 
         for( unsigned int i = 0; i < times.size( ); i++ )
         {
+            vectorOfTimes.clear( );
+            vectorOfStates.clear( );
             //observationSimulator_->updateObservationSettings( times[ i ], linkEnds, linkEndAssociatedWithTime );
 
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(

@@ -270,7 +270,7 @@ public:
             {
                 // Get out of infinite loop (for instance due to low accuracy state functions,
                 // to stringent tolerance or limit case for trop. corrections).
-                if( counter == 20 )
+                if( counter == 50 )
                 {
                     isToleranceReached = true;
                     std::string errorMessage  =
@@ -280,7 +280,7 @@ public:
                             "; current light-time corrections are: "  +
                             boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
                             boost::lexical_cast< std::string >( time );
-                   throw std::runtime_error( errorMessage );
+                   std::cerr << errorMessage <<std::endl;
                 }
 
                 // Update light time for new iteration.

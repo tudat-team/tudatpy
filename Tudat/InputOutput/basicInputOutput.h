@@ -370,6 +370,10 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
+void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
+                        std::string fileName,
+                        const int numberOfDigits = 16 );
+
 //! Typedef for double-KeyType, double-ValueType map.
 /*!
  * Typedef for double-KeyType, double-ValueType map.

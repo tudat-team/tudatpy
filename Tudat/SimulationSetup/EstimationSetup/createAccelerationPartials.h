@@ -43,15 +43,15 @@ namespace simulation_setup
  *  types of partials (e.g. spherical harmonic acceleration w.r.t. rotational parameters).
  *  \return Single acceleration partial derivative object.
  */
-template< typename InitialStateParameterType = double, typename ParameterScalarType = InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial(
         boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
-        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >( ) )
+        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
 {
     using namespace gravitation;
     using namespace basic_astrodynamics;

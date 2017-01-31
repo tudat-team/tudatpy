@@ -61,7 +61,6 @@ void integrateEquationsFromIntegrator(
 
     // Get Initial state and time.
     TimeType currentTime = integrator->getCurrentIndependentVariable( );
-    std::cout<<"Initial time: "<<currentTime<<std::endl;
     TimeType initialTime = currentTime;
     StateType newState = integrator->getCurrentState( );
 

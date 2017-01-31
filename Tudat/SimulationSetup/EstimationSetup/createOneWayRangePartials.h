@@ -154,7 +154,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             throw std::runtime_error( "Error when making one way range partials, could not identify parameter " +
-                       initialDynamicalParameters.at( i )->getParameterName( ).first );
+                       boost::lexical_cast< std::string >(
+                                          initialDynamicalParameters.at( i )->getParameterName( ).first ) );
         }
 
 

@@ -210,7 +210,7 @@ public:
     Eigen::Matrix< double, 3, 3 > getScalingFactor(
             const observation_models::LinkEndType linkEndType )
     {
-        return -Eigen::Matrix3d::Identity( );
+        return Eigen::Matrix3d::Identity( );
     }
 
 private:
