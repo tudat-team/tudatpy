@@ -5,6 +5,7 @@
 
 #include <boost/make_shared.hpp>
 
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -136,11 +137,9 @@ protected:
  *  \tparam ObservationScalarType Scalar Data type for observations (double, long double)
  *  \tparam ObservationScalarType TimeType Data type for time representation (double, tudat::Time)
  *  \tparam StateScalarType Data type for time entries of state vector of integrated bodies (double, tudat::Time)
- *  \tparam ParameterScalarType Data type of the parameter vector that is estimated (including the initial state of estimated bodies)
  *  (double, long double)
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
-          typename ParameterScalarType = double >
+template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
 class OrbitDeterminationManager
 {
 public:
@@ -149,7 +148,7 @@ public:
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
 
     //! Typedef for vector of parameters.
-    typedef Eigen::Matrix< ParameterScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
 
 
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
@@ -181,7 +180,7 @@ public:
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > > parametersToEstimate,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >& linkEndsPerObservable,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -195,7 +194,7 @@ public:
         using namespace observation_models;
 
         std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > initialDynamicalStates =
-                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterScalarType >( parametersToEstimate );
+                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< StateScalarType >( parametersToEstimate );
 
         if( initialDynamicalStates.size( ) > 0 )
         {
@@ -204,7 +203,7 @@ public:
                 integrateAndEstimateOrbit_ = true;
 
                     variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < StateScalarType, TimeType, ParameterScalarType > >(
+                            < StateScalarType, TimeType, StateScalarType > >(
                                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
                                 boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
             }
@@ -213,7 +212,7 @@ public:
                 integrateAndEstimateOrbit_ = true;
 
                     variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < StateScalarType, TimeType, ParameterScalarType > >(
+                            < StateScalarType, TimeType, StateScalarType > >(
                                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
                                 boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
             }
@@ -262,7 +261,7 @@ public:
 
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
-                    createObservationManagerBase< ObservationScalarType, TimeType, StateScalarType, ParameterScalarType >(
+                    createObservationManagerBase< ObservationScalarType, TimeType, StateScalarType >(
                         observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate,
                         stateTransitionAndSensitivityMatrixInterface_,
                         singleObservableCorrections );
@@ -271,7 +270,7 @@ public:
         std::cout<<"Observation managers created "<<std::endl;
 
         // Set current parameter estimate from body initial states and parameter set.
-        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ParameterScalarType >( );
+        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< StateScalarType >( );
     }
 
     //! Function to retrieve map of all observation managers
@@ -392,9 +391,6 @@ public:
                 observationsWithPartials = observationManagers_[ observablesIterator->first ]->computeObservationsWithPartials(
                             simulationInputTime, dataIterator->first, dataIterator->second.second.second );
 
-                //output::writeVectorToFile( observationsWithPartials.first.template cast< double >( ), "lroCalculatedObservations.dat" );
-
-
                 // Compute residuals for current link ends and observabel type.
                 residualsAndPartials.first.segment( startIndex, dataIterator->second.first.size( ) ) =
                         ( dataIterator->second.first - observationsWithPartials.first ).template cast< double >( );
@@ -448,8 +444,8 @@ public:
      *  estimate for covariance matrix and parameter adjustment.
      *  \return Object containing estimated parameter value and associated data, such as residuals and observation partials.
      */
-    boost::shared_ptr< PodOutput< ParameterScalarType > > estimateParameters(
-            const boost::shared_ptr< PodInput< ObservationScalarType, TimeType, StateScalarType, ParameterScalarType > >& podInput,
+    boost::shared_ptr< PodOutput< StateScalarType > > estimateParameters(
+            const boost::shared_ptr< PodInput< ObservationScalarType, TimeType, StateScalarType > >& podInput,
             const int reintegrateVariationalEquations = 1,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker = ( boost::make_shared< EstimationConvergenceChecker >( ) ),
             const bool saveInformationmatrix = 1,
@@ -514,6 +510,7 @@ public:
                         ( transformationData( j ) * transformationData( j ) );
             }
 
+            input_output::writeMatrixToFile(  residualsAndPartials.second,  "obsPartials.dat" );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
@@ -523,10 +520,10 @@ public:
                         normalizedInverseAprioriCovarianceMatrix, Eigen::VectorXd::Zero( numberOfEstimatedParameters, 0.0 ) );
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
-                    template cast< ParameterScalarType >( );
+                    template cast< StateScalarType >( );
 
             // Update value of parameter vector
-            newParameterEstimate = oldParameterEstimate - parameterAddition;
+            newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;
 
             if( printOutput )
@@ -573,7 +570,7 @@ public:
 
         std::cout<<"Final residual: "<<bestResidual<<std::endl;
 
-        return boost::make_shared< PodOutput< ParameterScalarType > >(
+        return boost::make_shared< PodOutput< StateScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual );
     }
@@ -591,7 +588,7 @@ public:
         }
         else
         {
-            parametersToEstimate_->template resetParameterValues< ParameterScalarType>( newParameterEstimate );
+            parametersToEstimate_->template resetParameterValues< StateScalarType>( newParameterEstimate );
         }
         currentParameterEstimate_ = newParameterEstimate;
     }
@@ -654,7 +651,7 @@ public:
      *  Function to retrieve the object to numerical integrate and update the variational equations and equations of motion
      *  \return Object to numerical integrate and update the variational equations and equations of motion
      */
-    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, ParameterScalarType > >
+    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, StateScalarType > >
     getVariationalEquationsSolver( ) const
     {
         return variationalEquationsSolver_;
@@ -709,12 +706,12 @@ protected:
 
     bool integrateAndEstimateOrbit_;
 
-    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, ParameterScalarType > > variationalEquationsSolver_;
+    boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType, StateScalarType > > variationalEquationsSolver_;
 
     std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType, StateScalarType > > >
     observationManagers_;
 
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > > parametersToEstimate_;
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
 
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable_;
 
