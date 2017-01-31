@@ -165,7 +165,7 @@ private:
                 {
                     bodyList_[ bodiesWithIntegratedMass[ i ].first ]
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
-                } 
+                }
                 break;
             }
             case custom_state:
@@ -203,7 +203,7 @@ private:
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
-                            template setTemplatedStateFromEphemeris< StateScalarType, TimeType >( currentTime );
+                            template setStateFromEphemeris< StateScalarType, TimeType >( currentTime );
 
                 }
                 break;
@@ -253,81 +253,101 @@ private:
                             getDependentOrientationCalculator( );
                     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
                             boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
-                                                    dependentOrientationCalculator );
+                                dependentOrientationCalculator );
 
                     // Check if properties of AerodynamicAngleCalculator are such that a different update order is warranted.
                     if( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator ) != NULL )
                     {
-                        unsigned int translationalUpdateIndex = 0;
-                        unsigned int rotationalUpdateIndex = 0;
-                        bool translationalUpdateIndexSet = false;
-                        bool rotationalUpdateIndexSet = false;
+                        unsigned int centralTranslationalUpdateIndex = 0;
+                        unsigned int centralRotationalUpdateIndex = 0;
+                        unsigned int vehicleTranslationalUpdateIndex = 0;
+                        unsigned int vehicleRotationalUpdateIndex = i;
+                        unsigned int flightCoditionsUpdateIndex = 0;
+
+                        bool centralTranslationalUpdateIndexSet = false;
+                        bool centralRotationalUpdateIndexSet = false;
+                        bool vehicleTranslationalUpdateIndexSet = false;
+                        bool flightConditionsUpdateIndexSet = false;
 
                         // Check if the state or orientation of the central body of AerodynamicAngleCalculator is updated.
                         for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
                         {
                             if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_transational_state_update ) &&
-                                   ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
-                                    aerodynamicAngleCalculator->getCentralBodyName( ) ) )
+                                    ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
+                                      aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
-                                translationalUpdateIndex = j;
-                                translationalUpdateIndexSet = true;
+                                centralTranslationalUpdateIndex = j;
+                                centralTranslationalUpdateIndexSet = true;
                             }
 
                             if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_rotational_state_update ) &&
-                                   ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
-                                    aerodynamicAngleCalculator->getCentralBodyName( ) ) )
+                                    ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
+                                      aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
-                                rotationalUpdateIndex = j;
-                                rotationalUpdateIndexSet = true;
+                                centralRotationalUpdateIndex = j;
+                                centralRotationalUpdateIndexSet = true;
+                            }
+
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_transational_state_update ) &&
+                                    ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
+                                      updateFunctionVector_.at( i ).template get< 1 >( ) ) )
+                            {
+                                vehicleTranslationalUpdateIndex = j;
+                                vehicleTranslationalUpdateIndexSet = true;
+                            }
+
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == vehicle_flight_conditions_update ) &&
+                                    ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
+                                      updateFunctionVector_.at( i ).template get< 1 >( ) ) )
+                            {
+                                flightCoditionsUpdateIndex = j;
+                                flightConditionsUpdateIndexSet = true;
                             }
                         }
 
-                        // If required updates are not found, throw error.
-                        if( !translationalUpdateIndexSet || !rotationalUpdateIndexSet  )
+
+                        std::vector< int > indices;
+                        std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > > updatesToMove;
+
+                        if( centralTranslationalUpdateIndexSet )
                         {
-                            throw std::runtime_error(
-                                        "Error when finding update order for AerodynamicAngleCalculator, did not find required updates for central body" );
+                            indices.push_back( centralTranslationalUpdateIndex );
+                            updatesToMove.push_back( updateFunctionVector_.at( centralTranslationalUpdateIndex ) );
                         }
 
-                        // Check if rotational and translational state of central body are updated before
-                        // AerodynamicAngleCalculator.
-                        if( ( i < rotationalUpdateIndex ) || ( i < translationalUpdateIndex ) )
+                        if( centralRotationalUpdateIndexSet )
                         {
-                            if( i > rotationalUpdateIndex )
-                            {
-                                std::iter_swap( updateFunctionVector_.begin( ) + i,
-                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
-                                rerunUpdateOrder = 1;
-                                break;
-                            }
-                            else if( i > translationalUpdateIndex )
-                            {
-                                std::iter_swap( updateFunctionVector_.begin( ) + i,
-                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
-                                rerunUpdateOrder = 1;
-                                break;
-                            }
-                            else if( translationalUpdateIndex < rotationalUpdateIndex )
-                            {
-                                std::iter_swap( updateFunctionVector_.begin( ) + i,
-                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
-                                std::iter_swap( updateFunctionVector_.begin( ) + translationalUpdateIndex,
-                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
-                                rerunUpdateOrder = 1;
-                                break;
-                            }
-                            else
-                            {
+                            indices.push_back( centralRotationalUpdateIndex );
+                            updatesToMove.push_back( updateFunctionVector_.at( centralTranslationalUpdateIndex ) );
+                        }
 
-                                std::iter_swap( updateFunctionVector_.begin( ) + i,
-                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
-                                std::iter_swap( updateFunctionVector_.begin( ) + rotationalUpdateIndex,
-                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
-                                rerunUpdateOrder = 1;
-                                break;
+                        if( vehicleTranslationalUpdateIndexSet )
+                        {
+                            indices.push_back( vehicleTranslationalUpdateIndex );
+                            updatesToMove.push_back( updateFunctionVector_.at( vehicleTranslationalUpdateIndex ) );
+                        }
+
+                        if( flightConditionsUpdateIndexSet )
+                        {
+                            indices.push_back( flightCoditionsUpdateIndex );
+                            updatesToMove.push_back( updateFunctionVector_.at( flightCoditionsUpdateIndex ) );
+                        }
+
+                        indices.push_back( vehicleRotationalUpdateIndex );
+                        updatesToMove.push_back( updateFunctionVector_.at( vehicleRotationalUpdateIndex ) );
+                        std::vector< int > unorderedIndices = indices;
+                        std::sort( indices.begin( ), indices.end( ) );
+
+                        if( indices != unorderedIndices )
+                        {
+
+                            for( unsigned int k = 0; k < updatesToMove.size( ); k++ )
+                            {
+                                updateFunctionVector_[ indices.at( k ) ] = updatesToMove.at( k );
                             }
+                            rerunUpdateOrder = true;
+                            break;
                         }
                     }
                 }
@@ -356,11 +376,11 @@ private:
                              std::vector< std::string > >& updateSettings )
     {
         std::map< EnvironmentModelsToUpdate,
-                  std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList;
+                std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList;
 
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate,
-                       std::vector< std::string > >::const_iterator updateIterator =
+             std::vector< std::string > >::const_iterator updateIterator =
              updateSettings.begin( ); updateIterator != updateSettings.end( ); updateIterator++ )
         {
             // Get list of bodies for which current environment type is to be updated.
@@ -408,11 +428,17 @@ private:
                             boost::function< void( const TimeType ) > stateSetFunction =
                                     boost::bind(
                                         &simulation_setup::Body
-                                            ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
+                                            ::setStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
+
+                            resetFunctionVector_.push_back(
+                                        boost::make_tuple(
+                                            body_transational_state_update, currentBodies.at( i ),
+                                            boost::bind( &simulation_setup::Body::recomputeStateOnNextCall,
+                                                         bodyList_.at( currentBodies.at( i ) ) ) ) );
                         }
                         break;
                     }
@@ -424,7 +450,7 @@ private:
                         {
                             boost::function< void( const TimeType ) > rotationalStateSetFunction =
                                     boost::bind( &simulation_setup::Body
-                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris,
+                                                 ::setCurrentRotationalStateToLocalFrameFromEphemeris,
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
                             updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
@@ -518,7 +544,7 @@ private:
                                             currentBodies.at( i ), boost::bind(
                                                 &aerodynamics::FlightConditions::updateConditions,
                                                 bodyList_.at( currentBodies.at( i ) )
-                                                    ->getFlightConditions( ), _1 ) ) );
+                                                ->getFlightConditions( ), _1 ) ) );
 
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
@@ -540,7 +566,7 @@ private:
                     {
                         // Get body radiation pressure interface(s) (one per source)
                         std::map< std::string, boost::shared_ptr< electro_magnetism
-                                                                      ::RadiationPressureInterface > >
+                                ::RadiationPressureInterface > >
                                 radiationPressureInterfaces =
                                 bodyList_.at( currentBodies.at( i ) )->getRadiationPressureInterfaces( );
 
@@ -558,7 +584,7 @@ private:
 
                         // Add each interface update function to update list.
                         for( std::map< std::string,
-                                       boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                             boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
                              ::iterator iterator = radiationPressureInterfaces.begin( );
                              iterator != radiationPressureInterfaces.end( ); iterator++ )
                         {
@@ -566,8 +592,8 @@ private:
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind(
                                                             &electro_magnetism
-                                                               ::RadiationPressureInterface
-                                                                   ::updateInterface,
+                                                            ::RadiationPressureInterface
+                                                            ::updateInterface,
                                                             iterator->second, _1 ) ) );
                         }
                         break;
@@ -579,8 +605,8 @@ private:
 
         // Create list of update functions.
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string,
-            boost::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList.begin( );
-            updateTimeIterator != updateTimeFunctionList.end( ); updateTimeIterator++ )
+             boost::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList.begin( );
+             updateTimeIterator != updateTimeFunctionList.end( ); updateTimeIterator++ )
         {
             for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
             {
@@ -609,13 +635,13 @@ private:
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
     integratedStates_;
 
-     //! List of time-dependent functions to call to update the environment.
-     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > >
-     updateFunctionVector_;
+    //! List of time-dependent functions to call to update the environment.
+    std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > >
+    updateFunctionVector_;
 
-     //! List of time-dependent functions to call to reset the time of the environment (to NaN signal recomputation for next
-     //! time step).
-     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( ) > > > resetFunctionVector_;
+    //! List of time-dependent functions to call to reset the time of the environment (to NaN signal recomputation for next
+    //! time step).
+    std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( ) > > > resetFunctionVector_;
 
 
 

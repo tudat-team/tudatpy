@@ -21,7 +21,6 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
-
 namespace tudat
 {
 
@@ -204,14 +203,12 @@ private:
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
 
-
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
 boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
+}
 
-} // namespace observation_partials
+}
 
-} // namespace tudat
-
-#endif // TUDAT_ROTATIONMATRIXPARTIAL_H
+#endif

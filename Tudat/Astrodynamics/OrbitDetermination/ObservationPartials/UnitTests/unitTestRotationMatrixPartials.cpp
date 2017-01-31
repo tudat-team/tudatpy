@@ -28,18 +28,16 @@ BOOST_AUTO_TEST_SUITE( test_rotation_matrix_partaisl )
 BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 {
     // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Create rotation model
     double nominalRotationRate = 2.0 * mathematical_constants::PI / 86400.0;
     boost::shared_ptr< SimpleRotationalEphemeris > rotationalEphemeris =
             boost::make_shared< SimpleRotationalEphemeris >(
                 spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 1.0E7 ),
-                nominalRotationRate, 1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000, "ECLIPJ2000", "IAU_Earth" );
+                nominalRotationRate, 1.0E7, "ECLIPJ2000", "IAU_Earth" );
 
     {
         // Create partial object.
@@ -56,11 +54,11 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
         double perturbation = 1.0E-12;
         rotationalEphemeris->resetRotationRate( nominalRotationRate + perturbation );
         Eigen::Matrix3d upperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                    testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                    testTime).toRotationMatrix( );
 
         rotationalEphemeris->resetRotationRate( nominalRotationRate - perturbation );
         Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                    testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                    testTime).toRotationMatrix( );
 
         Eigen::Matrix3d numericalRotationMatrixPartial =
                 ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
@@ -98,12 +96,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 perturbedAngle = nominalEulerAngles( 0 ) + perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( perturbedAngle, nominalEulerAngles( 1 ) );
                 Eigen::Matrix3d upperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                            testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                            testTime).toRotationMatrix( );
 
                 perturbedAngle = nominalEulerAngles( 0 ) - perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( perturbedAngle, nominalEulerAngles( 1 ) );
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                            testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                            testTime).toRotationMatrix( );
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
@@ -124,12 +122,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 perturbedAngle = nominalEulerAngles( 1 ) + perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( nominalEulerAngles( 0 ), perturbedAngle );
                 Eigen::Matrix3d upperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                            testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                            testTime).toRotationMatrix( );
 
                 perturbedAngle = nominalEulerAngles( 1 ) - perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( nominalEulerAngles( 0 ), perturbedAngle );
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
-                            testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                            testTime).toRotationMatrix( );
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );

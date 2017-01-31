@@ -35,7 +35,7 @@ namespace observation_models
  *  difference between two subsequent light time solutions (in s) that is deemed acceptable for convergence/
  *  \return Default light-time tolerance for given template arguments.
  */
-template< typename ObservationScalarType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double >
 ObservationScalarType getDefaultLightTimeTolerance( );
 
 
@@ -74,15 +74,14 @@ private:
  *  light time is taken into account in the calculations.
  */
 template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+          typename TimeType = double >
 class LightTimeCalculator
 {
 public:
 
 
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-    typedef Eigen::Matrix< StateScalarType, 3, 1 > PositionType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
     //! Class constructor.
     /*!
      *  This constructor is used to initialize the state functions and light-time correction
@@ -136,7 +135,7 @@ public:
     ObservationScalarType calculateLightTime( const TimeType time,
                                const bool isTimeAtReception = true,
                                const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) )
+            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -162,7 +161,7 @@ public:
     PositionType calculateRelativeRangeVector( const TimeType time,
                                                const bool isTimeAtReception = 1 ,
                                                const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) )
+            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -193,7 +192,7 @@ public:
             const TimeType time,
             const bool isTimeAtReception = 1,
             const ObservationScalarType tolerance =
-            ( getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) ) )
+            ( getDefaultLightTimeTolerance< ObservationScalarType >( ) ) )
     {
         using physical_constants::SPEED_OF_LIGHT;
         using std::fabs;
@@ -270,7 +269,7 @@ public:
             {
                 // Get out of infinite loop (for instance due to low accuracy state functions,
                 // to stringent tolerance or limit case for trop. corrections).
-                if( counter == 20 )
+                if( counter == 50 )
                 {
                     isToleranceReached = true;
                     std::string errorMessage  =
@@ -280,7 +279,7 @@ public:
                             "; current light-time corrections are: "  +
                             boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
                             boost::lexical_cast< std::string >( time );
-                   throw std::runtime_error( errorMessage );
+                   std::cerr << errorMessage <<std::endl;
                 }
 
                 // Update light time for new iteration.

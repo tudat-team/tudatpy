@@ -70,7 +70,7 @@ namespace aerodynamics
  * Abstract base class for aerodynamic analysis method. Stores independent variable values
  * and data points of independent variables. Coefficients are stored in a multi_array of pointers.
  */
-template< int NumberOfIndependentVariables, int NumberOfCoefficients = 6 >
+template< unsigned int NumberOfIndependentVariables, unsigned int NumberOfCoefficients = 6 >
 class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
 {
 public:
@@ -116,7 +116,10 @@ public:
         dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables )
     {
         // Check that the size of dataPointsOfIndependentVariables matches the template parameter.
-        assert( dataPointsOfIndependentVariables_.size( ) == NumberOfIndependentVariables );
+        if( !( dataPointsOfIndependentVariables_.size( ) == NumberOfIndependentVariables ) )
+        {
+            throw std::runtime_error( "Error in AerodynamicCoefficientGenerator, input data is inconsistent" );
+        }
 
         boost::array< int, NumberOfIndependentVariables > numberOfPointsPerIndependentVariables;
         for( int i = 0; i < NumberOfIndependentVariables; i++ )

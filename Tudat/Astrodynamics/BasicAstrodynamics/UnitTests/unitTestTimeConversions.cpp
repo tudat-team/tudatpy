@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversions )
         double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
 
         BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 2.0 * std::numeric_limits< double >::epsilon( ) );
-        BOOST_CHECK_SMALL( testTcb, std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( testTcb, 2.0 * std::numeric_limits< double >::epsilon( ) );
 
         // Test back and forth TCG<->TT.
         double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY;
