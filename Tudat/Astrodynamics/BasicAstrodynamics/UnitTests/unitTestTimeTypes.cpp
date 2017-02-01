@@ -4,7 +4,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <iostream>
-#include <iomanip>
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -19,10 +18,14 @@ BOOST_AUTO_TEST_SUITE( test_time_type )
 
 using namespace mathematical_constants;
 
-BOOST_AUTO_TEST_CASE( testDoubleLongDoublePrecisions )
+//! Test if Time objects cast to the expected precision
+BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
 {
+
+    Time testTime( 2, LONG_PI );
+
+    //Test if Time casts to double/long double at the expected precision
     {
-        Time testTime( 2, LONG_PI );
 
         BOOST_CHECK_CLOSE_FRACTION( testTime.getSeconds< long double >( ), 2.0L * TIME_NORMALIZATION_TERM + LONG_PI,
                                     std::numeric_limits< long double >::epsilon( ) );
@@ -33,7 +36,10 @@ BOOST_AUTO_TEST_CASE( testDoubleLongDoublePrecisions )
                                     std::numeric_limits< long double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( static_cast< double >( testTime ),  2.0 * TIME_NORMALIZATION_TERM + PI,
                                     std::numeric_limits< double >::epsilon( ) );
+    }
 
+    // Test if Time pre-/post-multiplies Eigen vectors at expected level of precision
+    {
         Eigen::Vector3d testVector = ( Eigen::Vector3d(  ) << 4.5, 4.5, 4.5 ).finished( );
         Eigen::Matrix< long double, 3, 1 > testVectorLong = ( Eigen::Matrix< long double, 3, 1 >(  ) << 4.5L, 4.5L, 4.5L ).finished( );
 
@@ -59,10 +65,10 @@ BOOST_AUTO_TEST_CASE( testDoubleLongDoublePrecisions )
                                         std::numeric_limits< long double >::epsilon( ) );
         }
     }
-
 }
 
-BOOST_AUTO_TEST_CASE( testDoubleDaySecondCombinations )
+//! Test if time saves/retrieves entries at the expected level of precision.
+BOOST_AUTO_TEST_CASE( testTimeContentsPrecision )
 {
     int numberOfDays = 759;
     long double numberOfSeconds = 2.0L * TIME_NORMALIZATION_TERM + LONG_PI;
@@ -92,9 +98,11 @@ BOOST_AUTO_TEST_CASE( testDoubleDaySecondCombinations )
 
 }
 
+//! Test basic arithmetic operations of time object
 BOOST_AUTO_TEST_CASE( testArithmeticOperations )
 {
     {
+        // Define Time test values
         int numberOfDays1 = 759;
         long double numberOfSeconds1 = 2566.8309405984728595902;
         Time inputTime1( numberOfDays1, numberOfSeconds1 );
@@ -104,6 +112,8 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
         Time inputTime2( numberOfDays2, numberOfSeconds2 );
 
         Time outputTime;
+
+        // Test Time additions
         {
             outputTime = inputTime1 + inputTime2;
             BOOST_CHECK_EQUAL( numberOfDays1 + numberOfDays2 + 1, outputTime.getFullPeriods( ) );
@@ -118,6 +128,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
                                         std::numeric_limits< long double >::epsilon( ) );
         }
 
+        // Test addition between doubles and Time
         {
             outputTime = inputTime1 + numberOfSeconds2;
             BOOST_CHECK_EQUAL( numberOfDays1 + 1, outputTime.getFullPeriods( ) );
@@ -131,9 +142,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
             BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds1 + numberOfSeconds2 - TIME_NORMALIZATION_TERM,
                                         outputTime.getSecondsIntoFullPeriod( ),
                                         std::numeric_limits< long double >::epsilon( ) );
-        }
 
-        {
             outputTime = numberOfSeconds2 + inputTime1;
             BOOST_CHECK_EQUAL( numberOfDays1 + 1, outputTime.getFullPeriods( ) );
             BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds1 + numberOfSeconds2 - TIME_NORMALIZATION_TERM,
@@ -141,6 +150,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
                                         std::numeric_limits< long double >::epsilon( ) );
         }
 
+        // Test subtractions of Time objects
         {
             outputTime = inputTime2 - inputTime1;
             BOOST_CHECK_EQUAL( numberOfDays2 - numberOfDays1 - 1, outputTime.getFullPeriods( ) );
@@ -153,22 +163,25 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
             BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 + TIME_NORMALIZATION_TERM,
                                         outputTime.getSecondsIntoFullPeriod( ),
                                         std::numeric_limits< long double >::epsilon( ) );
-        }
-        outputTime = inputTime2 - numberOfSeconds1;
-        BOOST_CHECK_EQUAL( numberOfDays2 - 1, outputTime.getFullPeriods( ) );
-        BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 + TIME_NORMALIZATION_TERM,
-                                    outputTime.getSecondsIntoFullPeriod( ),
-                                    std::numeric_limits< long double >::epsilon( ) );
 
-        outputTime = numberOfSeconds2 - inputTime1;
-        BOOST_CHECK_EQUAL( -numberOfDays1 - 1, outputTime.getFullPeriods( ) );
-        BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 + TIME_NORMALIZATION_TERM,
-                                    outputTime.getSecondsIntoFullPeriod( ),
-                                    std::numeric_limits< long double >::epsilon( ) );
+            outputTime = inputTime2 - numberOfSeconds1;
+            BOOST_CHECK_EQUAL( numberOfDays2 - 1, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 + TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+
+            outputTime = numberOfSeconds2 - inputTime1;
+            BOOST_CHECK_EQUAL( -numberOfDays1 - 1, outputTime.getFullPeriods( ) );
+            BOOST_CHECK_CLOSE_FRACTION( numberOfSeconds2 - numberOfSeconds1 + TIME_NORMALIZATION_TERM,
+                                        outputTime.getSecondsIntoFullPeriod( ),
+                                        std::numeric_limits< long double >::epsilon( ) );
+        }
 
     }
 
+    // Test division of Time by double/long double values
     {
+        // Define Time test values
         Time testTime( 2, LONG_PI );
 
         Time dividedTime = testTime / 2.0L;
@@ -218,6 +231,7 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
                                     2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
+    // Test multiplication of Time by double/long double values
     {
         Time testTime( 5, 1200.0L + LONG_PI );
         Time multipliedTime = testTime * 2.0L;
@@ -272,87 +286,116 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
     }
 }
 
-
+//! Test if the comparison operators defined for the Time object function correctly
 BOOST_AUTO_TEST_CASE( testComparisonOperators )
 {
-    int numberOfDays = 759;
-    long double numberOfSeconds = 2.0L * TIME_NORMALIZATION_TERM + LONG_PI;
+    for( unsigned int i = 0; i < 4; i++ )
+    {
+        // Define test time (same for each test)
+        int numberOfDays = 759;
+        long double numberOfSeconds = 2.0L * TIME_NORMALIZATION_TERM + LONG_PI;
 
-    Time testTime( numberOfDays, numberOfSeconds );
+        Time testTime( numberOfDays, numberOfSeconds );
+        double testTimeDouble = testTime.getSeconds< double >( );
+        long double testTimeLongDouble = testTime.getSeconds< long double >( );
 
-    Time testTime2( numberOfDays, numberOfSeconds + 1 );
+        // Define test time (different values for each test)
+        Time testTime2 = TUDAT_NAN;
+        double testTimeDouble2 = TUDAT_NAN;
+        long double testTimeLongDouble2 = TUDAT_NAN;
 
-    double testTimeDouble = testTime.getSeconds< double >( );
-    long double testTimeLongDouble = testTime.getSeconds< long double >( );
+        // Check comparison if only seconds is larger
+        if( i == 0 )
+        {
+            testTime2 = Time( numberOfDays, numberOfSeconds + 1.0L );
+            testTimeDouble2 = testTime.getSeconds< double >( ) + 1.0;
+            testTimeLongDouble2 = testTime.getSeconds< long double >( ) + 1.0L;
+        }
+        // Check comparison if only hours is larger
+        else if( i == 1 )
+        {
+            testTime2 = Time( numberOfDays + 3, numberOfSeconds );
+            testTimeDouble2 = testTime.getSeconds< double >( ) + 3.0 * TIME_NORMALIZATION_TERM;
+            testTimeLongDouble2 = testTime.getSeconds< long double >( ) + 3.0L * TIME_NORMALIZATION_TERM;
+        }
+        // Check comparison if hours is larger and seconds is larger
+        else if( i == 2 )
+        {
+            testTime2 = Time( numberOfDays + 3, numberOfSeconds + 1.0L );
+            testTimeDouble2 = testTime.getSeconds< double >( ) + 3.0 * TIME_NORMALIZATION_TERM + 1.0;
+            testTimeLongDouble2 = testTime.getSeconds< long double >( ) + 3.0L * TIME_NORMALIZATION_TERM + 1.0L;
+        }
+        // Check comparison if hours is larger and seconds is smaller
+        else if( i == 3 )
+        {
+            testTime2 = Time( numberOfDays + 3, numberOfSeconds - 1.0L );
+            testTimeDouble2 = testTime.getSeconds< double >( ) + 3.0 * TIME_NORMALIZATION_TERM  - 1.0;
+            testTimeLongDouble2 = testTime.getSeconds< long double >( ) + 3.0L * TIME_NORMALIZATION_TERM - 1.0L;
+        }
 
-    double testTimeDouble2 = testTime.getSeconds< double >( ) + 1.0;
-    long double testTimeLongDouble2 = testTime.getSeconds< long double >( ) + 1.0L;
+        // Check equals comparison
+        BOOST_CHECK( testTime == testTimeDouble );
+        BOOST_CHECK( testTime == testTimeLongDouble );
+        BOOST_CHECK( testTime == testTime );
 
-    
-    // Check equals comparison
-    BOOST_CHECK( testTime == testTimeDouble );
-    BOOST_CHECK( testTime == testTimeLongDouble );
-    BOOST_CHECK( testTime == testTime );
+        BOOST_CHECK( testTimeDouble  == testTime );
+        BOOST_CHECK( testTimeLongDouble  == testTime );
+        BOOST_CHECK( testTimeLongDouble  == testTime );
 
-    BOOST_CHECK( testTimeDouble  == testTime );
-    BOOST_CHECK( testTimeLongDouble  == testTime );
-    BOOST_CHECK( testTimeLongDouble  == testTime );
+        // Check not-equals comparison
+        BOOST_CHECK( testTime2 != testTimeDouble );
+        BOOST_CHECK( testTime2 != testTimeLongDouble );
+        BOOST_CHECK( testTime2 != testTime );
 
-    // Check not-equals comparison
-    BOOST_CHECK( testTime2 != testTimeDouble );
-    BOOST_CHECK( testTime2 != testTimeLongDouble );
-    BOOST_CHECK( testTime2 != testTime );
+        BOOST_CHECK( testTimeDouble  != testTime2 );
+        BOOST_CHECK( testTimeLongDouble  != testTime2 );
 
-    BOOST_CHECK( testTimeDouble  != testTime2 );
-    BOOST_CHECK( testTimeLongDouble  != testTime2 );
-
-    // Check (strict) greater/less than
-    BOOST_CHECK( testTime2 > testTimeDouble );
-    BOOST_CHECK( testTime2 > testTimeLongDouble );
-    BOOST_CHECK( testTime2 > testTime );
-
-
-    BOOST_CHECK( testTimeDouble < testTime2 );
-    BOOST_CHECK( testTimeLongDouble  < testTime2 );
-
-    BOOST_CHECK( testTime2 >= testTimeDouble );
-    BOOST_CHECK( testTime2 >= testTimeLongDouble );
-    BOOST_CHECK( testTime2 >= testTime );
-
-    BOOST_CHECK( testTime >= testTime );
-
-    BOOST_CHECK( testTimeDouble <= testTime2 );
-    BOOST_CHECK( testTimeLongDouble  <= testTime2 );
-
-
-
-    BOOST_CHECK( testTime < testTimeDouble2 );
-    BOOST_CHECK( testTime < testTimeLongDouble2 );
-    BOOST_CHECK( testTime < testTime2 );
-
-    BOOST_CHECK( testTimeDouble2 > testTime );
-    BOOST_CHECK( testTimeLongDouble2  > testTime );
-
-    BOOST_CHECK( testTime <= testTimeDouble2 );
-    BOOST_CHECK( testTime <= testTimeLongDouble2 );
-    BOOST_CHECK( testTime <= testTime2 );
-
-    BOOST_CHECK( testTimeDouble2 >= testTime );
-    BOOST_CHECK( testTimeLongDouble2  >= testTime );
-
-    // Check if comparison picks up small differences
-    long double testTimeLongDouble2Rounded = testTimeLongDouble2 *
-            ( 1.0L + 2.0L * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK( testTime2 != testTimeLongDouble2Rounded );
-    BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
-
-    BOOST_CHECK( testTime2 != testTime2 + std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK( testTime2 < testTime2 + std::numeric_limits< double >::epsilon( ) );
-
-    BOOST_CHECK( testTime2 != testTime2 - std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK( testTime2 > testTime2 - std::numeric_limits< double >::epsilon( ) );
+        // Check (strict) greater/less than
+        BOOST_CHECK( testTime2 > testTimeDouble );
+        BOOST_CHECK( testTime2 > testTimeLongDouble );
+        BOOST_CHECK( testTime2 > testTime );
 
 
+        BOOST_CHECK( testTimeDouble < testTime2 );
+        BOOST_CHECK( testTimeLongDouble  < testTime2 );
+
+        BOOST_CHECK( testTime2 >= testTimeDouble );
+        BOOST_CHECK( testTime2 >= testTimeLongDouble );
+        BOOST_CHECK( testTime2 >= testTime );
+
+        BOOST_CHECK( testTime >= testTime );
+
+        BOOST_CHECK( testTimeDouble <= testTime2 );
+        BOOST_CHECK( testTimeLongDouble  <= testTime2 );
+
+        // Check (strict) greater/less than (opposite direction)
+        BOOST_CHECK( testTime < testTimeDouble2 );
+        BOOST_CHECK( testTime < testTimeLongDouble2 );
+        BOOST_CHECK( testTime < testTime2 );
+
+        BOOST_CHECK( testTimeDouble2 > testTime );
+        BOOST_CHECK( testTimeLongDouble2  > testTime );
+
+        BOOST_CHECK( testTime <= testTimeDouble2 );
+        BOOST_CHECK( testTime <= testTimeLongDouble2 );
+        BOOST_CHECK( testTime <= testTime2 );
+
+        BOOST_CHECK( testTimeDouble2 >= testTime );
+        BOOST_CHECK( testTimeLongDouble2  >= testTime );
+
+        // Check if comparison picks up small differences
+        long double currentFullSeconds = testTime2.getSecondsIntoFullPeriod( );
+        BOOST_CHECK( testTime2 != testTime2 + currentFullSeconds * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK( testTime2 < testTime2 + currentFullSeconds * std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK( testTime2 != testTime2 - currentFullSeconds * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK( testTime2 > testTime2 - currentFullSeconds * std::numeric_limits< double >::epsilon( ) );
+
+        long double testTimeLongDouble2Rounded = testTimeLongDouble2 *
+                ( 1.0L + 2.0L * std::numeric_limits< long double >::epsilon( ) );
+        BOOST_CHECK( testTime2 != testTimeLongDouble2Rounded );
+        BOOST_CHECK( testTime2 < testTimeLongDouble2Rounded );
+    }
 }
 
 
