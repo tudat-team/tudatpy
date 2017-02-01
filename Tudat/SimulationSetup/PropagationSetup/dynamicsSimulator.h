@@ -423,8 +423,8 @@ public:
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
-            const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ):
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, integratorSettings, propagatorSettings, clearNumericalSolutions, setIntegratedResult )
     {
