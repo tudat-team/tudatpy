@@ -257,6 +257,40 @@ BOOST_AUTO_TEST_CASE( testArithmeticOperations )
 }
 
 
+BOOST_AUTO_TEST_CASE( testComparisonOperators )
+{
+    int numberOfDays = 759;
+    long double numberOfSeconds = 2.0L * TIME_NORMALIZATION_TERM + LONG_PI;
+
+    Time testTime( numberOfDays, numberOfSeconds );
+
+    Time testTime2( numberOfDays, numberOfSeconds + 1 );
+
+    double testTimeDouble = testTime.getSeconds< double >();
+    double testTimeDouble2 = testTime.getSeconds< double >() + 1;
+
+    
+    // Check mixed type comparison
+    BOOST_CHECK( testTime == testTimeDouble );
+    // Also do reverse
+    BOOST_CHECK( testTimeDouble == testTime );
+
+    // Check (strict) greater/less than
+    BOOST_CHECK( testTime2 >= testTime );
+    BOOST_CHECK( testTime >= testTime );
+    BOOST_CHECK( testTime2 > testTime );
+    BOOST_CHECK( testTime < testTime2 );
+
+    // Do now with mixed type
+    BOOST_CHECK( testTime < testTimeDouble2 );
+    BOOST_CHECK( testTimeDouble2 >= testTime2 );
+
+    // Inequality
+    BOOST_CHECK( testTime2 != testTime );
+
+}
+
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 
