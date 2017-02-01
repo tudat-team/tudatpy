@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;

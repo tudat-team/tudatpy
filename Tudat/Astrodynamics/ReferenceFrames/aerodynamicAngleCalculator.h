@@ -199,6 +199,18 @@ public:
             const boost::function< double( ) > bankAngleFunction =  boost::function< double( ) >( ),
             const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
+    //! Function to set constant trajectory<->body-fixed orientation angles.
+    /*!
+     * Function to set constant trajectory<->body-fixed orientation angles.
+     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
+     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
+     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
+     */
+    void setOrientationAngleFunctions(
+            const double angleOfAttack = TUDAT_NAN,
+            const double angleOfSideslip = TUDAT_NAN,
+            const double bankAngle = TUDAT_NAN );
+
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!
      * Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
