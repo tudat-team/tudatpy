@@ -85,8 +85,7 @@ private:
 };
 
 
-}
-
-}
+} // namespace ground_stations
+} // namespace tudat
 
 #endif // TUDAT_GROUNDSTATION_H
