@@ -20,8 +20,6 @@
 
 namespace tudat
 {
-    //namespace basic_astrodynamics
-    //{
 
 static const long double TIME_NORMALIZATION_TERM = 3600.0L;
 
@@ -1005,7 +1003,6 @@ protected:
 
 };
 
-//} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_TIMETYPES_H
