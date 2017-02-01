@@ -70,7 +70,7 @@ if( TUDAT_BUILD_CLANG )
     set ( CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" )
     set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g" )
 
-    set ( CMAKE_CXX_FLAGS                "-Wall -std=c++11" )
+    set ( CMAKE_CXX_FLAGS                "-Wall -Wextra -Wno-unused-parameter -std=c++11" )
     set ( CMAKE_CXX_FLAGS_DEBUG          "-g" )
     set ( CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG" )
     set ( CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG" )
@@ -93,7 +93,8 @@ elseif( TUDAT_BUILD_GNU )
     set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g")
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -ftemplate-backtrace-limit=0")
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -ftemplate-backtrace-limit=0")
 
     # MinGW fixes
     if( MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -130,3 +131,5 @@ else()
     message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}" )
     message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")
 endif()
+
+message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS}.")

@@ -122,7 +122,7 @@ public:
         }
 
         boost::array< int, NumberOfIndependentVariables > numberOfPointsPerIndependentVariables;
-        for( int i = 0; i < NumberOfIndependentVariables; i++ )
+        for( unsigned int i = 0; i < NumberOfIndependentVariables; i++ )
         {
             numberOfPointsPerIndependentVariables[ i ] = dataPointsOfIndependentVariables_[ i ].
                                                          size( );

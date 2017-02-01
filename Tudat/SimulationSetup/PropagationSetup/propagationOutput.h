@@ -14,6 +14,7 @@
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
@@ -79,15 +80,34 @@ OutputType evaluateBivariateFunction(
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings );
 
+//! Get the vector representation of a rotation matrix.
+/*!
+ *  Get the vector representation of a rotation matrix.
+ *  \param currentRotationMatrix Rotation matrix that is to be put into vector rerpesentation
+ *  \return Column vector consisting of transpose of concatenated rows of currentRotationMatrix input.
+ */
+Eigen::VectorXd getVectorRepresentationForRotationMatrix(
+        const Eigen::Matrix3d& currentRotationMatrix );
+
+//! Get the vector representation of a rotation matrix.
+/*!
+ *  Get the vector representation of a rotation matrix.
+ *  \param rotationFunction Function returning the rotation matrix that is to be put into vector rerpesentation
+ *  \return Column vector consisting of transpose of concatenated rows of rotationFunction input.
+ */
+Eigen::VectorXd getVectorRepresentationForRotationMatrixFunction(
+        const boost::function< Eigen::Matrix3d( ) > rotationFunction );
+
 //! Get the vector representation of a quaternion.
 /*!
  *  Get the vector representation of a quaternion. Quaternion is converted to a rotation matrix, which is then put into
  *  a vector representation.
  *  \param rotationFunction Function returning the quaternion that is to be put inot vector rerpesentation
- *  \return Column vector consisting of transpose of concatenated rows of matrix representation of rotationFunction output.
+ *  \return Column vector consisting of transpose of concatenated rows of matrix representation of rotationFunction input.
  */
-Eigen::VectorXd getVectorRepresentationForRotation(
+Eigen::VectorXd getVectorRepresentationForRotationQuaternion(
         const boost::function< Eigen::Quaterniond( ) > rotationFunction );
+
 
 //! Get the 3x3 matrix representation from a vector with 9 entries
 /*!
@@ -594,7 +614,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         boost::function< Eigen::Quaterniond( ) > rotationFunction =
                 boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
-        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        variableFunction = boost::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
         parameterSize = 9;
         break;
     }
@@ -623,7 +643,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                              intermediateAerodynamicRotationVariableSaveSettings->baseFrame_,
                              intermediateAerodynamicRotationVariableSaveSettings->targetFrame_ );
 
-        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        variableFunction = boost::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
         parameterSize = 9;
         break;
     }
@@ -638,6 +658,32 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
         parameterSize = 3;
+        break;
+    }
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    {
+        boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( dependentVariableSettings->associatedBody_ ) );
+        boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+
+        if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
+        {
+            centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+        }
+        else
+        {
+            centralBodyStateFunction =
+                    boost::bind( &simulation_setup::Body::getState, bodyMap.at( dependentVariableSettings->secondaryBody_ ) );
+        }
+
+        boost::function< Eigen::Matrix3d( ) > rotationFunction =
+                boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
+                             vehicleStateFunction, centralBodyStateFunction, true );
+        variableFunction = boost::bind(
+                    &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
+
+        parameterSize = 9;
+
         break;
     }
     default:

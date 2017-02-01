@@ -1118,6 +1118,9 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         dependentVariables.push_back(
                     boost::make_shared< SingleDependentVariableSaveSettings >(
                         relative_velocity_dependent_variable, "Asterix", "Earth" ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        lvlh_to_inertial_frame_rotation_dependent_variable, "Asterix", "Earth" ) );
 
 
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -1161,12 +1164,21 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
             for( std::map< double, Eigen::VectorXd >::iterator outputIterator = dependentVariableResult.begin( );
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
-                thrustDifference = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                            outputIterator->second.segment( 3, 6 ), basic_mathematics::Vector6d::Zero( ) )
+                Eigen::Matrix3d manualRotationMatrix =
+                        reference_frames::getVelocityBasedLvlhToInertialRotation(
+                            outputIterator->second.segment( 3, 6 ), basic_mathematics::Vector6d::Zero( ) );
+                Eigen::Matrix3d currentRotationMatrix =
+                        getMatrixFromVectorRotationRepresentation( outputIterator->second.segment( 9, 9 ) );
+                thrustDifference = manualRotationMatrix
                         * thrustInterpolator->interpolate( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( thrustDifference( i ) ), 1.0E-14 );
+                    for( unsigned int j = 0; j < 3; j++ )
+                    {
+                        BOOST_CHECK_SMALL( std::fabs( manualRotationMatrix( i, j ) -
+                                                      currentRotationMatrix( i, j ) ), 1.0E-14 );
+                    }
                 }
             }
         }
