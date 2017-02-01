@@ -413,6 +413,21 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 
 }
 
+//! Function to set constant trajectory<->body-fixed orientation angles.
+void AerodynamicAngleCalculator::setOrientationAngleFunctions(
+        const double angleOfAttack,
+        const double angleOfSideslip,
+        const double bankAngle )
+{
+    boost::function< double( ) > angleOfAttackFunction =
+            ( ( angleOfAttack == angleOfAttack ) ? boost::lambda::constant( angleOfAttack ) : boost::function< double( ) >( ) );
+    boost::function< double( ) > angleOfSideslipFunction =
+            ( ( angleOfSideslip == angleOfSideslip ) ? boost::lambda::constant( angleOfSideslip ) : boost::function< double( ) >( ) );
+    boost::function< double( ) > bankAngleFunction =
+            ( ( bankAngle == bankAngle ) ? boost::lambda::constant( bankAngle ): boost::function< double( ) >( ) );
+    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
+}
+
 //! Get a function to transform aerodynamic force from local to propagation frame.
 boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationFunction(
