@@ -97,6 +97,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case total_mass_rate_dependent_variables:
         variableName = "Body mass rate";
         break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableName = "LVLH to inertial frame rotation matrix";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +
