@@ -31,8 +31,10 @@ class ObservationManagerBase
 public:
     ObservationManagerBase(
             const ObservableType observableType,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >& observationPartialScalers ):
+            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            stateTransitionMatrixInterface,
+            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+            observationPartialScalers ):
         observableType_( observableType ), stateTransitionMatrixInterface_( stateTransitionMatrixInterface ),
         observationPartialScalers_( observationPartialScalers )
     {
@@ -47,9 +49,6 @@ public:
     }
 
     //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
     virtual ~ObservationManagerBase( ){ }
 
     virtual int getObservationSize( const LinkEnds& linkEnds ) = 0;
@@ -71,7 +70,9 @@ public:
 protected:
     //! Function to get the state transition and sensitivity matrix.
     /*!
-     * Function to get the state transition matrix Phi and sensitivity matrix S at a given time as a singel matrix [Phi;S]
+     *  Function to get the state transition matrix Phi and sensitivity matrix S at a given time as a single matrix [Phi;S]
+     *  \param evaluationTime Time at which matrices are to be evaluated
+     *  \return Concatenated state transition and sensitivity matrices at given time.
      */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
     {
@@ -132,10 +133,14 @@ public:
 
     ObservationManager(
             const ObservableType observableType,
-            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >& observationSimulator,
-            const std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface ):
+            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >&
+            observationSimulator,
+            const std::map< LinkEnds, std::map< std::pair< int, int >,
+            boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
+            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >
+            observationPartialScalers,
+            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            stateTransitionMatrixInterface ):
         ObservationManagerBase< ObservationScalarType, TimeType >(
             observableType, stateTransitionMatrixInterface, observationPartialScalers ),
         observationSimulator_( observationSimulator ), observationPartials_( observationPartials ){ }
@@ -210,8 +215,8 @@ public:
         return observationPartials_;
     }
 
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > getObservationPartials(
-            const LinkEnds& linkEnds )
+    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    getObservationPartials( const LinkEnds& linkEnds )
     {
         return observationPartials_.at( linkEnds );
     }
@@ -254,7 +259,6 @@ protected:
              partialIterator = currentLinkEndPartials.begin( );
              partialIterator != currentLinkEndPartials.end( ); partialIterator++ )
         {
-            //std::cout<<"Current partial indices: "<<partialIterator->first.first<<" "<<partialIterator->first.second<<std::endl;
             // Get Observation partial start and size indices in parameter veector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
 
@@ -307,7 +311,8 @@ protected:
     std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr<
     observation_partials::ObservationPartial< ObservationSize > > > > observationPartials_;
 
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > currentLinkEndPartials;
+    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    currentLinkEndPartials;
 
 };
 

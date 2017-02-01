@@ -107,12 +107,15 @@ public:
     {
         if( observationModels_.count( linkEnds ) == 0 )
         {
-            std::cerr<<"Error in observation manager when getting observation model, did not find model for given link ends "<<observationModels_.size( )<<std::endl;
+            throw std::runtime_error(
+                        "Error in observation manager when getting observation model, did not find model for given link ends " +
+                        boost::lexical_cast< std::string >( observationModels_.size( ) ) );
         }
         return observationModels_.at( linkEnds );
     }
 
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > getObservationModels( )
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    getObservationModels( )
     {
         return observationModels_;
     }
@@ -168,14 +171,16 @@ public:
         std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
                 simulateObservations( times, linkEnds, linkEndAssociatedWithTime, checkTimes );
 
-        return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
+        return std::make_pair( simulatedObservations.first, std::make_pair(
+                                   simulatedObservations.second, linkEndAssociatedWithTime ) );
     }
 
 protected:
 
     ObservableType observableType_;
 
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels_;
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    observationModels_;
 };
 
 }
