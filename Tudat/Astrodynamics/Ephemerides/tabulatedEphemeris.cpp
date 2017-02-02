@@ -121,6 +121,7 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
 }
 
 
+//! Function to check whether an ephemeris is a (type of) tabulated ephemeris
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris )
 {
     bool objectIsTabulated = 0;

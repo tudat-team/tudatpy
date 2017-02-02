@@ -143,7 +143,7 @@ protected:
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
 
-}
+} // namespace ground_stations
 
-}
+} // namespace tudat
 #endif // TUDAT_GROUNDSTATIONSTATE_H
