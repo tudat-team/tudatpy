@@ -134,7 +134,13 @@ void integrateEquationsFromIntegrator(
 }
 
 
-
+//! Interface class for integrating some state derivative function.
+/*!
+ *  Interface class for integrating some state derivative function.. This class is used instead of a single templated free
+ *  function to allow ObservationModel the integrator etc. to adapt its time step variable to long double if the Time
+ *  object is used as TimeType. This class has template specializations for double/Time TimeType, and contains a single
+ *  integrateEquations function that performs the required operation.
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 class EquationIntegrationInterface
 {
@@ -167,6 +173,7 @@ public:
             const TimeType printInterval = TUDAT_NAN );
 };
 
+//! Interface class for integrating some state derivative function.
 template< typename StateType >
 class EquationIntegrationInterface< StateType, double >
 {
@@ -211,7 +218,7 @@ public:
     }
 };
 
-
+//! Interface class for integrating some state derivative function.
 template< typename StateType >
 class EquationIntegrationInterface< StateType, Time >
 {

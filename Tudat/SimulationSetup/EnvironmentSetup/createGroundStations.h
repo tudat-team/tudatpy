@@ -62,8 +62,8 @@ void createGroundStations(
         coordinate_conversions::cartesian_position );
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEGROUNDSTATIONS_H
