@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimes;
-    std::vector< basic_mathematics::Vector6d > linkEndStates;
+    std::vector< Eigen::Vector6d > linkEndStates;
     Eigen::Vector2d observationFromReceptionTime = observationModel->computeObservations(
                 receiverObservationTime, receiver );
     Eigen::Vector2d observationFromReceptionTime2 = observationModel->computeObservationsWithLinkEndData(
@@ -135,13 +135,13 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 positionDifference );
     BOOST_CHECK_CLOSE_FRACTION(
                 sphericalRelativeCoordinates.z( ) + observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d >( ) ).x( ),
+                    std::vector< double >( ), std::vector< Eigen::Vector6d >( ) ).x( ),
                 observationFromReceptionTime( 0 ),
                 std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION(
                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) +
                 observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d>( ) ).y( ),
+                    std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ).y( ),
                 observationFromReceptionTime( 1 ),
                 std::numeric_limits< double >::epsilon( ) );
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 
     // Recompute observable while fixing transmission time.
     std::vector< double > linkEndTimes2;
-    std::vector< basic_mathematics::Vector6d > linkEndStates2;
+    std::vector< Eigen::Vector6d > linkEndStates2;
     Eigen::Vector2d observationFromTransmissionTime = observationModel->computeObservations(
                 transmitterObservationTime, transmitter );
     Eigen::Vector2d observationFromTransmissionTime2 = observationModel->computeObservationsWithLinkEndData(

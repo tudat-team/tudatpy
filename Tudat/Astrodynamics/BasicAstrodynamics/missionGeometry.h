@@ -31,7 +31,7 @@
  *      130225    D. Dirkx          Added isOrbitRetrograde(...) functions taking inclination and
  *                                  Kepler vector.
  *      130301    R.C.A. Boon       Minor textual changes.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by Eigen::Vector6d.
  *      131212    S. Billemont      Fixed pass-by-reference error in isOrbitRetrograde()-function.
  *
  *    References
@@ -49,7 +49,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -83,7 +83,7 @@ bool isOrbitRetrograde( const double inclination );
  * \param keplerElements Vector of keplerian elements.
  * \return true if orbit is retrograde, false if prograde.
  */
-bool isOrbitRetrograde( const basic_mathematics::Vector6d& keplerElements );
+bool isOrbitRetrograde( const Eigen::Vector6d& keplerElements );
 
 //! Compute the shadow function.
 /*!

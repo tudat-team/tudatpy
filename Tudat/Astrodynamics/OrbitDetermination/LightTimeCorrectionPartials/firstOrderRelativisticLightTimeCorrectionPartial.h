@@ -73,7 +73,7 @@ public:
      * \return Partial derivative of 1st order relativistic correction w.r.t. gravitational parameter.
      */
     SingleOneWayRangePartialReturnType wrtBodyGravitationalParameter(
-            const std::vector< basic_mathematics::Vector6d >& states, const std::vector< double >& times,
+            const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
             const int bodyIndex )
     {
         if( !( static_cast< int >( perturbingBodies_.size( ) ) > bodyIndex ) )
@@ -96,7 +96,7 @@ public:
      * \return Partial derivative of 1st order relativistic correction w.r.t. PPN parameter gamma.
      */
     SingleOneWayRangePartialReturnType wrtPpnParameterGamma(
-            const std::vector< basic_mathematics::Vector6d >& states, const std::vector< double >& times )
+            const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times )
     {
         double partialValue = getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtPpnParameterGamma(
                     correctionCalculator_->getCurrentTotalLightTimeCorrection( ),

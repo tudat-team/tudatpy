@@ -48,14 +48,14 @@ using std::cos;
 using std::sin;
 
 //! Propagate linearized relative motion.
-basic_mathematics::Vector6d propagateClohessyWiltshire(
-        const basic_mathematics::Vector6d& initialState,
+Eigen::Vector6d propagateClohessyWiltshire(
+        const Eigen::Vector6d& initialState,
         const double propagationDuration,
         const double centralBodyGravitationalParameter,
         const double referenceOrbitRadius )
 {
     // Initialize final state vector.
-    basic_mathematics::Vector6d finalState;
+    Eigen::Vector6d finalState;
 
     // Calculate mean angular motion of reference orbit.
     const double meanAngularMotion =

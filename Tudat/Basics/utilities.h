@@ -134,11 +134,8 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-<<<<<<< HEAD
+
 //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
-=======
-  //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
->>>>>>> master
 /*!
  *  Function to produce a map of Eigen matrices, cast from one set of key/matrix scalar type set to another set.
  *  \param originalMap Map in original types
@@ -156,7 +153,6 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
     }
 }
 
-<<<<<<< HEAD
 template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns = 1 >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedEigenMatrixFromMapValues(
         const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >& inputMap )
@@ -260,7 +256,6 @@ std::vector< Argument > addScalarToVector( const std::vector< Argument >& vector
 }
 
 
-
 //! Function to copy a multi-array into another multi-array
 /*!
  *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
@@ -297,8 +292,7 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
         const boost::multi_array< double, 3 >& m, const double* requestedElement );
 
-=======
->>>>>>> master
+
 
 } // namespace utilities
 

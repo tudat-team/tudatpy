@@ -119,10 +119,10 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Test light time and link end state functions.
     double testOutputTime = 0.0;
-    basic_mathematics::Vector6d testEarthState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d testMoonState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d spiceEarthState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d spiceMoonState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d testEarthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d testMoonState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d spiceEarthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d spiceMoonState = Eigen::Vector6d::Zero( );
 
     // Get link end states, assuming input time is transmission time.
     // SSB = Solar system barycenter.
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate expected correction.
     double expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                basic_mathematics::Vector6d::Zero( ), basic_mathematics::Vector6d::Zero( ),
+                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
                 testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate expected correction.
     expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                basic_mathematics::Vector6d::Zero( ), basic_mathematics::Vector6d::Zero( ),
+                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
                 testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.

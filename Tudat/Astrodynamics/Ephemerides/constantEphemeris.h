@@ -27,7 +27,7 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    ConstantEphemeris( const boost::function< basic_mathematics::Vector6d( ) > constantStateFunction,
+    ConstantEphemeris( const boost::function< Eigen::Vector6d( ) > constantStateFunction,
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
@@ -40,7 +40,7 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    ConstantEphemeris( const basic_mathematics::Vector6d constantState,
+    ConstantEphemeris( const Eigen::Vector6d constantState,
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
@@ -53,7 +53,7 @@ public:
               (not used in this derived class)
      * \return Constant state given by constantStateFunction_
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double seconsSinceEpoch = 0.0 )
     {
         return constantStateFunction_( );
@@ -64,7 +64,7 @@ public:
      * Changes the constant state value to a new value.
      * \param newState New value for constant state.
      */
-    void updateConstantState( const basic_mathematics::Vector6d& newState )
+    void updateConstantState( const Eigen::Vector6d& newState )
     {
         constantStateFunction_ = boost::lambda::constant( newState );
     }
@@ -75,7 +75,7 @@ private:
     /*!
      *  Function that returns a constant cartesian state.
      */
-    boost::function< basic_mathematics::Vector6d( ) > constantStateFunction_;
+    boost::function< Eigen::Vector6d( ) > constantStateFunction_;
 
 };
 

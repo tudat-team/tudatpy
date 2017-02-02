@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
                 linkEnds, bodyMap, earthPolePosition ).begin( )->second;
 
     // Calculate transmission/reception times and states
-    basic_mathematics::Vector6d currentState;
+    Eigen::Vector6d currentState;
     double receptionTime = 1.1E7;
     currentState = bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( receptionTime );
 
@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     bodyPositionVariation << 10.0, 10.0, 10.0;
     boost::shared_ptr< ConstantEphemeris > earthEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap[ "Earth" ]->getEphemeris( ) );
-    basic_mathematics::Vector6d earthUnperturbedState = earthEphemeris->getCartesianState( 0.0 );
-    basic_mathematics::Vector6d perturbedEarthState;
+    Eigen::Vector6d earthUnperturbedState = earthEphemeris->getCartesianState( 0.0 );
+    Eigen::Vector6d perturbedEarthState;
     Eigen::Matrix< double, 3, 3 > numericalPartialWrtReceiverPosition = Eigen::Matrix< double, 3, 3 >::Zero( );
     for( int i = 0; i < 3; i++ )
     {

@@ -19,7 +19,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -52,7 +52,7 @@ public:
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
      */
-    virtual void update( const std::vector< basic_mathematics::Vector6d >& linkEndStates,
+    virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                          const std::vector< double >& times,
                          const observation_models::LinkEndType fixedLinkEnd ) = 0;
 };
@@ -92,7 +92,7 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver ) = 0;
 

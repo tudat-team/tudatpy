@@ -662,13 +662,13 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     }
     case lvlh_to_inertial_frame_rotation_dependent_variable:
     {
-        boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
+        boost::function< Eigen::Vector6d( ) > vehicleStateFunction =
                 boost::bind( &simulation_setup::Body::getState, bodyMap.at( dependentVariableSettings->associatedBody_ ) );
-        boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+        boost::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
         if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
         {
-            centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+            centralBodyStateFunction =  boost::lambda::constant( Eigen::Vector6d::Zero( ) );
         }
         else
         {

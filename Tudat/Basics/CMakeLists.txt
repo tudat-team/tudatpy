@@ -44,6 +44,8 @@ set(BASICSDIR_HEADERS
   "${SRCROOT}${BASICSDIR}/utilities.h"
   "${SRCROOT}${BASICSDIR}/testMacros.h"
   "${SRCROOT}${BASICSDIR}/utilityMacros.h"
+  "${SRCROOT}${BASICSDIR}/timeType.h"
+  "${SRCROOT}${BASICSDIR}/basicTypedefs.h"
 )
 
 # Add unit test files.
@@ -55,3 +57,8 @@ set(BASICSDIR_UNITTESTS
 # Add static libraries.
 add_library(tudat_basics STATIC ${BASICSDIR_SOURCES} ${BASICSDIR_HEADERS})
 setup_tudat_library_target(tudat_basics "${SRCROOT}${BASICSDIR}")
+
+add_executable(test_TimeTypes "${SRCROOT}${BASICSDIR}/UnitTests/unitTestTimeTypes.cpp")
+setup_custom_test_program(test_TimeTypes "${SRCROOT}${BASICSDIR}")
+target_link_libraries(test_TimeTypes ${Boost_LIBRARIES})
+

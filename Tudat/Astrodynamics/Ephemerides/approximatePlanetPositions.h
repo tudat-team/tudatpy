@@ -50,7 +50,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -97,7 +97,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch );
 
     //! Get keplerian state from ephemeris.
@@ -106,7 +106,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Keplerian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getKeplerianStateFromEphemeris(
+    Eigen::Vector6d getKeplerianStateFromEphemeris(
             const double secondsSinceEpoch );
 
 protected:

@@ -35,7 +35,7 @@
  *                                  retrogradeness based on Kepler state
  *      130301    R.C.A. Boon       Updated use of mathematics::PI to basic_mathematics::
  *                                  mathematical_constants::PI, minor textual changes.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by Eigen::Vector6d
  *
  *    References
  *      Verified Interval Propagation, Bart Rˆmgens; Delft (2011). Code archive.
@@ -68,8 +68,8 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian to modified equinoctial orbital elements using implicit MEE equation set.
-basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& keplerianElements )
+Eigen::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& keplerianElements )
 // Based on Hintz, 2008.
 {
     // Check if orbit is retrograde
@@ -82,15 +82,15 @@ basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
 }
 
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
-basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+Eigen::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& keplerianElements,
         const bool avoidSingularityAtPiInclination )
 // Based on Hintz, 2008.
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    basic_mathematics::Vector6d modifiedEquinoctialState( 6 );
+    Eigen::Vector6d modifiedEquinoctialState( 6 );
 
     // Compute semi-latus rectum.
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
@@ -180,16 +180,15 @@ basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
 }
 
 //! Convert modified equinoctial to Keplerian orbital elements.
-basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
-        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
+Eigen::Vector6d convertModifiedEquinoctialToKeplerianElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
         const bool avoidSingularityAtPiInclination )
 // Using unknown source pdf, code archive E. Heeren and personal derivation based on Hintz 2008.
 {
     using mathematical_constants::PI;
 
     // Declaration of output vector.
-    basic_mathematics::Vector6d convertedKeplerianElements = basic_mathematics::
-            Vector6d::Zero( 6 );
+    Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( 6 );
 
     // for ease of referencing, almost all modified equinoctial elements.
     double fElement = modifiedEquinoctialElements( fElementIndex );
@@ -281,14 +280,14 @@ basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
 }
 
 //! Convert Cartesian to modified equinoctial orbital elements using implicit MEE equation set.
-basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& cartesianElements,
+Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Convert to keplerian elements.
-    basic_mathematics::Vector6d keplerianElements = convertCartesianToKeplerianElements(
+    Eigen::Vector6d keplerianElements = convertCartesianToKeplerianElements(
                 cartesianElements, centralBodyGravitationalParameter );
 
     // Check whether orbit is retrograde.
@@ -301,8 +300,8 @@ basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
 }
 
 //! Convert Cartesian to modified equinoctial orbital elements using explicit MEE equation set.
-basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& cartesianElements,
+Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
 {
@@ -314,15 +313,14 @@ basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
 }
 
 //! Convert Modified Equinoctial Elements to Cartesian Elements.
-basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
-        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
+Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
 // Using unnamed pdf and code archive Bart Rˆmgens.
 {
     // Creating output vector.
-    basic_mathematics::Vector6d convertedCartesianElements = basic_mathematics::
-            Vector6d::Zero( 6 );
+    Eigen::Vector6d convertedCartesianElements = Eigen::Vector6d::Zero( 6 );
 
     // If the prograde equations are to be used.
     if ( !avoidSingularityAtPiInclination )
