@@ -24,9 +24,9 @@ void emptyTimeFunction( const double time ){ }
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a body state.
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
-        boost::function< void( basic_mathematics::Vector6d ) > setBodyState,
+        boost::function< void( Eigen::Vector6d ) > setBodyState,
         boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
-        basic_mathematics::Vector6d originalState,
+        Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
         boost::function< void( ) > updateFunction )
@@ -34,7 +34,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     Eigen::Matrix3d upAccelerations = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d downAccelerations = Eigen::Matrix3d::Zero( );
 
-    basic_mathematics::Vector6d perturbedState = originalState;
+    Eigen::Vector6d perturbedState = originalState;
 
     // Calculate perturbed accelerations for up-perturbed state entries.
     for( int i = 0; i < 3; i++ )

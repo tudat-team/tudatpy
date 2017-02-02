@@ -66,7 +66,7 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
 }
 
 //! Update the scaling object to the current times and states
-void AngularPositionScaling::update( const std::vector< basic_mathematics::Vector6d >& linkEndStates,
+void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                      const std::vector< double >& times,
                                      const observation_models::LinkEndType fixedLinkEnd )
 {
@@ -103,7 +103,7 @@ void AngularPositionScaling::update( const std::vector< basic_mathematics::Vecto
 
 //! Function to calculate the observation partial(s) at required time and state
 AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial::calculatePartial(
-        const std::vector< basic_mathematics::Vector6d >& states,
+        const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime )
 {

@@ -63,7 +63,7 @@ namespace unit_tests
 {
 
 using boost::assign::list_of;
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 
 //! Rotate vector over arbitrary angles.
 /*!
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithoutFrameTransformation
     typedef AnotherDerivedAccelerationModel< > AnotherDerivedAccelerationModel3d;
 
     // Set current state.
-    const Vector6d currentState = ( basic_mathematics::Vector6d( )
+    const Vector6d currentState = ( Eigen::Vector6d( )
                                     << Eigen::Vector3d( -1.1, 2.2, -3.3 ),
                                     Eigen::Vector3d( 0.23, 1.67, -0.11 ) ).finished( );
 
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithoutFrameTransformation
 
     // Set expected (cumulative) Cartesian state derivative.
     const Vector6d expectedCartesianStateDerivative
-            = ( basic_mathematics::Vector6d( ) << currentVelocity,
+            = ( Eigen::Vector6d( ) << currentVelocity,
                 expectedAccelerationFirstModel + expectedAccelerationSecondModel ).finished( );
 
     // Compute Cartesian state derivative.
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithFrameTransformations )
     typedef AnotherDerivedAccelerationModel< > AnotherDerivedAccelerationModel3d;
 
     // Set current state.
-    const Vector6d currentState = ( basic_mathematics::Vector6d( )
+    const Vector6d currentState = ( Eigen::Vector6d( )
                                     << Eigen::Vector3d( -1.1, 2.2, -3.3 ),
                                     Eigen::Vector3d( 0.23, 1.67, -0.11 ) ).finished( );
 
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithFrameTransformations )
 
     // Set expected (cumulative) Cartesian state derivative.
     const Vector6d expectedCartesianStateDerivative
-            = ( basic_mathematics::Vector6d( ) << currentVelocity,
+            = ( Eigen::Vector6d( ) << currentVelocity,
                 expectedAccelerationFirstModel + expectedAccelerationSecondModel ).finished( );
 
     // Compute Cartesian state derivative.

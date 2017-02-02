@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
          linkEndIterator++ )
     {
         // Evaluate nominal observation values
-        std::vector< basic_mathematics::Vector6d > vectorOfStates;
+        std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
         double observationTime = 1.1E7;
         oneWayRangeModel->computeObservationsWithLinkEndData(

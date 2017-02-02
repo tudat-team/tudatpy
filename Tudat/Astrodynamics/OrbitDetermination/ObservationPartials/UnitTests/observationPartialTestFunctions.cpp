@@ -45,7 +45,7 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
     if( useConstantEphemerides )
     {
-        basic_mathematics::Vector6d bodyState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
         bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
@@ -166,8 +166,8 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
     // Calculate numerical partials w.r.t. body state.
     boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap.at( bodyName )->getEphemeris( ) );
-    basic_mathematics::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
-    basic_mathematics::Vector6d perturbedBodyState;
+    Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
+    Eigen::Vector6d perturbedBodyState;
 
     Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
             Eigen::Matrix< double, Eigen::Dynamic, 3 >::Zero( observableSize, 3 );

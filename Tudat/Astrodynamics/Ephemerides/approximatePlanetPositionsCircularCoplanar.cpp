@@ -53,7 +53,7 @@ namespace ephemerides
 {
 
 //! Get state from ephemeris; circular, coplanar case
-basic_mathematics::Vector6d ApproximatePlanetPositionsCircularCoplanar::
+Eigen::Vector6d ApproximatePlanetPositionsCircularCoplanar::
 getCartesianState( const double secondsSinceEpoch )
 {
     // Set Julian date.

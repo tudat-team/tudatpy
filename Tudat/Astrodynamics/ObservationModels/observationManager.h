@@ -90,7 +90,7 @@ protected:
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      */
     virtual void updatePartials(
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const LinkEndType linkEndAssociatedWithTime )
@@ -182,7 +182,7 @@ public:
                 observationSimulator_->getObservationModel( linkEnds );
 
         // Initialize vectors of states and times of link ends to be used in calculations.
-        std::vector< basic_mathematics::Vector6d > vectorOfStates;
+        std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
 
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
@@ -235,7 +235,7 @@ protected:
      */
     Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > determineObservationPartialMatrix(
             const int observationSize,
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const LinkEndType linkEndAssociatedWithTime )

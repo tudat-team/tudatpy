@@ -22,7 +22,7 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
     // Initialize vector with reception times.
     bool isObservationFeasible = 1;
 
-    std::vector< basic_mathematics::Vector6d > vectorOfStates;
+    std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
 
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > calculatedObservation =

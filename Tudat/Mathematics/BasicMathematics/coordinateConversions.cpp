@@ -147,11 +147,11 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
 }
 
 //! Convert cylindrical to Cartesian state.
-basic_mathematics::Vector6d convertCylindricalToCartesianState(
-        const basic_mathematics::Vector6d& cylindricalState )
+Eigen::Vector6d convertCylindricalToCartesianState(
+        const Eigen::Vector6d& cylindricalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
-    basic_mathematics::Vector6d cartesianState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d cartesianState = Eigen::Vector6d::Zero( );
 
     // Get azimuth angle, theta.
     double azimuthAngle = cylindricalState( 1 );
@@ -226,11 +226,11 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 }
 
 //! Convert Cartesian to cylindrical state.
-basic_mathematics::Vector6d convertCartesianToCylindricalState(
-        const basic_mathematics::Vector6d& cartesianState )
+Eigen::Vector6d convertCartesianToCylindricalState(
+        const Eigen::Vector6d& cartesianState )
 {
     // Create cylindrical state vector, initialized with zero entries.
-    basic_mathematics::Vector6d cylindricalState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d cylindricalState = Eigen::Vector6d::Zero( );
 
     // Compute and set cylindrical coordinates.
     cylindricalState.head( 3 ) = convertCartesianToCylindrical(
@@ -406,11 +406,11 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
 }
 
 //! Convert spherical to Cartesian state.
-basic_mathematics::Vector6d convertSphericalToCartesianState(
-        const basic_mathematics::Vector6d& sphericalState )
+Eigen::Vector6d convertSphericalToCartesianState(
+        const Eigen::Vector6d& sphericalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
-    basic_mathematics::Vector6d convertedCartesianState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d convertedCartesianState = Eigen::Vector6d::Zero( );
 
     // Create local variables.
     const double radius = sphericalState( 0 );
@@ -458,11 +458,11 @@ basic_mathematics::Vector6d convertSphericalToCartesianState(
 }
 
 //! Convert Cartesian to spherical state.
-basic_mathematics::Vector6d convertCartesianToSphericalState(
-        const basic_mathematics::Vector6d& cartesianState )
+Eigen::Vector6d convertCartesianToSphericalState(
+        const Eigen::Vector6d& cartesianState )
 {
     // Create spherical state vector, initialized with zero entries.
-    basic_mathematics::Vector6d convertedSphericalState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d convertedSphericalState = Eigen::Vector6d::Zero( );
 
     // Compute radius.
     convertedSphericalState( 0 ) = cartesianState.segment( 0, 3 ).norm( );

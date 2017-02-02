@@ -25,7 +25,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModelBase.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

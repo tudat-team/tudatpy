@@ -84,7 +84,7 @@ public:
         {
             //NOTE: Should generalize to long double state type.
             ephemerisBetweenFrames = boost::make_shared< ConstantEphemeris >(
-                        boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), origin, "ECLIPJ2000" );
+                        boost::lambda::constant( Eigen::Vector6d::Zero( ) ), origin, "ECLIPJ2000" );
         }
         else
         {

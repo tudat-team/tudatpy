@@ -73,7 +73,7 @@ template< int ObservableSize >
 std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > >
 calculateAnalyticalPartials(
         const std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
-        const std::vector< basic_mathematics::Vector6d >& states,
+        const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEndType linkEndOfFixedTime )
 {
@@ -127,7 +127,7 @@ inline void testObservationPartials(
          linkEndIterator++ )
     {
         // Evaluate nominal observation values
-        std::vector< basic_mathematics::Vector6d > vectorOfStates;
+        std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
         double observationTime = 1.1E7;
         observationModel->computeObservationsWithLinkEndData(
