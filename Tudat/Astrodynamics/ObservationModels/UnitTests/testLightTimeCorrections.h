@@ -30,8 +30,8 @@ namespace unit_tests
  *  \return Light-time correction value using made-up relation.
  */
 double getTimeDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {
@@ -50,8 +50,8 @@ double getTimeDifferenceLightTimeCorrection(
  *  \return Light-time correction value using made-up relation.
  */
 double getVelocityDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {
@@ -70,8 +70,8 @@ double getVelocityDifferenceLightTimeCorrection(
  *  \return Light-time correction value using made-up relation.
  */
 double getPositionDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {

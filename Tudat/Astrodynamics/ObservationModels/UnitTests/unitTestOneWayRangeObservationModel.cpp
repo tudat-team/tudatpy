@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimes;
-    std::vector< basic_mathematics::Vector6d > linkEndStates;
+    std::vector< Eigen::Vector6d > linkEndStates;
     double observationFromReceptionTime = observationModel->computeObservations(
                 receiverObservationTime, receiver )( 0 );
     double observationFromReceptionTime2 = observationModel->computeObservationsWithLinkEndData(
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     BOOST_CHECK_CLOSE_FRACTION(
                 positionDifference.norm( ) + lightTimeCorrection * physical_constants::SPEED_OF_LIGHT +
                 observationBias->getObservationBias(
-                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d >( ) )( 0 ),
+                    std::vector< double >( ), std::vector< Eigen::Vector6d >( ) )( 0 ),
                 observationFromReceptionTime,
                 std::numeric_limits< double >::epsilon( ) );
 
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
 
     // Recompute observable while fixing transmission time.
     std::vector< double > linkEndTimes2;
-    std::vector< basic_mathematics::Vector6d > linkEndStates2;
+    std::vector< Eigen::Vector6d > linkEndStates2;
     double observationFromTransmissionTime = observationModel->computeObservations(
                 transmitterObservationTime, transmitter )( 0 );
     double observationFromTransmissionTime2 = observationModel->computeObservationsWithLinkEndData(

@@ -59,8 +59,8 @@ double calculateFlightPathAngle(
  * \param bodyFixedCartesianState Vehicle state in a frame fixed to the body w.r.t. which the state is to be computed.
  * \return Spherical orbital state representation of bodyFixedCartesianState
  */
-basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
-        const basic_mathematics::Vector6d& bodyFixedCartesianState );
+Eigen::Vector6d convertCartesianToSphericalOrbitalState(
+        const Eigen::Vector6d& bodyFixedCartesianState );
 
 //! Function to convert a spherical orbital to a Cartesian state.
 /*!
@@ -76,8 +76,8 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
  * always w.r.t. the same velocity vector.
  * \return Cartesian state representation of sphericalOrbitalState (in same frame).
  */
-basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
-        const basic_mathematics::Vector6d& sphericalOrbitalState );
+Eigen::Vector6d convertSphericalOrbitalToCartesianState(
+        const Eigen::Vector6d& sphericalOrbitalState );
 
 } // namespace orbital_element_conversions
 

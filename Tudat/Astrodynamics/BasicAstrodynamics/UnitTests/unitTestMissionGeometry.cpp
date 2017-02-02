@@ -29,7 +29,7 @@
  *      121123    D. Dirkx          Added unit tests for computeSphereOfInfluence() function taking
  *                                  mass ratio.
  *      130227    D. Dirkx          Added unit test for isOrbitRetrograde() functions.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by Eigen::Vector6d.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( testIsOrbitRetrograde )
     using namespace mathematical_constants;
 
     // Initialize test Kepler elements.
-    basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
+    Eigen::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
     testKepler( semiMajorAxisIndex ) = 1.0e7;
     testKepler( eccentricityIndex ) = 0.1;
     testKepler( inclinationIndex ) = 50.0 / 180.0 * PI;

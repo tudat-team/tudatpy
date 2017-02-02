@@ -66,7 +66,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
 Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+        const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter );
 
 //! Convert Unified State Model elements to Keplerian elements.
@@ -89,7 +89,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 

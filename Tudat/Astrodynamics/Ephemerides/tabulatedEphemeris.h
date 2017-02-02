@@ -110,7 +110,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch );
 
     //! Get cartesian state from ephemeris (in long double precision).
@@ -130,7 +130,7 @@ public:
      * \param time Time at which ephemeris is to be evaluated
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromExtendedTime(
+    Eigen::Vector6d getCartesianStateFromExtendedTime(
             const Time& time );
 
     //! Get cartesian state from ephemeris (in long double precision from Time input).

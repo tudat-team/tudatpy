@@ -34,11 +34,11 @@ GroundStationState::GroundStationState(
 }
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
-basic_mathematics::Vector6d GroundStationState::getCartesianStateInTime(
+Eigen::Vector6d GroundStationState::getCartesianStateInTime(
         const double secondsSinceEpoch,
         const double inputReferenceEpoch )
 {
-    return ( basic_mathematics::Vector6d( ) << cartesianPosition_, Eigen::Vector3d::Zero( ) ).finished( );
+    return ( Eigen::Vector6d( ) << cartesianPosition_, Eigen::Vector3d::Zero( ) ).finished( );
 }
 
 //! Function to (re)set the nominal state of the station
