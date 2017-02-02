@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_TIMETYPES_H
-#define TUDAT_TIMETYPES_H
+#ifndef TUDAT_TIMETYPE_H
+#define TUDAT_TIMETYPE_H
 
 #include <cmath>
 #include <algorithm>
@@ -994,7 +994,6 @@ protected:
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
 
-
     //! Number of full hours since epoch
     int fullPeriods_;
 
@@ -1005,4 +1004,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_TIMETYPES_H
+#endif // TUDAT_TIMETYPE_H

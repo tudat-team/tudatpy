@@ -11,7 +11,7 @@
 #ifndef TUDAT_LIGHTTIMECORRECTION_H
 #define TUDAT_LIGHTTIMECORRECTION_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

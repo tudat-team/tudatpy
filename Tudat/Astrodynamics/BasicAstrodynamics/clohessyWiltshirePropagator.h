@@ -39,7 +39,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

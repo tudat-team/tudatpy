@@ -40,7 +40,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 
 namespace tudat

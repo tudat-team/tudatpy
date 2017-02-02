@@ -23,7 +23,7 @@
 #include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h>
-#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
+#include <Tudat/Basics/basicTypedefs.h>
 #include <Tudat/InputOutput/basicInputOutput.h>
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"

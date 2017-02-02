@@ -57,7 +57,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"

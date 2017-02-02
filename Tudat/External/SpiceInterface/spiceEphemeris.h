@@ -45,7 +45,7 @@
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

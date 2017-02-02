@@ -20,7 +20,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

@@ -48,7 +48,7 @@
 #ifndef TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

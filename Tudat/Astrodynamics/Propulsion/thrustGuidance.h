@@ -18,7 +18,7 @@
 
 #include <Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h>
 #include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
-#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
+#include <Tudat/Basics/basicTypedefs.h>
 
 namespace tudat
 {

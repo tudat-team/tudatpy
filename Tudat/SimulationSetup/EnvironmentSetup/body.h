@@ -32,7 +32,7 @@
 #include <Tudat/Astrodynamics/GroundStations/groundStation.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h>
-#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
+#include <Tudat/Basics/basicTypedefs.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/SystemModels/vehicleSystems.h>
 

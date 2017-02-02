@@ -107,7 +107,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

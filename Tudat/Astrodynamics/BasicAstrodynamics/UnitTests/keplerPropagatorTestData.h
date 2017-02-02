@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

@@ -38,7 +38,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
