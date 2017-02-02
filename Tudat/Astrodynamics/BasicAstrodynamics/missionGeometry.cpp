@@ -34,7 +34,7 @@
  *                                  Kepler vector.
  *      130227    D. Dirkx          Set isRetrograde at initialization to 0.
  *      130301    R.C.A. Boon       Minor textual changes, changed mathematics::PI to
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by Eigen::Vector6d
  *                                  mathematical_constants::PI.
  *      131212    S. Billemont      Fixed pass-by-reference error in isOrbitRetrograde()-function.
  *
@@ -83,7 +83,7 @@ bool isOrbitRetrograde( const double inclination )
 }
 
 //! Compute whether an orbit is retrograde based on Keplerian state.
-bool isOrbitRetrograde( const basic_mathematics::Vector6d& keplerElements )
+bool isOrbitRetrograde( const Eigen::Vector6d& keplerElements )
 {
     // Get inclination from vector and call overloaded function.
     return isOrbitRetrograde(

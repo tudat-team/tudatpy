@@ -70,7 +70,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                basic_mathematics::Vector6d::Zero( ), "SSB", "J2000" );
+                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
@@ -80,7 +80,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
     bodyMap[ "Asterix" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                             boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Vector6d  > >( ), "Earth", "J2000" ) );
+                                                < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
@@ -104,7 +104,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
 
     // Set Keplerian elements for Asterix.
-    Vector6d asterixInitialStateInKeplerianElements;
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );

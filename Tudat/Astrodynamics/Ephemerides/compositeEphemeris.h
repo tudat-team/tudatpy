@@ -199,7 +199,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Constant state given by combined rotations and translations.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch )
     {
         return getTemplatedCartesianStateFromCompositeEphemeris< double, double >( secondsSinceEpoch );
@@ -356,7 +356,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
         boost::shared_ptr< Ephemeris > bodyEphemeris,
         boost::shared_ptr< RotationalEphemeris > bodyRotationModel,
-        boost::function< basic_mathematics::Vector6d( const double& ) > referencePointRelativeStateFunction )
+        boost::function< Eigen::Vector6d( const double& ) > referencePointRelativeStateFunction )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 

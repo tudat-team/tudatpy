@@ -92,7 +92,7 @@ private:
 typedef boost::shared_ptr< StateDerivativeModel< > > StateDerivativeModelXd;
 
 //! Typedef for state derivative model (Vector6d).
-typedef StateDerivativeModel< double, basic_mathematics::Vector6d > StateDerivativeModelVector6d;
+typedef StateDerivativeModel< double, Eigen::Vector6d > StateDerivativeModelVector6d;
 
 //! Typedef for shared-pointer to state derivative model (Vector6d).
 typedef boost::shared_ptr< StateDerivativeModelVector6d > StateDerivativeModelVector6dPointer;
