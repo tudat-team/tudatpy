@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     // Compute observation separately with two functions.
     double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
     std::vector< double > linkEndTimes;
-    std::vector< basic_mathematics::Vector6d > linkEndStates;
+    std::vector< Eigen::Vector6d > linkEndStates;
     Eigen::Vector3d observation = observationModel->computeObservations(
                 observationTime, observed_body );
     Eigen::Vector3d observation2 = observationModel->computeObservationsWithLinkEndData(
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 0, 3 ) +
                 observationBias->getObservationBias(
-                      std::vector< double >( ), std::vector< basic_mathematics::Vector6d>( ) ) ),
+                      std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ) ),
                 observation, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 observation, observation2, std::numeric_limits< double >::epsilon( ) );

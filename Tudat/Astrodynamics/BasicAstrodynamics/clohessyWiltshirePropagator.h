@@ -110,8 +110,8 @@ namespace basic_astrodynamics
  *          finalState( 5 ) = cross-track velocity                                           [m/s].
  */
 
-basic_mathematics::Vector6d propagateClohessyWiltshire(
-        const basic_mathematics::Vector6d& initialState,
+Eigen::Vector6d propagateClohessyWiltshire(
+        const Eigen::Vector6d& initialState,
         const double propagationDuration,
         const double centralBodyGravitationalParameter,
         const double referenceOrbitRadius );

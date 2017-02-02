@@ -214,7 +214,7 @@ public:
         }
 
         // Update current coefficients.
-        basic_mathematics::Vector6d currentCoefficients = coefficientInterpolator_->interpolate(
+        Eigen::Vector6d currentCoefficients = coefficientInterpolator_->interpolate(
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
@@ -237,7 +237,7 @@ protected:
         // Create interpolator for coefficients.
         coefficientInterpolator_ =
                 boost::make_shared< interpolators::MultiLinearInterpolator< double,
-                basic_mathematics::Vector6d, 3 > >
+                Eigen::Vector6d, 3 > >
                 ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
 
     }
@@ -263,7 +263,7 @@ protected:
 
     //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
     //! contained in aerodynamicCoefficients_.
-    boost::shared_ptr< interpolators::Interpolator< double, basic_mathematics::Vector6d > >
+    boost::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
             coefficientInterpolator_;
 };
 

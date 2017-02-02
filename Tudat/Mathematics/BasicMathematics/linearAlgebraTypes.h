@@ -37,9 +37,7 @@
 
 #include <Eigen/Core>
 
-namespace tudat
-{
-namespace basic_mathematics
+namespace Eigen
 {
 
 //! Typedef for Vector6d.
@@ -60,7 +58,6 @@ typedef Eigen::Matrix< int, 6, 6 > Matrix6i;
 //! Typedef for Matrix6f.
 typedef Eigen::Matrix< float, 6, 6 > Matrix6f;
 
-} // namespace basic_mathematics
-} // namespace tudat
+} // namespace Eigen
 
 #endif // TUDAT_LINEAR_ALGEBRA_TYPES_H

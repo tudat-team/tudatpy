@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Create body with initial state and time.
     TestBody3dPointer body = boost::make_shared< TestBody3d >(
-                ( basic_mathematics::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
+                ( Eigen::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
 
     // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
     // functions in body.
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Update time and state.
     body->setCurrentTimeAndState(
-                -1.1, ( basic_mathematics::Vector6d( )
+                -1.1, ( Eigen::Vector6d( )
                         << -0.45, 10.63, -9.81, 0.11, 0.22, 0.33 ).finished( ) );
 
     // Update acceleration model members.
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Update time and state.
     body->setCurrentTimeAndState(
-                4.6, ( basic_mathematics::Vector6d( )
+                4.6, ( Eigen::Vector6d( )
                        << -87.685, 101.44, -1.38, -0.12, 0.23, -0.34 ).finished( ) );
 
     // Update and get acceleration with single function.
