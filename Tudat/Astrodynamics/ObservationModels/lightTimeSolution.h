@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 

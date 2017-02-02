@@ -59,7 +59,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsDataContainer.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

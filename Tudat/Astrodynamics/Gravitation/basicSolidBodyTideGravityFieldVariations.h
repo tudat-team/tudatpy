@@ -23,7 +23,7 @@
 #include <map>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 

@@ -63,7 +63,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat

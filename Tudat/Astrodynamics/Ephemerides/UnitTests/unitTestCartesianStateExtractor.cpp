@@ -46,7 +46,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/cartesianStateExtractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

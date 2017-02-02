@@ -61,7 +61,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testAccelerationModels.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testBody.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {

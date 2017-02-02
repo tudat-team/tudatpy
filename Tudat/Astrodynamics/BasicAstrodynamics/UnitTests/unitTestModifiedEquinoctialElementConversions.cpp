@@ -63,7 +63,7 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat

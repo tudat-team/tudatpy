@@ -45,9 +45,9 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {

@@ -54,7 +54,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 

@@ -54,7 +54,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 extern "C"
 {

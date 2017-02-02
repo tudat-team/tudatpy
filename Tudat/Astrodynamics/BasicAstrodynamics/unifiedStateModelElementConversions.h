@@ -37,7 +37,7 @@
 #ifndef TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
 #define TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
