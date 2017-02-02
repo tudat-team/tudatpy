@@ -52,7 +52,7 @@ public:
      *  \param inputReferenceEpoch Reference epoch julian day
      *  \return Cartesian state of station in local frame at requested time.
      */
-     basic_mathematics::Vector6d getCartesianStateInTime(
+     Eigen::Vector6d getCartesianStateInTime(
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 

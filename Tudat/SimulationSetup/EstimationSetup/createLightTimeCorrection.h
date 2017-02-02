@@ -28,7 +28,7 @@ namespace observation_models
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef boost::function< double(
-        const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
+        const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
 //! Base class for light-time correction settings.

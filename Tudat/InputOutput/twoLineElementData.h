@@ -64,7 +64,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -261,7 +261,7 @@ public:
      * Argument of Perigee, ranging between 0 and 360 degrees.
      * Semi-Major Axis, calculated from the other TLE variables.
      */
-    basic_mathematics::Vector6d TLEKeplerianElements;
+    Eigen::Vector6d TLEKeplerianElements;
 
     //! Mean anomaly.
     /*!

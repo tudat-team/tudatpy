@@ -45,7 +45,7 @@ namespace tudat
 namespace spice_interface
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )

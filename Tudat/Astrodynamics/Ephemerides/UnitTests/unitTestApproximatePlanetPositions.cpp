@@ -95,14 +95,14 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     ApproximatePlanetPositions marsEphemeris( ApproximatePlanetPositions::mars );
 
     // Convert the expected Keplerian elements to Cartesian elements.
-    basic_mathematics::Vector6d expectedEphemeris;
+    Eigen::Vector6d expectedEphemeris;
     expectedEphemeris = orbital_element_conversions::
             convertKeplerianToCartesianElements(
             expectedKeplerianElements,
             marsEphemeris.getSunGravitationalParameter( ) );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
-    basic_mathematics::Vector6d marsState = marsEphemeris.getCartesianState(
+    Eigen::Vector6d marsState = marsEphemeris.getCartesianState(
                 ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Test if the computed ephemeris matches the expected ephemeris within the tolerance set.
@@ -121,12 +121,12 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
     ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
                 ApproximatePlanetPositionsBase::mars );
 
-    basic_mathematics::Vector6d marsStateCircularCoplanar
+    Eigen::Vector6d marsStateCircularCoplanar
             = marsEphemeris.getCartesianState(
                 ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Compute the Keplerian elements from this ephemeris.
-    basic_mathematics::Vector6d keplerianElementsCircularCoplanar;
+    Eigen::Vector6d keplerianElementsCircularCoplanar;
     keplerianElementsCircularCoplanar = orbital_element_conversions::
             convertCartesianToKeplerianElements( marsStateCircularCoplanar,
                     marsEphemeris.getSunGravitationalParameter( ) );

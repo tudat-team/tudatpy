@@ -388,7 +388,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
                 getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
         defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                    basic_mathematics::Vector6d::Zero( ) );
+                    Eigen::Vector6d::Zero( ) );
         NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
@@ -397,7 +397,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
@@ -491,7 +491,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         centralBodies.push_back( "Earth" );
 
         // Set initial state
-        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         systemInitialState( 0 ) = 6.8E6;
         systemInitialState( 4 ) = 7.5E3;

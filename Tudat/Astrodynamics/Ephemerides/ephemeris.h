@@ -45,9 +45,9 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -87,7 +87,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    virtual basic_mathematics::Vector6d getCartesianState(
+    virtual Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch ) = 0;
 
     //! Get state from ephemeris (with long double as state scalar).
@@ -113,7 +113,7 @@ public:
      * \param currentTime Time at which state is to be evaluated
      * \return State from ephemeris with double as state scalar
      */
-    virtual basic_mathematics::Vector6d getCartesianStateFromExtendedTime(
+    virtual Eigen::Vector6d getCartesianStateFromExtendedTime(
             const Time& currentTime )
     {
         return getCartesianState( currentTime.getSeconds< double >( ) );
@@ -186,9 +186,9 @@ typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
  *  computed.
  */
 void getRelativeState(
-        basic_mathematics::Vector6d& relativeState,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody );
+        Eigen::Vector6d& relativeState,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
 
 } // namespace ephemerides
 } // namespace tudat

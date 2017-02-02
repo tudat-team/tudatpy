@@ -18,7 +18,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"

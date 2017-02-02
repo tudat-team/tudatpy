@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
                                         simulationEndEpoch + 10.0 * fixedStepSize );
         bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                    basic_mathematics::Vector6d::Zero( ), "SSB", "J2000" );
+                    Eigen::Vector6d::Zero( ), "SSB", "J2000" );
         bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
         // Create Earth object
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Set spherical elements for SpacePlane.
-        Vector6d SpacePlaneInitialState;
+        Eigen::Vector6d SpacePlaneInitialState;
         SpacePlaneInitialState( SphericalOrbitalStateElementIndices::radiusIndex ) = spice_interface::getAverageRadius( "Earth" ) + 2.0E3;
         SpacePlaneInitialState( SphericalOrbitalStateElementIndices::latitudeIndex ) = convertDegreesToRadians( 0.0 );
         SpacePlaneInitialState( SphericalOrbitalStateElementIndices::longitudeIndex ) = convertDegreesToRadians( 0.0 );
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         SpacePlaneInitialState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = convertDegreesToRadians( 90.0 );
 
         // Convert SpacePlane state from spherical elements to Cartesian elements.
-        const Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
+        const Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
                     SpacePlaneInitialState );
 
 

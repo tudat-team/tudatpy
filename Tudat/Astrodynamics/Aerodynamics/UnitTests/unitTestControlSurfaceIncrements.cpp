@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
@@ -87,17 +87,17 @@ private:
 
 };
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 using mathematical_constants::PI;
 
 BOOST_AUTO_TEST_SUITE( test_control_surface_increments )
 
 //! Function to return dummy control increments as a function of 2 independnt variables
-basic_mathematics::Vector6d dummyControlIncrements(
+Eigen::Vector6d dummyControlIncrements(
         const std::vector< double > independentVariables )
 {
-    basic_mathematics::Vector6d randomControlIncrements =
-            ( basic_mathematics::Vector6d( )<<1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
+    Eigen::Vector6d randomControlIncrements =
+            ( Eigen::Vector6d( )<<1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
     for( unsigned int i = 0; i < 6; i++ )
     {
         randomControlIncrements( i ) *= (
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterface )
     Eigen::Vector3d forceWithIncrement, forceWithoutIncrement;
     Eigen::Vector3d momentWithIncrement, momentWithoutIncrement;
 
-    basic_mathematics::Vector6d manualControlIncrements;
+    Eigen::Vector6d manualControlIncrements;
 
     // Test coefficient interfaces for range of independent variables.
     for( double angleOfAttack = -0.4; angleOfAttack < 0.4; angleOfAttack += 0.02 )
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
     bodyMap[ "Apollo" ]->setEphemeris(
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "Earth" ) );
     boost::shared_ptr< system_models::VehicleSystems > apolloSystems = boost::make_shared< system_models::VehicleSystems >( );
     bodyMap[ "Apollo" ]->setVehicleSystems( apolloSystems );
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     centralBodies.push_back( "Earth" );
 
     // Set initial state
-    basic_mathematics::Vector6d systemInitialState = apolloInitialState;
+    Eigen::Vector6d systemInitialState = apolloInitialState;
 
     // Define list of dependent variables to save.
     std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;

@@ -51,7 +51,7 @@
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -89,14 +89,14 @@ enum AerodynamicCoefficientsIndependentVariables
  *  \param independentVariables Current list of values of the independent variables upon
  *  which the coefficients depend.
  */
-inline basic_mathematics::Vector6d concatenateForceAndMomentCoefficients(
+inline Eigen::Vector6d concatenateForceAndMomentCoefficients(
         const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
         forceCoefficientFunction,
         const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
         momentCoefficientFunction,
         const std::vector< double >& independentVariables )
 {
-    return ( basic_mathematics::Vector6d( )<<forceCoefficientFunction( independentVariables ),
+    return ( Eigen::Vector6d( )<<forceCoefficientFunction( independentVariables ),
              momentCoefficientFunction( independentVariables ) ).finished( );
 }
 
