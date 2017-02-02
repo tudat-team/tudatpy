@@ -45,7 +45,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -72,7 +72,7 @@ namespace circular_restricted_three_body_problem
  * \return Dimensional Cartesian state.
  */
 Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
-        const basic_mathematics::Vector6d& dimensionlessCartesianState,
+        const Eigen::Vector6d& dimensionlessCartesianState,
         const double gravitationalParameterOfPrimaryBody,
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries );

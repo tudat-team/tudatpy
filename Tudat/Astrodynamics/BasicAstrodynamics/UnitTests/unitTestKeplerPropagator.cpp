@@ -74,7 +74,7 @@
 
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/keplerPropagatorTestData.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     PropagationHistory benchmarkKeplerPropagationHistory = getMelmanBenchmarkData( );
 
     // Propagate to final state in Keplerian elements.
-    basic_mathematics::Vector6d computedFinalStateInKeplerianElements
+    Eigen::Vector6d computedFinalStateInKeplerianElements
             = propagateKeplerOrbit(
                 benchmarkKeplerPropagationHistory.begin( )->second,
                 benchmarkKeplerPropagationHistory.rbegin( )->first -
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_FunctionFailingOnOldModuloFunctio
     const double gravitationalParameter = 1.32712428e20;
 
     // Set initial Keplerian elements.
-    basic_mathematics::Vector6d keplerElements;
+    Eigen::Vector6d keplerElements;
     keplerElements << 56618890355.593132, 0.99961601437304082, 1.0238269559089248,
             3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
 
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
     // Test using double parameters.
     {
         double gravitationalParameter = 398600.4415e9;
-        basic_mathematics::Vector6d initialStateInKeplerianElements;
+        Eigen::Vector6d initialStateInKeplerianElements;
 
         initialStateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
                 4.71463172847351, 4.85569272927819, 2.37248926702153;
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
 
         double propagationTime, propagatedMeanAnomaly;
 
-        basic_mathematics::Vector6d propagatedKeplerElements;
+        Eigen::Vector6d propagatedKeplerElements;
 
 
         for( int i = -25; i < 26; i++ )

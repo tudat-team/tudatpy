@@ -120,9 +120,9 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
             // Define list of required input.
             std::vector< std::string > deformingBodies
                     = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
-            boost::function< basic_mathematics::Vector6d( const double ) > deformedBodyStateFunction;
+            boost::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
             boost::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
-            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+            std::vector< boost::function< Eigen::Vector6d( const double ) > >
                     deformingBodyStateFunctions;
             std::vector< boost::function< double( ) > > gravitionalParametersOfDeformingBodies;
 

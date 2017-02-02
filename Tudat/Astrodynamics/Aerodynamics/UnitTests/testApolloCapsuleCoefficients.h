@@ -10,7 +10,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 using mathematical_constants::PI;
 using namespace aerodynamics;
 

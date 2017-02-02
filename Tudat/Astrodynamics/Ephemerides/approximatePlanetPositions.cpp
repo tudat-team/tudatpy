@@ -55,7 +55,7 @@ namespace ephemerides
 {
 
 //! Get state from ephemeris.
-basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianState(
+Eigen::Vector6d ApproximatePlanetPositions::getCartesianState(
         const double secondsSinceEpoch)
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
@@ -66,7 +66,7 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianState(
 }
 
 //! Get keplerian state from ephemeris.
-basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
+Eigen::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
         const double secondsSinceEpoch )
 {
     using std::pow;

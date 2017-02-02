@@ -134,7 +134,6 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-<<<<<<< HEAD
 //! Function to copy a multi-array into another multi-array
 /*!
  *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly

@@ -16,8 +16,8 @@
 #include <iostream>
 
 #include "Tudat/Basics/testMacros.h"
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
 
 namespace tudat
 {

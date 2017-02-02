@@ -43,7 +43,7 @@
 
 #include "Tudat/InputOutput/extractor.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -55,7 +55,7 @@ namespace ephemerides
  * This class contains the functionality of extracting the Keplerian elements from a parsed data
  * line map.
  */
-class KeplerStateExtractor : public input_output::Extractor< basic_mathematics::Vector6d >
+class KeplerStateExtractor : public input_output::Extractor< Eigen::Vector6d >
 {
 public:
 
@@ -70,7 +70,7 @@ public:
      * \param dataLineMap Data map corresponding to a parsed line.
      * \return A KeplerianElements object containing the orbital parameters found in the data map.
      */
-    boost::shared_ptr< basic_mathematics::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
+    boost::shared_ptr< Eigen::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
 
 protected:
 

@@ -55,8 +55,8 @@ namespace circular_restricted_three_body_problem
 {
 
 //! Compute state derivative.
-basic_mathematics::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative(
-        const double time, const basic_mathematics::Vector6d& cartesianState )
+Eigen::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative(
+        const double time, const Eigen::Vector6d& cartesianState )
 {
     TUDAT_UNUSED_PARAMETER( time );
 
