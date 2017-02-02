@@ -76,12 +76,9 @@ class LagrangeInterpolator : public OneDimensionalInterpolator< IndependentVaria
 public:
 
     //! Using statements to prevent having to put 'this' everywhere in the code.
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    dependentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    independentValues_;
-    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
-    lookUpScheme_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
+    using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
 
     //! Constructor from vectors of independent/dependent data.
     /*!
@@ -420,9 +417,9 @@ private:
 
             // Create cubic spline interpolators
             beginInterpolator_ = boost::make_shared< CubicSplineInterpolator
-                    < IndependentVariableType, DependentVariableType > >( startMap );
+                    < IndependentVariableType, DependentVariableType, ScalarType > >( startMap );
             endInterpolator_ = boost::make_shared< CubicSplineInterpolator
-                    < IndependentVariableType, DependentVariableType > >( endMap );
+                    < IndependentVariableType, DependentVariableType, ScalarType > >( endMap );
         }
     }
 
