@@ -162,7 +162,7 @@ public:
      *  Function to return central body-fixed state of vehicle.
      *  \return Current central body-fixed state of vehicle.
      */
-    basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
+    Eigen::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
         return currentBodyCenteredPseudoBodyFixedState_;
     }
@@ -236,7 +236,7 @@ private:
     const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
-    boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
+    boost::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
 
 
     //! Object from which the aerodynamic coefficients are obtained.
@@ -246,10 +246,10 @@ private:
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
     //! Current state of vehicle in base frame for Body objects.
-    basic_mathematics::Vector6d currentBodyCenteredState_;
+    Eigen::Vector6d currentBodyCenteredState_;
 
     //! Current state of vehicle in body-fixed frame.
-    basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
+    Eigen::Vector6d currentBodyCenteredPseudoBodyFixedState_;
 
     //! Current density at vehicle's position.
     double currentDensity_;

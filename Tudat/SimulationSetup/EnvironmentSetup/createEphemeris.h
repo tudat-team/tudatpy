@@ -368,7 +368,7 @@ public:
      * \param frameOrigin Origin of frame in which ephemeris data is defined.
      * \param frameOrientation Orientation of frame in which ephemeris data is defined.
      */
-    ConstantEphemerisSettings( const basic_mathematics::Vector6d& constantState,
+    ConstantEphemerisSettings( const Eigen::Vector6d& constantState,
                                const std::string& frameOrigin = "SSB",
                                const std::string& frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( constant_ephemeris,
@@ -381,12 +381,12 @@ public:
      *  all times.
      *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
      */
-    basic_mathematics::Vector6d getConstantState( ){ return constantState_; }
+    Eigen::Vector6d getConstantState( ){ return constantState_; }
 
 private:
 
     //! Constant state that will be provided as output of the ephemeris at all times.
-    basic_mathematics::Vector6d constantState_;
+    Eigen::Vector6d constantState_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
@@ -409,7 +409,7 @@ public:
     *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
     *  convert mean to eccentric anomaly on each call to getCartesianState.
     */
-    KeplerEphemerisSettings( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+    KeplerEphemerisSettings( const Eigen::Vector6d& initialStateInKeplerianElements,
                              const double epochOfInitialState,
                              const double centralBodyGravitationalParameter,
                              const std::string& referenceFrameOrigin = "SSB",
@@ -430,7 +430,7 @@ public:
      *  Function to return the kepler elements at time epochOfInitialState.
      *  \return Kepler elements at time epochOfInitialState.
      */
-    basic_mathematics::Vector6d getInitialStateInKeplerianElements( )
+    Eigen::Vector6d getInitialStateInKeplerianElements( )
     {
         return initialStateInKeplerianElements_;
     }
@@ -484,7 +484,7 @@ public:
 private:
 
     //! Kepler elements at time epochOfInitialState.
-    basic_mathematics::Vector6d initialStateInKeplerianElements_;
+    Eigen::Vector6d initialStateInKeplerianElements_;
 
     //! Initial epoch from which propagation of Kepler orbit is performed.
     double epochOfInitialState_;
@@ -522,7 +522,7 @@ public:
      *          calculated (optional, "ECLIPJ2000" by default).
      */
     TabulatedEphemerisSettings(
-            const std::map< double, basic_mathematics::Vector6d >& bodyStateHistory,
+            const std::map< double, Eigen::Vector6d >& bodyStateHistory,
             std::string frameOrigin = "SSB",
             std::string frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ),
@@ -533,7 +533,7 @@ public:
      *  Function returning data map defining discrete data from which an ephemeris is to be created.
      *  \return Data map defining discrete data from which an ephemeris is to be created.
      */
-    std::map< double, basic_mathematics::Vector6d > getBodyStateHistory( )
+    std::map< double, Eigen::Vector6d > getBodyStateHistory( )
     { return bodyStateHistory_; }
 
 
@@ -554,7 +554,7 @@ private:
      *  Data map (time as key, Cartesian state as values) defining data from which an interpolated
      *  ephemeris is to be created.
      */
-    std::map< double, basic_mathematics::Vector6d > bodyStateHistory_;
+    std::map< double, Eigen::Vector6d > bodyStateHistory_;
 
     bool useLongDoubleStates_;
 };

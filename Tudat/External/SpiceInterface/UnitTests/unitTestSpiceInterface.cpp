@@ -71,7 +71,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
     const double ephemerisTime = 1.0E6;
 
     // Get state from wrapper for state:
-    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
+    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections, ephemerisTime );
 
     // Get position from wrapper for position:
@@ -349,8 +349,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 
     SpiceEphemeris spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 0, referenceFrame );
 
-    basic_mathematics::Vector6d directState = basic_mathematics::Vector6d( );
-    basic_mathematics::Vector6d ephemerisState = basic_mathematics::Vector6d( );
+    Eigen::Vector6d directState = Eigen::Vector6d( );
+    Eigen::Vector6d ephemerisState = Eigen::Vector6d( );
 
     // Check calculated state with no aberration corrections.
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
@@ -451,12 +451,12 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
     const double julianDay = 2451556.500000000;
 
     // Get state from wrapper for state:
-    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
+    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections,
                 convertJulianDateToEphemerisTime( julianDay ) );
 
     // Set state as retrieved from Horizons (see Issue wiki-knowledgebase-spice interface)
-    Vector6d horizonsState;
+    Eigen::Vector6d horizonsState;
     horizonsState << 2.066392047883538e8,
             2.364158324807732e7,
             -4.570656418319555e6,

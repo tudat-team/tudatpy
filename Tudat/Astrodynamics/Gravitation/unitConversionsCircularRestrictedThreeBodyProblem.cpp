@@ -54,13 +54,13 @@ namespace circular_restricted_three_body_problem
 
 //! Convert dimensionless Cartesian state to dimensional units.
 Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
-        const basic_mathematics::Vector6d &dimensionlessCartesianState,
+        const Eigen::Vector6d &dimensionlessCartesianState,
         const double gravitationalParameterOfPrimaryBody,
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries )
 {
     // Declare dimensional Cartesian state.
-    basic_mathematics::Vector6d dimensionalCartesianState;
+    Eigen::Vector6d dimensionalCartesianState;
 
     // Convert position to dimensional units.
     dimensionalCartesianState.segment( 0, 3 )

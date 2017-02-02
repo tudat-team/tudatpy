@@ -41,7 +41,7 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef boost::function< double(
-        const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
+        const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
 class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
@@ -53,8 +53,8 @@ public:
         lightTimeCorrectionFunction_( lightTimeCorrectionFunction ){ }
 
     double calculateLightTimeCorrection(
-            const basic_mathematics::Vector6d& transmitterState,
-            const basic_mathematics::Vector6d& receiverState,
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime )
     {

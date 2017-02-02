@@ -81,7 +81,7 @@ public:
      *  convert mean to eccentric anomaly on each call to getCartesianState
      *  (default 1000).
      */
-    KeplerEphemeris( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+    KeplerEphemeris( const Eigen::Vector6d& initialStateInKeplerianElements,
                      const double epochOfInitialState,
                      const double centralBodyGravitationalParameter,
                      const std::string& referenceFrameOrigin = "SSB",
@@ -96,13 +96,13 @@ public:
      *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Keplerian orbit Cartesian state at given time.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch );
 
 private:
 
     //! Kepler elements at time epochOfInitialState.
-    basic_mathematics::Vector6d initialStateInKeplerianElements_;
+    Eigen::Vector6d initialStateInKeplerianElements_;
 
     //! Semi-latus rectum of orbit.
     double semiLatusRectum_;

@@ -72,14 +72,14 @@ public:
      *  \param independentVariables Current list of values of the independent variables upon
      *  which the coefficients depend.
      */
-    basic_mathematics::Vector6d concatenateForceAndMomentCoefficients(
+    Eigen::Vector6d concatenateForceAndMomentCoefficients(
             const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
             forceCoefficientFunction,
             const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
             momentCoefficientFunction,
             const std::vector< double >& independentVariables )
     {
-        return ( basic_mathematics::Vector6d( )<<forceCoefficientFunction( independentVariables ),
+        return ( Eigen::Vector6d( )<<forceCoefficientFunction( independentVariables ),
                  momentCoefficientFunction( independentVariables ) ).finished( );
     }
 
@@ -154,7 +154,7 @@ public:
      *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
-            const boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+            const boost::function< Eigen::Vector6d( const std::vector< double >& ) >
             coefficientFunction,
             const double referenceLength,
             const double referenceArea,
@@ -191,7 +191,7 @@ public:
         }
 
         // Update current coefficients.
-        basic_mathematics::Vector6d currentCoefficients = coefficientFunction_(
+        Eigen::Vector6d currentCoefficients = coefficientFunction_(
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
@@ -201,7 +201,7 @@ private:
 
     //! Function returning the concatenated aerodynamic force and moment coefficients as function of
     //! the set of independent variables.
-    boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+    boost::function< Eigen::Vector6d( const std::vector< double >& ) >
     coefficientFunction_;
 
 

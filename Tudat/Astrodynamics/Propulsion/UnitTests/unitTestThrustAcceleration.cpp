@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
     bodyMap[ "Vehicle" ]->setEphemeris(
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "SSB" ) );
 
     // Finalize body creation.
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     centralBodies.push_back( "SSB" );
 
     // Set initial state
-    basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "SSB" ) );
 
 
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         centralBodies.push_back( "SSB" );
 
         // Set initial state
-        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
         bodyMap[ "Earth" ] = boost::make_shared< Body >( );
 
@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         // Set initial state
         double radius = 1.0E3;
         double circularVelocity = std::sqrt( radius * thrustMagnitude / vehicleMass );
-        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         if( i == 0 )
         {
@@ -577,7 +577,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
     bodyMap[ "Vehicle" ]->setEphemeris(
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "Earth" ) );
     bodyMap[ "Vehicle" ]->setRotationalEphemeris(
                 boost::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     centralBodies.push_back( "Earth" );
 
     // Set initial state
-    basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
 
     systemInitialState( 0 ) = 8.0E6;
@@ -719,7 +719,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set Keplerian elements for Asterix.
-    Vector6d asterixInitialStateInKeplerianElements;
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
                  outputIterator != dependentVariableResult.end( ); outputIterator++ )
             {
                                 thrustDifference = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                                            outputIterator->second.segment( 3, 6 ), basic_mathematics::Vector6d::Zero( ) )
+                                            outputIterator->second.segment( 3, 6 ), Eigen::Vector6d::Zero( ) )
                                          * thrustInterpolator->interpolate( outputIterator->first ) - outputIterator->second.segment( 0, 3 );
                 for( unsigned int i = 0; i < 3; i++ )
                 {

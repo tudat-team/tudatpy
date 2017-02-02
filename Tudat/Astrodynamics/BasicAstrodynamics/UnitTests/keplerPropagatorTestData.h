@@ -14,7 +14,7 @@ namespace unit_tests
 using namespace orbital_element_conversions;
 
 //! Typedef for propagation history.
-typedef std::map < double, basic_mathematics::Vector6d > PropagationHistory;
+typedef std::map < double, Eigen::Vector6d > PropagationHistory;
 
 //! Get Earth gravitational parameter for benchmark data from (Melman, 2010).
 double getMelmanEarthGravitationalParameter( )
@@ -30,8 +30,8 @@ PropagationHistory getMelmanBenchmarkData( )
     PropagationHistory benchmarkPropagationHistory;
 
     // Populate benchmark propagation history.
-    basic_mathematics::Vector6d stateInCartesianElements;
-    basic_mathematics::Vector6d stateInKeplerianElements;
+    Eigen::Vector6d stateInCartesianElements;
+    Eigen::Vector6d stateInKeplerianElements;
 
     stateInCartesianElements << 6.75e6, 0.0, 0.0, 0.0, 8.0595973215e3, 0.0;
     stateInKeplerianElements = convertCartesianToKeplerianElements(
@@ -55,7 +55,7 @@ PropagationHistory getODTBXBenchmarkData( )
     PropagationHistory benchmarkPropagationHistory;
 
     // Populate benchmark propagation history.
-    basic_mathematics::Vector6d stateInKeplerianElements;
+    Eigen::Vector6d stateInKeplerianElements;
 
     stateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
             4.71463172847351, 4.85569272927819, 2.37248926702153;
@@ -101,7 +101,7 @@ PropagationHistory getGTOPBenchmarkData( )
     // not work with similar Keplerian orbital elements, the cartesian elements resulting from that
     // are converted to Keplerian elements first. These initial starting coordinates correspond to
     // a semi major axis of -7.24873e+010 meters and an eccentricity of 3.06933.
-    basic_mathematics::Vector6d stateInCartesianElements, stateInKeplerianElements;
+    Eigen::Vector6d stateInCartesianElements, stateInKeplerianElements;
 
     stateInCartesianElements << 1.5e11, 0.0, 0.0, 0.0, 6.0e4, 0.0;
     stateInKeplerianElements = convertCartesianToKeplerianElements(

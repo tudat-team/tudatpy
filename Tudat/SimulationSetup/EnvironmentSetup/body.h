@@ -212,11 +212,11 @@ public:
      * Constructor for a body, sets current state (with zero default value).
      * \param state Current state of body at initialization (default = zeroes).
      */
-    Body( const basic_mathematics::Vector6d& state =
-            basic_mathematics::Vector6d::Zero( ) )
+    Body( const Eigen::Vector6d& state =
+            Eigen::Vector6d::Zero( ) )
         : currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
           ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
-                                          "", boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ) ),
+                                          "", boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
@@ -253,7 +253,7 @@ public:
      * long precision current state.
      * \param state Current state of the body that is set.
      */
-    void setState( const basic_mathematics::Vector6d& state )
+    void setState( const Eigen::Vector6d& state )
     {
         currentState_ = state;
     }
@@ -341,7 +341,7 @@ public:
      * Returns the internally stored current state vector.
      * \return Current state.
      */
-    basic_mathematics::Vector6d getState( ) { return currentState_; }
+    Eigen::Vector6d getState( ) { return currentState_; }
 
     //! Get current position.
     /*!
@@ -989,7 +989,7 @@ private:
 
 
     //! Current state.
-    basic_mathematics::Vector6d currentState_;
+    Eigen::Vector6d currentState_;
 
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
