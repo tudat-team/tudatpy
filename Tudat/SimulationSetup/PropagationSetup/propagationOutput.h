@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -737,9 +737,10 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
     // create list of double and vector parameters
     std::vector< boost::function< double( ) > > doubleFunctionList;
     std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
-    int totalVariableSize = 0;
 
-    std::map< int, std::string > dependentVariableId;
+    std::vector< std::string > doubleVariableList;
+    std::vector< std::pair< std::string, int > > vectorVariableList;
+
     for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
     {
         // Create double parameter
@@ -748,9 +749,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
             doubleFunctionList.push_back( getDoubleDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
-            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
-                        dependentVariables.at( i ) );
-            totalVariableSize++;
+            doubleVariableList.push_back( getDependentVariableId(
+                        dependentVariables.at( i ) ) );
         }
         // Create vector parameter
         else
@@ -758,10 +758,24 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
             vectorFunctionList.push_back( getVectorDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
-            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
-                        dependentVariables.at( i ) );
-            totalVariableSize += vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second;
+            vectorVariableList.push_back( std::make_pair( getDependentVariableId(
+                        dependentVariables.at( i ) ), vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second ) );
         }
+    }
+
+    // Set list of variable ids/indices in correc otder.
+    int totalVariableSize = 0;
+    std::map< int, std::string > dependentVariableId;
+    for( unsigned int i = 0; i < doubleVariableList.size( ); i++ )
+    {
+        dependentVariableId[ totalVariableSize ] = doubleVariableList.at( i );
+        totalVariableSize++;
+    }
+
+    for( unsigned int i = 0; i < vectorFunctionList.size( ); i++ )
+    {
+        dependentVariableId[ totalVariableSize ] = vectorVariableList.at( i ).first;
+        totalVariableSize += vectorVariableList.at( i ).second;
     }
 
     // Create function conatenating function results.
