@@ -1,51 +1,19 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      121128    R.C.A. Boon       File created (in progress).
- *      130124    R.C.A. Boon       Removed retrograde function, reworked Kepler to MEE conversion
- *                                  to properly convert inclination to range [0,180) and use
- *                                  retrograde factor internally
- *      130131    R.C.A. Boon       Added Cartesian conversion cases, added avoidSingularityAtPi~
- *                                  boolean flag to Kepler conversions, optimized computation
- *                                  (partially)
- *      130225    D. Dirkx          Added overloaded function for Kepler to MEE that determines
- *                                  retrogradeness based on Kepler state
- *      130301    R.C.A. Boon       Updated use of mathematics::PI to basic_mathematics::
- *                                  mathematical_constants::PI, minor textual changes.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Verified Interval Propagation, Bart Rˆmgens; Delft (2011). Code archive.
+ *      Verified Interval Propagation, Bart Rmgens; Delft (2011). Code archive.
  *      Modified Equinoctial Orbital Elements, author unknown;
  *          http://www.cdeagle.com/pdf/mee.pdf (2010?).
  *      Survey of Orbital Element Sets, Gerald R. Hintz; Journal of Guidance, Control and
  *          Dynamics (2008, Vol. 31 - Nr. 3).
  *      Code archive, E. Heeren (fellow Tudat developer).
- *
- *    Notes
  *
  */
 
@@ -106,7 +74,7 @@ basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
         modifiedEquinoctialState( semiLatusRectumIndex )
                 = keplerianElements( semiLatusRectumIndex );
     }
-    else // eccentricity is significantly away from singularity and can be computed with p=a(1-e≤).
+    else // eccentricity is significantly away from singularity and can be computed with p=a(1-e).
     {
         modifiedEquinoctialState( semiLatusRectumIndex ) = keplerianElements( semiMajorAxisIndex )
                                                            * ( 1.0 - eccentricity * eccentricity );
@@ -318,7 +286,7 @@ basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
         const basic_mathematics::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
-// Using unnamed pdf and code archive Bart Rˆmgens.
+// Using unnamed pdf and code archive Bart Rmgens.
 {
     // Creating output vector.
     basic_mathematics::Vector6d convertedCartesianElements = basic_mathematics::
@@ -345,14 +313,14 @@ basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
         double cosineTrueLongitude = std::cos( trueLongitude );
         double sineTrueLongitude = std::sin( trueLongitude );
 
-        // s≤, a≤, w, r from references.
+        // s, a, w, r from references.
         double sSquaredParameter = 1.0 + hElement * hElement + kElement * kElement;
         double aSquaredParameter = hElement * hElement - kElement*kElement;
         double wParameter = 1.0 + fElement * cosineTrueLongitude
                 + gElement * sineTrueLongitude;
         double radius = semiLatusRectum / wParameter;
 
-        // Computing position and storing (using code archive Bart Rˆmgens and unnamed pdf).
+        // Computing position and storing (using code archive Bart Rmgens and unnamed pdf).
         convertedCartesianElements( xCartesianPositionIndex )
                 = radius / sSquaredParameter * ( cosineTrueLongitude + aSquaredParameter
                                                  * cosineTrueLongitude + 2.0 * hElement * kElement
