@@ -66,7 +66,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     typedef typename  boost::multi_array <double,NumberOfDimensions>::index tIndex;
     typedef boost::array<tIndex, NumberOfDimensions> tIndexArray;
 
-    double* p = xComponents.data();
+    double* p = xComponents.data( );
     tIndexArray index;
     for( int i = 0; i < numberOfEntries; i++ )
     {
