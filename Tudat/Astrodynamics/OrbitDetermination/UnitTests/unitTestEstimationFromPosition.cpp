@@ -161,11 +161,6 @@ Eigen::VectorXd  executeParameterEstimation(
                 bodyMap, parametersToEstimate,
                 linkEndsMap, integratorSettings, propagatorSettings, observableCorrections );
 
-    input_output::writeDataMapToTextFile(
-                boost::dynamic_pointer_cast< SingleArcVariationalEquationsSolver<
-                StateScalarType, TimeType > >(
-                    orbitDeterminationManager.getVariationalEquationsSolver( ) )->getDynamicsSimulator( )->
-                getEquationsOfMotionNumericalSolution( ), "longDoubleStateHistoryOdTest.dat" );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
