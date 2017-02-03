@@ -1,55 +1,15 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110826    K. Kumar          File created.
- *      110909    E.A.G. Heeren     Modified to be included in Tudat. Added if-statement to ensure
- *                                  a maximum stepsize change.
- *      110912    K. Kumar          Minor changes.
- *      111021    F.M. Engelen      Added interface for RKF45 and RKF56.
- *      111110    E.A.G Heeren      Minor changes.
- *      120204    B. Tong Minh      Adapted for new core integrators interface.
- *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable().
- *      120324    K. Kumar          Removed superfluous functions; added runtime error if minimum
- *                                  step size is exceeded; generalized algorithm to work with any
- *                                  Runge-Kutta-type coefficients; added options to customize
- *                                  new step size computation and error control (added default
- *                                  function). Removed erroneous reference (Eagle, 2011).
- *      120331    B. Tong Minh      Added custom runtime_error class for minimum step size exceeded
- *                                  error.
- *      120404    K. Kumar          Moved custom runtime_error class implementation outside of main
- *                                  integrator class.
- *      120614    A. Ronse          Fixed bug in constructor.
- *      130121    K. Kumar          Added shared-ptr typedef.
- *      130307    D. Dirkx          Added function to retrieve integration stage evaluations.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
- *
- *    Notes
  *
  */
 
