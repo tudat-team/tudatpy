@@ -151,22 +151,51 @@ void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToC
     targetArray = arrayToCopy;
 }
 
-
+//! Get index in nth direction of pointer to single entry in multi-array of doubles
+/*!
+ *  Get index in nth direction of pointer to single entry in multi-array of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \param direction Dimension of multi-array for which index is to be retrieved
+ *  \return Index in nth direction of pointer to single entry in multi-array of doubles
+ */
 template< unsigned int NumberOfDimensions >
 typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
-        const typename boost::multi_array< double, NumberOfDimensions >& m, const double* requestedElement,
-        const unsigned short int direction)
+        const typename boost::multi_array< double, NumberOfDimensions >& multiArray, const double* requestedElement,
+        const unsigned short int direction )
 {
-    int offset = requestedElement - m.origin( );
-    return( offset / m.strides( )[ direction] % m.shape( )[ direction ] +  m.index_bases( )[direction] );
+    int offset = requestedElement - multiArray.origin( );
+    return( offset / multiArray.strides( )[ direction] % multiArray.shape( )[ direction ] +
+            multiArray.index_bases( )[direction] );
 }
 
+//! Get indices of pointer to single entry in multi-array (size 1) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 1) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
 boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
         const boost::multi_array< double, 1 >& m, const double* requestedElement );
 
+//! Get indices of pointer to single entry in multi-array (size 2) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 2) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
 boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
         const boost::multi_array< double, 2 >& m, const double* requestedElement );
 
+//! Get indices of pointer to single entry in multi-array (size 3) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 3) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
         const boost::multi_array< double, 3 >& m, const double* requestedElement );
 
