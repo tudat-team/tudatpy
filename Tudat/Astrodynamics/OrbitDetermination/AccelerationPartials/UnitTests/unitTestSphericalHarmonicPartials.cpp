@@ -477,10 +477,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     earth->setRotationalEphemeris( simpleRotationalEphemeris );
 
     // Set current state of vehicle and earth.
-    earth->setState( basic_mathematics::Vector6d::Zero( ) );
+    earth->setState( Eigen::Vector6d::Zero( ) );
 
     // Set Keplerian elements for Asterix.
-    basic_mathematics::Vector6d asterixInitialStateInKeplerianElements;
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    basic_mathematics::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
+    Eigen::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, gravitationalParameter );
 
 
@@ -521,13 +521,13 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
             boost::bind( &Body::setState, earth, _1  );
-    boost::function< void( basic_mathematics::Vector6d ) > vehicleStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
             boost::bind( &Body::setState, vehicle, _1  );
-    boost::function< basic_mathematics::Vector6d ( ) > earthStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
             boost::bind( &Body::getState, earth );
-    boost::function< basic_mathematics::Vector6d ( ) > vehicleStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
             boost::bind( &Body::getState, vehicle );
 
 

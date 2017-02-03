@@ -168,13 +168,13 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     double eccentricity = (apogeeAltitude - perigeeAltitude)/(apogeeAltitude + perigeeAltitude + 2*meanEarthRadius);
 
     // Set Keplerian elements for Vehicle.
-    Vector6d vehicleInitialStateInKeplerianElements;
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
     vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = semiMajorAixs;
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = eccentricity;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = mathematical_constants::PI / 180.0 * 23.4;
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    const Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
+    const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                 vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Hybrid termination conditions

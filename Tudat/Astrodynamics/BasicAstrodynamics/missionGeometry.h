@@ -22,7 +22,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -56,7 +56,7 @@ bool isOrbitRetrograde( const double inclination );
  * \param keplerElements Vector of keplerian elements.
  * \return true if orbit is retrograde, false if prograde.
  */
-bool isOrbitRetrograde( const basic_mathematics::Vector6d& keplerElements );
+bool isOrbitRetrograde( const Eigen::Vector6d& keplerElements );
 
 //! Compute the shadow function.
 /*!

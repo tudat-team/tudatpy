@@ -81,7 +81,7 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
 }
 
 //! Get Cartesian state from ephemeris.
-basic_mathematics::Vector6d SpiceEphemeris::getCartesianState(
+Eigen::Vector6d SpiceEphemeris::getCartesianState(
         const double secondsSinceEpoch )
 {
     using namespace basic_astrodynamics;
@@ -93,7 +93,7 @@ basic_mathematics::Vector6d SpiceEphemeris::getCartesianState(
     const double ephemerisTime = secondsSinceEpoch;
 
     // Retrieve Cartesian state from spice.
-    const basic_mathematics::Vector6d cartesianStateAtEpoch =
+    const Eigen::Vector6d cartesianStateAtEpoch =
             spice_interface::getBodyCartesianStateAtEpoch(
                 targetBodyName_, referenceFrameOrigin_, referenceFrameOrientation_,
                 abberationCorrections_, ephemerisTime + referenceDayOffSet_ );

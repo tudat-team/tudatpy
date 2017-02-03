@@ -29,7 +29,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
@@ -126,7 +126,7 @@ public:
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    basic_mathematics::Vector6d getAerodynamicCoefficientsDataPoint(
+    Eigen::Vector6d getAerodynamicCoefficientsDataPoint(
             const boost::array< int, 3 > independentVariables );
 
     //! Determine inclination angles of panels on a given part.
@@ -200,7 +200,7 @@ private:
      * \param independentVariableIndices Array of indices of independent variables.
      * \return Force and moment coefficients for requested vehicle part.
      */
-    basic_mathematics::Vector6d determinePartCoefficients(
+    Eigen::Vector6d determinePartCoefficients(
             const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.

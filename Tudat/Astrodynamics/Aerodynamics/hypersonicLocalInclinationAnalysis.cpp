@@ -37,7 +37,7 @@ namespace tudat
 namespace aerodynamics
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 using mathematical_constants::PI;
 
 using namespace geometric_shapes;

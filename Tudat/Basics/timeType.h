@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_TIMETYPES_H
-#define TUDAT_TIMETYPES_H
+#ifndef TUDAT_TIMETYPE_H
+#define TUDAT_TIMETYPE_H
 
 #include <cmath>
 #include <algorithm>
@@ -503,7 +503,7 @@ public:
     friend bool operator==( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
         return ( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
-                 ( timeToCompare1.getSecondsIntoFullPeriod( ) == timeToCompare2.getSecondsIntoFullPeriod( ) ) ) ? true : false ;
+                 ( timeToCompare1.getSecondsIntoFullPeriod( ) == timeToCompare2.getSecondsIntoFullPeriod( ) ) );
     }
 
     //! Inequality operator for two Time objects
@@ -528,7 +528,7 @@ public:
      */
     friend bool operator==( const Time& timeToCompare1, const double timeToCompare2 )
     {
-        return ( timeToCompare1.getSeconds< double >( ) == timeToCompare2 ) ? true : false ;
+        return ( timeToCompare1.getSeconds< double >( ) == timeToCompare2 );
     }
 
     //! Equality operator for a Time object with a double
@@ -541,7 +541,7 @@ public:
      */
     friend bool operator==( const double timeToCompare1, const Time& timeToCompare2 )
     {
-        return ( timeToCompare2.getSeconds< double >( ) == timeToCompare1 ) ? true : false ;
+        return ( timeToCompare2.getSeconds< double >( ) == timeToCompare1 );
     }
 
     //! Inequality operator for a Time object with a double
@@ -580,7 +580,7 @@ public:
      */
     friend bool operator==( const Time& timeToCompare1, const long double timeToCompare2 )
     {
-        return ( timeToCompare1.getSeconds< long double >( ) == timeToCompare2 ) ? true : false ;
+        return ( timeToCompare1.getSeconds< long double >( ) == timeToCompare2 );
     }
 
     //! Equality operator for a Time object with a long double
@@ -593,7 +593,7 @@ public:
      */
     friend bool operator==( const long double timeToCompare1, const Time& timeToCompare2 )
     {
-        return ( timeToCompare2.getSeconds< long double >( ) == timeToCompare1 ) ? true : false ;
+        return ( timeToCompare2.getSeconds< long double >( ) == timeToCompare1 );
     }
 
     //! Inequality operator for a Time object with a long double
@@ -994,7 +994,6 @@ protected:
     //! Pre-declared variable used in often-called normalizeMembers function
     int daysToAdd;
 
-
     //! Number of full hours since epoch
     int fullPeriods_;
 
@@ -1005,4 +1004,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_TIMETYPES_H
+#endif // TUDAT_TIMETYPE_H

@@ -34,7 +34,7 @@ namespace orbital_element_conversions
 
 //! Convert Keplerian elements to Unified State Model elements.
 Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+        const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -223,19 +223,18 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
 }
 
 //! Convert Unified State Model elements to Keplerian elements.
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    basic_mathematics::Vector6d convertedKeplerianElements = basic_mathematics::
-            Vector6d::Zero( 6 );
+    Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat Core.
+                                           // orbitalElementConversions.cpp in Tudat.
 
     // Declare auxiliary parameters before using them in the if loop
     double cosineLambda = 0.0;

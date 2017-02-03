@@ -23,7 +23,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -189,8 +189,8 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
  *           where Vtheta = r*thetadot.
  * \return Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
  */
-basic_mathematics::Vector6d convertCylindricalToCartesianState(
-        const basic_mathematics::Vector6d& cylindricalState );
+Eigen::Vector6d convertCylindricalToCartesianState(
+        const Eigen::Vector6d& cylindricalState );
 
 //! Convert Cartesian to cylindrical coordinates.
 /*!
@@ -227,8 +227,8 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 * \param cartesianState Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
 * \return Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot.
 */
-basic_mathematics::Vector6d convertCartesianToCylindricalState(
-        const basic_mathematics::Vector6d& cartesianState );
+Eigen::Vector6d convertCartesianToCylindricalState(
+        const Eigen::Vector6d& cartesianState );
 
 //! Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
 /*!
@@ -353,8 +353,8 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
   *
   * Take care: here the elevation is used, not the zenith angle!
   */
-basic_mathematics::Vector6d convertSphericalToCartesianState(
-        const basic_mathematics::Vector6d& sphericalState );
+Eigen::Vector6d convertSphericalToCartesianState(
+        const Eigen::Vector6d& sphericalState );
 
 //! Convert Cartesian to spherical state.
 /*!
@@ -402,8 +402,8 @@ basic_mathematics::Vector6d convertSphericalToCartesianState(
   *
   * Take care: here the elevation is used, not the zenith!
   */
-basic_mathematics::Vector6d convertCartesianToSphericalState(
-        const basic_mathematics::Vector6d& cartesianState );
+Eigen::Vector6d convertCartesianToSphericalState(
+        const Eigen::Vector6d& cartesianState );
 
 } // namespace coordinate_conversions
 

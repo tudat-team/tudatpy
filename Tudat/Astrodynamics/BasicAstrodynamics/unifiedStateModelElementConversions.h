@@ -16,7 +16,7 @@
 #ifndef TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
 #define TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -45,7 +45,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
 Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+        const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter );
 
 //! Convert Unified State Model elements to Keplerian elements.
@@ -68,7 +68,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 

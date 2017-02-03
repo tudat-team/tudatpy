@@ -35,12 +35,12 @@ namespace ephemerides
 {
 
 //! Extract the Keplerian Elements.
-boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
+boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
         ParsedDataLineMapPtr dataLineMap )
 {
     // Short-hand notation.
     namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
-    using basic_mathematics::Vector6d;
+    using Eigen::Vector6d;
 
     // Create a new KeplerianElements object.
     boost::shared_ptr< Vector6d > keplerianElements

@@ -646,7 +646,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
     // test all expected properties of rotation matrices
     {
         // Position vectors to semi-random values
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian, centralBodyStateCartesian, relativeState;
+        Eigen::Vector6d vehicleStateCartesian, centralBodyStateCartesian, relativeState;
         vehicleStateCartesian << 3.2, -1.7, 8.2, -1.4E-3, -5.6E-4, 9.2E-4;
         centralBodyStateCartesian << 7.4, 6.3, -3.6, 5.3E-4, 7.64E3, -4.4E-4;
 
@@ -658,9 +658,9 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         // Test if central body is properly processed.
         {
             Eigen::Matrix3d nAxisAwayFromBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                        vehicleStateCartesian - centralBodyStateCartesian, basic_mathematics::Vector6d::Zero( ), true );
+                        vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), true );
             Eigen::Matrix3d nAxisAwayTowardsBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                        vehicleStateCartesian - centralBodyStateCartesian, basic_mathematics::Vector6d::Zero( ), false );
+                        vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), false );
 
             for( unsigned int i = 0; i < 3; i++ )
             {
@@ -856,7 +856,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         startThrustVector( 2 ) = 1.0; // W direction
         bool doesNaxisPointAwayFromCentralBody = false;
 
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian, centralBodyStateCartesian;
+        Eigen::Vector6d vehicleStateCartesian, centralBodyStateCartesian;
         vehicleStateCartesian << 0.0, -1.0, 0.0, -1.0, -0.5, 0.0;
         centralBodyStateCartesian << 0.0, 2.0, 0.0, -0.5, 0.0, 0.0;
 
@@ -888,7 +888,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         startThrustVector( 1 ) = -1.0; // N direction
         startThrustVector( 2 ) = 2.0; // W direction
 
-        tudat::basic_mathematics::Vector6d vehicleStateKeplerian;
+        Eigen::Vector6d vehicleStateKeplerian;
         vehicleStateKeplerian << 1.0, 0.5, convertDegreesToRadians( 60.0 ),
                 convertDegreesToRadians( 180.0 ), convertDegreesToRadians( 15.0 ), convertDegreesToRadians( 90.0 );
 
@@ -910,13 +910,13 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedThrustVector, transformedThrustVector,
                                            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian =
+        Eigen::Vector6d vehicleStateCartesian =
                 orbital_element_conversions::convertKeplerianToCartesianElements(
                     vehicleStateKeplerian, 3.986E14 );
 
         Eigen::Matrix3d rotationMatrixFromCartesianElements =
                 reference_frames::getVelocityBasedLvlhToInertialRotation(
-                                    vehicleStateCartesian, basic_mathematics::Vector6d::Zero( ), false );
+                                    vehicleStateCartesian, Eigen::Vector6d::Zero( ), false );
 
         for( unsigned int i = 0; i < 3; i++ )
         {

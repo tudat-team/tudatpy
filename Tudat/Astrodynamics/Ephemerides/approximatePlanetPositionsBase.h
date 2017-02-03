@@ -29,7 +29,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsDataContainer.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -151,7 +151,7 @@ protected:
     /*!
      * Keplerian elements of planet at given Julian date.
      */
-    basic_mathematics::Vector6d planetKeplerianElementsAtGivenJulianDate_;
+    Eigen::Vector6d planetKeplerianElementsAtGivenJulianDate_;
 
     //! String stream for ephemeris line data.
     /*!

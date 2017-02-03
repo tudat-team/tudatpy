@@ -100,7 +100,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
-                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) ? true : false );
+                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) );
         break;
     }
     case dependent_variable_stopping_condition:

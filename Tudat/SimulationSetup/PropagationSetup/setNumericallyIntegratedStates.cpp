@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeTypes.h"
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/SimulationSetup/PropagationSetup/setNumericallyIntegratedStates.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 

@@ -19,7 +19,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 
@@ -56,7 +56,7 @@ public:
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      */
     FirstOrderLightTimeCorrectionCalculator(
-            const std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >& perturbingBodyStateFunctions,
+            const std::vector< boost::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
             const std::vector< boost::function< double( ) > >& perturbingBodyGravitationalParameterFunctions,
             const std::vector< std::string > perturbingBodyNames,
             const std::string transmittingBody,
@@ -104,8 +104,8 @@ public:
      *  \return Total light time correction due to gravitating masses defined by perturbingBodyStateFunctions_ and
      *  perturbingBodyGravitationalParameterFunctions_ member variables.
      */
-    double calculateLightTimeCorrection( const basic_mathematics::Vector6d& transmitterState,
-                                         const basic_mathematics::Vector6d& receiverState,
+    double calculateLightTimeCorrection( const Eigen::Vector6d& transmitterState,
+                                         const Eigen::Vector6d& receiverState,
                                          const double transmissionTime,
                                          const double receptionTime );
 
@@ -166,7 +166,7 @@ public:
 private:
 
     //! Set of function returning the state of the gravitating bodies as a function of time.
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions_;
+    std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
     //! Set of functions returning the gravitational parameters of the gravitating bodies.
     std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
