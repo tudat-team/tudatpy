@@ -50,7 +50,7 @@ bool isOrbitRetrograde( const double inclination )
 }
 
 //! Compute whether an orbit is retrograde based on Keplerian state.
-bool isOrbitRetrograde( const basic_mathematics::Vector6d& keplerElements )
+bool isOrbitRetrograde( const Eigen::Vector6d& keplerElements )
 {
     // Get inclination from vector and call overloaded function.
     return isOrbitRetrograde(

@@ -34,7 +34,7 @@ namespace tudat
 namespace unit_tests
 {
 
-basic_mathematics::Vector6d getGroundStationPosition(
+Eigen::Vector6d getGroundStationPosition(
         const double time )
 {
     Eigen::Vector3d nominalPosition;
@@ -42,7 +42,7 @@ basic_mathematics::Vector6d getGroundStationPosition(
     Eigen::Vector3d nominalVelocity;
     nominalVelocity << 3.0E-3, -2.3E-3, 2.4E3;
     nominalVelocity /= physical_constants::JULIAN_YEAR;
-    return ( basic_mathematics::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
+    return ( Eigen::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
 }
 
 BOOST_AUTO_TEST_SUITE( test_composite_ephemeris )
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     double testTime = 1.05E7;
 
     // Manually compute double state
-    basic_mathematics::Vector6d doubleStateFromDoubleTime;
+    Eigen::Vector6d doubleStateFromDoubleTime;
     doubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianState( testTime ).segment( 0, 3 ) +
             rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 );
     doubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianState( testTime ).segment( 3, 3 ) +

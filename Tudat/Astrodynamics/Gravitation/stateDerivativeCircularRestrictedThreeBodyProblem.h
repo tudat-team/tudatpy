@@ -19,7 +19,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -79,8 +79,8 @@ public:
      * \param cartesianState Cartesian state.
      * \return State derivative.
      */
-    basic_mathematics::Vector6d computeStateDerivative(
-            const double time, const basic_mathematics::Vector6d& cartesianState );
+    Eigen::Vector6d computeStateDerivative(
+            const double time, const Eigen::Vector6d& cartesianState );
 
 protected:
 

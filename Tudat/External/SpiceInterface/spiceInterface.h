@@ -30,7 +30,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 extern "C"
 {
@@ -96,7 +96,7 @@ double convertDateStringToEphemerisTime( const std::string& dateString );
  *          of abberationCorrections).
  * \return Cartesian state vector (x,y,z, position+velocity).
  */
-basic_mathematics::Vector6d getBodyCartesianStateAtEpoch(
+Eigen::Vector6d getBodyCartesianStateAtEpoch(
         const std::string& targetBodyName, const std::string& observerBodyName,
         const std::string& referenceFrameName, const std::string& abberationCorrections,
         const double ephemerisTime );

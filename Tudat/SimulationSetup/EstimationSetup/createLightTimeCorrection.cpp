@@ -44,7 +44,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     boost::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )->
                     getPerturbingBodies( );
 
-            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions;
+            std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
             std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
             // Retrieve mass and state functions for each perturbing body.

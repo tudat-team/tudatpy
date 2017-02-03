@@ -43,7 +43,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -1566,21 +1566,21 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
 {
 
     // Define previously offending states and gravitational parameters.
-    basic_mathematics::Vector6d centralBodyCartesianState;
+    Eigen::Vector6d centralBodyCartesianState;
     centralBodyCartesianState<<-521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
             3904.21508802941389149054884911, -18262.3110776023386279121041298, 103.914916159730324807242141105;
 
-    basic_mathematics::Vector6d orbitingBodyCartesianState;
+    Eigen::Vector6d orbitingBodyCartesianState;
     orbitingBodyCartesianState<<-520894562964.4881591796875, 595481881288.00537109375, 8071968111.222164154052734375,
             -10065.8995464500585512723773718, -7984.05278915743656398262828588, 261.213167975313467650266829878;
 
-    basic_mathematics::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
+    Eigen::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
 
     double gravitationalParameterOfCentralBody = 126686534921800800;
     double gravitationalParameterOfOrbitingBody = 5959916033410.404296875;
 
     // Convert to Keplerian state
-    basic_mathematics::Vector6d keplerianState =
+    Eigen::Vector6d keplerianState =
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 relativeCartesianState, gravitationalParameterOfCentralBody + gravitationalParameterOfOrbitingBody );
 

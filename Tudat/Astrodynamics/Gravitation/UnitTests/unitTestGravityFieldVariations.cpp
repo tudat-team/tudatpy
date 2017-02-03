@@ -150,7 +150,7 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     deformingBodies.push_back( "Europa" );
 
     // Retrieve required data of bodies raising tides.
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+    std::vector< boost::function< Eigen::Vector6d( const double ) > >
             deformingBodyStateFunctions;
     std::vector< boost::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )

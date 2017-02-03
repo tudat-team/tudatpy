@@ -158,8 +158,8 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
-        const basic_mathematics::Vector6d& vehicleState,
-        const basic_mathematics::Vector6d& centralBodyState,
+        const Eigen::Vector6d& vehicleState,
+        const Eigen::Vector6d& centralBodyState,
         const bool doesNaxisPointAwayFromCentralBody )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
@@ -188,8 +188,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
-        const boost::function< basic_mathematics::Vector6d( ) >& vehicleStateFunction,
-        const boost::function< basic_mathematics::Vector6d( ) >& centralBodyStateFunction,
+        const boost::function< Eigen::Vector6d( ) >& vehicleStateFunction,
+        const boost::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
     return getVelocityBasedLvlhToInertialRotation(

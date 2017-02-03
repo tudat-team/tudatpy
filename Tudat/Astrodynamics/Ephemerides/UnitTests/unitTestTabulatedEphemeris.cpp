@@ -18,7 +18,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 
 namespace tudat
@@ -36,10 +36,10 @@ BOOST_AUTO_TEST_SUITE( test_tabulated_ephemeris )
  *  \param originalEphemeris Ephemeris from which table is to be generated
  *  \return State history map generated from given ephemeris
  */
-std::map< double, basic_mathematics::Vector6d > getStateHistoryMap(
+std::map< double, Eigen::Vector6d > getStateHistoryMap(
         const boost::shared_ptr< ephemerides::Ephemeris > originalEphemeris  )
 {
-    std::map< double, basic_mathematics::Vector6d > stateHistoryMap;
+    std::map< double, Eigen::Vector6d > stateHistoryMap;
 
     // Define time limits and step
     double startTime = 0.0;
@@ -69,14 +69,14 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
                 ApproximatePlanetPositionsBase::mars );
 
     // Generate state history map from ephemeris
-    std::map< double, basic_mathematics::Vector6d > marsStateHistoryMap = getStateHistoryMap(
+    std::map< double, Eigen::Vector6d > marsStateHistoryMap = getStateHistoryMap(
                 marsNominalEphemeris );
 
     // Create interpolator from state history map.
     boost::shared_ptr< interpolators::OneDimensionalInterpolator
-            < double, basic_mathematics::Vector6d > > marsStateInterpolator =
+            < double, Eigen::Vector6d > > marsStateInterpolator =
             boost::make_shared< interpolators::CubicSplineInterpolator
-            < double, basic_mathematics::Vector6d > >( marsStateHistoryMap );
+            < double, Eigen::Vector6d > >( marsStateHistoryMap );
 
     // Create tabulated epehemeris from interpolator
     boost::shared_ptr< TabulatedCartesianEphemeris< > > tabulatedEphemeris =
@@ -85,14 +85,14 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 
     // Compare interpolated and tabulated ephemeris state at dummy time.
     double testTime = 1.9337E5;
-    basic_mathematics::Vector6d interpolatorState = marsStateInterpolator->interpolate( testTime );
-    basic_mathematics::Vector6d ephemerisState = tabulatedEphemeris->getCartesianState(
+    Eigen::Vector6d interpolatorState = marsStateInterpolator->interpolate( testTime );
+    Eigen::Vector6d ephemerisState = tabulatedEphemeris->getCartesianState(
                 testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( interpolatorState, ephemerisState, 0.0 );
 
     // Compare direct and tabulated ephemeris state at dummy time (comparison not equal due to
     // interpolation errors).
-    basic_mathematics::Vector6d directState = marsNominalEphemeris->getCartesianState(
+    Eigen::Vector6d directState = marsNominalEphemeris->getCartesianState(
                 testTime);
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState, 1.0E-10 );
     testTime = 5.836392E6;
@@ -116,12 +116,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
                 ApproximatePlanetPositionsBase::jupiter );
 
     // Reset tabulated ephemeris data.
-    std::map< double, basic_mathematics::Vector6d > jupiterStateHistoryMap = getStateHistoryMap(
+    std::map< double, Eigen::Vector6d > jupiterStateHistoryMap = getStateHistoryMap(
                 jupiterNominalEphemeris );
     boost::shared_ptr< interpolators::OneDimensionalInterpolator
-            < double, basic_mathematics::Vector6d > > jupiterStateInterpolator =
+            < double, Eigen::Vector6d > > jupiterStateInterpolator =
             boost::make_shared< interpolators::CubicSplineInterpolator
-            < double, basic_mathematics::Vector6d > >( jupiterStateHistoryMap );
+            < double, Eigen::Vector6d > >( jupiterStateHistoryMap );
     tabulatedEphemeris->resetInterpolator( jupiterStateInterpolator );
 
     // Test tabulated ephemeris with reset data.

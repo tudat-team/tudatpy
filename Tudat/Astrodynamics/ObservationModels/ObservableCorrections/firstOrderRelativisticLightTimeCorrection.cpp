@@ -22,8 +22,8 @@ namespace observation_models
 
 //! Function to calculate first order relativistic light time correction due to set of gravitating point masses.
 double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
-        const basic_mathematics::Vector6d& transmitterState,
-        const basic_mathematics::Vector6d& receiverState,
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
         const double transmissionTime,
         const double receptionTime )
 {

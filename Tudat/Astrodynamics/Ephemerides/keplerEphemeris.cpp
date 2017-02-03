@@ -22,7 +22,7 @@ namespace ephemerides
 
 //! Class constructor.
 KeplerEphemeris::KeplerEphemeris(
-        const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+        const Eigen::Vector6d& initialStateInKeplerianElements,
         const double epochOfInitialState,
         const double centralBodyGravitationalParameter,
         const std::string& referenceFrameOrigin,
@@ -98,12 +98,12 @@ KeplerEphemeris::KeplerEphemeris(
 }
 
 //! Function to get state from ephemeris.
-basic_mathematics::Vector6d KeplerEphemeris::getCartesianState(
+Eigen::Vector6d KeplerEphemeris::getCartesianState(
         const double secondsSinceEpoch )
 {
     using namespace tudat::orbital_element_conversions;
 
-    basic_mathematics::Vector6d currentCartesianState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d currentCartesianState = Eigen::Vector6d::Zero( );
 
     double propagationTime = secondsSinceEpoch - epochOfInitialState_;
 

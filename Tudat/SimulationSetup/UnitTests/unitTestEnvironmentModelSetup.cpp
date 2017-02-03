@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                     std::numeric_limits< double >::epsilon( ) );
 
         // Manually create table of states from spice
-        std::map< double, basic_mathematics::Vector6d > tabulatedStates;
+        std::map< double, Eigen::Vector6d > tabulatedStates;
         double currentTime = 1.0E7 - 50.0 * 600.0;
         while( currentTime <= 1.0E7 + 50.0 * 600.0 )
         {
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         boost::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     boost::make_shared< interpolators::LagrangeInterpolator
-                    < double, basic_mathematics::Vector6d > >( tabulatedStates, 6 ),
+                    < double, Eigen::Vector6d > >( tabulatedStates, 6 ),
                     "Earth", "J2000" );
 
         // Compare ephemerides away from node point.
@@ -654,8 +654,8 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
-    basic_mathematics::Vector6d initialKeplerElements =
-            ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    Eigen::Vector6d initialKeplerElements =
+            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
     bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
     bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
             boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
@@ -781,18 +781,18 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
                                     boost::lambda::constant( bankAngle ) );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
-    basic_mathematics::Vector6d vehicleBodyFixedState =
-            ( basic_mathematics::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+    Eigen::Vector6d vehicleBodyFixedState =
+            ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
               6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
     // Set states in environment.
     double testTime = 0.5E7;
-    basic_mathematics::Vector6d vehicleInertialState =
+    Eigen::Vector6d vehicleInertialState =
             ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
             bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
-    bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
+    bodyMap[ "Earth" ]->setState( Eigen::Vector6d::Zero( ) );
     bodyMap[ "Vehicle" ]->setState( vehicleInertialState );
     bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
 

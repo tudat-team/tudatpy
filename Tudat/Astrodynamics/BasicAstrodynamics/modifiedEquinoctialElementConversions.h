@@ -20,7 +20,7 @@
 #ifndef TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_MODIFIED_EQUINOCTIAL_ELEMENT_CONVERSIONS_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -48,8 +48,8 @@ namespace orbital_element_conversions
  *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  */
-basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& keplerianElements );
+Eigen::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& keplerianElements );
 
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
 /*!
@@ -73,8 +73,8 @@ basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
  *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  */
-basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+Eigen::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& keplerianElements,
         const bool avoidSingularityAtPiInclination );
 
 //! Convert modified equinoctial to Keplerian orbital elements.
@@ -101,8 +101,8 @@ basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  */
-basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
-        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
+Eigen::Vector6d convertModifiedEquinoctialToKeplerianElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
         const bool avoidSingularityAtPiInclination );
 
 //! Convert Cartesian to modified equinoctial orbital elements using implicit MEE equation set.
@@ -125,8 +125,8 @@ basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
  *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  */
-basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& cartesianElements,
+Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter );
 
 //! Convert Cartesian to modified equinoctial orbital elements using explicit MEE equation set.
@@ -152,8 +152,8 @@ basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
  *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  */
-basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const basic_mathematics::Vector6d& cartesianElements,
+Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination );
 
@@ -182,8 +182,8 @@ basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
  *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
  *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
  */
-basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
-        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
+Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination );
 

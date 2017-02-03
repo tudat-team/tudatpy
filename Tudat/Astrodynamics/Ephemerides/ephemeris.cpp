@@ -44,9 +44,9 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
 
 //! Function to compute the relative state from two state functions.
 void getRelativeState(
-        basic_mathematics::Vector6d& relativeState,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
+        Eigen::Vector6d& relativeState,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody )
 {
     relativeState = stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
 }

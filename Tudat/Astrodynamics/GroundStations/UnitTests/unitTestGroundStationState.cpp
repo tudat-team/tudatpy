@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 
     // Define ground station state
     const Eigen::Vector3d groundStationPosition( 1917032.190, 6029782.349, -801376.113 );
-    basic_mathematics::Vector6d groundStationState;
+    Eigen::Vector6d groundStationState;
     groundStationState << groundStationPosition, 0.0, 0.0, 0.0;
 
     // Create ground station
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
                 std::make_pair( "Earth", "Station1" ), bodyMap );
 
     // Compare state function with manual computation.
-    basic_mathematics::Vector6d currentGlobalState, currentGlobalStateFromFunction;
+    Eigen::Vector6d currentGlobalState, currentGlobalStateFromFunction;
     for( double testTime = 1.0E7; testTime < 5.0E7; testTime += 2.5E6 )
     {
         currentGlobalState = earth->getEphemeris( )->getCartesianState( testTime ) +

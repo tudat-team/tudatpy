@@ -73,13 +73,13 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Defins state of Sun to be all zero.
-    std::map< double, basic_mathematics::Vector6d > sunStateHistory;
-    sunStateHistory[ -1.0E9 ] = basic_mathematics::Vector6d::Zero( );
-    sunStateHistory[ 0.0 ] = basic_mathematics::Vector6d::Zero( );
-    sunStateHistory[ -1.0E9 ] = basic_mathematics::Vector6d::Zero( );
-    boost::shared_ptr< interpolators::LinearInterpolator< double, basic_mathematics::Vector6d > >
+    std::map< double, Eigen::Vector6d > sunStateHistory;
+    sunStateHistory[ -1.0E9 ] = Eigen::Vector6d::Zero( );
+    sunStateHistory[ 0.0 ] = Eigen::Vector6d::Zero( );
+    sunStateHistory[ -1.0E9 ] = Eigen::Vector6d::Zero( );
+    boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector6d > >
             sunStateInterpolaotor = boost::make_shared<
-            interpolators::LinearInterpolator< double, basic_mathematics::Vector6d > >(
+            interpolators::LinearInterpolator< double, Eigen::Vector6d > >(
                 sunStateHistory );
     bodyMap[ "Sun" ] ->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                          sunStateInterpolaotor ) );
@@ -190,12 +190,12 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
 
     // Set constant state for Earth and Vehicle
-    basic_mathematics::Vector6d dummyEarthState =
-            ( basic_mathematics::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0
+    Eigen::Vector6d dummyEarthState =
+            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0
               ).finished( );
     bodyMap[ "Earth" ]->setState( dummyEarthState );
     bodyMap[ "Vehicle" ]->setState(
-                ( basic_mathematics::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
+                ( Eigen::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
                   ).finished( ) + dummyEarthState );
 
     // Define Earth gravity field.
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
             boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
     bodySettings[ "Vehicle" ]->ephemerisSettings =
             boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
+                ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
@@ -453,21 +453,21 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     boost::lambda::constant( bankAngle ) );
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
-        basic_mathematics::Vector6d vehicleBodyFixedState =
-                ( basic_mathematics::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+        Eigen::Vector6d vehicleBodyFixedState =
+                ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
                   6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
         double testTime = 0.5E7;
 
         // Convert vehicle state to inertial frame.
-        basic_mathematics::Vector6d vehicleInertialState =
+        Eigen::Vector6d vehicleInertialState =
                 ephemerides::transformStateToFrameFromRotations(
                     vehicleBodyFixedState,
                     bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
 
         // Set states in environment.
-        bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
+        bodyMap[ "Earth" ]->setState( Eigen::Vector6d::Zero( ) );
         bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodyMap[ "Vehicle" ]->setState( vehicleInertialState );
 
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     // Update environment to current time.
     double testTime = 0.5E7;
     bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
-    bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
+    bodyMap[ "Earth" ]->setState( Eigen::Vector6d::Zero( ) );
     double bodyMass = 500.0;
 
     // Set vehicle mass
@@ -623,8 +623,8 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     for( unsigned int i = 0; i < 4; i++ )
     {
         // Define body-fixed vehicle state.
-        basic_mathematics::Vector6d vehicleBodyFixedState =
-                ( basic_mathematics::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+        Eigen::Vector6d vehicleBodyFixedState =
+                ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
                   6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
         if( i > 0 )
         {
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
         }
 
         // Define vehicle inertial state.
-        basic_mathematics::Vector6d vehicleInertialState =
+        Eigen::Vector6d vehicleInertialState =
                 ephemerides::transformStateToFrameFromRotations(
                     vehicleBodyFixedState,
                     bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),

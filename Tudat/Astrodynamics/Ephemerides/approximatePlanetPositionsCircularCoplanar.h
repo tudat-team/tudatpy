@@ -26,7 +26,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -73,7 +73,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch );
 
 protected:

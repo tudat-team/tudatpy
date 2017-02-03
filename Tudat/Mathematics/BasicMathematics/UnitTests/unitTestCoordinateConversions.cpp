@@ -255,12 +255,12 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
     // Test 1: test conversion of (2.1, pi/2.0, 1.2, 5.4, 4.5, -3.9).
     {
         // Set Cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d cylindricalState =
-                ( basic_mathematics::Vector6d( ) << 2.1, PI / 2.0, 1.2, 5.4, 4.5, -3.9 ).finished( );
+        const Eigen::Vector6d cylindricalState =
+                ( Eigen::Vector6d( ) << 2.1, PI / 2.0, 1.2, 5.4, 4.5, -3.9 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d expectedCartesianState =
-                ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCartesianState =
+                ( Eigen::Vector6d( )
                   << 2.1 * std::cos( PI / 2.0 ),
                   2.1 * std::sin( PI / 2.0 ),
                   1.2,
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
                   -3.9 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d convertedCartesianState
+        const Eigen::Vector6d convertedCartesianState
                 = coordinate_conversions::
                 convertCylindricalToCartesianState( cylindricalState );
 
@@ -287,12 +287,12 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
     // Test 2: test conversion of (0.0, 8.2*pi/3.0, -2.5, -5.8, 0.0, 1.7).
     {
         // Set Cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d cylindricalState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d cylindricalState = ( Eigen::Vector6d( )
                                                    << 0.0, 8.2 * PI / 3.0,
                                                    -2.5, -5.8, 0.0, 1.7 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d expectedCartesianState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCartesianState = ( Eigen::Vector6d( )
                                                          << 0.0,
                                                          0.0,
                                                          -2.5,
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
                                                          1.7 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d convertedCartesianState
+        const Eigen::Vector6d convertedCartesianState
                 = coordinate_conversions::
                 convertCylindricalToCartesianState( cylindricalState );
 
@@ -428,18 +428,18 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        const basic_mathematics::Vector6d cartesianState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d cartesianState = ( Eigen::Vector6d( )
                                                  << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d expectedCylindricalState =
-                ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCylindricalState =
+                ( Eigen::Vector6d( )
                                                            << 0.0, 0.0, 1.0,
                                                            std::sqrt( 25.0 + 36.0 ),
                                                            0.0, -9.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d convertedCylindricalState
+        const Eigen::Vector6d convertedCylindricalState
                 = coordinate_conversions::
                 convertCartesianToCylindricalState( cartesianState );
 
@@ -469,16 +469,16 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     // Test 2: test conversion of ( 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        const basic_mathematics::Vector6d cartesianState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d cartesianState = ( Eigen::Vector6d( )
                                                  << 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d expectedCylindricalState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCylindricalState = ( Eigen::Vector6d( )
                                                            << 2.0, 0.0, -5.0,
                                                            -4.0, 6.0, -6.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d convertedCylindricalState
+        const Eigen::Vector6d convertedCylindricalState
                 = coordinate_conversions::
                 convertCartesianToCylindricalState( cartesianState );
 
@@ -499,11 +499,11 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     // Test 3: test conversion of ( -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        const basic_mathematics::Vector6d cartesianState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d cartesianState = ( Eigen::Vector6d( )
                                                  << -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d expectedCylindricalState = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCylindricalState = ( Eigen::Vector6d( )
                                                            << std::sqrt( 49.0 + 16.0 ),
                                                            std::atan2( -4.0, -7.0 ) + 2.0 * PI,
                                                            3.0,
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
                                                            / sqrt( 49.0 + 16.0 ), 7.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        const basic_mathematics::Vector6d convertedCylindricalState
+        const Eigen::Vector6d convertedCylindricalState
                 = coordinate_conversions::
                 convertCartesianToCylindricalState( cartesianState );
 
@@ -618,15 +618,15 @@ BOOST_AUTO_TEST_CASE( testCartesianToSphericalStateConversion )
     // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
     {
         // Set Cartesian state (x, y , z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d cartesianState
-                = ( basic_mathematics::Vector6d( ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
+        const Eigen::Vector6d cartesianState
+                = ( Eigen::Vector6d( ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
 
         // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d expectedSphericalState
-                = ( basic_mathematics::Vector6d( ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
+        const Eigen::Vector6d expectedSphericalState
+                = ( Eigen::Vector6d( ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
 
         // Convert Cartesian to spherical state.
-        const basic_mathematics::Vector6d convertedSphericalState
+        const Eigen::Vector6d convertedSphericalState
                 = convertCartesianToSphericalState( cartesianState );
 
         // Check that converted spherical state matches expected spherical state.
@@ -663,15 +663,15 @@ BOOST_AUTO_TEST_CASE( testCartesianToSphericalStateConversion )
     // Test 2: test conversion of ( 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).
     {
         // Set Cartesian state (x, y , z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d cartesianState
-                = ( basic_mathematics::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::Vector6d cartesianState
+                = ( Eigen::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d expectedSphericalState
-                = ( basic_mathematics::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::Vector6d expectedSphericalState
+                = ( Eigen::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Convert Cartesian to spherical state ( r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d convertedSphericalState
+        const Eigen::Vector6d convertedSphericalState
                 = convertCartesianToSphericalState( cartesianState );
 
         // Check that converted spherical state matches expected spherical state.
@@ -707,17 +707,17 @@ BOOST_AUTO_TEST_CASE( testCartesianToSphericalStateConversion )
     // Test 3: test conversion of ( -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).
     {
         // Set Cartesian state ( x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d cartesianState
-                = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d cartesianState
+                = ( Eigen::Vector6d( )
                     << -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).finished( );
 
         // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d expectedSphericalState
-                = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedSphericalState
+                = ( Eigen::Vector6d( )
                     << 2.0, -PI * 3.0 / 4.0, PI / 4.0, 1.0, -sqrt( 2.0 ), 1.0 ).finished( );
 
         // Convert Cartesian to spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d convertedSphericalState
+        const Eigen::Vector6d convertedSphericalState
                 = convertCartesianToSphericalState( cartesianState );
 
         // Check that converted spherical state matches the expected spherical state.
@@ -743,15 +743,15 @@ BOOST_AUTO_TEST_CASE( testSphericalToCartesianStateConversion )
     // Test 1: test conversion of ( 1.0, 0.0, pi/2, -9.0, 6.0, -5.0 ).
     {
         // Set Spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d sphericalState
-                = ( basic_mathematics::Vector6d( ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
+        const Eigen::Vector6d sphericalState
+                = ( Eigen::Vector6d( ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d expectedCartesianState
-                = ( basic_mathematics::Vector6d( ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
+        const Eigen::Vector6d expectedCartesianState
+                = ( Eigen::Vector6d( ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
 
         // Convert spherical to Cartesian state.
-        const basic_mathematics::Vector6d convertedCartesianState
+        const Eigen::Vector6d convertedCartesianState
                 = convertSphericalToCartesianState( sphericalState );
 
         // Check that converted Cartesian state matches expected state.
@@ -781,15 +781,15 @@ BOOST_AUTO_TEST_CASE( testSphericalToCartesianStateConversion )
     // Test 2: test conversion of ( 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).
     {
         // Set spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d sphericalState
-                = ( basic_mathematics::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::Vector6d sphericalState
+                = ( Eigen::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Set expected Cartesian state ( x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d expectedCartesianState
-                = ( basic_mathematics::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::Vector6d expectedCartesianState
+                = ( Eigen::Vector6d( ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Convert spherical to Cartesian state.
-        const basic_mathematics::Vector6d convertedCartesianState
+        const Eigen::Vector6d convertedCartesianState
                 = convertSphericalToCartesianState( sphericalState );
 
         // Check that converted Cartesian state matches expected state.
@@ -819,17 +819,17 @@ BOOST_AUTO_TEST_CASE( testSphericalToCartesianStateConversion )
     // Test 3: test conversion of ( 2.0, -3*pi/4, pi/4, 1.0, -sqrt( 2.0 ), 1.0 ).
     {
         // Set spherical state (r, theta, phi, Vr, Vtheta, Vphi).
-        const basic_mathematics::Vector6d sphericalState
-                = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d sphericalState
+                = ( Eigen::Vector6d( )
                     << 2.0, -PI * 3.0 / 4.0, PI / 4.0, 1.0, -sqrt( 2.0 ), 1.0 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        const basic_mathematics::Vector6d expectedCartesianState
-                = ( basic_mathematics::Vector6d( )
+        const Eigen::Vector6d expectedCartesianState
+                = ( Eigen::Vector6d( )
                     << -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).finished( );
 
         // Convert spherical to Cartesian state.
-        const basic_mathematics::Vector6d convertedCartesianState
+        const Eigen::Vector6d convertedCartesianState
                 = convertSphericalToCartesianState( sphericalState );
 
         // Check that converted Cartesian state matches the expected state.

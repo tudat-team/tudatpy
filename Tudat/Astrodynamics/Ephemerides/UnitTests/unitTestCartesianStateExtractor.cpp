@@ -25,7 +25,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/cartesianStateExtractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -34,7 +34,7 @@ namespace unit_tests
 
 // Short-hand notation.
 namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_cartesian_state_extractor )
 

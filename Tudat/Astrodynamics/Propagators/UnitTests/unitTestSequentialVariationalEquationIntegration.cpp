@@ -87,19 +87,19 @@ integrateEquations( const bool performIntegrationsSequentially )
     bodyMap[ "LAGEOS" ] = lageos;
 
     // Create  body initial state
-    basic_mathematics::Vector6d lageosKeplerianElements;
+    Eigen::Vector6d lageosKeplerianElements;
     lageosKeplerianElements[ semiMajorAxisIndex ] = 8000.0E3;
     lageosKeplerianElements[ eccentricityIndex ] = 0.0044;
     lageosKeplerianElements[ inclinationIndex ] = 109.89 * mathematical_constants::PI / 180.0;
     lageosKeplerianElements[ argumentOfPeriapsisIndex ] = 259.35 * mathematical_constants::PI / 180.0;
     lageosKeplerianElements[ longitudeOfAscendingNodeIndex ] = 31.56 * mathematical_constants::PI / 180.0;
     lageosKeplerianElements[ trueAnomalyIndex ] = 1.0;
-    basic_mathematics::Vector6d lageosState = convertKeplerianToCartesianElements(
+    Eigen::Vector6d lageosState = convertKeplerianToCartesianElements(
                 lageosKeplerianElements, getBodyGravitationalParameter("Earth" ) );
 
     lageos->setEphemeris( boost::make_shared< TabulatedCartesianEphemeris< double, double > >(
                               boost::shared_ptr< interpolators::OneDimensionalInterpolator<
-                              double, basic_mathematics::Vector6d > >( ), "Earth" ) );
+                              double, Eigen::Vector6d > >( ), "Earth" ) );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.

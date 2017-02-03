@@ -26,7 +26,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
@@ -37,7 +37,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 using mathematical_constants::PI;
 
 using namespace aerodynamics;

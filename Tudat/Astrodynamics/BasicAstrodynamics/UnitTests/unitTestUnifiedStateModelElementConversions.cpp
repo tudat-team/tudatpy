@@ -23,7 +23,7 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
     const double centralBodyGravitationalParameter = 1.32712440018e20; // [m^3/s^2]
 
     // Initializing default Keplerian orbit
-    basic_mathematics::Vector6d keplerianElements = basic_mathematics::Vector6d::Zero( 6 );
+    Eigen::Vector6d keplerianElements = Eigen::Vector6d::Zero( 6 );
     keplerianElements( semiMajorAxisIndex ) = 1.5e11;
     keplerianElements( eccentricityIndex ) = 0.1;
     keplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     const double centralBodyGravitationalParameter = 1.32712440018e20; // [m^3/s^2]
 
     // Initializing default Keplerian orbit
-    basic_mathematics::Vector6d expectedKeplerianElements = Eigen::VectorXd::Zero( 6 );
+    Eigen::Vector6d expectedKeplerianElements = Eigen::VectorXd::Zero( 6 );
     expectedKeplerianElements( semiMajorAxisIndex ) = 1.5e11;
     expectedKeplerianElements( eccentricityIndex ) = 0.1;
     expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
     // Declaring computed output vector.
-    basic_mathematics::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
+    Eigen::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
 
 
 
