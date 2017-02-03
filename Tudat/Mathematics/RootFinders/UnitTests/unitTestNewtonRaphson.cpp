@@ -1,50 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110111    E. Iorfida        File created.
- *                                  The code is tested with the function: f(x)= x^2 - 3.
- *      110111    K. Kumar          Updated to use address of global  functions instead of
- *                                  pointers for set functions; aligned code as required for
- *                                  namespaces; minor comment changes.
- *      110119    K. Kumar          Updated code to work with adaptor and abstract base
- *                                  implementation so that pointer-to-member functions are not
- *                                  required; filename changed; added cerr statements.
- *      110120    E. Iorfida        Added necessary class that contains functions, and related
- *                                  code, to allow a directly test with adaptor.
- *      110120    K. Kumar          Added global functions test; updated comments; modified layout.
- *      110905    S. Billemont      Reorganized includes.
- *                                  Moved (con/de)structors and getter/setters to header.
- *      120712    P. Musegaas       Changed absolute tolerance into a safe variant of relative
- *                                  tolerance. Added new unit tests for this.
- *      120318    S. Billemont      Move to new root_finders codebase.
- *      120402    T. Secretin       Code-check.
- *      120810    P. Musegaas       Code-check. Merged two branches. Various edits.
- *      150417    D. Dirkx          Made modifications for templated root finding.
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    Notes
  *      The test cases in this unit test should be more extensive.
