@@ -38,7 +38,7 @@
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #endif
-
+#include "Tudat/Astrodynamics/Gravitation/triAxialEllipsoidGravity.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/solarActivityData.h"
@@ -375,6 +375,83 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ), -0.1744763377093700E-06 );
 
 }
+
+//! Test set up of triaxial ellipsoid gravity field model settings
+BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
+{
+    double axisA = 26.8E3;
+    double axisB = 22.4E3;
+    double axisC = 18.4E3;
+
+    double density = 2.7E3;
+
+    boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > gravityFieldSettings =
+            createHomogeneousTriAxialEllipsoidGravitySettings(
+                axisA, axisB, axisC, density, 11, 11, "TestFrame" );
+
+    // Check size of coefficient blocks
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getCosineCoefficients( ).rows( ), 12 );
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getCosineCoefficients( ).cols( ), 12 );
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getSineCoefficients( ).rows( ), 12 );
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getSineCoefficients( ).cols( ), 12 );
+
+    // Check frame ID
+    BOOST_CHECK_EQUAL( gravityFieldSettings->getAssociatedReferenceFrame( ), "TestFrame"  );
+
+    // Compute expected low-degree unnormalized coefficients
+    double referenceRadius = gravitation::calculateTriAxialEllipsoidReferenceRadius( axisA, axisB, axisC );
+
+    double expectedC20 = 1.0 / ( 5.0 * referenceRadius * referenceRadius ) *
+            ( axisC * axisC - ( axisA * axisA + axisB * axisB ) / 2.0 );
+    double expectedC22 = 1.0 / ( 20.0 * referenceRadius * referenceRadius ) *
+            ( axisA * axisA - axisB * axisB );
+    double expectedC40 = 15.0 / 7.0 * ( expectedC20 * expectedC20 +
+                                        2.0 * expectedC22 * expectedC22 );
+    double expectedC42 = 5.0 / 7.0 * ( expectedC20 * expectedC22 );
+    double expectedC44 = 5.0 / 28.0 * ( expectedC22 * expectedC22 );
+
+    // Test low-degree coefficients (normalizing them first)
+    BOOST_CHECK_CLOSE_FRACTION(
+                expectedC20, gravityFieldSettings->getCosineCoefficients( )( 2, 0 ) *
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+                expectedC22, gravityFieldSettings->getCosineCoefficients( )( 2, 2 ) *
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+                expectedC40, gravityFieldSettings->getCosineCoefficients( )( 4, 0 ) *
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 4, 0 ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+                expectedC42, gravityFieldSettings->getCosineCoefficients( )( 4, 2 ) *
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 4, 2 ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION(
+                expectedC44, gravityFieldSettings->getCosineCoefficients( )( 4, 4 ) *
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 4, 4 ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+
+    // Check whether C-coefficients with odd degree or order, and all S-coefficients, are zero.
+    for( unsigned int i = 0; i < 12; i++ )
+    {
+        for( unsigned int j = 0; j < 12; j++ )
+        {
+            if( ( i % 2 != 0 ) || ( j % 2 ) != 0 )
+            {
+                BOOST_CHECK_EQUAL( gravityFieldSettings->getCosineCoefficients( )( i, j ), 0.0 );
+            }
+            BOOST_CHECK_EQUAL( gravityFieldSettings->getSineCoefficients( )( i, j ), 0.0 );
+        }
+    }
+
+    double gravitationalParameter = 4.0 / 3.0 * mathematical_constants::PI * axisA * axisB * axisC *
+            density * physical_constants::GRAVITATIONAL_CONSTANT;
+    BOOST_CHECK_CLOSE_FRACTION(
+                gravitationalParameter, gravityFieldSettings->getGravitationalParameter( ),
+                2.0 * std::numeric_limits< double >::epsilon( ) );
+}
+
 #endif
 
 #if USE_CSPICE
