@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 for( unsigned int l = 0; l < 3; l++ )
                 {
                     BOOST_CHECK_SMALL( analyticalSphericalPotentialHessian[ i ][ j ]( k, l ) -
-                            numericalSphericalPotentialHessian[ i ][ j ]( k, l ), 1.0E-5 );
+                            numericalSphericalPotentialHessian[ i ][ j ]( k, l ), 2.5E-5 );
                 }
 
             }
@@ -422,10 +422,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Create empty bodies, earth and vehicle.
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
@@ -472,16 +471,16 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
             boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
                 spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000" , "IAU_Earth", 0.0 ),
                 2.0 * mathematical_constants::PI / 86400.0,
-                1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                1.0E7,
                 "ECLIPJ2000" , "IAU_Earth" );
 
     earth->setRotationalEphemeris( simpleRotationalEphemeris );
 
     // Set current state of vehicle and earth.
-    earth->setState( basic_mathematics::Vector6d::Zero( ) );
+    earth->setState( Eigen::Vector6d::Zero( ) );
 
     // Set Keplerian elements for Asterix.
-    basic_mathematics::Vector6d asterixInitialStateInKeplerianElements;
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
@@ -491,7 +490,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    basic_mathematics::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
+    Eigen::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, gravitationalParameter );
 
 
@@ -522,13 +521,13 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
             boost::bind( &Body::setState, earth, _1  );
-    boost::function< void( basic_mathematics::Vector6d ) > vehicleStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
             boost::bind( &Body::setState, vehicle, _1  );
-    boost::function< basic_mathematics::Vector6d ( ) > earthStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
             boost::bind( &Body::getState, earth );
-    boost::function< basic_mathematics::Vector6d ( ) > vehicleStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
             boost::bind( &Body::getState, vehicle );
 
 

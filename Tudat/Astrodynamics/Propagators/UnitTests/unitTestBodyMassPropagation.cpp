@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -99,11 +99,11 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                 boost::bind( &getDummyMassRate2, bodyMap ) );
     bodyMap[ "Earth" ] = boost::make_shared< Body >( );
     bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ) );
+                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
     bodyMap[ "Vehicle1" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "Earth" ) );
+                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
     bodyMap[ "Vehicle2" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "Earth" ) );
+                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );

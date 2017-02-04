@@ -1,42 +1,15 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110620    F.M. Engelen      File created.
- *      110707    E.A.G. Heeren     Minor spelling/lay-out corrections.
- *      110714    E.A.G. Heeren     Minor spelling/lay-out corrections.
- *      110905    S. Billemont      Reorganized includes.
- *                                  Moved (con/de)structors and getter/setters to header.
- *      120716    D. Dirkx          Updated with interpolator architecture.
- *      130114    D. Dirkx          Fixed iterator bug.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
  *          University Press, February 2002.
- *
- *    Notes
  *
  */
 
@@ -53,6 +26,7 @@
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -131,7 +105,7 @@ std::vector< DependentVariableType > solveTridiagonalMatrixEquation(
  * \tparam IndependentVariableType Type of independent variables.
  * \tparam DependentVariableType Type of dependent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType >
+template< typename IndependentVariableType, typename DependentVariableType, typename ScalarType = IndependentVariableType >
 class CubicSplineInterpolator :
         public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
@@ -255,19 +229,21 @@ public:
                     targetIndependentVariableValue );
 
         // Get independent variable values bounding interval in which requested value lies.
-        IndependentVariableType lowerValue, upperValue, squareDifference;
+        IndependentVariableType lowerValue, upperValue;
+        ScalarType squareDifference;
         lowerValue = independentValues_[ lowerEntry_ ];
         upperValue = independentValues_[ lowerEntry_ + 1 ];
 
         // Calculate coefficients A,B,C,D (see Numerical (Press W.H., et al., 2002))
-        squareDifference = ( upperValue - lowerValue ) * ( upperValue - lowerValue );
-        IndependentVariableType coefficientA_ = ( upperValue - targetIndependentVariableValue )
-                / ( upperValue - lowerValue );
-        IndependentVariableType coefficientB_ = 1 - coefficientA_;
-        IndependentVariableType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ -
-                                                  coefficientA_ ) / 6.0 * squareDifference;
-        IndependentVariableType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ -
-                                                  coefficientB_ ) / 6.0 * squareDifference;
+        squareDifference = static_cast< ScalarType >( upperValue - lowerValue ) *
+                static_cast< ScalarType >( upperValue - lowerValue );
+        ScalarType coefficientA_ = ( upperValue - targetIndependentVariableValue )
+                / static_cast< ScalarType >( upperValue - lowerValue );
+        ScalarType coefficientB_ = mathematical_constants::getFloatingInteger< ScalarType >( 1.0 ) - coefficientA_;
+        ScalarType coefficientC_ = ( coefficientA_ * coefficientA_ * coefficientA_ - coefficientA_ ) /
+                mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
+        ScalarType coefficientD_ = ( coefficientB_ * coefficientB_ * coefficientB_ - coefficientB_ ) /
+                mathematical_constants::getFloatingInteger< ScalarType >( 6.0 ) * squareDifference;
 
         // The interpolated dependent variable value.
         return coefficientA_ * dependentValues_[ lowerEntry_ ] +
@@ -292,15 +268,15 @@ private:
         numberOfDataPoints_ = independentValues_.size( );
 
         // Sub-diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > aCoefficients_;
+        std::vector< ScalarType > aCoefficients_;
         aCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > bCoefficients_;
+        std::vector< ScalarType > bCoefficients_;
         bCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Super-diagonal of tri-diagonal matrix.
-        std::vector< IndependentVariableType > cCoefficients_;
+        std::vector< ScalarType > cCoefficients_;
         cCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Right-hand side of tridiagonal matrix system
@@ -308,15 +284,13 @@ private:
         rCoefficients_.resize( numberOfDataPoints_ - 2 );
 
         // Temporary value vector.
-        std::vector< IndependentVariableType > hCoefficients_;
+        std::vector< ScalarType > hCoefficients_;
         hCoefficients_.resize( numberOfDataPoints_ - 1 );
 
         // Set second derivatives of curve to zero at endpoints, i.e. impose natural spline
         // condition.
-        aCoefficients_[ numberOfDataPoints_- 3 ] = independentValues_[ 0 ] -
-                                                   independentValues_[ 0 ];
-        cCoefficients_[ numberOfDataPoints_- 3 ] = independentValues_[ 0 ] -
-                                                   independentValues_[ 0 ];
+        aCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        cCoefficients_[ numberOfDataPoints_- 3 ] = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
 
         // Compute the vectors h (temporary values),a,c,b,r.
         for ( unsigned int i = 0; i < ( numberOfDataPoints_ - 1 ); i++ )
@@ -342,7 +316,7 @@ private:
 
         // Solve tridiagonal matrix equatuion.
         std::vector< DependentVariableType > middleSecondDerivativeOfCurvatures =
-                solveTridiagonalMatrixEquation< IndependentVariableType, DependentVariableType >
+                solveTridiagonalMatrixEquation< ScalarType, DependentVariableType >
                 ( aCoefficients_, bCoefficients_, cCoefficients_,  rCoefficients_ );
 
         // Append zeros to ends of calculated second derivative values (natural spline condition).

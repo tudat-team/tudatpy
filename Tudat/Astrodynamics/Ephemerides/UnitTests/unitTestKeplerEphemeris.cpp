@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisElliptical )
         // Compute next entry.
         computedPropagationHistory[ stateIterator->first ] =
                 orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianStateFromEphemeris( stateIterator->first ),
+                    keplerEphemeris.getCartesianState( stateIterator->first ),
                     earthGravitationalParameter );
 
         // Check that computed results match expected results.
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testKeplerEphemerisHyperbolic )
         // Compute next entry.
         computedPropagationHistory[ stateIterator->first ] =
                 orbital_element_conversions::convertCartesianToKeplerianElements(
-                    keplerEphemeris.getCartesianStateFromEphemeris( stateIterator->first ),
+                    keplerEphemeris.getCartesianState( stateIterator->first ),
                     getGTOPGravitationalParameter( ) );
 
         // Check that computed results match expected results.

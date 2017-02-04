@@ -1,36 +1,11 @@
-#    Copyright (c) 2010-2015, Delft University of Technology
- #    All rights reserved.
+ #    Copyright (c) 2010-2017, Delft University of Technology
+ #    All rigths reserved
  #
- #    Redistribution and use in source and binary forms, with or without modification, are
- #    permitted provided that the following conditions are met:
- #      - Redistributions of source code must retain the above copyright notice, this list of
- #        conditions and the following disclaimer.
- #      - Redistributions in binary form must reproduce the above copyright notice, this list of
- #        conditions and the following disclaimer in the documentation and/or other materials
- #        provided with the distribution.
- #      - Neither the name of the Delft University of Technology nor the names of its contributors
- #        may be used to endorse or promote products derived from this software without specific
- #        prior written permission.
- #
- #    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- #    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- #    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- #    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- #    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- #    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- #    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- #    OF THE POSSIBILITY OF SUCH DAMAGE.
- #
- #    Changelog
- #      YYMMDD    Author            Comment
- #      110820    S.M. Persson      File created.
- #      111025    K. Kumar          Adapted file to work with Revision 194.
- #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
- #      120202    K. Kumar          Removed astrodynamicsFunctions.h/.cpp and unit tests.
- #      121123    D. Dirkx          Added ElectroMagnetism sub-directory.
- #
- #    References
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
  #
  #    Notes
  #
@@ -40,6 +15,7 @@ set(BASICASTRODYNAMICSDIR "${ASTRODYNAMICSDIR}/BasicAstrodynamics")
 set(ELECTROMAGNETISMDIR "${ASTRODYNAMICSDIR}/ElectroMagnetism")
 set(EPHEMERIDESDIR "${ASTRODYNAMICSDIR}/Ephemerides")
 set(GRAVITATIONDIR "${ASTRODYNAMICSDIR}/Gravitation")
+set(GROUNDSTATIONSDIR "${ASTRODYNAMICSDIR}/GroundStations")
 set(MISSIONSEGMENTSDIR "${ASTRODYNAMICSDIR}/MissionSegments")
 set(REFERENCEFRAMESDIR "${ASTRODYNAMICSDIR}/ReferenceFrames")
 set(OBSERVATIONMODELSDIR "${ASTRODYNAMICSDIR}/ObservationModels")
@@ -63,6 +39,7 @@ add_subdirectory("${SRCROOT}${PROPAGATORSDIR}")
 add_subdirectory("${SRCROOT}${RELATIVITYDIR}")
 add_subdirectory("${SRCROOT}${SYSTEMMODELSDIR}")
 add_subdirectory("${SRCROOT}${PROPULSIONDIR}")
+add_subdirectory("${SRCROOT}${GROUNDSTATIONSDIR}")
 
 
 # Get target properties for static libraries.
@@ -79,3 +56,4 @@ get_target_property(RELATIVITYSOURCES tudat_relativity SOURCES)
 get_target_property(PROPAGATORSDIR tudat_propagators SOURCES)
 get_target_property(SYSTEMMODELSSOURCES tudat_system_models SOURCES)
 get_target_property(PROPULSIONSOURCES tudat_propulsion SOURCES)
+get_target_property(GROUNDSTATIONSSOURCES tudat_ground_stations SOURCES)

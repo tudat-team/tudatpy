@@ -1,47 +1,11 @@
- #    Copyright (c) 2010-2013, Delft University of Technology
- #    All rights reserved.
+ #    Copyright (c) 2010-2017, Delft University of Technology
+ #    All rigths reserved
  #
- #    Redistribution and use in source and binary forms, with or without modification, are
- #    permitted provided that the following conditions are met:
- #      - Redistributions of source code must retain the above copyright notice, this list of
- #        conditions and the following disclaimer.
- #      - Redistributions in binary form must reproduce the above copyright notice, this list of
- #        conditions and the following disclaimer in the documentation and/or other materials
- #        provided with the distribution.
- #      - Neither the name of the Delft University of Technology nor the names of its contributors
- #        may be used to endorse or promote products derived from this software without specific
- #        prior written permission.
- #
- #    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- #    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- #    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- #    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- #    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- #    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- #    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- #    OF THE POSSIBILITY OF SUCH DAMAGE.
- #
- #    Changelog
- #      YYMMDD    Author            Comment
- #      110820    S.M. Persson      File created.
- #      111025    K. Kumar          Adapted file to work with Revision 194.
- #      111027    K. Kumar          Updated to auto-search for Eigen3 and Boost; manual setting
- #                                  examples included as comments. Added suppression of warnings
- #                                  from Boost.
- #      111028    K. Kumar          Corrected Boost variables and changed build-type to Debug.
- #      111103    K. Kumar          Updated CMake directory name in module path.
- #      111117    K. Kumar          Added system and filesystem Boost components.
- #      170212    S. Billemont      Added support for UserSettings.txt file.
- #      120505    K. Kumar          Removed superfluous include sub-directory macro.
- #      120913    K. Kumar          Added output message for build type and set default to
- #                                  "Release".
- #      120921    M.I. Ganeff       Modified for SpiceInterface.
- #      130204    K. Kumar          Removed obsolete TudatCoreEnvironment.cmake code block.
- #
- #    References
- #
- #    Notes
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
  #
 
 
@@ -267,7 +231,7 @@ list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_propagators
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames
     tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators ${TUDAT_EXTERNAL_LIBRARIES})
 
-list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_observation_models tudat_acceleration_partials
+list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_ground_stations tudat_observation_models tudat_acceleration_partials
     tudat_observation_partials tudat_estimatable_parameters tudat_orbit_determination  tudat_propagators
     tudat_aerodynamics tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames

@@ -1,50 +1,12 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      100907    K. Kumar          File header and footer added.
- *      100929    D. Dirkx          File checked.
- *      100929    K. Kumar          Minor comment modifications.
- *      110201    K. Kumar          Updated code to make use of State class.
- *      110203    J. Melman         File checked.
- *      110207    K. Kumar          Path changed; moved integrat( ) function
- *                                  to SingleStepIntegrationMethods.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      110905    S. Billemont      Reorganized includes.
- *                                  Moved (con/de)structors and getter/setters to header.
- *      120207    B. Tong Minh      Updated to TudatCore compatibility.
- *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable().
- *      120321    K. Kumar          Corrected bug in performIntegrationStep().
- *      120507    K. Kumar          Corrected call to base-class function by adding "this".
- *      121212    K. Kumar          Migrated to Tudat Core; added standardized shared-pointer
- *                                  typedefs; migrated namespace to directory-based protocol and
- *                                  implemented backwards compatibility.
- *
- *    References
- *
- *    Notes
  */
 
 #ifndef TUDAT_EULER_INTEGRATOR_H
@@ -72,10 +34,10 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class EulerIntegrator :
         public numerical_integrators::ReinitializableNumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType >
+        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
 
@@ -85,7 +47,7 @@ public:
      */
     typedef numerical_integrators::ReinitializableNumericalIntegrator<
     IndependentVariableType, StateType,
-    StateDerivativeType > ReinitializableNumericalIntegratorBase;
+    StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
 
     //! Typedef to the state derivative function.
     /*!
@@ -117,7 +79,7 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
     //! Get current state.
     /*!
@@ -145,7 +107,7 @@ public:
      * \param stepSize The size of the step to take.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
+    virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
@@ -197,7 +159,7 @@ protected:
     /*!
      * Last used step size, passed to either integrateTo() or performIntegrationStep().
      */
-    IndependentVariableType stepSize_;
+    TimeStepType stepSize_;
 
     //! Current independent variable.
     /*!

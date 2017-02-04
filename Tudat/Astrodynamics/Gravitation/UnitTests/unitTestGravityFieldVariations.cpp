@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -150,7 +150,7 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     deformingBodies.push_back( "Europa" );
 
     // Retrieve required data of bodies raising tides.
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+    std::vector< boost::function< Eigen::Vector6d( const double ) > >
             deformingBodyStateFunctions;
     std::vector< boost::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
@@ -197,11 +197,12 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     const std::string kernelsPath = input_output::getSpiceKernelPath( );
+
     // Load spice kernels.
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "gm_de431.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
     loadSpiceKernelInTudat( kernelsPath + "jup310_small.bsp" );
+    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
 
     // Define properties of nominal field
     double gravitationalParameter = getBodyGravitationalParameter( "Jupiter" );

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -141,7 +141,7 @@ void performSimulation( const int testType )
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Convert apollo state from Keplerian elements to Cartesian elements.
-    const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+    const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
 
@@ -151,7 +151,7 @@ void performSimulation( const int testType )
             getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
                                     simulationEndEpoch + 10.0 * fixedStepSize );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< simulation_setup::ConstantEphemerisSettings >(
-                basic_mathematics::Vector6d::Zero( ), "SSB", "J2000" );
+                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings[ "Earth" ]->gravityFieldSettings =
             boost::make_shared< simulation_setup::GravityFieldSettings >(
                 central_spice );
@@ -186,7 +186,7 @@ void performSimulation( const int testType )
     centralBodies.push_back( "Earth" );
 
     // Set initial state
-    basic_mathematics::Vector6d systemInitialState = apolloInitialState;
+    Eigen::Vector6d systemInitialState = apolloInitialState;
 
     // Create acceleration models and propagation settings, using current test case to retrieve stop settings..
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(

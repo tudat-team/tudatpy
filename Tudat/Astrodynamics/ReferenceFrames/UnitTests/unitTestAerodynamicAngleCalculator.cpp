@@ -1,3 +1,12 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 #define BOOST_TEST_MAIN
 
 #include <iostream>
@@ -42,7 +51,7 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamic_angle_calculator )
  * \param bankAngle Bank angle of vehicle
  */
 void testAerodynamicAngleCalculation(
-        const basic_mathematics::Vector6d& testState,
+        const Eigen::Vector6d& testState,
         double testHeadingAngle,
         double testFlightPathAngle,
         double testLatitude,
@@ -168,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
 {
     // Test case 1: arbitrary rotation
     {
-        basic_mathematics::Vector6d testState;
+        Eigen::Vector6d testState;
         testState<<-1656517.23153109, -5790058.28764025, -2440584.88186829,
                 6526.30784888051, -2661.34558272018, 2377.09572383163;
 
@@ -188,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
 
     // Test case 2: rotation with zero and half pi angles.
     {
-        basic_mathematics::Vector6d testState;
+        Eigen::Vector6d testState;
         testState<<0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
 
         double testHeadingAngle = 0.0;
@@ -207,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
 
     // Test case 3: rotation with zero and half pi angles.
     {
-        basic_mathematics::Vector6d testState;
+        Eigen::Vector6d testState;
         testState<<0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
 
         double testHeadingAngle = 0.0;

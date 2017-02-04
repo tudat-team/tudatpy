@@ -1,49 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      101020    K. Kumar          First creation of code.
- *      101025    E. Iorfida        Fulfillment of the code with gravitational parameter.
- *      101130    E. Iorfida        Gravitational parameter removed.
- *      101202    J. Melman         Replaced endif statement and changed. Doxygen return statement.
- *      101203    E. Iorfida        Gravitational parameter added.
- *      101219    J. Melman         Doxygen comment on gravitational parameter added.
- *      110128    K. Kumar          Changed references to pointers for functions.
- *      110510    K. Kumar          Updated conversion functions to not use dynamic memory
- *                                  allocation.
- *      110805    K. Kumar          Added mean motion to semi-major axis conversion.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      120131    K. Kumar          Adapted for Tudat Core, interfaces changed to use VectorXd,
- *                                  only Keplerian <-> Cartesian conversions included.
- *      120206    K. Kumar          Added wrapper functions for orbital element conversions when
- *                                  eccentricity is not known a priori (if-statement to choose
- *                                  between elliptical and hyperbolic orbits).
- *      120422    K. Kumar          Added Doxygen notes for Cartesian -> Keplerian conversion.
- *      121205    K. Kumar          Migrated namespace to directory-based protocol and added
- *                                  backwards compatibility.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.

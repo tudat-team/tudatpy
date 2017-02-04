@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -64,10 +64,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time calculator, Earth center transmitter, Moon center receiver.
     boost::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoon =
             boost::make_shared< LightTimeCalculator< > >
-            ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
-              boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ) );
+            ( boost::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
+              boost::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ) );
 
     // Define input time for tests.
     const double testTime = 1.0E6;
@@ -121,10 +119,10 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Test light time and link end state functions.
     double testOutputTime = 0.0;
-    basic_mathematics::Vector6d testEarthState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d testMoonState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d spiceEarthState = basic_mathematics::Vector6d::Zero( );
-    basic_mathematics::Vector6d spiceMoonState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d testEarthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d testMoonState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d spiceEarthState = Eigen::Vector6d::Zero( );
+    Eigen::Vector6d spiceMoonState = Eigen::Vector6d::Zero( );
 
     // Get link end states, assuming input time is transmission time.
     // SSB = Solar system barycenter.
@@ -158,10 +156,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with correction.
     boost::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoonWithCorrection =
             boost::make_shared< LightTimeCalculator< > >
-            ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
-              boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+            ( boost::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
+              boost::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
               lightTimeCorrections, true );
 
     // Calculate newtonian light time.
@@ -173,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate expected correction.
     double expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                basic_mathematics::Vector6d::Zero( ), basic_mathematics::Vector6d::Zero( ),
+                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
                 testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
@@ -184,10 +180,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with correction, without iterating light-time corrections.
     lightTimeEarthToMoonWithCorrection =
             boost::make_shared< LightTimeCalculator< > >
-            ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
-              boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+            ( boost::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
+              boost::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
               lightTimeCorrections, false );
 
     // Calculate newtonian light time.
@@ -199,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate expected correction.
     expectedCorrection = getTimeDifferenceLightTimeCorrection(
-                basic_mathematics::Vector6d::Zero( ), basic_mathematics::Vector6d::Zero( ),
+                Eigen::Vector6d::Zero( ), Eigen::Vector6d::Zero( ),
                 testTime - testMoonLightTime, testTime );
 
     // Test whether results are approximately equal.
@@ -214,10 +208,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with multiple corrections.
     lightTimeEarthToMoonWithCorrection =
             boost::make_shared< LightTimeCalculator< > >
-            ( boost::bind( &Ephemeris::getCartesianStateFromEphemeris, earthEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
-              boost::bind( &Ephemeris::getCartesianStateFromEphemeris, moonEphemeris, _1,
-                           basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+            ( boost::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
+              boost::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
               lightTimeCorrections, true );
 
     // Calculate newtonian light time.

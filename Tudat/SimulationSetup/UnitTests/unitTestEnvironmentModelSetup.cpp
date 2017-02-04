@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -166,8 +166,8 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
         // Verify equivalence of automatically set up and manual models.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( manualApproximateEphemeris.getCartesianStateFromEphemeris( 1.0E7 ) ),
-                    ( approximateEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( manualApproximateEphemeris.getCartesianState( 1.0E7 ) ),
+                    ( approximateEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( spice_interface::getBodyCartesianStateAtEpoch(
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -198,11 +198,11 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( spice_interface::getBodyCartesianStateAtEpoch(
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
 
         // Manually create table of states from spice
-        std::map< double, basic_mathematics::Vector6d > tabulatedStates;
+        std::map< double, Eigen::Vector6d > tabulatedStates;
         double currentTime = 1.0E7 - 50.0 * 600.0;
         while( currentTime <= 1.0E7 + 50.0 * 600.0 )
         {
@@ -222,17 +222,17 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         boost::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     boost::make_shared< interpolators::LagrangeInterpolator
-                    < double, basic_mathematics::Vector6d > >( tabulatedStates, 6 ),
+                    < double, Eigen::Vector6d > >( tabulatedStates, 6 ),
                     "Earth", "J2000" );
 
         // Compare ephemerides away from node point.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
-                    ( tabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
+                    ( tabulatedEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
                     std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
-                    ( manualTabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( spiceEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
+                    ( manualTabulatedEphemeris->getCartesianState( 1.0E7 + 110.0 ) ),
                     std::numeric_limits< double >::epsilon( ) );
     }
 
@@ -616,21 +616,21 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
     // Create rotation model manually.
     ephemerides::SimpleRotationalEphemeris manualApproximateEphemeris(
                 Eigen::Quaterniond( spiceInitialRotationToTargetFrameMatrix ),
-                venusRotationRate, 1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                venusRotationRate, 1.0E7,
                 "J2000", "IAU_VENUS" );
 
     // Verify equivalence of automatically set up and manual models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( Eigen::Matrix3d( manualApproximateEphemeris.getRotationToBaseFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 ( Eigen::Matrix3d( approximateEphemeris->getRotationToBaseFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( Eigen::Matrix3d( manualApproximateEphemeris.getRotationToTargetFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 ( Eigen::Matrix3d( approximateEphemeris->getRotationToTargetFrame(
-                                       4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
+                                       4.0E7) ) ),
                 std::numeric_limits< double >::epsilon( ) );
 
 }
@@ -654,8 +654,8 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
-    basic_mathematics::Vector6d initialKeplerElements =
-            ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    Eigen::Vector6d initialKeplerElements =
+            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
     bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
     bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
             boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
@@ -674,9 +674,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     double testTime = 0.5E7;
 
     // Update environment to current time.
-    bodyMap[ "Sun" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Earth" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
-    bodyMap[ "Vehicle" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
 
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
             bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
@@ -781,18 +781,18 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
                                     boost::lambda::constant( bankAngle ) );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
-    basic_mathematics::Vector6d vehicleBodyFixedState =
-            ( basic_mathematics::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+    Eigen::Vector6d vehicleBodyFixedState =
+            ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
               6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
     // Set states in environment.
     double testTime = 0.5E7;
-    basic_mathematics::Vector6d vehicleInertialState =
+    Eigen::Vector6d vehicleInertialState =
             ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
             bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
-    bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
+    bodyMap[ "Earth" ]->setState( Eigen::Vector6d::Zero( ) );
     bodyMap[ "Vehicle" ]->setState( vehicleInertialState );
     bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
 

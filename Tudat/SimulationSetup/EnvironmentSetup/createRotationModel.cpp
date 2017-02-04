@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -53,7 +53,6 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                         simpleRotationSettings->getInitialOrientation( ),
                         simpleRotationSettings->getRotationRate( ),
                         simpleRotationSettings->getInitialTime( ),
-                        basic_astrodynamics::JULIAN_DAY_ON_J2000,
                         simpleRotationSettings->getOriginalFrame( ),
                         simpleRotationSettings->getTargetFrame( ) );
         }

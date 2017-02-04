@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -525,7 +525,7 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
-            integrateEquations< MatrixType, TimeType >(
+            EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,
@@ -560,7 +560,7 @@ public:
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
 
-            integrateEquations< Eigen::MatrixXd, double >(
+            EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,

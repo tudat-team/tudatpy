@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -60,10 +60,10 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
 
     // Define bodies in simulation.
     unsigned int totalNumberOfBodies = 4;
@@ -295,17 +295,17 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1->interpolate( currentTime );
 
-        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
-        reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
+        reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianState( currentTime );
         reconstructedInertialSolution.segment( 12, 6 ) =
-                moonEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                moonEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
         reconstructedInertialSolution.segment( 18, 6 ) =
-                marsEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                marsEphemeris->getCartesianState( currentTime ) +
+                earthEphemeris->getCartesianState( currentTime ) +
+                sunEphemeris->getCartesianState( currentTime );
 
         // Compare states.
         stateDifference = reconstructedInertialSolution - currentInertialSolution;
@@ -344,12 +344,9 @@ template< typename TimeType, typename StateScalarType >
 void testCowellPropagationOfKeplerOrbit( )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Define bodies in simulation.
     std::vector< std::string > bodyNames;
@@ -376,7 +373,7 @@ void testCowellPropagationOfKeplerOrbit( )
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                basic_mathematics::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
+                Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -393,8 +390,8 @@ void testCowellPropagationOfKeplerOrbit( )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            boost::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, initialEphemerisTime, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
@@ -490,6 +487,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
     testCowellPropagationOfKeplerOrbit< double, long double >( );
+    testCowellPropagationOfKeplerOrbit< Time, double >( );
+    testCowellPropagationOfKeplerOrbit< Time, long double >( );
 
 }
 

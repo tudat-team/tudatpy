@@ -1,46 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110210    K. Kumar          File created.
- *      110215    E. Iorfida        Minor changes made.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
- *      120421    K. Kumar          Removed base class; updated to set values through constructor.
- *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
- *                                  specify which rootfinder and termination conditions to use.
- *      120822    P. Musegaas       Added functionality for near-parabolic cases. Added option for
- *                                  user to specifiy initial guess.
- *      120903    P. Musegaas       Added additional comments on the scope of the method and
- *                                  the 'conversion' of mean anomaly to 0 to 2*PI regime.
- *      121205    P. Musegaas       Updated code to final version of rootfinders.
- *      130116    E. Heeren         Minor changes to comments.
- *      130120    K. Kumar          Added shared-pointer typedef.
- *      130123    K. Kumar          Added note about near-parabolic cases.
- *      140110    E. Brandon        Fixed Doxygen comments.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Regarding method in general:

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -51,10 +51,14 @@ public:
      *  Constructor
      * \param interpolatorType Selected type of interpolator.
      * \param selectedLookupScheme Selected type of lookup scheme for independent variables.
+     * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double,
+     * time step is a double if false.
      */
     InterpolatorSettings( const OneDimensionalInterpolatorTypes interpolatorType,
-                          const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm ):
-        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ){ }
+                          const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                          const bool useLongDoubleTimeStep = 0 ):
+        interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
+        useLongDoubleTimeStep_( useLongDoubleTimeStep ){ }
 
     //! Virtual destructor
     virtual ~InterpolatorSettings( ){ }
@@ -79,6 +83,17 @@ public:
         return selectedLookupScheme_;
     }
 
+
+    //! Function to get a boolean denoting whether time step is to be a long double
+    /*!
+     * Function to get a boolean denoting whether time step is to be a long double
+     * \return Boolean denoting whether time step is to be a long double
+     */
+    bool getUseLongDoubleTimeStep( )
+    {
+        return useLongDoubleTimeStep_;
+    }
+
 protected:
 
     //! Selected type of interpolator.
@@ -86,6 +101,9 @@ protected:
 
     //! Selected type of lookup scheme for independent variables.
     AvailableLookupScheme selectedLookupScheme_;
+
+    //!  Boolean denoting whether time step is to be a long double.
+    bool useLongDoubleTimeStep_;
 
 };
 
@@ -108,8 +126,8 @@ public:
             const bool useLongDoubleTimeStep = 0,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling boundaryHandling = lagrange_cubic_spline_boundary_interpolation ):
-        InterpolatorSettings( lagrange_interpolator, selectedLookupScheme ),
-        interpolatorOrder_( interpolatorOrder ), useLongDoubleTimeStep_( useLongDoubleTimeStep ),
+        InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep ),
+        interpolatorOrder_( interpolatorOrder ),
         boundaryHandling_( boundaryHandling )
     { }
 
@@ -126,16 +144,6 @@ public:
         return interpolatorOrder_;
     }
 
-    //! Function to get a boolean denoting whether time step is to be a long double
-    /*!
-     * Function to get a boolean denoting whether time step is to be a long double
-     * \return Boolean denoting whether time step is to be a long double
-     */
-    bool getUseLongDoubleTimeStep( )
-    {
-        return useLongDoubleTimeStep_;
-    }
-
     LagrangeInterpolatorBoundaryHandling getBoundaryHandling( )
     {
         return boundaryHandling_;
@@ -146,9 +154,6 @@ protected:
 
     //! Order of the Lagrange interpolator that is to be created.
     int interpolatorOrder_;
-
-    //!  Boolean denoting whether time step is to be a long double.
-    bool useLongDoubleTimeStep_;
 
     LagrangeInterpolatorBoundaryHandling boundaryHandling_;
 
@@ -187,10 +192,21 @@ createOneDimensionalInterpolator(
                     dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
         break;
     case cubic_spline_interpolator:
-        createdInterpolator = boost::make_shared< CubicSplineInterpolator
-                < IndependentVariableType, DependentVariableType > >(
-                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+    {
+        if( !interpolatorSettings->getUseLongDoubleTimeStep( ) )
+        {
+            createdInterpolator = boost::make_shared< CubicSplineInterpolator
+                    < IndependentVariableType, DependentVariableType > >(
+                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+        }
+        else
+        {
+            createdInterpolator = boost::make_shared< CubicSplineInterpolator
+                    < IndependentVariableType, DependentVariableType, long double > >(
+                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+        }
         break;
+    }
     case lagrange_interpolator:
     {
         // Check consistency of input

@@ -1,37 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120717    D. Dirkx          File created.
- *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
- *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
- *      140124    D. Dirkx          Corrected doxygen documentation.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -45,7 +19,7 @@
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -63,6 +37,8 @@ class SpiceEphemeris : public Ephemeris
 {
 public:
 
+    using Ephemeris::getCartesianState;
+
     //! Constructor.
     /*!
      * Constructor, sets the input variables for the calls to the spice function to retrieve state.
@@ -76,24 +52,23 @@ public:
      *          iterations for calculating light time.
      * \param referenceFrameName Name of the reference frame in which the epehemeris is to be
      *          calculated.
+     * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
      */
     SpiceEphemeris( const std::string& targetBodyName, const std::string& observerBodyName,
                     const bool correctForStellarAbberation = true,
                     const bool correctForLightTimeAbberation = true,
                     const bool convergeLighTimeAbberation = false,
-                    const std::string& referenceFrameName = "ECLIPJ2000" );
+                    const std::string& referenceFrameName = "ECLIPJ2000",
+                    const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     //! Get Cartesian state from ephemeris.
     /*!
      * Returns Cartesian state from ephemeris at given Julian day.
-     * \param secondsSinceEpoch Seconds since reference epoch at which Cartesian state is to be
-     *          determined.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated..
      * \return State from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, 
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    Eigen::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
 private:
 
@@ -129,6 +104,9 @@ private:
      * ( see corresponding spice documentation ).
      */
     std::string abberationCorrections_;
+
+    //! Offset of reference julian day (from J2000) w.r.t. which ephemeris is evaluated.
+    double referenceDayOffSet_;
 };
 
 } // namespace ephemerides

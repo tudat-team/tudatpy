@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -80,7 +80,7 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
         if( centralBodiesToUse.at( i )  != "SSB" )
         {
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
-                    boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris
+                    boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
                                  < StateScalarType, TimeType >,
                                  bodyMap.at( centralBodiesToUse.at( i ) ), _1 );
         }

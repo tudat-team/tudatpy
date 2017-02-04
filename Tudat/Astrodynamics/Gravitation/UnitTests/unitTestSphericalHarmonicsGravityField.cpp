@@ -1,50 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      101215    K. Kumar          File created.
- *      101216    K. Kumar          Updated to include test of getPotential( ).
- *      101230    K. Kumar          Updated to include test of getGradient( ) and getLaplacian( ).
- *      110104    J. Melman         Some minor comment and layout changes.
- *      110106    K. Kumar          Updated test using predefined gravity field and added machine
- *                                  precision variable.
- *      110107    K. Kumar          Updated call to predefined gravity field. Updated unit test to
- *                                  new protocol, added namespace, new filename, new file location.
- *      110113    K. Kumar          Added cerr statements.
- *      110115    J. Melman         Changed the error messages.
- *      110128    K. Kumar          Updated code to work with pointers.
- *      110202    K. Kumar          Updated code to work with State.
- *      110204    K. Kumar          Removed "vector" from naming.
- *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
- *      120521    F. Belien         Boostified unit test.
- *      15XXXX    D. Dirkx          Changed some stuff.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 

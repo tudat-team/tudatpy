@@ -1,38 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110622    F.M. Engelen      File created.
- *      110822    D. Dirkx          Removed no longer necessary unit tests.
- *      110824    J. Leloux         Corrected doxygen documentation.
- *      120328    D. Dirkx          Boostified unit tests.
- *      120405    K. Kumar          Ensured no interference between unit tests by placing them in
- *                                  local scope.
- *      121020    D. Dirkx          Update to new acceleration model architecture.
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    Notes
  *      The unit tests here are based off of expected values that are internally computed. Ideally,
@@ -364,11 +337,9 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -384,7 +355,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
                 getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
         defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                    basic_mathematics::Vector6d::Zero( ) );
+                    Eigen::Vector6d::Zero( ) );
         NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
@@ -393,7 +364,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
@@ -487,7 +458,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         centralBodies.push_back( "Earth" );
 
         // Set initial state
-        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         systemInitialState( 0 ) = 6.8E6;
         systemInitialState( 4 ) = 7.5E3;
@@ -687,7 +658,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             {
                 // Check if imposed and indirectly obtained rotation matrices are equal.
                 Eigen::Matrix3d rotationToBodyFrameFromEphemeris = rotationalEphemeris->getRotationToTargetFrame(
-                            outputIterator->first, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
+                            outputIterator->first ).toRotationMatrix( );
                 matrixDifference = rotationToBodyFrameFromEphemeris - rotationToBodyFrame;
                 for( unsigned int j = 0; j < 3; j++ )
                 {

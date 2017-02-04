@@ -1,34 +1,11 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150411    D. Dirkx          Migrated and updated from personal code.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -60,6 +37,8 @@ class KeplerEphemeris : public Ephemeris
 {
 public:
 
+    using Ephemeris::getCartesianState;
+
     //! Class constructor.
     /*!
      *  Class constructor, sets the characteristics of the Kepler orbit and the root finder
@@ -73,13 +52,13 @@ public:
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier)
      *  (default ECLIPJ000
      *  \param rootFinderAbsoluteTolerance Convergence tolerance for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  convert mean to eccentric anomaly on each call to getCartesianState
      *  (default 200*epsilon).
      *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  convert mean to eccentric anomaly on each call to getCartesianState
      *  (default 1000).
      */
-    KeplerEphemeris( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+    KeplerEphemeris( const Eigen::Vector6d& initialStateInKeplerianElements,
                      const double epochOfInitialState,
                      const double centralBodyGravitationalParameter,
                      const std::string& referenceFrameOrigin = "SSB",
@@ -91,19 +70,16 @@ public:
     //! Function to get state from ephemeris.
     /*!
      *  Returns state from ephemeris at given time, assuming a purely Keplerian orbit
-     *  \param secondsSinceEpoch Seconds since epoch (should be w.r.t. same reference time
-     *  as epochOfInitialState), and does not represent the time since epochOfInitialState.
-     *  \param julianDayAtEpoch Reference epoch in Julian day (default JD on J2000).
+     *  \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Keplerian orbit Cartesian state at given time.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    Eigen::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
 private:
 
     //! Kepler elements at time epochOfInitialState.
-    basic_mathematics::Vector6d initialStateInKeplerianElements_;
+    Eigen::Vector6d initialStateInKeplerianElements_;
 
     //! Semi-latus rectum of orbit.
     double semiLatusRectum_;

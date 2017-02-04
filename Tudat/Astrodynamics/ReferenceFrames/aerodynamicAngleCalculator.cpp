@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -509,7 +509,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 {
     setAerodynamicDependentOrientationCalculatorClosure(
                 boost::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                             rotationalEphemeris, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+                             rotationalEphemeris, _1 ),
                 aerodynamicAngleCalculator );
 }
 

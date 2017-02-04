@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -45,30 +45,30 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
 
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisList;
 
-    basic_mathematics::Vector6d barycentricSunState = getBodyCartesianStateAtEpoch( "Sun", getBaseFrameName( ), "ECLIPJ2000", "NONE", 0.0 );
+    Eigen::Vector6d barycentricSunState = getBodyCartesianStateAtEpoch( "Sun", getBaseFrameName( ), "ECLIPJ2000", "NONE", 0.0 );
     ephemerisList[ "Sun" ] = boost::make_shared< ConstantEphemeris >( barycentricSunState, getBaseFrameName( ), "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d sunCentricEarthState = getBodyCartesianStateAtEpoch( "Earth", "Sun", "ECLIPJ2000", "NONE", 0.0 );
+    Eigen::Vector6d sunCentricEarthState = getBodyCartesianStateAtEpoch( "Earth", "Sun", "ECLIPJ2000", "NONE", 0.0 );
     ephemerisList[ "Earth" ] = boost::make_shared< ConstantEphemeris >( sunCentricEarthState, "Sun", "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d earthCentricMoonState = getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "NONE", 0.0 );
+    Eigen::Vector6d earthCentricMoonState = getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "NONE", 0.0 );
     ephemerisList[ "Moon" ] = boost::make_shared< ConstantEphemeris >( earthCentricMoonState, "Earth", "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d earthCentricLageosState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d earthCentricLageosState = Eigen::Vector6d::Zero( );
     earthCentricLageosState( 1 ) = 2.5E6;
     earthCentricLageosState( 2 ) = 4.0E6;
     ephemerisList[ "LAGEOS" ] = boost::make_shared< ConstantEphemeris >( earthCentricLageosState, "Earth", "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d moonCentricLroState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d moonCentricLroState = Eigen::Vector6d::Zero( );
     moonCentricLroState( 0 ) = 1.0E6;
     moonCentricLroState( 1 ) = 2.0E6;
 
     ephemerisList[ "LRO" ] = boost::make_shared< ConstantEphemeris >( moonCentricLroState, "Moon", "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d sunCentricMarsState = getBodyCartesianStateAtEpoch( "Mars", "Sun", "ECLIPJ2000", "NONE", 0.0 );
+    Eigen::Vector6d sunCentricMarsState = getBodyCartesianStateAtEpoch( "Mars", "Sun", "ECLIPJ2000", "NONE", 0.0 );
     ephemerisList[ "Mars" ] = boost::make_shared< ConstantEphemeris >( sunCentricMarsState, "Sun", "ECLIPJ2000" );
 
-    basic_mathematics::Vector6d marsCentricPhobosState = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d marsCentricPhobosState = Eigen::Vector6d::Zero( );
     marsCentricPhobosState( 0 ) = 2.3E5;
     marsCentricPhobosState( 1 ) = 2.9E4;
     marsCentricPhobosState( 2 ) = 600;
@@ -122,26 +122,26 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     BOOST_CHECK_EQUAL( commonFrame.first, "Earth" );
     BOOST_CHECK_EQUAL( commonFrame.second, 1 );
 
-    basic_mathematics::Vector6d testState = frameManager->getEphemeris< >( "Moon", "LAGEOS" )->getCartesianStateFromEphemeris( 0.0 );
-    basic_mathematics::Vector6d expectedState = earthCentricLageosState - earthCentricMoonState;
+    Eigen::Vector6d testState = frameManager->getEphemeris< >( "Moon", "LAGEOS" )->getCartesianState( 0.0 );
+    Eigen::Vector6d expectedState = earthCentricLageosState - earthCentricMoonState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Phobos", "Sun" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Phobos", "Sun" )->getCartesianState( 0.0 );
     expectedState = sunCentricMarsState + marsCentricPhobosState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, ( -1.0 * expectedState ), std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Sun", "Phobos" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Sun", "Phobos" )->getCartesianState( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Sun", "Earth" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Sun", "Earth" )->getCartesianState( 0.0 );
     expectedState = sunCentricEarthState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( getBaseFrameName( ), "Earth" )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( getBaseFrameName( ), "Earth" )->getCartesianState( 0.0 );
     expectedState = barycentricSunState + sunCentricEarthState;
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, expectedState, std::numeric_limits< double >::epsilon( ) );
 
-    testState = frameManager->getEphemeris( "Earth", getBaseFrameName( ) )->getCartesianStateFromEphemeris( 0.0 );
+    testState = frameManager->getEphemeris( "Earth", getBaseFrameName( ) )->getCartesianState( 0.0 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testState, ( -1.0 * expectedState ), std::numeric_limits< double >::epsilon( ) );
 
 }
