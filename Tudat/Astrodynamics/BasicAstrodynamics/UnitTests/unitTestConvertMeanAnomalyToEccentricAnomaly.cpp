@@ -1,48 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      111215    T. Secretin       First creation of the code.
- *      111221    T. Secretin       Removed memory leaks. Added test for circular and
- *                                  near-parabolic orbits, as well as for negative eccentricities.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
- *      120421    K. Kumar          Updated test fixtures and cases to use updated conversion
- *                                  object.
- *      120813    P. Musegaas       Updated unit test to new root finding structure.
- *      120822    P. Musegaas       Added near-parabolic functionality, with accompanying unit
- *                                  tests. Added two big random unit tests, to test behaviour that
- *                                  tends to be chaotic for some values with different implemen-
- *                                  tations of the function. Added error file writing function.
- *                                  Added small test for specifying other initial guess. Updated
- *                                  tests for invalid input.
- *      120903    P. Musegaas       Improved random test (does not fail on mean anomaly of 0.0).
- *                                  Decreased number of random values for random tests.
- *      121205    P. Musegaas       Updated code to final version of rootfinders.
- *      130123    K. Kumar          Updated test tolerance for near-parabolic cases in Test 5 to
- *                                  deal with conversion failure on some systems.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      GTOP, http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar

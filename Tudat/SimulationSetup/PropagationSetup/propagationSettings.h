@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -42,7 +42,7 @@ namespace propagators
  *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
  *  own derived class (which may have multiple derived classes of its own).
  */
-template< typename StateScalarType >
+template< typename StateScalarType = double >
 class PropagatorSettings
 {
 public:

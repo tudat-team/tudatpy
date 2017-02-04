@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -418,12 +418,12 @@ public:
      *  ephemerides (default true).
      */
     SingleArcDynamicsSimulator(
-            const  simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
-            const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ):
+            const bool clearNumericalSolutions = false,
+            const bool setIntegratedResult = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, integratorSettings, propagatorSettings, clearNumericalSolutions, setIntegratedResult )
     {

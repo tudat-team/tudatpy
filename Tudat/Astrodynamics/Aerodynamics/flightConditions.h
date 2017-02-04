@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -21,7 +21,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -264,7 +264,7 @@ public:
      *  Function to return central body-fixed state of vehicle.
      *  \return Current central body-fixed state of vehicle.
      */
-    basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
+    Eigen::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
         return currentBodyCenteredPseudoBodyFixedState_;
     }
@@ -505,7 +505,7 @@ private:
     const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
-    boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
+    boost::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
 
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
@@ -517,10 +517,10 @@ private:
     boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
 
     //! Current state of vehicle in base frame for Body objects.
-    basic_mathematics::Vector6d currentBodyCenteredState_;
+    Eigen::Vector6d currentBodyCenteredState_;
 
     //! Current state of vehicle in body-fixed frame.
-    basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
+    Eigen::Vector6d currentBodyCenteredPseudoBodyFixedState_;
 
     //! List of atmospheric/flight properties computed at current time step.
     std::map< FlightConditionVariables, double > scalarFlightConditions_;

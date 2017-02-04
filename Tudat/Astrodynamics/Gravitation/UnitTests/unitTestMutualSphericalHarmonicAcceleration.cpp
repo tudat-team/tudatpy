@@ -1,3 +1,12 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -138,13 +147,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     bodySettings[ "Europa" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Europa" );
 
     bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( )<< 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( )<< 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( )<< 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( )<< 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Europa" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( )<< 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( )<< 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
 
 

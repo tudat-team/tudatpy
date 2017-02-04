@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,7 +15,7 @@
 #endif
 
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
-
+#include "Tudat/Astrodynamics/Gravitation/triAxialEllipsoidGravity.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
 
 namespace tudat
@@ -258,6 +258,28 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     }
 
     return gravityFieldModel;
+}
+
+//! Function to create gravity field settings for a homogeneous triaxial ellipsoid
+boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame  )
+{
+    // Compute reference quantities
+    double ellipsoidGravitationalParameter = gravitation::calculateTriAxialEllipsoidVolume(
+                axisA, axisB, axisC ) * ellipsoidDensity * physical_constants::GRAVITATIONAL_CONSTANT;
+    double ellipsoidReferenceRadius = gravitation::calculateTriAxialEllipsoidVolume(
+                axisA, axisB, axisC );
+
+    // Compute coefficients
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients =
+            gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
+            axisA, axisB, axisC, maximumDegree, maximumOrder );
+
+    return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,
+                coefficients.second, associatedReferenceFrame );
 }
 
 } // namespace simulation_setup

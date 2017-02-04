@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,7 +23,7 @@
 #include <map>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 
@@ -150,11 +150,11 @@ public:
      *  \param deformingBodies List of names of bodies causing deformation
      */
     BasicSolidBodyTideGravityFieldVariations(
-            const boost::function< basic_mathematics::Vector6d( const double ) >
+            const boost::function< Eigen::Vector6d( const double ) >
             deformedBodyStateFunction,
             const boost::function< Eigen::Quaterniond( const double ) >
             deformedBodyOrientationFunction,
-            const std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+            const std::vector< boost::function< Eigen::Vector6d( const double ) > >
             deformingBodyStateFunctions,
             const double deformedBodyReferenceRadius,
             const boost::function< double( ) > deformedBodyMass,
@@ -237,7 +237,7 @@ public:
      *  Function to reset the love numbers at given degree. Input requires a vector containing
      *  (complex) love numbers at all orders in current degree.
      *  \param degree Degree from which love numbers are to be retrieved.
-     *  \param loveNumbers of love numbers (i^{th} entry representing i^{th} order in requested degree)
+     *  \param loveNumbers Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
      *  containing new love numbers at current degree.
      */
     void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
@@ -312,7 +312,7 @@ public:
      *  Function to return the state function of the deformed body.
      *  \return State function of the deformed body.
      */
-    boost::function< basic_mathematics::Vector6d( const double ) > getDeformedBodyStateFunction( )
+    boost::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( )
     {
         return deformedBodyStateFunction_;
     }
@@ -334,7 +334,7 @@ public:
      *  Function to return list of the state functions of the bodies causing the deformation.
      *  \return List of the state functions of the bodies causing the deformation.
      */
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+    std::vector< boost::function< Eigen::Vector6d( const double ) > >
     getDeformingBodyStateFunctions( )
     {
         return deformingBodyStateFunctions_;
@@ -441,7 +441,7 @@ protected:
     /*!
      *  Function returning state of body being deformed.
      */
-    boost::function< basic_mathematics::Vector6d( const double ) > deformedBodyStateFunction_;
+    boost::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction_;
 
     //! Function providing rotation from inertial to body being deformed-fixed frame
     /*!
@@ -453,7 +453,7 @@ protected:
     /*!
      *  List of state functions of body causing deformations.
      */
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+    std::vector< boost::function< Eigen::Vector6d( const double ) > >
     deformingBodyStateFunctions_;
 
     //! Reference radius (typically equatorial) of body being deformed's spherical harmonic

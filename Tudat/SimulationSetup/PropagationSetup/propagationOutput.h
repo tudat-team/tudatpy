@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,6 +14,7 @@
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
@@ -79,15 +80,34 @@ OutputType evaluateBivariateFunction(
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings );
 
+//! Get the vector representation of a rotation matrix.
+/*!
+ *  Get the vector representation of a rotation matrix.
+ *  \param currentRotationMatrix Rotation matrix that is to be put into vector rerpesentation
+ *  \return Column vector consisting of transpose of concatenated rows of currentRotationMatrix input.
+ */
+Eigen::VectorXd getVectorRepresentationForRotationMatrix(
+        const Eigen::Matrix3d& currentRotationMatrix );
+
+//! Get the vector representation of a rotation matrix.
+/*!
+ *  Get the vector representation of a rotation matrix.
+ *  \param rotationFunction Function returning the rotation matrix that is to be put into vector rerpesentation
+ *  \return Column vector consisting of transpose of concatenated rows of rotationFunction input.
+ */
+Eigen::VectorXd getVectorRepresentationForRotationMatrixFunction(
+        const boost::function< Eigen::Matrix3d( ) > rotationFunction );
+
 //! Get the vector representation of a quaternion.
 /*!
  *  Get the vector representation of a quaternion. Quaternion is converted to a rotation matrix, which is then put into
  *  a vector representation.
  *  \param rotationFunction Function returning the quaternion that is to be put inot vector rerpesentation
- *  \return Column vector consisting of transpose of concatenated rows of matrix representation of rotationFunction output.
+ *  \return Column vector consisting of transpose of concatenated rows of matrix representation of rotationFunction input.
  */
-Eigen::VectorXd getVectorRepresentationForRotation(
+Eigen::VectorXd getVectorRepresentationForRotationQuaternion(
         const boost::function< Eigen::Quaterniond( ) > rotationFunction );
+
 
 //! Get the 3x3 matrix representation from a vector with 9 entries
 /*!
@@ -594,7 +614,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         boost::function< Eigen::Quaterniond( ) > rotationFunction =
                 boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
-        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        variableFunction = boost::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
         parameterSize = 9;
         break;
     }
@@ -623,7 +643,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                              intermediateAerodynamicRotationVariableSaveSettings->baseFrame_,
                              intermediateAerodynamicRotationVariableSaveSettings->targetFrame_ );
 
-        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        variableFunction = boost::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
         parameterSize = 9;
         break;
     }
@@ -638,6 +658,32 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
         parameterSize = 3;
+        break;
+    }
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+    {
+        boost::function< Eigen::Vector6d( ) > vehicleStateFunction =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( dependentVariableSettings->associatedBody_ ) );
+        boost::function< Eigen::Vector6d( ) > centralBodyStateFunction;
+
+        if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
+        {
+            centralBodyStateFunction =  boost::lambda::constant( Eigen::Vector6d::Zero( ) );
+        }
+        else
+        {
+            centralBodyStateFunction =
+                    boost::bind( &simulation_setup::Body::getState, bodyMap.at( dependentVariableSettings->secondaryBody_ ) );
+        }
+
+        boost::function< Eigen::Matrix3d( ) > rotationFunction =
+                boost::bind( &reference_frames::getVelocityBasedLvlhToInertialRotationFromFunctions,
+                             vehicleStateFunction, centralBodyStateFunction, true );
+        variableFunction = boost::bind(
+                    &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
+
+        parameterSize = 9;
+
         break;
     }
     default:
@@ -691,9 +737,10 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
     // create list of double and vector parameters
     std::vector< boost::function< double( ) > > doubleFunctionList;
     std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
-    int totalVariableSize = 0;
 
-    std::map< int, std::string > dependentVariableId;
+    std::vector< std::string > doubleVariableList;
+    std::vector< std::pair< std::string, int > > vectorVariableList;
+
     for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
     {
         // Create double parameter
@@ -702,9 +749,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
             doubleFunctionList.push_back( getDoubleDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
-            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
-                        dependentVariables.at( i ) );
-            totalVariableSize++;
+            doubleVariableList.push_back( getDependentVariableId(
+                        dependentVariables.at( i ) ) );
         }
         // Create vector parameter
         else
@@ -712,10 +758,24 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
             vectorFunctionList.push_back( getVectorDependentVariableFunction(
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
-            dependentVariableId[ totalVariableSize ] = getDependentVariableId(
-                        dependentVariables.at( i ) );
-            totalVariableSize += vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second;
+            vectorVariableList.push_back( std::make_pair( getDependentVariableId(
+                        dependentVariables.at( i ) ), vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second ) );
         }
+    }
+
+    // Set list of variable ids/indices in correc otder.
+    int totalVariableSize = 0;
+    std::map< int, std::string > dependentVariableId;
+    for( unsigned int i = 0; i < doubleVariableList.size( ); i++ )
+    {
+        dependentVariableId[ totalVariableSize ] = doubleVariableList.at( i );
+        totalVariableSize++;
+    }
+
+    for( unsigned int i = 0; i < vectorFunctionList.size( ); i++ )
+    {
+        dependentVariableId[ totalVariableSize ] = vectorVariableList.at( i ).first;
+        totalVariableSize += vectorVariableList.at( i ).second;
     }
 
     // Create function conatenating function results.

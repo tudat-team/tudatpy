@@ -1,37 +1,13 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
-   *   All rights reserved.
-   *
-   *   Redistribution and use in source and binary forms, with or without modification, are
-   *   permitted provided that the following conditions are met:
-   *     - Redistributions of source code must retain the above copyright notice, this list of
-   *       conditions and the following disclaimer.
-   *     - Redistributions in binary form must reproduce the above copyright notice, this list of
-   *       conditions and the following disclaimer in the documentation and/or other materials
-   *       provided with the distribution.
-   *     - Neither the name of the Delft University of Technology nor the names of its contributors
-   *       may be used to endorse or promote products derived from this software without specific
-   *       prior written permission.
-   *
-   *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-   *   OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-   *   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-   *   COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   *   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-   *   GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-   *   AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   *   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-   *   OF THE POSSIBILITY OF SUCH DAMAGE.
-   *
-   *   Changelog
-   *     YYMMDD    Author            Comment
-   *     130219    D. Dirkx          Migrated from personal code.
-   *     130227    R.C.A. Boon       Changed include guard, improved commenting.
-   *
-   *   References
-   *
-   *   Notes
-   *
-   */
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 
 #ifndef TUDAT_ROTATIONAL_EPHEMERIS_H
 #define TUDAT_ROTATIONAL_EPHEMERIS_H
@@ -45,7 +21,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -336,6 +312,14 @@ protected:
 
 };
 
+//! Function to transform a state from the target to base frame of a rotational ephemeris
+/*!
+ *  Function to transform a state from the target (body-fixed) to base (inertial) frame of a rotational ephemeris
+ *  \param stateInLocalFrame State in body-fixed frame (target frame of rotational ephemeris)
+ *  \param currentTime Time at which rotational ephemeris is to be evaluated
+ *  \param rotationalEphemeris Rotational ephemeris object to compute the rotation.
+ *  \return stateInLocalFrame State in inertial frame (base frame of rotational ephemeris)
+ */
 template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
@@ -345,6 +329,26 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrame( currentTime ),
                 rotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
+
+}
+
+//! Function to transform a state from the base to target frame of a rotational ephemeris
+/*!
+ *  Function to transform a state from the base (inertial) to target (body-fixed) frame of a rotational ephemeris
+ *  \param stateInGlobalFrame State in inertial frame (base frame of rotational ephemeris)
+ *  \param currentTime Time at which rotational ephemeris is to be evaluated
+ *  \param rotationalEphemeris Rotational ephemeris object to compute the rotation.
+ *  \return State in body-fixed frame (target frame of rotational ephemeris)
+ */
+template< typename StateScalarType, typename TimeType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToTargetFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInGlobalFrame,
+        const TimeType currentTime,
+        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInGlobalFrame, rotationalEphemeris->getRotationToTargetFrame( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime ) );
 
 }
 

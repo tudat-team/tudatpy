@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -34,11 +34,11 @@ BOOST_AUTO_TEST_SUITE( test_shapiro_delay )
 
 BOOST_AUTO_TEST_CASE( testShapiroDelay )
 {
-    basic_mathematics::Vector6d groundStationState;
+    Eigen::Vector6d groundStationState;
     groundStationState << 0.0, 0.0, 6378.0, 0.0, 0.0, 0.0;
-    basic_mathematics::Vector6d satelliteState;
+    Eigen::Vector6d satelliteState;
     satelliteState  <<  0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
-    basic_mathematics::Vector6d centralBodyPosition = basic_mathematics::Vector6d::Zero( );
+    Eigen::Vector6d centralBodyPosition = Eigen::Vector6d::Zero( );
 
     boost::shared_ptr< ConstantEphemeris > ephemeris = boost::make_shared< ConstantEphemeris >(
                 boost::lambda::constant( centralBodyPosition ) );
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
                 earthGravitationalParameter, groundStationState.segment( 0, 3 ),
                 satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
 
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions;
+    std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
     std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
     perturbingBodyStateFunctions.push_back( boost::bind( &Ephemeris::getCartesianState, ephemeris, _1 ) );

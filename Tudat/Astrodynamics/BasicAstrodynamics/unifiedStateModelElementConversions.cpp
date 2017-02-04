@@ -1,38 +1,16 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      160406    M. Van den Broeck Creation
- *      <YYMMDD>  <author name>     <comment>
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Vittaldev, V. (2010). The Unified State Model: Derivation and application in astrodynamics
  *          and navigation. Master's thesis, Delft University of Technology.
  *      <Second reference>
- *
- *    Notes
  *
  */
 
@@ -56,7 +34,7 @@ namespace orbital_element_conversions
 
 //! Convert Keplerian elements to Unified State Model elements.
 Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
-        const basic_mathematics::Vector6d& keplerianElements,
+        const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -245,19 +223,18 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
 }
 
 //! Convert Unified State Model elements to Keplerian elements.
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    basic_mathematics::Vector6d convertedKeplerianElements = basic_mathematics::
-            Vector6d::Zero( 6 );
+    Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat Core.
+                                           // orbitalElementConversions.cpp in Tudat.
 
     // Declare auxiliary parameters before using them in the if loop
     double cosineLambda = 0.0;

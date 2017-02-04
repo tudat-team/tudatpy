@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,7 +11,7 @@
 #ifndef TUDAT_TEST_LIGHT_TIME_CORRECTIONS_H
 #define TUDAT_TEST_LIGHT_TIME_CORRECTIONS_H
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -30,8 +30,8 @@ namespace unit_tests
  *  \return Light-time correction value using made-up relation.
  */
 double getTimeDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {
@@ -50,8 +50,8 @@ double getTimeDifferenceLightTimeCorrection(
  *  \return Light-time correction value using made-up relation.
  */
 double getVelocityDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {
@@ -70,8 +70,8 @@ double getVelocityDifferenceLightTimeCorrection(
  *  \return Light-time correction value using made-up relation.
  */
 double getPositionDifferenceLightTimeCorrection(
-        const basic_mathematics::Vector6d transmitterState,
-        const basic_mathematics::Vector6d receiverState,
+        const Eigen::Vector6d transmitterState,
+        const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime )
 {

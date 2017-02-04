@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -44,9 +44,9 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
 
 //! Function to compute the relative state from two state functions.
 void getRelativeState(
-        basic_mathematics::Vector6d& relativeState,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
+        Eigen::Vector6d& relativeState,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody )
 {
     relativeState = stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
 }

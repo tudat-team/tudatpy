@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,7 +19,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include <Tudat/Astrodynamics/Aerodynamics/aerodynamics.h>
 
 namespace tudat
@@ -215,7 +215,7 @@ public:
      *  independent variable of the aerodynamic coefficients.
      */
     CustomControlSurfaceIncrementAerodynamicInterface(
-            const boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) > coefficientFunction,
+            const boost::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ),
         coefficientFunction_( coefficientFunction ){ }
@@ -253,7 +253,7 @@ public:
         }
 
         // Update current coefficients.
-        basic_mathematics::Vector6d currentCoefficients = coefficientFunction_(
+        Eigen::Vector6d currentCoefficients = coefficientFunction_(
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
@@ -263,7 +263,7 @@ protected:
 
     //! Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of
     //! independent variables.
-    boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) > coefficientFunction_;
+    boost::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
 };
 
 }
