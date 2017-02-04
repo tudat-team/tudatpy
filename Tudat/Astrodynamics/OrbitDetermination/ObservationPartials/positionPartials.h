@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_POSITIONPARTIALS_H
 #define TUDAT_POSITIONPARTIALS_H
 
@@ -8,7 +18,7 @@
 
 #include <boost/function.hpp>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
@@ -65,7 +75,7 @@ public:
      *  \return Partial of point position wrt parameter (with specific parameter determined by derived class implementation).
      */
     virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const basic_mathematics::Vector6d& state, const double time ) = 0;
+            const Eigen::Vector6d& state, const double time ) = 0;
 };
 
 //! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to inertial three-dimensional
@@ -88,7 +98,7 @@ public:
      *  \return Partial of point position wrt position
      */
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const basic_mathematics::Vector6d& state,
+            const Eigen::Vector6d& state,
             const double time )
     {
         return calculatePartialOfPointPositionWrtBodyPosition( );
@@ -125,7 +135,7 @@ public:
      *  \return Partial of point position wrt rotation propert.
      */
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const basic_mathematics::Vector6d& state,
+            const Eigen::Vector6d& state,
             const double time )
     {
         return rotationMatrixPartialObject_->calculatePartialOfRotatedVector( time, positionFunctionInLocalFrame_( time ) );
@@ -163,7 +173,7 @@ public:
      *  \return Partial of point position wrt body-fixed point position
      */
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const basic_mathematics::Vector6d& state,
+            const Eigen::Vector6d& state,
             const double time )
     {
         return calculatePartialOfPointPositionWrtBodyFixedPointPosition(
@@ -197,7 +207,7 @@ public:
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
      */
-    void update( const std::vector< basic_mathematics::Vector6d >& linkEndStates,
+    void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd ){ }
 
@@ -255,7 +265,7 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual PositionObservationPartialReturnType calculatePartial(
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime )
     {
@@ -304,7 +314,7 @@ protected:
 
 
     //! Pre-declared state variable to be used in calculatePartial function.
-    basic_mathematics::Vector6d currentState_;
+    Eigen::Vector6d currentState_;
 
     //! Pre-declared time variable to be used in calculatePartial function.
     double currentTime_;
