@@ -663,16 +663,15 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     vehicleFlightConditions->getCurrentAltitude( ), 0.0, 0.0, 0.0 );
         double machNumber = velocity / speedOfSound;
 
-        // Get manual and automatic coefficients anf coompare.
+        // Get manual and automatic coefficients and compare.
         Eigen::Vector3d automaticCoefficients = coefficientInterface->getCurrentForceCoefficients( );
-        coefficientInterface->updateCurrentCoefficients(
+        coefficientInterface->updateFullCurrentCoefficients(
                     boost::assign::list_of( machNumber )( angleOfAttack )( angleOfSideslip  ) );
         Eigen::Vector3d manualCoefficients = coefficientInterface->getCurrentForceCoefficients( );
 
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     automaticCoefficients, manualCoefficients, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
-
     }
 }
 

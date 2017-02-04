@@ -20,8 +20,6 @@
 #ifndef TUDAT_BISECTION_H
 #define TUDAT_BISECTION_H
 
-#include <assert.h>
-
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/format.hpp>
@@ -207,8 +205,6 @@ public:
         }
         while( !this->terminationFunction( rootValue, previousRootValue, rootFunctionValue,
                                            previousRootFunctionValue, counter ) );
-
-        //std::cout<<"Ecc B: "<<rootValue<<" "<<this->rootFunction->evaluate( rootValue )<<std::endl;
 
         return rootValue;
 

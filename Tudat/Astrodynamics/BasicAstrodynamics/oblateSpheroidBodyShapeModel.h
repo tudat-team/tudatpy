@@ -84,6 +84,23 @@ public:
                     bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
     }
 
+    //! Calculates the geodetic latitude w.r.t. the oblate spheroid.
+    /*!
+     *  Function to calculate the geodetic latitude w.r.t. the oblate spheroid.
+     *  \sa convertCartesianToGeodeticCoordinates
+     *  \param bodyFixedPosition Cartesian, body-fixed position of the point at which the geodetic
+     *  latitude is to be determined.
+     *  \param tolerance Convergence criterion for iterative algorithm that is employed. Represents
+     *  the required change of position (in m) between two iterations.
+     *  \return Geodetic latitude at requested point.
+     */
+    double getGeodeticLatitude( const Eigen::Vector3d& bodyFixedPosition,
+                                        const double tolerance = 1.0E-4 )
+    {
+        return coordinate_conversions::calculateGeodeticLatitude(
+                    bodyFixedPosition, equatorialRadius_, flattening_, tolerance );
+    }
+
     //! Function to return the mean radius of the oblate spheroid.
     /*!
      *  Function to return the mean radius of the oblate spheroid.

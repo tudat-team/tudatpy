@@ -444,7 +444,7 @@ public:
         {
             // Create simulation object for dynamics only.
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution );
+                        bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
 
             // Create state derivative partials

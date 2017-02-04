@@ -17,6 +17,7 @@
 #include <map>
 
 #include <boost/function.hpp>
+#include <boost/multi_array.hpp>
 
 #include <Eigen/Core>
 
@@ -133,7 +134,72 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     }
 }
 
-  //! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
+//! Function to copy a multi-array into another multi-array
+/*!
+ *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
+ *  \param arrayToCopy Multi-array that is to be copied
+ *  \param targetArray New multi-array into which arrayToCopy is to be copied (returned by reference).
+ */
+template< typename S, int NumberOfDimensions >
+void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToCopy,
+                     boost::multi_array< S, NumberOfDimensions >& targetArray )
+{
+    std::vector< size_t > ex;
+    const size_t* shape = arrayToCopy.shape( );
+    ex.assign( shape, shape + arrayToCopy.num_dimensions( ) );
+    targetArray.resize( ex );
+    targetArray = arrayToCopy;
+}
+
+//! Get index in nth direction of pointer to single entry in multi-array of doubles
+/*!
+ *  Get index in nth direction of pointer to single entry in multi-array of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \param direction Dimension of multi-array for which index is to be retrieved
+ *  \return Index in nth direction of pointer to single entry in multi-array of doubles
+ */
+template< unsigned int NumberOfDimensions >
+typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
+        const typename boost::multi_array< double, NumberOfDimensions >& multiArray, const double* requestedElement,
+        const unsigned short int direction )
+{
+    int offset = requestedElement - multiArray.origin( );
+    return( offset / multiArray.strides( )[ direction] % multiArray.shape( )[ direction ] +
+            multiArray.index_bases( )[direction] );
+}
+
+//! Get indices of pointer to single entry in multi-array (size 1) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 1) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
+boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 1 >& m, const double* requestedElement );
+
+//! Get indices of pointer to single entry in multi-array (size 2) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 2) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
+boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 2 >& m, const double* requestedElement );
+
+//! Get indices of pointer to single entry in multi-array (size 3) of doubles
+/*!
+ *  Get indices of pointer to single entry in multi-array (size 3) of doubles
+ *  \param multiArray Multi-array for which the index is to be retrieved
+ *  \param requestedElement Pointer to element for which index is to be retrieved
+ *  \return Indices of pointer to single entry in multi-array of doubles
+ */
+boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
+        const boost::multi_array< double, 3 >& m, const double* requestedElement );
+
+//! Function to cast a map of Eigen matrices from one key/matrix scalar type set to another set
 /*!
  *  Function to produce a map of Eigen matrices, cast from one set of key/matrix scalar type set to another set.
  *  \param originalMap Map in original types

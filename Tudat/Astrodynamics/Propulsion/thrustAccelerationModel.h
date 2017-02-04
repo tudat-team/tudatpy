@@ -27,6 +27,23 @@ namespace tudat
 namespace propulsion
 {
 
+//! Function used as interface to merge two update functions
+/*!
+ * Function used as interface to merge two update functions. Calling this function will update the two update functions
+ * (in order)
+ * \param updateFunction1 First update function.
+ * \param updateFunction2 Second update function.
+ * \param time Time to which both functions are to be updated
+ */
+inline void mergeUpdateFunctions(
+        const boost::function< void( const double ) > updateFunction1,
+        const boost::function< void( const double ) > updateFunction2,
+        const double time )
+{
+    updateFunction1( time );
+    updateFunction2( time );
+}
+
 //! Class used for computing an acceleration due to a continuous thrust.
 /*!
  *  Class used for computing an acceleration due to a continuous thrust. The thrust magnitude and direction (in the
@@ -169,6 +186,23 @@ public:
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > getRequiredModelUpdates( )
     {
         return requiredModelUpdates_;
+    }
+
+    //! Function to set or add a thrust update function
+    /*!
+     * Function to set or add a thrust update function
+     * \param thrustUpdateFunction Update function that is to be added to class
+     */
+    void setThrustUpdateFunction( const boost::function< void( const double ) > thrustUpdateFunction )
+    {
+        if( thrustUpdateFunction_.empty( ) )
+        {
+            thrustUpdateFunction_ = thrustUpdateFunction;
+        }
+        else
+        {
+            thrustUpdateFunction_ = boost::bind( &mergeUpdateFunctions, thrustUpdateFunction, thrustUpdateFunction_, _1 );
+        }
     }
 
 

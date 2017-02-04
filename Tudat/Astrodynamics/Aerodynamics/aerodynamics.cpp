@@ -19,6 +19,10 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Astrodynamics/Aerodynamics/equilibriumWallTemperature.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 namespace tudat
 {
@@ -489,9 +493,81 @@ double computeMachNumber( const double speed, const double speedOfSound )
 //! Function to compute the mean free path of a particle.
 double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
 {
-    return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
+    return 1.0 / ( std::sqrt( 2.0 ) * mathematical_constants::PI * weightedAverageCollisionDiameter *
                    weightedAverageCollisionDiameter * averageNumberDensity );
 }
+
+//! Compute the aerodynamic load experienced by a vehicle.
+double computeAerodynamicLoad( const double airDensity,
+                               const double airSpeed,
+                               const double referenceArea,
+                               const double vehicleMass,
+                               const Eigen::Vector3d& aerodynamicForceCoefficients )
+{
+    return computeAerodynamicLoadFromAcceleration(
+                0.5 * airDensity * airSpeed * airSpeed * referenceArea * aerodynamicForceCoefficients / vehicleMass );
+}
+
+
+//! Function to compute the aerodynamic load experienced by a vehicle.
+double computeAerodynamicLoadFromAcceleration( const Eigen::Vector3d& aerodynamicAccelerationVector )
+{
+    return aerodynamicAccelerationVector.norm( ) / physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;
+}
+
+//! Funtion to compute the equilibrium heat flux experienced by a vehicle
+double computeEquilibriumHeatflux( const boost::function< double( const double ) > heatTransferFunction,
+                                   const double wallEmmisivity,
+                                   const double adiabaticWallTemperature )
+{
+    return heatTransferFunction( computeEquilibiumWallTemperature(
+                                     heatTransferFunction, wallEmmisivity, adiabaticWallTemperature ) );
+}
+
+//! Function to compute the heat flux experienced by a vehicle, assuming an equlibrium wall temperature.
+double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
+                                             const double airSpeed,
+                                             const double airTemperature,
+                                             const double machNumber,
+                                             const double noseRadius,
+                                             const double wallEmissivity )
+
+{
+
+    // Compute adiabatic wall temperature.
+    double adiabaticWallTemperature
+            = computeAdiabaticWallTemperature( airTemperature , machNumber );
+
+    boost::function< double( const double ) > heatTransferFunction = boost::bind(
+                &computeFayRiddellHeatFlux, airDensity, airSpeed, airTemperature, noseRadius, _1 );
+
+    return computeEquilibriumHeatflux( heatTransferFunction, wallEmissivity, adiabaticWallTemperature );
+}
+
+//! Function to compute the heat flux experienced by a vehicle.
+double computeFayRiddellHeatFlux( const double airDensity,
+                                  const double airSpeed,
+                                  const double airTemperature,
+                                  const double noseRadius,
+                                  const double wallTemperature )
+{
+
+    // Compute the current heat flux.
+    return FAY_RIDDEL_HEAT_FLUX_CONSTANT * sqrt( airDensity * std::pow( airSpeed , 2.0 ) / noseRadius )
+            * ( 0.5 * std::pow( airSpeed , 2.0 ) + 1004.0 * ( airTemperature - wallTemperature ) );
+}
+
+//! Compute the adiabatic wall temperature experienced by a vehicle.
+double computeAdiabaticWallTemperature(
+        const double airTemperature, const double machNumber, const double ratioSpecificHeats,
+        const double recoveryFactor )
+{
+    double totalTemperature
+            = airTemperature * ( 1 + 0.5 * ( ratioSpecificHeats - 1 ) * machNumber * machNumber );
+
+    return airTemperature + recoveryFactor * ( totalTemperature - airTemperature );
+}
+
 
 } // namespace aerodynamics
 } // namespace tudat

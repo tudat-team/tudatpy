@@ -93,6 +93,12 @@ public:
         dependentValues_ = dependentVariables;
         numberOfIndependentValues_ = static_cast< int >( independentValues_.size( ) );
 
+        // Check if data is in ascending order
+        if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
+        {
+            throw std::runtime_error( "Error when making lagrange interpolator, input vector with independent variables should be in ascending order" );
+        }
+
         // Verify that the initialization variables are not empty.
         if ( numberOfIndependentValues_ == 0 || dependentValues_.size( ) == 0 )
         {

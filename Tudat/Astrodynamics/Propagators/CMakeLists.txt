@@ -53,7 +53,6 @@ add_executable(test_EnckeStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/
 setup_custom_test_program(test_EnckeStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_EnckeStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-
 add_executable(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestSequentialVariationalEquationIntegration.cpp")
 setup_custom_test_program(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_SequentialVariationEquationIntegration ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -66,16 +65,13 @@ add_executable(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}/UnitTes
 setup_custom_test_program(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_EnvironmentModelUpdater ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-
 add_executable(test_BodyMassPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestBodyMassPropagation.cpp")
 setup_custom_test_program(test_BodyMassPropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_BodyMassPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-
 add_executable(test_MultiTypeStatePropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestMultiTypeStatePropagation.cpp")
 setup_custom_test_program(test_MultiTypeStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiTypeStatePropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-
 
 add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
 setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")

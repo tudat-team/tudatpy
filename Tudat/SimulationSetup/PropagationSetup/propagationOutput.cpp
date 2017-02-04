@@ -17,12 +17,10 @@ namespace tudat
 namespace propagators
 {
 
-//! Get the vector representation of a quaternion.
-Eigen::VectorXd getVectorRepresentationForRotation(
-        const boost::function< Eigen::Quaterniond( ) > rotationFunction )
+//! Get the vector representation of a rotation matrix.
+Eigen::VectorXd getVectorRepresentationForRotationMatrix(
+        const Eigen::Matrix3d& currentRotationMatrix )
 {
-    Eigen::Matrix3d currentRotationMatrix = rotationFunction( ).toRotationMatrix( );
-
     Eigen::VectorXd vectorRepresentation = Eigen::VectorXd( 9 );
     for( unsigned int i = 0; i < 3; i++ )
     {
@@ -32,6 +30,20 @@ Eigen::VectorXd getVectorRepresentationForRotation(
         }
     }
     return vectorRepresentation;
+}
+
+//! Get the vector representation of a rotation matrix.
+Eigen::VectorXd getVectorRepresentationForRotationMatrixFunction(
+        const boost::function< Eigen::Matrix3d( ) > rotationFunction )
+{
+    return getVectorRepresentationForRotationMatrix( rotationFunction( ) );
+}
+
+//! Get the vector representation of a quaternion.
+Eigen::VectorXd getVectorRepresentationForRotationQuaternion(
+        const boost::function< Eigen::Quaterniond( ) > rotationFunction )
+{
+    return getVectorRepresentationForRotationMatrix( rotationFunction( ).toRotationMatrix( ) );
 }
 
 //! Get the 3x3 matrix representation from a vector with 9 entries
@@ -53,6 +65,7 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
     return currentRotationMatrix;
 }
 
+
 //! Get the quaternion formulation of an orthonormal matrix, from input of a vector with 9 entries corresponding to matrix
 //! entries.
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
@@ -60,6 +73,18 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
 {
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
+
+//! Function to compute the Fay-Riddell equilibrium heat flux from body properties
+double computeEquilibriumFayRiddellHeatFluxFromProperties(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
+{
+    return aerodynamics::computeEquilibriumFayRiddellHeatFlux(
+                flightConditions->getCurrentDensity( ), flightConditions->getCurrentAirspeed( ),
+                flightConditions->getCurrentFreestreamTemperature( ), flightConditions->getCurrentMachNumber( ),
+                vehicleSystems->getNoseRadius( ), vehicleSystems->getWallEmissivity( ) );
+}
+
 
 //! Function to evaluate a set of double and vector-returning functions and concatenate the results.
 Eigen::VectorXd evaluateListOfFunctions(
@@ -158,6 +183,27 @@ int getDependentVariableSize(
         break;
     case body_fixed_airspeed_based_velocity_variable:
         variableSize = 3;
+        break;
+    case total_aerodynamic_g_load_variable:
+        variableSize = 1;
+        break;
+    case stagnation_point_heat_flux_dependent_variable:
+        variableSize = 1;
+        break;
+    case local_temperature_dependent_variable:
+        variableSize = 1;
+        break;
+    case geodetic_latitude_dependent_variable:
+        variableSize = 1;
+        break;
+    case control_surface_deflection_dependent_variable:
+        variableSize = 1;
+        break;
+    case total_mass_rate_dependent_variables:
+        variableSize = 1;
+        break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableSize = 9;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

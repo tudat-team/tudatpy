@@ -61,9 +61,9 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
     independentVariableDataPoints.resize( 3 );
     independentVariableDataPoints[ 0 ] = getDefaultHypersonicLocalInclinationMachPoints( "Full" );
     std::vector< double > angleOfAttackPoints;
-    angleOfAttackPoints.resize( 7 );
+    angleOfAttackPoints.resize( 15 );
 
-    for ( int i = 0; i < 7; i++ )
+    for ( int i = 0; i < 15; i++ )
     {
         angleOfAttackPoints[ i ] = static_cast< double >( i - 6 ) * 5.0 * PI / 180.0;
     }

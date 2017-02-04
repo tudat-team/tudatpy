@@ -16,39 +16,28 @@
 #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
-#include <stdexcept>
 #include <vector>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <Eigen/Core>
 
+#include <Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
+#include <Tudat/Astrodynamics/Aerodynamics/aerodynamics.h>
+#include <Tudat/Basics/utilities.h>
+
 namespace tudat
 {
 namespace aerodynamics
 {
 
-//! Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
-/*!
- *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
- *  Note that for a custom coefficient interface with other variables, you may use the
- *  undefined_independent_variable variable type, but at the expense of being able to use the
- *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
- */
-enum AerodynamicCoefficientsIndependentVariables
-{
-    mach_number_dependent = 0,
-    angle_of_attack_dependent = 1,
-    angle_of_sideslip_dependent = 2,
-    altitude_dependent = 3,
-    undefined_independent_variable = 4
-};
-
 //! Base class to hold an aerodynamic coefficient interface.
 /*!
  * This interface can, for instance, be a database of coefficients or an aerodynamic analysis code
- * which generates coefficients.
+ * which generates coefficients. The aerodynamic coefficients are defined as a function of any number of independent
+ * variables, the physical meaning of which is stored in the coefficient interface.
  */
 class AerodynamicCoefficientInterface
 {
@@ -126,15 +115,65 @@ public:
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-    //! Compute the aerodynamic coefficients at current flight condition.
+    //! Compute the aerodynamic coefficients of the body itself (without control surfaces) at current flight condition.
     /*!
-     *  Computes the current force and moment coefficients and is to be
+     *  Computes the current force and moment coefficients of the body itself (without control surfaces) and is to be
      *  implemented in derived classes. Input is a set of independent variables
      *  (doubles) which represent the variables from which the coefficients are calculated
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
      */
-    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables ) = 0;
+    virtual void updateCurrentCoefficients(
+            const std::vector< double >& independentVariables ) = 0;
+
+    //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
+    /*!
+     *  Compures the aerodynamic coefficients for a single control surface at the current flight conditions, and adds these
+     *  to the coefficients of the full configuration, stored in class instance by currentForceCoefficients_ and
+     *  currentMomentCoefficients_ variables.
+     *  \param currentControlSurface Name of control surface that is to be updated.
+     *  \param controlSurfaceIndependentVariables Current values of independent variables of force and moment coefficient
+     *  of given control surface.
+     */
+    void updateCurrentControlSurfaceCoefficientsCoefficients(
+            const std::string& currentControlSurface,
+            std::vector< double > controlSurfaceIndependentVariables )
+    {
+        if( controlSurfaceIncrementInterfaces_.count( currentControlSurface ) == 0 )
+        {
+            throw std::runtime_error( "Error when updating coefficients, could not fid control surface " + currentControlSurface );
+        }
+        controlSurfaceIncrementInterfaces_.at( currentControlSurface )->updateCurrentCoefficients(
+                    controlSurfaceIndependentVariables );
+        currentForceCoefficients_ +=
+                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentForceCoefficients( );
+        currentMomentCoefficients_ +=
+                controlSurfaceIncrementInterfaces_.at( currentControlSurface )->getCurrentMomentCoefficients( );
+    }
+
+    //! Function to update the aerodynamic coefficients of the full body with control surfaces
+    /*!
+     *  Function to update the aerodynamic coefficients of the full body with control surfaces. The full body coefficients
+     *  are cimputed first, after which the control surfaces are updated and the results added to teh full coefficients.
+     *  \param independentVariables Independent variables of force and moment coefficient of body without control surfaces
+     *  \param controlSurfaceIndependentVariables Map of independent variables of force and moment coefficient of
+     *  control surfaces, with map key denoting the control surface identifier.
+     */
+    void updateFullCurrentCoefficients(
+            const std::vector< double >& independentVariables,
+            const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
+            std::map< std::string, std::vector< double > > ( ) )
+    {
+        updateCurrentCoefficients( independentVariables );
+
+        for( std::map< std::string, std::vector< double > >::const_iterator controlSurfaceIterator =
+             controlSurfaceIndependentVariables.begin( ); controlSurfaceIterator != controlSurfaceIndependentVariables.end( );
+             controlSurfaceIterator++ )
+        {
+            updateCurrentControlSurfaceCoefficientsCoefficients(
+                        controlSurfaceIterator->first, controlSurfaceIterator->second );
+        }
+    }
 
     //! Pure virtual function for calculating and returning aerodynamic force coefficients
     /*!
@@ -239,6 +278,98 @@ public:
         return areCoefficientsInNegativeAxisDirection_;
     }
 
+    //! Function to set the list of control surface aerodynamic coefficient interfaces
+    /*!
+     * Function to set the list of control surface aerodynamic coefficient interfaces
+     * \param controlSurfaceIncrementInterfaces Map of ControlSurfaceIncrementAerodynamicInterface pointers, wach pointer
+     * denoting the coefficient interface of a single control sureface, where the map key denotes the surface's name.
+     */
+    void setControlSurfaceIncrements(
+            const std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+            controlSurfaceIncrementInterfaces )
+    {
+        controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
+        controlSurfaceNames_ = utilities::createVectorFromMapKeys( controlSurfaceIncrementInterfaces_ );
+    }
+
+    //! Function to get control surface name at given index in list of control surfaces
+    /*!
+     * Function to get control surface name at given index in list of control surfaces
+     * \param index Index in list of control surfaces (controlSurfaceNames_)
+     * \return Name of requested control surfaces.
+     */
+    std::string getControlSurfaceName( const int index )
+    {
+        return controlSurfaceNames_.at( index );
+    }
+
+    //! Function to return the number of control surfaces in current coefficient interface.
+    /*!
+     * Function to return the number of control surfaces in current coefficient interface.
+     * \return Number of control surfaces in current coefficient interface.
+     */
+    unsigned int getNumberOfControlSurfaces( )
+    {
+        return controlSurfaceIncrementInterfaces_.size( );
+    }
+
+    //! Function to return the number of independent variables for a given control surface.
+    /*!
+     * Function to return the number of independent variables for a given control surface.
+     * \param controlSurface Name of control surface for which the number of independent variables is to be retrieved.
+     * \return Number of independent variables for selected control surface.
+     */
+    unsigned int getNumberOfControlSurfaceIndependentVariables( const std::string controlSurface )
+    {
+        return controlSurfaceIncrementInterfaces_.at( controlSurface )->getNumberOfIndependentVariables( );
+    }
+
+    //! Function to get the list of independent variables for all control surfaces
+    /*!
+     * Function to get the list of independent variables for all control surfaces
+     * \return List of independent variables for all control surfaces, with map key denoting control surface identifier
+     */
+    std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >
+    getControlSurfaceIndependentVariables( )
+    {
+        std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >
+                controlSurfaceIndependentVariables;
+        for( std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator
+             contolSurfaceIterator = controlSurfaceIncrementInterfaces_.begin( );
+             contolSurfaceIterator != controlSurfaceIncrementInterfaces_.end( ); contolSurfaceIterator++ )
+        {
+            controlSurfaceIndependentVariables[ contolSurfaceIterator->first ] =
+                    contolSurfaceIterator->second->getIndependentVariableNames( );
+        }
+
+        return controlSurfaceIndependentVariables;
+    }
+
+    //! Function to get the identifier for a single independent variable for a single control surface
+    /*!
+     * Function to get the identifier for a single independent variable for a single control surface
+     * \param controlSurface Control surface identifier.
+     * \param index Index of independent variable of control surface
+     * \return  Identifier for a requested independent variable for requested control surface
+     */
+    AerodynamicCoefficientsIndependentVariables getControlSurfaceIndependentVariableName(
+            const std::string& controlSurface,
+            const unsigned int index )
+    {
+        if( controlSurfaceIncrementInterfaces_.count( controlSurface ) == 0 )
+        {
+            throw std::runtime_error(
+                        std::string( "Error when retrieving control surface aerodynamic coefficient interface variable name, requested surface " ) +
+                        controlSurface + " , requested surface not found." );
+        }
+        else
+        {
+            return controlSurfaceIncrementInterfaces_.at( controlSurface )->getIndependentVariableName(
+                        index );
+        }
+    }
+
+
 protected:
 
     //! The current force coefficients.
@@ -284,8 +415,7 @@ protected:
     //! Number of independent variables upon which the force and moment coefficients depend.
     /*!
      *  Number of independent variables upon which the force and moment coefficients depend, i.e.
-     *  the length of the vectors that should be used as input to forceCoefficientFunction and
-     *  momentCoefficientFunction.
+     *  the length of the vectors that should be used as input to updateCurrentCoefficients
      */
     unsigned int numberOfIndependentVariables_;
 
@@ -296,13 +426,20 @@ protected:
      */
     bool areCoefficientsInAerodynamicFrame_;
 
-     //! Boolean to denote whether coefficients are positive along frame axes
-     /*! Boolean to define whether the aerodynamic coefficients are
+    //! Boolean to denote whether coefficients are positive along frame axes
+    /*! Boolean to define whether the aerodynamic coefficients are
       *  positive along tyhe positive axes of the body or aerodynamic frame
       *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
       *  coefficients are typically defined in negative direction.
      */
     bool areCoefficientsInNegativeAxisDirection_;
+
+    //! List of control surface aerodynamic coefficient interfaces
+    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+    controlSurfaceIncrementInterfaces_;
+
+    //! Explicit list of control surface names, in same order as iterator over controlSurfaceIncrementInterfaces_
+    std::vector< std::string > controlSurfaceNames_;
 
 private:
 };
@@ -312,6 +449,7 @@ typedef boost::shared_ptr< AerodynamicCoefficientInterface >
 AerodynamicCoefficientInterfacePointer;
 
 } // namespace aerodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
