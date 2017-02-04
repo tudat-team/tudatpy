@@ -122,6 +122,12 @@ public:
         independentValues_ = independentValues;
         dependentValues_= dependentValues;
 
+        // Check if data is in ascending order
+        if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
+        {
+            throw std::runtime_error( "Error when making linear interpolator, input vector with independent variables should be in ascending order" );
+        }
+
         // Create lookup scheme from independent variable values
         this->makeLookupScheme( selectedLookupScheme );
     }
