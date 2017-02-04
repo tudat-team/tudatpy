@@ -31,35 +31,35 @@ enum CartesianElementIndices
 //! Keplerian elements indices.
 enum KeplerianElementIndices
 {
-    semiMajorAxisIndex,
-    eccentricityIndex,
-    inclinationIndex,
-    argumentOfPeriapsisIndex,
-    longitudeOfAscendingNodeIndex,
-    trueAnomalyIndex,
+    semiMajorAxisIndex = 0,
+    eccentricityIndex = 1,
+    inclinationIndex = 2,
+    argumentOfPeriapsisIndex = 3,
+    longitudeOfAscendingNodeIndex = 4,
+    trueAnomalyIndex = 5,
     semiLatusRectumIndex = 0
 };
 
 //! Modified equinoctial element vector indices.
 enum ModifiedEquinoctialElementVectorIndices
 {
-    semiParameterIndex,
-    fElementIndex,
-    gElementIndex,
-    hElementIndex,
-    kElementIndex,
-    trueLongitudeIndex
+    semiParameterIndex = 0,
+    fElementIndex = 1,
+    gElementIndex = 2,
+    hElementIndex = 3,
+    kElementIndex = 4,
+    trueLongitudeIndex = 5
 };
 
 //! Spherical orbital state element indices
 enum SphericalOrbitalStateElementIndices
 {
-    radiusIndex,
-    latitudeIndex,
-    longitudeIndex,
-    speedIndex,
-    flightPathIndex,
-    headingAngleIndex
+    radiusIndex = 0,
+    latitudeIndex = 1,
+    longitudeIndex = 2,
+    speedIndex = 3,
+    flightPathIndex = 4,
+    headingAngleIndex = 5
 };
 
 //! Unified State Model indices.

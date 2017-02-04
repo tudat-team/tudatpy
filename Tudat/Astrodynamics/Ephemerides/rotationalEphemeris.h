@@ -312,6 +312,14 @@ protected:
 
 };
 
+//! Function to transform a state from the target to base frame of a rotational ephemeris
+/*!
+ *  Function to transform a state from the target (body-fixed) to base (inertial) frame of a rotational ephemeris
+ *  \param stateInLocalFrame State in body-fixed frame (target frame of rotational ephemeris)
+ *  \param currentTime Time at which rotational ephemeris is to be evaluated
+ *  \param rotationalEphemeris Rotational ephemeris object to compute the rotation.
+ *  \return stateInLocalFrame State in inertial frame (base frame of rotational ephemeris)
+ */
 template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
@@ -321,6 +329,26 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrame( currentTime ),
                 rotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
+
+}
+
+//! Function to transform a state from the base to target frame of a rotational ephemeris
+/*!
+ *  Function to transform a state from the base (inertial) to target (body-fixed) frame of a rotational ephemeris
+ *  \param stateInGlobalFrame State in inertial frame (base frame of rotational ephemeris)
+ *  \param currentTime Time at which rotational ephemeris is to be evaluated
+ *  \param rotationalEphemeris Rotational ephemeris object to compute the rotation.
+ *  \return State in body-fixed frame (target frame of rotational ephemeris)
+ */
+template< typename StateScalarType, typename TimeType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToTargetFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInGlobalFrame,
+        const TimeType currentTime,
+        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+{
+    return transformStateToFrameFromRotations< StateScalarType >(
+                stateInGlobalFrame, rotationalEphemeris->getRotationToTargetFrame( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime ) );
 
 }
 
