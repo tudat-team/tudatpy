@@ -1,43 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120127    B. Tong Minh      File created.
- *      120128    D. Dirkx          Minor changes during code check.
- *      120207    K. Kumar          Minor comment corrections.
- *      120213    K. Kumar          Updated getCurrentInterval() to getIndependentVariable().
- *      120424    K. Kumar          Added missing this-pointer, to satisfy requirement for
- *                                  accessing base class members.
- *      121128    K. Kumar          Changed base class to ReinitializableNumericalIntegrator, added
- *                                  implementation of modifyCurrentState() function.
- *      121205    D. Dirkx          Migrated namespace to directory-based protocol and added
- *                                  backwards compatibility; added standardized typedefs.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -66,10 +34,10 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class RungeKutta4Integrator
         : public numerical_integrators::ReinitializableNumericalIntegrator<
-        IndependentVariableType, StateType, StateDerivativeType >
+        IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
 
@@ -78,8 +46,7 @@ public:
      * Typedef of the base class with all template parameters filled in.
      */
     typedef numerical_integrators::ReinitializableNumericalIntegrator<
-    IndependentVariableType, StateType,
-    StateDerivativeType > ReinitializableNumericalIntegratorBase;
+    IndependentVariableType, StateType, StateDerivativeType, TimeStepType > ReinitializableNumericalIntegratorBase;
 
     //! Typedef for the state derivative function.
     /*!
@@ -111,7 +78,7 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
     //! Get current state.
     /*!
@@ -136,7 +103,7 @@ public:
      * \param stepSize The step size to take.
      * \return The state at the end of the interval,
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
+    virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
@@ -202,7 +169,7 @@ protected:
     /*!
      * Last used step size, passed to either integrateTo() or performIntegrationStep().
      */
-    IndependentVariableType stepSize_;
+    TimeStepType stepSize_;
 
     //! Current independent variable.
     /*!

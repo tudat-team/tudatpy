@@ -1,39 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120127    B. Tong Minh      File created.
- *      120128    D. Dirkx          Minor changes during code check.
- *      120207    K. Kumar          Minor comment corrections.
- *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable().
- *      121205    D. Dirkx          Migrated namespace to directory-based protocol and added
- *                                  backwards compatibility; added standardized typedefs.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -62,7 +34,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
 public:
@@ -95,7 +67,7 @@ public:
      * last step size that was computed or passed to performIntegrationStep( ).
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const = 0;
+    virtual TimeStepType getNextStepSize( ) const = 0;
 
     //! Get current state.
     /*!
@@ -140,8 +112,8 @@ public:
      */
     virtual StateType integrateTo(
             const IndependentVariableType intervalEnd,
-            const IndependentVariableType initialStepSize,
-            const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( )  );
+            const TimeStepType initialStepSize,
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
 
     //! Perform a single integration step.
     /*!
@@ -153,7 +125,7 @@ public:
      * \param stepSize The step size of this step.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize ) = 0;
+    virtual StateType performIntegrationStep( const TimeStepType stepSize ) = 0;
 
     //! Function to return the function that computes and returns the state derivative
     /*!
@@ -176,24 +148,26 @@ protected:
 };
 
 //! Perform an integration to a specified independent variable value.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
-StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType >::
-integrateTo( const IndependentVariableType intervalEnd,
-             const IndependentVariableType initialStepSize,
-             const IndependentVariableType finalTimeTolerance )
+template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::integrateTo(
+        const IndependentVariableType intervalEnd,
+        const TimeStepType initialStepSize,
+        const TimeStepType finalTimeTolerance )
 {
-    IndependentVariableType stepSize = initialStepSize;
+    TimeStepType stepSize = initialStepSize;
 
     // Flag to indicate that the integration end value of the independent variable has been
     // reached.
-    bool atIntegrationIntervalEnd = ( intervalEnd - getCurrentIndependentVariable( ) )
-            * stepSize / std::fabs( stepSize ) <= finalTimeTolerance;
+    bool atIntegrationIntervalEnd = static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) )
+            * stepSize / std::fabs( stepSize )
+            <= finalTimeTolerance;
 
     int loopCounter = 0;
     while ( !atIntegrationIntervalEnd )
     {
         // Check if the remaining interval is smaller than the step size.
-        if ( std::fabs( intervalEnd - getCurrentIndependentVariable( ) ) <= std::fabs( stepSize ) *
+        if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
+             <= std::fabs( stepSize ) *
              ( 1.0 + finalTimeTolerance ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
@@ -218,7 +192,8 @@ integrateTo( const IndependentVariableType intervalEnd,
         {
             // As long as intervalEnd is not reached, perform additional steps with the remaining time
             // as suggested step size for the variable step size routine.
-            if( std::fabs( intervalEnd - getCurrentIndependentVariable( ) ) > finalTimeTolerance )
+            if( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) ) >
+                    finalTimeTolerance )
             {
                 // Ensure that integrateTo function does not get stuck in a loop.
                 if( loopCounter < 1000 )

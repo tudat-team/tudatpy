@@ -1,42 +1,11 @@
- #    Copyright (c) 2010-2015, Delft University of Technology
- #    All rights reserved.
+ #    Copyright (c) 2010-2017, Delft University of Technology
+ #    All rigths reserved
  #
- #    Redistribution and use in source and binary forms, with or without modification, are
- #    permitted provided that the following conditions are met:
- #      - Redistributions of source code must retain the above copyright notice, this list of
- #        conditions and the following disclaimer.
- #      - Redistributions in binary form must reproduce the above copyright notice, this list of
- #        conditions and the following disclaimer in the documentation and/or other materials
- #        provided with the distribution.
- #      - Neither the name of the Delft University of Technology nor the names of its contributors
- #        may be used to endorse or promote products derived from this software without specific
- #        prior written permission.
- #
- #    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- #    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- #    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- #    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- #    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- #    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- #    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- #    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- #    OF THE POSSIBILITY OF SUCH DAMAGE.
- #
- #    Changelog
- #      YYMMDD    Author            Comment
- #      110820    S.M. Persson      File created.
- #	120203    K. Kumar	    Adapted for new BasicAstrodynamics package.
- #      120216    K. Kumar          Removed propagator files.
- #      120822    P. Musegaas       Added unit test for mean to hyperbolic eccentric anomaly
- #                                  conversion.
- #      130218    D. Dirkx          Added unit test for Julian date conversions.
- #      130214    R.C.A. Boon       Added modified equinoctial element files (.h/.cpp, unit test).
- #      130301    D. Dirkx          Added unit test for geodetic coordinate conversions.
- #      160406    M. Van den Broeck Added Unified State Model element files (.h/.cpp, unit test).
- #
- #    References
- #
- #    Notes
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
  #
 
 # Set the source files.
@@ -52,6 +21,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.cpp"
 )
 
 # Set the header files.
@@ -153,6 +123,10 @@ add_executable(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMIC
 setup_custom_test_program(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_GeodeticCoordinateConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
+add_executable(test_StateElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestStateConversions.cpp")
+setup_custom_test_program(test_StateElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_StateElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
 add_executable(test_SphericalOrbitalStateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestSphericalOrbitStateConversions.cpp")
 setup_custom_test_program(test_SphericalOrbitalStateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_SphericalOrbitalStateConversions tudat_basic_astrodynamics tudat_reference_frames tudat_basic_mathematics ${Boost_LIBRARIES})
@@ -164,3 +138,4 @@ target_link_libraries(test_BodyShapeModels tudat_basic_astrodynamics tudat_basic
 add_executable(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp")
 setup_custom_test_program(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_UnifiedStateModelElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+

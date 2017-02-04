@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 
@@ -41,7 +41,7 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef boost::function< double(
-        const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
+        const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
 class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
@@ -53,8 +53,8 @@ public:
         lightTimeCorrectionFunction_( lightTimeCorrectionFunction ){ }
 
     double calculateLightTimeCorrection(
-            const basic_mathematics::Vector6d& transmitterState,
-            const basic_mathematics::Vector6d& receiverState,
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime )
     {

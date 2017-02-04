@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -45,8 +45,8 @@ class CompositeEphemeris : public Ephemeris
 {
 public:
 
-    using Ephemeris::getCartesianLongStateFromEphemeris;
-    using Ephemeris::getCartesianStateFromEphemeris;
+    using Ephemeris::getCartesianLongState;
+    using Ephemeris::getCartesianState;
 
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
@@ -64,9 +64,9 @@ public:
      */
     CompositeEphemeris(
             const std::map< int, boost::function< StateType( const TimeType& ) > >
-                translationalEphemerides,
+            translationalEphemerides,
             const std::map< int, boost::function< StateType( const double, const StateType& ) > >
-                rotationalEphemerides,
+            rotationalEphemerides,
             const std::string referenceFrameOrigin = "SSB",
             const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
@@ -92,7 +92,7 @@ public:
             // If current ephemeris is translational, add to translations list (set as addition) and
             // set translation flag at current index to true.
             if( translationIterator != translationalEphemerides.end( )
-                && translationIterator->first == currentIndex )
+                    && translationIterator->first == currentIndex )
             {
                 translationalEphemerides_.push_back( std::make_pair( translationIterator->second, 1 ) );
                 isCurrentEphemerisTranslational_.push_back( 1 );
@@ -134,18 +134,18 @@ public:
      */
     CompositeEphemeris(
             const std::map< int, std::pair< boost::function< StateType( const TimeType& ) >, bool > >
-                translationalEphemerides,
+            translationalEphemerides,
             const std::map< int, boost::function< StateType( const double, const StateType& ) > >
-                rotationalEphemerides,
+            rotationalEphemerides,
             const std::string referenceFrameOrigin = "SSB",
             const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
     {
         // Create iterators over ephemeris functions.
         typename std::map< int, std::pair< boost::function< StateType( const TimeType& ) >, bool > >
-            ::const_iterator translationIterator = translationalEphemerides.begin( );
+                ::const_iterator translationIterator = translationalEphemerides.begin( );
         typename std::map< int, boost::function< StateType( const double, const StateType& ) > >
-            ::const_iterator rotationIterator = rotationalEphemerides.begin( );
+                ::const_iterator rotationIterator = rotationalEphemerides.begin( );
 
         // Check whether chain starts with translation.
         if( translationIterator->first != 0 )
@@ -162,7 +162,7 @@ public:
             // If current ephemeris is translational, add to translations list and set translation
             // flag at current index to true.
             if( translationIterator != translationalEphemerides.end( )
-                && translationIterator->first == currentIndex )
+                    && translationIterator->first == currentIndex )
             {
                 int addCurrentEphemeris = ( translationIterator->second.second == true ) ? 1 : -1;
 
@@ -197,23 +197,91 @@ public:
     /*!
      * Returns state from ephemeris at given time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state given by combined rotations and translations.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    Eigen::Vector6d getCartesianState(
+            const double secondsSinceEpoch )
+    {
+        return getTemplatedCartesianStateFromCompositeEphemeris< double, double >( secondsSinceEpoch );
+    }
 
     //! Get state from ephemeris (with long double as state scalar).
     /*!
      * Returns state from ephemeris with long double as state scalar at given time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state with long double as state scalar given by combined rotations and translations.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
-                const double secondsSinceEpoch,
-                const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
+            const double secondsSinceEpoch )
+    {
+        return getTemplatedCartesianStateFromCompositeEphemeris< double, long double >( secondsSinceEpoch );
+    }
+
+    //! Get state from ephemeris (with double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with double as state scalar at given time (as custom Time type).
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with long double as state scalar
+     */
+    Eigen::Matrix< double, 6, 1 > getCartesianStateFromExtendedTime(
+            const Time& currentTime )
+    {
+        return getTemplatedCartesianStateFromCompositeEphemeris< Time, double >( currentTime );
+    }
+
+    //! Get state from ephemeris (with long double as state scalar and Time as time type).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time (as custom Time type).
+     * \param currentTime Time at which state is to be evaluated
+     * \return State from ephemeris with long double as state scalar
+     */
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
+            const Time& currentTime )
+    {
+        return getTemplatedCartesianStateFromCompositeEphemeris< Time, long double >( currentTime );
+    }
+
+    //! Templated function to get the state from tabulated ephemeris.
+    /*!
+     *  Templated function to get the state from tabulated ephemeris. This function is called with the appropriate
+     *  template arguments by each of the specific state functions. Its function is to have only a single function
+     *  implemented, while ensuring that the numerical precision is at least that of the CompositeEphemeris and requested
+     *  time/state scalar types.
+     *  \param currentTime Seconds since epoch at which ephemeris is to be evaluated.
+     *  \return State given by combined rotations and translations, at requested precision.
+     */
+    template< typename OutputTimeType, typename OutputStateScalarType >
+    Eigen::Matrix< OutputStateScalarType, 6, 1 > getTemplatedCartesianStateFromCompositeEphemeris(
+            const OutputTimeType& currentTime )
+    {
+
+        // Initialize state to zero;
+        Eigen::Matrix< StateScalarType, 6, 1 > state = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
+
+        // Initialize current indices of translation and rotation to zero.
+        int currentTranslationIndex = 0;
+        int currentRotationIndex = 0;
+
+        // Loop over all ephemerides
+        for( unsigned int i = 0; i < isCurrentEphemerisTranslational_.size( ); i++ )
+        {
+            // If current ephemeris is translational, add it and increment currentTranslationIndex
+            if( isCurrentEphemerisTranslational_[ i ] == true )
+            {
+                state += translationalEphemerides_[ currentTranslationIndex ].first( static_cast< TimeType >( currentTime ) )*
+                        static_cast< double >( translationalEphemerides_[ currentTranslationIndex ].second );
+                currentTranslationIndex++;
+            }
+            // If current ephemeris is rotational, multiply position and state by rotation.
+            else
+            {
+                state = rotationalEphemerides_[ currentRotationIndex ]( static_cast< TimeType >( currentTime ), state );
+                currentRotationIndex++;
+            }
+        }
+
+        return state.template cast< OutputStateScalarType >( );
+    }
 
     //! Add an additional translational ephemeris at the end of the chain.
     /*!
@@ -267,7 +335,7 @@ private:
 template< typename OldStateScalarType, typename NewStateScalarType, typename TimeType, int StateSize >
 Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScalarOutput(
         const boost::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) >
-            originalStateFunction,
+        originalStateFunction,
         const TimeType currentTime )
 {
     return originalStateFunction( currentTime ).template cast< NewStateScalarType >( );
@@ -288,7 +356,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
         boost::shared_ptr< Ephemeris > bodyEphemeris,
         boost::shared_ptr< RotationalEphemeris > bodyRotationModel,
-        boost::function< basic_mathematics::Vector6d( const double& ) > referencePointRelativeStateFunction )
+        boost::function< Eigen::Vector6d( const double& ) > referencePointRelativeStateFunction )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
@@ -298,21 +366,19 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
                 &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, _1 );
     referencePointEphemerisVector[ 0 ] = boost::bind(
                 &convertStateFunctionStateScalarOutput< double, StateScalarType, TimeType, 6 >,
-                                               referencePointRelativeStateFunction, _1 );
+                referencePointRelativeStateFunction, _1 );
 
 
     // Crate rotation functions from local to global frame.
     boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction =
-            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1,
-                         basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1 );
     boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction =
-            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1,
-                         basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1 );
 
     // Create ephemeris
     std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = boost::bind(
-        transformStateToFrameFromRotationTimeFunctions< StateScalarType >,
+                transformStateToFrameFromRotationTimeFunctions< StateScalarType >,
                 _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
     return boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(

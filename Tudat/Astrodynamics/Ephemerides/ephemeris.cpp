@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,21 +18,35 @@ namespace ephemerides
 template<  >
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    return getCartesianState( time );
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization).
 template<  >
 Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    return getCartesianLongState( time );
+}
+
+//! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
+template<  >
+Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianStateFromExtendedTime( time );
+}
+
+//! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
+template<  >
+Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
+{
+    return getCartesianLongStateFromExtendedTime( time );
 }
 
 //! Function to compute the relative state from two state functions.
 void getRelativeState(
-        basic_mathematics::Vector6d& relativeState,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
-        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
+        Eigen::Vector6d& relativeState,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody )
 {
     relativeState = stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
 }

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -44,7 +44,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     boost::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )->
                     getPerturbingBodies( );
 
-            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions;
+            std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
             std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
             // Retrieve mass and state functions for each perturbing body.
@@ -60,7 +60,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                 {
                     // Set state function.
                     perturbingBodyStateFunctions.push_back(
-                                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris,
+                                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
                                                                          bodyMap.at( perturbingBodies[ i ] ), _1 ) );
 
                     // Set gravitational parameter function.

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -34,7 +34,7 @@ namespace tudat
 namespace unit_tests
 {
 
-basic_mathematics::Vector6d getGroundStationPosition(
+Eigen::Vector6d getGroundStationPosition(
         const double time )
 {
     Eigen::Vector3d nominalPosition;
@@ -42,7 +42,7 @@ basic_mathematics::Vector6d getGroundStationPosition(
     Eigen::Vector3d nominalVelocity;
     nominalVelocity << 3.0E-3, -2.3E-3, 2.4E3;
     nominalVelocity /= physical_constants::JULIAN_YEAR;
-    return ( basic_mathematics::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
+    return ( Eigen::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
 }
 
 BOOST_AUTO_TEST_SUITE( test_composite_ephemeris )
@@ -93,10 +93,10 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     double testTime = 1.05E7;
 
     // Manually compute double state
-    basic_mathematics::Vector6d doubleStateFromDoubleTime;
-    doubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianStateFromEphemeris( testTime ).segment( 0, 3 ) +
+    Eigen::Vector6d doubleStateFromDoubleTime;
+    doubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianState( testTime ).segment( 0, 3 ) +
             rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 );
-    doubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianStateFromEphemeris( testTime ).segment( 3, 3 ) +
+    doubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianState( testTime ).segment( 3, 3 ) +
             rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 3, 3 ) +
             rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) *
             getGroundStationPosition( testTime ).segment( 0, 3 );
@@ -104,11 +104,11 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     // Manually compute long double state
     Eigen::Matrix< long double, 6, 1 > longDoubleStateFromDoubleTime;
     longDoubleStateFromDoubleTime.segment( 0, 3 ) =
-            earthEphemeris->getCartesianLongStateFromEphemeris( testTime ).segment( 0, 3 ) +
+            earthEphemeris->getCartesianLongState( testTime ).segment( 0, 3 ) +
             ( rotationModel->getRotationToBaseFrame( testTime ) *
               getGroundStationPosition( testTime ).segment( 0, 3 ) ).cast< long double >( );
     longDoubleStateFromDoubleTime.segment( 3, 3 ) =
-            earthEphemeris->getCartesianLongStateFromEphemeris( testTime ).segment( 3, 3 ) +
+            earthEphemeris->getCartesianLongState( testTime ).segment( 3, 3 ) +
             ( rotationModel->getRotationToBaseFrame( testTime ) *
               getGroundStationPosition( testTime ).segment( 3, 3 ) ).cast< long double >( ) +
             ( rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) *
@@ -123,29 +123,29 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
 
     // Test double composte ephemeris
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris1->getCartesianStateFromEphemeris( testTime ),
+                ephemeris1->getCartesianState( testTime ),
                 doubleStateFromDoubleTime, doubleTolerance );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris1->getCartesianLongStateFromEphemeris( testTime ),
+                ephemeris1->getCartesianLongState( testTime ),
                 doubleStateFromDoubleTime.cast< long double >( ), doubleTolerance );
 
     // Test long double composte ephemeris, tolerances are not fully met as longDoubleTolerance because rotation is only
     // defined using double state scalars. This is especially influential for the z-components, where the nominal value
     // is much smaller.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris2->getCartesianStateFromEphemeris( testTime ),
+                ephemeris2->getCartesianState( testTime ),
                 doubleStateFromDoubleTime, doubleTolerance );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris2->getCartesianLongStateFromEphemeris( testTime ).segment( 0, 2 ),
+                ephemeris2->getCartesianLongState( testTime ).segment( 0, 2 ),
                 longDoubleStateFromDoubleTime.segment( 0, 2 ), longDoubleTolerance );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris2->getCartesianLongStateFromEphemeris( testTime ).segment( 2, 1 ),
+                ephemeris2->getCartesianLongState( testTime ).segment( 2, 1 ),
                 longDoubleStateFromDoubleTime.segment( 2, 1 ), ( 1000.0 * longDoubleTolerance ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris2->getCartesianLongStateFromEphemeris( testTime ).segment( 3, 2 ),
+                ephemeris2->getCartesianLongState( testTime ).segment( 3, 2 ),
                 longDoubleStateFromDoubleTime.segment( 3, 2 ), ( 10.0 * longDoubleTolerance ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ephemeris2->getCartesianLongStateFromEphemeris( testTime ).segment( 5, 1 ),
+                ephemeris2->getCartesianLongState( testTime ).segment( 5, 1 ),
                 longDoubleStateFromDoubleTime.segment( 5, 1 ), ( 10000.0 * longDoubleTolerance ) );
 }
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -160,7 +160,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case altitude_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );

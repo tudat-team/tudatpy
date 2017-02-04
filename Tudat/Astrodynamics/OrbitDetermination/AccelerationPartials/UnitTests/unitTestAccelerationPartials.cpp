@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -126,13 +126,13 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
             boost::bind( &Body::setState, earth, _1 );
-    boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
             boost::bind( &Body::setState, sun, _1 );
-    boost::function< basic_mathematics::Vector6d ( ) > earthStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
             boost::bind( &Body::getState, earth );
-    boost::function< basic_mathematics::Vector6d ( ) > sunStateGetFunction =
+    boost::function< Eigen::Vector6d ( ) > sunStateGetFunction =
             boost::bind( &Body::getState, sun );
 
     // Calculate numerical partials.
@@ -188,13 +188,13 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     vehicle->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
             boost::bind( &Body::setState, sun, _1 );
-    boost::function< void( basic_mathematics::Vector6d ) > vehicleStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
             boost::bind( &Body::setState, vehicle, _1 );
-    boost::function< basic_mathematics::Vector6d( ) > sunStateGetFunction =
+    boost::function< Eigen::Vector6d( ) > sunStateGetFunction =
             boost::bind( &Body::getState, sun );
-    boost::function< basic_mathematics::Vector6d( ) > vehicleStateGetFunction =
+    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
             boost::bind( &Body::getState, vehicle );
 
     // Create radiation pressure properties of vehicle
@@ -373,11 +373,11 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( basic_mathematics::Vector6d ) > moonStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > moonStateSetFunction =
             boost::bind( &Body::setState, moon, _1 );
-    boost::function< void( basic_mathematics::Vector6d ) > sunStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
             boost::bind( &Body::setState, sun, _1 );
-    boost::function< void( basic_mathematics::Vector6d ) > earthStateSetFunction =
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
             boost::bind( &Body::setState, earth, _1 );
 
     // Calculate numerical partials.

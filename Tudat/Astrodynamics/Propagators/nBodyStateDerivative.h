@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -112,10 +112,12 @@ public:
              outerAccelerationIterator++ )
         {
             std::vector< std::string >::iterator findIterator =
-                    std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), outerAccelerationIterator->first );
+                    std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ),
+                               outerAccelerationIterator->first );
             bodyOrder_.push_back( std::distance( bodiesToBeIntegratedNumerically_.begin( ), findIterator ) );
         }
 
+        createAccelerationModelList( );
     }
 
     //! Destructor
@@ -134,22 +136,10 @@ public:
      */
     void clearTranslationalStateDerivativeModel( )
     {
-        // Reset all acceleration times (to allow multiple evaluations at same time, e.g. stage 2 and 3 in RK4 integrator)
-        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
-             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
+        for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
-            // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
-                 innerAccelerationIterator != outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
-            {
-                // Update accelerationsj
-                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
-                {
-                    innerAccelerationIterator->second[ j ]->resetTime( TUDAT_NAN );
-                }
-            }
+            accelerationModelList_.at( i )->resetTime( TUDAT_NAN );
         }
-
     }
 
     //! Function to clear reference/cached values of translational state derivative model
@@ -174,21 +164,9 @@ public:
      */
     void updateStateDerivativeModel( const TimeType currentTime )
     {
-        // Iterate over all accelerations and update their internal state.
-        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
-             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
+        for( unsigned int i = 0; i < accelerationModelList_.size( ); i++ )
         {
-            // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
-                 innerAccelerationIterator != outerAccelerationIterator->second.end( );
-                 innerAccelerationIterator++ )
-            {
-                // Update accelerations
-                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
-                {
-                    innerAccelerationIterator->second[ j ]->updateMembers( currentTime );
-                }
-            }
+            accelerationModelList_.at( i )->updateMembers( currentTime );
         }
     }
 
@@ -315,6 +293,11 @@ public:
         return totalAcceleration;
     }
 
+    //! Function to retrieve the map containing the list of accelerations acting on each body.
+    /*!
+     * Function to retrieve the map containing the list of accelerations acting on each body.
+     * \return Map containing the list of accelerations acting on each body,
+     */
     basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
@@ -322,6 +305,29 @@ public:
     }
 
 protected:
+
+    //! Function to set the vector of acceleration models (accelerationModelList_) form the map of map of
+    //! acceleration models (accelerationModelsPerBody_).
+    void createAccelerationModelList( )
+    {
+        accelerationModelList_.clear( );
+        // Iterate over all accelerations and update their internal state.
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
+        {
+            // Iterate over all accelerations acting on body
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( );
+                 innerAccelerationIterator++ )
+            {
+                // Update accelerations
+                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
+                {
+                    accelerationModelList_.push_back( innerAccelerationIterator->second.at( j ) );
+                }
+            }
+        }
+    }
 
     //! Function to get the state derivative of the system in Cartesian coordinates.
     /*!
@@ -380,6 +386,9 @@ protected:
      * acceleration, and as value a pointer to an acceleration model.
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
+
+    //! Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
+    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
 
     //! Object responsible for providing the current integration origins from the global origins.
     boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;

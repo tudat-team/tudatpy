@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -28,7 +28,7 @@ namespace observation_models
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
 typedef boost::function< double(
-        const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
+        const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
 //! Base class for light-time correction settings.

@@ -1,42 +1,15 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110221    K. Kumar          File created.
- *      110224    K. Kumar          Renamed class and file.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
- *      130120    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
- *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
- *      140115    E. Brandon        Corrected doxygen documentation.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
  *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
- *
- *    Notes
  *
  */
 
@@ -50,7 +23,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -65,6 +38,8 @@ class ApproximatePlanetPositions : public ApproximatePlanetPositionsBase
 {
 public:
 
+    using Ephemeris::getCartesianState;
+
     //! Default constructor.
     /*!
      * Default constructor that initializes the class from the body for which the position is
@@ -73,11 +48,14 @@ public:
      *
      * \param bodyWithEphemerisData The body for which the position is approximated.
      * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
+     * \param referenceJulianDate Reference julian day w.r.t. which ephemeris is evaluated.
      * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositions( BodiesWithEphemerisData bodyWithEphemerisData,
-                                const double aSunGravitationalParameter = 1.32712440018e20 )
+                                const double aSunGravitationalParameter = 1.32712440018e20,
+                                const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
         : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+          referenceJulianDate_( referenceJulianDate ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
@@ -90,27 +68,25 @@ public:
     /*!
      * Returns cartesian state from ephemeris.
      * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000  );
+    Eigen::Vector6d getCartesianState(
+            const double secondsSinceEpoch );
 
     //! Get keplerian state from ephemeris.
     /*!
      * Returns keplerian state in from ephemeris.
      * \param secondsSinceEpoch Seconds since epoch.
-     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Keplerian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getKeplerianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch  = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    Eigen::Vector6d getKeplerianStateFromEphemeris(
+            const double secondsSinceEpoch );
 
 protected:
 
 private:
+
+    double referenceJulianDate_;
 
     //! Eccentric anomaly at given Julian date.
     /*!

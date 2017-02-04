@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -33,7 +33,7 @@ std::vector< double > linspace( double start, double end, int numberOfSamples )
     std::vector< double > vector(0);
     for( int i = 0 ; i < numberOfSamples ; i++ )
     {
-        vector.push_back( start + static_cast< double >(i) * spacing );
+        vector.push_back( start + static_cast< double >( i ) * spacing );
     }
 
     return vector;
