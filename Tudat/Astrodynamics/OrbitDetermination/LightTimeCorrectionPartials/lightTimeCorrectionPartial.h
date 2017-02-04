@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
@@ -78,7 +78,7 @@ protected:
  * partial and associated time as a function of link-end states and times.
  */
 std::pair< boost::function< LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType(
-        const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) >, bool >
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool >
 getLightTimeParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
         const boost::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial );
