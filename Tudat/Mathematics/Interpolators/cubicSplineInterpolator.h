@@ -144,6 +144,12 @@ public:
         independentValues_ = independentVariables;
         dependentValues_ = dependentVariables;
 
+        // Check if data is in ascending order
+        if( !std::is_sorted( independentVariables.begin( ), independentVariables.end( ) ) )
+        {
+            throw std::runtime_error( "Error when making cubic spline interpolator, input vector with independent variables should be in ascending order" );
+        }
+
         // Create lookup scheme.
         this->makeLookupScheme( selectedLookupScheme );
 

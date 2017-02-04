@@ -42,7 +42,7 @@ namespace propagators
  *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
  *  own derived class (which may have multiple derived classes of its own).
  */
-template< typename StateScalarType >
+template< typename StateScalarType = double >
 class PropagatorSettings
 {
 public:

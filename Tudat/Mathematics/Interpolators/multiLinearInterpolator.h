@@ -54,10 +54,10 @@ namespace interpolators
  * that the types (i.e. double, float) of all independent variables must be the same.
  * \tparam IndependentVariableType Type for independent variables.
  * \tparam DependentVariableType Type for dependent variable.
- * \tparam numberOfDimensions Number of independent variables.
+ * \tparam NumberOfDimensions Number of independent variables.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
-          int numberOfDimensions >
+          int NumberOfDimensions >
 class MultiLinearInterpolator: public Interpolator< IndependentVariableType,
         DependentVariableType >
 {
@@ -75,20 +75,20 @@ public:
      */
     MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >
                              independentValues,
-                             const boost::multi_array< DependentVariableType, numberOfDimensions >
+                             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
         : independentValues_( independentValues ),
           dependentData_( dependentData )
     {
         // Check consistency of template arguments and input variables.
-        if ( independentValues.size( ) != numberOfDimensions )
+        if ( independentValues.size( ) != NumberOfDimensions )
         {
             throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter " );
         }
 
         // Check consistency of input data of dependent and independent data.
-        for ( int i = 0; i < numberOfDimensions; i++ )
+        for ( int i = 0; i < NumberOfDimensions; i++ )
         {
             if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
@@ -119,16 +119,16 @@ public:
     {
         // Determine the nearest lower neighbours.
         std::vector< int > nearestLowerIndices;
-        nearestLowerIndices.resize( numberOfDimensions );
-        for ( unsigned int i = 0; i < numberOfDimensions; i++ )
+        nearestLowerIndices.resize( NumberOfDimensions );
+        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour(
                     independentValuesToInterpolate[ i ] );
         }
 
         // Initialize function evaluation indices to -1 for debugging purposes.
-        boost::array< int, numberOfDimensions > interpolationIndices;
-        for ( int i = 0; i < numberOfDimensions; i++ )
+        boost::array< int, NumberOfDimensions > interpolationIndices;
+        for ( int i = 0; i < NumberOfDimensions; i++ )
         {
             interpolationIndices[ i ] = -1;
         }
@@ -148,7 +148,7 @@ public:
      */
     int getNumberOfDimensions( )
     {
-        return numberOfDimensions;
+        return NumberOfDimensions;
     }
 
 
@@ -164,13 +164,13 @@ private:
      */
     void makeLookupSchemes( const AvailableLookupScheme selectedScheme )
     {
-        lookUpSchemes_.resize( numberOfDimensions );
+        lookUpSchemes_.resize( NumberOfDimensions );
         // Find which type of scheme is used.
         switch( selectedScheme )
         {
         case binarySearch:
 
-            for( int i = 0; i < numberOfDimensions; i++ )
+            for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create binary search look up scheme.
                 lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
@@ -182,7 +182,7 @@ private:
 
         case huntingAlgorithm:
 
-            for( int i = 0; i < numberOfDimensions; i++ )
+            for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create hunting scheme, which uses an intial guess from previous look-ups.
                 lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
@@ -202,8 +202,8 @@ private:
     /*!
      * Function calculates single dimension of the interpolation process. Function calls itself if
      * final dimension not yet reached. Calling this function with currentVariable = 0 will result
-     * in 2^{numberOfDimensions} number of calls to the function at currentVariable =
-     * numberOfDimensions -1. As such, the complete series of calls, starting at currentVariable =
+     * in 2^{NumberOfDimensions} number of calls to the function at currentVariable =
+     * NumberOfDimensions -1. As such, the complete series of calls, starting at currentVariable =
      * 0, retrieves the dependent variable values at all edges of the grid hyper-rectangle and
      * properly scales them.
      * \param currentVariable Dimension in which this interpolation step is to be performed.
@@ -220,7 +220,7 @@ private:
     DependentVariableType performRecursiveInterpolationStep(
             const unsigned int currentVariable,
             const std::vector< IndependentVariableType >& independentValuesToInterpolate,
-            boost::array< int, numberOfDimensions > currentArrayIndices,
+            boost::array< int, NumberOfDimensions > currentArrayIndices,
             const std::vector< int >& nearestLowerIndices )
     {
         IndependentVariableType upperFraction, lowerFraction;
@@ -244,11 +244,11 @@ private:
                   [ nearestLowerIndices[ currentVariable ] ] );
 
         // If at top dimension, call dependent variable data.
-        if ( currentVariable == numberOfDimensions - 1 )
+        if ( currentVariable == NumberOfDimensions - 1 )
         {
-            currentArrayIndices[ numberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ];
+            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ];
             lowerContribution = dependentData_( currentArrayIndices );
-            currentArrayIndices[ numberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ]
+            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ]
                                                             + 1;
             upperContribution = dependentData_( currentArrayIndices );
         }
@@ -292,7 +292,7 @@ private:
      * Multi-dimensional array of dependent data at each point of hyper-rectangular grid formed by
      * independent variable points.
      */
-    boost::multi_array< DependentVariableType, numberOfDimensions > dependentData_;
+    boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )> dependentData_;
 };
 
 } // namespace interpolators

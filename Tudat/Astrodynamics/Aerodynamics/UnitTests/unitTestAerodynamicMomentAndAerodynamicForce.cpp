@@ -297,13 +297,18 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     }
 }
 
-class DummyAngleCalculator
+class DummyAngleCalculator: public AerodynamicGuidance
 {
 public:
 
-    void update( const double time )
+    void updateGuidance( const double time )
     {
         time_ = time;
+
+        currentAngleOfAttack_ = getDummyAngleOfAttack( );
+        currentAngleOfSideslip_ = getDummyAngleOfSideslip( );
+        currentBankAngle_ = getDummyBankAngle( );
+
     }
 
     double getDummyAngleOfAttack( )
@@ -326,7 +331,8 @@ public:
 
 void testAerodynamicForceDirection( const bool includeThrustForce,
                                     const bool imposeThrustDirection,
-                                    const bool swapCreationOrder )
+                                    const bool swapCreationOrder,
+                                    const bool setAngleGuidanceManually )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -349,7 +355,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     {
         maximumIndex = 4;
     }
-    for( unsigned int i = 4; i < maximumIndex; i++ )
+    for( unsigned int i = 0; i < maximumIndex; i++ )
     {
         // Create Earth object
         std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
@@ -472,13 +478,20 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         if( !( i < 4 ) )
         {
-            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                    bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
-            angleCalculator->setOrientationAngleFunctions(
-                        boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
-                        boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
-                        boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
-                        boost::bind( &DummyAngleCalculator::update, testAngles, _1 ) );
+            if( !setAngleGuidanceManually )
+            {
+                setGuidanceAnglesFunctions( testAngles, bodyMap[ "Vehicle" ] );
+            }
+            else
+            {
+                boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+                        bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
+                angleCalculator->setOrientationAngleFunctions(
+                            boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
+                            boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
+                            boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
+                            boost::bind( &DummyAngleCalculator::updateGuidance, testAngles, _1 ) );
+            }
         }
 
 
@@ -670,7 +683,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             }
             else if( !( i < 4 ) )
             {
-                testAngles->update( outputIterator->first );
+                testAngles->updateGuidance( outputIterator->first );
 
                 Eigen::Matrix3d aerodynamicToBodyFrame = rotationToBodyFrame * rotationToAerodynamicFrame.inverse( );
                 Eigen::Matrix3d aerodynamicToTrajectoryFrame = rotationToTrajectoryFrame * rotationToAerodynamicFrame.inverse( );
@@ -707,11 +720,17 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-    //testAerodynamicForceDirection( 0, 0, 0 );
-    testAerodynamicForceDirection( 1, 0, 0 );
-    //testAerodynamicForceDirection( 1, 1, 0 );
-    //testAerodynamicForceDirection( 1, 0, 1 );
-    //testAerodynamicForceDirection( 1, 1, 1 );
+    testAerodynamicForceDirection( 0, 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 1, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 1, 0 );
+    testAerodynamicForceDirection( 1, 1, 1, 0 );
+
+    testAerodynamicForceDirection( 0, 0, 0, 1 );
+    testAerodynamicForceDirection( 1, 0, 0, 1 );
+    testAerodynamicForceDirection( 1, 1, 0, 1 );
+    testAerodynamicForceDirection( 1, 0, 1, 1 );
+    testAerodynamicForceDirection( 1, 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

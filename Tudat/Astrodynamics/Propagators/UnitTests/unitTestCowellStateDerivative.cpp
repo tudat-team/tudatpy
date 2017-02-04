@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Create new simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator2(
-                bodyMap, integratorSettings, propagatorSettings2, true, false );
+                bodyMap, integratorSettings, propagatorSettings2, true, false, true );
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
 
     // Create integration and propagation settings for reverse in time propagation
@@ -452,7 +452,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
         // Create dynamics simulation object.
         SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true, false );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         Eigen::Matrix< StateScalarType, 6, 1  > initialKeplerElements =
             orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(

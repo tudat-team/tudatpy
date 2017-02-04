@@ -237,6 +237,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     double computedDragCoefficient;
     LinearInterpolatorDoublePointer dragCoefficientInterpolator =
             boost::make_shared<LinearInterpolatorDouble>( LinearInterpolatorDouble( altitudes, dragCoefficients ) );
+
+
     for ( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::iterator outputIterator =
           dependentVariableOutput.begin( ); outputIterator != dependentVariableOutput.end( ); ++outputIterator )
     {

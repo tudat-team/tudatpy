@@ -65,7 +65,7 @@ protected:
     BodyShapeTypes bodyShapeType_;
 };
 
-//! EphemerisSettings derived class for defining settings of a spherical shape model
+//! BodyShapeSettings derived class for defining settings of a spherical shape model
 class SphericalBodyShapeSettings: public BodyShapeSettings
 {
 public:
@@ -91,7 +91,7 @@ private:
     double radius_;
 };
 
-//! EphemerisSettings derived class for defining settings of an oblate spheroid (flattened sphere)
+//! BodyShapeSettings derived class for defining settings of an oblate spheroid (flattened sphere)
 //! shape model
 class OblateSphericalBodyShapeSettings: public BodyShapeSettings
 {

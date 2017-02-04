@@ -56,10 +56,10 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Single acceleration norm of type ";
         break;
     case total_acceleration_dependent_variable:
-        variableName = "Total acceleration ";
+        variableName = "Total acceleration in inertial frame ";
         break;
     case single_acceleration_dependent_variable:
-        variableName = "Single acceleration of type ";
+        variableName = "Single acceleration in inertial frame of type ";
         break;
     case aerodynamic_force_coefficients_dependent_variable:
         variableName = "Aerodynamic force coefficients ";
@@ -78,6 +78,27 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
+        break;
+    case total_aerodynamic_g_load_variable:
+        variableName = "Aerodynamic g-load ";
+        break;
+    case stagnation_point_heat_flux_dependent_variable:
+        variableName = "Stagnation-point heat flux ";
+        break;
+    case local_temperature_dependent_variable:
+        variableName = "Local freestream temperature ";
+        break;
+    case geodetic_latitude_dependent_variable:
+        variableName = "Geodetic latitude ";
+        break;
+    case control_surface_deflection_dependent_variable:
+        variableName = "Control Surface Deflection";
+        break;
+    case total_mass_rate_dependent_variables:
+        variableName = "Body mass rate";
+        break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableName = "LVLH to inertial frame rotation matrix";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

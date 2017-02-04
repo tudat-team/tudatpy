@@ -6,7 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
  */
 
 #ifndef TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
@@ -33,36 +32,13 @@ namespace aerodynamics
  *  coefficients as a function of independent variables (doubles). The origin of the coefficients
  *  or the nature of the independent variables is irrelevant for this class.
  *  A factory functios (createConstantCoefficientAerodynamicCoefficientInterface) is provided
- *  at the end of this file, which can be used to define constant coefficients.
+ *  in the createFlightConditions file, which can be used to define constant coefficients.
  *  NOTE: Functionality of this class is tested in test_aerodynamic_coefficient_generator
  *  test suite.
  */
 class CustomAerodynamicCoefficientInterface: public AerodynamicCoefficientInterface
 {
 public:
-
-    //! Function to combined the force and moment coefficients from separate function pointers.
-    /*!
-     *  Function to combined the force and moment coefficients from separate function pointers.
-     *  The output is the concatenated force and moment coefficient vector, evaluated
-     *  at the current set of independent variables.
-     *  \param forceCoefficientFunction Function returning the aerodynamic force coefficients as
-     *  function of the set of independent variables.
-     *  \param momentCoefficientFunction Function returning the aerodynamic force coefficients as
-     *  function of the set of independent variables.
-     *  \param independentVariables Current list of values of the independent variables upon
-     *  which the coefficients depend.
-     */
-    Eigen::Vector6d concatenateForceAndMomentCoefficients(
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
-            forceCoefficientFunction,
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) >&
-            momentCoefficientFunction,
-            const std::vector< double >& independentVariables )
-    {
-        return ( Eigen::Vector6d( )<<forceCoefficientFunction( independentVariables ),
-                 momentCoefficientFunction( independentVariables ) ).finished( );
-    }
 
     //! Constructor.
     /*!
@@ -107,14 +83,12 @@ public:
                                          areCoefficientsInNegativeAxisDirection )
     {
         coefficientFunction_ = boost::bind(
-                    &CustomAerodynamicCoefficientInterface::concatenateForceAndMomentCoefficients,
-                    this, forceCoefficientFunction, momentCoefficientFunction, _1 );
+                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, _1 );
     }
 
     //! Constructor.
     /*!
      *  Constructor.
-
      *  \param coefficientFunction Function returning the concatenated aerodynamic force and moment
      *  coefficients as function of the set of independent variables.
      *  \param referenceLength Reference length with which aerodynamic moments
@@ -167,8 +141,9 @@ public:
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
             throw std::runtime_error(
-                        "Error in CustomAerodynamicCoefficientInterface, number of "
-                        "input variables is inconsistent " );
+                        "Error in CustomAerodynamicCoefficientInterface, number of input variables is inconsistent " +
+                        boost::lexical_cast< std::string >( independentVariables.size( ) ) + ", " +
+                        boost::lexical_cast< std::string >( numberOfIndependentVariables_ ) );
         }
 
         // Update current coefficients.
