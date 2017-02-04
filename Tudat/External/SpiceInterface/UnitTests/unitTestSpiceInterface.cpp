@@ -263,6 +263,32 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     BOOST_CHECK_SMALL( forwardBackwardRotation.z( ),
                        std::numeric_limits< double >::epsilon( ) );
 
+    // Check automatic state conversion to/from rotating frame.
+    Eigen::Vector6d stateOfMoonInJ2000 = spice_interface::getBodyCartesianStateAtEpoch(
+                "Moon", "SSB", "J2000", "NONE", 1.0E7 );
+    Eigen::Vector6d expectedStateOfMoonWrtEarth = spice_interface::getBodyCartesianStateAtEpoch(
+                "Moon", "SSB", "IAU_Earth", "NONE", 1.0E7 );
+
+    Eigen::Vector6d computedStateOfMoonWrtEarth =
+            ephemerides::transformStateToTargetFrame(
+                stateOfMoonInJ2000, 1.0E7,  spiceRotationalEphemeris );
+    Eigen::Vector6d computedStateOfMoonInJ2000 =
+            ephemerides::transformStateToGlobalFrame(
+                computedStateOfMoonWrtEarth, 1.0E7,  spiceRotationalEphemeris );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL(
+                    std::fabs( expectedStateOfMoonWrtEarth( i ) - computedStateOfMoonWrtEarth( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( expectedStateOfMoonWrtEarth( i + 3 ) - computedStateOfMoonWrtEarth( i + 3 ) ), 1.0E-8 );
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( stateOfMoonInJ2000( i ) - computedStateOfMoonInJ2000( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( stateOfMoonInJ2000( i + 3 ) - computedStateOfMoonInJ2000( i + 3 ) ), 1.0E-8 );
+
+    }
 }
 
 // Test 4: Test retrieval of body properties.
