@@ -34,9 +34,20 @@ double calculateCosineTermForTriaxialEllipsoidSphericalHarmonicGravity(
  *  \param axisA Largest axis of triaxial ellipsoid
  *  \param axisB Middle axis of triaxial ellipsoid
  *  \param axisC Smallest axis of triaxial ellipsoid
- *  \return axisC Triaxial ellipsoid reference radius of spherical harmonic expansion
+ *  \return Triaxial ellipsoid reference radius of spherical harmonic expansion
  */
 double calculateTriAxialEllipsoidReferenceRadius(
+        const double axisA, const double axisB, const double axisC );
+
+//! Function to calculate triaxial ellipsoid volume
+/*!
+ *  Function to calculate triaxial ellipsoid volume
+ *  \param axisA Largest axis of triaxial ellipsoid
+ *  \param axisB Middle axis of triaxial ellipsoid
+ *  \param axisC Smallest axis of triaxial ellipsoid
+ *  \return Volume of triaxial ellipsoid.
+ */
+double calculateTriAxialEllipsoidVolume(
         const double axisA, const double axisB, const double axisC );
 
 //! Function to calculate (non-normalized) cosine spherical harmonic coefficients for a homogeneous
