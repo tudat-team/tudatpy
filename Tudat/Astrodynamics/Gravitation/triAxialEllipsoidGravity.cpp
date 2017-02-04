@@ -65,6 +65,13 @@ double calculateTriAxialEllipsoidReferenceRadius(
                               1.0 / ( axisC * axisC ) ) );
 }
 
+//! Function to calculate triaxial ellipsoid volume
+double calculateTriAxialEllipsoidVolume(
+        const double axisA, const double axisB, const double axisC )
+{
+    return 4.0 / 3.0 * mathematical_constants::PI * axisA * axisB * axisC;
+}
+
 //! Function to calculate (non-normalized) cosine spherical harmonic coefficients for a
 //! homogeneous triaxial ellipsoid
 Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
@@ -130,10 +137,10 @@ createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
     // Iterate over all degrees and orders and normalized coefficients
     for( unsigned int i = 2; i < normalizedCosineCoefficients.rows( ); i++ )
     {
-        for( unsigned int j = 2; ( ( j < normalizedCosineCoefficients.cols( ) ) &&
+        for( unsigned int j = 0; ( ( j < normalizedCosineCoefficients.cols( ) ) &&
                                    ( j <= i ) ); j++ )
         {
-            normalizedCosineCoefficients( i, j ) = normalizedCosineCoefficients( i, j ) *
+            normalizedCosineCoefficients( i, j ) = normalizedCosineCoefficients( i, j ) /
                     basic_mathematics::calculateLegendreGeodesyNormalizationFactor( i, j );
         }
     }
