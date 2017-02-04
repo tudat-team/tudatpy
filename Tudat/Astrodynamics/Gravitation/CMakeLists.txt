@@ -30,6 +30,7 @@ set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.cpp"
 )
@@ -53,6 +54,7 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/timeDependentSphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.h"
+  "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.h"
   "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.h"
   "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.h"
 )
@@ -97,6 +99,10 @@ target_link_libraries(test_SphericalHarmonicsGravityModel tudat_gravitation tuda
 add_executable(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestThirdBodyPerturbation.cpp")
 setup_custom_test_program(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation tudat_basic_mathematics ${Boost_LIBRARIES} )
+
+add_executable(test_TriAxialEllipsoidGravity "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestTriAxialEllipsoidGravity.cpp")
+setup_custom_test_program(test_TriAxialEllipsoidGravity "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_TriAxialEllipsoidGravity tudat_gravitation tudat_basic_mathematics ${Boost_LIBRARIES} )
 
 if(USE_CSPICE)
 add_executable(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravityFieldVariations.cpp")
