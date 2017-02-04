@@ -237,7 +237,7 @@ public:
      *  Function to reset the love numbers at given degree. Input requires a vector containing
      *  (complex) love numbers at all orders in current degree.
      *  \param degree Degree from which love numbers are to be retrieved.
-     *  \param loveNumbers of love numbers (i^{th} entry representing i^{th} order in requested degree)
+     *  \param loveNumbers Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
      *  containing new love numbers at current degree.
      */
     void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
