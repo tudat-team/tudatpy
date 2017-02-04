@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,12 +17,10 @@ namespace tudat
 namespace propagators
 {
 
-//! Get the vector representation of a quaternion.
-Eigen::VectorXd getVectorRepresentationForRotation(
-        const boost::function< Eigen::Quaterniond( ) > rotationFunction )
+//! Get the vector representation of a rotation matrix.
+Eigen::VectorXd getVectorRepresentationForRotationMatrix(
+        const Eigen::Matrix3d& currentRotationMatrix )
 {
-    Eigen::Matrix3d currentRotationMatrix = rotationFunction( ).toRotationMatrix( );
-
     Eigen::VectorXd vectorRepresentation = Eigen::VectorXd( 9 );
     for( unsigned int i = 0; i < 3; i++ )
     {
@@ -32,6 +30,20 @@ Eigen::VectorXd getVectorRepresentationForRotation(
         }
     }
     return vectorRepresentation;
+}
+
+//! Get the vector representation of a rotation matrix.
+Eigen::VectorXd getVectorRepresentationForRotationMatrixFunction(
+        const boost::function< Eigen::Matrix3d( ) > rotationFunction )
+{
+    return getVectorRepresentationForRotationMatrix( rotationFunction( ) );
+}
+
+//! Get the vector representation of a quaternion.
+Eigen::VectorXd getVectorRepresentationForRotationQuaternion(
+        const boost::function< Eigen::Quaterniond( ) > rotationFunction )
+{
+    return getVectorRepresentationForRotationMatrix( rotationFunction( ).toRotationMatrix( ) );
 }
 
 //! Get the 3x3 matrix representation from a vector with 9 entries
@@ -189,6 +201,9 @@ int getDependentVariableSize(
         break;
     case total_mass_rate_dependent_variables:
         variableSize = 1;
+        break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableSize = 9;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

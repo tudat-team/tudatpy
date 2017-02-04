@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -84,7 +84,7 @@ public:
         {
             //NOTE: Should generalize to long double state type.
             ephemerisBetweenFrames = boost::make_shared< ConstantEphemeris >(
-                        boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), origin, "ECLIPJ2000" );
+                        boost::lambda::constant( Eigen::Vector6d::Zero( ) ), origin, "ECLIPJ2000" );
         }
         else
         {

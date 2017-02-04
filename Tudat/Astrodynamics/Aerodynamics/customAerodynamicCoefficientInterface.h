@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,7 +18,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -109,7 +109,7 @@ public:
      *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
-            const boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+            const boost::function< Eigen::Vector6d( const std::vector< double >& ) >
             coefficientFunction,
             const double referenceLength,
             const double referenceArea,
@@ -147,7 +147,7 @@ public:
         }
 
         // Update current coefficients.
-        basic_mathematics::Vector6d currentCoefficients = coefficientFunction_(
+        Eigen::Vector6d currentCoefficients = coefficientFunction_(
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
@@ -157,7 +157,7 @@ private:
 
     //! Function returning the concatenated aerodynamic force and moment coefficients as function of
     //! the set of independent variables.
-    boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+    boost::function< Eigen::Vector6d( const std::vector< double >& ) >
     coefficientFunction_;
 
 

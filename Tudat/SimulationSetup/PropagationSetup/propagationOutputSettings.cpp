@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -56,10 +56,10 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Single acceleration norm of type ";
         break;
     case total_acceleration_dependent_variable:
-        variableName = "Total acceleration ";
+        variableName = "Total acceleration in inertial frame ";
         break;
     case single_acceleration_dependent_variable:
-        variableName = "Single acceleration of type ";
+        variableName = "Single acceleration in inertial frame of type ";
         break;
     case aerodynamic_force_coefficients_dependent_variable:
         variableName = "Aerodynamic force coefficients ";
@@ -96,6 +96,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     case total_mass_rate_dependent_variables:
         variableName = "Body mass rate";
+        break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableName = "LVLH to inertial frame rotation matrix";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

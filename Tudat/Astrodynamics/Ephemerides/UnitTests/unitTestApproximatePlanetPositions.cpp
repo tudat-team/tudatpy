@@ -1,42 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110405    K. Kumar          File created.
- *      110406    K. Kumar          Added cerr statements.
- *      110411    K. Kumar          Changed test to check errors in position, right ascension, and
- *                                  declination.
- *      110701    K. Kumar          Updated to use new predefined planets architecture; removed
- *                                  dynamic memory allocation.
- *      110714    L. van der Ham    Added circular coplanar case.
- *      111024    K. Kumar          Spotted error in circular coplanar test after changing abs( )
- *                                  to fabs( ). Needs to be fixed.
- *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
- *      120513    P. Musegaas       Boostified unit test.
- *      130218    D. Dirx           Adapted unit test for Julian date conversions and for changes
- *                                  in ephemeris base class.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi, last accessed: 5 April, 2011.
@@ -95,14 +64,14 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     ApproximatePlanetPositions marsEphemeris( ApproximatePlanetPositions::mars );
 
     // Convert the expected Keplerian elements to Cartesian elements.
-    basic_mathematics::Vector6d expectedEphemeris;
+    Eigen::Vector6d expectedEphemeris;
     expectedEphemeris = orbital_element_conversions::
             convertKeplerianToCartesianElements(
             expectedKeplerianElements,
             marsEphemeris.getSunGravitationalParameter( ) );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
-    basic_mathematics::Vector6d marsState = marsEphemeris.getCartesianState(
+    Eigen::Vector6d marsState = marsEphemeris.getCartesianState(
                 ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Test if the computed ephemeris matches the expected ephemeris within the tolerance set.
@@ -121,12 +90,12 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
     ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
                 ApproximatePlanetPositionsBase::mars );
 
-    basic_mathematics::Vector6d marsStateCircularCoplanar
+    Eigen::Vector6d marsStateCircularCoplanar
             = marsEphemeris.getCartesianState(
                 ( 2455626.5 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY );
 
     // Compute the Keplerian elements from this ephemeris.
-    basic_mathematics::Vector6d keplerianElementsCircularCoplanar;
+    Eigen::Vector6d keplerianElementsCircularCoplanar;
     keplerianElementsCircularCoplanar = orbital_element_conversions::
             convertCartesianToKeplerianElements( marsStateCircularCoplanar,
                     marsEphemeris.getSunGravitationalParameter( ) );

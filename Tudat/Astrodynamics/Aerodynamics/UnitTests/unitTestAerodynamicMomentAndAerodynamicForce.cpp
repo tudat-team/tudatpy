@@ -1,38 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110622    F.M. Engelen      File created.
- *      110822    D. Dirkx          Removed no longer necessary unit tests.
- *      110824    J. Leloux         Corrected doxygen documentation.
- *      120328    D. Dirkx          Boostified unit tests.
- *      120405    K. Kumar          Ensured no interference between unit tests by placing them in
- *                                  local scope.
- *      121020    D. Dirkx          Update to new acceleration model architecture.
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    Notes
  *      The unit tests here are based off of expected values that are internally computed. Ideally,
@@ -324,13 +297,18 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     }
 }
 
-class DummyAngleCalculator
+class DummyAngleCalculator: public AerodynamicGuidance
 {
 public:
 
-    void update( const double time )
+    void updateGuidance( const double time )
     {
         time_ = time;
+
+        currentAngleOfAttack_ = getDummyAngleOfAttack( );
+        currentAngleOfSideslip_ = getDummyAngleOfSideslip( );
+        currentBankAngle_ = getDummyBankAngle( );
+
     }
 
     double getDummyAngleOfAttack( )
@@ -353,7 +331,8 @@ public:
 
 void testAerodynamicForceDirection( const bool includeThrustForce,
                                     const bool imposeThrustDirection,
-                                    const bool swapCreationOrder )
+                                    const bool swapCreationOrder,
+                                    const bool setAngleGuidanceManually )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -376,13 +355,13 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     {
         maximumIndex = 4;
     }
-    for( unsigned int i = 4; i < maximumIndex; i++ )
+    for( unsigned int i = 0; i < maximumIndex; i++ )
     {
         // Create Earth object
         std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
                 getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
         defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                    basic_mathematics::Vector6d::Zero( ) );
+                    Eigen::Vector6d::Zero( ) );
         NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
@@ -391,7 +370,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
@@ -485,7 +464,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         centralBodies.push_back( "Earth" );
 
         // Set initial state
-        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+        Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
 
         systemInitialState( 0 ) = 6.8E6;
         systemInitialState( 4 ) = 7.5E3;
@@ -499,13 +478,20 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         if( !( i < 4 ) )
         {
-            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                    bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
-            angleCalculator->setOrientationAngleFunctions(
-                        boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
-                        boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
-                        boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
-                        boost::bind( &DummyAngleCalculator::update, testAngles, _1 ) );
+            if( !setAngleGuidanceManually )
+            {
+                setGuidanceAnglesFunctions( testAngles, bodyMap[ "Vehicle" ] );
+            }
+            else
+            {
+                boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+                        bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
+                angleCalculator->setOrientationAngleFunctions(
+                            boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
+                            boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
+                            boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
+                            boost::bind( &DummyAngleCalculator::updateGuidance, testAngles, _1 ) );
+            }
         }
 
 
@@ -697,7 +683,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             }
             else if( !( i < 4 ) )
             {
-                testAngles->update( outputIterator->first );
+                testAngles->updateGuidance( outputIterator->first );
 
                 Eigen::Matrix3d aerodynamicToBodyFrame = rotationToBodyFrame * rotationToAerodynamicFrame.inverse( );
                 Eigen::Matrix3d aerodynamicToTrajectoryFrame = rotationToTrajectoryFrame * rotationToAerodynamicFrame.inverse( );
@@ -734,11 +720,17 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
 BOOST_AUTO_TEST_CASE( testAerodynamicForceDirectionInPropagation )
 {
-    testAerodynamicForceDirection( 0, 0, 0 );
-    testAerodynamicForceDirection( 1, 0, 0 );
-    testAerodynamicForceDirection( 1, 1, 0 );
-    testAerodynamicForceDirection( 1, 0, 1 );
-    testAerodynamicForceDirection( 1, 1, 1 );
+    testAerodynamicForceDirection( 0, 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 0, 0 );
+    testAerodynamicForceDirection( 1, 1, 0, 0 );
+    testAerodynamicForceDirection( 1, 0, 1, 0 );
+    testAerodynamicForceDirection( 1, 1, 1, 0 );
+
+    testAerodynamicForceDirection( 0, 0, 0, 1 );
+    testAerodynamicForceDirection( 1, 0, 0, 1 );
+    testAerodynamicForceDirection( 1, 1, 0, 1 );
+    testAerodynamicForceDirection( 1, 0, 1, 1 );
+    testAerodynamicForceDirection( 1, 1, 1, 1 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

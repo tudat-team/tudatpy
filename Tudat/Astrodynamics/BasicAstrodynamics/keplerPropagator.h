@@ -1,49 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110203    K. Kumar          File created.
- *      110207    E. Iorfida        Minor changes.
- *      110214    K. Kumar          Updated code to use orbital element conversion functions.
- *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
- *      120215    K. Kumar          Rewrote Kepler propagator as free function.
- *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
- *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
- *                                  specify which rootfinder and termination conditions to use.
- *      120823    P. Musegaas       Added functionality for hyperbolic and near-parabolic orbits.
- *                                  Changed some parameters to const.
- *      120903    P. Musegaas       Removed modulo option, due to errors with it. Kepler propagator
- *                                  now simply return true anomaly in -PI to PI spectrum. Added
- *                                  Comments.
- *      121205    P. Musegaas       Updated code to final version of rootfinders.
- *      130120    K. Kumar          Updated VectorXd to Vector6d.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
- *
- *    References
- *
- *    Notes
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 

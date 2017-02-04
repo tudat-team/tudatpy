@@ -1,34 +1,12 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author              Comment
- *      141105    D. Dirkx            File created.
- *
- *    References
- *
- *    Notes
  */
 
 #ifndef TUDAT_TABULATEDEPHEMERIS_H
@@ -110,7 +88,7 @@ public:
      * \param secondsSinceEpoch Seconds since epoch.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianState(
+    Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch );
 
     //! Get cartesian state from ephemeris (in long double precision).
@@ -130,7 +108,7 @@ public:
      * \param time Time at which ephemeris is to be evaluated
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromExtendedTime(
+    Eigen::Vector6d getCartesianStateFromExtendedTime(
             const Time& time );
 
     //! Get cartesian state from ephemeris (in long double precision from Time input).
@@ -166,6 +144,13 @@ private:
     StateInterpolatorPointer interpolator_;
 };
 
+//! Function to check whether an ephemeris is a (type of) tabulated ephemeris
+/*!
+ *  Function to check whether an ephemeris is a (type of) tabulated ephemeris, it checks all typical combinations of
+ *  class template arguments are returns true if a dynamic cast is succesful
+ *  \param ephemeris Ephemeris pointer for which it is to be checked whether it is a tabulated ephemeris
+ *  \return True if ephemeris is a tabulated ephemeris
+ */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
 
 } // namespace ephemerides

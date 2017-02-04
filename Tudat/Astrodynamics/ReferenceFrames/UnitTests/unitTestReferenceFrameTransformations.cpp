@@ -1,43 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110519    F.M. Engelen      File created.
- *      110628    K. Kumar          Minor comment and layout modifications.
- *      110701    K. Kumar          Updated unit tests to check relative error;
- *                                  Updated file path.
- *      110718    F.M. Engelen      Took out falacy in test (only checking the norm) and
- *                                  added ItoE and EtoI transformation.
- *      110726    K. Kumar          Minor modifications; updated relative error
- *                                  wrt to norm.
- *      110808    F.M. Engelen      Updated with better tests, changed test for vertical frame.
- *      120529    E.A.G. Heeren     Boostified unit tests.
- *      120614    P. Musegaas       Removed unneccessary using statements and normalizations.
- *      130312    D. Dirkx          Added unit test for planet-fixed <-> inertial without equal
- *                                  equatorial frame.
- *      130312    A. Ronse          Added tests for V-T, TA-AA and AA-B transformations.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Mooij, E. The Motion of a Vehicle in a Planetary Atmosphere, TU Delft, 1997.
@@ -678,7 +646,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
     // test all expected properties of rotation matrices
     {
         // Position vectors to semi-random values
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian, centralBodyStateCartesian, relativeState;
+        Eigen::Vector6d vehicleStateCartesian, centralBodyStateCartesian, relativeState;
         vehicleStateCartesian << 3.2, -1.7, 8.2, -1.4E-3, -5.6E-4, 9.2E-4;
         centralBodyStateCartesian << 7.4, 6.3, -3.6, 5.3E-4, 7.64E3, -4.4E-4;
 
@@ -690,9 +658,9 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         // Test if central body is properly processed.
         {
             Eigen::Matrix3d nAxisAwayFromBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                        vehicleStateCartesian - centralBodyStateCartesian, basic_mathematics::Vector6d::Zero( ), true );
+                        vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), true );
             Eigen::Matrix3d nAxisAwayTowardsBodyMatrixCentral = reference_frames::getVelocityBasedLvlhToInertialRotation(
-                        vehicleStateCartesian - centralBodyStateCartesian, basic_mathematics::Vector6d::Zero( ), false );
+                        vehicleStateCartesian - centralBodyStateCartesian, Eigen::Vector6d::Zero( ), false );
 
             for( unsigned int i = 0; i < 3; i++ )
             {
@@ -888,7 +856,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         startThrustVector( 2 ) = 1.0; // W direction
         bool doesNaxisPointAwayFromCentralBody = false;
 
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian, centralBodyStateCartesian;
+        Eigen::Vector6d vehicleStateCartesian, centralBodyStateCartesian;
         vehicleStateCartesian << 0.0, -1.0, 0.0, -1.0, -0.5, 0.0;
         centralBodyStateCartesian << 0.0, 2.0, 0.0, -0.5, 0.0, 0.0;
 
@@ -920,7 +888,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         startThrustVector( 1 ) = -1.0; // N direction
         startThrustVector( 2 ) = 2.0; // W direction
 
-        tudat::basic_mathematics::Vector6d vehicleStateKeplerian;
+        Eigen::Vector6d vehicleStateKeplerian;
         vehicleStateKeplerian << 1.0, 0.5, convertDegreesToRadians( 60.0 ),
                 convertDegreesToRadians( 180.0 ), convertDegreesToRadians( 15.0 ), convertDegreesToRadians( 90.0 );
 
@@ -942,13 +910,13 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedThrustVector, transformedThrustVector,
                                            ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-        tudat::basic_mathematics::Vector6d vehicleStateCartesian =
+        Eigen::Vector6d vehicleStateCartesian =
                 orbital_element_conversions::convertKeplerianToCartesianElements(
                     vehicleStateKeplerian, 3.986E14 );
 
         Eigen::Matrix3d rotationMatrixFromCartesianElements =
                 reference_frames::getVelocityBasedLvlhToInertialRotation(
-                                    vehicleStateCartesian, basic_mathematics::Vector6d::Zero( ), false );
+                                    vehicleStateCartesian, Eigen::Vector6d::Zero( ), false );
 
         for( unsigned int i = 0; i < 3; i++ )
         {

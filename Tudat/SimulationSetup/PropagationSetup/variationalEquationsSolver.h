@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -444,7 +444,7 @@ public:
         {
             // Create simulation object for dynamics only.
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution );
+                        bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
 
             // Create state derivative partials

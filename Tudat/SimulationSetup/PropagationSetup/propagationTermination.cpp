@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -100,7 +100,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
-                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) ? true : false );
+                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) );
         break;
     }
     case dependent_variable_stopping_condition:

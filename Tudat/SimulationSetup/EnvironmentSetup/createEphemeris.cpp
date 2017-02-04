@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -136,7 +136,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             {
                 ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
                             boost::make_shared<
-                            interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
+                            interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >
                             ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
                               interpolators::huntingAlgorithm,
                               interpolators::lagrange_cubic_spline_boundary_interpolation ),
@@ -146,11 +146,11 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             else
             {
                 // Cast input history to required type.
-                std::map< double, basic_mathematics::Vector6d > originalStateHistory =
+                std::map< double, Eigen::Vector6d > originalStateHistory =
                         tabulatedEphemerisSettings->getBodyStateHistory( );
                 std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;
 
-                for( std::map< double, basic_mathematics::Vector6d >::const_iterator stateIterator =
+                for( std::map< double, Eigen::Vector6d >::const_iterator stateIterator =
                      originalStateHistory.begin( ); stateIterator != originalStateHistory.end( ); stateIterator++ )
                 {
                     longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );

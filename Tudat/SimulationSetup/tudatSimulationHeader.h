@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,7 +23,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"

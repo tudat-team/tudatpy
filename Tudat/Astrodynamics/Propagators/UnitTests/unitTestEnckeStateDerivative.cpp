@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
         bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                 boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Vector6d  > >( ), "Earth", "J2000" ) );
+                                                < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         boost::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" )( "Moon" ) );
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Vehicle.
-        Vector6d vehicleInitialStateInKeplerianElements;
+        Eigen::Vector6d vehicleInitialStateInKeplerianElements;
         vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
         vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
         vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
         double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        const Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
+        const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                     vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
         // Define propagator settings (Cowell)
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 1: arbitrary rotation
     {
         // Define Cartesian state
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<-1656517.23153109, -5790058.28764025, -2440584.88186829,
                 6526.30784888051, -2661.34558272018, 2377.09572383163;
 
@@ -52,9 +52,9 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         double speed = cartesianState.segment( 3, 3 ).norm( );
 
         // Convert pack and forth
-        basic_mathematics::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
+        Eigen::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
                     cartesianState );
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
 
         // Check computed spherical orbital state against reference data
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 2: rotation with zero (heading, flight path, latitude) and half pi (longitude) angles.
     {
         // Define Cartesian state
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
 
         // Define associated spherical orbital state
@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         double speed = cartesianState.segment( 3, 3 ).norm( );
 
         // Convert pack and forth
-        basic_mathematics::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
+        Eigen::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
                     cartesianState );
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
 
         // Check computed spherical orbital state against reference data
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 3: rotation with zero (heading, flight path, longitude) and half pi (latitude) angles.
     {
         // Define Cartesian state
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
 
         // Define associated spherical orbital state
@@ -156,9 +156,9 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         double speed = cartesianState.segment( 3, 3 ).norm( );
 
         // Convert pack and forth
-        basic_mathematics::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
+        Eigen::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
                     cartesianState );
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
 
         // Check computed spherical orbital state against reference data
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
 
     // Test case 4: rotation with zero (heading, longitude) and half pi (latitude, flight path) angles.
     {
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
 
         // Define associated spherical orbital state
@@ -206,9 +206,9 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         double speed = cartesianState.segment( 3, 3 ).norm( );
 
         // Convert pack and forth
-        basic_mathematics::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
+        Eigen::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
                     cartesianState );
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
 
         // Check computed spherical orbital state against reference data (heading angle not tested, because close to
@@ -244,11 +244,11 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
 
     // Test case 5: rotation with undefined heading angle.
     {
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
 
         // Define associated spherical orbital state
-        basic_mathematics::Vector6d sphericalOrbitalState;
+        Eigen::Vector6d sphericalOrbitalState;
         sphericalOrbitalState( headingAngleIndex )  = TUDAT_NAN;
         sphericalOrbitalState( flightPathIndex ) = -mathematical_constants::PI / 2.0;
         sphericalOrbitalState( latitudeIndex ) = mathematical_constants::PI / 2.0;
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         sphericalOrbitalState( radiusIndex )  = cartesianState.segment( 0, 3 ).norm( );
         sphericalOrbitalState( speedIndex )  = cartesianState.segment( 3, 3 ).norm( );
 
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitalState );
 
         // Check consistency of back-and-forth conversion
@@ -273,11 +273,11 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
 
     // Test case 5: rotation with undefined flight path angle.
     {
-        basic_mathematics::Vector6d cartesianState;
+        Eigen::Vector6d cartesianState;
         cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, 0.0;
 
         // Define associated spherical orbital state
-        basic_mathematics::Vector6d sphericalOrbitalState;
+        Eigen::Vector6d sphericalOrbitalState;
         sphericalOrbitalState( headingAngleIndex )  = TUDAT_NAN;
         sphericalOrbitalState( flightPathIndex ) = TUDAT_NAN;
         sphericalOrbitalState( latitudeIndex ) = mathematical_constants::PI / 2.0;
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
         sphericalOrbitalState( radiusIndex )  = cartesianState.segment( 0, 3 ).norm( );
         sphericalOrbitalState( speedIndex )  = cartesianState.segment( 3, 3 ).norm( );
 
-        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+        Eigen::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitalState );
 
         // Check consistency of back-and-forth conversion
