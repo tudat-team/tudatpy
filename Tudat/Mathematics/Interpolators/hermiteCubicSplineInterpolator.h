@@ -62,6 +62,12 @@ public:
         dependentValues_ = dependentValues;
         derivativeValues_ = derivativeValues;
 
+        // Check if data is in ascending order
+        if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
+        {
+            throw std::runtime_error( "Error when making hermite spline spline interpolator, input vector with independent variables should be in ascending order" );
+        }
+
         // compute coefficients
         computeCoefficients( );
 

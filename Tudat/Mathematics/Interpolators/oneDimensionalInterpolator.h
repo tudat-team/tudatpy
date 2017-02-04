@@ -87,9 +87,9 @@ public:
      *  \return Number of independent variables of the interpolation (1).
      */
     int getNumberOfDimensions( )
-        {
-            return 1;
-        }
+    {
+        return 1;
+    }
 
     //! Function to return the lookup scheme used by the interpolator.
     /*!
