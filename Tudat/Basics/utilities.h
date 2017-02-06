@@ -299,7 +299,7 @@ typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIn
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 1 >& m, const double* requestedElement );
+        const boost::multi_array< double, 1 >& multiArray, const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 2) of doubles
 /*!
@@ -309,7 +309,7 @@ boost::array< boost::multi_array< double, 1 >::index, 1 > getMultiArrayIndexArra
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 2 >& m, const double* requestedElement );
+        const boost::multi_array< double, 2 >& multiArray, const double* requestedElement );
 
 //! Get indices of pointer to single entry in multi-array (size 3) of doubles
 /*!
@@ -319,7 +319,7 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
  *  \return Indices of pointer to single entry in multi-array of doubles
  */
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
-        const boost::multi_array< double, 3 >& m, const double* requestedElement );
+        const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
 
 
 

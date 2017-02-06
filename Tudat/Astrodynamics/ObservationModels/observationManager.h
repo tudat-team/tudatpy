@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_OBSERVATIONMANAGER_H
 #define TUDAT_OBSERVATIONMANAGER_H
 
@@ -134,7 +144,7 @@ protected:
 //! Class to manage simulation of observables and associated partials for a single type of observable.
 /*!
  *  This class manages the simulation of observables and their partials, which are used during estimation.
- *  Separate observation models of a  \single kind (i.e. between different link ends) are all handled by a single object
+ *  Separate observation models of a single kind (i.e. between different link ends) are all handled by a single object
  *  of this type.
  */
 template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
@@ -294,11 +304,13 @@ protected:
     //! Function to calculate range partials at given states between link ends and reception and transmission time.
     /*!
      *  Function to calculate range partials at given states of link ends and reception and transmission times.
+     *  \param observationSize Size of single observation
      *  \param states States of link ends, order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */
     Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > determineObservationPartialMatrix(
