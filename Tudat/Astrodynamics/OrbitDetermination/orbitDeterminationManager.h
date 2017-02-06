@@ -286,7 +286,7 @@ public:
     /*!
      *  Function to determine the number of observations per link end from a map of observations for each link ends.
      *  The input type is directly related to the data stored for a single observable in PodInput::PodInputDataType.
-     *  \param Map of observations and times for a set of link ends.
+     *  \param dataPerLinkEnd Map of observations and times for a set of link ends.
      *  \return Vector of size of number of observations in input map (in order of forward iterator over input map).
      */
     static std::vector< int > getNumberOfObservationsPerLinkEnd(
@@ -348,7 +348,7 @@ public:
      *  This function calculates the observation partials matrix and residuals, based on the state transition matrix,
      *  sensitivity matrix and body states resulting from the previous numerical integration iteration.
      *  Partials and observations are calculated by the observationManagers_.
-     *  \param observationsAndTime Observable values and associated time tags, per observable type and set of link ends.
+     *  \param observationsAndTimes Observable values and associated time tags, per observable type and set of link ends.
      *  \param parameterVectorSize Length of the vector of estimated parameters
      *  \param totalObservationSize Total number of observations in observationsAndTimes map.
      *  \return residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
@@ -430,7 +430,12 @@ public:
      *  provided to the constructor by the linkEndsPerObservable parameter.
      *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
-     *  \return Object containing estimated parameter value and associated data, such as residuals and observation partials.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
+     *  when first calling this object (e.g. before 1st iteration of algorithm)
+     *  \param convergenceChecker Object used to check convergence/termination of algorithm
+     *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
+     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
@@ -568,6 +573,7 @@ public:
     /*!
      *  Function to reset the current parameter estimate; reintegrates the variational equations and equations of motion with new estimate.
      *  \param newParameterEstimate New estimate of parameter vector.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
@@ -650,7 +656,7 @@ public:
     /*!
      *  Function to retrieve an observation manager for a single observable type. The observation manager can simulate observations and
      *  calculate observation partials for all link ends involved in the given observable type.
-     *  \param observation_models::ObservableType Type of observable for which manager is to be retrieved.
+     *  \param observableType Type of observable for which manager is to be retrieved.
      *  \return Observation manager for given observable type.
      */
     boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > getObservationManager(
