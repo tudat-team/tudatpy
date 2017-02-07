@@ -169,6 +169,14 @@ public:
         // Loop until we have a solution with sufficient accuracy.
         do
         {
+            // Sanity check.
+            if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
+            {
+                boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                                                                      boost::str( boost::format(
+                                                                                      "The Bisection algorithm requires that the values at the upper "
+                                                                                      "and lower bounds have a different sign, error during iteration." ) ) ) ) );
+            }
             // Save old values.
             previousRootValue = rootValue;
             previousRootFunctionValue = rootFunctionValue;
@@ -191,15 +199,6 @@ public:
             // Compute the new midpoint of the interval and its function value.
             rootValue = ( currentLowerBound + currentUpperBound ) / 2.0;
             rootFunctionValue = this->rootFunction->evaluate( rootValue );
-
-            // Sanity check.
-            if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
-            {
-                boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                                      boost::str( boost::format(
-                                                                                      "The Bisection algorithm requires that the values at the upper "
-                                                                                      "and lower bounds have a different sign, error during iteration." ) ) ) ) );
-            }
 
             counter++;
         }
