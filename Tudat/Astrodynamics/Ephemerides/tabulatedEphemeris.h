@@ -13,6 +13,7 @@
 #define TUDAT_TABULATEDEPHEMERIS_H
 
 #include <map>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
@@ -152,6 +153,26 @@ private:
  *  \return True if ephemeris is a tabulated ephemeris
  */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
+
+//! Function to create an empty (dummy) tabulated ephemeris
+/*!
+ *  Function to create an empty (dummy) tabulated ephemeris. This is used when for instance propagating a body for which
+ *  the propagated result shopuld be saved in the epehemris, but no a priori ephemeris is available
+ *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
+ *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
+ *  \return Empty tabulated ephemeris with given reference frame settings
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+boost::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris(
+        const std::string referenceFrameOrigin = "SSB",
+        const std::string referenceFrameOrientation = "ECLIPJ2000"  )
+{
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+
+    return boost::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >( ),
+                referenceFrameOrigin, referenceFrameOrientation );
+}
 
 } // namespace ephemerides
 

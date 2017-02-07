@@ -394,6 +394,30 @@ private:
     const bool throwRunTimeException;
 };
 
+//! Check termination condition (required maximum absolute value of root function)
+/*!
+ * Check termination condition (required maximum absolute value of root function)
+ * \param currentRootGuess Current root value.
+ * \param previousRootGuess Previous root value.
+ * \param currentRootFunctionValue Current root function value (not used, included for
+ * base class compatibility).
+ * \param previousRootFunctionValue Previous root function value (not used, included for
+ * base class compatibility).
+ * \param numberOfIterations Number of iterations that have been completed.
+ * \param rootToleranceValue Maximum allowed value fo root function
+ * \return Flag indicating if termination condition has been reached.
+ */
+template< typename ScalarType = double >
+bool checkRootFunctionValueCondition( const ScalarType currentRootGuess,
+                                      const ScalarType previousRootGuess,
+                                      const ScalarType currentRootFunctionValue,
+                                      const ScalarType previousRootFunctionValue,
+                                      const unsigned int numberOfIterations,
+                                      const ScalarType rootToleranceValue )
+{
+    return (std::fabs( currentRootFunctionValue ) < rootToleranceValue );
+}
+
 //! Typedef for shared-pointer to MaximumIterationsTerminationCondition object.
 typedef boost::shared_ptr< MaximumIterationsTerminationCondition >
 MaximumIterationsTerminationConditionPointer;
