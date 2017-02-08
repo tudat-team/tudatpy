@@ -163,10 +163,10 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
         const bool doesNaxisPointAwayFromCentralBody )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
-    vehicleRadius = vehicleState.head( 3 ) - centralBodyState.head( 3 );
-    vehicleVelocity = vehicleState.tail( 3 ) - centralBodyState.tail( 3 );
+    vehicleRadius = vehicleState.segment( 0, 3 ) - centralBodyState.segment( 0, 3 );
+    vehicleVelocity = vehicleState.segment( 3, 3 ) - centralBodyState.segment( 3, 3 );
 
-    Eigen::Vector3d unitT = vehicleVelocity / vehicleVelocity.norm( );
+    Eigen::Vector3d unitT = vehicleVelocity.normalized( );// / vehicleVelocity.norm( );
     if ( vehicleRadius.cross( vehicleVelocity ).norm( ) == 0.0 )
     {
         std::string errorMessage = "Division by zero: radius and velocity are in the same direction.";
