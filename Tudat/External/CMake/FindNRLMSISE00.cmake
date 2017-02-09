@@ -9,10 +9,6 @@
  #
  #    References
  #      FindEigen3.cmake.
- #
- #    Notes
- #      This script tries to find NRLMSISE00 library.
- #
 
 # If the path has not been set previously or manually, try to autodetect the path
 if(NOT NRLMSISE00_BASE_PATH)
