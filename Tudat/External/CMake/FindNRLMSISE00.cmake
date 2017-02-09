@@ -8,7 +8,7 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
  #    References
- #      FindEigen3.cmake.
+ #      FindEigen3.cmake (2-clause BSD license)
 
 # If the path has not been set previously or manually, try to autodetect the path
 if(NOT NRLMSISE00_BASE_PATH)
