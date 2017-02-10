@@ -149,7 +149,7 @@ ScalarType computeFirstDerivativeKeplersFunctionForHyperbolicOrbits(
  * \param aMeanAnomaly Mean anomaly to convert to eccentric anomaly [rad].
  * \param useDefaultInitialGuess Boolean specifying whether to use default initial guess [-].
  * \param userSpecifiedInitialGuess Initial guess for rootfinder [rad].
- * \param aRootFinder Shared-pointer to the rootfinder that is to be used. Default is
+ * \param rootFinder Shared-pointer to the rootfinder that is to be used. Default is
  *          Newton-Raphson using 1000 iterations as maximum and apprximately 1.0e-13 absolute
  *          X-tolerance (for doubles; 500 times ScalarType resolution ).
  *          Higher precision may invoke machine precision problems for some values.
@@ -160,7 +160,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
         const ScalarType eccentricity, const ScalarType aMeanAnomaly,
         const bool useDefaultInitialGuess = true,
         const ScalarType userSpecifiedInitialGuess = TUDAT_NAN,
-        boost::shared_ptr< root_finders::RootFinderCore< ScalarType > > aRootFinder =
+        boost::shared_ptr< root_finders::RootFinderCore< ScalarType > > rootFinder =
         boost::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
 {
     using namespace mathematical_constants;
@@ -171,8 +171,6 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
     ScalarType meanAnomaly = basic_mathematics::computeModulo< ScalarType >(
                 aMeanAnomaly, getFloatingInteger< ScalarType >( 2 ) *
                 getPi< ScalarType >( ) );
-
-    boost::shared_ptr< RootFinderCore< ScalarType > > rootFinder = aRootFinder;
 
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
@@ -239,8 +237,40 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             initialGuess = userSpecifiedInitialGuess;
         }
 
-        // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
-        eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
+        try
+        {
+            // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
+            eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
+        }
+        // Use bisection algorithm if root finder fails
+        catch( std::runtime_error )
+        {
+            // Set tolerance
+            ScalarType tolerance = 100.0 * std::numeric_limits< ScalarType >::epsilon( );
+
+            // Set upper/lower bounds (loosely)
+            ScalarType lowerBound, upperBound;
+            if ( meanAnomaly > getPi< ScalarType >( ) )
+            {
+                lowerBound = 0.5 * getPi< ScalarType >( ) + 10.0 * std::numeric_limits< ScalarType >::epsilon( );
+                upperBound = mathematical_constants::getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
+            }
+            else
+            {
+                lowerBound = 0.0;
+                upperBound = 1.5 * getPi< ScalarType >( );
+            }
+
+            // Create root finder
+            boost::shared_ptr< RootFinderCore< ScalarType > > bisectionRootfinder =
+                    boost::make_shared< BisectionCore< ScalarType > >(
+                        boost::bind( &checkRootFunctionValueCondition< ScalarType >, _1, _2, _3, _4, _5, tolerance ),
+                        lowerBound, upperBound );
+
+            // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
+            initialGuess = meanAnomaly;
+            eccentricAnomaly = bisectionRootfinder->execute( rootFunction, initialGuess );
+        }
     }
 
     //  Eccentricity is invalid: eccentricity < 0.0 or eccentricity >= 1.0.
