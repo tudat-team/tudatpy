@@ -23,6 +23,7 @@
 
 #include <Eigen/Core>
 
+#include <vector>
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"

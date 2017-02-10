@@ -1,25 +1,16 @@
-#
-# ./cmake/compiler.cmake
-# ------------------------------------------------------------------------------
-# Copyright (C) 2012-2014 Software Competence Center Hagenberg GmbH (SCCH)
-# <thomas.natschlaeger@scch.at>, <office@scch.at>
-# -----------------------------------------------------------------------------
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# -----------------------------------------------------------------------------
-# This code is subject to dual-licensing. Please contact office@scch.at
-# if you are interested in obtaining a differently licensed version.
-#
+ #    Copyright (c) 2010-2017, Delft University of Technology
+ #    All rigths reserved
+ #
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
+ #
+ #    References
+ #       compiler.cmake GPLv3
+ #         Software Competence Center Hagenberg GmbH (SCCH)
+ #         <thomas.natschlaeger@scch.at>, <office@scch.at>
 
 # Provide options to force building with GNU or Clang, if the standard compiler is not desired
 option(USE_CLANG "Force build with clang (if gcc is standard)" OFF) # OFF is the default

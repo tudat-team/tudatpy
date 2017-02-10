@@ -123,8 +123,9 @@ void integrateEquationsFromIntegrator(
                 }
             }
         }
-        catch( std::runtime_error )
+        catch( const std::exception &caughtException )
         {
+            std::cerr << caughtException.what( )<<std::endl;
             std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
                        ", returning propagation data up to current time"<<std::endl;
             breakPropagation = 1;
