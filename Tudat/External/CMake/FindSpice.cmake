@@ -8,18 +8,7 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
  #    References
- #      FindEigen3.cmake.
- #
- #    Notes
- #      This script tries to find SPICE library.
- #
- #      Original copyright statements (from FindEigen3.cmake:
- #          Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
- #          Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
- #          Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
- #
- #      FindEigen3.cmake states that redistribution and use is allowed according to the terms of
- #      the 2-clause BSD license.
+ #      FindEigen3.cmake licensed under the 2-clause BSD license.
 
 # If the path has not been set previously or manually, try to autodetect the path
 if(NOT SPICE_BASE_PATH)
