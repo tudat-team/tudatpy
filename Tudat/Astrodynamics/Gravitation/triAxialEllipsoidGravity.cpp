@@ -135,9 +135,9 @@ createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
     Eigen::MatrixXd normalizedCosineCoefficients = unNormalizedCoefficients.first;
 
     // Iterate over all degrees and orders and normalized coefficients
-    for( unsigned int i = 2; i < normalizedCosineCoefficients.rows( ); i++ )
+    for( int i = 2; i < normalizedCosineCoefficients.rows( ); i++ )
     {
-        for( unsigned int j = 0; ( ( j < normalizedCosineCoefficients.cols( ) ) &&
+        for( int j = 0; ( ( j < normalizedCosineCoefficients.cols( ) ) &&
                                    ( j <= i ) ); j++ )
         {
             normalizedCosineCoefficients( i, j ) = normalizedCosineCoefficients( i, j ) /
