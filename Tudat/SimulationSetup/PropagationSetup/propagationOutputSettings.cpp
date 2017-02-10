@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -96,6 +96,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     case total_mass_rate_dependent_variables:
         variableName = "Body mass rate";
+        break;
+    case lvlh_to_inertial_frame_rotation_dependent_variable:
+        variableName = "LVLH to inertial frame rotation matrix";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

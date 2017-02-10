@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -135,9 +135,9 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
     Eigen::Matrix3d sphericalHessian, sphericalHessianTerm;
 
     sphericalHessian.setZero( );
-    for( unsigned int i = 0; i < cosineHarmonicCoefficients.rows( ); i++ )
+    for( int i = 0; i < cosineHarmonicCoefficients.rows( ); i++ )
     {
-        for( unsigned int j = 0; ( j <= i && j < cosineHarmonicCoefficients.cols( ) ); j++ )
+        for( int j = 0; ( j <= i && j < cosineHarmonicCoefficients.cols( ) ); j++ )
         {
             computePotentialSphericalHessian(
                         sphericalPosition, preMultiplier, i, j, cosineHarmonicCoefficients( i, j ),

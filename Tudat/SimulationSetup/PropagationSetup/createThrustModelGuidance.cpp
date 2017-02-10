@@ -1,3 +1,12 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 #include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 #include "Tudat/Basics/utilities.h"
 
@@ -32,9 +41,9 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
         else
         {
             // Retrieve state function of body for which thrust is to be computed.
-            boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction =
+            boost::function< Eigen::Vector6d( ) > bodyStateFunction =
                     boost::bind( &Body::getState, bodyMap.at( nameOfBodyWithGuidance ) );
-            boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+            boost::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
             // Retrieve state function of central body (or set to zero if inertial)
             if( thrustDirectionFromStateGuidanceSettings->relativeBody_ != "SSB" &&
@@ -47,11 +56,11 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
             }
             else
             {
-                centralBodyStateFunction = boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+                centralBodyStateFunction = boost::lambda::constant( Eigen::Vector6d::Zero( ) );
             }
 
             // Define relative state function
-            boost::function< void( basic_mathematics::Vector6d& ) > stateFunction =
+            boost::function< void( Eigen::Vector6d& ) > stateFunction =
                     boost::bind(
                         &ephemerides::getRelativeState, _1, bodyStateFunction, centralBodyStateFunction );
             boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;

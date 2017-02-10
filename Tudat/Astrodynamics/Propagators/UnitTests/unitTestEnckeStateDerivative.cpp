@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_SUITE( test_encke_propagator )
 // Test Encke propagator for point mass central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 {
-    // Test simulation for different central body cases
+    // Test simulation for diffe  rent central body cases
     for( unsigned int simulationCase = 0; simulationCase < 2; simulationCase++ )
     {
         //Using declarations.
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
         bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                 boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Vector6d  > >( ), "Earth", "J2000" ) );
+                                                < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         boost::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" )( "Moon" ) );
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
         // Set Keplerian elements for Vehicle.
-        Vector6d vehicleInitialStateInKeplerianElements;
+        Eigen::Vector6d vehicleInitialStateInKeplerianElements;
         vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
         vehicleInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
         vehicleInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         vehicleInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
         double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-        const Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
+        const Eigen::Vector6d vehicleInitialState = convertKeplerianToCartesianElements(
                     vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
         // Define propagator settings (Cowell)
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
         double initialTestTime = simulationStartEpoch + 10.0 * fixedStepSize;
@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
@@ -426,6 +426,131 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
             cowellIterator++;
         }
     }
+}
+
+//! test if Encke propagator works properly for high eccentricities. Test if the propagation continmues unimpeded for
+//! large eccentricities (was found to fail in rpevious version due to no convergence of root finder
+BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
+{
+    using namespace tudat;
+    using namespace simulation_setup;
+    using namespace propagators;
+    using namespace numerical_integrators;
+    using namespace orbital_element_conversions;
+    using namespace basic_mathematics;
+    using namespace gravitation;
+    using namespace numerical_integrators;
+    using namespace unit_conversions;
+
+    std::vector< double > testEccentricities;
+    testEccentricities.push_back( 0.8 );
+    testEccentricities.push_back( 0.9 );
+    testEccentricities.push_back( 0.95 );
+    testEccentricities.push_back( 0.99 );
+
+    for( unsigned testCase = 0; testCase < testEccentricities.size( ); testCase++ )
+    {
+        std::cout<<"Testint with eccentricity "<<testEccentricities.at( testCase );
+        // Set simulation end epoch.
+        const double simulationEndEpoch = 2.0 * tudat::physical_constants::JULIAN_DAY;
+
+        // Set numerical integration fixed step size.
+        const double fixedStepSize = 15.0;
+
+        // Define body settings for simulation.
+        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+        bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
+        bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                    Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+        bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+
+        // Create Earth object
+        NamedBodyMap bodyMap = createBodies( bodySettings );
+
+        // Create spacecraft object.
+        bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+
+
+        // Finalize body creation.
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define propagation settings.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                         basic_astrodynamics::central_gravity ) );
+        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        bodiesToPropagate.push_back( "Asterix" );
+        centralBodies.push_back( "Earth" );
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+        // Set Keplerian elements for Asterix.
+        Eigen::Vector6d asterixInitialStateInKeplerianElements;
+        asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+        asterixInitialStateInKeplerianElements( eccentricityIndex ) = testEccentricities.at( testCase );
+        asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
+        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+                = convertDegreesToRadians( 235.7 );
+        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+                = convertDegreesToRadians( 23.4 );
+        asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
+
+        // Convert Asterix state from Keplerian elements to Cartesian elements.
+        double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+        Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
+                    asterixInitialStateInKeplerianElements,
+                    earthGravitationalParameter );
+
+        TranslationalPropagatorType propagatorType = encke;
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType);
+
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
+                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+        std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+        // Check if orbit is properly propagated
+        Eigen::VectorXd analyticalSolution;
+        double finalTime = integrationResult.rbegin( )->first;
+
+        // Check if final time is correctly reached
+        BOOST_CHECK_EQUAL( simulationEndEpoch <=  finalTime, true );
+
+        // Loosen velocity tolerance for high eccentricity
+        double toleranceMultiplier = ( testCase > 2 ) ? 100.0 : 1.0;
+
+        // Compare propagated orbit against numerical result.
+        for( std::map< double, Eigen::VectorXd >::const_iterator resultIterator = integrationResult.begin( );
+             resultIterator != integrationResult.end( ); resultIterator++ )
+        {
+            analyticalSolution = convertKeplerianToCartesianElements( propagateKeplerOrbit(
+                        asterixInitialStateInKeplerianElements, resultIterator->first, earthGravitationalParameter ),
+                                         earthGravitationalParameter );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( analyticalSolution( i ) - resultIterator->second( i ) ), 1.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( analyticalSolution( i  + 3 ) - resultIterator->second( i + 3  ) ),
+                                   toleranceMultiplier * 5.0E-6 );
+
+            }
+        }
+    }
+
 }
 BOOST_AUTO_TEST_SUITE_END( )
 

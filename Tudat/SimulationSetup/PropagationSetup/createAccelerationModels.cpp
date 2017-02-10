@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -801,13 +801,13 @@ createThrustAcceleratioModel(
             // Create rotation function from thrust-frame to propagation frame.
             if( thrustAccelerationSettings->thrustFrame_ == lvlh_thrust_frame )
             {
-                boost::function< basic_mathematics::Vector6d( ) > vehicleStateFunction =
+                boost::function< Eigen::Vector6d( ) > vehicleStateFunction =
                         boost::bind( &Body::getState, bodyMap.at( nameOfBodyUndergoingThrust ) );
-                boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+                boost::function< Eigen::Vector6d( ) > centralBodyStateFunction;
 
                 if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
                 {
-                    centralBodyStateFunction =  boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+                    centralBodyStateFunction =  boost::lambda::constant( Eigen::Vector6d::Zero( ) );
                 }
                 else
                 {

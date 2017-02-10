@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -36,10 +36,10 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
 }
 
 //! Function to convert a Cartesian to a spherical orbital state.
-basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
-        const basic_mathematics::Vector6d& bodyFixedCartesianState )
+Eigen::Vector6d convertCartesianToSphericalOrbitalState(
+        const Eigen::Vector6d& bodyFixedCartesianState )
 {
-    basic_mathematics::Vector6d sphericalOrbitalState;
+    Eigen::Vector6d sphericalOrbitalState;
 
     // Compute and set spherical position
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical< double >(
@@ -64,10 +64,10 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
 }
 
 //! Function to convert a spherical orbital to a Cartesian state.
-basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
-        const basic_mathematics::Vector6d& sphericalOrbitalState )
+Eigen::Vector6d convertSphericalOrbitalToCartesianState(
+        const Eigen::Vector6d& sphericalOrbitalState )
 {
-    basic_mathematics::Vector6d cartesianState;
+    Eigen::Vector6d cartesianState;
 
     // Compute Cartesian position
     Eigen::Vector3d sphericalPosition = sphericalOrbitalState.segment( 0, 3 );

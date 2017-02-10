@@ -1,51 +1,17 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      102511    D. Dirkx          First version of file.
- *      110501    D. Dirkx          Added more comments.
- *      112701    D. Dirkx          Finalized for code check.
- *      110131    B. Romgens        Minor modifications during code check.
- *      110204    D. Dirkx          Finalized code.
- *      120912    D. Dirkx          Adjusted to meet RAII idiom. Implemented use of Boost
- *                                  (multi-)arrays where convenient.
- *      121009    A. Ronse          Adjusted inclination-determination to surface-outward normals.
- *                                  Limited inclination computations to 1 per aoa and aos pair.
- *                                  Streamlined initialization of isCoefficientGenerated_.
- *      130120    K. Kumar          Added shared pointer to HypersonicLocalInclinationAnalysis
- *                                  object.
- *      140129    D. Dirkx          Changed Doxygen statements
- *      140130    T. Roegiers       Changed Doxygen statements
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic Arbitrary Body
  *        Program, Volume II - Program Formulation, Douglas Aircraft Company, 1973.
  *      Anderson Jr. , J.D, Hypersonic and High-Temperature Gas Dynamics, 2nd edition,
  *        AIAA Education Series, 2006
- *
- *    Notes
  *
  */
 
@@ -63,7 +29,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
@@ -160,7 +126,7 @@ public:
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    basic_mathematics::Vector6d getAerodynamicCoefficientsDataPoint(
+    Eigen::Vector6d getAerodynamicCoefficientsDataPoint(
             const boost::array< int, 3 > independentVariables );
 
     //! Determine inclination angles of panels on a given part.
@@ -234,7 +200,7 @@ private:
      * \param independentVariableIndices Array of indices of independent variables.
      * \return Force and moment coefficients for requested vehicle part.
      */
-    basic_mathematics::Vector6d determinePartCoefficients(
+    Eigen::Vector6d determinePartCoefficients(
             const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.

@@ -1,73 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      101203    E. Iorfida        First creation of the code.
- *      101208    E. Iorfida        Fulfillment of the code with the elliptical case.
- *      101208    E. Iorfida        Modified punctuation.
- *      101215    E. Iorfida        Added tolerance, added parabolic, circular and hyperbolic
- *                                  cases.
- *      101217    E. Iorfida        Added computeAbsoluteValue( ) in the errors computation,
- *                                  modified punctuation.
- *      101219    J. Melman         Put gravitational parameters in one place, changed first right
- *                                  ascension to 15.0 * pi / 8.0, thereby exposing a possible
- *                                  error.
- *      110107    E. Iorfida        orbitalConversionBookExampleUnitTest.test added to this file,
- *                                  to have a unique unit test file for the conversion code. Also
- *                                  some punctuation modifications have been made.
- *      110109    J. Melman         Included test for semi-latus rectum of circular case. Gave the
- *                                  orbital angles less trivial values, and not almost exclusively
- *                                  in the first quadrant.
- *      110111    E. Iorfida        Updated to the new format of unitTest file and added hyperbolic
- *                                  equatorial case.
- *      110204    K. Kumar          Removed "vector" from naming.
- *      110216    K. Kumar          Added unit tests for new orbital element conversion functions.
- *      110310    K. Kumar          Changed right ascension of ascending node to longitude of
- *                                  ascending node.
- *      110510    K. Kumar          Updated to use new orbital element conversion functions and
- *                                  removed dynamic memory allocation.
- *      120131    K. Kumar          Revamped to use the Boost unit test framework. Unit tests
- *                                  now test Kepler <-> Cartesian element conversions individually.
- *                                  Only these two conversions are tested for Tudat Core. Unit
- *                                  tests use ODTBX as benchmark.
- *      120201    K. Kumar          Added unit tests for conversions transferred to Tudat Core.
- *      120203    K. Kumar          Changed orbital element defines to enum.
- *      120204    K. Kumar          Added unit tests for parabolic orbits; the tests are not ideal;
- *                                  see tests for notes.
- *      120206    K. Kumar          Added tests for wrapper functions and regrouped existing unit
- *                                  tests. Some tests need to be reviewed since external data
- *                                  hasn't been found.
- *      120423    K. Kumar          Added unit tests for low-inclination, low-eccentricity and
- *                                  zero-inclination and/or zero-eccentricity orbits
- *                                  using benchmark data from Keplerian toolbox (ESA, 2012) and
- *                                  internal consistency check.
- *      120424    T. Secretin       Code check. Changed some tolerances in
- *                                  testCartesianToKeplerianElementConversion to avoid failures
- *                                  under Windows. Added check for zero-valued angles in
- *                                  testCartesianToKeplerianElementConversion.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      NASA, Goddard Spaceflight Center. Orbit Determination Toolbox (ODTBX), NASA - GSFC Open
@@ -89,8 +27,6 @@
  *      Advanced Concepts Team, ESA. Keplerian Toolbox, http://sourceforge.net/projects/keptoolbox,
  *          last accessed: 21st April, 2012.
  *
- *    Notes
- *
  */
 
 #define BOOST_TEST_MAIN
@@ -107,7 +43,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -1630,21 +1566,21 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
 {
 
     // Define previously offending states and gravitational parameters.
-    basic_mathematics::Vector6d centralBodyCartesianState;
+    Eigen::Vector6d centralBodyCartesianState;
     centralBodyCartesianState<<-521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
             3904.21508802941389149054884911, -18262.3110776023386279121041298, 103.914916159730324807242141105;
 
-    basic_mathematics::Vector6d orbitingBodyCartesianState;
+    Eigen::Vector6d orbitingBodyCartesianState;
     orbitingBodyCartesianState<<-520894562964.4881591796875, 595481881288.00537109375, 8071968111.222164154052734375,
             -10065.8995464500585512723773718, -7984.05278915743656398262828588, 261.213167975313467650266829878;
 
-    basic_mathematics::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
+    Eigen::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
 
     double gravitationalParameterOfCentralBody = 126686534921800800;
     double gravitationalParameterOfOrbitingBody = 5959916033410.404296875;
 
     // Convert to Keplerian state
-    basic_mathematics::Vector6d keplerianState =
+    Eigen::Vector6d keplerianState =
             orbital_element_conversions::convertCartesianToKeplerianElements(
                 relativeCartesianState, gravitationalParameterOfCentralBody + gravitationalParameterOfOrbitingBody );
 

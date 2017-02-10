@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,8 +22,8 @@ namespace observation_models
 
 //! Function to calculate first order relativistic light time correction due to set of gravitating point masses.
 double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
-        const basic_mathematics::Vector6d& transmitterState,
-        const basic_mathematics::Vector6d& receiverState,
+        const Eigen::Vector6d& transmitterState,
+        const Eigen::Vector6d& receiverState,
         const double transmissionTime,
         const double receptionTime )
 {

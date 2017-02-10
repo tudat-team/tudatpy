@@ -3,7 +3,7 @@
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -34,11 +34,11 @@ GroundStationState::GroundStationState(
 }
 
 //! Function to obtain the Cartesian state of the ground station in the local frame at a given time.
-basic_mathematics::Vector6d GroundStationState::getCartesianStateInTime(
+Eigen::Vector6d GroundStationState::getCartesianStateInTime(
         const double secondsSinceEpoch,
         const double inputReferenceEpoch )
 {
-    return ( basic_mathematics::Vector6d( ) << cartesianPosition_, Eigen::Vector3d::Zero( ) ).finished( );
+    return ( Eigen::Vector6d( ) << cartesianPosition_, Eigen::Vector3d::Zero( ) ).finished( );
 }
 
 //! Function to (re)set the nominal state of the station

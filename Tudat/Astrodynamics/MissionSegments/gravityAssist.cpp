@@ -1,54 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110117    E. Iorfida        File created.
- *      110128    E. Iorfida        Added boolean variable that sets the necessity of
- *                                  Newton-Raphson method, particularly in unit test.
- *      110202    J. Melman         Renamed certain parameters and added comments to clarify the
- *                                  code more.
- *      110203    E. Iorfida        Changed some variables names and modified punctuation.
- *      110205    J. Melman         Removed the trailing underscores in some public variables. Some
- *                                  comment rephrasing. Changed and added some notes.
- *      110212    J. Melman         Added a reference to my own thesis.
- *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
- *                                  GeometricShapes.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
- *      120508    P. Musegaas       The gravitational parameter is now passed as double.
- *      120530    P. Musegaas       Complete revision. Removed class structure, made it a free
- *                                  function. Added two functions for propagating a gravity assist
- *                                  (powered and unpowered).
- *      120625    P. Musegaas       Minor changes.
- *      120703    T. Secretin       Minor layout changes.
- *      120704    P. Musegaas       Minor change. Reduced negligence of velocity effect from 1 cm/s
- *                                  to 1 micrometer/second.
- *      120713    P. Musegaas       Fixed various bugs (case with both bending + velocity effect
- *                                  was wrong, limit cases failed, rootfinder not ideal, all for
- *                                  original deltaV calculation function). Added iteration on
- *                                  pericenter radius instead of eccentricity. Improved efficiency.
- *      120813    P. Musegaas       Changed code to new root finding structure.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      References for deltaV computation function:

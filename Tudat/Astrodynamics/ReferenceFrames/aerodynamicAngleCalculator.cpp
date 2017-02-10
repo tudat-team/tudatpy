@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -411,6 +411,21 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         angleUpdateFunction_ = angleUpdateFunction;
     }
 
+}
+
+//! Function to set constant trajectory<->body-fixed orientation angles.
+void AerodynamicAngleCalculator::setOrientationAngleFunctions(
+        const double angleOfAttack,
+        const double angleOfSideslip,
+        const double bankAngle )
+{
+    boost::function< double( ) > angleOfAttackFunction =
+            ( ( angleOfAttack == angleOfAttack ) ? boost::lambda::constant( angleOfAttack ) : boost::function< double( ) >( ) );
+    boost::function< double( ) > angleOfSideslipFunction =
+            ( ( angleOfSideslip == angleOfSideslip ) ? boost::lambda::constant( angleOfSideslip ) : boost::function< double( ) >( ) );
+    boost::function< double( ) > bankAngleFunction =
+            ( ( bankAngle == bankAngle ) ? boost::lambda::constant( bankAngle ): boost::function< double( ) >( ) );
+    setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
 }
 
 //! Get a function to transform aerodynamic force from local to propagation frame.
