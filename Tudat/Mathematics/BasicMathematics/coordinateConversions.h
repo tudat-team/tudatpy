@@ -1,56 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      100903    K. Kumar          File header and footer added.
- *      100916    L. Abdulkadir     File checked.
- *      100929    K. Kumar          Checked code by D. Dirkx added.
- *      101110    K. Kumar          Added raiseToIntegerExponent() function.
- *      102410    D. Dirkx          Minor comment changes during code check.
- *      101213    K. Kumar          Modified raiseToIntegerExponent() function;
- *                                  renamed raiseToIntegerPower().
- *                                  Added computeAbsoluteValue() functions.
- *      110111    J. Melman         Added computeModulo() function.
- *      110202    K. Kumar          Added overload for State* for computeLinearInterpolation().
- *      110411    K. Kumar          Added convertCartesianToSpherical() function.
- *      110707    K. Kumar          Added computeSampleMean(), computeSampleVariance() functions.
- *      110810    J. Leloux         Corrected doxygen documentation (equations).
- *      110824    J. Leloux         Corrected doxygen documentation.
- *      110905    S. Billemont      Reorganized includes.
- *                                  Moved (con/de)structors and getter/setters to header.
- *      120127    D. Dirkx          First version branched from basic mathematics in Tudat Core.
- *      120127    K. Kumar          Minor comment edits.
- *      120118    D. Gondelach      Added new convertCylindricalToCartesian functions.
- *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
- *      120511    K. Kumar          Added enums for cylindrical and Cartesian coordinates.
- *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
- *      131022    T. Roegiers       Added conversion from spherical state to Cartesian state.
- *                                  Added conversion from Cartesian state to spherical state.
- *                                  Added enum for spherical coordinates.
- *      140114    E. Brandon        Minor comment changes during code-check.
- *      140123    T. Roegiers       Corrected enum for spherical and cylindrical coordinates.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -58,8 +13,6 @@
  *      Torok, J.S. Analytical Mechanics: with an Introduction to Dynamical Systems, John Wiley and
  *          Sons, Inc., 2000.
  *      Vallado, D.A. Fundamentals of Astrodynamics and Applications. Microcosm Press, 2001.
- *
- *    Notes
  *
  */
 
@@ -70,7 +23,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -236,8 +189,8 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
  *           where Vtheta = r*thetadot.
  * \return Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
  */
-basic_mathematics::Vector6d convertCylindricalToCartesianState(
-        const basic_mathematics::Vector6d& cylindricalState );
+Eigen::Vector6d convertCylindricalToCartesianState(
+        const Eigen::Vector6d& cylindricalState );
 
 //! Convert Cartesian to cylindrical coordinates.
 /*!
@@ -274,8 +227,8 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 * \param cartesianState Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
 * \return Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot.
 */
-basic_mathematics::Vector6d convertCartesianToCylindricalState(
-        const basic_mathematics::Vector6d& cartesianState );
+Eigen::Vector6d convertCartesianToCylindricalState(
+        const Eigen::Vector6d& cartesianState );
 
 //! Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
 /*!
@@ -400,8 +353,8 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
   *
   * Take care: here the elevation is used, not the zenith angle!
   */
-basic_mathematics::Vector6d convertSphericalToCartesianState(
-        const basic_mathematics::Vector6d& sphericalState );
+Eigen::Vector6d convertSphericalToCartesianState(
+        const Eigen::Vector6d& sphericalState );
 
 //! Convert Cartesian to spherical state.
 /*!
@@ -449,8 +402,8 @@ basic_mathematics::Vector6d convertSphericalToCartesianState(
   *
   * Take care: here the elevation is used, not the zenith!
   */
-basic_mathematics::Vector6d convertCartesianToSphericalState(
-        const basic_mathematics::Vector6d& cartesianState );
+Eigen::Vector6d convertCartesianToSphericalState(
+        const Eigen::Vector6d& cartesianState );
 
 } // namespace coordinate_conversions
 

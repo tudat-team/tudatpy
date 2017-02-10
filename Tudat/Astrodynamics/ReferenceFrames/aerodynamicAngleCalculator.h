@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,7 +20,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
@@ -100,7 +100,7 @@ public:
      * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
      */
     AerodynamicAngleCalculator(
-            const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
+            const boost::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
             const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const std::string centralBodyName,
             const bool calculateVerticalToAerodynamicFrame = 0,
@@ -199,6 +199,18 @@ public:
             const boost::function< double( ) > bankAngleFunction =  boost::function< double( ) >( ),
             const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
+    //! Function to set constant trajectory<->body-fixed orientation angles.
+    /*!
+     * Function to set constant trajectory<->body-fixed orientation angles.
+     * \param angleOfAttack Constant angle of attack (default NaN, used if no angle is to be defined).
+     * \param angleOfSideslip Constant angle of sideslip (default NaN, used if no angle is to be defined).
+     * \param bankAngle Constant bank angle (default NaN, used if no angle is to be defined).
+     */
+    void setOrientationAngleFunctions(
+            const double angleOfAttack = TUDAT_NAN,
+            const double angleOfSideslip = TUDAT_NAN,
+            const double bankAngle = TUDAT_NAN );
+
     //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
     /*!
      * Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
@@ -224,7 +236,7 @@ public:
      * Function to get the current body-fixed state of vehicle, as set by previous call to update( ).
      * \return Current body-fixed state of vehicle, as set by previous call to update( ).
      */
-    basic_mathematics::Vector6d getCurrentBodyFixedState( )
+    Eigen::Vector6d getCurrentBodyFixedState( )
     {
         return currentBodyFixedState_;
     }
@@ -251,7 +263,7 @@ private:
     Eigen::Quaterniond > currentRotationMatrices_;
 
     //! Current body-fixed state of vehicle, as set by previous call to update( ).
-    basic_mathematics::Vector6d currentBodyFixedState_;
+    Eigen::Vector6d currentBodyFixedState_;
 
     Eigen::Quaterniond currentRotationFromCorotatingToInertialFrame_;
 
@@ -260,7 +272,7 @@ private:
      *  Vehicle state in a frame fixed w.r.t. the central body.
      *  Note that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
      */
-    boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction_;
+    boost::function< Eigen::Vector6d( ) > bodyFixedStateFunction_;
 
     //! Function returning the quaternion that rotates from the corotating to the inertial frame.
     boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;

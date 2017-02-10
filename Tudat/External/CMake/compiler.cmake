@@ -1,25 +1,16 @@
-#
-# ./cmake/compiler.cmake
-# ------------------------------------------------------------------------------
-# Copyright (C) 2012-2014 Software Competence Center Hagenberg GmbH (SCCH)
-# <thomas.natschlaeger@scch.at>, <office@scch.at>
-# -----------------------------------------------------------------------------
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# -----------------------------------------------------------------------------
-# This code is subject to dual-licensing. Please contact office@scch.at
-# if you are interested in obtaining a differently licensed version.
-#
+ #    Copyright (c) 2010-2017, Delft University of Technology
+ #    All rigths reserved
+ #
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
+ #
+ #    References
+ #       compiler.cmake GPLv3
+ #         Software Competence Center Hagenberg GmbH (SCCH)
+ #         <thomas.natschlaeger@scch.at>, <office@scch.at>
 
 # Provide options to force building with GNU or Clang, if the standard compiler is not desired
 option(USE_CLANG "Force build with clang (if gcc is standard)" OFF) # OFF is the default
@@ -70,7 +61,7 @@ if( TUDAT_BUILD_CLANG )
     set ( CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" )
     set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g" )
 
-    set ( CMAKE_CXX_FLAGS                "-Wall -std=c++11" )
+    set ( CMAKE_CXX_FLAGS                "-Wall -Wextra -Wno-unused-parameter -std=c++11" )
     set ( CMAKE_CXX_FLAGS_DEBUG          "-g" )
     set ( CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG" )
     set ( CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG" )
@@ -93,7 +84,11 @@ elseif( TUDAT_BUILD_GNU )
     set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g")
 
+<<<<<<< HEAD
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -ftemplate-backtrace-limit=0")
+=======
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+>>>>>>> master
 
     # MinGW fixes
     if( MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
@@ -130,3 +125,5 @@ else()
     message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}" )
     message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")
 endif()
+
+message(STATUS "Building with flags: ${CMAKE_CXX_FLAGS}.")

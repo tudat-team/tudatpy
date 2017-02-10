@@ -1,34 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120717    D. Dirkx          Creation of file.
- *      121001    M. Ganeff         Added unit test for clearing and loading spice kernels.
- *      140127    D. Dirkx          Adapted for custom Spice kernel folder.
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    Notes
  *      To run this unit tests, a number of spice kernels need to be placed in the
@@ -57,7 +34,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
@@ -71,7 +48,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using basic_mathematics::Vector6d;
+using Eigen::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
@@ -152,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
     const double ephemerisTime = 1.0E6;
 
     // Get state from wrapper for state:
-    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
+    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections, ephemerisTime );
 
     // Get position from wrapper for position:
@@ -286,6 +263,32 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     BOOST_CHECK_SMALL( forwardBackwardRotation.z( ),
                        std::numeric_limits< double >::epsilon( ) );
 
+    // Check automatic state conversion to/from rotating frame.
+    Eigen::Vector6d stateOfMoonInJ2000 = spice_interface::getBodyCartesianStateAtEpoch(
+                "Moon", "SSB", "J2000", "NONE", 1.0E7 );
+    Eigen::Vector6d expectedStateOfMoonWrtEarth = spice_interface::getBodyCartesianStateAtEpoch(
+                "Moon", "SSB", "IAU_Earth", "NONE", 1.0E7 );
+
+    Eigen::Vector6d computedStateOfMoonWrtEarth =
+            ephemerides::transformStateToTargetFrame(
+                stateOfMoonInJ2000, 1.0E7,  spiceRotationalEphemeris );
+    Eigen::Vector6d computedStateOfMoonInJ2000 =
+            ephemerides::transformStateToGlobalFrame(
+                computedStateOfMoonWrtEarth, 1.0E7,  spiceRotationalEphemeris );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL(
+                    std::fabs( expectedStateOfMoonWrtEarth( i ) - computedStateOfMoonWrtEarth( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( expectedStateOfMoonWrtEarth( i + 3 ) - computedStateOfMoonWrtEarth( i + 3 ) ), 1.0E-8 );
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( stateOfMoonInJ2000( i ) - computedStateOfMoonInJ2000( i ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( stateOfMoonInJ2000( i + 3 ) - computedStateOfMoonInJ2000( i + 3 ) ), 1.0E-8 );
+
+    }
 }
 
 // Test 4: Test retrieval of body properties.
@@ -349,8 +352,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 
     SpiceEphemeris spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 0, referenceFrame );
 
-    basic_mathematics::Vector6d directState = basic_mathematics::Vector6d( );
-    basic_mathematics::Vector6d ephemerisState = basic_mathematics::Vector6d( );
+    Eigen::Vector6d directState = Eigen::Vector6d( );
+    Eigen::Vector6d ephemerisState = Eigen::Vector6d( );
 
     // Check calculated state with no aberration corrections.
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
@@ -451,12 +454,12 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
     const double julianDay = 2451556.500000000;
 
     // Get state from wrapper for state:
-    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
+    const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections,
                 convertJulianDateToEphemerisTime( julianDay ) );
 
     // Set state as retrieved from Horizons (see Issue wiki-knowledgebase-spice interface)
-    Vector6d horizonsState;
+    Eigen::Vector6d horizonsState;
     horizonsState << 2.066392047883538e8,
             2.364158324807732e7,
             -4.570656418319555e6,

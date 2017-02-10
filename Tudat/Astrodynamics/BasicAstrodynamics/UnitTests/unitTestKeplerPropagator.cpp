@@ -1,49 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110216    K. Kumar          File created.
- *      110217    E. Iorfida        Minor changes made.
- *      110221    K. Kumar          Updated variable-naming to comply with protocol.
- *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
- *      120215    K. Kumar          Updated to use new propagateKeplerOrbit() function;
- *                                  Boostified unit test; added new unit tests based on ODTBX.
- *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo() from
- *                                  Tudat Core.
- *      120225    K. Kumar          Updated unit test using data from (Melman, 2010) to fix bug in
- *                                  Linux; data is no longer imported from input text file.
- *      120508    K. Kumar          Corrected bug in backwards propagation loop end-condition.
- *      120607    P. Musegaas       Updated unit test to new interface.
- *      120813    P. Musegaas       Updated unit test to new root finding structure.
- *      120823    P. Musegaas       Separated existing unit tests. Added unit test for hyperbolic
- *                                  kepler propagation, with accompanying data from GTOP.
- *      120904    P. Musegaas       Added unit test of a case that failed on the old modulo
- *                                  function in the Kepler propagator. Removed dedicated modulo
- *                                  unit test.
- *      121205    P. Musegaas       Updated code to final version of rootfinders.
- *      150417    D. Dirkx          Made modifications for templated element conversions.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Melman, J. Propagate software, J.C.P.Melman@tudelft.nl, 2010.
@@ -51,8 +13,6 @@
  *          Source Software, http://opensource.gsfc.nasa.gov/projects/ODTBX/, last accessed:
  *          31st January, 2012.
  *      ESA, GTOP Toolbox, http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar.
- *
- *    Notes
  *
  */
 
@@ -74,7 +34,7 @@
 
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/keplerPropagatorTestData.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
@@ -98,7 +58,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     PropagationHistory benchmarkKeplerPropagationHistory = getMelmanBenchmarkData( );
 
     // Propagate to final state in Keplerian elements.
-    basic_mathematics::Vector6d computedFinalStateInKeplerianElements
+    Eigen::Vector6d computedFinalStateInKeplerianElements
             = propagateKeplerOrbit(
                 benchmarkKeplerPropagationHistory.begin( )->second,
                 benchmarkKeplerPropagationHistory.rbegin( )->first -
@@ -226,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_FunctionFailingOnOldModuloFunctio
     const double gravitationalParameter = 1.32712428e20;
 
     // Set initial Keplerian elements.
-    basic_mathematics::Vector6d keplerElements;
+    Eigen::Vector6d keplerElements;
     keplerElements << 56618890355.593132, 0.99961601437304082, 1.0238269559089248,
             3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
 
@@ -247,7 +207,7 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
     // Test using double parameters.
     {
         double gravitationalParameter = 398600.4415e9;
-        basic_mathematics::Vector6d initialStateInKeplerianElements;
+        Eigen::Vector6d initialStateInKeplerianElements;
 
         initialStateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
                 4.71463172847351, 4.85569272927819, 2.37248926702153;
@@ -262,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
 
         double propagationTime, propagatedMeanAnomaly;
 
-        basic_mathematics::Vector6d propagatedKeplerElements;
+        Eigen::Vector6d propagatedKeplerElements;
 
 
         for( int i = -25; i < 26; i++ )

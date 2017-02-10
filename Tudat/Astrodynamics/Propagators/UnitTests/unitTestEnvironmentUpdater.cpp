@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Test if Mars is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ), basic_mathematics::Vector6d::Zero( ),
+                        bodyMap.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Update environment to new time, and state from environment.
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodyMap.at( "Moon" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
                         std::numeric_limits< double >::epsilon( ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Mars" )->getState( ), basic_mathematics::Vector6d::Zero( ),
+                        bodyMap.at( "Mars" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
         }
 
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Test if Venus is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Venus" )->getState( ), basic_mathematics::Vector6d::Zero( ),
+                        bodyMap.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Update environment to new time, and state from environment.
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Test if Venus is not updated
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        bodyMap.at( "Venus" )->getState( ), basic_mathematics::Vector6d::Zero( ),
+                        bodyMap.at( "Venus" )->getState( ), Eigen::Vector6d::Zero( ),
                         std::numeric_limits< double >::epsilon( ) );
 
             // Test if Earth rotation is updated
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
             boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
     bodySettings[ "Vehicle" ]->ephemerisSettings =
             boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
+                ( Eigen::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies

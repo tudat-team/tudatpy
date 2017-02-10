@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -61,6 +61,12 @@ public:
         independentValues_ = independentValues;
         dependentValues_ = dependentValues;
         derivativeValues_ = derivativeValues;
+
+        // Check if data is in ascending order
+        if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
+        {
+            throw std::runtime_error( "Error when making hermite spline spline interpolator, input vector with independent variables should be in ascending order" );
+        }
 
         // compute coefficients
         computeCoefficients( );

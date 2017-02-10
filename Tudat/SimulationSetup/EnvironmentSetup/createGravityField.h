@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -203,6 +203,26 @@ private:
     bool createTimeDependentField_;
 
 };
+
+//! Function to create gravity field settings for a homogeneous triaxial ellipsoid
+/*!
+ * Function to create gravity field settings for a homogeneous triaxial ellipsoid. The gravity field is expressed in
+ * normalized spherical harmonic coefficients.  X-axis is alligned
+ * with largest axis, y-axis with middle axis and z-axis with smallest axis
+ * \param axisA Largest axis of triaxial ellipsoid
+ * \param axisB Middle axis of triaxial ellipsoid
+ * \param axisC Smallest axis of triaxial ellipsoid
+ * \param ellipsoidDensity Density of ellipsoid.
+ * \param maximumDegree Maximum degree of expansion
+ * \param maximumOrder Maximum oredr of expansion
+ * \param associatedReferenceFrame Identifier for body-fixed reference frame to which
+ * the coefficients are referred.
+ * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
+ */
+boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+        const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
+        const int maximumDegree, const int maximumOrder,
+        const std::string& associatedReferenceFrame  );
 
 //! Function to read a spherical harmonic gravity field file
 /*!

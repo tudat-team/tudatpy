@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -52,7 +52,7 @@ public:
      *  \param inputReferenceEpoch Reference epoch julian day
      *  \return Cartesian state of station in local frame at requested time.
      */
-     basic_mathematics::Vector6d getCartesianStateInTime(
+     Eigen::Vector6d getCartesianStateInTime(
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
@@ -159,7 +159,7 @@ protected:
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
 
-}
+} // namespace ground_stations
 
-}
+} // namespace tudat
 #endif // TUDAT_GROUNDSTATIONSTATE_H

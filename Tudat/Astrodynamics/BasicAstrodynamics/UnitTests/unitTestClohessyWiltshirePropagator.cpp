@@ -1,38 +1,17 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120725    E. Dekens         File created.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Vallado, D.A. Fundamentals of Astrodynamics and Applications website.
  *        URL http://www.smad.com/vallado, 2001. Last accessed: 25-07-2012.
  *      Wakker, K.F. Astrodynamics I, reader of course AE4874 I. Delft University of Technology,
  *        2007.
- *
- *    Notes
  *
  */
 
@@ -76,12 +55,12 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_fullState )
 
     // Set initial state [m], [m], [m], [m/s], [m,s], [m/s].
     // In this case: arbitrary non-zero distances and velocities.
-    const basic_mathematics::Vector6d initialState1 =
-            ( basic_mathematics::Vector6d( ) << 45.0, 37.0, 12.0, 0.08,
+    const Eigen::Vector6d initialState1 =
+            ( Eigen::Vector6d( ) << 45.0, 37.0, 12.0, 0.08,
               0.03, 0.01 ).finished( );
 
     // Calculate final state according to Tudat function.
-    const basic_mathematics::Vector6d computedFinalState1
+    const Eigen::Vector6d computedFinalState1
             = basic_astrodynamics::propagateClohessyWiltshire(
                 initialState1,
                 propagationDuration1,
@@ -89,8 +68,8 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_fullState )
                 referenceOrbitRadius1 );
 
     // Set final state according to the MATLAB routine "hillsr" from Vallado [2001].
-    const basic_mathematics::Vector6d expectedFinalState1 =
-            ( basic_mathematics::Vector6d( ) << 3.806450080201250e2,
+    const Eigen::Vector6d expectedFinalState1 =
+            ( Eigen::Vector6d( ) << 3.806450080201250e2,
               -5.437424675454679e2, 2.509547637285142,
               1.541620605755606e-1, -7.294751390499470e-1,
               -1.662099488431618e-2 ).finished( );
@@ -129,14 +108,14 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_harmonicMotion )
     // Set initial state [m], [m], [m], [m/s], [m,s], [m/s].
     // In this case: arbitrary values for initial positions and initialCrossTrackVelocity. The
     // initialRadialVelocity and initialAlongTrackVelocity are set to achieve harmonic motion.
-    const basic_mathematics::Vector6d initialState2 =
-            ( basic_mathematics::Vector6d( )
+    const Eigen::Vector6d initialState2 =
+            ( Eigen::Vector6d( )
               << 34.0, 49.0 , 17.0,
               0.5 * meanAngularMotion * 49.0,
               -2.0 * meanAngularMotion * 34.0, 0.04 ).finished( );
 
     // Calculate final state according to Tudat function.
-    const basic_mathematics::Vector6d computedFinalState2
+    const Eigen::Vector6d computedFinalState2
             = basic_astrodynamics::propagateClohessyWiltshire(
                 initialState2,
                 propagationDuration2,

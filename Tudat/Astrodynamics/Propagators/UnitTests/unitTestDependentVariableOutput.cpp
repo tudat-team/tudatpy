@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
 
     // Set Keplerian elements for Capsule.
-    Vector6d apolloInitialStateInKeplerianElements;
+    Eigen::Vector6d apolloInitialStateInKeplerianElements;
     apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
     apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
     apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
@@ -86,11 +86,11 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Convert apollo state from Keplerian elements to Cartesian elements.
-    const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
+    const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
 
-    for( unsigned int i = 0; i < 4; i++ )
+    for( unsigned int testCase = 0; testCase < 4; testCase++ )
     {
         // Define simulation body settings.
         std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         bodySettings[ "Earth" ]->gravityFieldSettings =
                 boost::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
-        if( i >= 2 )
+        if( testCase >= 2 )
         {
             bodySettings[ "Earth" ]->atmosphereSettings =
                     boost::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         double oblateSpheroidEquatorialRadius = 6378.0E3;
         double oblateSpheroidFlattening = 1.0 / 300.0;
 
-        if( i % 2 == 0 )
+        if( testCase% 2 == 0 )
         {
             isOblateSpheroidUsed = 1;
             bodySettings[ "Earth" ]->shapeModelSettings =
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
         bodyMap[ "Apollo" ]->setEphemeris(
                     boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
         boost::shared_ptr< system_models::VehicleSystems > vehicleSystems =
                 boost::make_shared< system_models::VehicleSystems >( );
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         centralBodies.push_back( "Earth" );
 
         // Set initial state
-        basic_mathematics::Vector6d systemInitialState = apolloInitialState;
+        Eigen::Vector6d systemInitialState = apolloInitialState;
 
         // Define list of dependent variables to save.
         std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 dynamicsSimulator.getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against manually retrieved values.
-        basic_mathematics::Vector6d currentStateDerivative;
+        Eigen::Vector6d currentStateDerivative;
         Eigen::Vector3d manualCentralGravity;
         boost::shared_ptr< ephemerides::RotationalEphemeris > earthRotationModel =
                 bodyMap.at( "Earth" )->getRotationalEphemeris( );
@@ -471,5 +471,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-
-

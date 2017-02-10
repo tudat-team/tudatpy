@@ -1,43 +1,14 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110905    L. van der Ham    File created.
- *      110922    L. van der Ham    Added computation of Jacobian energy constant.
- *      111107    L. van der Ham    Removed option planar.
- *      111110    K. Kumar          Minor comment and naming modifications; error removed from
- *                                  z-direction equation.
- *      120221    L. van der Ham    Removed computation Jacobian energy.
- *      120309    K. Kumar          Updated code to latest Tudat standards; updated
- *                                  computeStateDerivative() function.
- *      120426    K. Kumar          Updated code to compute state derivative more efficiently.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
- *
- *    Notes
  *
  */
 
@@ -55,8 +26,8 @@ namespace circular_restricted_three_body_problem
 {
 
 //! Compute state derivative.
-basic_mathematics::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative(
-        const double time, const basic_mathematics::Vector6d& cartesianState )
+Eigen::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative(
+        const double time, const Eigen::Vector6d& cartesianState )
 {
     TUDAT_UNUSED_PARAMETER( time );
 

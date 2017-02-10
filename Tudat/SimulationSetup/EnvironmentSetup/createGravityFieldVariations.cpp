@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -120,9 +120,9 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
             // Define list of required input.
             std::vector< std::string > deformingBodies
                     = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
-            boost::function< basic_mathematics::Vector6d( const double ) > deformedBodyStateFunction;
+            boost::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction;
             boost::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
-            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+            std::vector< boost::function< Eigen::Vector6d( const double ) > >
                     deformingBodyStateFunctions;
             std::vector< boost::function< double( ) > > gravitionalParametersOfDeformingBodies;
 
