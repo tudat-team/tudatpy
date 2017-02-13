@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -222,10 +232,11 @@ Eigen::VectorXd  executeParameterEstimation(
 
     boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialParameterEstimate - truthParameters, 1 );
+                observationsAndTimes, initialParameterEstimate.rows( ), Eigen::MatrixXd::Zero( 0, 0 ),
+                initialParameterEstimate - truthParameters );
 
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, true, boost::make_shared< EstimationConvergenceChecker >( ), 1, 0 );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
 
     return( podOutput->parameterEstimate_.template cast< double >( ) - truthParameters .template cast< double >( ) );
 }

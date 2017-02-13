@@ -212,7 +212,8 @@ public:
     {
         if( observationModels_.count( linkEnds ) == 0 )
         {
-            std::cerr<<"Error when simulating observtions, could not find observation model for given linke ends"<<std::endl;
+            throw std::runtime_error(
+                        "Error when simulating observtions, could not find observation model for given linke ends" );
         }
 
         boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
