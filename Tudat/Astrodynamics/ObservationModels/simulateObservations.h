@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef SIMULATEOBSERVATIONS_H
-#define SIMULATEOBSERVATIONS_H
+#ifndef TUDAT_SIMULATEOBSERVATIONS_H
+#define TUDAT_SIMULATEOBSERVATIONS_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -276,4 +276,4 @@ simulateObservations(
 }
 
 }
-#endif // SIMULATEOBSERVATIONS_H
+#endif // TUDAT_SIMULATEOBSERVATIONS_H

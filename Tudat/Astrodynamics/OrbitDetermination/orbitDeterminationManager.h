@@ -1,5 +1,15 @@
-#ifndef ORBITDETERMINATIONMANAGER_H
-#define ORBITDETERMINATIONMANAGER_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_ORBITDETERMINATIONMANAGER_H
+#define TUDAT_ORBITDETERMINATIONMANAGER_H
 
 #include <algorithm>
 
@@ -163,7 +173,7 @@ public:
     //! Typedef for vector of parameters.
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
 
-
+    //! Typedef for observations per link ends, with associated times and reference link end.
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
     std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
@@ -178,7 +188,7 @@ public:
 
     //! Constructor
     /*!
-     *
+     *  Constructor
      *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
      *  \param parametersToEstimate Container object for all parameters that are to be estimated
      *  \param linkEndsPerObservable Sets of link ends (i.e. transmitter, receiver, etc.) per observable type for
@@ -351,7 +361,7 @@ public:
      *  \param observationsAndTimes Observable values and associated time tags, per observable type and set of link ends.
      *  \param parameterVectorSize Length of the vector of estimated parameters
      *  \param totalObservationSize Total number of observations in observationsAndTimes map.
-     *  \return residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
+     *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
      *  observables w.r.t. parameter vector (return by reference).
      */
     void calculateObservationMatrixAndResiduals(
@@ -430,18 +440,21 @@ public:
      *  provided to the constructor by the linkEndsPerObservable parameter.
      *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
+     *  \param convergenceChecker Object used to check convergence/termination of algorithm
+     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
+     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
      *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
      *  when first calling this object (e.g. before 1st iteration of algorithm)
-     *  \param convergenceChecker Object used to check convergence/termination of algorithm
      *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
      *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
-            const int reintegrateVariationalEquations = 1,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             boost::make_shared< EstimationConvergenceChecker >( ),
+            const bool reintegrateEquationsOnFirstIteration = 1,
+            const bool reintegrateVariationalEquations = 1,
             const bool saveInformationmatrix = 1,
             const bool printOutput = 1 )
     {
@@ -449,7 +462,7 @@ public:
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = currentParameterEstimate_.size( );
         std::pair< std::map< observation_models::ObservableType, int >, int > observationNumberPair =
-                getNumberOfObservationsPerObservable( podInput->observationsAndTimes_ );
+                getNumberOfObservationsPerObservable( podInput->getObservationsAndTimes( ) );
         int totalNumberOfObservations = observationNumberPair.second;
 
         // Declare variables to be returned (i.e. results from best iteration)
@@ -468,17 +481,18 @@ public:
         // Declare variables to be used in loop.
 
         // Set current parameter estimate as both previous and current estimate
-        ParameterVectorType newParameterEstimate = currentParameterEstimate_ + podInput->initialParameterDeviationEstimate_;
+        ParameterVectorType newParameterEstimate = currentParameterEstimate_ +
+                podInput->getInitialParameterDeviationEstimate( );
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
 
-        int numberOfEstimatedParameters = parameterVectorSize;//parametersToEstimate_->getEstimatedParameterSetSize( );
+        int numberOfEstimatedParameters = parameterVectorSize;
 
         // Iterate until convergence (at least once)
         int numberOfIterations = 0;
         do
         {
             // Re-integrate equations of motion and variational equations with new parameter estimate.
-            if( ( numberOfIterations > 0 ) ||( podInput->reintegrateEquationsOnFirstIteration_ ) )
+            if( ( numberOfIterations > 0 ) ||( reintegrateEquationsOnFirstIteration ) )
             {
                 resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
             }
@@ -491,26 +505,28 @@ public:
             // Calculate residuals and observation matrix for current parameter estimate.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
             calculateObservationMatrixAndResiduals(
-                        podInput->observationsAndTimes_, parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
+                        podInput->getObservationsAndTimes( ), parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
 
             Eigen::VectorXd transformationData = normalizeObservationMatrix( residualsAndPartials.second );
 
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = Eigen::MatrixXd::Zero(
                         numberOfEstimatedParameters, numberOfEstimatedParameters );
 
+            Eigen::MatrixXd inverseAPrioriCovariance = podInput->getInverseOfAprioriCovariance( );
             for( int j = 0; j < numberOfEstimatedParameters; j++ )
             {
-                normalizedInverseAprioriCovarianceMatrix( j, j ) = podInput->inverseOfAprioriCovariance_( j, j ) /
-                        ( transformationData( j ) * transformationData( j ) );
+                for( int k = 0; k < numberOfEstimatedParameters; k++ )
+                {
+                    normalizedInverseAprioriCovarianceMatrix( j, k ) = inverseAPrioriCovariance( j, k ) /
+                            ( transformationData( j ) * transformationData( k ) );
+                }
             }
-
-            input_output::writeMatrixToFile(  residualsAndPartials.second,  "obsPartials.dat" );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
                     linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                         residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->weightsMatrixDiagonals_ ),
+                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
                         normalizedInverseAprioriCovarianceMatrix, Eigen::VectorXd::Zero( numberOfEstimatedParameters, 0.0 ) );
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
@@ -549,7 +565,7 @@ public:
                 {
                     bestInformationMatrix = residualsAndPartials.second;
                 }
-                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->weightsMatrixDiagonals_ );
+                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) );
                 bestTransformationData = transformationData;
                 bestInverseNormalizedCovarianceMatrix = leastSquaresOutput.second;
             }
@@ -618,8 +634,6 @@ public:
 
                 // Initialize vector of observation values.
                 ObservationVectorType observations = ObservationVectorType::Zero( stationIterator->second.first.size( ) );
-
-                std::cerr<<"Warning, conversion between POD input types does not support non-double observables"<<std::endl;
 
                 // Iterate over all observations in input map, and split time and observation.
                 int counter = 0;
@@ -693,6 +707,12 @@ public:
         return currentParameterEstimate_;
     }
 
+    //! Function to retrieve the object used to propagate/process the solution of the variational equations/dynamics.
+    /*!
+     *  Function to retrieve the object used to propagate/process the numerical solution of the variational.
+     *  equations/dynamics.
+     *  \return Object used to propagate/process the numerical solution of the variational equations/dynamics.
+     */
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     getStateTransitionAndSensitivityMatrixInterface( )
     {
@@ -702,20 +722,29 @@ public:
 
 protected:
 
+    //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;
 
-    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > > variationalEquationsSolver_;
+    //! Object used to propagate/process the numerical solution of the variational equations/dynamics
+    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
+    variationalEquationsSolver_;
 
-    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
-    observationManagers_;
+    //! List of object that compute the values/partials of the observables
+    std::map< observation_models::ObservableType,
+    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers_;
 
+    //! Container object for all parameters that are to be estimated
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
 
+    //! List of avaailable set of link ends for each observable type
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable_;
 
+    //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
 
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionAndSensitivityMatrixInterface_;
+    //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
+    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    stateTransitionAndSensitivityMatrixInterface_;
 
 };
 
@@ -724,4 +753,4 @@ protected:
 }
 
 }
-#endif // ORBITDETERMINATIONMANAGER_H
+#endif // TUDAT_ORBITDETERMINATIONMANAGER_H
