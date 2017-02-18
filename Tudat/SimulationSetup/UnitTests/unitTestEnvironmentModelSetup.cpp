@@ -142,10 +142,9 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     {
         // Create settings for approximate planet positions.
@@ -459,11 +458,9 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
     // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
 
     // Settings for spherical harmonic acceleration.
@@ -718,10 +715,9 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -819,10 +815,9 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
