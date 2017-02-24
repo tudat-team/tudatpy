@@ -241,7 +241,7 @@ public:
     {
         return getRotationalVelocityVectorInBaseFrameFromMatrices(
                     Eigen::Matrix3d( getRotationToTargetFrame( secondsSinceEpoch ) ),
-                    getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ) );
+                    getDerivativeOfRotationToBaseFrame( secondsSinceEpoch ) );
     }
 
     //! Function to retrieve the angular velocity vector, expressed in target frame.
