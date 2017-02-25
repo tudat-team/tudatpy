@@ -27,7 +27,8 @@ enum ObservableType
 {
     oneWayRange = 0,
     angular_position = 1,
-    position_observable = 2
+    position_observable = 2,
+    oneWayDoppler = 3,
 
 };
 
