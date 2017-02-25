@@ -53,11 +53,15 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
         const observation_models::LinkEnds oneWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
-        const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const boost::shared_ptr< PositionPartialScaling > oneWayRangeScaler,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
 {
+    if( boost::dynamic_pointer_cast< OneWayRangeScaling >( oneWayRangeScaler ) == NULL )
+    {
+        throw std::runtime_error( "Error, expected one-way range scaling when making one-way range partial" );
+    }
     boost::shared_ptr< ObservationPartial< 1 > > oneWayRangePartial;
 
     {
@@ -66,7 +70,8 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
 
         // Create one-range partials if any position partials are created (i.e. if any dependency exists).
         boost::shared_ptr< OneWayRangePartial > testOneWayRangePartial  = boost::make_shared< OneWayRangePartial >(
-                    oneWayRangeScaler, positionPartials, parameterToEstimate->getParameterName( ),
+                    boost::dynamic_pointer_cast< OneWayRangeScaling >( oneWayRangeScaler ),
+                    positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
         if( positionPartials.size( ) > 0 || testOneWayRangePartial->getNumberOfLighTimeCorrectionPartialsFunctions( ) > 0 )
         {
@@ -94,7 +99,7 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
-        const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const boost::shared_ptr< PositionPartialScaling > oneWayRangeScaler,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
@@ -131,7 +136,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     }
 
     // Create scaling object, to be used for all one-way range partials in current link end.
-    boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaling = boost::make_shared< OneWayRangeScaling >( );
+    boost::shared_ptr< PositionPartialScaling > oneWayRangeScaling = boost::make_shared< OneWayRangeScaling >( );
 
     // Initialize vector index variables.
     int currentIndex = 0;
@@ -160,7 +165,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
 
         // Create position one-way range partial for current body
-        boost::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyPosition(
+        boost::shared_ptr< ObservationPartial< 1 > > currentRangePartial = createOneWayRangePartialWrtBodyPosition(
                     oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-null (i.e. whether dependency exists between current range and current body)

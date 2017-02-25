@@ -28,10 +28,15 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
-        const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const boost::shared_ptr< PositionPartialScaling > oneWayRangeScaler,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects  )
 {
+    if( boost::dynamic_pointer_cast< OneWayRangeScaling >( oneWayRangeScaler ) == NULL )
+    {
+        throw std::runtime_error( "Error, expected one-way range scaling when making one-way range partial" );
+    }
+
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
             createPositionPartialsWrtBodyPosition( oneWayRangeLinkEnds, bodyMap, bodyToEstimate );
@@ -41,7 +46,8 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
     if( positionPartials.size( ) > 0 )
     {
         oneWayRangePartial = boost::make_shared< OneWayRangePartial >(
-                    oneWayRangeScaler, positionPartials, std::make_pair(
+                    boost::dynamic_pointer_cast< OneWayRangeScaling >( oneWayRangeScaler ),
+                    positionPartials, std::make_pair(
                         estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
                     lightTimeCorrectionPartialObjects );
     }
