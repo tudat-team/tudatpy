@@ -27,6 +27,34 @@ ObservationScalarType calculateLineOfSightVelocityAsCFraction(
     return lineOfSightUnitVector.dot( velocityVector ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
 }
 
+template< typename ObservationScalarType = double >
+ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
+        Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
+        Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
+        const int taylorSeriesOrder )
+{
+    Eigen::Matrix< ObservationScalarType, 3, 1 > relativePostion = ( ( receiverState - transmitterState ).segment( 0, 3 ) ).normalized( );
+
+    ObservationScalarType transmitterTerm  =
+            ( relativePostion.dot( transmitterState.segment( 3, 3 ) ) / physical_constants::getSpeedOfLight< ObservationScalarType >( )  );
+    ObservationScalarType receiverTerm =
+            ( relativePostion.dot( receiverState.segment( 3, 3 ) ) / physical_constants::getSpeedOfLight< ObservationScalarType >( ) );
+    ObservationScalarType currentTaylorSeriesTerm =
+            mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+    ObservationScalarType currentTaylorSeries = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+
+    for( int i = 0; i < taylorSeriesOrder; i++ )
+    {
+        currentTaylorSeriesTerm *= receiverTerm;
+        currentTaylorSeries += currentTaylorSeriesTerm;
+    }
+
+    return -transmitterTerm + currentTaylorSeries *
+            ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) - transmitterTerm );
+
+}
+
+//! Computes observable as d f_{A}/d_f_{B} - 1, with a the transmitter and B the receiver, omitting proper time variations and light time corrections
 template< typename ObservationScalarType = double, typename TimeType = double >
 class OneWayDopplerObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
@@ -50,6 +78,7 @@ public:
         lightTimeCalculator_( lightTimeCalculator )
     {
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+        taylorSeriesExpansionOrder_ = 3;
     }
 
     ~OneWayDopplerObservationModel( ){ }
@@ -91,11 +120,11 @@ public:
         lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverState, transmitterState, time, true );
 
-        PositionType relativePostion = ( ( receiverState - transmitterState ).segment( 0, 3 ) ).normalized( );
-
         return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( )
-                <<( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, receiverState.segment( 3, 3 ) ) ) /
-                ( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, transmitterState.segment( 3, 3 ) ) ) ).finished( );
+                 << computeOneWayFirstOrderDopplerTaylorSeriesExpansion( transmitterState, receiverState, taylorSeriesExpansionOrder_ ) ).finished( );
+//        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( )
+//                <<( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, receiverState.segment( 3, 3 ) ) ) /
+//                ( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, transmitterState.segment( 3, 3 ) ) ) ).finished( );
     }
 
     //! Function to compute one-way Doppler observable without any corrections.
@@ -156,9 +185,12 @@ public:
         PositionType relativePostion = ( ( receiverState - transmitterState ).segment( 0, 3 ) ).normalized( );
         relativePostion /= relativePostion.norm( );
 
-        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( )
-                <<( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, receiverState.segment( 3, 3 ) ) ) /
-                ( one_ - calculateLineOfSightVelocityAsCFraction< ObservationScalarType >( relativePostion, transmitterState.segment( 3, 3 ) ) ) ).finished( );
+        ObservationScalarType dopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >
+                        ( transmitterState, receiverState, taylorSeriesExpansionOrder_ );
+
+
+        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << dopplerObservable ).finished( );
+
 
     }
 
@@ -177,6 +209,8 @@ private:
     boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 
     ObservationScalarType one_;
+
+    int taylorSeriesExpansionOrder_;
 
 };
 

@@ -56,6 +56,10 @@ if(USE_CSPICE)
     setup_custom_test_program(test_OneWayRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_OneWayRangeModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+    add_executable(test_OneWayDopplerModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestOneWayDopplerModel.cpp")
+    setup_custom_test_program(test_OneWayDopplerModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_OneWayDopplerModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
     add_executable(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestPositionObservationModel.cpp")
     setup_custom_test_program(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_PositionObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
