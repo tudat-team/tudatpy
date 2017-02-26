@@ -30,11 +30,17 @@ set(ORBIT_DETERMINATION_SOURCES
 # Set the header files.
 set(ORBIT_DETERMINATION_HEADERS
   "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.h"
+  "${SRCROOT}${ORBITDETERMINATIONDIR}/orbitDeterminationManager.h"
+  "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.h"
 )
 
 
 # Add static libraries.
 add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
 setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
+
+add_executable(test_EstimationFromPosition "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealData.cpp")
+setup_custom_test_program(test_EstimationFromPosition "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPosition ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 

@@ -718,7 +718,7 @@ public:
         }
     }
 
-        //! Smaller-than operator for Time object with double
+    //! Smaller-than operator for Time object with double
     /*!
      * Smaller-than operator for two Time objects
      * \param timeToCompare1 First time to compare
