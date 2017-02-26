@@ -110,7 +110,8 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
         const TimeType initialTime )
 {
     // Create ReferenceFrameManager and call overloaded function.
-    return getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodyMap, initialTime,
+    return getInitialStatesOfBodies< TimeType, StateScalarType >(
+                bodiesToIntegrate, centralBodies, bodyMap, initialTime,
                                      createFrameManager( bodyMap ) );
 }
 

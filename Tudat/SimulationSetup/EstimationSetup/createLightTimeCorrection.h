@@ -68,6 +68,8 @@ protected:
     LightTimeCorrectionType correctionType_;
 };
 
+typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
+
 //! Class to defining settings for first-order relativistic light time correction (Shapiro time delay)  due to a
 //! set of point masses
 class FirstOrderRelativisticLightTimeCorrectionSettings: public LightTimeCorrectionSettings

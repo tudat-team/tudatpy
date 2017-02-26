@@ -38,8 +38,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         const Eigen::Vector3d initialOrientationAngles,//right ascension, declination, longitude of prime meridian.
         const double rotationRate, const double timeSinceEpoch )
 {
-    Eigen::Matrix3d commonTerm = Eigen::AngleAxisd( -1.0 * ( -initialOrientationAngles.z( ) - rotationRate * timeSinceEpoch ),
-                                                    Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+    Eigen::Matrix3d commonTerm = Eigen::AngleAxisd(
+                -1.0 * ( -initialOrientationAngles.z( ) - rotationRate * timeSinceEpoch ),
+                Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
 
 
     double rightAscension = initialOrientationAngles.x( );
@@ -75,6 +76,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
+//! Function to calculate the partial of the position of a vector, which is given in a body-fixed frame, in the inertial
+//! frame wrt a parameter.
 Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfRotatedVector(
         const double time,
         const Eigen::Vector3d vectorInLocalFrame )

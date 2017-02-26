@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );
-    boost::shared_ptr< ObservationModel< 1, double, double, double > > observationModel =
-           ObservationModelCreator< 1, double, double, double >::createObservationModel(
+    boost::shared_ptr< ObservationModel< 1, double, double> > observationModel =
+           ObservationModelCreator< 1, double, double>::createObservationModel(
                 oneWayRange, linkEnds, bodyMap, lightTimeCorrectionSettings, observationBias );
 
     // Compute observation separately with two functions.
