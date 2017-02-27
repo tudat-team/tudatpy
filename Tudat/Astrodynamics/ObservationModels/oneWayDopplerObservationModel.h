@@ -149,7 +149,6 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         ObservationScalarType lightTime;
-        StateType receiverState, transmitterState;
         TimeType transmissionTime, receptionTime;
 
         bool fixTransmissionTime;
@@ -158,7 +157,7 @@ public:
         {
         case receiver:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, true );
+                        receiverState_, transmitterState_, time, true );
             transmissionTime = time - lightTime;
             receptionTime = time;
             fixTransmissionTime = 0;
@@ -166,7 +165,7 @@ public:
 
         case transmitter:
             lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, false );
+                        receiverState_, transmitterState_, time, false );
             transmissionTime = time;
             receptionTime = time + lightTime;
             fixTransmissionTime = 1;
@@ -179,14 +178,14 @@ public:
         linkEndTimes.push_back( transmissionTime );
         linkEndTimes.push_back( receptionTime );
 
-        linkEndStates.push_back( transmitterState );
-        linkEndStates.push_back( receiverState );
+        linkEndStates.push_back( transmitterState_.template cast< double >( ) );
+        linkEndStates.push_back( receiverState_.template cast< double >( ) );
 
-        PositionType relativePostion = ( ( receiverState - transmitterState ).segment( 0, 3 ) ).normalized( );
+        PositionType relativePostion = ( ( receiverState_ - transmitterState_ ).segment( 0, 3 ) ).normalized( );
         relativePostion /= relativePostion.norm( );
 
         ObservationScalarType dopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion< ObservationScalarType >
-                        ( transmitterState, receiverState, taylorSeriesExpansionOrder_ );
+                        ( transmitterState_, receiverState_, taylorSeriesExpansionOrder_ );
 
 
         return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << dopplerObservable ).finished( );
@@ -211,6 +210,12 @@ private:
     ObservationScalarType one_;
 
     int taylorSeriesExpansionOrder_;
+
+    //! Pre-declared receiver state, to prevent many (de-)allocations
+    StateType receiverState_;
+
+    //! Pre-declared transmitter state, to prevent many (de-)allocations
+    StateType transmitterState_;
 
 };
 

@@ -107,14 +107,13 @@ public:
      */
     OneWayDopplerPartial(
             const boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >& positionPartialList,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< VelocityPartial > >& velocityPartialList,
+            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
             const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
             lighTimeCorrectionPartials =
             std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< 1 >( parameterIdentifier ), oneWayDopplerScaler_( oneWayDopplerScaler ),
-        positionPartialList_( positionPartialList ), velocityPartialList_( velocityPartialList )
+        positionPartialList_( positionPartialList )
     {
         std::pair< boost::function< SingleOneWayDopplerPartialReturnType(
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
@@ -175,14 +174,10 @@ protected:
     boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler_;
 
     //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartialList_;
-
-    std::map< observation_models::LinkEndType, boost::shared_ptr< VelocityPartial > > velocityPartialList_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
-
-    std::map< observation_models::LinkEndType, boost::shared_ptr< VelocityPartial > >::iterator velocityPartialIterator_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
     std::vector< boost::function< SingleOneWayDopplerPartialReturnType(

@@ -44,7 +44,7 @@ namespace observation_partials
  *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
  *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtBodyPosition(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
@@ -61,7 +61,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
  *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
@@ -78,7 +78,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
  *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );

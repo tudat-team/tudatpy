@@ -47,20 +47,18 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     double declination = initialOrientationAngles.y( );
 
     // Compute partial of rotation term containing right ascension.
-    Eigen::Matrix3d rightAscensionPartial;
-    rightAscensionPartial<< -std::sin( rightAscension + mathematical_constants::PI / 2.0 ),
-            -std::cos( rightAscension + mathematical_constants::PI / 2.0 ), 0.0,
-            std::cos( rightAscension + mathematical_constants::PI / 2.0 ),
-            -std::sin( rightAscension + mathematical_constants::PI / 2.0 ), 0.0,
-            0.0, 0.0, 0.0;
+    Eigen::Matrix3d rightAscensionPartial = -reference_frames::getDerivativeOfZAxisRotationWrtAngle(
+                -( rightAscension + mathematical_constants::PI / 2.0 ) );
+
 
     // Compute partial of rotation term containing declination.
-    Eigen::Matrix3d declinationPartial;
+    Eigen::Matrix3d declinationPartial = reference_frames::getDerivativeOfXAxisRotationWrtAngle(
+                - ( mathematical_constants::PI / 2.0 - declination ) );/*
     declinationPartial<< 0.0, 0.0, 0.0,
             0.0, std::sin( mathematical_constants::PI / 2.0 - declination ),
             std::cos( mathematical_constants::PI / 2.0 - declination ),
             0.0, -std::cos( mathematical_constants::PI / 2.0 - declination ),
-            std::sin( mathematical_constants::PI / 2.0 - declination );
+            std::sin( mathematical_constants::PI / 2.0 - declination );*/
 
     // Compute partials.
     std::vector< Eigen::Matrix3d > rotationMatrixPartials;
@@ -78,7 +76,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
 //! Function to calculate the partial of the position of a vector, which is given in a body-fixed frame, in the inertial
 //! frame wrt a parameter.
-Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfRotatedVector(
+Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfInertialPositionWrtParameter(
         const double time,
         const Eigen::Vector3d vectorInLocalFrame )
 {
@@ -92,6 +90,27 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculateParti
     }
     return rotatedVectorPartial;
 }
+
+//Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfInertialVelocityWrtParameter(
+//        const double time,
+//        const Eigen::Vector6d stateInLocalFrame )
+//{
+//    std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+//            calculatePartialOfRotationMatrixToBaseFrameWrParameter( time );
+//    std::vector< Eigen::Matrix3d > rotationMatrixPartialPartials =
+//            calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( time );
+//    //Eigen::Matrix3d currentRotationToBaseFrame =
+
+//    Eigen::Matrix< double, 3, Eigen::Dynamic > rotatedVectorPartial = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero(
+//                3, rotationMatrixPartials.size( ) );
+
+//    for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
+//    {
+//        rotatedVectorPartial.block( 0, i, 3, 1 ) = rotationMatrixPartials[ i ] * vectorInLocalFrame;
+//    }
+//    return rotatedVectorPartial;
+//}
+
 
 }
 
