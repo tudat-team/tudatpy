@@ -50,8 +50,6 @@ public:
           initialRotationToTargetFrame_( initialRotationToTargetFrame ),
           initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
-        auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-
         initialEulerAngles_ = reference_frames::calculateInertialToPlanetFixedRotationAnglesFromMatrix(
                     Eigen::Matrix3d( initialRotationToTargetFrame_ ) );
     }
@@ -84,8 +82,6 @@ public:
                   poleDeclination, poleRightAscension, primeMeridianOfDate ) ),
           initialSecondsSinceEpoch_( initialSecondsSinceEpoch )
     {
-        auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-
         // Set vector of euler angles
         initialEulerAngles_.x( ) = poleRightAscension;
         initialEulerAngles_.y( ) = poleDeclination;
@@ -219,9 +215,6 @@ private:
      *  is: right ascension (alpha), declination (delta), prime meridian of date (W)
      */
     Eigen::Vector3d initialEulerAngles_;
-
-    //! Auxiliary matrix used to calculate the time derivative of a rotation matrix.
-    Eigen::Matrix3d auxiliaryMatrix_;
 };
 
 } // namespace ephemerides

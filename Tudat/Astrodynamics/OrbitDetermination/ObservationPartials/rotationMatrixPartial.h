@@ -83,6 +83,9 @@ public:
     virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
             const double time ) = 0;
 
+    virtual std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time ) = 0;
+
     //! Function to calculate the partial of the position of a vector, which is given in a body-fixed frame, in the inertial
     //! frame wrt a parameter.
     /*!
@@ -97,7 +100,7 @@ public:
      *  parameter is to be determined.
      *  \return Partial of the value of the vector in an inertial frame wrt the parameter(s).
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfRotatedVector(
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialPositionWrtParameter(
             const double time,
             const Eigen::Vector3d vectorInLocalFrame );
 
@@ -152,6 +155,13 @@ public:
                         bodyRotationModel_->getRotationRate( ),
                         time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) );
     }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+
+    }
+
 private:
 
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
@@ -195,6 +205,12 @@ public:
         return calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(
                     bodyRotationModel_->getInitialEulerAngles( ),
                     bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
+    }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+
     }
 
 private:

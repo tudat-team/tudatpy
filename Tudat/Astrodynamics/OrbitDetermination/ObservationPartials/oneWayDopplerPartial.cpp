@@ -83,29 +83,10 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
         returnPartial.push_back(
                     std::make_pair(
                         oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-                        ( positionPartialIterator_->second->calculatePartial(
-                              currentState_ , currentTime_ ) ), currentTime_ ) );
-    }
-
-    for( velocityPartialIterator_ = velocityPartialList_.begin( ); velocityPartialIterator_ != velocityPartialList_.end( );
-         velocityPartialIterator_++ )
-    {
-        if( velocityPartialIterator_->first == observation_models::transmitter )
-        {
-            currentState_  = states[ 0 ];
-            currentTime_ = times[ 0 ];
-        }
-        else if( velocityPartialIterator_->first == observation_models::receiver )
-        {
-            currentState_  = states[ 1 ];
-            currentTime_ = times[ 1 ];
-        }
-
-        // Scale position partials
-        returnPartial.push_back(
-                    std::make_pair(
-                        oneWayDopplerScaler_->getVelocityScalingFactor( velocityPartialIterator_->first ) *
-                        ( velocityPartialIterator_->second->calculatePartial(
+                        ( positionPartialIterator_->second->calculatePartialOfPosition(
+                              currentState_ , currentTime_ ) ) +
+                        oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
+                        ( positionPartialIterator_->second->calculatePartialOfPosition(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
     }
 

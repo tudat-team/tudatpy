@@ -20,7 +20,7 @@
 
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/angularPositionPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
@@ -77,8 +77,8 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParam
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
 {
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
-            createPositionPartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+            createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
 
     // Create angular position partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< AngularPositionPartial > angularPositionPartial;

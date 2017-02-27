@@ -119,7 +119,7 @@ public:
      */
     OneWayRangePartial(
             const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >& positionPartialList,
+            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
             const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
             lighTimeCorrectionPartials =
@@ -186,10 +186,10 @@ protected:
     boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler_;
 
     //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
     std::vector< boost::function< SingleOneWayRangePartialReturnType(

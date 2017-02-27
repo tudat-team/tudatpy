@@ -57,14 +57,16 @@ Eigen::Matrix3d calculatePartialOfPointPositionWrtBodyFixedPointPosition(
  *  each (type of) estimatable parameter. A separate instance of the class must be made for each distinct state.
  *  Note that partials wrt parameters describing a property of a rotation matrix from a local to the inertial frame is
  *  implemented in the RotationMatrixPartial class, which is
- *  then used by the PositionPartialWrtRotationMatrixParameter derived class of this class
+ *  then used by the CartesianStatePartialWrtRotationMatrixParameter derived class of this class
  */
-class PositionPartial
+class CartesianStatePartial
 {
 public:
 
+    CartesianStatePartial( ){ }
+
     //! Destructor.
-    virtual ~PositionPartial( ){ }
+    virtual ~CartesianStatePartial( ){ }
 
     //! Pure virtual base class function for determining partial at current time and body state.
     /*!
@@ -74,21 +76,24 @@ public:
      *  \param time Current time
      *  \return Partial of point position wrt parameter (with specific parameter determined by derived class implementation).
      */
-    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
+    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
+            const Eigen::Vector6d& state, const double time ) = 0;
+
+    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
             const Eigen::Vector6d& state, const double time ) = 0;
 };
 
 //! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to inertial three-dimensional
 //! position of this body
-class PositionPartialWrtPosition: public PositionPartial
+class CartesianStatePartialWrtPosition: public CartesianStatePartial
 {
 public:
 
     //! Constructor
-    PositionPartialWrtPosition( ){ }
+    CartesianStatePartialWrtPosition( ){ }
 
     //! Destructor
-    ~PositionPartialWrtPosition( ){ }
+    ~CartesianStatePartialWrtPosition( ){ }
 
     //! Function for determining partial at current time and body state.
     /*!
@@ -97,17 +102,55 @@ public:
      *  \param time Current time
      *  \return Partial of point position wrt position
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
             const Eigen::Vector6d& state,
             const double time )
     {
-        return calculatePartialOfPointPositionWrtBodyPosition( );
+        return Eigen::Matrix3d::Identity( );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
+                const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d::Zero( );
     }
 };
 
+class CartesianStatePartialWrtVelocity: public CartesianStatePartial
+{
+public:
+
+    //! Constructor
+    CartesianStatePartialWrtVelocity( ){ }
+
+    //! Destructor
+    ~CartesianStatePartialWrtVelocity( ){ }
+
+    //! Function for determining partial at current time and body state.
+    /*!
+     *  Function for determining partial at current time and body state wrt inertial three-dimensional position
+     *  \param state Current inertial state of point of which partial is to be calculated by derived class
+     *  \param time Current time
+     *  \return Partial of point position wrt position
+     */
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
+            const Eigen::Vector6d& state,
+            const double time )
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
+                const Eigen::Vector6d& state, const double time )
+    {
+        return Eigen::Matrix3d::Identity( );
+    }
+};
+
+
 //! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to a property of a rotation
 //! matrix to/from a body-fixed frame.
-class PositionPartialWrtRotationMatrixParameter: public PositionPartial
+class CartesianStatePartialWrtRotationMatrixParameter: public CartesianStatePartial
 {
 public:
 
@@ -118,14 +161,14 @@ public:
      * \param positionFunctionInLocalFrame Function returning the body-fixed position of the point at which the partial
      * is to be computed.
      */
-    PositionPartialWrtRotationMatrixParameter(
+    CartesianStatePartialWrtRotationMatrixParameter(
             const boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
             const boost::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
         rotationMatrixPartialObject_( rotationMatrixPartialObject ),
         positionFunctionInLocalFrame_( positionFunctionInLocalFrame ){ }
 
     //! Destructor
-    ~PositionPartialWrtRotationMatrixParameter( ){ }
+    ~CartesianStatePartialWrtRotationMatrixParameter( ){ }
 
     //! Function for determining partial at current time and body state.
     /*!
@@ -134,12 +177,20 @@ public:
      *  \param time Current time
      *  \return Partial of point position wrt rotation propert.
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
             const Eigen::Vector6d& state,
             const double time )
     {
-        return rotationMatrixPartialObject_->calculatePartialOfRotatedVector( time, positionFunctionInLocalFrame_( time ) );
+        return rotationMatrixPartialObject_->calculatePartialOfInertialPositionWrtParameter( time, positionFunctionInLocalFrame_( time ) );
     }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
+            const Eigen::Vector6d& state,
+            const double time )
+    {
+        return rotationMatrixPartialObject_->calculatePartialOfInertialPositionWrtParameter( time, positionFunctionInLocalFrame_( time ) );
+    }
+
 private:
 
     //! Object to compute the associated partial of a rotation matrix
@@ -150,7 +201,7 @@ private:
 };
 //! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to body-fixed position of
 //! some reference point (e.g. ground station)
-class PositionPartialWrtBodyFixedPosition: public PositionPartial
+class CartesianStatePartialWrtBodyFixedPosition: public CartesianStatePartial
 {
 public:
 
@@ -159,11 +210,11 @@ public:
      * Constructor
      * \param bodyRotationModel Object to compute the rotation to/from the body-fixed frame.
      */
-    PositionPartialWrtBodyFixedPosition( const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
+    CartesianStatePartialWrtBodyFixedPosition( const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
         bodyRotationModel_( bodyRotationModel ){ }
 
     //! Destructor
-    ~PositionPartialWrtBodyFixedPosition( ){ }
+    ~CartesianStatePartialWrtBodyFixedPosition( ){ }
 
     //! Function for determining partial at current time and body state.
     /*!
@@ -172,7 +223,7 @@ public:
      *  \param time Current time
      *  \return Partial of point position wrt body-fixed point position
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
             const Eigen::Vector6d& state,
             const double time )
     {
@@ -185,162 +236,6 @@ private:
     //! Object to compute the rotation to/from the body-fixed frame.
     boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-//! Base class for calculating the partial of an inertial velocity wrt a parameter.
-/*!
- *  Base class for calculating the partial of an inertial velocity wrt a parameter. A derived class is implemented for
- *  each (type of) estimatable parameter. A separate instance of the class must be made for each distinct state.
- *  Note that partials wrt parameters describing a property of a rotation matrix from a local to the inertial frame is
- *  implemented in the RotationMatrixPartial class, which is
- *  then used by the VelocityPartialWrtRotationMatrixParameter derived class of this class
- */
-class VelocityPartial
-{
-public:
-
-    //! Destructor.
-    virtual ~VelocityPartial( ){ }
-
-    //! Pure virtual base class function for determining partial at current time and body state.
-    /*!
-     *  Pure virtual base class function for determining partial at current time and body state wrt parameter of specific
-     *  implemented derived. class.
-     *  \param state Current inertial state of point of which partial is to be calculated by derived class
-     *  \param time Current time
-     *  \return Partial of point velocity wrt parameter (with specific parameter determined by derived class implementation).
-     */
-    virtual Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const Eigen::Vector6d& state, const double time ) = 0;
-};
-
-//! Class to compute the partial derivative of the three-dimensional velocity of a body w.r.t. to inertial three-dimensional
-//! velocity of this body
-class VelocityPartialWrtVelocity: public VelocityPartial
-{
-public:
-
-    //! Constructor
-    VelocityPartialWrtVelocity( ){ }
-
-    //! Destructor
-    ~VelocityPartialWrtVelocity( ){ }
-
-    //! Function for determining partial at current time and body state.
-    /*!
-     *  Function for determining partial at current time and body state wrt inertial three-dimensional velocity
-     *  \param state Current inertial state of point of which partial is to be calculated by derived class
-     *  \param time Current time
-     *  \return Partial of point velocity wrt velocity
-     */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const Eigen::Vector6d& state,
-            const double time )
-    {
-        return Eigen::Matrix3d::Identity( );
-    }
-};
-
-//! Class to compute the partial derivative of the three-dimensional velocity of a body w.r.t. to a property of a rotation
-//! matrix to/from a body-fixed frame.
-class VelocityPartialWrtRotationMatrixParameter: public VelocityPartial
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param rotationMatrixPartialObject Object to compute the associated partial of a rotation matrix
-     * \param velocityFunctionInLocalFrame Function returning the body-fixed velocity of the point at which the partial
-     * is to be computed.
-     */
-    VelocityPartialWrtRotationMatrixParameter(
-            const boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
-            const boost::function< Eigen::Vector3d( const double ) > velocityFunctionInLocalFrame ):
-        rotationMatrixPartialObject_( rotationMatrixPartialObject ),
-        velocityFunctionInLocalFrame_( velocityFunctionInLocalFrame ){ }
-
-    //! Destructor
-    ~VelocityPartialWrtRotationMatrixParameter( ){ }
-
-    //! Function for determining partial at current time and body state.
-    /*!
-     *  Function for determining partial at current time and body state wrt rotation property
-     *  \param state Current inertial state of point of which partial is to be calculated by derived class
-     *  \param time Current time
-     *  \return Partial of point velocity wrt rotation propert.
-     */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const Eigen::Vector6d& state,
-            const double time )
-    {
-        throw std::runtime_error( "Error, velocity w.r.t. rotation matrix parameter not yet implemented" );
-        //return rotationMatrixPartialObject_->calculatePartialOfRotatedVector( time, positionFunctionInLocalFrame_( time ) );
-    }
-private:
-
-    //! Object to compute the associated partial of a rotation matrix
-    boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject_;
-
-    //! Function returning the body-fixed velocity of the point at which the partial is to be computed.
-    boost::function< Eigen::Vector3d( const double ) > velocityFunctionInLocalFrame_;
-};
-
-//! Class to compute the partial derivative of the three-dimensional velocity of a body w.r.t. to body-fixed velocity of
-//! some reference point (e.g. ground station)
-class VelocityPartialWrtBodyFixedVelocity: public VelocityPartial
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param bodyRotationModel Object to compute the rotation to/from the body-fixed frame.
-     */
-    VelocityPartialWrtBodyFixedVelocity( const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
-        bodyRotationModel_( bodyRotationModel ){ }
-
-    //! Destructor
-    ~VelocityPartialWrtBodyFixedVelocity( ){ }
-
-    //! Function for determining partial at current time and body state.
-    /*!
-     *  Function for determining partial at current time and body state wrt body-fixed point velocity
-     *  \param state Current inertial state of point of which partial is to be calculated by derived class
-     *  \param time Current time
-     *  \return Partial of point velocity wrt body-fixed point velocity
-     */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartial(
-            const Eigen::Vector6d& state,
-            const double time )
-    {
-        throw std::runtime_error( "Error, velocity w.r.t. body-fixed state not yet implemented" );
-
-        //return calculatePartialOfPointVelocityWrtBodyFixedPointVelocity(
-        //            Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) );
-    }
-
-private:
-
-    //! Object to compute the rotation to/from the body-fixed frame.
-    boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
-};
-
-
-
-
-
-
 
 
 //! Derived class for scaling three-dimensional position partial to position observable partial
@@ -403,7 +298,7 @@ public:
      */
     PositionObervationPartial(
             const boost::shared_ptr< PositionObservationScaling > positionObservationScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >& positionPartialList,
+            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         ObservationPartial< 3 >( parameterIdentifier ), positionObservationScaler_( positionObservationScaler ),
         positionPartialList_( positionPartialList )
@@ -451,7 +346,7 @@ public:
                         std::make_pair(
                             positionObservationScaler_->getScalingFactor(
                                 positionPartialIterator_->first ) *
-                            ( positionPartialIterator_->second->calculatePartial(
+                            ( positionPartialIterator_->second->calculatePartialOfPosition(
                                   currentState_, currentTime_ ) ), currentTime_ ) );
         }
 
@@ -464,10 +359,10 @@ protected:
     boost::shared_ptr< PositionObservationScaling > positionObservationScaler_;
 
     //! List of position partial per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partial per link end (predeclared for efficiency).
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
 
     //! Pre-declared state variable to be used in calculatePartial function.

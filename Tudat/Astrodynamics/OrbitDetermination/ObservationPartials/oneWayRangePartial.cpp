@@ -78,7 +78,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
         returnPartial.push_back(
                     std::make_pair(
                         oneWayRangeScaler_->getScalingFactor( positionPartialIterator_->first ) *
-                        ( positionPartialIterator_->second->calculatePartial(
+                        ( positionPartialIterator_->second->calculatePartialOfPosition(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
     }
 

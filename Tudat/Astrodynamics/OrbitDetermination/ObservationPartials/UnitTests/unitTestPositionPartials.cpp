@@ -27,7 +27,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE( test_position_partials)
 
 //! Test partial derivatives of positions w.r.t. parameters. Partials of most observables are computed in terms of these
 //! partials
-BOOST_AUTO_TEST_CASE( testPositionPartials )
+BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -163,15 +163,15 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
 
     // Create explicit position partial objects.
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverPosition =
-            createPositionPartialsWrtBodyPosition( linkEnds, bodyMap, "Earth" ).begin( )->second;
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPosition =
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, "Earth" ).begin( )->second;
 
     // Create explicit parameter partial objects.
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverRotationRate =
-            createPositionPartialsWrtParameter(
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverRotationRate =
+            createCartesianStatePartialsWrtParameter(
                 linkEnds, bodyMap, earthRotationRate ).begin( )->second;
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverPolePosition =
-            createPositionPartialsWrtParameter(
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPolePosition =
+            createCartesianStatePartialsWrtParameter(
                 linkEnds, bodyMap, earthPolePosition ).begin( )->second;
 
     // Calculate transmission/reception times and states
@@ -183,11 +183,11 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
     // Compute partials
     Eigen::MatrixXd partialWrtReceiverPosition =
-            partialObjectWrtReceiverPosition->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverPosition->calculatePartialOfPosition( currentState, currentTime );
     Eigen::MatrixXd partialWrtReceiverRotationRate =
-            partialObjectWrtReceiverRotationRate->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverRotationRate->calculatePartialOfPosition( currentState, currentTime );
     Eigen::MatrixXd partialWrtReceiverPolePosition =
-            partialObjectWrtReceiverPolePosition->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverPolePosition->calculatePartialOfPosition( currentState, currentTime );
 
     // Define observation function
     boost::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =

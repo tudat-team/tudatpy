@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayRangePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
@@ -65,8 +65,8 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayRangePartialWrtParamete
     boost::shared_ptr< ObservationPartial< 1 > > oneWayRangePartial;
 
     {
-        std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
-                createPositionPartialsWrtParameter( oneWayRangeLinkEnds, bodyMap, parameterToEstimate );
+        std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+                createCartesianStatePartialsWrtParameter( oneWayRangeLinkEnds, bodyMap, parameterToEstimate );
 
         // Create one-range partials if any position partials are created (i.e. if any dependency exists).
         boost::shared_ptr< OneWayRangePartial > testOneWayRangePartial  = boost::make_shared< OneWayRangePartial >(
