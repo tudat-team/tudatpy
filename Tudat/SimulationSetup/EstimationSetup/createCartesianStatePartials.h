@@ -47,7 +47,8 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string bodyToEstimate );
+        const std::string bodyToEstimate,
+        const bool createPositionPartial = 1 );
 
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 /*!
