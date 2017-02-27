@@ -483,7 +483,8 @@ void testCowellPropagationOfKeplerOrbit( )
         }
     }
 }
-BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+
+BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
     testCowellPropagationOfKeplerOrbit< double, long double >( );
