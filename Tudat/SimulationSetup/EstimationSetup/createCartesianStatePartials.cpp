@@ -22,7 +22,8 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string bodyToEstimate )
+        const std::string bodyToEstimate,
+        const bool createPositionPartial )
 {
     // Declare data map to return.
     std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
@@ -39,7 +40,14 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
         if( bodyToEstimate == currentBodyName )
         {
             // Create partial
-            partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtPosition >( );
+            if( createPositionPartial )
+            {
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtPosition >( );
+            }
+            else
+            {
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtVelocity >( );
+            }
         }
         else
         {
@@ -47,7 +55,14 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
             if( observedBodyEphemerisOrigin == bodyToEstimate )
             {
-                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtPosition >( );
+                if( createPositionPartial )
+                {
+                    partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtPosition >( );
+                }
+                else
+                {
+                    partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtVelocity >( );
+                }
             }
         }
     }
@@ -291,7 +306,7 @@ boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWr
         const boost::shared_ptr< PositionObservationScaling > positionObservableScaler )
 {
     std::map<  observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate, true );
     boost::shared_ptr< PositionObervationPartial > positionObervationPartial;
 
     if( positionPartials.size( ) > 0 )

@@ -33,7 +33,7 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyP
 {
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( angularPositionLinkEnds, bodyMap, bodyToEstimate );
+            createCartesianStatePartialsWrtBodyState( angularPositionLinkEnds, bodyMap, bodyToEstimate, true );
 
     // Create angular position partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< AngularPositionPartial > angularPositionPartial;

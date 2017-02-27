@@ -40,6 +40,10 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotatio
         const Eigen::Quaterniond inertialBodyFixedToIntegrationFrame,
         const double rotationRate, const double timeSinceEpoch );
 
+Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
+        const Eigen::Matrix3d currentRotationFromLocalToGlobalFrame,
+        const double rotationRate, const double timeSinceEpoch );
+
 //! Function to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right ascension
 //! and declination.
 /*!
@@ -55,6 +59,10 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         const Eigen::Vector3d initialOrientationAngles,
         const double rotationRate, const double timeSinceEpoch );
 
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
+        const Eigen::Vector3d initialOrientationAngles,
+        const double rotationRate, const double timeSinceEpoch );
+
 //! Base class for partial derivatives of rotation matrix from body fixed to inertial frame w.r.t. a parameter.
 /*!
  *  Base class for partial derivatives of rotation matrix from body fixed to inertial frame w.r.t. a parameter.
@@ -67,6 +75,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 class RotationMatrixPartial
 {
 public:
+
+    RotationMatrixPartial( const boost::shared_ptr< ephemerides::RotationalEphemeris > rotationModel ):
+        rotationModel_( rotationModel ){ }
 
     //! Virtual destructor
     virtual ~RotationMatrixPartial( ){ }
@@ -104,6 +115,10 @@ public:
             const double time,
             const Eigen::Vector3d vectorInLocalFrame );
 
+    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfInertialVelocityWrtParameter(
+            const double time,
+            const Eigen::Vector3d vectorInLocalFrame );
+
     //! Function to return the secondary identifier of the estimated parameter
     /*!
      * Function to return the secondary identifier of the estimated parameter. This function returns an empty string by
@@ -114,6 +129,8 @@ public:
     {
         return "";
     }
+protected:
+    boost::shared_ptr< ephemerides::RotationalEphemeris > rotationModel_;
 
 };
 
@@ -133,6 +150,7 @@ public:
      */
     RotationMatrixPartialWrtConstantRotationRate(
             const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ),
         bodyRotationModel_( bodyRotationModel ){ }
 
     //! Destructor.
@@ -159,7 +177,11 @@ public:
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
             const double time )
     {
-
+        return boost::assign::list_of(
+        calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
+                        bodyRotationModel_->getRotationToBaseFrame( time ).toRotationMatrix( ),
+                        bodyRotationModel_->getRotationRate( ),
+                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) );
     }
 
 private:
@@ -185,6 +207,7 @@ public:
      */
     RotationMatrixPartialWrtPoleOrientation(
             const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ),
         bodyRotationModel_( bodyRotationModel ){ }
 
     //! Destructor.
@@ -210,6 +233,9 @@ public:
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
             const double time )
     {
+        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
+                            bodyRotationModel_->getInitialEulerAngles( ),
+                            bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
 
     }
 

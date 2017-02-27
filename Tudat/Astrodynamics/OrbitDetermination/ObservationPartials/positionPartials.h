@@ -188,7 +188,7 @@ public:
             const Eigen::Vector6d& state,
             const double time )
     {
-        return rotationMatrixPartialObject_->calculatePartialOfInertialPositionWrtParameter( time, positionFunctionInLocalFrame_( time ) );
+        return rotationMatrixPartialObject_->calculatePartialOfInertialVelocityWrtParameter( time, positionFunctionInLocalFrame_( time ) );
     }
 
 private:

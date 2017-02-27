@@ -19,6 +19,7 @@
 
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
 
 namespace tudat
 {
@@ -222,9 +223,8 @@ public:
                         linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
         case observation_models::oneWayDoppler:
-            throw std::runtime_error( "One-way Doppler partials not yet implemented" );
-//            observationPartialList = createOneWayDopplerPartials< ParameterType >(
-//                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+            observationPartialList = createOneWayDopplerPartials< ParameterType >(
+                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
 
         default:
