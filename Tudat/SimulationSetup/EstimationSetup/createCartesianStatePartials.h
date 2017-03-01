@@ -247,7 +247,7 @@ createPositionObservablePartials(
             // If partial exists, then dependency exists and parameter must be added.
             if( currentObservablePartial != NULL )
             {
-                currentPair = std::pair< int, int >( currentIndex, 3 );
+                currentPair = std::pair< int, int >( currentIndex, 6 );
                 positionObservablePartials[ currentPair ] = currentObservablePartial;
             }
 

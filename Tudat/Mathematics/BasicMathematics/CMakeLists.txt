@@ -13,6 +13,7 @@ set(BASICMATHEMATICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/coordinateConversions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/legendrePolynomials.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/numericalDerivative.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/sphericalHarmonics.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/rotationAboutArbitraryAxis.cpp"
   "${SRCROOT}${BASICMATHEMATICSDIR}/basicMathematicsFunctions.cpp"
@@ -62,7 +63,7 @@ target_link_libraries(test_NearestNeighbourSearch tudat_input_output tudat_basic
 
 add_executable(test_NumericalDerivative "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestNumericalDerivative.cpp")
 setup_custom_test_program(test_NumericalDerivative "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
-target_link_libraries(test_NumericalDerivative ${Boost_LIBRARIES})
+target_link_libraries(test_NumericalDerivative tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_LegendrePolynomials "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestLegendrePolynomials.cpp")
 setup_custom_test_program(test_LegendrePolynomials "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")

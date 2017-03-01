@@ -1,0 +1,1075 @@
+diff --git a/Tudat/Astrodynamics/BasicAstrodynamics/CMakeLists.txt b/Tudat/Astrodynamics/BasicAstrodynamics/CMakeLists.txt
+index bfae978..4e87c8c 100755
+--- a/Tudat/Astrodynamics/BasicAstrodynamics/CMakeLists.txt
++++ b/Tudat/Astrodynamics/BasicAstrodynamics/CMakeLists.txt
+@@ -77,6 +77,7 @@ set(BASICASTRODYNAMICS_HEADERS
+   "${SRCROOT}${BASICASTRODYNAMICSDIR}/oblateSpheroidBodyShapeModel.h"
+   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalBodyShapeModel.h"
+   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
++  "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
+ )
+ 
+ # Add static libraries.
+diff --git a/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.cpp b/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.cpp
+index d7d8649..7d65e0f 100644
+--- a/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.cpp
++++ b/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.cpp
+@@ -89,6 +89,26 @@ AvailableAcceleration getAccelerationModelType(
+ 
+ }
+ 
++AvailableMassRateModels getMassRateModelType(
++        const boost::shared_ptr< MassRateModel > massRateModel )
++{
++    // Nominal type is undefined
++    AvailableMassRateModels massRateType = undefined_mass_rate_model;
++
++    // Check for each accelerarion mdoel type implemented as AvailableMassRateModels.
++    if( boost::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >(
++                massRateModel ) != NULL )
++    {
++        massRateType = custom;
++    }
++    else
++    {
++        throw std::runtime_error(
++                    "Error, mass rate model not identified when getting acceleration type." );
++    }
++    return massRateType;
++}
++
+ 
+ } // namespace basic_astrodynamics
+ 
+diff --git a/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h b/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h
+index 83b6520..f0d0f50 100644
+--- a/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h
++++ b/Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h
+@@ -40,6 +40,7 @@
+ #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+ #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
+ #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
++#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
+ 
+ 
+ namespace tudat
+@@ -65,6 +66,12 @@ enum AvailableAcceleration
+     third_body_spherical_harmonic_gravity
+ };
+ 
++enum AvailableMassRateModels
++{
++    undefined_mass_rate_model,
++    custom
++};
++
+ //! Function to identify the derived class type of an acceleration model.
+ /*!
+  *  Function to identify the derived class type of an acceleration model. The type must be defined
+@@ -76,6 +83,9 @@ AvailableAcceleration getAccelerationModelType(
+         const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+         accelerationModel );
+ 
++AvailableMassRateModels getMassRateModelType(
++        const boost::shared_ptr< MassRateModel > massRateModel );
++
+ 
+ } // namespace basic_astrodynamics
+ 
+diff --git a/Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h b/Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h
+index 3c68c5b..f6c83de 100644
+--- a/Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h
++++ b/Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h
+@@ -1,4 +1,78 @@
+ #ifndef MASSRATEMODEL_H
+ #define MASSRATEMODEL_H
+ 
++#include <map>
++#include <vector>
++
++#include <boost/function.hpp>
++#include <boost/shared_ptr.hpp>
++
++#include <Eigen/Core>
++
++#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
++
++namespace tudat
++{
++namespace basic_astrodynamics
++{
++
++class MassRateModel
++{
++public:
++
++    virtual ~MassRateModel( ) { }
++
++    virtual double getMassRate( )
++    {
++        return currentMassRate_;
++    }
++
++    virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
++
++    virtual void resetTime( const double currentTime = TUDAT_NAN )
++    {
++        currentTime_ = currentTime;
++    }
++
++protected:
++
++    double currentTime_;
++
++    double currentMassRate_;
++
++protected:
++
++private:
++};
++
++class CustomMassRateModel: public MassRateModel
++{
++public:
++
++    CustomMassRateModel(
++            const boost::function< double( const double ) > massRateFunction ){ }
++
++    ~CustomMassRateModel( ){ }
++
++    virtual void updateMembers( const double currentTime = TUDAT_NAN )
++    {
++        if( !( currentTime == currentTime ) )
++        {
++            currentMassRate_ = massRateFunction( currentTime );
++        }
++    }
++
++protected:
++
++    boost::function< double( const double ) > massRateFunction ;
++
++protected:
++
++private:
++};
++
++
++}
++
++}
+ #endif // MASSRATEMODEL_H
+diff --git a/Tudat/Astrodynamics/Propagators/CMakeLists.txt b/Tudat/Astrodynamics/Propagators/CMakeLists.txt
+index 7221a09..43ef336 100644
+--- a/Tudat/Astrodynamics/Propagators/CMakeLists.txt
++++ b/Tudat/Astrodynamics/Propagators/CMakeLists.txt
+@@ -36,6 +36,7 @@
+ # Add source files.
+ set(PROPAGATORS_SOURCES
+   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
++  "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
+   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
+ )
+ 
+@@ -53,6 +54,7 @@ set(PROPAGATORS_HEADERS
+   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
+   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
+   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
++  "${SRCROOT}${PROPAGATORSDIR}/bodyMassStateDerivative.h"
+ )
+ 
+ # Add static libraries.
+diff --git a/Tudat/Astrodynamics/Propagators/UnitTests/unitTestCowellStateDerivative.cpp b/Tudat/Astrodynamics/Propagators/UnitTests/unitTestCowellStateDerivative.cpp
+index 5f17cfd..a30fb57 100644
+--- a/Tudat/Astrodynamics/Propagators/UnitTests/unitTestCowellStateDerivative.cpp
++++ b/Tudat/Astrodynamics/Propagators/UnitTests/unitTestCowellStateDerivative.cpp
+@@ -325,7 +325,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
+ 
+ //! Test to ensure that a point-mass acceleration on a body produces a Kepler orbit (to within
+ //! numerical error bounds).
+-BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
++template< typename TimeType, typename StateScalarType >
++void testCowellPropagationOfKeplerOrbit( )
+ {
+     //Load spice kernels.
+     std::string kernelsPath = input_output::getSpiceKernelPath( );
+@@ -374,15 +375,15 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+     unsigned int numberOfNumericalBodies = bodiesToPropagate.size( );
+ 
+     // Define settings for numerical integrator.
+-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+-            boost::make_shared< IntegratorSettings< > >
++    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
++            boost::make_shared< IntegratorSettings< TimeType > >
+             ( rungeKutta4, initialEphemerisTime, finalEphemerisTime, 120.0 );
+ 
+     // Run test where Moon gravity is/is not taken into account.
+     for( unsigned testCase = 0; testCase < 2; testCase++ )
+     {
+         // Get initial kepler elements
+-        double effectiveGravitationalParameter;
++        StateScalarType effectiveGravitationalParameter;
+         if( testCase == 0 )
+         {
+             effectiveGravitationalParameter
+@@ -414,40 +415,43 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+         }
+ 
+         // Create system initial state.
+-        Eigen::VectorXd systemInitialState = Eigen::VectorXd( bodiesToPropagate.size( ) * 6 );
++        Eigen::Matrix< StateScalarType, 6, 1  > systemInitialState =
++                Eigen::Matrix< StateScalarType, 6, 1  >( bodiesToPropagate.size( ) * 6 );
+         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
+         {
+             systemInitialState.segment( i * 6 , 6 ) =
+                     spice_interface::getBodyCartesianStateAtEpoch(
+-                      bodiesToPropagate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime );
++                      bodiesToPropagate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime ).
++                    template cast< StateScalarType >( );
+         }
+ 
+         // Create acceleration models and propagation settings.
+         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
++        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
++                boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState );
+ 
+         // Create dynamics simulation object.
+-        SingleArcDynamicsSimulator< > dynamicsSimulator(
++        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
+                     bodyMap, integratorSettings, propagatorSettings, true, false );
+ 
+-        basic_mathematics::Vector6d initialKeplerElements =
+-            orbital_element_conversions::convertCartesianToKeplerianElements(
+-                basic_mathematics::Vector6d( systemInitialState ), effectiveGravitationalParameter );
++        Eigen::Matrix< StateScalarType, 6, 1  > initialKeplerElements =
++            orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
++                Eigen::Matrix< StateScalarType, 6, 1  >( systemInitialState ), effectiveGravitationalParameter );
+ 
+         // Compare numerical state and kepler orbit at each time step.
+         boost::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
+         double currentTime = initialEphemerisTime + buffer;
+         while( currentTime < finalEphemerisTime - buffer )
+         {
+-            basic_mathematics::Vector6d stateDifference
+-                = orbital_element_conversions::convertKeplerianToCartesianElements(
+-                    propagateKeplerOrbit( initialKeplerElements, currentTime - initialEphemerisTime,
++            Eigen::VectorXd stateDifference
++                = ( orbital_element_conversions::convertKeplerianToCartesianElements(
++                    propagateKeplerOrbit< StateScalarType >( initialKeplerElements, currentTime - initialEphemerisTime,
+                                           effectiveGravitationalParameter ),
+                     effectiveGravitationalParameter )
+-                - moonEphemeris->getCartesianStateFromEphemeris( currentTime );
++                - moonEphemeris->template getTemplatedStateFromEphemeris< StateScalarType >( currentTime ) ).
++                    template cast< double >( );
+             for( int i = 0; i < 3; i++ )
+             {
+                 BOOST_CHECK_SMALL( stateDifference( i ), 1E-3 );
+@@ -458,6 +462,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+         }
+     }
+ }
++BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
++{
++    testCowellPropagationOfKeplerOrbit< double, double >( );
++    testCowellPropagationOfKeplerOrbit< double, long double >( );
++
++}
+ 
+ BOOST_AUTO_TEST_SUITE_END( )
+ 
+diff --git a/Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h b/Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h
+index bd82b52..103f897 100644
+--- a/Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h
++++ b/Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h
+@@ -1,4 +1,128 @@
+ #ifndef BODYMASSSTATEDERIVATIVE_H
+ #define BODYMASSSTATEDERIVATIVE_H
+ 
++/*    Copyright (c) 2010-2016, Delft University of Technology
++ *    All rigths reserved
++ *
++ *    This file is part of the Tudat. Redistribution and use in source and
++ *    binary forms, with or without modification, are permitted exclusively
++ *    under the terms of the Modified BSD license. You should have received
++ *    a copy of the license with this file. If not, please or visit:
++ *    http://tudat.tudelft.nl/LICENSE.
++ */
++
++
++#include <vector>
++#include <map>
++#include <string>
++
++#include <boost/shared_ptr.hpp>
++#include <boost/function.hpp>
++
++#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
++#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
++#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
++
++
++namespace tudat
++{
++
++namespace propagators
++{
++
++template< typename StateScalarType = double, typename TimeType = double >
++class BodyMassStateDerivative: public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
++{
++public:
++
++    using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
++
++    BodyMassStateDerivative(
++            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
++            const std::vector< std::string >& bodiesToIntegrate ):
++        propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
++            propagators::body_mass_state ),
++        massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
++
++    //! Destructor
++    virtual ~BodyMassStateDerivative( ){ }
++
++    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
++            const TimeType time,
++            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated )
++    {
++        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > stateDerivative =
++                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( bodiesToIntegrate_.size( ) );
++
++        int currentIndex = 0;
++        for( massRateModelIterator_ = massRateModels_.begin( );
++             massRateModelIterator_ != massRateModels_.end( );
++             massRateModelIterator_++ )
++        {
++            stateDerivative( currentIndex ) = static_cast< StateScalarType >(
++                        massRateModelIterator_->second->getMassRate( ) );
++            currentIndex++;
++        }
++
++        return stateDerivative;
++    }
++
++    virtual void updateStateDerivativeModel( const TimeType currentTime )
++    {
++        // Reser all acceleration times (to allow multiple evaluations at same time, e.g. stage 2
++        // and 3 in RK4 integrator)
++        for( massRateModelIterator_ = massRateModels_.begin( );
++             massRateModelIterator_ != massRateModels_.end( );
++             massRateModelIterator_++ )
++        {
++            massRateModelIterator_->second->resetTime( TUDAT_NAN );
++        }
++
++        for( massRateModelIterator_ = massRateModels_.begin( );
++             massRateModelIterator_ != massRateModels_.end( );
++             massRateModelIterator_++ )
++        {
++            massRateModelIterator_->second->resetTime( static_cast< double >( currentTime ) );
++        }
++    }
++
++    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
++            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
++    {
++        return internalSolution;
++    }
++
++
++    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
++            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
++    {
++        return outputSolution;
++    }
++
++
++    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertToOutputSolution(
++            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time )
++    {
++        return internalSolution;
++    }
++
++    virtual int getStateSize( )
++    {
++        return bodiesToIntegrate_.size( );
++    }
++
++private:
++
++    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
++
++    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator massRateModelIterator_;
++
++    std::vector< std::string > bodiesToIntegrate_;
++
++};
++
++} // namespace propagators
++
++} // namespace tudat
++
+ #endif // BODYMASSSTATEDERIVATIVE_H
+diff --git a/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.cpp b/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.cpp
+index 92a723b..ba9a88d 100644
+--- a/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.cpp
++++ b/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.cpp
+@@ -278,6 +278,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+                     break;
+                 }
+                 default:
++                    throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
++                                              boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+                     break;
+                 }
+ 
+@@ -295,10 +297,50 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+     return environmentModelsToUpdate;
+ }
+ 
++std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
++createMassPropagationEnvironmentUpdaterSettings(
++        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
++        const simulation_setup::NamedBodyMap& bodyMap )
++{
++    using namespace basic_astrodynamics;
++    using namespace propagators;
++
++    std::map< propagators::EnvironmentModelsToUpdate,
++              std::vector< std::string > > environmentModelsToUpdate;
++    std::map< propagators::EnvironmentModelsToUpdate,
++              std::vector< std::string > > singleRateModelUpdateNeeds;
++
++    for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
++         massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
++    {
++        singleRateModelUpdateNeeds.clear( );
++
++        AvailableMassRateModels currentAccelerationModelType =
++                getMassRateModelType( massRateModelIterator->second );
++        switch( currentAccelerationModelType )
++        {
++        case custom:
++            break;
++        default:
++            throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
++                                      boost::lexical_cast< std::string >( currentAccelerationModelType ) );
++
++        }
++        // Check whether requested updates are possible.
++        checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
++
++        // Add requested updates of current acceleration model to
++        // full list of environment updates.
++        addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
++    }
++
++    return environmentModelsToUpdate;
++
++}
+ 
+ //! Function to create 'brute-force' update settings, in which each environment model is updated.
+ std::map< propagators::EnvironmentModelsToUpdate,
+-          std::vector< std::string > > createFullEnvironmentUpdaterSettings(
++std::vector< std::string > > createFullEnvironmentUpdaterSettings(
+         const simulation_setup::NamedBodyMap& bodyMap )
+ {
+     using namespace basic_astrodynamics;
+diff --git a/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.h b/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.h
+index cc1863c..083f782 100644
+--- a/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.h
++++ b/Tudat/Astrodynamics/Propagators/createEnvironmentUpdater.h
+@@ -62,6 +62,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+         const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
+         const simulation_setup::NamedBodyMap& bodyMap );
+ 
++std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
++createMassPropagationEnvironmentUpdaterSettings(
++        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
++        const simulation_setup::NamedBodyMap& bodyMap );
++
+ //! Get list of required environment model update settings from a list of propagation settings.
+ /*!
+ * Get list of required environment model update settings from a list of propagation settings.
+@@ -82,6 +87,33 @@ std::map< propagators::EnvironmentModelsToUpdate,
+     // Check dynamics type
+     switch( propagatorSettings->stateType_ )
+     {
++    case hybrid:
++    {
++        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
++                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
++
++        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
++
++        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
++             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
++             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
++        {
++            for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
++            {
++                if( typeIterator->first != hybrid )
++                {
++                    singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType >( typeIterator->second.at( i ), bodyMap );
++
++                    checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
++                    addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
++                }
++                else
++                {
++                    std::cerr<<"Error when making environment updater type list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
++                }
++            }
++        }
++    }
+     case transational_state:
+     {
+         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+@@ -91,6 +123,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
+                     bodyMap );
+         break;
+     }
++    case body_mass_state:
++    {
++        environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
++                    boost::dynamic_pointer_cast<
++                    MassPropagatorSettings< StateScalarType > >(
++                        propagatorSettings )->massRateModels_, bodyMap );
++        break;
++    }
+     default:
+     {
+         throw std::runtime_error( "Error, cannot create environment updates for type " +
+diff --git a/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.cpp b/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.cpp
+index 8b13789..e69de29 100644
+--- a/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.cpp
++++ b/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.cpp
+@@ -1 +0,0 @@
+-
+diff --git a/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.h b/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.h
+index cf962a2..e5874e8 100644
+--- a/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.h
++++ b/Tudat/Astrodynamics/Propagators/createStateDerivativeModel.h
+@@ -11,9 +11,12 @@
+ #ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
+ #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
+ 
++#include <boost/bind.hpp>
++
+ #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
+ #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+ #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
++#include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
+ #include "Tudat/SimulationSetup/body.h"
+ 
+ namespace tudat
+@@ -132,6 +135,16 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
+     return stateDerivativeModel;
+ }
+ 
++template< typename StateScalarType = double, typename TimeType = double >
++boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createBodyMassStateDerivativeModel(
++        const boost::shared_ptr< MassPropagatorSettings< StateScalarType > > translationPropagatorSettings,
++        const  simulation_setup::NamedBodyMap& bodyMap )
++{
++    return boost::make_shared< propagators::BodyMassStateDerivative< StateScalarType, TimeType > >(
++                translationPropagatorSettings->massRateModels_,
++                translationPropagatorSettings->bodiesWithMassToPropagate_ );
++}
++
+ //! Function to create a state derivative model.
+ /*!
+  *  Function to create a state derivative model from propagation settings and the environment.
+@@ -170,6 +183,23 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
+         }
+         break;
+     }
++    case body_mass_state:
++    {
++        // Check input consistency.
++        boost::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
++                boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( propagatorSettings );
++        if( massPropagatorSettings == NULL )
++        {
++            throw std::runtime_error(
++                "Error, expected mass propagation settings when making state derivative model" );
++        }
++        else
++        {
++            stateDerivativeModel = createBodyMassStateDerivativeModel< StateScalarType, TimeType >(
++                        massPropagatorSettings, bodyMap );
++        }
++        break;
++    }
+     default:
+         throw std::runtime_error(
+                     "Error, could not process state type "
+@@ -200,6 +230,30 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
+     // Check type of state derivative model and call associated create function.
+     switch( propagatorSettings->stateType_ )
+     {
++    case hybrid:
++    {
++        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
++                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
++
++        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
++             propagatorIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
++             propagatorIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); propagatorIterator++ )
++        {
++            for( unsigned int i = 0; i < propagatorIterator->second.size( ); i++ )
++            {
++                if( propagatorIterator->first != hybrid )
++                {
++                    stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
++                                                         propagatorIterator->second.at( i ), bodyMap ) );
++                }
++                else
++                {
++                    std::cerr<<"Error when making state derivative model, cannot process nested hybrid propagators"<<std::endl;
++                }
++            }
++        }
++        break;
++    }
+     default:
+         stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
+                                              propagatorSettings, bodyMap ) );
+diff --git a/Tudat/Astrodynamics/Propagators/environmentUpdater.h b/Tudat/Astrodynamics/Propagators/environmentUpdater.h
+index 52a7f02..51f57a9 100644
+--- a/Tudat/Astrodynamics/Propagators/environmentUpdater.h
++++ b/Tudat/Astrodynamics/Propagators/environmentUpdater.h
+@@ -190,6 +190,18 @@ private:
+                 }
+                 break;
+             };
++            case body_mass_state:
++            {
++                // Set translational states for bodies provided as input.
++                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedMass =
++                        integratedStates_.at( body_mass_state );
++                for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
++                {
++                    bodyList_[ bodiesWithIntegratedMass[ i ].first ]
++                            ->setConstantBodyMass( integratedStateIterator->second( i ) );
++                }
++                break;
++            };
+             default:
+                 throw std::runtime_error( "Error, could not find integrated state settings for " +
+                                           boost::lexical_cast< std::string >( integratedStateIterator->first ) );
+@@ -226,6 +238,19 @@ private:
+                 }
+                 break;
+             }
++            case body_mass_state:
++            {
++                // Iterate over all integrated translational states.
++                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
++                        integratedStates_.at( body_mass_state );
++                for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
++                {
++                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
++                            updateMass( currentTime );
++
++                }
++                break;
++            }
+             default:
+                 throw std::runtime_error( "Error, could not find  state settings for " +
+                                           boost::lexical_cast< std::string >( statesToSet.at( i ) ) );
+@@ -325,11 +350,32 @@ private:
+ 
+                     }
+                     case body_mass_update:
++                    {
++                        bool addUpdate = 1;
++
++                        // Check if translational state is propagated
++                        if( integratedStates_.count( body_mass_state ) > 0 )
++                        {
++                            // Check if current body is propagated
++                            std::pair< std::string, std::string > bodyToCheck
++                                    = std::make_pair( currentBodies.at( i ), "" );
++                            std::vector< std::pair< std::string, std::string > > integratedBodyMasses
++                                    = integratedStates_.at( body_mass_state );
++                            if( std::find( integratedBodyMasses.begin( ),
++                                           integratedBodyMasses.end( ),
++                                           bodyToCheck ) != integratedBodyMasses.end( ) )
++                            {
++                                addUpdate = 0;
++                            }
++                        }
++
++                        if( addUpdate )
+                         {
+                             updateTimeFunctionList_[ body_mass_update ].push_back(
+-                                std::make_pair( currentBodies.at( i ),
+-                                                boost::bind( &simulation_setup::Body::updateMass,
+-                                                             bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
++                                        std::make_pair( currentBodies.at( i ),
++                                                        boost::bind( &simulation_setup::Body::updateMass,
++                                                                     bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
++                        }
+                         break;
+                     }
+                     case spherical_harmonic_gravity_field_update:
+@@ -338,16 +384,16 @@ private:
+                         // Check if body has time-dependent sh field
+                         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField >
+                                 gravityField = boost::dynamic_pointer_cast
+-                                         < gravitation::TimeDependentSphericalHarmonicsGravityField >
+-                                      (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
++                                < gravitation::TimeDependentSphericalHarmonicsGravityField >
++                                (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
+                         if( gravityField != NULL )
+                         {
+                             updateTimeFunctionList_[ spherical_harmonic_gravity_field_update ].push_back(
+                                         std::make_pair(
+                                             currentBodies.at( i ),
+                                             boost::bind( &gravitation
+-                                                              ::TimeDependentSphericalHarmonicsGravityField
+-                                                                   ::update,
++                                                         ::TimeDependentSphericalHarmonicsGravityField
++                                                         ::update,
+                                                          gravityField, _1 ) ) );
+                         }
+                         // If no sh field at all, throw eeror.
+diff --git a/Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h b/Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h
+index 11db5dc..3055079 100644
+--- a/Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h
++++ b/Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h
+@@ -176,7 +176,7 @@ public:
+         return accelerationModelsPerBody_;
+     }
+ 
+-    //! Function to get object providing the current integration origins 
++    //! Function to get object providing the current integration origins
+     /*!
+      * Function to get object responsible for providing the current integration origins from the
+      * global origins.
+diff --git a/Tudat/Astrodynamics/Propagators/propagationSettings.h b/Tudat/Astrodynamics/Propagators/propagationSettings.h
+index 5d5ef9a..6acf141 100644
+--- a/Tudat/Astrodynamics/Propagators/propagationSettings.h
++++ b/Tudat/Astrodynamics/Propagators/propagationSettings.h
+@@ -22,6 +22,7 @@
+ 
+ #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+ #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
++#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
+ 
+ namespace tudat
+ {
+@@ -33,7 +34,9 @@ namespace propagators
+ //! Enum listing types of dynamics that can be numerically integrated
+ enum IntegratedStateType
+ {
+-    transational_state
++    hybrid,
++    transational_state,
++    body_mass_state
+ };
+ 
+ //! Enum listing propagator types for translational dynamics that can be used.
+@@ -159,6 +162,94 @@ public:
+ };
+ 
+ template< typename StateScalarType >
++class MassPropagatorSettings: public PropagatorSettings< StateScalarType >
++{
++public:
++    MassPropagatorSettings(
++            const std::vector< std::string > bodiesWithMassToPropagate,
++            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
++            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses ):
++        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses )
++    { }
++
++    std::vector< std::string > bodiesWithMassToPropagate_;
++
++    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
++};
++
++
++template< typename StateScalarType >
++Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
++        const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >& propagatorSettingsList )
++{
++    int totalSize = getMultiTypePropagatorSingleArcStateSize( propagatorSettingsList );
++
++    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
++            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );
++
++    int currentIndex = 0;
++    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState;
++    for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
++         typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
++    {
++        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
++        {
++            currentInitialState = typeIterator->second.at( i )->getInitialStates( );
++            combinedInitialState.segment( currentIndex, currentInitialState.rows( ) ) = currentInitialState;
++            currentIndex += currentInitialState.rows( );
++        }
++    }
++    return combinedInitialState;
++}
++
++template< typename StateScalarType >
++class MultiTypePropagatorSettings: public PropagatorSettings< StateScalarType >
++{
++public:
++    MultiTypePropagatorSettings(
++            const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap ):
++        PropagatorSettings< StateScalarType >( hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ) ),
++        propagatorSettingsMap_( propagatorSettingsMap )
++    { }
++
++
++    ~MultiTypePropagatorSettings( ){ }
++
++
++    void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
++    {
++        int currentStartIndex = 0;
++        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
++             propagatorIterator = propagatorSettingsMap_.begin( ); propagatorIterator != propagatorSettingsMap_.end( );
++             propagatorIterator++ )
++        {
++            for( unsigned int i = 0; i < propagatorIterator->second.size( ); i++ )
++            {
++                int currentParameterSize = propagatorIterator->second.at( i )->getInitialStates( ).rows( );
++
++                if( currentParameterSize + currentStartIndex > initialBodyStates.rows( ) )
++                {
++                    std::cerr<<"Error when resetting multi-arc state, sizes are incompatible "<<std::endl;
++                }
++                propagatorIterator->second.at( i )->resetInitialStates(
++                            initialBodyStates.block( currentStartIndex, 0, currentParameterSize, 1 ) );
++                currentStartIndex += currentParameterSize;
++
++            }
++        }
++
++        if( currentStartIndex != initialBodyStates.rows( ) )
++        {
++            std::cerr<<"Error when resetting multi-arc state, sizes are incompatible B "<<
++                       currentStartIndex<<" "<<initialBodyStates.rows( )<<std::endl;
++        }
++    }
++
++    std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap_;
++
++};
++
++template< typename StateScalarType >
+ //! Function to retrieve the list of integrated state types and reference ids
+ /*!
+  * Function to retrieve the list of integrated state types and reference ids. For translational and
+@@ -176,9 +267,47 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string
+     // Identify propagator type
+     switch( propagatorSettings->stateType_ )
+     {    
+-    case transational_state:
++    case hybrid:
+     {
++        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
++                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+ 
++        std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > singleTypeIntegratedStateList;
++
++        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
++             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
++             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
++        {
++            if( typeIterator->first != hybrid )
++            {
++                for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
++                {
++                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >( typeIterator->second.at( i ) );
++
++                    if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first || singleTypeIntegratedStateList.size( ) != 1 )
++                    {
++                        std::cerr<<"Error when making integrated state list for hybrid propagator, inconsistency encountered "<<
++                                   singleTypeIntegratedStateList.begin( )->first<<" "<<typeIterator->first<<" "<<
++                                   singleTypeIntegratedStateList.size( )<<" "<<singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
++                    }
++                    else
++                    {
++                        for( unsigned int j = 0; j < singleTypeIntegratedStateList[ typeIterator->first ].size( ); j++ )
++                        {
++                            integratedStateList[ typeIterator->first ].push_back( singleTypeIntegratedStateList.begin( )->second.at( j ) );
++                        }
++
++                    }
++                }
++            }
++            else
++            {
++                std::cerr<<"Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
++            }
++        }
++    }
++    case transational_state:
++    {
+         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                 translationalPropagatorSettings = boost::dynamic_pointer_cast<
+                      TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+@@ -198,6 +327,27 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string
+ 
+         break;
+     }
++    case body_mass_state:
++    {
++        boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
++                massPropagatorSettings = boost::dynamic_pointer_cast<
++                     MassPropagatorSettings< StateScalarType > >( propagatorSettings );
++        if( massPropagatorSettings == NULL )
++        {
++            throw std::runtime_error( "Error getting integrated state type list, mass state input inconsistent" );
++        }
++
++        // Retrieve list of integrated bodies in correct formatting.
++        std::vector< std::pair< std::string, std::string > > integratedBodies;
++        for( unsigned int i = 0; i < massPropagatorSettings->bodiesWithMassToPropagate_.size( ); i++ )
++        {
++            integratedBodies.push_back( std::make_pair(
++                massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "" ) );
++        }
++        integratedStateList[ body_mass_state ] = integratedBodies;
++
++        break;
++    }
+     default:
+         throw std::runtime_error( "Error, could not process integrated state type " +
+                                   boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
+diff --git a/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.cpp b/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.cpp
+index 095f2fc..5f2b664 100644
+--- a/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.cpp
++++ b/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.cpp
+@@ -17,7 +17,6 @@ namespace tudat
+ namespace propagators
+ {
+ 
+-
+ //! Function to create an interpolator for the new translational state of a body.
+ template< >
+ boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
+diff --git a/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h b/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h
+index 6761178..ee92c38 100644
+--- a/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h
++++ b/Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h
+@@ -230,6 +230,32 @@ void resetIntegratedEphemerides(
+                                              integrationToEphemerisFrameFunctions );
+ }
+ 
++template< typename TimeType, typename StateScalarType >
++void resetIntegratedBodyMass(
++        const simulation_setup::NamedBodyMap& bodyMap,
++        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
++        const std::vector< std::string >& bodiesToIntegrate )
++{
++    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
++    {
++        std::map< double, double > currentBodyMassMap;
++        for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
++             stateIterator = equationsOfMotionNumericalSolution.begin( );
++             stateIterator != equationsOfMotionNumericalSolution.end( ); stateIterator++ )
++        {
++           currentBodyMassMap[ static_cast< double >( stateIterator->first ) ] =
++                   static_cast< double >( stateIterator->second( i ) );
++        }
++
++        typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
++
++         bodyMap.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction( boost::bind(
++                    static_cast< double( LocalInterpolator::* )( const double ) >
++                    ( &LocalInterpolator::interpolate ),
++                    boost::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), _1 ) );
++    }
++}
++
+ //! Function to determine in which order the ephemerides are to be updated
+ /*!
+  * Function to determine in which order the ephemerides are to be updated. The order depends on the
+@@ -331,6 +357,8 @@ public:
+                                                bodiesToIntegrate_, frameManager );
+     }
+ 
++    ~TranslationalStateIntegratedStateProcessor( ){ }
++
+     //! Function processing translational state in the full numericalSolution
+     /*!
+      * Function that processes the entries of the translational state in the full numericalSolution,
+@@ -369,6 +397,42 @@ private:
+     integrationToEphemerisFrameFunctions_;
+ };
+ 
++template< typename TimeType, typename StateScalarType >
++class BodyMassIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
++{
++public:
++
++    BodyMassIntegratedStateProcessor(
++            const int startIndex,
++            const simulation_setup::NamedBodyMap& bodyMap,
++            const std::vector< std::string >& bodiesToIntegrate ):
++        IntegratedStateProcessor<  TimeType, StateScalarType >(
++            transational_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ) ),
++        bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
++    { }
++
++    ~BodyMassIntegratedStateProcessor( ){ }
++
++    void processIntegratedStates(
++            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
++    {
++        resetIntegratedBodyMass( bodyMap_, numericalSolution, bodiesToIntegrate_ );
++    }
++
++private:
++
++    //! List of bodies used in simulations.
++    simulation_setup::NamedBodyMap bodyMap_;
++
++    //! List of bodies for which the body mass is numerically integrated.
++    /*!
++     * List of bodies for which the body mass is numerically integrated. Order in this
++     * vector is the same as the order in state vector.
++     */
++    std::vector< std::string > bodiesToIntegrate_;
++};
++
++
+ //! Function checking feasibility of resetting the translational dynamics
+ /*!
+  * Function to check the feasibility of resetting the translational dynamics of a set of
+@@ -487,6 +551,24 @@ createIntegratedStateProcessors(
+                         translationalPropagatorSettings->centralBodies_, frameManager ) );
+         break;
+     }
++    case body_mass_state:
++    {
++
++        // Check input feasibility
++        boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
++                massPropagatorSettings = boost::dynamic_pointer_cast
++                     < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
++        if( massPropagatorSettings == NULL )
++        {
++            throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
++        }
++
++        // Create state propagator settings
++        integratedStateProcessors[ body_mass_state ].push_back(
++                    boost::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
++                        startIndex, bodyMap, massPropagatorSettings->bodiesWithMassToPropagate_ ) );
++        break;
++    }
+     default:
+         throw std::runtime_error( "Error, could not process integrated state type " +
+                                   boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );

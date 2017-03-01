@@ -162,7 +162,7 @@ createAngularPositionPartials(
         if( currentRangePartial != NULL )
         {
             // Add partial to the list.
-            currentPair = std::pair< int, int >( currentIndex, 3 );
+            currentPair = std::pair< int, int >( currentIndex, 6 );
             angularPositionPartials[ currentPair ] = currentRangePartial;
         }
 
