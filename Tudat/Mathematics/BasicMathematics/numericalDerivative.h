@@ -163,9 +163,6 @@ DependentVariableType computeCentralDifference(
         perturbedInput = nominalIndependentVariable + coefficientIterator->first * independentVariableStepSize;
         perturbedOutput = dependentVariableFunction( perturbedInput );
 
-        std::cout<<"Time "<<std::setprecision ( 16 )<<perturbedInput<<std::endl;
-        std::cout<<"State "<<std::setprecision ( 16 )<<perturbedOutput.transpose( )<<std::endl;
-
         if( coefficientIterator == coefficients.begin( ) )
         {
              numericalDerivative = perturbedOutput * ( coefficientIterator->second / independentVariableStepSize );

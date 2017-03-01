@@ -69,28 +69,32 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     scalingTermB *= ( 1.0 - lineOfSightVelocityTransmitter );
 
     positionScalingFactor_ =
-              ( receiverVelocity.transpose( ) * scalingTermB + transmitterVelocity.transpose( ) * scalingTermA ) /
+            -( receiverVelocity.transpose( ) * scalingTermB + transmitterVelocity.transpose( ) * scalingTermA ) /
             physical_constants::SPEED_OF_LIGHT *
             ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
 
-    lightTimeEffectPositionScalingFactor_ =
-            lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                 ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                transmitterVelocity, transmitterAccelerationFunction_( times.at( 0 ) ), false )
-            / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+    if( fixedLinkEnd == observation_models::receiver )
+    {
+        lightTimeEffectPositionScalingFactor_ =
+                -lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                    transmitterVelocity, transmitterAccelerationFunction_( times.at( 0 ) ), false )
+                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+    }
+    else if( fixedLinkEnd == observation_models::transmitter )
+    {
+        lightTimeEffectPositionScalingFactor_ =
+                -lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                    receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true )
+                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+    }
 
-        std::cout<<"Acc.: "<<std::endl<<transmitterAccelerationFunction_( times.at( 0 ) )<<std::endl;
-
-    std::cout<<"Scaling: "<<std::endl<<positionScalingFactor_<<std::endl;
-    std::cout<<"Scaling2: "<<std::endl<<lightTimeEffectPositionScalingFactor_<<std::endl;
 
     positionScalingFactor_ += lightTimeEffectPositionScalingFactor_;
-    receiverVelocityScalingFactor_ = lineOfSightVector.transpose( ) * scalingTermB;
-    transmitterVelocityScalingFactor_ = lineOfSightVector.transpose( ) * scalingTermA;
+    receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * scalingTermB / physical_constants::SPEED_OF_LIGHT;
+    transmitterVelocityScalingFactor_ =-lineOfSightVector.transpose( ) * scalingTermA / physical_constants::SPEED_OF_LIGHT;
 
-    std::cout<<"Scaling: "<<std::endl<<positionScalingFactor_<<std::endl<<std::endl<<
-               receiverVelocityScalingFactor_<<std::endl<<std::endl<<
-               transmitterVelocityScalingFactor_<<std::endl<<std::endl;
     currentLinkEndType_ = fixedLinkEnd;
 
 }
