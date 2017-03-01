@@ -19,12 +19,23 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename ObservationScalarType >
+template< typename ObservationScalarType = double >
 ObservationScalarType calculateLineOfSightVelocityAsCFraction(
         const Eigen::Matrix< ObservationScalarType, 3, 1 >& lineOfSightUnitVector,
         const Eigen::Matrix< ObservationScalarType, 3, 1 >& velocityVector )
 {
     return lineOfSightUnitVector.dot( velocityVector ) / physical_constants::getSpeedOfLight< ObservationScalarType >( );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+ObservationScalarType calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction(
+        const Eigen::Matrix< ObservationScalarType, 3, 1 >& receiverPosition,
+        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const double ) >& stateFunction,
+        const TimeType currentTime )
+{
+    Eigen::Matrix< ObservationScalarType, 6, 1 > currentState = stateFunction( currentTime );
+    return calculateLineOfSightVelocityAsCFraction< ObservationScalarType >(
+                ( receiverPosition - currentState.segment( 0, 3 ) ).normalized( ), currentState.segment( 3, 3 ) );
 }
 
 template< typename ObservationScalarType = double >

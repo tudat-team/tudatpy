@@ -136,6 +136,7 @@ inline void testObservationPartials(
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
+        std::cout<<"reference link end: "<<linkEndIterator->first<<std::endl;
         // Evaluate nominal observation values
         std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
@@ -188,20 +189,24 @@ inline void testObservationPartials(
                 // Compute numerical position partial
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
                         calculatePartialWrtConstantBodyState(
-                            bodiesWithEstimatedState[ i ], bodyMap, bodyPositionVariation,
+                            bodiesWithEstimatedState[ i ], bodyMap, 0.1 * bodyPositionVariation,
                             observationFunction, observationTime, ObservableSize );
 
                 // Set total analytical partial
                 bodyPositionPartial.setZero( );
                 for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
                 {
+                    std::cout<<"partial in loop: "<<analyticalObservationPartials[ i ][ j ].first<<std::endl;
                     bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first;
                 }
 
                 // Test position partial
                 if( observableType != angular_position )
                 {
+                    std::cout<<"partials: "<<std::endl<<bodyPositionPartial.cwiseQuotient(
+                               numericalPartialWrtBodyPosition )<<std::endl;
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
+                    //sleep( 10000.0 );
                 }
                 else
                 {

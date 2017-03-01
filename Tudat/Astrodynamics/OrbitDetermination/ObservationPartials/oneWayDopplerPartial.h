@@ -32,6 +32,12 @@ class OneWayDopplerScaling: public PositionPartialScaling
 public:
 
     //! Destructor
+    OneWayDopplerScaling(
+            const boost::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
+            const boost::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction ):
+    transmitterAccelerationFunction_( transmitterAccelerationFunction ),
+    receiverAccelerationFunction_( receiverAccelerationFunction ){ }
+
     ~OneWayDopplerScaling( ){ }
 
     //! Update the scaling object to the current times and states
@@ -79,6 +85,8 @@ private:
     //! Computed scaling factor (at receiver)
     Eigen::Matrix< double, 1, 3 > positionScalingFactor_;
 
+    Eigen::Matrix< double, 1, 3 > lightTimeEffectPositionScalingFactor_;
+
     Eigen::Matrix< double, 1, 3 > receiverVelocityScalingFactor_;
 
     Eigen::Matrix< double, 1, 3 > transmitterVelocityScalingFactor_;
@@ -86,7 +94,24 @@ private:
     //! Fixed link end for last computation of update() function.
     observation_models::LinkEndType currentLinkEndType_;
 
+    boost::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction_;
+
+    boost::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction_;
+
 };
+
+Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
+        const Eigen::Vector3d& vectorToReceiver,
+        const Eigen::Vector3d& unitVectorToReceiver,
+        const double linkEndDistance,
+        const Eigen::Vector3d linkEndVelocity );
+
+
+double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+        const Eigen::Vector3d& vectorToReceiver,
+        const Eigen::Vector3d& linkEndVelocity,
+        const Eigen::Vector3d& linkEndAcceleration,
+        const bool linkEndIsReceiver );
 
 //! Class to compute the partial derivatives of a one-way doppler observation partial.
 class OneWayDopplerPartial: public ObservationPartial< 1 >

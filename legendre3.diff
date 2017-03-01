@@ -1,0 +1,676 @@
+diff --git a/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.cpp b/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.cpp
+index ac42de0..c3a2cf0 100644
+--- a/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.cpp
++++ b/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.cpp
+@@ -98,6 +98,7 @@ double calculateSphericalHarmonicGravitationalPotential(
+     }
+ 
+     basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
++    legendreCacheReference.update( std::sin( latitude ) );
+ 
+     // Iterate over all degrees
+     for( int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
+@@ -110,7 +111,7 @@ double calculateSphericalHarmonicGravitationalPotential(
+         {
+             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
+             legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
+-                        degree, order, std::sin( latitude ), legendreCacheReference );
++                        degree, order, legendreCacheReference );
+ 
+             // Calculate contribution to potential from current degree and order
+             singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *
+diff --git a/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.cpp b/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.cpp
+index a1d4845..df88c7f 100644
+--- a/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.cpp
++++ b/Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.cpp
+@@ -112,19 +112,18 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
+     // Compute longitude coordinate.
+     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
+ 
+-
+-    sphericalHarmonicsCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+-    sphericalHarmonicsCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
++    double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
++    sphericalHarmonicsCache->update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
++                                     sineOfAngle,
++                                     sphericalpositionOfBodySubjectToAcceleration( 2 ),
++                                     equatorialRadius );
++    basic_mathematics::LegendreCache& legendreCacheReference = *( sphericalHarmonicsCache->getLegendreCache( ) );
+ 
+     // Compute gradient premultiplier.
+     const double preMultiplier = gravitationalParameter / equatorialRadius;
+ 
+     // Initialize gradient vector.
+     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
+-    double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
+-
+-    basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+-    legendreCacheReference.update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
+ 
+     // Loop through all degrees.
+     for ( int degree = 0; degree < highestDegree; degree++ )
+@@ -134,12 +133,10 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
+         {
+             // Compute geodesy-normalized Legendre polynomials.
+             const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
+-                        degree, order,
+-                        sineOfAngle, legendreCacheReference );
++                        degree, order, legendreCacheReference );
+             const double incrementedLegendrePolynomial =
+                     basic_mathematics::computeGeodesyLegendrePolynomial(
+-                        degree, order + 1,
+-                        sineOfAngle, legendreCacheReference );
++                        degree, order + 1, legendreCacheReference );
+ 
+             // Compute geodesy-normalized Legendre polynomial derivative.
+             const double legendrePolynomialDerivative =
+@@ -219,24 +216,23 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
+     // Compute longitude coordinate.
+     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
+ 
+-    sphericalHarmonicsCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+-    sphericalHarmonicsCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
+-
+-    // Compute gradient premultiplier.
+-    const double preMultiplier = gravitationalParameter / equatorialRadius;
+ 
+     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
++    sphericalHarmonicsCache->update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
++                                     sineOfAngle,
++                                     sphericalpositionOfBodySubjectToAcceleration( 2 ),
++                                     equatorialRadius );
++    basic_mathematics::LegendreCache& legendreCacheReference = *( sphericalHarmonicsCache->getLegendreCache( ) );
+ 
+-    basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+-    legendreCacheReference.update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
++    // Compute gradient premultiplier.
++    const double preMultiplier = gravitationalParameter / equatorialRadius;
+ 
+     // Compute geodesy-normalized Legendre polynomials.
+     const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
+-                degree, order, sineOfAngle, legendreCacheReference );
++                degree, order, legendreCacheReference );
+     const double incrementedLegendrePolynomial =
+             basic_mathematics::computeGeodesyLegendrePolynomial(
+-                degree, order + 1,
+-                sineOfAngle, legendreCacheReference );
++                degree, order + 1,  legendreCacheReference );
+ 
+     // Compute geodesy-normalized Legendre polynomial derivative.
+     const double legendrePolynomialDerivative =
+diff --git a/Tudat/Mathematics/BasicMathematics/UnitTests/unitTestLegendrePolynomials.cpp b/Tudat/Mathematics/BasicMathematics/UnitTests/unitTestLegendrePolynomials.cpp
+index 659cd91..5c88449 100644
+--- a/Tudat/Mathematics/BasicMathematics/UnitTests/unitTestLegendrePolynomials.cpp
++++ b/Tudat/Mathematics/BasicMathematics/UnitTests/unitTestLegendrePolynomials.cpp
+@@ -75,6 +75,7 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
+ {
+     // Declare test values vector.
+     Vector12d computedTestValues;
++    Vector12d computedTestValuesDirect;
+ 
+     // Define degree and order vectors.
+     const Vector12i degree
+@@ -82,10 +83,11 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
+     const Vector12i order
+             = ( Eigen::VectorXi( 12 ) << 0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 150 ).finished( );
+ 
+-    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 150, 150 );
++    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 150, 150, 0 );
+ 
+     // Define polynomial parameter.
+     const double polynomialParameter = 0.5;
++    legendreCache.update( polynomialParameter );
+ 
+     // Loop through degrees and orders.
+     for ( int index = 0; index < degree.size( ); index++ )
+@@ -94,8 +96,11 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
+         computedTestValues( index ) = basic_mathematics::computeLegendrePolynomial(
+                     degree( index ),
+                     order( index ),
+-                    polynomialParameter,
+                     legendreCache );
++        computedTestValuesDirect( index ) = basic_mathematics::computeLegendrePolynomial(
++                    degree( index ),
++                    order( index ),
++                    polynomialParameter );
+     }
+ 
+     // Set expected values. These values have been obtained from the MATLAB function "legendre"
+@@ -122,14 +127,16 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
+ 
+     // Check if test values match expected values.
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValues, 1.0e-14 );
++    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValuesDirect, 1.0e-14 );
+ }
+ 
+ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
+ {
+     // Declare test values vector.
+     Vector10d computedTestValues;
++    Vector10d computedTestValuesDirect;
+ 
+-    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 4, 4 );
++    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 4, 4, 1 );
+ 
+     // Define degree and order vectors.
+     const Vector10i degree = ( Eigen::VectorXi( 10 ) << 0, 1, 1, 2, 2, 2, 3, 3, 3, 3 ).finished( );
+@@ -138,14 +145,17 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
+     // Define polynomial parameter.
+     const double polynomialParameter = 0.5;
+ 
++    legendreCache.update( polynomialParameter );
+     // Loop through degrees and orders.
+     for ( int index = 0; index < degree.size( ); index++ )
+     {
+         // Compute test value of Legendre polynomial.
+         computedTestValues( index ) = basic_mathematics::computeGeodesyLegendrePolynomial(
+                     degree( index ),
+-                    order( index ),
+-                    polynomialParameter, legendreCache );
++                    order( index ), legendreCache );
++        computedTestValuesDirect( index )  = basic_mathematics::computeGeodesyLegendrePolynomial(
++                    degree( index ),
++                    order( index ), polynomialParameter );
+     }
+ 
+     // Set expected values. These values have been obtained from the MATLAB subfunction
+@@ -166,6 +176,8 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
+ 
+     // Check if test values match expected values.
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValues, 1.0e-15 );
++    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValuesDirect, 1.0e-15 );
++
+ }
+ 
+ BOOST_AUTO_TEST_CASE( test_LegendrePolynomialDerivative )
+diff --git a/Tudat/Mathematics/BasicMathematics/legendrePolynomials.cpp b/Tudat/Mathematics/BasicMathematics/legendrePolynomials.cpp
+index 5642e1c..01d29f9 100644
+--- a/Tudat/Mathematics/BasicMathematics/legendrePolynomials.cpp
++++ b/Tudat/Mathematics/BasicMathematics/legendrePolynomials.cpp
+@@ -50,21 +50,42 @@ namespace basic_mathematics
+ 
+ 
+ //! Initialize LegendreCache instance.
+-LegendreCache::LegendreCache( )
++LegendreCache::LegendreCache( const bool useGeodesyNormalization )
+ {
++    useGeodesyNormalization_  = useGeodesyNormalization;
++
++    if( useGeodesyNormalization_ )
++    {
++        legendrePolynomialFunction_ = geodesyNormalizedLegendrePolynomialFunction;
++    }
++    else
++    {
++        legendrePolynomialFunction_ = regularLegendrePolynomialFunction;
++    }
++
+     resetMaximumDegreeAndOrder( 0, 0 );
+     returnValue_ = TUDAT_NAN;
+ }
+ 
+-LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder )
++LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization  )
+ {
++    useGeodesyNormalization_  = useGeodesyNormalization;
++
++    if( useGeodesyNormalization_ )
++    {
++        legendrePolynomialFunction_ = geodesyNormalizedLegendrePolynomialFunction;
++    }
++    else
++    {
++        legendrePolynomialFunction_ = regularLegendrePolynomialFunction;
++    }
++
+     resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
+     returnValue_ = TUDAT_NAN;
+ }
+ 
+ //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
+-void LegendreCache::update( const double polynomialParameter,
+-                            const LegendrePolynomialFunction legendrePolynomialFunction )
++void LegendreCache::update( const double polynomialParameter  )
+ {
+     currentPolynomialParameter_ = polynomialParameter;
+     currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter ); // cosine of latitude is always positive!
+@@ -74,7 +95,7 @@ void LegendreCache::update( const double polynomialParameter,
+     {
+         for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
+         {
+-            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, thisReference );
++            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction_( i, j, thisReference );
+         }
+     }
+ }
+@@ -90,25 +111,10 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int orde
+ }
+ 
+ //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
+-double LegendreCache::getOrElseUpdate(
+-        const int degree, const int order, const double polynomialParameter,
+-        const bool useGeodesyNormalizedFunction )
++double LegendreCache::getLegendrePolynomial(
++        const int degree, const int order )
+ {
+-
+-    if( ! ( polynomialParameter == currentPolynomialParameter_ ) )
+-    {
+-        if( useGeodesyNormalizedFunction )
+-        {
+-            update( polynomialParameter, geodesyNormalizedLegendrePolynomialFunction );
+-        }
+-        else
+-        {
+-            update( polynomialParameter, regularLegendrePolynomialFunction );
+-
+-        }
+-    }
+-
+-    if( degree > maximumDegree_ || order > maximumOrder_ )
++    if( ( degree > maximumDegree_ ) || ( order > maximumOrder_ ) )
+     {
+         std::cerr<<"Error when requesting legendre cache, maximum degree or order exceeded "<<
+                    degree<<" "<<maximumDegree_<<" "<<order<<" "<<maximumOrder_<<std::endl;
+@@ -129,9 +135,13 @@ double LegendreCache::getOrElseUpdate(
+ //! Compute unnormalized associated Legendre polynomial.
+ double computeLegendrePolynomial( const int degree,
+                                   const int order,
+-                                  const double polynomialParameter,
+                                   LegendreCache& legendreCache )
+ {
++    if( legendreCache.getUseGeodesyNormalization( ) )
++    {
++        throw std::runtime_error( "Error when computing Legendre polynomial, input uses normalization" );
++    }
++
+     // If degree or order is negative...
+     if ( degree < 0 || order < 0 )
+     {
+@@ -156,19 +166,19 @@ double computeLegendrePolynomial( const int degree,
+     else if ( degree <= 1 && order <= 1 )
+     {
+         // Compute polynomial explicitly.
+-        return computeLegendrePolynomialExplicit( degree, order, polynomialParameter );
++        return computeLegendrePolynomialExplicit( degree, order, legendreCache.getCurrentPolynomialParameter( ) );
+     }
+ 
+     // Else if degree and order are sectoral...
+     else if ( degree == order )
+     {
+         // Obtain polynomial of degree one and order one.
+-        const double degreeOneOrderOnePolynomial = legendreCache.getOrElseUpdate(
+-                    1, 1, polynomialParameter, 0 );
++        const double degreeOneOrderOnePolynomial = legendreCache.getLegendrePolynomial(
++                    1, 1 );
+ 
+         // Obtain prior sectoral polynomial.
+-        const double priorSectoralPolynomial = legendreCache.getOrElseUpdate(
+-                    degree - 1, order - 1, polynomialParameter, 0 );
++        const double priorSectoralPolynomial = legendreCache.getLegendrePolynomial(
++                    degree - 1, order - 1 );
+ 
+         // Compute polynomial.
+         return computeLegendrePolynomialDiagonal(
+@@ -179,28 +189,44 @@ double computeLegendrePolynomial( const int degree,
+     else
+     {
+         // Obtain prior degree polynomial.
+-        const double oneDegreePriorPolynomial = legendreCache.getOrElseUpdate(
+-                    degree - 1, order, polynomialParameter, 0 );
++        const double oneDegreePriorPolynomial = legendreCache.getLegendrePolynomial(
++                    degree - 1, order );
+ 
+         // Obtain two degrees prior polynomial.
+-        const double twoDegreesPriorPolynomial = legendreCache.getOrElseUpdate(
+-                    degree - 2, order, polynomialParameter, 0 );
++        const double twoDegreesPriorPolynomial = legendreCache.getLegendrePolynomial(
++                    degree - 2, order );
+ 
+         // Compute polynomial.
+         return computeLegendrePolynomialVertical( degree,
+                                                   order,
+-                                                  polynomialParameter,
++                                                  legendreCache.getCurrentPolynomialParameter( ),
+                                                   oneDegreePriorPolynomial,
+                                                   twoDegreesPriorPolynomial );
+     }
+ }
+ 
++
++double computeLegendrePolynomial( const int degree,
++                                  const int order,
++                                  const double legendreParameter )
++{
++    LegendreCache legendreCache( degree, order, 0 );
++    legendreCache.update( legendreParameter );
++    return computeLegendrePolynomial( degree, order, legendreCache );
++}
++
++
+ //! Compute geodesy-normalized associated Legendre polynomial.
+ double computeGeodesyLegendrePolynomial( const int degree,
+                                          const int order,
+-                                         const double polynomialParameter,
+                                          LegendreCache& geodesyLegendreCache )
+ {
++
++    if( !geodesyLegendreCache.getUseGeodesyNormalization( ) )
++    {
++        throw std::runtime_error( "Error when computing Legendre polynomial, input uses no normalization" );
++    }
++
+     // If degree or order is negative...
+     if ( degree < 0 || order < 0 )
+     {
+@@ -225,19 +251,19 @@ double computeGeodesyLegendrePolynomial( const int degree,
+     else if ( degree <= 1 && order <= 1 )
+     {
+         // Compute polynomial explicitly.
+-        return computeGeodesyLegendrePolynomialExplicit( degree, order, polynomialParameter );
++        return computeGeodesyLegendrePolynomialExplicit( degree, order, geodesyLegendreCache.getCurrentPolynomialParameter( ) );
+     }
+ 
+     // Else if degree and order are sectoral...
+     else if ( degree == order )
+     {
+         // Obtain polynomial of degree one and order one.
+-        double degreeOneOrderOnePolynomial = geodesyLegendreCache.getOrElseUpdate(
+-                    1, 1, polynomialParameter, 1 );
++        double degreeOneOrderOnePolynomial = geodesyLegendreCache.getLegendrePolynomial(
++                    1, 1 );
+ 
+         // Obtain prior sectoral polynomial.
+-        double priorSectoralPolynomial = geodesyLegendreCache.getOrElseUpdate(
+-                    degree - 1, order - 1, polynomialParameter, 1 );
++        double priorSectoralPolynomial = geodesyLegendreCache.getLegendrePolynomial(
++                    degree - 1, order - 1 );
+ 
+         // Compute polynomial.
+         return computeGeodesyLegendrePolynomialDiagonal(
+@@ -248,22 +274,31 @@ double computeGeodesyLegendrePolynomial( const int degree,
+     else
+     {
+         // Obtain prior degree polynomial.
+-        double oneDegreePriorPolynomial = geodesyLegendreCache.getOrElseUpdate(
+-                    degree - 1, order, polynomialParameter, 1 );
++        double oneDegreePriorPolynomial = geodesyLegendreCache.getLegendrePolynomial(
++                    degree - 1, order );
+ 
+         // Obtain two degrees prior polynomial.
+-        double twoDegreesPriorPolynomial = geodesyLegendreCache.getOrElseUpdate(
+-                    degree - 2, order, polynomialParameter, 1 );
++        double twoDegreesPriorPolynomial = geodesyLegendreCache.getLegendrePolynomial(
++                    degree - 2, order );
+ 
+         // Compute polynomial.
+         return computeGeodesyLegendrePolynomialVertical( degree,
+                                                          order,
+-                                                         polynomialParameter,
++                                                         geodesyLegendreCache.getCurrentPolynomialParameter( ),
+                                                          oneDegreePriorPolynomial,
+                                                          twoDegreesPriorPolynomial );
+     }
+ }
+ 
++double computeGeodesyLegendrePolynomial( const int degree,
++                                         const int order,
++                                         const double legendreParameter )
++{
++    LegendreCache legendreCache( degree, order, 1 );
++    legendreCache.update( legendreParameter );
++    return computeGeodesyLegendrePolynomial( degree, order, legendreCache );
++}
++
+ //! Compute derivative of unnormalized Legendre polynomial.
+ double computeLegendrePolynomialDerivative( const int order,
+                                             const double polynomialParameter,
+diff --git a/Tudat/Mathematics/BasicMathematics/legendrePolynomials.h b/Tudat/Mathematics/BasicMathematics/legendrePolynomials.h
+index 8b1f791..da5e888 100644
+--- a/Tudat/Mathematics/BasicMathematics/legendrePolynomials.h
++++ b/Tudat/Mathematics/BasicMathematics/legendrePolynomials.h
+@@ -55,6 +55,8 @@
+ #include <cstddef>
+ #include <iostream>
+ 
++#include <boost/bind.hpp>
++
+ #include <boost/circular_buffer.hpp>
+ #include <boost/function.hpp>
+ #include <boost/shared_ptr.hpp>
+@@ -78,18 +80,17 @@ public:
+ 
+     //! Define Legendre polynomial function pointer.
+ 
+-    typedef boost::function< double ( int, int, double, LegendreCache& ) > LegendrePolynomialFunction;
++    typedef boost::function< double ( int, int, LegendreCache& ) > LegendrePolynomialFunction;
+ 
+     //! Initialize LegendreCache instance.
+-    LegendreCache( );
++    LegendreCache( const bool useGeodesyNormalization = 1 );
+ 
+-    LegendreCache( const int maximumDegree, const int maximumOrder );
++    LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
+ 
+     void resetMaximumDegreeAndOrder( const int degree, const int order );
+ 
+ 
+-    void update( const double polynomialParameter,
+-                 const LegendrePolynomialFunction legendrePolynomialFunction );
++    void update( const double polynomialParameter );
+ 
+     double getCurrentPolynomialParameter( )
+     {
+@@ -112,13 +113,18 @@ public:
+     *          Legendre polynomial value.
+     * \return Legendre polynomial value.
+     */
+-    double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
+-                            const bool useGeodesyNormalizedFunction );
++    double getLegendrePolynomial( const int degree, const int order );
+ 
+     int getMaximumDegree( ){ return maximumDegree_; }
+ 
+     int getMaximumOrder( ){ return maximumOrder_; }
+ 
++    bool getUseGeodesyNormalization( )
++    {
++        return useGeodesyNormalization_;
++    }
++
++
+ private:
+     int maximumDegree_;
+ 
+@@ -134,6 +140,10 @@ private:
+ 
+     std::vector< double > referenceRadiusRatioPowers_;
+ 
++    LegendrePolynomialFunction legendrePolynomialFunction_;
++
++    bool useGeodesyNormalization_;
++
+ };
+ 
+ 
+@@ -166,9 +176,12 @@ private:
+ */
+ double computeLegendrePolynomial( const int degree,
+                                   const int order,
+-                                  const double polynomialParameter,
+                                   LegendreCache& legendreCache );
+ 
++double computeLegendrePolynomial( const int degree,
++                                  const int order,
++                                  const double legendreParameter );
++
+ //! Compute geodesy-normalized associated Legendre polynomial.
+ /*!
+  * This function returns a normalized associated Legendre polynomial
+@@ -210,9 +223,12 @@ double computeLegendrePolynomial( const int degree,
+ */
+ double computeGeodesyLegendrePolynomial( const int degree,
+                                          const int order,
+-                                         const double polynomialParameter,
+                                          LegendreCache& geodesyLegendreCache );
+ 
++double computeGeodesyLegendrePolynomial( const int degree,
++                                         const int order,
++                                         const double legendreParameter );
++
+ //! Compute derivative of unnormalized Legendre polynomial.
+ /*!
+  * The derivative is computed as:
+@@ -409,8 +425,11 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
+  */
+ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int order );
+ 
+-static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction = &computeGeodesyLegendrePolynomial;
+-static const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction = &computeLegendrePolynomial;
++static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
++        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache&  )>( &computeGeodesyLegendrePolynomial ), _1, _2, _3 );
++
++static const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
++        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache& )>( &computeLegendrePolynomial ), _1, _2, _3 );
+ 
+ } // namespace basic_mathematics
+ } // namespace tudat
+diff --git a/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.cpp b/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.cpp
+index 1cc6a64..4260bf2 100644
+--- a/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.cpp
++++ b/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.cpp
+@@ -49,9 +49,8 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int degree, cons
+     maximumDegree_ = degree;
+     maximumOrder_ = order;
+ 
+-    sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( degree, order );
++    legendreCache_->resetMaximumDegreeAndOrder( degree, order );
+ 
+-    legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+     sinesOfLongitude_.resize( maximumOrder_ + 1 );
+     cosinesOfLongitude_.resize( maximumOrder_ + 1 );
+     referenceRadiusRatioPowers_.resize( maximumDegree_ + 2 );
+diff --git a/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h b/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h
+index 5a7dc77..5ab5be2 100644
+--- a/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h
++++ b/Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h
+@@ -50,9 +50,9 @@ class SphericalHarmonicsCache
+ {
+ public:
+ 
+-    SphericalHarmonicsCache( )
++    SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 )
+     {
+-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( );
++        legendreCache_ = boost::make_shared< LegendreCache >( useGeodesyNormalization );
+ 
+         currentLongitude_ = TUDAT_NAN;
+         referenceRadiusRatio_ = TUDAT_NAN;
+@@ -60,9 +60,9 @@ public:
+         resetMaximumDegreeAndOrder( 0, 0 );
+     }
+ 
+-    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder )
++    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 )
+     {
+-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder );
++        legendreCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
+ 
+         currentLongitude_ = TUDAT_NAN;
+         referenceRadiusRatio_ = TUDAT_NAN;
+@@ -72,31 +72,6 @@ public:
+ 
+     void resetMaximumDegreeAndOrder( const int degree, const int order );
+ 
+-    void updateSines( const double longitude )
+-    {
+-        if( !(currentLongitude_ == longitude ) )
+-        {
+-            currentLongitude_ = longitude;
+-            for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
+-            {
+-                sinesOfLongitude_[ i ] = std::sin( static_cast< double >( i ) * longitude );
+-                cosinesOfLongitude_[ i ] = std::cos( static_cast< double >( i ) * longitude );
+-            }
+-        }
+-    }
+-    void updateRadiusPowers( const double referenceRadiusRatio )
+-    {
+-        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
+-        {
+-            referenceRadiusRatio_ = referenceRadiusRatio;
+-            double currentRatioPower = 1.0;
+-            for( int i = 0; i <= maximumDegree_ + 1; i++ )
+-            {
+-                referenceRadiusRatioPowers_[ i ] = currentRatioPower;
+-                currentRatioPower *= referenceRadiusRatio_;
+-            }
+-        }
+-    }
+ 
+     double getSineOfMultipleLongitude( const int i )
+     {
+@@ -121,12 +96,44 @@ public:
+ 
+     boost::shared_ptr< LegendreCache > getLegendreCache( )
+     {
+-        return sphericalHarmonicsCache_;
++        return legendreCache_;
+     }
+ 
++    void update( const double radius, const double polynomialParameter, const double longitude, const double referenceRadius )
++    {
++        legendreCache_->update( polynomialParameter );
++        updateSines( longitude );
++        updateRadiusPowers( referenceRadius / radius );
++    }
+ 
+ private:
+ 
++    void updateSines( const double longitude )
++    {
++        if( !(currentLongitude_ == longitude ) )
++        {
++            currentLongitude_ = longitude;
++            for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
++            {
++                sinesOfLongitude_[ i ] = std::sin( static_cast< double >( i ) * longitude );
++                cosinesOfLongitude_[ i ] = std::cos( static_cast< double >( i ) * longitude );
++            }
++        }
++    }
++    void updateRadiusPowers( const double referenceRadiusRatio )
++    {
++        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
++        {
++            referenceRadiusRatio_ = referenceRadiusRatio;
++            double currentRatioPower = 1.0;
++            for( int i = 0; i <= maximumDegree_ + 1; i++ )
++            {
++                referenceRadiusRatioPowers_[ i ] = currentRatioPower;
++                currentRatioPower *= referenceRadiusRatio_;
++            }
++        }
++    }
++
+     int maximumDegree_;
+ 
+     int maximumOrder_;
+@@ -135,8 +142,6 @@ private:
+ 
+     double referenceRadiusRatio_;
+ 
+-    std::vector< double > legendreValues_;
+-
+     std::vector< double > sinesOfLongitude_;
+ 
+     std::vector< double > cosinesOfLongitude_;
+@@ -145,7 +150,7 @@ private:
+ 
+     double returnValue_ ;
+ 
+-    boost::shared_ptr< LegendreCache > sphericalHarmonicsCache_;
++    boost::shared_ptr< LegendreCache > legendreCache_;
+ 
+ 
+ 

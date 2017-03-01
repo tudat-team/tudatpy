@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
             }
             else if( simulationType == 1 )
             {
-                toleranceMultiplier *= 10.0;
+                toleranceMultiplier *= 20.0;
             }
 
             for( unsigned int j = 0; j < 3; j++ )

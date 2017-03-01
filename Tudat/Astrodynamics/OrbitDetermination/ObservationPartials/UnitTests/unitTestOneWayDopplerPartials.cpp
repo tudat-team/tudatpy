@@ -38,7 +38,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
-
+#include "Tudat/Mathematics/BasicMathematics/numericalDerivative.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
 
 namespace tudat
@@ -56,6 +56,14 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
 
+Eigen::Vector3d computeUnitVectorToReceiverFromTransmitterState(
+        const Eigen::Vector3d receiverPosition,
+        const boost::function< Eigen::Vector6d( const double ) > transmitterStateFunction,
+        const double evaluationTime )
+{
+    return ( receiverPosition - transmitterStateFunction( evaluationTime ).segment( 0, 3 ) ).normalized( );
+}
+
 //! Test partial derivatives of one-way doppler observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 {
@@ -66,6 +74,69 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
+//    std::cout<<"*******************************************************"<<std::endl;
+//    // Test ancilliary functions
+//    {
+//        double nominalEvaluationTime = 1.1E7;
+
+//        // Create environment
+//        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+//        // Set link ends for observation model
+//        LinkEnds linkEnds;
+//        linkEnds[ transmitter ] = groundStations[ 1 ];
+//        linkEnds[ receiver ] = groundStations[ 0 ];
+
+//        boost::function< Eigen::Vector6d( const double ) > transmitterStateFunction =
+//                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodyMap );
+//        boost::function< Eigen::Vector6d( const double ) > receiverStateFunction =
+//                getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodyMap );
+
+//        double transmissionTime = nominalEvaluationTime;
+//        double receptionTime = nominalEvaluationTime + 1.0E3;
+
+//         Eigen::Vector6d nominalTransmitterState = transmitterStateFunction( transmissionTime );
+//         Eigen::Vector6d nominalReceiverState = transmitterStateFunction( receptionTime );
+
+//         Eigen::Vector3d nominalVectorToReceiver = ( nominalReceiverState - nominalTransmitterState ).segment( 0, 3 );
+
+//         double timePerturbation = 100.0;
+
+//         Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifference(
+//                     transmitterStateFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+
+//         boost::function< Eigen::Vector3d( const double ) > unitVectorFunction =
+//                 boost::bind( &computeUnitVectorToReceiverFromTransmitterState,
+//                                  nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
+//         Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifference(
+//                     unitVectorFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+
+
+//         boost::function< double( const double) > projectedVelocityFunction =
+//                 boost::bind( &calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction< double, double >,
+//                              nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
+//         double numericalProjectedVelocityDerivative =
+//                 numerical_derivatives::computeCentralDifference(
+//                     projectedVelocityFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
+
+//         Eigen::Vector3d analyticalUnitVectorDerivative =
+//                 -computePartialOfUnitVectorWrtLinkEndTime( nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
+//                                                            nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
+
+//         double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+//                     nominalVectorToReceiver, nominalTransmitterState.segment( 3, 3 ), numericalStateDerivative.segment( 3, 3 ), false );
+
+//         for( unsigned int i = 0; i < 3; i++ )
+//         {
+//             BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-14 );
+
+//         }
+//         BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
+//                                       numericalProjectedVelocityDerivative ), 1.0E-21 );
+
+//    }
+
+    std::cout<<"*******************************************************"<<std::endl;
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
@@ -88,6 +159,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         testObservationPartials< 1 >(
                     oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-6, true, true );
     }
+
+    std::cout<<"*******************************************************"<<std::endl;
 
     // Test partials with real ephemerides (without test of position partials)
     {

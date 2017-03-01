@@ -23,6 +23,7 @@
 
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayDopplerPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
@@ -136,8 +137,25 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         lightTimeCorrectionPartialObjects = observation_partials::createLightTimeCorrectionPartials( lightTimeCorrections );
     }
 
+    boost::function< Eigen::Vector6d( const double )> transmitterNumericalStateDerivativeFunction =
+            boost::bind( &numerical_derivatives::computeCentralDifference< Eigen::Vector6d, double >,
+                observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
+                    oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodyMap ), _1, 100.0,
+                numerical_derivatives::order8 );
+    boost::function< Eigen::Vector6d( const double )> receiverNumericalStateDerivativeFunction =
+            boost::bind( numerical_derivatives::computeCentralDifference< Eigen::Vector6d, double >,
+                observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
+                    oneWayDopplerLinkEnds.at( observation_models::receiver ), bodyMap ), _1, 100.0,
+                numerical_derivatives::order8 );
+
+
+
+
     // Create scaling object, to be used for all one-way doppler partials in current link end.
-    boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >( );
+    boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
+            boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
+            boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ) );
+
 
     // Initialize vector index variables.
     int currentIndex = 0;
@@ -173,20 +191,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         if( currentDopplerPartialWrtPosition != NULL )
         {
             // Add partial to the list.
-            currentPair = std::pair< int, int >( currentIndex, 3 );
+            currentPair = std::pair< int, int >( currentIndex, 6 );
             dopplerPartials[ currentPair ] = currentDopplerPartialWrtPosition;
-        }
-
-        // Create velocity one-way doppler partial for current body
-        boost::shared_ptr< ObservationPartial< 1 > > currentDopplerPartialWrtVelocity = createOneWayDopplerPartialWrtBodyState(
-                    oneWayDopplerLinkEnds, bodyMap, acceleratedBody, oneWayDopplerScaling, true, lightTimeCorrectionPartialObjects );
-
-        // Check if partial is non-null (i.e. whether dependency exists between current doppler and current body)
-        if( currentDopplerPartialWrtVelocity != NULL )
-        {
-            // Add partial to the list.
-            currentPair = std::pair< int, int >( currentIndex + 3, 3 );
-            dopplerPartials[ currentPair ] = currentDopplerPartialWrtVelocity;
         }
 
         // Increment current index by size of body initial state (6).

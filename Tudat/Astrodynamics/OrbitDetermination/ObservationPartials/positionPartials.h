@@ -85,15 +85,25 @@ public:
 
 //! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to inertial three-dimensional
 //! position of this body
-class CartesianStatePartialWrtPosition: public CartesianStatePartial
+class CartesianStatePartialWrtCartesianState: public CartesianStatePartial
 {
 public:
 
     //! Constructor
-    CartesianStatePartialWrtPosition( ){ }
+    CartesianStatePartialWrtCartesianState( )
+    {
+        positionPartial_.setZero( );
+        positionPartial_.block( 0, 0, 3, 3 ) = Eigen::Matrix3d::Identity( );
+        positionPartial_.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Zero( );
+
+        velocityPartial_.setZero( );
+        velocityPartial_.block( 0, 0, 3, 3 ) = Eigen::Matrix3d::Zero( );
+        velocityPartial_.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Identity( );
+
+    }
 
     //! Destructor
-    ~CartesianStatePartialWrtPosition( ){ }
+    ~CartesianStatePartialWrtCartesianState( ){ }
 
     //! Function for determining partial at current time and body state.
     /*!
@@ -106,14 +116,19 @@ public:
             const Eigen::Vector6d& state,
             const double time )
     {
-        return Eigen::Matrix3d::Identity( );
+        return positionPartial_;
     }
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfVelocity(
                 const Eigen::Vector6d& state, const double time )
     {
-        return Eigen::Matrix3d::Zero( );
+        return velocityPartial_;
     }
+private:
+    Eigen::Matrix< double, 3, 6 > positionPartial_;
+
+    Eigen::Matrix< double, 3, 6 > velocityPartial_;
+
 };
 
 class CartesianStatePartialWrtVelocity: public CartesianStatePartial

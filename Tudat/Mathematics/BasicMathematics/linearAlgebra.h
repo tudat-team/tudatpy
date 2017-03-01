@@ -19,6 +19,8 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
+#include <Tudat/Basics/basicTypedefs.h>
+
 namespace tudat
 {
 
@@ -112,6 +114,10 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
         matrixToFlip.row( matrixToFlip.rows( ) - 1 - i ) = temporaryRow;
     }
 }
+
+Eigen::Vector3d evaluateSecondBlockInStateVector(
+        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const double time );
 
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 );

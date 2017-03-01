@@ -16,12 +16,35 @@ namespace tudat
 namespace observation_partials
 {
 
+Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
+        const Eigen::Vector3d& vectorToReceiver,
+        const Eigen::Vector3d& unitVectorToReceiver,
+        const double linkEndDistance,
+        const Eigen::Vector3d linkEndVelocity )
+{
+    return linkEndVelocity / linkEndDistance - vectorToReceiver * unitVectorToReceiver.dot( linkEndVelocity ) /
+            ( linkEndDistance * linkEndDistance );
+}
+
+double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+        const Eigen::Vector3d& vectorToReceiver,
+        const Eigen::Vector3d& linkEndVelocity,
+        const Eigen::Vector3d& linkEndAcceleration,
+        const bool linkEndIsReceiver )
+{
+     Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
+     double distance = vectorToReceiver.norm( );
+
+     return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime( vectorToReceiver, normalizedVector, distance, linkEndVelocity ).dot( linkEndVelocity ) +
+             normalizedVector.dot( linkEndAcceleration );
+}
 
 //! Update the scaling object to the current times and states
 void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                                 const std::vector< double >& times,
-                                 const observation_models::LinkEndType fixedLinkEnd )
+                                   const std::vector< double >& times,
+                                   const observation_models::LinkEndType fixedLinkEnd )
 {
+    double distance = ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ).norm( );
     Eigen::Vector3d lineOfSightVector = ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ).normalized( );
     Eigen::Vector3d receiverVelocity = linkEndStates.at( 1 ).segment( 3, 3 );
     Eigen::Vector3d transmitterVelocity = linkEndStates.at( 0 ).segment( 3, 3 );
@@ -45,9 +68,30 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 
     scalingTermB *= ( 1.0 - lineOfSightVelocityTransmitter );
 
-    positionScalingFactor_ = receiverVelocity * scalingTermB + transmitterVelocity * scalingTermA;
-    receiverVelocityScalingFactor_ = lineOfSightVector * scalingTermB;
-    transmitterVelocityScalingFactor_ = lineOfSightVector * scalingTermA;
+    positionScalingFactor_ =
+              ( receiverVelocity.transpose( ) * scalingTermB + transmitterVelocity.transpose( ) * scalingTermA ) /
+            physical_constants::SPEED_OF_LIGHT *
+            ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
+
+    lightTimeEffectPositionScalingFactor_ =
+            lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                 ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                transmitterVelocity, transmitterAccelerationFunction_( times.at( 0 ) ), false )
+            / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+
+        std::cout<<"Acc.: "<<std::endl<<transmitterAccelerationFunction_( times.at( 0 ) )<<std::endl;
+
+    std::cout<<"Scaling: "<<std::endl<<positionScalingFactor_<<std::endl;
+    std::cout<<"Scaling2: "<<std::endl<<lightTimeEffectPositionScalingFactor_<<std::endl;
+
+    positionScalingFactor_ += lightTimeEffectPositionScalingFactor_;
+    receiverVelocityScalingFactor_ = lineOfSightVector.transpose( ) * scalingTermB;
+    transmitterVelocityScalingFactor_ = lineOfSightVector.transpose( ) * scalingTermA;
+
+    std::cout<<"Scaling: "<<std::endl<<positionScalingFactor_<<std::endl<<std::endl<<
+               receiverVelocityScalingFactor_<<std::endl<<std::endl<<
+               transmitterVelocityScalingFactor_<<std::endl<<std::endl;
+    currentLinkEndType_ = fixedLinkEnd;
 
 }
 
@@ -86,8 +130,12 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
                         ( positionPartialIterator_->second->calculatePartialOfPosition(
                               currentState_ , currentTime_ ) ) +
                         oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-                        ( positionPartialIterator_->second->calculatePartialOfPosition(
+                        ( positionPartialIterator_->second->calculatePartialOfVelocity(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
+//        std::cout<<"Pos. part: "<<positionPartialIterator_->second->calculatePartialOfPosition(
+//                       currentState_ , currentTime_ )<<std::endl;
+//        std::cout<<"Vel. part: "<<positionPartialIterator_->second->calculatePartialOfVelocity(
+//                       currentState_ , currentTime_ )<<std::endl;
     }
 
     return returnPartial;
