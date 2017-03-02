@@ -45,7 +45,7 @@ using namespace tudat::basic_astrodynamics;
 
 template< typename TimeType = double, typename StateScalarType  = double >
 Eigen::VectorXd  executeParameterEstimation(
-        const bool useRealObservables = 1 )
+        const int observableType )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -148,7 +148,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::vector< LinkEnds > linkEnds;
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsMap;
 
-    if( !useRealObservables )
+    if(observableType == 0 )
     {
         linkEnds.resize( 1 );
         linkEnds[ 0 ][ observed_body ] = std::make_pair( "Earth", "" );
@@ -159,8 +159,19 @@ Eigen::VectorXd  executeParameterEstimation(
         linkEnds.resize( 1 );
         linkEnds[ 0 ][ transmitter ] = std::make_pair( "Earth", "" );
         linkEnds[ 0 ][ receiver ] = std::make_pair( "Mars", "" );
-        linkEndsMap[ oneWayRange ] = linkEnds;
-        linkEndsMap[ angular_position ] = linkEnds;
+
+        if( observableType == 1 )
+        {
+            linkEndsMap[ oneWayRange ] = linkEnds;
+        }
+        else if( observableType == 2 )
+        {
+            linkEndsMap[ angular_position ] = linkEnds;
+        }
+        else if( observableType == 3 )
+        {
+            linkEndsMap[ oneWayDoppler ] = linkEnds;
+        }
     }
 
 
@@ -194,7 +205,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
-    if( !useRealObservables )
+    if( observableType == 0 )
     {
         singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, observed_body );
         measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
@@ -202,8 +213,19 @@ Eigen::VectorXd  executeParameterEstimation(
     else
     {
         singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, transmitter );
-        measurementSimulationInput[ oneWayRange ] = singleObservableSimulationInput;
-        measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
+
+        if( observableType == 1 )
+        {
+            measurementSimulationInput[ oneWayRange ] = singleObservableSimulationInput;
+        }
+        else if( observableType == 2 )
+        {
+            measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
+        }
+        else if( observableType == 3 )
+        {
+            measurementSimulationInput[ oneWayDoppler ] = singleObservableSimulationInput;
+        }
     }
 
     singleObservableSimulationInput.clear( );
@@ -243,7 +265,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int simulationType = 0; simulationType < 2; simulationType++ )
+    for( int simulationType = 0; simulationType < 4; simulationType++ )
     {
         for( unsigned int i = 0; i < 4; i++ )
         {
@@ -272,12 +294,12 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
             {
                 toleranceMultiplier *= 1.0E-3;
 
-                if( simulationType == 1 )
+                if( simulationType > 0 )
                 {
                     toleranceMultiplier *= 100.0;
                 }
             }
-            else if( simulationType == 1 )
+            else if( simulationType > 0 )
             {
                 toleranceMultiplier *= 20.0;
             }
