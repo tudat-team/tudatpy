@@ -54,6 +54,7 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     double lineOfSightVelocityTransmitter = observation_models::calculateLineOfSightVelocityAsCFraction< double >(
                 lineOfSightVector, transmitterVelocity );
 
+
     double scalingTermA = -1.0;
     double scalingTermB = 0.0;
 
@@ -136,6 +137,20 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
                         oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartialOfVelocity(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
+
+//        std::cout<<"Position: "<<oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+//                   ( positionPartialIterator_->second->calculatePartialOfPosition(
+//                         currentState_ , currentTime_ ) )<<std::endl;
+//        std::cout<<"Velocity: "<<oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
+//                   ( positionPartialIterator_->second->calculatePartialOfVelocity(
+//                         currentState_ , currentTime_ ) )<<std::endl;
+//        std::cout<<"Ratio: "<<
+//                   ( oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
+//                                      ( positionPartialIterator_->second->calculatePartialOfPosition(
+//                                            currentState_ , currentTime_ ) ) ).cwiseQuotient
+//                   ( oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
+//                   ( positionPartialIterator_->second->calculatePartialOfVelocity(
+//                         currentState_ , currentTime_ ) ) )<<std::endl<<std::endl;
 //        std::cout<<"Pos. part: "<<positionPartialIterator_->second->calculatePartialOfPosition(
 //                       currentState_ , currentTime_ )<<std::endl;
 //        std::cout<<"Vel. part: "<<positionPartialIterator_->second->calculatePartialOfVelocity(
