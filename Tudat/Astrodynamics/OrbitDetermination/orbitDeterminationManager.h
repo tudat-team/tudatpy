@@ -16,14 +16,9 @@
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/podInputOutputTypes.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
 
@@ -527,7 +522,7 @@ public:
                     linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                         residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
                         residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                        normalizedInverseAprioriCovarianceMatrix, Eigen::VectorXd::Zero( numberOfEstimatedParameters, 0.0 ) );
+                        normalizedInverseAprioriCovarianceMatrix );
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );

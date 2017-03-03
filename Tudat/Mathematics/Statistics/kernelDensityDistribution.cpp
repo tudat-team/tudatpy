@@ -133,7 +133,7 @@ void KernelDensityDistribution::generateKernelPointerMatrix( )
     kernelPointersMatrix_.clear( );
 
     // Check for numerical problems with bandwidths.
-    for( unsigned int i = 0; i < bandWidth_.rows( ); i++ )
+    for( int i = 0; i < bandWidth_.rows( ); i++ )
     {
         if( bandWidth_( i ) < 10.0 * std::numeric_limits< double >::epsilon( ) )
         {

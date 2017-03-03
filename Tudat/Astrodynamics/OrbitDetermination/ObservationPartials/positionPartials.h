@@ -246,6 +246,7 @@ public:
                     Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) );
     }
 
+
 private:
 
     //! Object to compute the rotation to/from the body-fixed frame.

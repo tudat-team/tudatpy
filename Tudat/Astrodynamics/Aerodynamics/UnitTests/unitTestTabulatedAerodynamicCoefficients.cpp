@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
                 tudat_applications::getOutputPath( ) + "tabulatedDragCoefficient.txt" );
     Eigen::VectorXd altitudeInKm = aerodynamicsDataFromFile.col(0);
     std::vector< double > altitudes;
-    for ( unsigned int i = 0; i < altitudeInKm.size( ); i++ )
+    for ( int i = 0; i < altitudeInKm.rows( ); i++ )
     {
         altitudes.push_back( altitudeInKm( i ) * 1.0E3 );
     }

@@ -19,6 +19,7 @@ set(BASICMATHEMATICS_SOURCES
   "${SRCROOT}${BASICMATHEMATICSDIR}/basicMathematicsFunctions.cpp"
   "${SRCROOT}${BASICMATHEMATICSDIR}/coordinateConversions.cpp"
   "${SRCROOT}${BASICMATHEMATICSDIR}/linearAlgebra.cpp"
+  "${SRCROOT}${BASICMATHEMATICSDIR}/leastSquaresEstimation.cpp"
 )
 
 # Add header files.
@@ -38,6 +39,7 @@ set(BASICMATHEMATICS_HEADERS
   "${SRCROOT}${BASICMATHEMATICSDIR}/coordinateConversions.h"
   "${SRCROOT}${BASICMATHEMATICSDIR}/linearAlgebra.h"
   "${SRCROOT}${BASICMATHEMATICSDIR}/mathematicalConstants.h"
+  "${SRCROOT}${BASICMATHEMATICSDIR}/leastSquaresEstimation.h"
 )
 
 # Add static libraries.
