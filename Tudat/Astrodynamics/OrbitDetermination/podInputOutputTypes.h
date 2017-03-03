@@ -270,6 +270,23 @@ struct PodOutput
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         residualStandardDeviation_( residualStandardDeviation ){ }
 
+    Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
+    {
+        Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
+
+        for( unsigned int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
+        {
+            for( unsigned int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
+            {
+                inverseUnnormalizedCovarianceMatrix( i, j ) *=
+                        informationMatrixTransformationDiagonal_( i ) * informationMatrixTransformationDiagonal_( j );
+            }
+
+        }
+
+        return inverseUnnormalizedCovarianceMatrix;
+    }
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
