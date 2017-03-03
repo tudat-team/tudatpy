@@ -27,7 +27,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
 //! Typedef for list of light time corrections for a list of link ends
 typedef std::map< observation_models::LinkEnds,
 std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >

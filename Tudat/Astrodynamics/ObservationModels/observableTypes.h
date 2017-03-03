@@ -28,8 +28,7 @@ enum ObservableType
     oneWayRange = 0,
     angular_position = 1,
     position_observable = 2,
-    oneWayDoppler = 3,
-
+    oneWayDoppler = 3
 };
 
 //! Function to get the name (string) associated with a given observable type.
