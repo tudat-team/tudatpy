@@ -164,11 +164,6 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
                     observableType, linkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface, singleObservableCorrections );
         break;
-    case oneWayDoppler:
-        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, linkEnds, bodyMap, parametersToEstimate,
-                    stateTransitionMatrixInterface, singleObservableCorrections );
-        break;
     case angular_position:
         observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
                     observableType, linkEnds, bodyMap, parametersToEstimate,
