@@ -50,8 +50,9 @@ BOOST_AUTO_TEST_SUITE( test_acceleration_model_setup )
 BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 {
     // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Create bodies with gravitational parameters from Spice and JPL approximane positions
     // as ephemerides
@@ -551,7 +552,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Compare results
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    expectedAerodynamicForce, computedAerodynamicForce, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
+                    expectedAerodynamicForce, computedAerodynamicForce, ( 10.0 *  std::numeric_limits< double >::epsilon( ) ) );
     }
 }
 
