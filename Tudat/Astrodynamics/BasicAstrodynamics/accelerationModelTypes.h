@@ -101,6 +101,24 @@ std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfT
         const std::vector< boost::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType );
 
+//! Function to check whether an acceleration type is a direct gravitational acceleration
+/*!
+ * Function to check whether an acceleration type is a direct gravitational acceleration, e.g. a gravitational
+ * acceleration that is not from a third-body.
+ * \param accelerationType Acceleration type for which it is to be checked whether it is direct gravitational.
+ * \return True if acceleration type is direct gravitational, false otherwise.
+ */
+bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType );
+
+//! Function to get the third-body counterpart of a direct gravitational acceleration type
+/*!
+ * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_central_gravity
+ * for a central_gravity input. Function throws an exception is input is not direct gravitational
+ * \param accelerationType Acceleration type for which the third-body counterpart is to be determined.
+ * \return Third-body counterpart of accelerationType.
+ */
+AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType );
+
 } // namespace basic_astrodynamics
 
 } // namespace tudat
