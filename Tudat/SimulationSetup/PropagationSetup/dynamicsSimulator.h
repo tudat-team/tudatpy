@@ -168,6 +168,15 @@ public:
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
         setIntegratedResult_( setIntegratedResult )
     {
+        if( propagatorSettings == NULL )
+        {
+            throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined" );
+        }
+
+        if( integratorSettings == NULL )
+        {
+            throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined" );
+        }
 
         if( setIntegratedResult_ )
         {
