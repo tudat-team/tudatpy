@@ -159,6 +159,52 @@ std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfT
     return accelerationList;
 }
 
+//! Function to check whether an acceleration type is a direct gravitational acceleration
+bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType )
+{
+    bool accelerationIsDirectGravity = 0;
+    if( ( accelerationType == central_gravity ) ||
+           ( accelerationType == spherical_harmonic_gravity ) ||
+           ( accelerationType == mutual_spherical_harmonic_gravity ) )
+    {
+        accelerationIsDirectGravity = 1;
+    }
+
+    return accelerationIsDirectGravity;
+}
+
+//! Function to get the third-body counterpart of a direct gravitational acceleration type
+AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType )
+{
+
+    AvailableAcceleration thirdBodyAccelerationType;
+    if( !isAccelerationDirectGravitational( accelerationType ) )
+    {
+        std::string errorMessage = "Error when getting third-body gravity type, requested type: " +
+                boost::lexical_cast< std::string >( accelerationType ) + " is not a direct gravity acceleration";
+        throw std::runtime_error( errorMessage );
+    }
+    else if( accelerationType == central_gravity )
+    {
+        thirdBodyAccelerationType = third_body_central_gravity;
+    }
+    else if( accelerationType == spherical_harmonic_gravity )
+    {
+        thirdBodyAccelerationType = third_body_spherical_harmonic_gravity;
+    }
+    else if( accelerationType == mutual_spherical_harmonic_gravity )
+    {
+        thirdBodyAccelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
+    else
+    {        std::string errorMessage = "Error when getting thirdbody gravity type, requested type: " +
+                boost::lexical_cast< std::string >( accelerationType ) + " is not recognized.";
+        throw std::runtime_error( errorMessage );
+
+    }
+    return thirdBodyAccelerationType;
+}
+
 } // namespace basic_astrodynamics
 
 } // namespace tudat
