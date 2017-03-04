@@ -584,6 +584,13 @@ createIntegratedStateProcessors(
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
+                    if(  typeIterator->second.at( i ) == NULL )
+                    {
+                        std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
+                                boost::lexical_cast< std::string >( i ) + " is not defined.";
+                        throw std::runtime_error( errorMessage );
+                    }
+
                     singleTypeIntegratedStateProcessors = createIntegratedStateProcessors< TimeType, StateScalarType >(
                                 typeIterator->second.at( i ), bodyMap, frameManager, currentStartIndex );
 
