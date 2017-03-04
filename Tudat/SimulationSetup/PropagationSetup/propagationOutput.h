@@ -286,6 +286,18 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         accelerationDependentVariableSettings->associatedBody_,
                         accelerationDependentVariableSettings->secondaryBody_,
                         stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
+
+            // Check if thirfd-body counterpart of acceleration is found
+            if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
+                        accelerationDependentVariableSettings->accelerationModeType_ ) )
+            {
+                listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                    accelerationDependentVariableSettings->associatedBody_,
+                    accelerationDependentVariableSettings->secondaryBody_,
+                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                                accelerationDependentVariableSettings->accelerationModeType_  ) );
+            }
+
             if( listOfSuitableAccelerationModels.size( ) != 1 )
             {
                 std::string errorMessage = "Error when getting acceleration between bodies " +
@@ -557,6 +569,18 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->associatedBody_,
                         accelerationDependentVariableSettings->secondaryBody_,
                         stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
+
+            // Check if thirfd-body counterpart of acceleration is found
+            if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
+                        accelerationDependentVariableSettings->accelerationModeType_ ) )
+            {
+                listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                    accelerationDependentVariableSettings->associatedBody_,
+                    accelerationDependentVariableSettings->secondaryBody_,
+                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                                accelerationDependentVariableSettings->accelerationModeType_  ) );
+            }
+
             if( listOfSuitableAccelerationModels.size( ) != 1 )
             {
                 std::string errorMessage = "Error when getting acceleration between bodies " +
