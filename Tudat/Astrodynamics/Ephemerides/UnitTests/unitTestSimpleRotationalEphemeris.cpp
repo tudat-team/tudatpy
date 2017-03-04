@@ -242,6 +242,48 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
         }
     }
 
+    // Test computation of rotational velocity vector
+    {
+        Eigen::Vector3d spiceRotationalVelocityVectorInBaseFrame;
+        spiceRotationalVelocityVectorInBaseFrame << -5.593131603532092e-09, 1.160198999048488e-07, -2.75781861386115e-07;
+
+        // Set rotation at given time, as calculated with Spice (see above commented lines)
+        Eigen::Matrix3d spiceRotationMatrixToTargetFrame;
+        spiceRotationMatrixToTargetFrame << -0.8249537745726603, 0.5148010526833556, 0.2333048348715243,
+                -0.5648910720519699, -0.7646317780963481, -0.3102197940834743,
+                0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
+
+        Eigen::Vector3d spiceRotationalVelocityVectorInTargetFrame =
+                spiceRotationMatrixToTargetFrame * spiceRotationalVelocityVectorInBaseFrame;
+
+        Eigen::Vector3d rotationalVelocityVectorInBaseFrame =
+                venusRotationalEphemerisFromAngles.getRotationalVelocityVectorInBaseFrame( secondsSinceJ2000 );
+        Eigen::Vector3d rotationalVelocityVectorInBaseFrame2 =
+                venusRotationalEphemerisFromInitialState.getRotationalVelocityVectorInBaseFrame( secondsSinceJ2000 );
+
+        Eigen::Vector3d rotationalVelocityVectorInTargetFrame =
+                venusRotationalEphemerisFromAngles.getRotationalVelocityVectorInTargetFrame( secondsSinceJ2000 );
+        Eigen::Vector3d rotationalVelocityVectorInTargetFrame2 =
+                venusRotationalEphemerisFromInitialState.getRotationalVelocityVectorInTargetFrame( secondsSinceJ2000 );
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( rotationalVelocityVectorInBaseFrame( i ) -
+                                   spiceRotationalVelocityVectorInBaseFrame( i ) ), 1.0E-21 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( rotationalVelocityVectorInBaseFrame2( i ) -
+                                   spiceRotationalVelocityVectorInBaseFrame( i ) ), 1.0E-21 );
+
+            BOOST_CHECK_SMALL(
+                        std::fabs( rotationalVelocityVectorInTargetFrame( i ) -
+                                   spiceRotationalVelocityVectorInTargetFrame( i ) ), 1.0E-21 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( rotationalVelocityVectorInTargetFrame2( i ) -
+                                   spiceRotationalVelocityVectorInTargetFrame( i ) ), 1.0E-21 );
+        }
+    }
+
     // Test rotation from target frame at specified time (is checked by checking if it is inverse
     // of opposite rotation).
     {
