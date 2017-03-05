@@ -40,14 +40,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
         if( bodyToEstimate == currentBodyName )
         {
             // Create partial
-            //if( createPositionPartial )
-            {
-                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
-            }
-//            else
-//            {
-//                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtVelocity >( );
-//            }
+            partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
+
         }
         else
         {
@@ -55,14 +49,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
             if( observedBodyEphemerisOrigin == bodyToEstimate )
             {
-                //if( createPositionPartial )
-                {
-                    partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
-                }
-//                else
-//                {
-//                    partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtVelocity >( );
-//                }
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
+
             }
         }
     }

@@ -38,11 +38,12 @@ using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 
 
-BOOST_AUTO_TEST_SUITE( test_one_way_range_model )
+BOOST_AUTO_TEST_SUITE( test_one_way_doppler_model )
 
 
-BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
+BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
+    // Load Spice kernels
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
@@ -88,8 +89,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     boost::shared_ptr< OneWayDopplerObservationModel< double, double> > dopplerObservationModel =
             boost::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );
 
-
-    // Compute observation separately with two functions.
+    // Test observable for both fixed link ends
     for( unsigned testCase = 0; testCase < 2; testCase++ )
     {
 
@@ -97,6 +97,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Vector6d > linkEndStates;
 
+        // Define link end
         LinkEndType referenceLinkEnd;
         if( testCase == 0 )
         {
@@ -107,15 +108,19 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
             referenceLinkEnd = receiver;
         }
 
+        // Compute observable
         double dopplerObservable = observationModel->computeObservationsWithLinkEndData(
                     observationTime, referenceLinkEnd, linkEndTimes, linkEndStates )( 0 );
 
+        // Creare independent light time calculator object
         boost::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
-                dopplerObservationModel->getLightTimeCalculator( );
-        Eigen::Vector6d transmitterState, receiverState;
+                createLightTimeCalculator( linkEnds[ transmitter ], linkEnds[ receiver ], bodyMap );
+        Eigen::Vector6d transmitterState, receiverState;        
+        // Compute light time
         double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
                     receiverState, transmitterState, observationTime, testCase );
 
+        // Compare light time calculator link end conditions with observation model
         {
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( receiverState, linkEndStates.at( 1 ), 1.0E-15 );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transmitterState, linkEndStates.at( 0 ), 1.0E-15 );
@@ -132,12 +137,14 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
             }
         }
 
+        // Compute numerical partial derivative of light time.
         double timePerturbation = 100.0;
         double upPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 0 ) + timePerturbation, false );
         double downPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 0 ) - timePerturbation, false );
 
         double lightTimeSensitivity = ( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
 
+        // Test numerical derivative against Doppler observable
         BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity  - dopplerObservable ), 1.0E-14 );
     }
 }

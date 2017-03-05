@@ -16,7 +16,7 @@ namespace tudat
 namespace observation_partials
 {
 
-//! Function to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant rotation rate.
+//! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t. a constant rotation rate.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
         const Eigen::Quaterniond initialBodyFixedToIntegrationFrame,
         const double rotationRate, const double timeSinceEpoch )
@@ -33,6 +33,7 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotatio
 
 }
 
+//! Function to calculate partial of a rotation matrix derivative (body-fixed to inertial) w.r.t. a constant rotation rate.
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
         const Eigen::Matrix3d currentRotationFromLocalToGlobalFrame,
         const double rotationRate, const double timeSinceEpoch )
@@ -42,10 +43,10 @@ Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConst
               Eigen::Matrix3d::Identity( ) );
 
 }
-//! Function to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right ascension
-//! and declination
+//! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right
+//! ascension and declination
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPoleOrientation(
-        const Eigen::Vector3d initialOrientationAngles,//right ascension, declination, longitude of prime meridian.
+        const Eigen::Vector3d initialOrientationAngles,
         const double rotationRate, const double timeSinceEpoch )
 {
     Eigen::Matrix3d commonTerm = Eigen::AngleAxisd(
@@ -79,8 +80,10 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
+//! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t. a constant
+//! pole right  ascension and declination.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
-        const Eigen::Vector3d initialOrientationAngles,//right ascension, declination, longitude of prime meridian.
+        const Eigen::Vector3d initialOrientationAngles,
         const double rotationRate, const double timeSinceEpoch )
 {
     std::vector< Eigen::Matrix3d > partialsOfRotationMatrix =
@@ -112,15 +115,19 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculateParti
     return rotatedVectorPartial;
 }
 
+//! Function to calculate the partial of the velocity of a vector, which is given in a body-fixed frame, in the inertial
+//! frame wrt a parameter.
 Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculatePartialOfInertialVelocityWrtParameter(
         const double time,
         const Eigen::Vector3d vectorInLocalFrame )
 {
+    // Compute rotation matrix (derivative) partials
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
             calculatePartialOfRotationMatrixToBaseFrameWrParameter( time );
     std::vector< Eigen::Matrix3d > rotationMatrixDerivativePartials =
             calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( time );
 
+    // Compute current rotation matrix and derivative
     Eigen::Matrix3d currentRotationToBaseFrame = rotationModel_->getRotationToBaseFrame( time ).toRotationMatrix( );
     Eigen::Matrix3d currentRotationToTargetFrameDerivative = rotationModel_->getDerivativeOfRotationToTargetFrame(
                 time );
@@ -128,6 +135,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculateParti
     Eigen::Matrix< double, 3, Eigen::Dynamic > rotatedVectorPartial = Eigen::Matrix< double, 3, Eigen::Dynamic >::Zero(
                 3, rotationMatrixPartials.size( ) );
 
+    // Compute inertial velocity partial
     for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
     {
         rotatedVectorPartial.block( 0, i, 3, 1 ) =

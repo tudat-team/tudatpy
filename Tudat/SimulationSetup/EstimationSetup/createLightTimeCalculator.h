@@ -177,7 +177,8 @@ createLightTimeCalculator(
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections )
+        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
+        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ) )
 {
 
     // Get link end state functions and create light time calculator.

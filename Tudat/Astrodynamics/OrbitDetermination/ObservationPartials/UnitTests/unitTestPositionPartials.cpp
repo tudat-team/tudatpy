@@ -230,7 +230,8 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     earthEphemeris->updateConstantState( earthUnperturbedState );
 
     // Test partial w.r.t. position
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPosition.block( 0, 0, 3, 3 ), numericalPartialWrtReceiverPosition, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPosition.block( 0, 0, 3, 3 ),
+                                       numericalPartialWrtReceiverPosition, 1.0E-12 );
 
 
     // Compute numerical partial w.r.t. rotation rate.
@@ -239,8 +240,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
                 receptionTime );
 
     // Test partial w.r.t. rotation rate
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate, numericalPartialWrtReceiverRotationRate.segment( 0, 3 ), 1.0E-5 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialOfVelocityWrtReceiverRotationRate, numericalPartialWrtReceiverRotationRate.segment( 3, 3 ), 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate,
+                                       numericalPartialWrtReceiverRotationRate.segment( 0, 3 ), 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialOfVelocityWrtReceiverRotationRate,
+                                       numericalPartialWrtReceiverRotationRate.segment( 3, 3 ), 1.0E-5 );
 
 
     // Compute numerical partial w.r.t. pole position

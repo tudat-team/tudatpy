@@ -141,13 +141,15 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( perturbedAngle, nominalEulerAngles( 1 ) );
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
                             testTime).toRotationMatrix( );
-                Eigen::Matrix3d downperturbedRotationMatrixDerivative = rotationalEphemeris->getDerivativeOfRotationToBaseFrame(
+                Eigen::Matrix3d downperturbedRotationMatrixDerivative =
+                        rotationalEphemeris->getDerivativeOfRotationToBaseFrame(
                             testTime );
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                 Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
+                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) /
+                        ( 2.0 * perturbation );
 
                 Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( 0 ) - numericalRotationMatrixPartial;
 
@@ -185,13 +187,14 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( nominalEulerAngles( 0 ), perturbedAngle );
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
                             testTime).toRotationMatrix( );
-                Eigen::Matrix3d downperturbedRotationMatrixDerivative = rotationalEphemeris->getDerivativeOfRotationToBaseFrame(
-                            testTime );
+                Eigen::Matrix3d downperturbedRotationMatrixDerivative =
+                        rotationalEphemeris->getDerivativeOfRotationToBaseFrame( testTime );
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                 Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
+                        ( upperturbedRotationMatrixDerivative -
+                          downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
 
                 Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( 1 ) - numericalRotationMatrixPartial;
 
