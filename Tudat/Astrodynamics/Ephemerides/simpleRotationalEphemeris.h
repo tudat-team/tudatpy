@@ -88,6 +88,7 @@ public:
         initialEulerAngles_.z( ) = primeMeridianOfDate;
     }
 
+    //! Destructor
     ~SimpleRotationalEphemeris( ){ }
 
     //! Calculate rotation quaternion from target frame to base frame.

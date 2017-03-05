@@ -75,6 +75,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
     std::cout<<"*******************************************************"<<std::endl;
+
     // Test ancilliary functions
     {
         double nominalEvaluationTime = 1.1E7;
@@ -87,31 +88,35 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         linkEnds[ transmitter ] = groundStations[ 1 ];
         linkEnds[ receiver ] = groundStations[ 0 ];
 
+        // Create transmitter/receriver state functions
         boost::function< Eigen::Vector6d( const double ) > transmitterStateFunction =
                 getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ transmitter ], bodyMap );
         boost::function< Eigen::Vector6d( const double ) > receiverStateFunction =
                 getLinkEndCompleteEphemerisFunction< double, double >( linkEnds[ receiver ], bodyMap );
 
+        // Define (independent!) transmission/reception times
         double transmissionTime = nominalEvaluationTime;
         double receptionTime = nominalEvaluationTime + 1.0E3;
 
+        // Compute associated states
          Eigen::Vector6d nominalTransmitterState = transmitterStateFunction( transmissionTime );
          Eigen::Vector6d nominalReceiverState = transmitterStateFunction( receptionTime );
-
          Eigen::Vector3d nominalVectorToReceiver = ( nominalReceiverState - nominalTransmitterState ).segment( 0, 3 );
 
          double timePerturbation = 100.0;
 
+         // Compute numerical derivative of transmitter state for acceleration)
          Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifference(
                      transmitterStateFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
+         // Compute unit vector derivative numerically
          boost::function< Eigen::Vector3d( const double ) > unitVectorFunction =
                  boost::bind( &computeUnitVectorToReceiverFromTransmitterState,
-                                  nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
+                              nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
          Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifference(
                      unitVectorFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
-
+         // Compute projected velocoty vector derivative numerically
          boost::function< double( const double) > projectedVelocityFunction =
                  boost::bind( &calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction< double, double >,
                               nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
@@ -119,12 +124,15 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                  numerical_derivatives::computeCentralDifference(
                      projectedVelocityFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
+         // Compute analytical partial derivatives
          Eigen::Vector3d analyticalUnitVectorDerivative =
-                 -computePartialOfUnitVectorWrtLinkEndTime( nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
-                                                            nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
-
+                 -computePartialOfUnitVectorWrtLinkEndTime(
+                     nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
+                     nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
          double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                     nominalVectorToReceiver, nominalTransmitterState.segment( 3, 3 ), numericalStateDerivative.segment( 3, 3 ), false );
+                     nominalVectorToReceiver, nominalTransmitterState.segment( 3, 3 ), \
+                     numericalStateDerivative.segment( 3, 3 ), false );
+
 
          for( unsigned int i = 0; i < 3; i++ )
          {
@@ -157,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-6, true, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-4, true, true );
     }
 
     std::cout<<"*******************************************************"<<std::endl;
@@ -182,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-6, false, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-4, false, true );
     }
 }
 
