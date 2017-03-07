@@ -57,6 +57,11 @@ static inline std::string getTudatRootPath( )
 #endif
 }
 
+static inline std::string getDataFilesRootPath( )
+{
+    throw std::runtime_error( "Error, data root path not yet defined" );
+}
+
 //! Get Spice kernel path.
 /*!
  * Returns path in which Spice kernels are located.
