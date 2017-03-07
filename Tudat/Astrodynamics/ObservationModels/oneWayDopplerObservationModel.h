@@ -55,6 +55,27 @@ ObservationScalarType calculateLineOfSightVelocityAsCFractionFromTransmitterStat
                 ( receiverPosition - currentState.segment( 0, 3 ) ).normalized( ), currentState.segment( 3, 3 ) );
 }
 
+//! Function to compute component of transmitter velocity projected along line-of-sight vector, divided by speed of light.
+/*!
+ *  Function to compute component of transmitter velocity projected along line-of-sight vector, divided by speed of light,
+ *  from the receiver state function and transmitter position. The unit vector is computed in the direction from the
+ *  transmitter to the receiver
+ *  \param receiverStateFunction Function returning the Cartesian state of the receiver.
+ *  \param transmitterPosition Cartesian position of transmitter
+ *  \param currentTime Time at which transmitterStateFunction is to be evaluated.
+ *  \return Component of transmitter velocity projected along line-of-sight vector to receiver, divided by speed of light.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+ObservationScalarType calculateLineOfSightVelocityAsCFractionFromReceiverStateFunction(
+        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const double ) >& receiverStateFunction,
+        const Eigen::Matrix< ObservationScalarType, 3, 1 >& transmitterPosition,
+        const TimeType currentTime )
+{
+    Eigen::Matrix< ObservationScalarType, 6, 1 > currentState = receiverStateFunction( currentTime );
+    return calculateLineOfSightVelocityAsCFraction< ObservationScalarType >(
+                ( currentState.segment( 0, 3 ) - transmitterPosition ).normalized( ), currentState.segment( 3, 3 ) );
+}
+
 //! Function to compute first-order (radial) Doppler term from a Taylor series expansion
 /*!
  *  Function to compute first-order (radial) Doppler term from a Taylor series expansion. The function computes the
