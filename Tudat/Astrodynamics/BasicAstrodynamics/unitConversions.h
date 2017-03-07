@@ -66,6 +66,11 @@ template < typename T >
 T convertDegreesToArcminutes( T angleInDegrees )
 { return angleInDegrees * 60.0; }
 
+template < typename T >
+T convertArcSecondsToRadians( T angleInArcSeconds )
+{ return angleInArcSeconds / 3600.0 * mathematical_constants::PI / 180.0; }
+
+
 //! Convert angle in arcminutes to arcseconds.
 /*!
  * Converts angle given in arcminutes to arcseconds.
