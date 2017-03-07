@@ -133,7 +133,7 @@ AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial:
         returnPartial.push_back(
                     std::make_pair(
                         angularPositionScaler_->getScalingFactor( positionPartialIterator_->first ) *
-                        ( positionPartialIterator_->second->calculatePartial(
+                        ( positionPartialIterator_->second->calculatePartialOfPosition(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
     }
 

@@ -46,10 +46,10 @@ using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
+BOOST_AUTO_TEST_SUITE( test_angular_position_partials)
 
 //! Test partial derivatives of angular position observable, using general test suite of observation partials.
-BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
+BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 {
 
     // Define and create ground stations.

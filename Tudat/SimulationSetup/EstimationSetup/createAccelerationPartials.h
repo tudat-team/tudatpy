@@ -22,7 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 

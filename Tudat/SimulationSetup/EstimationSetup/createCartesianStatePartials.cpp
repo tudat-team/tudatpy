@@ -9,7 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 
 
 namespace tudat
@@ -19,13 +19,14 @@ namespace observation_partials
 {
 
 //! Function to return partial(s) of position of ground station(s) w.r.t. state of a single body.
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtBodyPosition(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string bodyToEstimate )
+        const std::string bodyToEstimate,
+        const bool createPositionPartial )
 {
     // Declare data map to return.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
 
     // Declare local variable to use in loop
     std::string currentBodyName;
@@ -39,7 +40,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
         if( bodyToEstimate == currentBodyName )
         {
             // Create partial
-            partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtPosition >( );
+            partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
+
         }
         else
         {
@@ -47,7 +49,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
                     bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
             if( observedBodyEphemerisOrigin == bodyToEstimate )
             {
-                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtPosition >( );
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtCartesianState >( );
+
             }
         }
     }
@@ -56,7 +59,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
 }
 
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate )
@@ -64,7 +67,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
     using namespace ephemerides;
 
     // Declare data map to return.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
 
     // Declare local variable to use in loop
     boost::shared_ptr< simulation_setup::Body > currentBody;
@@ -82,7 +85,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
             currentBodyName = linkEndIterator->second.first;
             currentBody = bodyMap.at( currentBodyName );
 
-            // Check if parameter is a rotation model property, in which case a PositionPartialWrtRotationMatrixParameter,
+            // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
@@ -93,7 +96,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
                                      ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
                 // Create parameter partial object.
-                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtRotationMatrixParameter >(
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
                             createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ),
                             groundStationPositionFunction );
             }
@@ -129,7 +132,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
 }
 
 //! Function to return partial(s) of position of ground station(s) w.r.t. a (vector) parameter.
-std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > createPositionPartialsWrtParameter(
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
@@ -137,7 +140,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
     using namespace ephemerides;
 
     // Declare data map to return.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > partialMap;
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
 
     // Declare local variable to use in loop
     boost::shared_ptr< simulation_setup::Body > currentBody;
@@ -155,7 +158,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
             currentBodyName = linkEndIterator->second.first;
             currentBody = bodyMap.at( currentBodyName );
 
-            // Check if parameter is a rotation model property, in which case a PositionPartialWrtRotationMatrixParameter,
+            // Check if parameter is a rotation model property, in which case a CartesianStatePartialWrtRotationMatrixParameter,
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
@@ -166,7 +169,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > 
                                      ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
                 // Create parameter partial object.
-                partialMap[ linkEndIterator->first ] = boost::make_shared< PositionPartialWrtRotationMatrixParameter >(
+                partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
                             createRotationMatrixPartialsWrtParameter( bodyMap, parameterToEstimate ),
                             groundStationPositionFunction );
             }
@@ -290,8 +293,8 @@ boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWr
         const std::string bodyToEstimate,
         const boost::shared_ptr< PositionObservationScaling > positionObservableScaler )
 {
-    std::map<  observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
-            createPositionPartialsWrtBodyPosition( linkEnds, bodyMap, bodyToEstimate );
+    std::map<  observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate, true );
     boost::shared_ptr< PositionObervationPartial > positionObervationPartial;
 
     if( positionPartials.size( ) > 0 )
