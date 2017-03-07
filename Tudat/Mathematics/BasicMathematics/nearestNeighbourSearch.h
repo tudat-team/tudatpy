@@ -295,8 +295,8 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                 {
 
                     int middleIndex;
-                    if( !( upperIndex - lowerIndex > 0 ) )
 
+                    if( !( upperIndex - lowerIndex  > 0 ) )
                     {
                         throw std::runtime_error( "Error, upper and lower indices are inconsistent in nearest neighbour search" +
                                                   boost::lexical_cast< std::string >( upperIndex ) + " " +

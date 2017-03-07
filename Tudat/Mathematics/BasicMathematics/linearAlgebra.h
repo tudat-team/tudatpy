@@ -116,67 +116,8 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 );
 
-double getConditionNumberOfInformationMatrix( const Eigen::MatrixXd informationMatrix );
 
-double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::MatrixXd >& singularValueDecomposition );
 
-Eigen::JacobiSVD< Eigen::MatrixXd > getSVDDecompositionOfInformationMatrix( const Eigen::MatrixXd& informationMatrix );
-
-Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
-                                               const Eigen::VectorXd rightHandSideVector,
-                                               const bool checkConditionNumber = 1,
-                                               const double maximumAllowedConditionNumber = 1.0E-8 );
-
-Eigen::MatrixXd multiplyInformationMatrixByDiagonalWeightMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix );
-
-Eigen::MatrixXd calculateCovarianceMatrixWithConsiderParameters(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const Eigen::MatrixXd& considerInformationMatrix,
-        const Eigen::MatrixXd& considerCovarianceMatrix );
-
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix );
-
-Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& diagonalOfWeightMatrix );
-
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
-        const Eigen::VectorXd& aPrioriAdjustmentEstimate,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
-
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const Eigen::VectorXd& diagonalOfWeightMatrix,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
-
-std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
-        const Eigen::MatrixXd& informationMatrix,
-        const Eigen::VectorXd& observationResiduals,
-        const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8 );
-
-Eigen::VectorXd getLeastSquaresPolynomialFit(
-        const Eigen::VectorXd& independentValues,
-        const Eigen::VectorXd& dependentValues,
-        const std::vector< double >& polynomialPowers );
-
-std::vector< double > getLeastSquaresPolynomialFit(
-        const std::map< double, double >& independentDependentValueMap,
-        const std::vector< double >& polynomialPowers );
 
 } // namespace linear_algebra
 

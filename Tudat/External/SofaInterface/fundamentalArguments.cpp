@@ -63,7 +63,7 @@ Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
 }
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
-basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime, const double terrestrialTime, const double universalTime1 )
 {
     // Calculate GMST
@@ -72,7 +72,7 @@ basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
                 basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY );
 
     // Calculate fundamental arguments.
-    basic_mathematics::Vector6d fundamentalArguments;
+    Eigen::Vector6d fundamentalArguments;
     fundamentalArguments << greenwichMeanSiderealTime + mathematical_constants::PI,
             calculateDelaunayFundamentalArguments( tdbTime );
 
@@ -80,14 +80,14 @@ basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
 }
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
-basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime )
 {
     return calculateDelaunayFundamentalArgumentsWithGmst( tdbTime, tdbTime, convertTTtoUTC( tdbTime ) );
 }
 
 //! Function to calculate the Doodson arguments at the requested time.
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
+Eigen::Vector6d calculateDoodsonFundamentalArguments(
         const double tdbTime, const double terrestrialTime, const double universalTime1 )
 {
     using mathematical_constants::PI;
@@ -108,7 +108,7 @@ basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
     double longitudeOfMoonsAscendingNode = calculateLongitudeOfMoonsAscendingNode( julianCenturiesSinceJ2000 );
 
     // Calculate Doodson arguments.
-    basic_mathematics::Vector6d doodsonArguments;
+    Eigen::Vector6d doodsonArguments;
     doodsonArguments( 1 ) = meanArgumentOfLatitudeOfMoon + longitudeOfMoonsAscendingNode;
     doodsonArguments( 0 ) = greenwichMeanSiderealTime + PI - doodsonArguments( 1 );
     doodsonArguments( 2 ) = doodsonArguments( 1 ) - meanElongationOfMoonFromSun;
@@ -120,7 +120,7 @@ basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
 }
 
 //! Function to calculate the Doodson arguments at the requested time.
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime )
+Eigen::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime )
 {
     return calculateDoodsonFundamentalArguments( tdbTime, tdbTime,  convertTTtoUTC( tdbTime ) );
 }

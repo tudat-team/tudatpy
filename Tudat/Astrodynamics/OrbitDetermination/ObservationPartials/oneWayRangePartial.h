@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -52,7 +52,7 @@ public:
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
      */
-    void update( const std::vector< basic_mathematics::Vector6d >& linkEndStates,
+    void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd );
 
@@ -128,7 +128,7 @@ public:
         positionPartialList_( positionPartialList )
     {
         std::pair< boost::function< SingleOneWayRangePartialReturnType(
-                    const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) >,
+                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                 bool > lightTimeCorrectionPartial;
 
         // Create light time correction partial functions
@@ -156,7 +156,7 @@ public:
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual OneWayRangePartialReturnType calculatePartial(
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime );
 
@@ -193,14 +193,14 @@ protected:
 
     //! List of light-time correction partial functions.
     std::vector< boost::function< SingleOneWayRangePartialReturnType(
-            const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) > >
+            const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
     //! List of light-time correction partial objects.
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
     //! Pre-declared state variable to be used in calculatePartial function.
-    basic_mathematics::Vector6d currentState_;
+    Eigen::Vector6d currentState_;
 
     //! Pre-declared time variable to be used in calculatePartial function.
     double currentTime_;

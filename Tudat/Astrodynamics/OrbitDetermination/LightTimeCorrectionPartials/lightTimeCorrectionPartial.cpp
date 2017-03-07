@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,14 +22,14 @@ namespace observation_partials
 //! Function to get the function returning the light-time correction partial for given correction partial and parameter.
 
 std::pair< boost::function< LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType(
-        const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) >, bool >
+        const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool >
 getLightTimeParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
         const boost::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial )
 {
     // Declare return type, set second part to 0 (no dependency found).
     std::pair< boost::function< LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType(
-                const std::vector< basic_mathematics::Vector6d >&, const std::vector< double >& ) >, bool > partialFunction;
+                const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > partialFunction;
     partialFunction.second = 0;
 
     // Check type of light-time correction

@@ -1,19 +1,24 @@
-#ifndef ORBITDETERMINATIONMANAGER_H
-#define ORBITDETERMINATIONMANAGER_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_ORBITDETERMINATIONMANAGER_H
+#define TUDAT_ORBITDETERMINATIONMANAGER_H
 
 #include <algorithm>
 
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/podInputOutputTypes.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
 
@@ -23,12 +28,23 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create a single vector of observation weights from weights sorted by link ends/observation type
+/*!
+ *  Function to create a single vector of observation weights from weights sorted by link ends/observation type,
+ *  the ruesulting vector is sorted according to the iteration order of the inner and outer maps in the weightsData
+ *  input
+ *  \param weightsData Weights sorted by link ends and observation type
+ *  \return Concatenated vector of weights
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeightsVector(
-        const typename std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >& weightsData )
+        const typename std::map< observation_models::ObservableType, std::map<
+        observation_models::LinkEnds, Eigen::VectorXd > >& weightsData )
 {
-    typedef std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > > WeightsDataStructure;
+    typedef std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
+            WeightsDataStructure;
 
+    // Get total required size of weights vector
     int totalNumberOfObservations = 0;
     for( typename WeightsDataStructure::const_iterator observablesIterator =
          weightsData.begin( ); observablesIterator != weightsData.end( ); observablesIterator++ )
@@ -39,10 +55,9 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
             totalNumberOfObservations += dataIterator->second.rows( );
         }
     }
-
-    // Iterate over all observations and concatenate the time vectors.
     Eigen::VectorXd concatenatedWeights = Eigen::VectorXd::Zero( totalNumberOfObservations, 1 );
 
+    // Iterate over all observations and concatenate the weight vectors.
     int currentIndex = 0;
     for( typename WeightsDataStructure::const_iterator observablesIterator =
          weightsData.begin( ); observablesIterator != weightsData.end( ); observablesIterator++ )
@@ -58,10 +73,19 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
     return concatenatedWeights;
 }
 
-
+//! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
 class EstimationConvergenceChecker
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met.
+     * \param maximumNumberOfIterations Maximum number of allowed iterations for estimation
+     * \param minimumResidualChange Minimum required change in residual between two iterations
+     * \param minimumResidual Minimum value of observation residual below which estimation is converged
+     * \param numberOfIterationsWithoutImprovement Number of iterations without reduction of residual
+     */
     EstimationConvergenceChecker(
             const unsigned int maximumNumberOfIterations = 5,
             const double minimumResidualChange = 0.0,
@@ -69,12 +93,18 @@ public:
             const int numberOfIterationsWithoutImprovement = 2 ):
         maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
         minimumResidual_( minimumResidual ),
-        numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement ),
-        previousResidual_( 1.0E300 )
+        numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
     {
 
     }
 
+    //! Function to determine whether the estimation is deemed to be converged
+    /*!
+     * Function to determine whether the estimation is deemed to be converged (i.e. if it should terminate)
+     * \param numberOfIterations Number of iterations of estimation procedure that have been completed
+     * \param rmsResidualHistory Rms residuals at current and all previous iterations
+     * \return True if estimation is to be terminated
+     */
     bool isEstimationConverged( const int numberOfIterations, const std::vector< double > rmsResidualHistory )
     {
         bool isConverged = 0;
@@ -88,7 +118,9 @@ public:
             std::cout<<"Required residual level achieved"<<std::endl;
             isConverged = 1;
         }
-        if( ( findIndexOfMaximumEntry( rmsResidualHistory ) - rmsResidualHistory.size( ) ) < numberOfIterationsWithoutImprovement_ )
+        if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
+                                 rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
+                numberOfIterationsWithoutImprovement_ )
         {
             std::cout<<"Too many iterations without parameter improvement"<<std::endl;
             isConverged = 1;
@@ -105,37 +137,25 @@ public:
     }
 protected:
 
-    unsigned int findIndexOfMaximumEntry( std::vector< double > rmsResidualHistory )
-    {
-        int maximumEntry = 0;
-        double maximumValue = rmsResidualHistory[ 0 ];
-        for( unsigned int i = 0; i < rmsResidualHistory.size( ); i++ )
-        {
-            if( rmsResidualHistory[ i ] >= maximumValue )
-            {
-                maximumEntry = i;
-                maximumValue = rmsResidualHistory[ i ];
-            }
-        }
-        return maximumEntry;
-    }
-
+    //! Maximum number of allowed iterations for estimation
     int maximumNumberOfIterations_;
+
+    //! Minimum required change in residual between two iterations
     double minimumResidualChange_;
 
+    //! Minimum value of observation residual below which estimation is converged
     double minimumResidual_;
-    unsigned int numberOfIterationsWithoutImprovement_;
 
-    double previousResidual_;
+    //!  Number of iterations without reduction of residual
+    unsigned int numberOfIterationsWithoutImprovement_;
 };
 
 //! Top-level class for performing orbit determination.
 /*!
- *  Top-level class for performing orbit determination. Acceleration models, parameters to estimate, observable types and link ends
- *  as well as various settings for observation and dynamical simulation are provided to the class (see constructor). The parameter
- *  estimation process is then performed by providing measurement data and related metadata (as PodInput) to the estimateParameters function.
- *  \tparam ObservationScalarType Scalar Data type for observations/state vector of integrated bodies  (double, long double)
- *  \tparam ObservationScalarType TimeType Data type for time representation (double, tudat::Time)
+ *  Top-level class for performing orbit determination. All required propagation/estimation settings are provided to
+ *  this class, which then creates all objects needed for the propagation and estimation process. The parameter
+ *  estimation itself is performed by providing measurement data and related metadata (as PodInput) to the estimateParameters
+ *  function.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class OrbitDeterminationManager
@@ -148,88 +168,76 @@ public:
     //! Typedef for vector of parameters.
     typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ParameterVectorType;
 
-
-    typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
+    //! Typedef for observations per link ends, with associated times and reference link end.
+    typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
+    std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
     //! Typedef for complete set of observations data, as used in orbit determination
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputType;
 
     //! Typedef for complete set of observations data in alternative form, as used in orbit determination, convertible to PodInputType
     //! by convertPodInput function.
-    typedef std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >, observation_models::LinkEndType > > > AlternativePodInputType;
+    typedef std::map< observation_models::ObservableType,
+    std::map< observation_models::LinkEnds, std::pair< std::map< TimeType, ObservationScalarType >,
+    observation_models::LinkEndType > > > AlternativePodInputType;
 
     //! Constructor
     /*!
-     *
+     *  Constructor
      *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
-     *  \param parametersToEstimate Container object for all parameters that are to be estimated (excluding initial states of bodies)
-     *  \param bodiesToIntegrate List of bodies that are to be numerically integrated in simulation
-     *  \param bodiesToEstimate List of bodies for which initial states are to be estimated (note that it is advised that this
-     *  vector be equal to the bodiesToIntegrate, to prevent effects of parameter adjustments not covered by the partial derivatives)
-     *  \param linkEndsPerObservable Sets of link ends (i.e. transmitter, receiver, etc.) per observable type for which measurement data is
-     *  to be provided in orbit determination process (through estimateParameters function)
-     *  \param initialBodyStates Initial states of bodies to integrate, in frames centered on their respective central bodies
-     *  (defined in in propagatorSettings type)
+     *  \param parametersToEstimate Container object for all parameters that are to be estimated
+     *  \param linkEndsPerObservable Sets of link ends (i.e. transmitter, receiver, etc.) per observable type for
+     *  which measurement data is to be provided in orbit determination process (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
-     *  \param observableCorrections List of correction function to for each observable type and set of link ends (relativistic, troposphere, etc. )
-     *  \param observationViabilitySettings List of observation viability functions to for each observable type and set of link ends
-     *  (minimum elevation angle, body occultation, etc. )
+     *  \param observableCorrections List of correction function to for each observable type and set of link ends (
+     *  relativistic, troposphere, etc. )
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-            const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >& linkEndsPerObservable,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
+            const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >&
+            linkEndsPerObservable,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >& observableCorrections =
-            ( std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >( ) ),
-            const int integrateOnCreation = 1 ):
+            const std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >&
+            observableCorrections =
+            ( std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >( ) ) ):
         parametersToEstimate_( parametersToEstimate ), linkEndsPerObservable_( linkEndsPerObservable )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
         using namespace observation_models;
 
-        std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > initialDynamicalStates =
-                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >( parametersToEstimate );
-
+        // Check if any dynamics is to be estimated
+        std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+                initialDynamicalStates =
+                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >(
+                    parametersToEstimate );
         if( initialDynamicalStates.size( ) > 0 )
         {
-            if( integrateOnCreation )
-            {
+
                 integrateAndEstimateOrbit_ = true;
 
                     variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
                             < ObservationScalarType, TimeType > >(
                                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
                                 boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
-            }
-            else
-            {
-                integrateAndEstimateOrbit_ = true;
-
-                    variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < ObservationScalarType, TimeType > >(
-                                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
-                                boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
-            }
         }
         else
         {
             integrateAndEstimateOrbit_ = false;
         }
 
-        std::cout<<"Dynamics simulator set and intialized "<<std::endl;
-
-        if( integrateAndEstimateOrbit_ && integrateOnCreation )
+        // Set state transition matrix interface.
+        if( integrateAndEstimateOrbit_ )
         {
             stateTransitionAndSensitivityMatrixInterface_ =
                     variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
         else if( propagatorSettings == NULL )
         {
-            std::cout<<"Making st interface"<<std::endl;
             stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
                     propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
@@ -238,20 +246,17 @@ public:
         }
         else if( propagatorSettings != NULL )
         {
-            std::cout<<"Making st interface"<<std::endl;
-            stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-                    propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        parametersToEstimate_->getInitialDynamicalStateParameterSize( ), parametersToEstimate_->getParameterSetSize( ) );
+            throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
 
         // Iterate over all observables and create observation managers.
-        for( std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >::const_iterator observablesIterator = linkEndsPerObservable.begin( );
+        for( std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >::const_iterator
+             observablesIterator = linkEndsPerObservable.begin( );
              observablesIterator != linkEndsPerObservable.end( ); observablesIterator++ )
         {
             // Get observable corrections for current observable.
-            std::map< observation_models::LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > singleObservableCorrections;
+            std::map< observation_models::LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > >
+                    singleObservableCorrections;
             if( observableCorrections.count( observablesIterator->first ) > 0 )
             {
                 singleObservableCorrections = observableCorrections.at( observablesIterator->first );
@@ -265,8 +270,6 @@ public:
                         singleObservableCorrections );
         }
 
-        std::cout<<"Observation managers created "<<std::endl;
-
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
     }
@@ -277,7 +280,8 @@ public:
      *  calculate observation partials for all link ends involved in the given observable type.
      *  \return Map of observation managers for all observable types involved in current orbit determination.
      */
-    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
+    std::map< observation_models::ObservableType,
+    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
     getObservationManagers( ) const
     {
         return observationManagers_;
@@ -285,9 +289,9 @@ public:
 
     //! Function to determine the number of observations per link end.
     /*!
-     *  Function to determine the number of observations per link end from a map of observations for each link ends. The input type is
-     *  directly related to the data stored for a single observable in PodInput::PodInputDataType.
-     *  \param Map of observations and times for a set of link ends.
+     *  Function to determine the number of observations per link end from a map of observations for each link ends.
+     *  The input type is directly related to the data stored for a single observable in PodInput::PodInputDataType.
+     *  \param dataPerLinkEnd Map of observations and times for a set of link ends.
      *  \return Vector of size of number of observations in input map (in order of forward iterator over input map).
      */
     static std::vector< int > getNumberOfObservationsPerLinkEnd(
@@ -309,15 +313,15 @@ public:
 
     //! Function to determine total number of observation and number of observations per observable
     /*!
-     *  Function to determine total number of observation and number of observations per observable from the complete set of measurement data.
+     *  Function to determine total number of observation and number of observations per observable from the complete set
+     *  of measurement data.
      *  \param observationsAndTimes Set of measurement data per obsevable type and link ends
-     *  \return Pair first: map with number of observations per observable type, second: total number of observations (i.e. sum of valus of first)
+     *  \return Pair first: map with number of observations per observable type, second: total number of observations
+     *  (i.e. sum of valus of first)
      */
     static std::pair< std::map< observation_models::ObservableType, int >, int > getNumberOfObservationsPerObservable(
             const PodInputType& observationsAndTimes )
     {
-        //int currentObservationSize;
-
         // Initialize counters.
         std::map< observation_models::ObservableType, int > numberOfObservations;
         int totalNumberOfObservations = 0;
@@ -346,13 +350,14 @@ public:
 
     //! Function to calculate the observation partials matrix and residuals
     /*!
-     *  This function calculates the observation partials matrix and residuals, based on the state transition matrix, sensitivity matrix and
-     *  body states resulting from the previous numerical integration iteration. Partials and observations are calculated by the
-     *  observationManagers_.
-     *  \param observationsAndTime Observable values and associated time tags, per observable type and set of link ends.
+     *  This function calculates the observation partials matrix and residuals, based on the state transition matrix,
+     *  sensitivity matrix and body states resulting from the previous numerical integration iteration.
+     *  Partials and observations are calculated by the observationManagers_.
+     *  \param observationsAndTimes Observable values and associated time tags, per observable type and set of link ends.
      *  \param parameterVectorSize Length of the vector of estimated parameters
-     *  \param totalNumberOfObservations Total number of observations in observationsAndTimes map.
-     *  \return Pair of residuals of computed w.r.t. input observable values and partials of observables w.r.t. parameter vector.
+     *  \param totalObservationSize Total number of observations in observationsAndTimes map.
+     *  \param residualsAndPartials Pair of residuals of computed w.r.t. input observable values and partials of
+     *  observables w.r.t. parameter vector (return by reference).
      */
     void calculateObservationMatrixAndResiduals(
             const PodInputType& observationsAndTimes, const int parameterVectorSize, const int totalObservationSize,
@@ -365,11 +370,8 @@ public:
         // Declare variable denoting current index in vector of all observations.
         int startIndex = 0;
 
-        //boost::function< TimeType( const TimeType& ) > inputTimeConversionFunction;
-        //bool isTimeConverterFound = 0;
-        std::vector< TimeType > simulationInputTime;
-
         // Iterate over all observable types in observationsAndTimes
+        std::vector< TimeType > simulationInputTime;
         for( typename PodInputType::const_iterator observablesIterator = observationsAndTimes.begin( );
              observablesIterator != observationsAndTimes.end( ); observablesIterator++ )
         {
@@ -377,16 +379,13 @@ public:
             for( typename SingleObservablePodInputType::const_iterator dataIterator = observablesIterator->second.begin( );
                  dataIterator != observablesIterator->second.end( ); dataIterator++  )
             {
-
                 simulationInputTime.clear( );
-
-                    simulationInputTime = dataIterator->second.second.first;
-
+                simulationInputTime = dataIterator->second.second.first;
 
                 // Compute estimated ranges and range partials from current parameter estimate.
                 std::pair< ObservationVectorType, Eigen::MatrixXd > observationsWithPartials;
-
-                observationsWithPartials = observationManagers_[ observablesIterator->first ]->computeObservationsWithPartials(
+                observationsWithPartials = observationManagers_[ observablesIterator->first ]->
+                        computeObservationsWithPartials(
                             simulationInputTime, dataIterator->first, dataIterator->second.second.second );
 
                 // Compute residuals for current link ends and observabel type.
@@ -397,6 +396,7 @@ public:
                 // Set current observation partials in matrix of all partials
                 residualsAndPartials.second.block( startIndex, 0, dataIterator->second.first.size( ), parameterVectorSize ) =
                         observationsWithPartials.second;
+
                 // Increment current index of observation.
                 startIndex += dataIterator->second.first.size( );
 
@@ -422,12 +422,7 @@ public:
                 range( i ) = maximum;
             }
             currentVector = currentVector / range( i );
-            //for( int j = 0; j < currentVector.rows( ); j++ )
-            //{
-            //    currentVector( j ) = ( currentVector( j ) - minimum ) / range( i );
-            //}
-            //currentVector = currentVector - minimum;
-            //currentVector = currentVector / range;
+
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
         return range;
@@ -440,12 +435,21 @@ public:
      *  provided to the constructor by the linkEndsPerObservable parameter.
      *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
-     *  \return Object containing estimated parameter value and associated data, such as residuals and observation partials.
+     *  \param convergenceChecker Object used to check convergence/termination of algorithm
+     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
+     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
+     *  when first calling this object (e.g. before 1st iteration of algorithm)
+     *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
+     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
-            const int reintegrateVariationalEquations = 1,
-            const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker = ( boost::make_shared< EstimationConvergenceChecker >( ) ),
+            const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+            boost::make_shared< EstimationConvergenceChecker >( ),
+            const bool reintegrateEquationsOnFirstIteration = 1,
+            const bool reintegrateVariationalEquations = 1,
             const bool saveInformationmatrix = 1,
             const bool printOutput = 1 )
     {
@@ -453,7 +457,7 @@ public:
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = currentParameterEstimate_.size( );
         std::pair< std::map< observation_models::ObservableType, int >, int > observationNumberPair =
-                getNumberOfObservationsPerObservable( podInput->observationsAndTimes_ );
+                getNumberOfObservationsPerObservable( podInput->getObservationsAndTimes( ) );
         int totalNumberOfObservations = observationNumberPair.second;
 
         // Declare variables to be returned (i.e. results from best iteration)
@@ -472,17 +476,18 @@ public:
         // Declare variables to be used in loop.
 
         // Set current parameter estimate as both previous and current estimate
-        ParameterVectorType newParameterEstimate = currentParameterEstimate_ + podInput->initialParameterDeviationEstimate_;
+        ParameterVectorType newParameterEstimate = currentParameterEstimate_ +
+                podInput->getInitialParameterDeviationEstimate( );
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
 
-        int numberOfEstimatedParameters = parameterVectorSize;//parametersToEstimate_->getEstimatedParameterSetSize( );
+        int numberOfEstimatedParameters = parameterVectorSize;
 
         // Iterate until convergence (at least once)
         int numberOfIterations = 0;
         do
         {
             // Re-integrate equations of motion and variational equations with new parameter estimate.
-            if( ( numberOfIterations > 0 ) ||( podInput->reintegrateEquationsOnFirstIteration_ ) )
+            if( ( numberOfIterations > 0 ) ||( reintegrateEquationsOnFirstIteration ) )
             {
                 resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
             }
@@ -495,27 +500,29 @@ public:
             // Calculate residuals and observation matrix for current parameter estimate.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
             calculateObservationMatrixAndResiduals(
-                        podInput->observationsAndTimes_, parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
+                        podInput->getObservationsAndTimes( ), parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
 
             Eigen::VectorXd transformationData = normalizeObservationMatrix( residualsAndPartials.second );
 
             Eigen::MatrixXd normalizedInverseAprioriCovarianceMatrix = Eigen::MatrixXd::Zero(
                         numberOfEstimatedParameters, numberOfEstimatedParameters );
 
+            Eigen::MatrixXd inverseAPrioriCovariance = podInput->getInverseOfAprioriCovariance( );
             for( int j = 0; j < numberOfEstimatedParameters; j++ )
             {
-                normalizedInverseAprioriCovarianceMatrix( j, j ) = podInput->inverseOfAprioriCovariance_( j, j ) /
-                        ( transformationData( j ) * transformationData( j ) );
+                for( int k = 0; k < numberOfEstimatedParameters; k++ )
+                {
+                    normalizedInverseAprioriCovarianceMatrix( j, k ) = inverseAPrioriCovariance( j, k ) /
+                            ( transformationData( j ) * transformationData( k ) );
+                }
             }
-
-            input_output::writeMatrixToFile(  residualsAndPartials.second,  "obsPartials.dat" );
 
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
                     linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                         residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->weightsMatrixDiagonals_ ),
-                        normalizedInverseAprioriCovarianceMatrix, Eigen::VectorXd::Zero( numberOfEstimatedParameters, 0.0 ) );
+                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
+                        normalizedInverseAprioriCovarianceMatrix );
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
@@ -553,7 +560,7 @@ public:
                 {
                     bestInformationMatrix = residualsAndPartials.second;
                 }
-                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->weightsMatrixDiagonals_ );
+                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) );
                 bestTransformationData = transformationData;
                 bestInverseNormalizedCovarianceMatrix = leastSquaresOutput.second;
             }
@@ -577,6 +584,7 @@ public:
     /*!
      *  Function to reset the current parameter estimate; reintegrates the variational equations and equations of motion with new estimate.
      *  \param newParameterEstimate New estimate of parameter vector.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
@@ -622,8 +630,6 @@ public:
                 // Initialize vector of observation values.
                 ObservationVectorType observations = ObservationVectorType::Zero( stationIterator->second.first.size( ) );
 
-                std::cerr<<"Warning, conversion between POD input types does not support non-double observables"<<std::endl;
-
                 // Iterate over all observations in input map, and split time and observation.
                 int counter = 0;
                 for( typename std::map< TimeType, ObservationScalarType >::const_iterator singleDataSetIterator = stationIterator->second.first.begin( );
@@ -659,7 +665,7 @@ public:
     /*!
      *  Function to retrieve an observation manager for a single observable type. The observation manager can simulate observations and
      *  calculate observation partials for all link ends involved in the given observable type.
-     *  \param observation_models::ObservableType Type of observable for which manager is to be retrieved.
+     *  \param observableType Type of observable for which manager is to be retrieved.
      *  \return Observation manager for given observable type.
      */
     boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > getObservationManager(
@@ -668,7 +674,9 @@ public:
         // Check if manager exists for requested observable type.
         if( observationManagers_.count( observableType ) == 0 )
         {
-            std::cerr<<"Error when retrieving observation manager of type "<<observableType<<", manager not found"<<std::endl;
+            throw std::runtime_error(
+                        "Error when retrieving observation manager of type " + boost::lexical_cast< std::string >(
+                            observableType ) + ", manager not found" );
         }
 
         return observationManagers_.at( observableType );
@@ -694,7 +702,14 @@ public:
         return currentParameterEstimate_;
     }
 
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > getStateTransitionAndSensitivityMatrixInterface( )
+    //! Function to retrieve the object used to propagate/process the solution of the variational equations/dynamics.
+    /*!
+     *  Function to retrieve the object used to propagate/process the numerical solution of the variational.
+     *  equations/dynamics.
+     *  \return Object used to propagate/process the numerical solution of the variational equations/dynamics.
+     */
+    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    getStateTransitionAndSensitivityMatrixInterface( )
     {
         return stateTransitionAndSensitivityMatrixInterface_;
     }
@@ -702,20 +717,29 @@ public:
 
 protected:
 
+    //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;
 
-    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > > variationalEquationsSolver_;
+    //! Object used to propagate/process the numerical solution of the variational equations/dynamics
+    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
+    variationalEquationsSolver_;
 
-    std::map< observation_models::ObservableType, boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
-    observationManagers_;
+    //! List of object that compute the values/partials of the observables
+    std::map< observation_models::ObservableType,
+    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers_;
 
+    //! Container object for all parameters that are to be estimated
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
 
+    //! List of avaailable set of link ends for each observable type
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable_;
 
+    //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
 
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionAndSensitivityMatrixInterface_;
+    //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
+    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    stateTransitionAndSensitivityMatrixInterface_;
 
 };
 
@@ -724,4 +748,4 @@ protected:
 }
 
 }
-#endif // ORBITDETERMINATIONMANAGER_H
+#endif // TUDAT_ORBITDETERMINATIONMANAGER_H

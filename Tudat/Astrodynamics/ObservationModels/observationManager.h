@@ -1,20 +1,20 @@
-#ifndef OBSERVATIONMANAGER_H
-#define OBSERVATIONMANAGER_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
-#include <Eigen/Sparse>
-
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-
-#include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
+#ifndef TUDAT_OBSERVATIONMANAGER_H
+#define TUDAT_OBSERVATIONMANAGER_H
 
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 
@@ -24,15 +24,33 @@ namespace tudat
 namespace observation_models
 {
 
-
+//! Virtual base class for the observation manager class,.
+/*!
+ *  Virtual base class for the observation manager class, which is used to compute observable values and partials of a
+ *  single type of observable during estimation. This base class is sued for practical purposes, as  the derived class has a\
+ *  template argument for the observable size, precluding the possibility of making a list of objects for all observation
+ *  managers (e.g. one for each observable type)
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class ObservationManagerBase
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Type of observable for which the instance of this class will compute observations/observation
+     * partials
+     * \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
+     * \param observationPartialScalers Map of objects (one per set of link ends) used to compute the scaling of
+     * position partials that are used to compute the observation partials in the derived class
+     */
     ObservationManagerBase(
             const ObservableType observableType,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >& observationPartialScalers ):
+            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            stateTransitionMatrixInterface,
+            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+            observationPartialScalers ):
         observableType_( observableType ), stateTransitionMatrixInterface_( stateTransitionMatrixInterface ),
         observationPartialScalers_( observationPartialScalers )
     {
@@ -47,11 +65,14 @@ public:
     }
 
     //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
     virtual ~ObservationManagerBase( ){ }
 
+    //! Pure virtual function to return the size of the observable for a given set of link ends
+    /*!
+     * Pure virtual function to return the size of the observable for a given set of link ends
+     * \param linkEnds Link ends for which observable size is to be computed
+     * \return Size of observable
+     */
     virtual int getObservationSize( const LinkEnds& linkEnds ) = 0;
 
 
@@ -59,8 +80,10 @@ public:
     /*!
      *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
      *  used the sensitivity and state transition matrix interpolators set in this base class.
-     *  \param recetionTimes Vector of times at which observations taked place (i.e. reception time)
+     *  \param times Vector of times at which observations are performed
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
      *  \return Pair of observable values and partial matrix
      */
     virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
@@ -69,9 +92,12 @@ public:
                                      const LinkEndType linkEndAssociatedWithTime ) = 0;
 
 protected:
+
     //! Function to get the state transition and sensitivity matrix.
     /*!
-     * Function to get the state transition matrix Phi and sensitivity matrix S at a given time as a singel matrix [Phi;S]
+     *  Function to get the state transition matrix Phi and sensitivity matrix S at a given time as a single matrix [Phi;S]
+     *  \param evaluationTime Time at which matrices are to be evaluated
+     *  \return Concatenated state transition and sensitivity matrices at given time.
      */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
     {
@@ -82,14 +108,14 @@ protected:
     /*!
      *  Function to perform updates of dependent variables used by (subset of) observation partials, in order
      *  to decrease redundant computations (i.e. scaling of position partials for range partials).
-     *  \param states States of link ends, order determined by derived class
-     *  and calculatePartial( ) functions expected inputs.
-     *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by derived class
-     *  and calculatePartial( ) functions expected inputs.
+     *  is kept constant (to input value)
+     *  \param states List of times at each link end during observation
+     *  \param times List of states at each link end during observation
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
      */
     virtual void updatePartials(
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const LinkEndType linkEndAssociatedWithTime )
@@ -97,11 +123,14 @@ protected:
         observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime );
     }
 
+    //! Type of observable for which the instance of this class will compute observations/observation partials
     ObservableType observableType_;
 
+    //! Object used to compute the state transition/sensitivity matrix at a given time
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface_;
 
-
+    //!  Map of objects (one per set of link ends) used to compute the scaling of position partials that are used to
+    //! compute the observation partials in the derived class
     std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers_;
 
     //! Size of (square) state transition matrix.
@@ -112,57 +141,99 @@ protected:
 
 };
 
-//! Class to manage simualtion of observables and associated partials.
+//! Class to manage simulation of observables and associated partials for a single type of observable.
 /*!
- *  This class manages the simulation of observables and their partials. Separate observation models of a
- *  single kind (i.e. between different link ends) are all handled by a single derived class object of this type.
- * \tparam ObservationSize Number of values in single observation (i.e. 1 for range, 2 for VLBI)
+ *  This class manages the simulation of observables and their partials, which are used during estimation.
+ *  Separate observation models of a single kind (i.e. between different link ends) are all handled by a single object
+ *  of this type.
  */
 template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationManager: public ObservationManagerBase< ObservationScalarType, TimeType >
 {
 public:
 
+    //! Typedef for translational state type
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
+    // Using statements
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixSize_;
     using ObservationManagerBase< ObservationScalarType, TimeType >::updatePartials;
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixInterface_;
 
-
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Type of observable for which the instance of this class will compute observations/observation
+     * partials
+     * \param observationSimulator Object used to simulate ideal observations of the  observableType
+     * \param observationPartials List of objects that compute the partial derivatives of the observations w.r.t. the
+     * estimated parameters. Each partial (i.e. w.r.t. each parameter) has its own associated ObservationPartial object.
+     * The LinkEnds key denotes the specific geomtry of the observable, while the pair< int, int > key denotes the start
+     * index and size, respectively, of the current parameter partial in the estimated parameter vector.
+     * \param observationPartialScalers Map of objects (one per set of link ends) used to compute the scaling of
+     * position partials that are used to compute the observation partials in the derived class
+     * \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
+     */
     ObservationManager(
             const ObservableType observableType,
-            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >& observationSimulator,
-            const std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface ):
+            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >&
+            observationSimulator,
+            const std::map< LinkEnds, std::map< std::pair< int, int >,
+            boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
+            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >
+            observationPartialScalers,
+            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            stateTransitionMatrixInterface ):
         ObservationManagerBase< ObservationScalarType, TimeType >(
             observableType, stateTransitionMatrixInterface, observationPartialScalers ),
         observationSimulator_( observationSimulator ), observationPartials_( observationPartials ){ }
 
     //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
     virtual ~ObservationManager( ){ }
 
+    //! Function to return the size of the observable for a given set of link ends
+    /*!
+     * Function to return the size of the observable for a given set of link ends
+     * \param linkEnds Link ends for which observable size is to be computed
+     * \return Size of observable
+     */
     int getObservationSize( const LinkEnds& linkEnds )
     {
         return observationSimulator_->getObservationSize( linkEnds );
     }
 
-
+    //! Function to return the observation model for a given set of link ends
+    /*!
+     *  Function to return the observation model for a given set of link ends
+     *  \param linkEnds Link ends for which observation model is to be returned
+     *  \return Observation model
+     */
     boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
        return observationSimulator_->getObservationModel( linkEnds );
     }
 
+    //! Function to return the object used to simulate ideal observations
+    /*!
+     * Function to return the object used to simulate ideal observations
+     * \return Object used to simulate ideal observations
+     */
     boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > getObservationSimulator( )
     {
         return observationSimulator_;
     }
 
+    //! Function to simulate observations between specified link ends and associated partials at set of observation times.
+    /*!
+     *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
+     *  used the sensitivity and state transition matrix interpolators set in this base class.
+     *  \param times Vector of times at which observations are performed
+     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \return Pair of observable values and partial matrix
+     */
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, Eigen::MatrixXd >
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
@@ -177,24 +248,25 @@ public:
                 observationSimulator_->getObservationModel( linkEnds );
 
         // Initialize vectors of states and times of link ends to be used in calculations.
-        std::vector< basic_mathematics::Vector6d > vectorOfStates;
+        std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
 
         Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation;
 
+        // Iterate over all observation times
+        int currentObservationSize;
         for( unsigned int i = 0; i < times.size( ); i++ )
         {
             vectorOfTimes.clear( );
             vectorOfStates.clear( );
-            //observationSimulator_->updateObservationSettings( times[ i ], linkEnds, linkEndAssociatedWithTime );
 
+            // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
                         times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates );
-
             observations[ times[ i ] ] = currentObservation;
 
-            int currentObservationSize = currentObservation.rows( );
-
+            // Compute observation partial
+            currentObservationSize = currentObservation.rows( );
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
                         currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, linkEndAssociatedWithTime );
 
@@ -204,33 +276,46 @@ public:
                                utilities::createConcatenatedEigenMatrixFromMapValues( observationMatrices ) );
     }
 
+    //! Function to return the full list of observation partial objects
+    /*!
+     * Function to return the full list of observation partial objects
+     * \return Full list of observation partial objects
+     */
     std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr<
     observation_partials::ObservationPartial< ObservationSize > > > > getObservationPartials( )
     {
         return observationPartials_;
     }
 
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > getObservationPartials(
-            const LinkEnds& linkEnds )
+    //! Function to return the observation partial objects for a single set of link ends
+    /*!
+     * Function to return the observation partial objects for a single set of link ends
+     * \return Observation partial objects for a single set of link ends
+     */
+    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    getObservationPartials( const LinkEnds& linkEnds )
     {
         return observationPartials_.at( linkEnds );
     }
 
 
 protected:
+
     //! Function to calculate range partials at given states between link ends and reception and transmission time.
     /*!
      *  Function to calculate range partials at given states of link ends and reception and transmission times.
+     *  \param observationSize Size of single observation
      *  \param states States of link ends, order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */
     Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > determineObservationPartialMatrix(
             const int observationSize,
-            const std::vector< basic_mathematics::Vector6d >& states,
+            const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
             const LinkEndType linkEndAssociatedWithTime )
@@ -254,7 +339,6 @@ protected:
              partialIterator = currentLinkEndPartials.begin( );
              partialIterator != currentLinkEndPartials.end( ); partialIterator++ )
         {
-            //std::cout<<"Current partial indices: "<<partialIterator->first.first<<" "<<partialIterator->first.second<<std::endl;
             // Get Observation partial start and size indices in parameter veector.
             std::pair< int, int > currentIndexInfo = partialIterator->first;
 
@@ -296,18 +380,22 @@ protected:
         return partialMatrix;
     }
 
+    //! Object used to simulate ideal observations of the  observableType
     boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator_;
 
     //! Map of observation partials.
     /*!
-     *  Map of observation partials, with link ends (receiver, transmitter, reflector, etc.) as key and
-     *  map as value. This map has a pair of (start index/number of indices) in parameter vector as key
-     *  and a pointer to an ObservationPartial object as value.
+     * List of objects that compute the partial derivatives of the observations w.r.t. the
+     * estimated parameters. Each partial (i.e. w.r.t. each parameter) has its own associated ObservationPartial object.
+     * The LinkEnds key denotes the specific geomtry of the observable, while the pair< int, int > key denotes the start
+     * index and size, respectively, of the current parameter partial in the estimated parameter vector.
      */
     std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr<
     observation_partials::ObservationPartial< ObservationSize > > > > observationPartials_;
 
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > currentLinkEndPartials;
+    //! Pre-declared map used in computation of partials.
+    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    currentLinkEndPartials;
 
 };
 
@@ -315,4 +403,4 @@ protected:
 
 }
 
-#endif // OBSERVATIONMANAGER_H
+#endif // TUDAT_OBSERVATIONMANAGER_H
