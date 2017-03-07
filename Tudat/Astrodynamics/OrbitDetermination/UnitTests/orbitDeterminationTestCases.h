@@ -1,23 +1,16 @@
-#define BOOST_TEST_MAIN
-
-#include <string>
-#include <thread>
-#include <omp.h>
-#include <limits>
+#ifndef ORBITDETERMINATIONTESTCASES_H
+#define ORBITDETERMINATIONTESTCASES_H
 
 #include <boost/make_shared.hpp>
-#include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 
-
 namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 
 //Using declarations.
 using namespace tudat::observation_models;
@@ -32,10 +25,25 @@ using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 
+Eigen::VectorXd getDefaultInitialParameterPerturbation( )
+{
+    Eigen::VectorXd parameterPerturbations = Eigen::VectorXd( 7 );
+    for( int i = 0; i < 3; i++ )
+    {
+        parameterPerturbations( i ) = 1.0E3;
+        parameterPerturbations( i + 3 ) = 1.0E-2;
+    }
+    parameterPerturbations( 6 ) = 5.0E6;
+
+    return parameterPerturbations;
+}
 
 template< typename TimeType = double, typename StateScalarType  = double >
-Eigen::VectorXd  executeParameterEstimation(
-        const bool useRealObservables = 1 )
+std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executeParameterEstimation(
+        const bool useRealObservables = 1,
+        Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
+        Eigen::MatrixXd inverseAPrioriCovariance  = Eigen::MatrixXd::Zero( 7, 7 ),
+        const double weight = 1.0 )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -99,7 +107,6 @@ Eigen::VectorXd  executeParameterEstimation(
     for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
     {
         centralBodies[ i ] = "SSB";
-
         centralBodyMap[ bodiesToIntegrate[ i ] ] = centralBodies[ i ];
     }
 
@@ -135,6 +142,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::map< ObservableType, std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > >
             observableCorrections;
 
+    // Define link ends
     std::vector< LinkEnds > linkEnds;
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsMap;
 
@@ -161,16 +169,8 @@ Eigen::VectorXd  executeParameterEstimation(
                 bodyMap, parametersToEstimate,
                 linkEndsMap, integratorSettings, propagatorSettings, observableCorrections );
 
-    input_output::writeDataMapToTextFile(
-                boost::dynamic_pointer_cast< SingleArcVariationalEquationsSolver<
-                StateScalarType, TimeType > >(
-                    orbitDeterminationManager.getVariationalEquationsSolver( ) )->getDynamicsSimulator( )->
-                getEquationsOfMotionNumericalSolution( ), "longDoubleStateHistoryOdTest.dat" );
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
-            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
-
-
+    // Define observation times.
     double observationTimeStep = 1000.0;
     TimeType observationTime = Time( initialEphemerisTime + 10.0E4 );
     int numberOfObservations = 18000;
@@ -184,10 +184,9 @@ Eigen::VectorXd  executeParameterEstimation(
         observationTime += observationTimeStep;
     }
 
+    // Define observation simulation settings
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
     std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
-
-
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
     if( !useRealObservables )
     {
@@ -207,96 +206,40 @@ Eigen::VectorXd  executeParameterEstimation(
     typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
     typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
 
+    // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
                 measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
 
-
+    // Perturb parameter estimate
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
+            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-
-    for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
+    if( parameterPerturbation.rows( ) == 0 )
     {
-        initialParameterEstimate[ 0 + 6 * i ] += 1.0E3;
-        initialParameterEstimate[ 1 + 6 * i ] += 1.0E3;
-        initialParameterEstimate[ 2 + 6 * i ] += 1.0E3;
-        initialParameterEstimate[ 3 + 6 * i ] += 1.0E-2;
-        initialParameterEstimate[ 4 + 6 * i ] += 1.0E-2;
-        initialParameterEstimate[ 5 + 6 * i ] += 1.0E-2;
+        parameterPerturbation = Eigen::VectorXd::Zero( 7 );
     }
-    initialParameterEstimate( 6 ) *= ( 1.0 + 1.0E-6 );
+    for( unsigned int i = 0; i < 7; i++ )
+    {
+        initialParameterEstimate( i ) += parameterPerturbation( i );
+    }
 
-
+    // Define estimation input
     boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
-                observationsAndTimes, initialParameterEstimate - truthParameters, 1 );
+                observationsAndTimes, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
+                initialParameterEstimate - truthParameters );
+    podInput->setConstantWeightsMatrix( weight );
 
+    // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, true, boost::make_shared< EstimationConvergenceChecker >( ), 1, 0 );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
 
-    return( podOutput->parameterEstimate_.template cast< double >( ) - truthParameters .template cast< double >( ) );
-}
-
-BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
-{
-    for( int simulationType = 0; simulationType < 2; simulationType++ )
-    {
-        for( unsigned int i = 0; i < 4; i++ )
-        {
-            std::cout<<"=============================================== Running Case: "<<i<<" "<<simulationType<<std::endl;
-
-            Eigen::VectorXd totalError;
-            if( i == 0 )
-            {
-                totalError = executeParameterEstimation< double, double >( simulationType );
-            }
-            else if( i == 1 )
-            {
-                totalError = executeParameterEstimation< double, long double >( simulationType );
-            }
-            else if( i == 2 )
-            {
-                totalError = executeParameterEstimation< Time, double >( simulationType );
-            }
-            else if( i == 3 )
-            {
-                totalError = executeParameterEstimation< Time, long double >( simulationType );
-            }
-
-            double toleranceMultiplier = 1.0;
-            if( i % 2 == 1 )
-            {
-                toleranceMultiplier *= 1.0E-3;
-
-                if( simulationType == 1 )
-                {
-                    toleranceMultiplier *= 100.0;
-                }
-            }
-            else if( simulationType == 1 )
-            {
-                toleranceMultiplier *= 10.0;
-            }
-
-            for( unsigned int j = 0; j < 3; j++ )
-            {
-                BOOST_CHECK_SMALL( totalError( j ), toleranceMultiplier * 5.0E-3 );
-            }
-
-            for( unsigned int j = 0; j < 3; j++ )
-            {
-                BOOST_CHECK_SMALL( totalError( j + 3 ), toleranceMultiplier * 1.0E-7 );
-            }
-
-            BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-            std::cout<<totalError.transpose( )<<std::endl;
-        }
-    }
-
-}
-
-BOOST_AUTO_TEST_SUITE_END( )
-
+    return std::make_pair( podOutput,
+                           ( podOutput->parameterEstimate_.template cast< double >( ) -
+                             truthParameters .template cast< double >( ) ) );
 }
 
 }
 
-
+}
+#endif // ORBITDETERMINATIONTESTCASES_H

@@ -85,10 +85,15 @@ elseif( TUDAT_BUILD_GNU )
     set(CMAKE_CXX_FLAGS_DEBUG          "-g")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -ftemplate-backtrace-limit=0")
 =======
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
 >>>>>>> master
+=======
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra -Wno-unused-parameter -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor -ftemplate-backtrace-limit=0")
+>>>>>>> OrbitDetermination
 
     # MinGW fixes
     if( MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)

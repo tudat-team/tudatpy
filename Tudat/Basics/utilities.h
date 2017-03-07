@@ -322,6 +322,7 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
         const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
 
 
+
 } // namespace utilities
 
 } // namespace tudat

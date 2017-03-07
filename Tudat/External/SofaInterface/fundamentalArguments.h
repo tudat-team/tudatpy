@@ -22,7 +22,7 @@ extern "C"
 #include <Eigen/Core>
 
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -119,7 +119,7 @@ Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
  * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
  */
-basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime, const double terrestrialTime, const double universalTime1 );
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
@@ -132,7 +132,7 @@ basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
  */
-basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime );
 
 //! Function to calculate the Doodson arguments at the requested time.
@@ -145,7 +145,7 @@ basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
  * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
  * \return Doodson arguments and at the requested time.
  */
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
+Eigen::Vector6d calculateDoodsonFundamentalArguments(
         const double tdbTime, const double terrestrialTime, const double universalTime1 );
 
 //! Function to calculate the Doodson arguments at the requested time.
@@ -158,7 +158,7 @@ basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Doodson arguments and at the requested time.
  */
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime );
+Eigen::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime );
 
 } // namespace sofa_interfaces
 

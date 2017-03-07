@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
+/*    Copyright (c) 2010-2017, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,7 +18,7 @@ namespace observation_partials
 
 
 //! Update the scaling object to the current times and states
-void OneWayRangeScaling::update( const std::vector< basic_mathematics::Vector6d >& linkEndStates,
+void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                  const std::vector< double >& times,
                                  const observation_models::LinkEndType fixedLinkEnd )
 {
@@ -48,7 +48,7 @@ void OneWayRangeScaling::update( const std::vector< basic_mathematics::Vector6d 
 
 //! Function to calculate the observation partial(s) at required time and state
 OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePartial(
-        const std::vector< basic_mathematics::Vector6d >& states,
+        const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime )
 {

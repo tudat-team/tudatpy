@@ -90,7 +90,11 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             linkEndIndices.push_back( 1 );
             break;
         default:
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );
         }
         break;
     case angular_position:
@@ -103,7 +107,11 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             linkEndIndices.push_back( 1 );
             break;
         default:
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );
         }
         break;
     case position_observable:
@@ -113,11 +121,18 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         else
         {
-            std::cerr<<"Error, could not find link end type index for link end "<<linkEndType<<" of observable "<<observableType<<std::endl;
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );
         }
 
     default:
-        std::cerr<<"Error, could not find link end type index of observable "<<observableType<<std::endl;
+        std::string errorMessage =
+                "Error, could not find link end type index for link end types of observable " +
+                boost::lexical_cast< std::string >( observableType );
+        throw std::runtime_error( errorMessage );
     }
 
     return linkEndIndices;

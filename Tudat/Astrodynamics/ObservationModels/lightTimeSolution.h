@@ -296,6 +296,11 @@ public:
         return newLightTimeCalculation;
     }
 
+    //! Function to get list of light-time correction functions
+    /*!
+     * Function to get list of light-time correction functions
+     * \return List of light-time correction functions
+     */
     std::vector< boost::shared_ptr< LightTimeCorrection > > getLightTimeCorrection( )
     {
         return correctionFunctions_;

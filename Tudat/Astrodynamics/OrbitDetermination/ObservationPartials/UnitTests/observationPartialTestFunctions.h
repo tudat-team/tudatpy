@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include <limits>
 #include <string>
 #include <vector>
@@ -73,7 +83,7 @@ template< int ObservableSize >
 std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > >
 calculateAnalyticalPartials(
         const std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
-        const std::vector< basic_mathematics::Vector6d >& states,
+        const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEndType linkEndOfFixedTime )
 {
@@ -127,7 +137,7 @@ inline void testObservationPartials(
          linkEndIterator++ )
     {
         // Evaluate nominal observation values
-        std::vector< basic_mathematics::Vector6d > vectorOfStates;
+        std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
         double observationTime = 1.1E7;
         observationModel->computeObservationsWithLinkEndData(
