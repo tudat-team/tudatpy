@@ -49,7 +49,7 @@ Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
                 2.0 * mathematical_constants::PI );
 
     // Calculate derivative of rotation matrix.
-    return rotationRate_ * auxiliaryMatrix_ * tudat::reference_frames::
+    return rotationRate_ * reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * tudat::reference_frames::
             getInertialToPlanetocentricFrameTransformationQuaternion( rotationAngle )
             * Eigen::Matrix3d( initialRotationToTargetFrame_ );
 }

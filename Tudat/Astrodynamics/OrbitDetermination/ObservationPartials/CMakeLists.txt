@@ -13,6 +13,7 @@ set(OBSERVATION_PARTIALS_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.cpp"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.cpp"
 )
@@ -23,6 +24,7 @@ set(OBSERVATION_PARTIALS_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/positionPartials.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayRangePartial.h"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
@@ -48,6 +50,10 @@ setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPAR
 add_executable(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestOneWayRangePartials.cpp")
 setup_custom_test_program(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_OneWayRangePartials tudat_observation_partials_test_functions  ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_OneWayDopplerPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestOneWayDopplerPartials.cpp")
+setup_custom_test_program(test_OneWayDopplerPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
+target_link_libraries(test_OneWayDopplerPartials tudat_observation_partials_test_functions  ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_AngularPositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestAngularPositionPartials.cpp")
 setup_custom_test_program(test_AngularPositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")

@@ -14,10 +14,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
 
 namespace tudat
 {
@@ -71,6 +73,17 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 boost::shared_ptr< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
                         boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::oneWayDoppler:
+            {
+                boost::shared_ptr< observation_models::OneWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> > oneWayRangeModel =
+                        boost::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 currentLightTimeCorrections.push_back(
@@ -206,6 +219,10 @@ public:
         {
         case observation_models::oneWayRange:
             observationPartialList = createOneWayRangePartials< ParameterType >(
+                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+            break;
+        case observation_models::oneWayDoppler:
+            observationPartialList = createOneWayDopplerPartials< ParameterType >(
                         linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
 

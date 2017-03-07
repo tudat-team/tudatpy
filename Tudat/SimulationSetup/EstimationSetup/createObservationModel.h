@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -126,6 +127,34 @@ public:
 
             break;
         }
+        case oneWayDoppler:
+         {
+             // Check consistency input.
+             if( linkEnds.size( ) != 2 )
+             {
+                 std::string errorMessage =
+                         "Error when making 1 way range model, " +
+                         boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                 throw std::runtime_error( errorMessage );
+             }
+             if( linkEnds.count( receiver ) == 0 )
+             {
+                 throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
+             }
+             if( linkEnds.count( transmitter ) == 0 )
+             {
+                 throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
+             }
+
+             // Create observation model
+             observationModel = boost::make_shared< OneWayDopplerObservationModel<
+                     ObservationScalarType, TimeType > >(
+                         createLightTimeCalculator< ObservationScalarType, TimeType >(
+                         linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                         bodyMap, singleObservableCorrections ), observationBiasCalculator );
+
+             break;
+         }
         default:
             std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
                     "  not recognized when making size 1 observation model.";
