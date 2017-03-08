@@ -24,11 +24,13 @@ namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 
+
+
 //! This test checks, for a variety of data types/floating point types, if the orbit determination correctly converges
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int simulationType = 0; simulationType < 2; simulationType++ )
+    for( int simulationType = 0; simulationType < 4; simulationType++ )
     {
         for( unsigned int i = 0; i < 4; i++ )
         {
@@ -59,14 +61,14 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
             {
                 toleranceMultiplier *= 1.0E-3;
 
-                if( simulationType == 1 )
+                if( simulationType > 0 )
                 {
                     toleranceMultiplier *= 100.0;
                 }
             }
-            else if( simulationType == 1 )
+            else if( simulationType > 0 )
             {
-                toleranceMultiplier *= 10.0;
+                toleranceMultiplier *= 20.0;
             }
 
             // Check error.

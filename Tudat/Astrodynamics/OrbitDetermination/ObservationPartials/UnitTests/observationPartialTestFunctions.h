@@ -201,6 +201,7 @@ inline void testObservationPartials(
                 // Test position partial
                 if( observableType != angular_position )
                 {
+
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                 }
                 else

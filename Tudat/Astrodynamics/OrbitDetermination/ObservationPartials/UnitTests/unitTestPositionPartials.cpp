@@ -27,7 +27,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/numericalObservationPartial.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE( test_position_partials)
 
 //! Test partial derivatives of positions w.r.t. parameters. Partials of most observables are computed in terms of these
 //! partials
-BOOST_AUTO_TEST_CASE( testPositionPartials )
+BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -163,15 +163,15 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
 
     // Create explicit position partial objects.
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverPosition =
-            createPositionPartialsWrtBodyPosition( linkEnds, bodyMap, "Earth" ).begin( )->second;
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPosition =
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, "Earth", true ).begin( )->second;
 
     // Create explicit parameter partial objects.
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverRotationRate =
-            createPositionPartialsWrtParameter(
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverRotationRate =
+            createCartesianStatePartialsWrtParameter(
                 linkEnds, bodyMap, earthRotationRate ).begin( )->second;
-    boost::shared_ptr< PositionPartial > partialObjectWrtReceiverPolePosition =
-            createPositionPartialsWrtParameter(
+    boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPolePosition =
+            createCartesianStatePartialsWrtParameter(
                 linkEnds, bodyMap, earthPolePosition ).begin( )->second;
 
     // Calculate transmission/reception times and states
@@ -183,11 +183,17 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
 
     // Compute partials
     Eigen::MatrixXd partialWrtReceiverPosition =
-            partialObjectWrtReceiverPosition->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverPosition->calculatePartialOfPosition( currentState, currentTime );
+
     Eigen::MatrixXd partialWrtReceiverRotationRate =
-            partialObjectWrtReceiverRotationRate->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverRotationRate->calculatePartialOfPosition( currentState, currentTime );
+    Eigen::MatrixXd partialOfVelocityWrtReceiverRotationRate =
+            partialObjectWrtReceiverRotationRate->calculatePartialOfVelocity( currentState, currentTime );
+
     Eigen::MatrixXd partialWrtReceiverPolePosition =
-            partialObjectWrtReceiverPolePosition->calculatePartial( currentState, currentTime );
+            partialObjectWrtReceiverPolePosition->calculatePartialOfPosition( currentState, currentTime );
+    Eigen::MatrixXd partialOfVelocityWrtReceiverPolePosition =
+            partialObjectWrtReceiverPolePosition->calculatePartialOfVelocity( currentState, currentTime );
 
     // Define observation function
     boost::function< Eigen::VectorXd( const double ) > observationFunctionAtReception =
@@ -224,16 +230,20 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     earthEphemeris->updateConstantState( earthUnperturbedState );
 
     // Test partial w.r.t. position
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPosition, numericalPartialWrtReceiverPosition, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverPosition.block( 0, 0, 3, 3 ),
+                                       numericalPartialWrtReceiverPosition, 1.0E-12 );
 
 
     // Compute numerical partial w.r.t. rotation rate.
-    Eigen::Vector3d numericalPartialWrtReceiverRotationRate = calculateNumericalObservationParameterPartial(
+    Eigen::Vector6d numericalPartialWrtReceiverRotationRate = calculateNumericalObservationParameterPartial(
                 earthRotationRate, 1.0E-10, observationFunctionAtReception,
                 receptionTime );
 
     // Test partial w.r.t. rotation rate
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate, numericalPartialWrtReceiverRotationRate, 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtReceiverRotationRate,
+                                       numericalPartialWrtReceiverRotationRate.segment( 0, 3 ), 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialOfVelocityWrtReceiverRotationRate,
+                                       numericalPartialWrtReceiverRotationRate.segment( 3, 3 ), 1.0E-5 );
 
 
     // Compute numerical partial w.r.t. pole position
@@ -241,15 +251,21 @@ BOOST_AUTO_TEST_CASE( testPositionPartials )
     Eigen::MatrixXd numericalPartialWrtReceiverPolePosition = calculateNumericalObservationParameterPartial(
                 earthPolePosition, polePositionPerturbation, observationFunctionAtReception, receptionTime );
 
-
     // Test partials w.r.t. pole position (different tolernaces due to different magnitudes of partials).
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ),
                                        ( numericalPartialWrtReceiverPolePosition.block( 0, 0, 1, 2 ) ), 1.0E-4 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( partialWrtReceiverPolePosition.block( 1, 0, 2, 2 ) ),
                                        ( numericalPartialWrtReceiverPolePosition.block( 1, 0, 2, 2 ) ), 1.0E-6 );
+
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 2; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( partialOfVelocityWrtReceiverPolePosition( i, j ) -
+                                          numericalPartialWrtReceiverPolePosition( i + 3, j ) ), 1.0E-6 );
+        }
+    }
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 

@@ -35,6 +35,9 @@ std::string getObservableName( const ObservableType observableType )
     case position_observable:
         observableName = "CartesianPosition";
         break;
+    case oneWayDoppler:
+        observableName = "OneWayDoppler";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type "+ boost::lexical_cast< std::string >( observableType ) +
@@ -61,6 +64,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = position_observable;
     }
+    else if( observableName ==  "OneWayDoppler" )
+    {
+        observableType = oneWayDoppler;
+    }
     else
     {
         std::string errorMessage =
@@ -81,6 +88,23 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     switch( observableType )
     {
     case oneWayRange:
+        switch( linkEndType )
+        {
+        case transmitter:
+            linkEndIndices.push_back( 0 );
+            break;
+        case receiver:
+            linkEndIndices.push_back( 1 );
+            break;
+        default:
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );
+        }
+        break;
+    case oneWayDoppler:
         switch( linkEndType )
         {
         case transmitter:
