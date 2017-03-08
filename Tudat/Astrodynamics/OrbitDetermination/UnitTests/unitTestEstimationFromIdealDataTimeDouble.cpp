@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
     for( int simulationType = 0; simulationType < 4; simulationType++ )
     {
-        std::cout<<"=============================================== Running Case: "<<i<<" "<<simulationType<<std::endl;
+        std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
 
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
