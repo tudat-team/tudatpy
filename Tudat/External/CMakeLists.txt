@@ -10,6 +10,7 @@
 
  # Define the main sub-directories.
 
+ if(USE_SOFA)
 # Set SPICE interface directory.
   set(SOFAINTERFACEDIR "${EXTERNALDIR}/SofaInterface")
 
@@ -18,6 +19,8 @@
 
   # Get target properties for static libraries.
   get_target_property(SOFAINTERFACESOURCES tudat_sofa_interface SOURCES)
+
+endif( )
 
 
 if(USE_CSPICE)
@@ -29,6 +32,5 @@ if(USE_CSPICE)
 
   # Get target properties for static libraries.
   get_target_property(SPICEINTERFACESOURCES tudat_spice_interface SOURCES)
-
   
 endif( )
