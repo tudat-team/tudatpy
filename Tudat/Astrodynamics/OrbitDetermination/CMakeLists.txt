@@ -40,9 +40,21 @@ set(ORBIT_DETERMINATION_HEADERS
 add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
 setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
 
-add_executable(test_EstimationFromPosition "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealData.cpp")
-setup_custom_test_program(test_EstimationFromPosition "${SRCROOT}${ORBITDETERMINATIONDIR}")
-target_link_libraries(test_EstimationFromPosition ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionDoubleDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionDoubleLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionTimeDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeLongDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionTimeLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationInput.cpp")
 setup_custom_test_program(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}")
