@@ -468,6 +468,45 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     return frameTransformationQuaternion;
 }
 
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )
+{
+    return ( Eigen::Matrix3d( ) <<
+             0.0, 0.0, 0.0,
+             0.0, -std::sin( angle ), std::cos( angle ),
+             0.0, -std::cos( angle ), -std::sin( angle ) ).finished( );
+}
+
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
+{
+    return X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
+}
+
+
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const double angle )
+{
+    return ( Eigen::Matrix3d( ) <<
+             -std::sin( angle ), 0.0, -std::cos( angle ),
+             0.0, 0.0, 0.0,
+             -std::cos( angle ), 0.0, std::sin( angle ) ).finished( );
+}
+
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
+{
+    return Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
+}
+
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle )
+{
+    return ( Eigen::Matrix3d( ) <<
+             -std::sin( angle ), std::cos( angle ), 0.0 ,
+             -std::cos( angle ), -std::sin( angle ), 0.0,
+             0.0, 0.0, 0.0 ).finished( );
+}
+
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
+{
+    return Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
+}
 
 } // namespace reference_frames
 } // namespace tudat

@@ -13,7 +13,7 @@
 #include <boost/make_shared.hpp>
 
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 
 namespace tudat
 {
@@ -32,8 +32,8 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyP
         lightTimeCorrectionPartialObjects )
 {
     // Create position partials of link ends for current body position
-    std::map< observation_models::LinkEndType, boost::shared_ptr< PositionPartial > > positionPartials =
-            createPositionPartialsWrtBodyPosition( angularPositionLinkEnds, bodyMap, bodyToEstimate );
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+            createCartesianStatePartialsWrtBodyState( angularPositionLinkEnds, bodyMap, bodyToEstimate, true );
 
     // Create angular position partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< AngularPositionPartial > angularPositionPartial;

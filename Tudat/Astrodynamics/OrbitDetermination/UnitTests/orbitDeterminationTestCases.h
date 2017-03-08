@@ -40,7 +40,7 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( )
 
 template< typename TimeType = double, typename StateScalarType  = double >
 std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executeParameterEstimation(
-        const bool useRealObservables = 1,
+        const int observableType = 1,
         Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
         Eigen::MatrixXd inverseAPrioriCovariance  = Eigen::MatrixXd::Zero( 7, 7 ),
         const double weight = 1.0 )
@@ -146,20 +146,31 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     std::vector< LinkEnds > linkEnds;
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsMap;
 
-    if( !useRealObservables )
-    {
-        linkEnds.resize( 1 );
-        linkEnds[ 0 ][ observed_body ] = std::make_pair( "Earth", "" );
-        linkEndsMap[ position_observable ] = linkEnds;
-    }
-    else
-    {
-        linkEnds.resize( 1 );
-        linkEnds[ 0 ][ transmitter ] = std::make_pair( "Earth", "" );
-        linkEnds[ 0 ][ receiver ] = std::make_pair( "Mars", "" );
-        linkEndsMap[ oneWayRange ] = linkEnds;
-        linkEndsMap[ angular_position ] = linkEnds;
-    }
+        if(observableType == 0 )
+        {
+            linkEnds.resize( 1 );
+            linkEnds[ 0 ][ observed_body ] = std::make_pair( "Earth", "" );
+            linkEndsMap[ position_observable ] = linkEnds;
+        }
+        else
+        {
+            linkEnds.resize( 1 );
+            linkEnds[ 0 ][ transmitter ] = std::make_pair( "Earth", "" );
+            linkEnds[ 0 ][ receiver ] = std::make_pair( "Mars", "" );
+
+            if( observableType == 1 )
+            {
+                linkEndsMap[ oneWayRange ] = linkEnds;
+            }
+            else if( observableType == 2 )
+            {
+                linkEndsMap[ angular_position ] = linkEnds;
+            }
+            else if( observableType == 3 )
+            {
+                linkEndsMap[ oneWayDoppler ] = linkEnds;
+            }
+        }
 
 
 
@@ -188,17 +199,28 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
     std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
-    if( !useRealObservables )
-    {
-        singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, observed_body );
-        measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
-    }
-    else
-    {
-        singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, transmitter );
-        measurementSimulationInput[ oneWayRange ] = singleObservableSimulationInput;
-        measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
-    }
+        if( observableType == 0 )
+        {
+            singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, observed_body );
+            measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
+        }
+        else
+        {
+            singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, transmitter );
+
+            if( observableType == 1 )
+            {
+                measurementSimulationInput[ oneWayRange ] = singleObservableSimulationInput;
+            }
+            else if( observableType == 2 )
+            {
+                measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
+            }
+            else if( observableType == 3 )
+            {
+                measurementSimulationInput[ oneWayDoppler ] = singleObservableSimulationInput;
+            }
+        }
 
     singleObservableSimulationInput.clear( );
 

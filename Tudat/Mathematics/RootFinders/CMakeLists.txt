@@ -25,7 +25,7 @@ set(ROOTFINDERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction2.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction3.h"
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithLargeRootDifference.h"
+  #"${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithLargeRootDifference.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithZeroRoot.h"
 )
 
