@@ -151,12 +151,12 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
-                                       partialWrtEarthPosition, 1.0E-9 );
+                                       partialWrtEarthPosition, 1.0E-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity,
                                        partialWrtEarthVelocity, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
-                                       partialWrtSunPosition, 1.0E-9 );
+                                       partialWrtSunPosition, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity,
                                        partialWrtSunVelocity, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunGravitationalParameter,
