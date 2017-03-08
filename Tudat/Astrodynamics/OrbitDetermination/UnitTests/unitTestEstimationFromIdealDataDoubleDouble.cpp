@@ -26,14 +26,14 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 
 
 
-//! This test checks, for a variety of data types/floating point types, if the orbit determination correctly converges
+//! This test checks, for double states/observables and double time, if the orbit determination correctly converges
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
     for( int simulationType = 0; simulationType < 4; simulationType++ )
     {
 
-        std::cout<<"=============================================== Running Case: "<<i<<" "<<simulationType<<std::endl;
+        std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
 
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
