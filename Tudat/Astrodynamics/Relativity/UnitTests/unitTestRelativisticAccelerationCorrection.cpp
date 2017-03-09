@@ -17,7 +17,9 @@
 #include <boost/bind.hpp>
 
 #include <Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h>
+#include <Tudat/External/SpiceInterface/spiceInterface.h>
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+#include <Tudat/Mathematics/Statistics/basicStatistics.h>
 
 namespace tudat
 {
@@ -65,9 +67,9 @@ double computeSchwarzschildPericenterPrecession(
                   semiMajorAxis, 2.5 ) *( 1.0 - eccentricity * eccentricity ) );
 }
 
-double computeDeSitterPericenterPrecession( )
+double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun )
 {
-    return 1.5 * 1.327E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * 1.48E11 ) * 2.0 * mathematical_constants::PI /
+    return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 * mathematical_constants::PI /
             ( physical_constants::JULIAN_YEAR ) * std::sqrt( 1.0 - 0.0167 * 0.0167 );
 }
 
@@ -177,14 +179,14 @@ void testSchwarzschildPropagation(
 void testDeSitterPropagation(
         Eigen::Vector6d asterixInitialStateInKeplerianElements,
         std::vector< std::map< double, double > > elementMaps,
-        double earthGravitationalParameter )
+        double meanDistanceEarthToSun )
 {
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
     {
         std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
                     elementMaps[ elementIndex ], polynomialPowers );
-        if( elementIndex != 1 )
+        if( elementIndex != 4 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-10 );
         }
@@ -198,7 +200,7 @@ void testDeSitterPropagation(
         }
         else if( elementIndex == 4 )
         {
-           BOOST_CHECK_CLOSE_FRACTION( fitOutput.at( 1 ), computeDeSitterPericenterPrecession( ), 5.0E-2 );
+           BOOST_CHECK_CLOSE_FRACTION( fitOutput.at( 1 ), computeDeSitterPericenterPrecession( meanDistanceEarthToSun ), 2.5E-2 );
         }
         else
         {
@@ -325,6 +327,9 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         Eigen::Vector6d currentCartesianState;
         std::vector< std::map< double, double > > elementMaps;
         elementMaps.resize( 6 );
+
+        std::vector< double > solarDistances;
+
         for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
              stateIterator != integrationResult.end( ); stateIterator++ )
         {
@@ -336,6 +341,13 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
             for( unsigned elementIndex = 0; elementIndex < 6; elementIndex++ )
             {
                 elementMaps[ elementIndex ][ stateIterator->first ] = keplerianIntegrationResult[ stateIterator->first ]( elementIndex );
+            }
+
+            if( testCase == 3 )
+            {
+                solarDistances.push_back(
+                           spice_interface:: getBodyCartesianPositionAtEpoch(
+                                "Earth", "Sun", "ECLIPJ2000", "None", stateIterator->first ).norm( ) );
             }
         }
 
@@ -353,7 +365,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         }
         else if( testCase == 3 )
         {
-            testDeSitterPropagation( asterixInitialStateInKeplerianElements, elementMaps, earthGravitationalParameter );
+            testDeSitterPropagation( asterixInitialStateInKeplerianElements, elementMaps, statistics::computeSampleMean( solarDistances ) );
         }
     }
 }
