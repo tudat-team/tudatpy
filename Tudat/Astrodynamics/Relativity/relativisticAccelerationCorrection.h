@@ -71,6 +71,7 @@ public:
             boost::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody,
             boost::function< double( ) > gravitationalParameterFunctionOfCentralBody,
             boost::function< double( ) > gravitationalParameterFunctionOfPrimaryBody,
+            std::string primaryBodyName,
             boost::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction = boost::function< Eigen::Vector3d( ) >( ),
             boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
             boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
@@ -80,6 +81,7 @@ public:
         stateFunctionOfPrimaryBody_( stateFunctionOfPrimaryBody ),
         gravitationalParameterFunctionOfCentralBody_( gravitationalParameterFunctionOfCentralBody ),
         gravitationalParameterFunctionOfPrimaryBody_( gravitationalParameterFunctionOfPrimaryBody ),
+        primaryBodyName_( primaryBodyName ),
         centalBodyAngularMomentumFunction_( centalBodyAngularMomentumFunction ),
         ppnParameterGammaFunction_( ppnParameterGammaFunction ),
         ppnParameterBetaFunction_( ppnParameterBetaFunction ),
@@ -157,6 +159,9 @@ public:
     bool getCalculateLenseThirringCorrection( )
     { return calculateLenseThirringCorrection_; }
 
+    std::string getPrimaryBodyName( )
+    { return primaryBodyName_; }
+
 private:
 
     boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody_;
@@ -165,6 +170,8 @@ private:
 
     boost::function< double( ) > gravitationalParameterFunctionOfCentralBody_;
     boost::function< double( ) > gravitationalParameterFunctionOfPrimaryBody_;
+
+    std::string primaryBodyName_;
 
     boost::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction_;
 
@@ -192,6 +199,7 @@ private:
     bool calculateLenseThirringCorrection_;
 
     Eigen::Vector3d currentAcceleration_;
+
 };
 
 }

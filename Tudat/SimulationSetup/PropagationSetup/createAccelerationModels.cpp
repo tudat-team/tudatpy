@@ -839,15 +839,14 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
                                               " found when making de Sitter acceleration correction" );
                 }
                 stateFunctionOfPrimaryBody =
-                        boost::bind( &Body::getState, bodyMap.at( nameOfBodyExertingAcceleration ) );
+                        boost::bind( &Body::getState, bodyMap.at( relativisticAccelerationSettings->primaryBody_ ) );
 
                 if(  bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) == NULL )
                 {
                     throw std::runtime_error( "Error, primary body " + relativisticAccelerationSettings->primaryBody_ +
                                               " has no gravity field when making de Sitter acceleration correction" );
                 }
-                stateFunctionOfPrimaryBody =
-                        boost::bind( &Body::getState, bodyMap.at( nameOfBodyExertingAcceleration ) );
+
                 primaryBodyGravitationalParameterFunction =
                         boost::bind( &GravityFieldModel::getGravitationalParameter,
                                      bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) );
@@ -872,6 +871,7 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
                           stateFunctionOfPrimaryBody,
                           centralBodyGravitationalParameterFunction,
                           primaryBodyGravitationalParameterFunction,
+                          relativisticAccelerationSettings->primaryBody_,
                           angularMomentumFunction,
                           boost::lambda::constant( 1.0 ),
                           boost::lambda::constant( 1.0 ),

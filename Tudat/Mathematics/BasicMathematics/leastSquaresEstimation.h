@@ -143,7 +143,20 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8  );
 
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const bool checkConditionNumber = 1,
+        const double maximumAllowedConditionNumber = 1.0E8 );
 
+Eigen::VectorXd getLeastSquaresPolynomialFit(
+        const Eigen::VectorXd& independentValues,
+        const Eigen::VectorXd& dependentValues,
+        const std::vector< double >& polynomialPowers );
+
+std::vector< double > getLeastSquaresPolynomialFit(
+        const std::map< double, double >& independentDependentValueMap,
+        const std::vector< double >& polynomialPowers );
 
 } // namespace linear_algebra
 

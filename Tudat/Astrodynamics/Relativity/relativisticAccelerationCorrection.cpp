@@ -114,7 +114,9 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
         this->currentTime_ = currentTime;
 
         stateOfAcceleratedBodyWrtCentralBody_ = stateFunctionOfAcceleratedBody_( ) - stateFunctionOfCentralBody_( );
+        stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
         gravitationalParameterOfCentralBody_ = gravitationalParameterFunctionOfCentralBody_( );
+        gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
 
         ppnParameterGamma_ = ppnParameterGammaFunction_( );
         ppnParameterBeta_ = ppnParameterBetaFunction_( );
@@ -150,15 +152,14 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
 
         if( calculateDeSitterCorrection_ )
         {
-            double radiusRatio = stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( ) /
-                    stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ).norm( );
+            double primaryDistance = stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ).norm( );
 
             stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
             gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
 
-            largerBodyCommonCorrectionTerm_ = commonCorrectionTerm_ *
-                    gravitationalParameterOfCentralBody_ / gravitationalParameterOfPrimaryBody_ *
-                    radiusRatio * radiusRatio * radiusRatio;
+            largerBodyCommonCorrectionTerm_ =  gravitationalParameterOfPrimaryBody_ / (
+                    primaryDistance * primaryDistance * primaryDistance *
+                        physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
 
             currentAcceleration_ += calculateDeSitterCorrectionAcceleration(
                         stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
@@ -166,6 +167,12 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
                         stateOfCentralBodyWrtPrimaryBody_.segment( 3, 3 ),
                         largerBodyCommonCorrectionTerm_,
                         ppnParameterGamma_ );
+//            std::cout<<stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ).transpose( )<<" "<<
+//                       stateOfCentralBodyWrtPrimaryBody_.transpose( )<<" "<<largerBodyCommonCorrectionTerm_<<" "<<
+//                       ppnParameterGamma_<<" "<<gravitationalParameterOfPrimaryBody_<<" "<<primaryDistance<<" "<<(
+//                           primaryDistance * primaryDistance * primaryDistance *
+//                               physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT )<<std::endl;
+//            std::cout<<currentAcceleration_.transpose( )<<std::endl<<std::endl;
         }
 
 
