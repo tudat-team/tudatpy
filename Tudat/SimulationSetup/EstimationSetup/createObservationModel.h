@@ -40,8 +40,7 @@ namespace observation_models
  *  interface. This class has template specializations for each value of ObservationSize, and contains a single
  *  createObservationModel function that performs the required operation.
  */
-template< int ObservationSize = 1, typename ObservationScalarType = double,
-          typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationModelCreator
 {
 public:
@@ -57,7 +56,7 @@ public:
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
-    ObservationSize, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    ObservationSize, ObservationScalarType, TimeType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -67,8 +66,8 @@ public:
 };
 
 //! Interface class for creating observation models of size 1.
-template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
-class ObservationModelCreator< 1, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationModelCreator< 1, ObservationScalarType, TimeType >
 {
 public:
 
@@ -83,7 +82,7 @@ public:
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
-    1, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    1, ObservationScalarType, TimeType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -94,7 +93,7 @@ public:
         using namespace observation_models;
 
         boost::shared_ptr< observation_models::ObservationModel<
-                1, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+                1, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )
@@ -120,8 +119,8 @@ public:
 
             // Create observation model
             observationModel = boost::make_shared< OneWayRangeObservationModel<
-                    ObservationScalarType, TimeType, StateScalarType > >(
-                        createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
+                    ObservationScalarType, TimeType > >(
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
                         linkEnds.at( transmitter ), linkEnds.at( receiver ),
                         bodyMap, singleObservableCorrections ), observationBiasCalculator );
 
@@ -137,8 +136,8 @@ public:
 };
 
 //! Interface class for creating observation models of size 2.
-template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
-class ObservationModelCreator< 2, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationModelCreator< 2, ObservationScalarType, TimeType >
 {
 public:
 
@@ -153,7 +152,7 @@ public:
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
-    2, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    2, ObservationScalarType, TimeType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -163,7 +162,7 @@ public:
     {
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel<
-                2, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+                2, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )
@@ -189,8 +188,8 @@ public:
 
             // Create observation model
             observationModel = boost::make_shared< AngularPositionObservationModel<
-                    ObservationScalarType, TimeType, StateScalarType > >(
-                        createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
+                    ObservationScalarType, TimeType > >(
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
                             bodyMap, singleObservableCorrections ), observationBiasCalculator );
 
@@ -208,8 +207,8 @@ public:
 };
 
 //! Interface class for creating observation models of size 3.
-template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
-class ObservationModelCreator< 3, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationModelCreator< 3, ObservationScalarType, TimeType >
 {
 public:
 
@@ -224,7 +223,7 @@ public:
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
-    3, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    3, ObservationScalarType, TimeType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -234,7 +233,7 @@ public:
     {
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel<
-                3, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+                3, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )
@@ -266,9 +265,9 @@ public:
 
             // Create observation model
             observationModel = boost::make_shared< PositionObservationModel<
-                    ObservationScalarType, TimeType, StateScalarType > >(
+                    ObservationScalarType, TimeType > >(
                         boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
-                                     StateScalarType, TimeType >,
+                                     ObservationScalarType, TimeType >,
                                      bodyMap.at( linkEnds.at( observed_body ).first ), _1 ), observationBiasCalculator );
 
             break;

@@ -41,7 +41,7 @@ namespace propagators
  *  instance of the class. Derived classes define the specific kind of integration that is performed
  *  (single-arc/multi-arc; dynamics/variational equations, etc.)
  */
-template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 class VariationalEquationsSolver
 {
 public:
@@ -68,7 +68,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings=
             boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = 1 ):
@@ -110,7 +110,7 @@ public:
      *  Function to get the list of objects representing the parameters that are to be integrated.
      *  \return List of objects representing the parameters that are to be integrated.
      */
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > getParametersToEstimate( )
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > getParametersToEstimate( )
     {
         return parametersToEstimate_;
     }
@@ -124,17 +124,17 @@ public:
      *  \param areVariationalEquationsToBeIntegrated Boolean defining whether the variational equations are to be
      *  reintegrated with the new parameter values.
      */
-    void resetParameterEstimate( const Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > newParameterEstimate,
+    void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
 
     {
         // Reset values of parameters.
-        parametersToEstimate_->template resetParameterValues< ParameterType >( newParameterEstimate );
+        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
         propagatorSettings_->resetInitialStates(
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
 
         dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
-                    propagatorSettings_->getInitialStates( ), 0 );
+                    propagatorSettings_->getInitialStates( ) );
 
         // Check if re-integration of variational equations is requested
         if( areVariationalEquationsToBeIntegrated )
@@ -205,7 +205,7 @@ protected:
     }
 
     //! Object containing all parameters that are to be estimated and their current  settings and values.
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate_ ;
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_ ;
 
     //! Map of bodies (with names) of all bodies in integration.
     simulation_setup::NamedBodyMap bodyMap_;
@@ -320,10 +320,10 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
  *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
  *  settings and values.
  */
-template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 bool checkPropagatorSettingsAndParameterEstimationConsistency(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate )
 {
     bool isInputConsistent = 1;
 
@@ -380,8 +380,8 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
  *  pieces. In this class, the governing equations are set once, but can be re-integrated for
  *  different initial conditions using the same instance of the class.
  */
-template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-class SingleArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >
+template< typename StateScalarType = double, typename TimeType = double >
+class SingleArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
 {
 public:
 
@@ -390,15 +390,15 @@ public:
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
 
     //! Base class using statements
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::parametersToEstimate_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::bodyMap_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::dynamicsStateDerivative_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::propagatorSettings_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::integratorSettings_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::stateTransitionMatrixSize_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::parameterVectorSize_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::variationalOnlyIntegratorSettings_;
-    using VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >::stateTransitionInterface_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::dynamicsStateDerivative_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::propagatorSettings_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::integratorSettings_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::variationalOnlyIntegratorSettings_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
 
     //! Constructor
     /*!
@@ -423,18 +423,18 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
             = boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = 1,
             const bool integrateEquationsOnCreation = 1 ):
-        VariationalEquationsSolver< StateScalarType, TimeType, ParameterType >(
+        VariationalEquationsSolver< StateScalarType, TimeType >(
             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
             variationalOnlyIntegratorSettings, clearNumericalSolution )
     {
         // Check input consistency
-        if( !checkPropagatorSettingsAndParameterEstimationConsistency< StateScalarType, TimeType, ParameterType >(
+        if( !checkPropagatorSettingsAndParameterEstimationConsistency< StateScalarType, TimeType >(
                     propagatorSettings, parametersToEstimate ) )
         {
             throw std::runtime_error(
@@ -451,7 +451,7 @@ public:
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
                     stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials
-                    < StateScalarType, TimeType, ParameterType >(
+                    < StateScalarType, TimeType >(
                         dynamicsStateDerivative_->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
 
             // Create variational equations objects.
@@ -558,7 +558,7 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( boost::assign::list_of( transational_state ), 0, 1 );
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
-            std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
+            std::map< double, Eigen::VectorXd > dependentVariableHistory;
 
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,

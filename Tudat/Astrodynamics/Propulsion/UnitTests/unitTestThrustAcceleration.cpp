@@ -43,11 +43,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
-//! In this test, the thrust acceleration is tested for a constant thrust force. A trajectory with only the thrusta
-//! acceleration, as well as the associated mass, is  propagated and teh result is compared against Tsiolkovsky's
-//! equation, the assumptions for which are equal to the simulation settings here (no gravity, constant thrust force
-//! direction and magnitude).
-BOOST_AUTO_TEST_CASE( testConstantThrustForce )
+BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -173,6 +169,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustForce )
         }
     }
 }
+
 
 //! In this unit test, the thrust acceleration is tested for the case where the thrust force is taken from a (set of)
 //! engine objects stored in the VehicleSystems object. This is tested for a single engine (out of two), two engines, as

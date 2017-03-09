@@ -76,7 +76,7 @@ boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, Tim
 }
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType, ParameterType > >
+boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createSingleArcVariationalEquationsSolver(
                     const simulation_setup::NamedBodyMap& bodyMap,
                     const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -88,7 +88,7 @@ createSingleArcVariationalEquationsSolver(
                     const bool clearNumericalSolution = 1,
                     const bool integrateEquationsOnCreation = 1 )
 {
-    return boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType, ParameterType > >(
+    return boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                 integrateDynamicalAndVariationalEquationsConcurrently, variationalOnlyIntegratorSettings,
                 clearNumericalSolution, integrateEquationsOnCreation );
