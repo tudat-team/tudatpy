@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
             boost::make_shared< ConstantObservationBias< 3 > >(
                 ( Eigen::Vector3d( ) << 543.2454, -34.244, 3431.24345 ).finished( ) );
 
-    boost::shared_ptr< ObservationModel< 3, double, double, double > > observationModel =
-           ObservationModelCreator< 3, double, double, double >::createObservationModel(
+    boost::shared_ptr< ObservationModel< 3, double, double > > observationModel =
+           ObservationModelCreator< 3, double, double >::createObservationModel(
                 position_observable, linkEnds, bodyMap,
                 std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), observationBias );
 

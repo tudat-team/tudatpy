@@ -486,6 +486,7 @@ private:
     //! List of current input data to specific impulse function.
     std::vector< double > currentSpecificImpulseInputVariables_;
 
+
     //! Function that is called to update the user-defined guidance to the current time
     const boost::function< void( const double) > inputUpdateFunction_;
 
@@ -494,6 +495,7 @@ private:
 
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
+
 };
 
 } // namespace propulsion

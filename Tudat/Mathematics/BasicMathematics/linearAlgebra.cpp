@@ -11,7 +11,10 @@
 
 #include <cmath>
 
+#include <Eigen/LU>
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
@@ -91,12 +94,18 @@ double getVectorNorm( const Eigen::Vector3d& vector )
     return vector.norm( );
 }
 
+Eigen::Vector3d evaluateSecondBlockInStateVector(
+        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const double time )
+{
+    return stateFunction( time ).segment( 3, 3 );
+}
+
 //! Computes the norm of a 3d vector from a vector-returning function.
 double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction )
 {
     return getVectorNorm( vectorFunction( ) );
 }
-
 
 
 } // namespace linear_algebra
