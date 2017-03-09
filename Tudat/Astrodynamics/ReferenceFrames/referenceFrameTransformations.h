@@ -482,6 +482,35 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude );
 
+static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( )<<
+          0.0, 0.0, 0.0,
+          0.0, 0.0, 1.0,
+          0.0, -1.0, 0.0 ).finished( );
+
+static const Eigen::Matrix3d Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( )<<
+          0.0, 0.0, -1.0,
+          0.0, 0.0, 0.0,
+          1.0, 0.0, 0.0 ).finished( );
+
+static const Eigen::Matrix3d Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( )<<
+          0.0, 1.0, 0.0,
+          -1.0, 0.0, 0.0,
+          0.0, 0.0, 0.0 ).finished( );
+
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle );
+
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
+
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const double angle );
+
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
+
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle );
+
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
 
 } // namespace reference_frames
 

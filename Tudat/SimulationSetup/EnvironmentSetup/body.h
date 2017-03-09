@@ -35,6 +35,8 @@
 #include <Tudat/Basics/basicTypedefs.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/SystemModels/vehicleSystems.h>
+#include <Tudat/Mathematics/BasicMathematics/numericalDerivative.h>
+
 
 namespace tudat
 {
@@ -1066,6 +1068,17 @@ private:
 };
 
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+
+template< typename StateScalarType = double, typename TimeType = double >
+Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(
+        const boost::shared_ptr< Body > bodyWithAcceleration,
+        const TimeType nominalEvalutationTime )
+{
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1  >( const TimeType ) > bodyStateFunction =
+            boost::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, _1 );
+    return numerical_derivatives::computeCentralDifference(
+                bodyStateFunction, nominalEvalutationTime, 100.0, numerical_derivatives::order8 ).segment( 3, 3 );
+}
 
 } // namespace simulation_setup
 

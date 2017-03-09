@@ -190,8 +190,8 @@ executeEarthMoonSimulation(
 
     {
         // Create dynamics simulator
-        SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double > dynamicsSimulator =
-                SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double >(
+        SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
+                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
 
