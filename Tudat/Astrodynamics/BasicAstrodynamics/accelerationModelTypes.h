@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
 #include "Tudat/Astrodynamics/Propulsion/massRateFromThrust.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 
 
 namespace tudat
@@ -46,7 +47,8 @@ enum AvailableAcceleration
     third_body_central_gravity,
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
-    thrust_acceleration
+    thrust_acceleration,
+    relativistic_correction_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type

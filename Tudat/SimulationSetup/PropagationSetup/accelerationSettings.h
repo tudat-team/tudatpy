@@ -137,6 +137,35 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
+class RelativisticAccelerationCorrectionSettings: public AccelerationSettings
+{
+public:
+    RelativisticAccelerationCorrectionSettings(
+            const bool calculateSchwarzschildCorrection = true,
+            const bool calculateLenseThirringCorrection = false,
+            const bool calculateDeSitterCorrection = false,
+            const std::string primaryBody = "" ):
+        AccelerationSettings(  basic_astrodynamics::relativistic_correction_acceleration ),
+        calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
+        calculateLenseThirringCorrection_( calculateLenseThirringCorrection ),
+        calculateDeSitterCorrection_( calculateDeSitterCorrection ),
+        primaryBody_( primaryBody )
+    {
+        if( calculateDeSitterCorrection_ && primaryBody_ == "" )
+        {
+            throw std::runtime_error( "Error when making relativistic acceleration correction, deSitter acceleration requested without primary body" );
+        }
+    }
+
+    bool calculateSchwarzschildCorrection_;
+
+    bool calculateLenseThirringCorrection_;
+
+    bool calculateDeSitterCorrection_;
+
+    std::string primaryBody_;
+};
+
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
 //! thrust implementation)
 class FullThrustInterpolationInterface

@@ -318,6 +318,14 @@ createThrustAcceleratioModel(
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
 
+boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap );
+
 //! Function to create acceleration model object.
 /*!
  *  Function to create acceleration model object.
