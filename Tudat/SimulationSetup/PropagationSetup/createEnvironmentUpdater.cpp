@@ -294,6 +294,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
                     break;
                 }
+                case relativistic_correction_acceleration:
+                {
+                    std::cerr<<"Error, relativistic acceleration updates not yet implemented"<<std::endl;
+                    break;
+                }
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               boost::lexical_cast< std::string >( currentAccelerationModelType ) );
