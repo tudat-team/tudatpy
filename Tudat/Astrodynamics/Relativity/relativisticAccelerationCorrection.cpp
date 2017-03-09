@@ -114,9 +114,8 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
         this->currentTime_ = currentTime;
 
         stateOfAcceleratedBodyWrtCentralBody_ = stateFunctionOfAcceleratedBody_( ) - stateFunctionOfCentralBody_( );
-        stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
+
         gravitationalParameterOfCentralBody_ = gravitationalParameterFunctionOfCentralBody_( );
-        gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
 
         ppnParameterGamma_ = ppnParameterGammaFunction_( );
         ppnParameterBeta_ = ppnParameterBetaFunction_( );
@@ -148,10 +147,14 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
                         stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
                         relativeDistance, commonCorrectionTerm_, centalBodyAngularMomentum_,
                         ppnParameterGamma_ );
+
         }
 
         if( calculateDeSitterCorrection_ )
         {
+            stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
+            gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
+
             double primaryDistance = stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ).norm( );
 
             stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
@@ -167,12 +170,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
                         stateOfCentralBodyWrtPrimaryBody_.segment( 3, 3 ),
                         largerBodyCommonCorrectionTerm_,
                         ppnParameterGamma_ );
-//            std::cout<<stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ).transpose( )<<" "<<
-//                       stateOfCentralBodyWrtPrimaryBody_.transpose( )<<" "<<largerBodyCommonCorrectionTerm_<<" "<<
-//                       ppnParameterGamma_<<" "<<gravitationalParameterOfPrimaryBody_<<" "<<primaryDistance<<" "<<(
-//                           primaryDistance * primaryDistance * primaryDistance *
-//                               physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT )<<std::endl;
-//            std::cout<<currentAcceleration_.transpose( )<<std::endl<<std::endl;
+
         }
 
 
