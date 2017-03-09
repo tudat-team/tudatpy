@@ -11,7 +11,10 @@
 
 #include <cmath>
 
+#include <Eigen/LU>
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
@@ -96,7 +99,6 @@ double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > ve
 {
     return getVectorNorm( vectorFunction( ) );
 }
-
 
 
 } // namespace linear_algebra

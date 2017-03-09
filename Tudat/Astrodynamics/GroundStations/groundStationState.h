@@ -56,6 +56,22 @@ public:
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+     //! Function to obtain the Cartesian position of the ground station in the local frame at a given time.
+     /*!
+      *  Function to obtain the Cartesian position of the ground station in the local frame (body-fixed, not topocentric) at a
+      *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
+      *  poisition variations are as yet not included.
+      *  \param secondsSinceEpoch Secons since reference epoch at which the position is to be retrieved.
+      *  \param inputReferenceEpoch Reference epoch julian day
+      *  \return Cartesian position of station in local frame at requested time.
+      */
+     Eigen::Vector3d getCartesianPositionInTime(
+            const double secondsSinceEpoch,
+            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+     {
+         return getCartesianStateInTime( secondsSinceEpoch, inputReferenceEpoch ).segment( 0, 3 );
+     }
+
     //! Function to return the nominal (unperturbed) Cartesian position of the station
     /*!
      *  Function to return the nominal Cartesian (unperturbed, i.e. not including linear drift, eccentricity,

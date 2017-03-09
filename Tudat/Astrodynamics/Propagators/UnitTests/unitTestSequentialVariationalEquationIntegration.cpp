@@ -152,16 +152,16 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Perform requested propagation
-    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double, double > > variationalEquationSolver;
+    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double> > variationalEquationSolver;
     if( !performIntegrationsSequentially )
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate );
     }
     else
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
                     integratorSettings );

@@ -249,7 +249,7 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
             // Print warning if there are no engines (zero thrust)
             if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
-                std::cerr<<"Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust"<<std::endl;
+                std::cerr<<"Warning, when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust"<<std::endl;
             }
 
             // Retrieve force directions/magnitudes
@@ -376,7 +376,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         {
             if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
-                std::cerr<<"Error when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust"<<std::endl;
+                std::cerr<<"Warning, when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust"<<std::endl;
             }
             thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
                         utilities::createVectorFromMapValues< boost::shared_ptr< system_models::EngineModel >, std::string >(

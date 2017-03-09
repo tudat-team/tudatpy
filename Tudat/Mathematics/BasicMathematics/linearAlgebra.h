@@ -12,9 +12,12 @@
 #ifndef TUDAT_LINEAR_ALGEBRA_H
 #define TUDAT_LINEAR_ALGEBRA_H
 
+#include <map>
+
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/SVD>
 
 namespace tudat
 {
@@ -112,6 +115,10 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
 
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 );
+
+
+
+
 } // namespace linear_algebra
 
 } // namespace tudat
