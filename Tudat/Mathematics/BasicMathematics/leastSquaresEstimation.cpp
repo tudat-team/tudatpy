@@ -14,6 +14,7 @@
 
 #include <Eigen/LU>
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
 
 namespace tudat
@@ -122,6 +123,54 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
                 informationMatrix, observationResiduals, diagonalOfWeightMatrix,
                 Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ),
                 checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber )
+{
+    return performLeastSquaresAdjustmentFromInformationMatrix(
+                informationMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
+                checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+Eigen::VectorXd getLeastSquaresPolynomialFit(
+        const Eigen::VectorXd& independentValues,
+        const Eigen::VectorXd& dependentValues,
+        const std::vector< double >& polynomialPowers )
+{
+    if( independentValues.rows( ) != dependentValues.rows( ) )
+    {
+        std::cerr<<"Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal"<<std::endl;
+    }
+
+    Eigen::MatrixXd partialMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
+
+    for( unsigned int i = 0; i < independentValues.rows( ); i++ )
+    {
+        for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
+        {
+            partialMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
+        }
+    }
+
+    return performLeastSquaresAdjustmentFromInformationMatrix( partialMatrix, dependentValues ).first;
+}
+
+
+std::vector< double > getLeastSquaresPolynomialFit(
+        const std::map< double, double >& independentDependentValueMap,
+        const std::vector< double >& polynomialPowers )
+{
+    return utilities::convertEigenVectorToStlVector(
+                getLeastSquaresPolynomialFit(
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapKeys( independentDependentValueMap ) ),
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapValues( independentDependentValueMap ) ), polynomialPowers ) );
+
 }
 
 } // namespace linear_algebra

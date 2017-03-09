@@ -296,7 +296,18 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 }
                 case relativistic_correction_acceleration:
                 {
-                    std::cerr<<"Error, relativistic acceleration updates not yet implemented"<<std::endl;
+                    boost::shared_ptr< relativity::RelativisticAccelerationCorrection >
+                            accelerationCorrection = boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                                accelerationModelIterator->second.at( i ) );
+                    if( accelerationCorrection->getCalculateDeSitterCorrection( ) )
+                    {
+                        std::string primaryBody = accelerationCorrection->getPrimaryBodyName( );
+                        if( translationalAccelerationModels.count(primaryBody ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        primaryBody );
+                        }
+                    }
                     break;
                 }
                 default:
