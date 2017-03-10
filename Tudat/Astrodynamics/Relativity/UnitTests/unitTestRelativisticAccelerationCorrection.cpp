@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    for( unsigned int testCase = 3; testCase < 4; testCase++ )
+    for( unsigned int testCase = 0; testCase < 4; testCase++ )
     {
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         if( testCase == 1 )
         {
             accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< RelativisticAccelerationCorrectionSettings >(
-                                                             false, true, false ) );
+                                                             false, true, false, "", 1.0E9 * Eigen::Vector3d::UnitZ( ) ) );
         }
         if( testCase == 2 )
         {

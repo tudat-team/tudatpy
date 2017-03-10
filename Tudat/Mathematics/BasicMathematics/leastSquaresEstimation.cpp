@@ -89,8 +89,9 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix )
 {
-    return calculateInverseOfUpdatedCovarianceMatrix( informationMatrix, diagonalOfWeightMatrix,
-                                                      Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
+    return calculateInverseOfUpdatedCovarianceMatrix(
+                informationMatrix, diagonalOfWeightMatrix,
+                Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
@@ -108,7 +109,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
     return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide,
-                                                          checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
+                                                          checkConditionNumber, maximumAllowedConditionNumber ),
+                           inverseOfCovarianceMatrix );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals
@@ -125,6 +127,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
                 checkConditionNumber, maximumAllowedConditionNumber );
 }
 
+//! Function to perform an iteration of least squares estimation from information matrix and residuals
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
         const Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& observationResiduals,
@@ -136,6 +139,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
                 checkConditionNumber, maximumAllowedConditionNumber );
 }
 
+//! Function to fit a univariate polynomial through a set of data
 Eigen::VectorXd getLeastSquaresPolynomialFit(
         const Eigen::VectorXd& independentValues,
         const Eigen::VectorXd& dependentValues,
@@ -143,23 +147,24 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
 {
     if( independentValues.rows( ) != dependentValues.rows( ) )
     {
-        std::cerr<<"Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal"<<std::endl;
+        throw std::runtime_error( "Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal" );
     }
 
-    Eigen::MatrixXd partialMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
+    Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
 
+    // Compute information matrix
     for( unsigned int i = 0; i < independentValues.rows( ); i++ )
     {
         for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
         {
-            partialMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
+            informationMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
         }
     }
 
-    return performLeastSquaresAdjustmentFromInformationMatrix( partialMatrix, dependentValues ).first;
+    return performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
 }
 
-
+//! Function to fit a univariate polynomial through a set of data
 std::vector< double > getLeastSquaresPolynomialFit(
         const std::map< double, double >& independentDependentValueMap,
         const std::vector< double >& polynomialPowers )

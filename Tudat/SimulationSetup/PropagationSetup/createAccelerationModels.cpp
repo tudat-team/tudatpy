@@ -769,7 +769,7 @@ createCannonballRadiationPressureAcceleratioModel(
 
 }
 
-
+//! Function to create an orbiter relativistic correction acceleration model
 boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -795,13 +795,12 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
     else
     {
 
-
+        // Retrieve function pointers for properties of bodies exerting/undergoing acceleration.
         boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingAcceleration =
                 boost::bind( &Body::getState, bodyExertingAcceleration );
         boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingAcceleration =
                 boost::bind( &Body::getState, bodyUndergoingAcceleration );
 
-        // Get pointer to gravity field of celestial body causing acceleration correction.
         boost::function< double( ) > centralBodyGravitationalParameterFunction;
         boost::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
         if( gravityField == NULL )
@@ -815,6 +814,7 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
                     boost::bind( &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
         }
 
+        // Create acceleration model if only schwarzschild term is to be used.
         if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == false &&
                 relativisticAccelerationSettings->calculateDeSitterCorrection_ == false )
         {
@@ -828,9 +828,9 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
         else
         {
 
+            // Retrieve parameters of primary body if de Sitter term is to be used.
             boost::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody;
             boost::function< double( ) > primaryBodyGravitationalParameterFunction;
-
             if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
             {
                 if(  bodyMap.count( relativisticAccelerationSettings->primaryBody_ ) == 0 )
@@ -854,17 +854,17 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
 
             }
 
-
+            // Retrieve angular momentum vector if Lense-Thirring
             boost::function< Eigen::Vector3d( ) > angularMomentumFunction;
-
             if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true  )
             {
-                angularMomentumFunction = boost::lambda::constant( 1.0E9 * Eigen::Vector3d::UnitZ( ) );
+                angularMomentumFunction = boost::lambda::constant(
+                            relativisticAccelerationSettings->centralBodyAngularMomentum_ );
             }
 
             if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
             {
-                // Create acceleration model.
+                // Create acceleration model with Lense-Thirring and de Sitter terms.
                 accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
                         ( stateFunctionOfBodyUndergoingAcceleration,
                           stateFunctionOfBodyExertingAcceleration,
@@ -879,7 +879,7 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
             }
             else
             {
-                // Create acceleration model.
+                // Create acceleration model with Lense-Thirring and term.
                 accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
                         ( stateFunctionOfBodyUndergoingAcceleration,
                           stateFunctionOfBodyExertingAcceleration,
