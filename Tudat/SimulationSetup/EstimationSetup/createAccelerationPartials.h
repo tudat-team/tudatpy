@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/radiationPressureAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/aerodynamicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -198,6 +199,36 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                 // Create partial-calculating object.
                 accelerationPartial = boost::make_shared< CannonBallRadiationPressurePartial >
                         ( radiationPressureInterface, radiationPressureAcceleration->getMassFunction( ),
+                          acceleratedBody.first, acceleratingBody.first );
+            }
+        }
+        break;
+    }
+    case aerodynamic:
+    {
+        // Check if identifier is consistent with type.
+        boost::shared_ptr< AerodynamicAcceleration > aerodynamicAcceleration =
+                boost::dynamic_pointer_cast< AerodynamicAcceleration >( accelerationModel );
+        if( aerodynamicAcceleration == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (aerodynamic) when making acceleration partial" );
+        }
+        else
+        {
+            boost::shared_ptr< FlightConditions > flightConditions =
+                    acceleratedBody.second->getFlightConditions( );
+
+            if( flightConditions == NULL )
+            {
+                throw std::runtime_error( "No flight conditions found when making acceleration partial." );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                accelerationPartial = boost::make_shared< AerodynamicAccelerationPartial >
+                        ( aerodynamicAcceleration, flightConditions,
+                          boost::bind( &Body::getState, acceleratedBody.second ),
+                          boost::bind( &Body::setState, acceleratedBody.second, _1 ),
                           acceleratedBody.first, acceleratingBody.first );
             }
         }
