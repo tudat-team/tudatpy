@@ -67,10 +67,11 @@ double computeSchwarzschildPericenterPrecession(
                   semiMajorAxis, 2.5 ) *( 1.0 - eccentricity * eccentricity ) );
 }
 
-double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun )
+double computeDeSitterPericenterPrecession( const double meanDistanceEarthToSun,
+                                            const double meanEccentricity )
 {
     return 1.5 * 1.327124E20 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT * meanDistanceEarthToSun ) * 2.0 * mathematical_constants::PI /
-            ( physical_constants::JULIAN_YEAR ) * std::sqrt( 1.0 - 0.0167 * 0.0167 );
+            ( physical_constants::JULIAN_YEAR ) * std::sqrt( 1.0 - meanEccentricity * meanEccentricity );
 }
 
 BOOST_AUTO_TEST_SUITE( test_relativistic_acceleration_corrections )
@@ -179,7 +180,8 @@ void testSchwarzschildPropagation(
 void testDeSitterPropagation(
         Eigen::Vector6d asterixInitialStateInKeplerianElements,
         std::vector< std::map< double, double > > elementMaps,
-        double meanDistanceEarthToSun )
+        double meanDistanceEarthToSun,
+        double meanEarthEccentricity )
 {
     std::vector< double > polynomialPowers = { 0, 1 };
     for( unsigned elementIndex = 0; elementIndex < 5; elementIndex++ )
@@ -193,14 +195,15 @@ void testDeSitterPropagation(
         else
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-8 );
-        }        std::cout<<fitOutput.at( 0 )<<" "<<fitOutput.at( 1 )<<std::endl;
+        }
         if( elementIndex == 1 )
         {
             BOOST_CHECK_SMALL( fitOutput.at( 1 ), 1.0E-18 );
         }
         else if( elementIndex == 4 )
         {
-           BOOST_CHECK_CLOSE_FRACTION( fitOutput.at( 1 ), computeDeSitterPericenterPrecession( meanDistanceEarthToSun ), 2.5E-2 );
+           BOOST_CHECK_CLOSE_FRACTION( fitOutput.at( 1 ), computeDeSitterPericenterPrecession(
+                                           meanDistanceEarthToSun, meanEarthEccentricity  ), 2.5E-2 );
         }
         else
         {
@@ -240,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    for( unsigned int testCase = 0; testCase < 4; testCase++ )
+    for( unsigned int testCase = 3; testCase < 4; testCase++ )
     {
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -329,6 +332,11 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         elementMaps.resize( 6 );
 
         std::vector< double > solarDistances;
+        std::vector< double > earthSemiMajorAxes;
+        std::vector< double > earthEccentricities;
+
+        Eigen::Vector6d earthKeplerianState;
+        Eigen::Vector6d earthCartesianState;
 
         for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integrationResult.begin( );
              stateIterator != integrationResult.end( ); stateIterator++ )
@@ -345,9 +353,15 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
 
             if( testCase == 3 )
             {
-                solarDistances.push_back(
-                           spice_interface:: getBodyCartesianPositionAtEpoch(
-                                "Earth", "Sun", "ECLIPJ2000", "None", stateIterator->first ).norm( ) );
+                earthCartesianState = spice_interface:: getBodyCartesianStateAtEpoch(
+                            "Earth", "Sun", "ECLIPJ2000", "None", stateIterator->first );
+                earthKeplerianState  = convertCartesianToKeplerianElements(
+                            earthCartesianState, spice_interface::getBodyGravitationalParameter( "Sun" ) );
+
+                earthSemiMajorAxes.push_back( earthKeplerianState( 0 ) );
+                earthEccentricities.push_back( earthKeplerianState( 1 ) );
+
+                solarDistances.push_back( earthCartesianState.segment( 0, 3 ).norm( ) );
             }
         }
 
@@ -365,7 +379,9 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         }
         else if( testCase == 3 )
         {
-            testDeSitterPropagation( asterixInitialStateInKeplerianElements, elementMaps, statistics::computeSampleMean( solarDistances ) );
+            testDeSitterPropagation(
+                        asterixInitialStateInKeplerianElements, elementMaps, statistics::computeSampleMean( solarDistances ),
+                        statistics::computeSampleMean( earthEccentricities ) );
         }
     }
 }
