@@ -122,9 +122,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8  );
 
-//! Function to perform an iteration least squares estimation from information matrix, weights and residuals
+//! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
- * Function to perform an iteration least squares estimation from information matrix, weights and residuals, as is
+ * Function to perform an iteration of least squares estimation from information matrix, weights and residuals, as is
  * typically done in orbit determination
  * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
@@ -143,17 +143,51 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8  );
 
+//! Function to perform an iteration of least squares estimation from information matrix and residuals
+/*!
+ * Function to perform an iteration of least squares estimation from information matrix and residuals, with all weights
+ * fixed to 1.0.
+ * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
+ * (columns)
+ * \param observationResiduals Difference between measured and simulated observations
+ * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
+ * when value exceeds maximumAllowedConditionNumber)
+ * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * (warning printed when exceeded)
+ * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
+ */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
         const Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& observationResiduals,
         const bool checkConditionNumber = 1,
         const double maximumAllowedConditionNumber = 1.0E8 );
 
+//! Function to fit a univariate polynomial through a set of data
+/*!
+ *  Function to fit a univariate polynomial through a set of data. User must provide independent variables and observations
+ *  (dependent variables), as well as a list of polynomial powers for which the coefficients are to be estimated.
+ *  \param independentValues Independent variables of input data (e.g. time for observations as a function fo time). This
+ *  variable becomes the polynomial argument.
+ *  \param dependentValues Observations through which the polynomial is to be fitted, with entries defined at the
+ *  corresponding entries of independentValues
+ *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
+ *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
+ */
 Eigen::VectorXd getLeastSquaresPolynomialFit(
         const Eigen::VectorXd& independentValues,
         const Eigen::VectorXd& dependentValues,
         const std::vector< double >& polynomialPowers );
 
+//! Function to fit a univariate polynomial through a set of data
+/*!
+ *  Function to fit a univariate polynomial through a set of data. User must provide independent variables and observations
+ *  (dependent variables), as well as a list of polynomial powers for which the coefficients are to be estimated.
+ *  \param independentDependentValueMap Map with key: independent variables of input data (e.g. time for observations as a
+ *  function fo time), this variable becomes the polynomial argument. Map value: Observations through which the polynomial
+ *  is to be fitted.
+ *  \param polynomialPowers List of powers of indepent variables for which coefficients are to be estimated.
+ *  \return Coefficients of the polynomial powers, as estimated from the input data (in same order as polynomialPowers).
+ */
 std::vector< double > getLeastSquaresPolynomialFit(
         const std::map< double, double >& independentDependentValueMap,
         const std::vector< double >& polynomialPowers );

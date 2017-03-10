@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 #define TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 
@@ -135,6 +145,12 @@ Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
         Eigen::Vector6d orbitedBodyStateWrtLargerBody,
         double ppnParameterGamma = 1.0 );
 
+//! Class to compute typical relativistic corrections to the dynamics of an orbiter.
+/*!
+ *  Class to compute typical relativistic corrections to the dynamics of an orbiter. The model allows the inclusion of the
+ *  Schwarzschild, Lense-Thirring and de Sitter terms (any one of them may be turned on and off). An excellent introduction to
+ *  these models is given in 'General Relativity and Space Geodesy' by L. Combrinck (2012).
+ */
 class RelativisticAccelerationCorrection: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
