@@ -11,6 +11,7 @@ namespace tudat
 namespace relativity
 {
 
+//! Function to compute a term common to several relativistic acceleration terms
 double calculateRelativisticAccelerationCorrectionsCommonterm(
         double centralBodyGravitationalParameter,
         double relativeDistance )
@@ -20,6 +21,7 @@ double calculateRelativisticAccelerationCorrectionsCommonterm(
               relativeDistance * relativeDistance * relativeDistance );
 }
 
+//! Function to compute the Schwarzschild term of the relativistic acceleration correction.
 Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
         double centralBodyGravitationalParameter,
         Eigen::Vector3d relativePosition,
@@ -36,6 +38,7 @@ Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
     return commonCorrectionTerm * acceleration;
 }
 
+//! Function to compute the Schwarzschild term of the relativistic acceleration correction.
 Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
         double centralBodyGravitationalParameter,
         Eigen::Vector6d relativeState,
@@ -50,6 +53,7 @@ Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
                 ppnParameterGamma, ppnParameterBeta );
 }
 
+//! Function to compute the Lense-Thirring term of the relativistic acceleration correction.
 Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
         Eigen::Vector3d relativePosition,
         Eigen::Vector3d relativeVelocity,
@@ -66,6 +70,7 @@ Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
     return acceleration * ( 1.0 + ppnParameterGamma ) * commonCorrectionTerm;
 }
 
+//! Function to compute the Lense-Thirring term of the relativistic acceleration correction.
 Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
         double centralBodyGravitationalParameter,
         Eigen::Vector6d relativeState,
@@ -80,6 +85,7 @@ Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
 
 }
 
+//! Function to compute the de Sitter term of the relativistic acceleration correction.
 Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
         Eigen::Vector3d orbiterRelativeVelocity,
         Eigen::Vector3d orbitedBodyPositionWrtLargerBody,
@@ -91,6 +97,7 @@ Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
             ( orbitedBodyVelocityWrtLargerBody.cross( orbitedBodyPositionWrtLargerBody ) ).cross( orbiterRelativeVelocity );
 }
 
+//! Function to compute the de Sitter term of the relativistic acceleration correction.
 Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
         double largerBodyGravitationalParameter,
         Eigen::Vector6d orbiterRelativeState,
@@ -107,14 +114,15 @@ Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
                 ppnParameterGamma );
 }
 
+//! Update member variables used by the relativistic correction acceleration model.
 void RelativisticAccelerationCorrection::updateMembers( const double currentTime )
 {
     if( !( this->currentTime_ == currentTime ) )
     {
         this->currentTime_ = currentTime;
 
+        // Update common variables
         stateOfAcceleratedBodyWrtCentralBody_ = stateFunctionOfAcceleratedBody_( ) - stateFunctionOfCentralBody_( );
-
         gravitationalParameterOfCentralBody_ = gravitationalParameterFunctionOfCentralBody_( );
 
         ppnParameterGamma_ = ppnParameterGammaFunction_( );
@@ -128,6 +136,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
 
         double relativeDistance = stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( );
 
+        // Compute Schwarzschild term (if requested)
         if( calculateSchwarzschildCorrection_ )
         {
             currentAcceleration_ = calculateScharzschildGravitationalAccelerationCorrection(
@@ -138,7 +147,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
                         ppnParameterBeta_ );
         }
 
-
+        // Compute Lense-Thirring term (if requested)
         if( calculateLenseThirringCorrection_ )
         {
             centalBodyAngularMomentum_ = centalBodyAngularMomentumFunction_( );
@@ -150,6 +159,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
 
         }
 
+        // Compute de Sitter term (if requested)
         if( calculateDeSitterCorrection_ )
         {
             stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
@@ -160,7 +170,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
             stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
             gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
 
-            largerBodyCommonCorrectionTerm_ =  gravitationalParameterOfPrimaryBody_ / (
+            double largerBodyCommonCorrectionTerm =  gravitationalParameterOfPrimaryBody_ / (
                     primaryDistance * primaryDistance * primaryDistance *
                         physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
 
@@ -168,7 +178,7 @@ void RelativisticAccelerationCorrection::updateMembers( const double currentTime
                         stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
                         stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ),
                         stateOfCentralBodyWrtPrimaryBody_.segment( 3, 3 ),
-                        largerBodyCommonCorrectionTerm_,
+                        largerBodyCommonCorrectionTerm,
                         ppnParameterGamma_ );
 
         }
