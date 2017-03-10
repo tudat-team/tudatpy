@@ -294,6 +294,22 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
                     break;
                 }
+                case relativistic_correction_acceleration:
+                {
+                    boost::shared_ptr< relativity::RelativisticAccelerationCorrection >
+                            accelerationCorrection = boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                                accelerationModelIterator->second.at( i ) );
+                    if( accelerationCorrection->getCalculateDeSitterCorrection( ) )
+                    {
+                        std::string primaryBody = accelerationCorrection->getPrimaryBodyName( );
+                        if( translationalAccelerationModels.count(primaryBody ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        primaryBody );
+                        }
+                    }
+                    break;
+                }
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               boost::lexical_cast< std::string >( currentAccelerationModelType ) );

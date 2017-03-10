@@ -318,6 +318,28 @@ createThrustAcceleratioModel(
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
 
+//! Function to create an orbiter relativistic correction acceleration model
+/*!
+ *  Function to create an orbiter relativistic correction acceleration model (Schwarzschild, Lense-Thirring and/or
+ *  de Sitter terms).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration (e.g. Earth for an orbiter
+ *  around the Earth).
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \param bodyMap List of pointers to bodies that comprise the full environment.
+ *  \return Pointer to object for calculating relativistic correction acceleration.
+ */
+boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap );
+
 //! Function to create acceleration model object.
 /*!
  *  Function to create acceleration model object.
