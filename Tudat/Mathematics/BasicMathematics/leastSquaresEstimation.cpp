@@ -14,6 +14,7 @@
 
 #include <Eigen/LU>
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
 
 namespace tudat
@@ -88,8 +89,9 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::MatrixXd& informationMatrix,
         const Eigen::VectorXd& diagonalOfWeightMatrix )
 {
-    return calculateInverseOfUpdatedCovarianceMatrix( informationMatrix, diagonalOfWeightMatrix,
-                                                      Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
+    return calculateInverseOfUpdatedCovarianceMatrix(
+                informationMatrix, diagonalOfWeightMatrix,
+                Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ) );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals and a priori
@@ -107,7 +109,8 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
     return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide,
-                                                          checkConditionNumber, maximumAllowedConditionNumber ), inverseOfCovarianceMatrix );
+                                                          checkConditionNumber, maximumAllowedConditionNumber ),
+                           inverseOfCovarianceMatrix );
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals
@@ -122,6 +125,57 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
                 informationMatrix, observationResiduals, diagonalOfWeightMatrix,
                 Eigen::MatrixXd::Zero( informationMatrix.cols( ), informationMatrix.cols( ) ),
                 checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+//! Function to perform an iteration of least squares estimation from information matrix and residuals
+std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(
+        const Eigen::MatrixXd& informationMatrix,
+        const Eigen::VectorXd& observationResiduals,
+        const bool checkConditionNumber,
+        const double maximumAllowedConditionNumber )
+{
+    return performLeastSquaresAdjustmentFromInformationMatrix(
+                informationMatrix, observationResiduals, Eigen::VectorXd::Constant( observationResiduals.size( ), 1, 1.0 ),
+                checkConditionNumber, maximumAllowedConditionNumber );
+}
+
+//! Function to fit a univariate polynomial through a set of data
+Eigen::VectorXd getLeastSquaresPolynomialFit(
+        const Eigen::VectorXd& independentValues,
+        const Eigen::VectorXd& dependentValues,
+        const std::vector< double >& polynomialPowers )
+{
+    if( independentValues.rows( ) != dependentValues.rows( ) )
+    {
+        throw std::runtime_error( "Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal" );
+    }
+
+    Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
+
+    // Compute information matrix
+    for( unsigned int i = 0; i < independentValues.rows( ); i++ )
+    {
+        for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
+        {
+            informationMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
+        }
+    }
+
+    return performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
+}
+
+//! Function to fit a univariate polynomial through a set of data
+std::vector< double > getLeastSquaresPolynomialFit(
+        const std::map< double, double >& independentDependentValueMap,
+        const std::vector< double >& polynomialPowers )
+{
+    return utilities::convertEigenVectorToStlVector(
+                getLeastSquaresPolynomialFit(
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapKeys( independentDependentValueMap ) ),
+                    utilities::convertStlVectorToEigenVector(
+                        utilities::createVectorFromMapValues( independentDependentValueMap ) ), polynomialPowers ) );
+
 }
 
 } // namespace linear_algebra

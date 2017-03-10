@@ -50,6 +50,8 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case thrust_acceleration:
         accelerationName = "thrust ";
         break;
+    case relativistic_correction_acceleration:
+        accelerationName  ="relativistic correction";
     default:
         std::string errorMessage = "Error, acceleration type " +
                 boost::lexical_cast< std::string >( accelerationType ) +
@@ -105,6 +107,11 @@ AvailableAcceleration getAccelerationModelType(
                  accelerationModel ) != NULL )
     {
         accelerationType = thrust_acceleration;
+    }
+    else if( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = relativistic_correction_acceleration;
     }
     else
     {
