@@ -11,6 +11,7 @@
 #ifndef TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
+#include <boost/lambda/lambda.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
@@ -151,6 +152,23 @@ public:
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
+    }
+
+    //! Function to reset the constant aerodynamic coefficients, only valid if coefficients are already constant
+    /*!
+     * Function to reset the constant aerodynamic coefficients, only valid if coefficients are already constant. Function
+     * checks if the numberOfIndependentVariables_ is equal to zero, and throws an error if it is not.
+     * \param constantCoefficients New force and moment coefficients (in that order) expressed in the same frame as existing
+     * coefficients.
+     */
+    void resetConstantCoefficients(
+            const Eigen::Vector6d& constantCoefficients )
+    {
+        if( numberOfIndependentVariables_ != 0 )
+        {
+            throw std::runtime_error( "Error when setting constant aerodynamic coefficients, numberOfIndependentVariables_ is not equal to 0 " );
+        }
+        coefficientFunction_ = boost::lambda::constant( constantCoefficients );
     }
 
 private:
