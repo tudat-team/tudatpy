@@ -154,6 +154,13 @@ public:
         currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
     }
 
+    //! Function to reset the constant aerodynamic coefficients, only valid if coefficients are already constant
+    /*!
+     * Function to reset the constant aerodynamic coefficients, only valid if coefficients are already constant. Function
+     * checks if the numberOfIndependentVariables_ is equal to zero, and throws an error if it is not.
+     * \param constantCoefficients New force and moment coefficients (in that order) expressed in the same frame as existing
+     * coefficients.
+     */
     void resetConstantCoefficients(
             const Eigen::Vector6d& constantCoefficients )
     {

@@ -20,11 +20,19 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Interface class for the estimation of a constant body drag coefficient
 class ConstantDragCoefficient: public EstimatableParameter< double >
 {
 
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param coefficientInterface Object that contains the aerodynamic coefficients. Constructor checks whether it is
+     * consistent with this class, e.g. if the existing aerodynamic coefficients are constant
+     * \param associatedBody Body for which the drag coefficient is considered.
+     */
     ConstantDragCoefficient(
             const boost::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
             const std::string& associatedBody ):
@@ -77,6 +85,7 @@ protected:
 
 private:
 
+    //! Object that contains the aerodynamic coefficients
     boost::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface_;
 
 };
