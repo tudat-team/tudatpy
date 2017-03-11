@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
 }
 
 template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeOrbiterSimulation(
         const Eigen::Matrix< StateScalarType, 6, 1 > initialStateDifference =
@@ -361,7 +361,7 @@ executeOrbiterSimulation(
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
-    // Define
+    // Define bodies in simulation
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Sun" );
@@ -375,7 +375,6 @@ executeOrbiterSimulation(
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
-
     NamedBodyMap bodyMap = createBodies( bodySettings );
     bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
@@ -407,11 +406,12 @@ executeOrbiterSimulation(
 
     bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< TabulatedCartesianEphemeris< > >(
                                             boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                                                < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
-    // Set accelerations between bodies that are to be taken into account.
+    // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
@@ -514,7 +514,6 @@ executeOrbiterSimulation(
         else
         {
             dynamicsSimulator.integrateDynamicalEquationsOfMotionOnly( propagatorSettings->getInitialStates( ) );
-            //input_output::writeDataMapToTextFile( dynamicsSimulator.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( ), "testVarOut.dat" );
         }
 
         // Retrieve test data
@@ -533,21 +532,25 @@ executeOrbiterSimulation(
     return results;
 }
 
+//! Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
+/*!
+ *  Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
+ *  This unit test propagates the variational equations for a low Earth orbiter, using the Enckle propagator.
+ *  The results are compared against results obtained from numerical differentiation (first-order central difference).
+ *  The estimated parameters consist of a mass of a third-body, radiation pressure coefficient and drag coefficient of the
+ *  vehicle and spherical harmonic coefficients of the Earth
+ */
 BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 {
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
-
-
     // Define variables for numerical differentiation
-    Eigen::Matrix< double, 6, 1>  perturbedState;
-
-    Eigen::Matrix< double, 6, 1> statePerturbation;
+    Eigen::Matrix< double, 6, 1 > perturbedState;
+    Eigen::Matrix< double, 6, 1 > statePerturbation;
 
     // Define parameter perturbation
     int numberOfParametersToEstimate = 10;
     double sphericalHarmonicsPerturbation = 1.0E-6;
-
     Eigen::Matrix< double, 10, 1 > perturbedParameter;
     Eigen::Matrix< double, 10, 1 > parameterPerturbation  =
             ( Eigen::Matrix< double, 10, 1 >( ) << 10.0, 1.0, 1.0E12,
@@ -599,19 +602,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
         perturbedParameter.setZero( );
         perturbedParameter( j ) -= parameterPerturbation( j );
         downPerturbedState = executeOrbiterSimulation< double, double >(
-                   perturbedState, perturbedParameter ).second.at( 0 );
+                    perturbedState, perturbedParameter ).second.at( 0 );
 
         manualPartial.block( 0, j + 6, 6, 1 ) =
                 ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
     }
 
-    std::cout<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<manualPartial<<std::endl<<std::endl;
-    std::cout<<( stateTransitionAndSensitivityMatrixAtEpoch - manualPartial ).cwiseQuotient(
-                   stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl<<std::endl;
-
     // Check results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-               stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 2.0E-5 );
+                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 2.0E-5 );
 
 }
 
