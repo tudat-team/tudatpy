@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantDragCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
@@ -461,7 +462,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
                 areCoefficientsInAerodynamicFrame, 1 );
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
-    Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
 
 
     // Finalize body creation.
@@ -498,6 +498,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
                 accelerationModel, std::make_pair( "Vehicle", bodyMap[ "Vehicle" ] ),
             std::make_pair( "Earth", bodyMap[ "Earth" ] ), bodyMap );
 
+    // Create gravitational parameter object.
+    boost::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = boost::make_shared<
+            ConstantDragCoefficient >( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                                           bodyMap[ "Vehicle" ]->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
+
     // Calculate analytical partials.
     aerodynamicAccelerationPartial->update( 0.0 );
     Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
@@ -508,6 +513,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
     aerodynamicAccelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
     aerodynamicAccelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    Eigen::Vector3d partialWrtDragCoefficient = aerodynamicAccelerationPartial->wrtParameter(
+                dragCoefficientParameter );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
@@ -548,8 +556,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
                 earthStateSetFunction, accelerationModel, bodyMap.at( "Earth" )->getState( ), velocityPerturbation, 3,
                 environmentUpdateFunction );
 
-   // Compare numerical and analytical results.
+    Eigen::Vector3d testPartialWrtDragCoefficient = calculateAccelerationWrtParameterPartials(
+                dragCoefficientParameter, accelerationModel, 1.0E-4, environmentUpdateFunction );
 
+    // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
                                        partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
@@ -558,6 +568,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
                                        partialWrtEarthPosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity,
                                        partialWrtEarthVelocity, 1.0E-6 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragCoefficient,
+                                       partialWrtDragCoefficient, 1.0E-10 );
 }
 
 

@@ -178,6 +178,12 @@ public:
         }
     }
 
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
+
 private:
 
     //! Function to retrieve the current aerodynamic force coefficients.
