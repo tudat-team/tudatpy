@@ -178,6 +178,17 @@ public:
         }
     }
 
+    //! Function to return current mass of body undergoing acceleration
+    /*!
+     * Function to return current mass of body undergoing acceleration as set from massFunction_ by updateMembers
+     * \return Current mass of body undergoing acceleration
+     */
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
+
 private:
 
     //! Function to retrieve the current aerodynamic force coefficients.

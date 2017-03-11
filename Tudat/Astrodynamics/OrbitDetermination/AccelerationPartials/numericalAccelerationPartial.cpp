@@ -8,6 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+#include <iomanip>
+
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
 
 namespace tudat
@@ -59,6 +62,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         accelerationModel->resetTime( TUDAT_NAN );
         perturbedState = originalState;
     }
+
 
     // Reset state/environment to original state.
     setBodyState( perturbedState );
