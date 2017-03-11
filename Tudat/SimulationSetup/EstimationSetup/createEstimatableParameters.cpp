@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantDragCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
@@ -118,6 +120,31 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
                 doubleParameterToEstimate = boost::make_shared< RotationRate >(
                             boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >
                             ( currentBody->getRotationalEphemeris( ) ), currentBodyName );
+            }
+            break;
+        }
+        case constant_drag_coefficient:
+        {
+            if( currentBody->getAerodynamicCoefficientInterface( ) == NULL )
+            {
+                std::string errorMessage = "Error, body " +
+                        boost::lexical_cast< std::string >( currentBodyName ) +
+                        " has no coefficient interface, cannot estimate constant drag coefficient.";
+                throw std::runtime_error( errorMessage );
+            }
+            else if( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                         currentBody->getAerodynamicCoefficientInterface( ) ) == NULL )
+            {
+                std::string errorMessage = "Error, body " +
+                        boost::lexical_cast< std::string >( currentBodyName ) +
+                        " has no custom coefficient interface, cannot estimate constant drag coefficient.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = boost::make_shared< ConstantDragCoefficient >
+                        ( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                              currentBody->getAerodynamicCoefficientInterface( ) ), currentBodyName );
             }
             break;
         }

@@ -187,15 +187,16 @@ public:
 
     void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial )
     {
-        Eigen::Quaterniond rotationToAerodynamicFrame =
+        Eigen::Quaterniond rotationToInertialFrame =
                 flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                   reference_frames::inertial_frame, reference_frames::aerodynamic_frame );
+                   reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
 
         double currentAirspeed = flightConditions_->getCurrentAirspeed( );
         accelerationPartial =
-                rotationToAerodynamicFrame * Eigen::Vector3d::UnitX( ) * (
-                0.5 * flightConditions_->getCurrentDensity( ) * currentAirspeed * currentAirspeed *
-                flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( ) );
+                rotationToInertialFrame * Eigen::Vector3d::UnitX( ) * (
+                -0.5 * flightConditions_->getCurrentDensity( ) * currentAirspeed * currentAirspeed *
+                flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( ) ) /
+                aerodynamicAcceleration_->getCurrentMass( );
 
     }
 
