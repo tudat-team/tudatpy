@@ -178,6 +178,11 @@ public:
         }
     }
 
+    //! Function to return current mass of body undergoing acceleration
+    /*!
+     * Function to return current mass of body undergoing acceleration as set from massFunction_ by updateMembers
+     * \return Current mass of body undergoing acceleration
+     */
     double getCurrentMass( )
     {
         return currentMass_;
