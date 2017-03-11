@@ -23,12 +23,26 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
-
+//! Class to calculate the partials of the aerodynamic acceleration w.r.t. parameters and states.
+/*!
+ * Class to calculate the partials of the aerodynamic acceleration w.r.t. parameters and states. Note that the state partials
+ * are computed numerically by 2nd-order central difference with perturbations hard-coded in the constructor
+ */
 class AerodynamicAccelerationPartial: public AccelerationPartial
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param aerodynamicAcceleration Object that computes the aerodynamic acceleration
+     * \param flightConditions Object that computes the current atmospheric and flight conditions, as well as associated angles,
+     * for the body undergoing acceleration
+     * \param vehicleStateGetFunction Function to retrieve the state of the body undergoing the acceleration.
+     * \param vehicleStateSetFunction Function to set the state of the body undergoing the acceleration.
+     * \param acceleratedBody Body undergoing acceleration.
+     * \param acceleratingBody Body exerting acceleration.
+     */
     AerodynamicAccelerationPartial(
             const boost::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration,
             const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
@@ -68,6 +82,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
@@ -82,9 +107,9 @@ public:
         }
     }
 
-    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration..
     /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration and
      *  adding it to the existing partial block.
      *  The update( ) function must have been called during current time step before calling this function.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
@@ -106,6 +131,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration and
+     *  adding it to the existing partial block.
+     *  The update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
@@ -136,7 +172,7 @@ public:
               ( stateReferencePoint.first == acceleratedBody_  ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
-            throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
+            throw std::runtime_error( "Warning, dependency of aerodynamic acceleration on body masses not yet implemented" );
         }
         return 0;
     }
@@ -185,6 +221,17 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
+    //! Function for updating partial w.r.t. the bodies' positions
+    /*!
+     *  Function for updating common blocks of partial to current state. The partial of the acceleration w.r.t. the current
+     *  state (in inertial frame) is computed numerically.
+     *  \param currentTime Time at which partials are to be calculated
+     */
+    void update( const double currentTime = TUDAT_NAN );
+
+protected:
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the drag coefficient
     void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial )
     {
         Eigen::Quaterniond rotationToInertialFrame =
@@ -200,26 +247,24 @@ public:
 
     }
 
-    //! Function for updating partial w.r.t. the bodies' positions
-    /*!
-     *  Function for updating common blocks of partial to current state. For the central gravitational acceleration,
-     *  position partial is computed and set.
-     *  \param currentTime Time at which partials are to be calculated
-     */
-    void update( const double currentTime = TUDAT_NAN );
-
-protected:
-
+    //! Perturbations of Cartesian state used in the numerical (central difference) computation of
+    //! currentAccelerationStatePartials_
     Eigen::Vector6d bodyStatePerturbations_;
 
+    //! Partial derivative of aerodynamic acceleration w.r.t. current state, numerically computed by update function
     Eigen::Matrix< double, 3, 6 > currentAccelerationStatePartials_;
 
+    //! Object that computes the aerodynamic acceleration
     boost::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration_;
 
+    //! Object that computes the current atmospheric and flight conditions, as well as associated angles, for the body undergoing
+    //! acceleration
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions_;
 
+    //! Function to retrieve the state of the body undergoing the acceleration.
     boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction_;
 
+    //! Function to set the state of the body undergoing the acceleration
     boost::function< void( const Eigen::Vector6d& ) > vehicleStateSetFunction_;
 
 };
