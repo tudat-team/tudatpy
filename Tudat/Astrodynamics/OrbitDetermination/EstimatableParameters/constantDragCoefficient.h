@@ -25,7 +25,6 @@ class ConstantDragCoefficient: public EstimatableParameter< double >
 
 public:
 
-
     ConstantDragCoefficient(
             const boost::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
             const std::string& associatedBody ):
@@ -41,20 +40,20 @@ public:
     //! Destructor
     ~ConstantDragCoefficient( ) { }
 
-    //! Function to get the current value of the gravitational parameter that is to be estimated.
+    //! Function to get the current value of the constant drag coefficient that is to be estimated.
     /*!
-     * Function to get the current value of the gravitational parameter that is to be estimated.
-     * \return Current value of the gravitational parameter that is to be estimated.
+     * Function to get the current value of the constant drag coefficient that is to be estimated.
+     * \return Current value of the constant drag coefficient that is to be estimated.
      */
     double getParameterValue( )
     {
         return coefficientInterface_->getCurrentForceCoefficients( )( 0 );
     }
 
-    //! Function to reset the value of the gravitational parameter that is to be estimated.
+    //! Function to reset the value of the constant drag coefficient that is to be estimated.
     /*!
-     * Function to reset the value of the gravitational parameter that is to be estimated.
-     * \param parameterValue New value of the gravitational parameter that is to be estimated.
+     * Function to reset the value of the constant drag coefficient that is to be estimated.
+     * \param parameterValue New value of the constant drag coefficient that is to be estimated.
      */
     void setParameterValue( double parameterValue )
     {
