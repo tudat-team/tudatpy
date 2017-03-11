@@ -8,8 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
-
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/aerodynamicAccelerationPartial.h"
 
 namespace tudat
 {
@@ -17,72 +16,51 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-CentralGravitationPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
+//! Function for updating partial w.r.t. the bodies' positions
+void AerodynamicAccelerationPartial::update( const double currentTime )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    Eigen::Vector6d nominalState = vehicleStateGetFunction_( );
+    Eigen::Vector6d perturbedState;
 
-    // Check dependencies.
-    if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
+    Eigen::Vector3d upperturbedAcceleration, downperturbedAcceleration;
+    for( unsigned int i = 0; i < 6; i++ )
     {
-        // If parameter is gravitational parameter, check and create dependency function .
-        partialFunctionPair = getGravitationalParameterPartialFunction( parameter->getParameterName( ) );
-    }
-    else
-    {
-        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
-    }
+        perturbedState = nominalState;
+        perturbedState( i ) += bodyStatePerturbations_( i );
 
-    return partialFunctionPair;
-}
+        flightConditions_->resetCurrentTime( TUDAT_NAN );
+        aerodynamicAcceleration_->resetTime( TUDAT_NAN );
+        vehicleStateSetFunction_( perturbedState );
 
-//! Function to create a function returning the current partial w.r.t. a gravitational parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-CentralGravitationPartial::getGravitationalParameterPartialFunction(
-        const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
-{
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-    int numberOfColumns = 0;
+        flightConditions_->updateConditions( currentTime );
+        aerodynamicAcceleration_->updateMembers( currentTime );
+        upperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
 
-    // Check if parameter is gravitational parameter.
-    if( parameterId.first ==  estimatable_parameters::gravitational_parameter )
-    {
-        // Check if parameter body is central body.
-        if( parameterId.second.first == acceleratingBody_ )
-        {
-            partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1 );
-            numberOfColumns = 1;
+        perturbedState = nominalState;
+        perturbedState( i ) -= bodyStatePerturbations_( i );
 
-        }
+        flightConditions_->resetCurrentTime( TUDAT_NAN );
+        aerodynamicAcceleration_->resetTime( TUDAT_NAN );
+        vehicleStateSetFunction_( perturbedState );
 
-        // Check if parameter body is accelerated body, and if the mutual acceleration is used.
-        if( parameterId.second.first == acceleratedBody_ )
-        {
-            if( accelerationUsesMutualAttraction_ )
-            {
-                partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1 );
-                numberOfColumns = 1;
-            }
-        }
+        flightConditions_->updateConditions( currentTime );
+        aerodynamicAcceleration_->updateMembers( currentTime );
+        downperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
+
+        currentAccelerationStatePartials_.block( 0, i, 3, 1 ) =
+                ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * bodyStatePerturbations_( i ) );
     }
 
-    return std::make_pair( partialFunction, numberOfColumns );
+    flightConditions_->resetCurrentTime( TUDAT_NAN );
+    aerodynamicAcceleration_->resetTime( TUDAT_NAN );
+    vehicleStateSetFunction_( nominalState );
+
+    flightConditions_->updateConditions( currentTime );
+    aerodynamicAcceleration_->updateMembers( currentTime );
 }
 
-//! Function to calculate central gravity partial w.r.t. central body gravitational parameter
-void CentralGravitationPartial::wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial )
-{
-    gravitationalParameterPartial = computePartialOfCentralGravityWrtGravitationalParameter(
-                currentAcceleratedBodyState_, currentCentralBodyState_ );
-}
 
+} // namespace acceleration_partials
 
-
-}
-
-}
+} // namespace tudat
