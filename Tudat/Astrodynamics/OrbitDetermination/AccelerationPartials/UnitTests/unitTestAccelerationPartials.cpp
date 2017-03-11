@@ -21,6 +21,7 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -279,7 +280,6 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
                                        partialWrtRadiationPressureCoefficient, 1.0E-12 );
 }
 
-
 BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 {
     // Create empty bodies, earth and sun.
@@ -420,6 +420,147 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
                                        partialWrtEarthGravitationalParameter, std::numeric_limits< double >::epsilon(  ) );
 }
+
+
+void updateFlightConditionsWithPerturbedState(
+        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const double timeToUpdate )
+{
+    flightConditions->resetCurrentTime( TUDAT_NAN );
+    flightConditions->updateConditions( timeToUpdate );
+}
+
+BOOST_AUTO_TEST_CASE( testAerodynamicGravityPartials )
+{
+
+    //Load spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
+    using namespace tudat;
+    // Create Earth object
+    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+            getDefaultBodySettings( boost::assign::list_of( "Earth" ) );
+    defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                Eigen::Vector6d::Zero( ) );
+    NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+
+    // Create vehicle objects.
+    double vehicleMass = 5.0E3;
+    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+
+
+    bool areCoefficientsInAerodynamicFrame = 1;
+    Eigen::Vector3d aerodynamicCoefficients = ( Eigen::Vector3d( )<< 2.5, -0.1, 0.5 ).finished( );
+
+    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
+                areCoefficientsInAerodynamicFrame, 1 );
+    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+    Eigen::Vector3d aerodynamicCoefficientsDirection = aerodynamicCoefficients.normalized( );
+
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
+    // Set spherical elements for vehicle.
+    Eigen::Vector6d vehicleSphericalEntryState;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+            spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.7E3;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
+            -0.9 * mathematical_constants::PI / 180.0;
+    vehicleSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
+
+    // Convert vehicle state from spherical elements to Cartesian elements.
+    Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
+                vehicleSphericalEntryState );
+
+    bodyMap.at( "Earth" )->setStateFromEphemeris( 0.0 );
+    bodyMap.at( "Vehicle" )->setState( systemInitialState );
+
+
+    boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
+            simulation_setup::createAerodynamicAcceleratioModel(
+                bodyMap[ "Vehicle" ], bodyMap[ "Earth" ], "Vehicle", "Earth" );
+    bodyMap.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
+    accelerationModel->updateMembers( 0.0 );
+
+    boost::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
+            createAnalyticalAccelerationPartial(
+                accelerationModel, std::make_pair( "Vehicle", bodyMap[ "Vehicle" ] ),
+            std::make_pair( "Earth", bodyMap[ "Earth" ] ), bodyMap );
+
+    // Calculate analytical partials.
+    aerodynamicAccelerationPartial->update( 0.0 );
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    aerodynamicAccelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    aerodynamicAccelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    aerodynamicAccelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    aerodynamicAccelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    // Declare numerical partials.
+    Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+
+    boost::function< void( ) > environmentUpdateFunction =
+            boost::bind( &updateFlightConditionsWithPerturbedState, bodyMap.at( "Vehicle" )->getFlightConditions( ), 0.0 );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation << 1.0, 1.0, 1.0;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
+
+    // Create state access/modification functions for bodies.
+    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            boost::bind( &Body::setState, bodyMap.at( "Vehicle" ), _1 );
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            boost::bind( &Body::setState, bodyMap.at( "Earth" ), _1 );
+    boost::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
+            boost::bind( &Body::getState, bodyMap.at( "Vehicle" ) );
+    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
+            boost::bind( &Body::getState, bodyMap.at( "Earth" ) );
+
+    // Calculate numerical partials.
+    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, accelerationModel, bodyMap.at( "Vehicle" )->getState( ), positionPerturbation, 0,
+                environmentUpdateFunction);
+    testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, accelerationModel, bodyMap.at( "Vehicle" )->getState( ), velocityPerturbation, 3,
+                environmentUpdateFunction );
+    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, accelerationModel, bodyMap.at( "Earth" )->getState( ), positionPerturbation, 0,
+                environmentUpdateFunction );
+    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, accelerationModel, bodyMap.at( "Earth" )->getState( ), velocityPerturbation, 3,
+                environmentUpdateFunction );
+
+   // Compare numerical and analytical results.
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
+                                       partialWrtVehiclePosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
+                                       partialWrtVehicleVelocity, 1.0E-6  );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
+                                       partialWrtEarthPosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity,
+                                       partialWrtEarthVelocity, 1.0E-6 );
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

@@ -35,7 +35,13 @@ public:
             const boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction,
             const boost::function< void( const Eigen::Vector6d& ) > vehicleStateSetFunction,
             const std::string acceleratedBody,
-            const std::string acceleratingBody );
+            const std::string acceleratingBody ):
+        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::aerodynamic ),
+        aerodynamicAcceleration_( aerodynamicAcceleration ), flightConditions_( flightConditions ),
+        vehicleStateGetFunction_( vehicleStateGetFunction ), vehicleStateSetFunction_( vehicleStateSetFunction )
+    {
+        bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
+    }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -199,48 +205,7 @@ public:
      *  position partial is computed and set.
      *  \param currentTime Time at which partials are to be calculated
      */
-    void update( const double currentTime = TUDAT_NAN )
-    {
-        Eigen::Vector6d nominalState = vehicleStateGetFunction_( );
-        Eigen::Vector6d perturbedState;
-
-        Eigen::Vector3d upperturbedAcceleration, downperturbedAcceleration;
-        for( unsigned int i = 0; i < 6; i++ )
-        {
-            perturbedState = nominalState;
-            perturbedState( i ) += bodyStatePerturbations_( i );
-
-            flightConditions_->resetCurrentTime( TUDAT_NAN );
-            aerodynamicAcceleration_->resetTime( TUDAT_NAN );
-            vehicleStateSetFunction_( perturbedState );
-
-            flightConditions_->updateConditions( currentTime );
-            aerodynamicAcceleration_->updateMembers( currentTime );
-            upperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
-
-            perturbedState = nominalState;
-            perturbedState( i ) -= bodyStatePerturbations_( i );
-
-            flightConditions_->resetCurrentTime( TUDAT_NAN );
-            aerodynamicAcceleration_->resetTime( TUDAT_NAN );
-            vehicleStateSetFunction_( perturbedState );
-
-            flightConditions_->updateConditions( currentTime );
-            aerodynamicAcceleration_->updateMembers( currentTime );
-            downperturbedAcceleration = aerodynamicAcceleration_->getAcceleration( );
-
-            currentAccelerationStatePartials_.block( 0, i, 3, 1 ) =
-                    ( upperturbedAcceleration - downperturbedAcceleration ) / ( 2.0 * bodyStatePerturbations_( i ) );
-
-        }
-
-        flightConditions_->resetCurrentTime( TUDAT_NAN );
-        aerodynamicAcceleration_->resetTime( TUDAT_NAN );
-        vehicleStateSetFunction_( nominalState );
-
-        flightConditions_->updateConditions( currentTime );
-        aerodynamicAcceleration_->updateMembers( currentTime );
-    }
+    void update( const double currentTime = TUDAT_NAN );
 
 protected:
 
@@ -248,9 +213,9 @@ protected:
 
     Eigen::Matrix< double, 3, 6 > currentAccelerationStatePartials_;
 
-    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions_;
-
     boost::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration_;
+
+    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions_;
 
     boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction_;
 
