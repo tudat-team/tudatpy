@@ -77,14 +77,14 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( one_way_doppler );
+
     // Create observation model.
-    std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
-    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-
-
     boost::shared_ptr< ObservationModel< 1, double, double> > observationModel =
            ObservationModelCreator< 1, double, double>::createObservationModel(
-                oneWayDoppler, linkEnds, bodyMap );
+                linkEnds, observableSettings, bodyMap );
 
     boost::shared_ptr< OneWayDopplerObservationModel< double, double> > dopplerObservationModel =
             boost::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double> >( observationModel );

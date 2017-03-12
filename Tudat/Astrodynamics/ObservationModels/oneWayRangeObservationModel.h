@@ -55,7 +55,7 @@ public:
             const boost::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( oneWayRange, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor

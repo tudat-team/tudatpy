@@ -18,7 +18,7 @@
 namespace tudat
 {
 
-namespace observation_models
+namespace   observation_models
 {
 
 //! Enum defining different link end types.

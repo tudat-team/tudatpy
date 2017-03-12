@@ -149,7 +149,7 @@ public:
             const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( oneWayDoppler, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator )
     {
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );

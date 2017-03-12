@@ -25,10 +25,10 @@ namespace observation_models
 //! Enum for types of observations
 enum ObservableType
 {
-    oneWayRange = 0,
+    one_way_range = 0,
     angular_position = 1,
     position_observable = 2,
-    oneWayDoppler = 3
+    one_way_doppler = 3
 };
 
 //! Function to get the name (string) associated with a given observable type.
