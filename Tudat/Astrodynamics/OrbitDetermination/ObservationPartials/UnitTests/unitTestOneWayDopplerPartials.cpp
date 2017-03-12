@@ -210,14 +210,15 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Generate one-way doppler model
         boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    oneWayDoppler, linkEnds, bodyMap  );
+                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                        observation_models::one_way_doppler ), bodyMap  );
 
         // Create parameter objects.
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-4, true, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, true, true );
     }
 
     std::cout<<"*******************************************************"<<std::endl;
@@ -235,14 +236,15 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Generate one-way doppler model
         boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    oneWayDoppler, linkEnds, bodyMap  );
+                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                        observation_models::one_way_doppler ), bodyMap  );
 
         // Create parameter objects.
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayDoppler, 1.0E-4, false, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, false, true );
     }
 }
 

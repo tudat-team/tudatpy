@@ -26,7 +26,7 @@ std::string getObservableName( const ObservableType observableType )
     std::string observableName;
     switch( observableType )
     {
-    case oneWayRange:
+    case one_way_range:
         observableName = "OneWayRange";
         break;
     case angular_position:
@@ -35,7 +35,7 @@ std::string getObservableName( const ObservableType observableType )
     case position_observable:
         observableName = "CartesianPosition";
         break;
-    case oneWayDoppler:
+    case one_way_doppler:
         observableName = "OneWayDoppler";
         break;
     default:
@@ -54,7 +54,7 @@ ObservableType getObservableType( const std::string& observableName )
 
     if( observableName == "OneWayRange" )
     {
-        observableType = oneWayRange;
+        observableType = one_way_range;
     }
     else if( observableName == "AngularPosition" )
     {
@@ -66,7 +66,7 @@ ObservableType getObservableType( const std::string& observableName )
     }
     else if( observableName ==  "OneWayDoppler" )
     {
-        observableType = oneWayDoppler;
+        observableType = one_way_doppler;
     }
     else
     {
@@ -87,7 +87,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
 
     switch( observableType )
     {
-    case oneWayRange:
+    case one_way_range:
         switch( linkEndType )
         {
         case transmitter:
@@ -104,7 +104,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             throw std::runtime_error( errorMessage );
         }
         break;
-    case oneWayDoppler:
+    case one_way_doppler:
         switch( linkEndType )
         {
         case transmitter:

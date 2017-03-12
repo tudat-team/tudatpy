@@ -74,15 +74,19 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     LinkEnds linkEnds;
     linkEnds[ observed_body ] = std::make_pair( "Earth" , ""  );
 
-    // Create observation model.
-    boost::shared_ptr< ObservationBias< 3 > > observationBias =
-            boost::make_shared< ConstantObservationBias< 3 > >(
-                ( Eigen::Vector3d( ) << 543.2454, -34.244, 3431.24345 ).finished( ) );
 
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( position_observable, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
+              boost::make_shared< ConstantObservationBiasSettings >(
+                  ( Eigen::Vector3d( ) << 543.2454, -34.244, 3431.24345 ).finished( ) ) );
+
+    // Create observation model.
     boost::shared_ptr< ObservationModel< 3, double, double > > observationModel =
            ObservationModelCreator< 3, double, double >::createObservationModel(
-                position_observable, linkEnds, bodyMap,
-                std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), observationBias );
+                linkEnds, observableSettings, bodyMap );
+    boost::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
+
 
     // Compute observation separately with two functions.
     double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
@@ -90,6 +94,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     std::vector< Eigen::Vector6d > linkEndStates;
     Eigen::Vector3d observation = observationModel->computeObservations(
                 observationTime, observed_body );
+
     Eigen::Vector3d observation2 = observationModel->computeObservationsWithLinkEndData(
                 observationTime, observed_body, linkEndTimes, linkEndStates );
 

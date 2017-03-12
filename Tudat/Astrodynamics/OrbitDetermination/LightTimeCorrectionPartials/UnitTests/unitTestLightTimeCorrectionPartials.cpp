@@ -74,10 +74,22 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
     lightTimeCorrections.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                         relativisticPerturbingBodies ) );
 
+
+    // Create light-time correction settings.
+    std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
+    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
+    lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                                lightTimePerturbingBodies ) );
+
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( one_way_range, lightTimeCorrectionSettings );
+
+    // Create observation model.
     boost::shared_ptr< OneWayRangeObservationModel< double, double > > oneWayRangeModel =
             boost::dynamic_pointer_cast< OneWayRangeObservationModel< double, double > >(
-            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                oneWayRange, linkEnds, bodyMap, lightTimeCorrections ) );
+           ObservationModelCreator< 1, double, double >::createObservationModel(
+                linkEnds, observableSettings, bodyMap ) );
 
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings;
 
@@ -147,15 +159,21 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     linkEnds[ transmitter ] = groundStations[ 1 ];
     linkEnds[ receiver ] = groundStations[ 0 ];
 
-    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
+    // Create light-time correction settings.
+    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     std::vector< std::string > perturbingBodyList = boost::assign::list_of( "Earth" )( "Sun" );
-    lightTimeCorrections.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+    lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                         perturbingBodyList ) );
 
-    // Generate one-way range model
-    boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
-            observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                oneWayRange, linkEnds, bodyMap, lightTimeCorrections  );
+
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( one_way_range, lightTimeCorrectionSettings );
+
+    // Create observation model.
+    boost::shared_ptr< ObservationModel< 1, double, double > > oneWayRangeModel =
+           ObservationModelCreator< 1, double, double >::createObservationModel(
+                linkEnds, observableSettings, bodyMap );
 
     std::map< LinkEnds, boost::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
     oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;
@@ -181,7 +199,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
-                oneWayRange, boost::assign::list_of( linkEnds ), bodyMap, parametersToEstimate,
+                one_way_range, boost::assign::list_of( linkEnds ), bodyMap, parametersToEstimate,
                 getLightTimeCorrectionsList< double, double, 1 >( oneWayRangeModelMap ) ).begin( )->second;
 
     boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;

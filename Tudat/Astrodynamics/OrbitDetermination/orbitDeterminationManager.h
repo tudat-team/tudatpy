@@ -128,7 +128,7 @@ public:
         if( rmsResidualHistory.size( ) > 1 )
         {
             if( std::fabs( rmsResidualHistory.at( rmsResidualHistory.size( )  - 1 ) -
-                    rmsResidualHistory.at( rmsResidualHistory.size( )  - 2 ) ) < minimumResidualChange_ )
+                           rmsResidualHistory.at( rmsResidualHistory.size( )  - 2 ) ) < minimumResidualChange_ )
             {
                 isConverged = 1;
             }
@@ -186,8 +186,9 @@ public:
      *  Constructor
      *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
      *  \param parametersToEstimate Container object for all parameters that are to be estimated
-     *  \param linkEndsPerObservable Sets of link ends (i.e. transmitter, receiver, etc.) per observable type for
-     *  which measurement data is to be provided in orbit determination process (through estimateParameters function)
+     *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
+     *  per observable type for which measurement data is to be provided in orbit determination process
+     *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      *  \param observableCorrections List of correction function to for each observable type and set of link ends (
@@ -197,14 +198,10 @@ public:
             const NamedBodyMap &bodyMap,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
-            const std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >&
-            linkEndsPerObservable,
+            const observation_models::ObservationSettingsMap& observationSettingsMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >&
-            observableCorrections =
-            ( std::map< observation_models::ObservableType, observation_models::LightTimeCorrectionSettingsMap >( ) ) ):
-        parametersToEstimate_( parametersToEstimate ), linkEndsPerObservable_( linkEndsPerObservable )
+            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+        parametersToEstimate_( parametersToEstimate )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
@@ -218,12 +215,12 @@ public:
         if( initialDynamicalStates.size( ) > 0 )
         {
 
-                integrateAndEstimateOrbit_ = true;
+            integrateAndEstimateOrbit_ = true;
 
-                    variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                            < ObservationScalarType, TimeType > >(
-                                bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
-                                boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+            variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
+                    < ObservationScalarType, TimeType > >(
+                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
+                        boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
         }
         else
         {
@@ -250,24 +247,14 @@ public:
         }
 
         // Iterate over all observables and create observation managers.
-        for( std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > >::const_iterator
-             observablesIterator = linkEndsPerObservable.begin( );
-             observablesIterator != linkEndsPerObservable.end( ); observablesIterator++ )
+        for( ObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
+             observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
         {
-            // Get observable corrections for current observable.
-            std::map< observation_models::LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > >
-                    singleObservableCorrections;
-            if( observableCorrections.count( observablesIterator->first ) > 0 )
-            {
-                singleObservableCorrections = observableCorrections.at( observablesIterator->first );
-            }
-
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
                     createObservationManagerBase< ObservationScalarType, TimeType >(
                         observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate,
-                        stateTransitionAndSensitivityMatrixInterface_,
-                        singleObservableCorrections );
+                        stateTransitionAndSensitivityMatrixInterface_ );
         }
 
         // Set current parameter estimate from body initial states and parameter set.
@@ -432,7 +419,7 @@ public:
     /*!
      *  Function to perform parameter estimation, including orbit determination, i.e. body initial states, from measurement data.
      *  All observable types and link ends per obsevable types that are included in the measurement data input must have been
-     *  provided to the constructor by the linkEndsPerObservable parameter.
+     *  provided to the constructor by the observationSettingsMap parameter.
      *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
@@ -682,16 +669,6 @@ public:
         return observationManagers_.at( observableType );
     }
 
-    //! Function to retrieve the complete set of link ends for all observables.
-    /*!
-     *  Function to retrieve the complete set of link ends for all observables.
-     *  \return Complete set of link ends for all observables.
-     */
-    std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > getLinkEndsPerObservable( )
-    {
-        return linkEndsPerObservable_;
-    }
-
     //! Function to retrieve the current paramater estimate.
     /*!
      *  Function to retrieve the current paramater estimate.
@@ -730,9 +707,6 @@ protected:
 
     //! Container object for all parameters that are to be estimated
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
-
-    //! List of avaailable set of link ends for each observable type
-    std::map< observation_models::ObservableType, std::vector< observation_models::LinkEnds > > linkEndsPerObservable_;
 
     //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;

@@ -34,6 +34,107 @@ namespace tudat
 namespace observation_models
 {
 
+class ObservationBiasSettings
+{
+public:
+
+    ObservationBiasSettings(
+            const observation_models::ObservationBiasTypes observationBiasType ):
+    observationBiasType_( observationBiasType ){ }
+
+    virtual ~ObservationBiasSettings( ){ }
+
+    observation_models::ObservationBiasTypes observationBiasType_;
+};
+
+class ConstantObservationBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    ConstantObservationBiasSettings(
+            const Eigen::VectorXd& observationBias ):
+    ObservationBiasSettings( constant_additive_bias ), observationBias_( observationBias )
+    { }
+
+    ~ConstantObservationBiasSettings( ){ }
+
+    Eigen::VectorXd observationBias_;
+
+};
+
+class ObservationSettings
+{
+public:
+
+
+    ObservationSettings(
+            const observation_models::ObservableType observableType,
+            const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        observableType_( observableType ),
+        biasSettings_( biasSettings )
+    {
+        if( lightTimeCorrections != NULL )
+        {
+            lightTimeCorrectionsList_.push_back( lightTimeCorrections );
+        }
+    }
+
+    ObservationSettings(
+            const observation_models::ObservableType observableType,
+            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        observableType_( observableType ),lightTimeCorrectionsList_( lightTimeCorrectionsList ),
+        biasSettings_( biasSettings ){ }
+
+    ~ObservationSettings( ){ }
+
+    observation_models::ObservableType observableType_;
+
+    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList_;
+
+    boost::shared_ptr< ObservationBiasSettings > biasSettings_;
+};
+
+typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > ObservationSettingsMap;
+
+template< int ObservationSize = 1 >
+boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
+            const LinkEnds linkEnds,
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings,
+            const simulation_setup::NamedBodyMap &bodyMap )
+{
+    boost::shared_ptr< ObservationBias< ObservationSize > > observationBias;
+    switch( biasSettings->observationBiasType_ )
+    {
+    case constant_additive_bias:
+    {
+        boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
+                ConstantObservationBiasSettings >( biasSettings );
+        if( constantBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making constant observation bias, settings are inconsistent" );
+        }
+
+        if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
+        {
+            throw std::runtime_error( "Error when making constant observation bias, bias size is inconsistent" );
+        }
+        observationBias = boost::make_shared< ConstantObservationBias< ObservationSize > >(
+                    constantBiasSettings->observationBias_ );
+        break;
+    }
+    default:
+    {
+        std::string errorMessage = "Error when making observation bias, bias type " +
+                boost::lexical_cast< std::string >( biasSettings->observationBiasType_  ) + " not recognized";
+        throw std::runtime_error( errorMessage );
+    }
+    }
+    return observationBias;
+}
+
 //! Interface class for creating observation models
 /*!
  *  Interface class for creating observation models. This class is used instead of a single templated free function to
@@ -58,12 +159,14 @@ public:
      */
     static boost::shared_ptr< observation_models::ObservationModel<
     ObservationSize, ObservationScalarType, TimeType > > createObservationModel(
-            const ObservableType observableType,
-            const LinkEnds& linkEnds,
-            const simulation_setup::NamedBodyMap &bodyMap,
-            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& singleObservableCorrections =
-            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const boost::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = NULL );
+            const LinkEnds linkEnds,
+            const boost::shared_ptr< ObservationSettings > observationSettings,
+            const simulation_setup::NamedBodyMap &bodyMap );
+
+   static boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
+           const LinkEnds linkEnds,
+           const boost::shared_ptr< ObservationBiasSettings > observationSettings,
+           const simulation_setup::NamedBodyMap &bodyMap );
 };
 
 //! Interface class for creating observation models of size 1.
@@ -84,12 +187,9 @@ public:
      */
     static boost::shared_ptr< observation_models::ObservationModel<
     1, ObservationScalarType, TimeType > > createObservationModel(
-            const ObservableType observableType,
-            const LinkEnds& linkEnds,
-            const simulation_setup::NamedBodyMap &bodyMap,
-            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& singleObservableCorrections =
-            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL )
+            const LinkEnds linkEnds,
+            const boost::shared_ptr< ObservationSettings > observationSettings,
+            const simulation_setup::NamedBodyMap &bodyMap )
     {
         using namespace observation_models;
 
@@ -97,9 +197,9 @@ public:
                 1, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
-        switch( observableType )
+        switch( observationSettings->observableType_ )
         {
-        case oneWayRange:
+        case one_way_range:
         {
             // Check consistency input.
             if( linkEnds.size( ) != 2 )
@@ -118,16 +218,25 @@ public:
                 throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
             }
 
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                    createObservationBiasCalculator(
+                       linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
+
             // Create observation model
             observationModel = boost::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                         linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                        bodyMap, singleObservableCorrections ), observationBiasCalculator );
+                        bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                         observationBias );
 
             break;
         }
-        case oneWayDoppler:
+        case one_way_doppler:
          {
              // Check consistency input.
              if( linkEnds.size( ) != 2 )
@@ -146,22 +255,33 @@ public:
                  throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
              }
 
+             boost::shared_ptr< ObservationBias< 1 > > observationBias;
+             if( observationSettings->biasSettings_ != NULL )
+             {
+                 observationBias =
+                     createObservationBiasCalculator(
+                        linkEnds, observationSettings->biasSettings_,bodyMap );
+             }
+
              // Create observation model
              observationModel = boost::make_shared< OneWayDopplerObservationModel<
                      ObservationScalarType, TimeType > >(
                          createLightTimeCalculator< ObservationScalarType, TimeType >(
                          linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                         bodyMap, singleObservableCorrections ), observationBiasCalculator );
+                         bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                         observationBias );
 
              break;
          }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+                        observationSettings->observableType_ ) +
                     "  not recognized when making size 1 observation model.";
             throw std::runtime_error( errorMessage );
         }
         return observationModel;
     }
+
 };
 
 //! Interface class for creating observation models of size 2.
@@ -182,19 +302,16 @@ public:
      */
     static boost::shared_ptr< observation_models::ObservationModel<
     2, ObservationScalarType, TimeType > > createObservationModel(
-            const ObservableType observableType,
-            const LinkEnds& linkEnds,
-            const simulation_setup::NamedBodyMap &bodyMap,
-            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& singleObservableCorrections =
-            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL )
+            const LinkEnds linkEnds,
+            const boost::shared_ptr< ObservationSettings > observationSettings,
+            const simulation_setup::NamedBodyMap &bodyMap )
     {
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel<
                 2, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
-        switch( observableType )
+        switch( observationSettings->observableType_ )
         {
         case angular_position:
         {
@@ -215,17 +332,28 @@ public:
                 throw std::runtime_error( "Error when making angular position model, no transmitter found" );
             }
 
+
+            boost::shared_ptr< ObservationBias< 2 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                    createObservationBiasCalculator< 2 >(
+                       linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
+
             // Create observation model
             observationModel = boost::make_shared< AngularPositionObservationModel<
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                            bodyMap, singleObservableCorrections ), observationBiasCalculator );
+                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                        observationBias );
 
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+                        observationSettings->observableType_ ) +
                     "  not recognized when making size 2 observation model.";
             throw std::runtime_error( errorMessage );
             break;
@@ -233,6 +361,7 @@ public:
 
         return observationModel;
     }
+
 };
 
 //! Interface class for creating observation models of size 3.
@@ -253,19 +382,16 @@ public:
      */
     static boost::shared_ptr< observation_models::ObservationModel<
     3, ObservationScalarType, TimeType > > createObservationModel(
-            const ObservableType observableType,
-            const LinkEnds& linkEnds,
-            const simulation_setup::NamedBodyMap &bodyMap,
-            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& singleObservableCorrections =
-            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-           const boost::shared_ptr< ObservationBias < 3 > > observationBiasCalculator = NULL )
+            const LinkEnds linkEnds,
+            const boost::shared_ptr< ObservationSettings > observationSettings,
+            const simulation_setup::NamedBodyMap &bodyMap )
     {
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel<
                 3, ObservationScalarType, TimeType > > observationModel;
 
         // Check type of observation model.
-        switch( observableType )
+        switch( observationSettings->observableType_ )
         {
         case position_observable:
         {
@@ -283,7 +409,7 @@ public:
                 throw std::runtime_error( "Error when making position observable model, no observed_body found" );
             }
 
-            if( singleObservableCorrections.size( ) > 0 )
+            if( observationSettings->lightTimeCorrectionsList_.size( ) > 0 )
             {
                 throw std::runtime_error( "Error when making position observable model, found light time corrections" );
             }
@@ -292,17 +418,28 @@ public:
                 throw std::runtime_error( "Error, cannot yet create position function for reference point" );
             }
 
+            boost::shared_ptr< ObservationBias< 3 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                    createObservationBiasCalculator< 3 >(
+                       linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
+
+
             // Create observation model
             observationModel = boost::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType > >(
                         boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                      ObservationScalarType, TimeType >,
-                                     bodyMap.at( linkEnds.at( observed_body ).first ), _1 ), observationBiasCalculator );
+                                     bodyMap.at( linkEnds.at( observed_body ).first ), _1 ),
+                        observationBias );
 
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+                        observationSettings->observableType_ ) +
                     "  not recognized when making size 3 observation model.";
             throw std::runtime_error( errorMessage );
             break;

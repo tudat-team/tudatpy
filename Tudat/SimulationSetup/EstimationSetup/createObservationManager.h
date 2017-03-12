@@ -40,28 +40,19 @@ namespace observation_models
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
         const ObservableType observableType,
-        const std::vector< LinkEnds > linkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap,
-        const LightTimeCorrectionSettingsMap& singleObservableCorrections =
-        LightTimeCorrectionSettingsMap( ) )
+        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+        const simulation_setup::NamedBodyMap &bodyMap )
 {
     std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModels;
 
     // Iterate over all link ends
-    for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+    for( std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > >::const_iterator settingIterator =
+         settingsPerLinkEnds.begin( ); settingIterator != settingsPerLinkEnds.end( ); settingIterator++ )
     {
-
-        // Create single observation model.
-        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > currentLightTimeCorrections;
-        if( singleObservableCorrections.count( linkEnds.at( i ) ) > 0 )
-        {
-            currentLightTimeCorrections = singleObservableCorrections.at( linkEnds.at( i ) );
-        }
-        observationModels[ linkEnds[ i ] ] = ObservationModelCreator<
+        observationModels[ settingIterator->first ] = ObservationModelCreator<
                 ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
-                    observableType, linkEnds.at( i ), bodyMap, currentLightTimeCorrections );
-
+                    settingIterator->first, settingIterator->second, bodyMap );
     }
 
     return boost::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
@@ -85,24 +76,20 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
-        const std::vector< LinkEnds > linkEnds,
+        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
         parametersToEstimate,
         const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
-        stateTransitionMatrixInterface,
-        const LightTimeCorrectionSettingsMap& singleObservableCorrections =
-        LightTimeCorrectionSettingsMap( ) )
+        stateTransitionMatrixInterface )
 {
     using namespace observation_models;
     using namespace observation_partials;
 
-    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
-
     // Create observation simulator
     boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator =
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
-                observableType, linkEnds, bodyMap, singleObservableCorrections );
+                observableType, settingsPerLinkEnds, bodyMap );
 
     // Get light-time corrections for current observable
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionList =
@@ -117,7 +104,7 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
     {
         observationPartialsAndScaler =
             observationPartialCreator->createObservationPartials(
-                observableType, linkEnds, bodyMap, parametersToEstimate,
+                observableType, utilities::createVectorFromMapKeys( settingsPerLinkEnds ), bodyMap, parametersToEstimate,
                 lightTimeCorrectionList );
     }
 
@@ -138,7 +125,8 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
 /*!
  *  Function to create an object to simulate observations of a given type and associated partials
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
- *  \param linkEnds List of LinkEnds for which the object is to be able to simulate observations of this kind
+ *  \param settingsPerLinkEnds List of observation model setting for list of linkEnds for which the object is to be able to
+ *  simulate observations of this kind
  *  \param bodyMap Map of Body objects that comprise the environment
  *  \param parametersToEstimate Object containing the list of all parameters that are to be estimated
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
@@ -149,35 +137,33 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
 template< typename ObservationScalarType = double, typename TimeType = double >
 boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
-        const std::vector< LinkEnds > linkEnds,
+        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-        const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface,
-        const LightTimeCorrectionSettingsMap& singleObservableCorrections =
-        LightTimeCorrectionSettingsMap( ) )
+        const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface )
 {
     boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
     switch( observableType )
     {
-    case oneWayRange:
+    case one_way_range:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, linkEnds, bodyMap, parametersToEstimate,
-                    stateTransitionMatrixInterface, singleObservableCorrections );
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
         break;
-    case oneWayDoppler:
+    case one_way_doppler:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
-                    observableType, linkEnds, bodyMap, parametersToEstimate,
-                    stateTransitionMatrixInterface, singleObservableCorrections );
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
         break;
     case angular_position:
         observationManager = createObservationManager< 2, ObservationScalarType, TimeType >(
-                    observableType, linkEnds, bodyMap, parametersToEstimate,
-                    stateTransitionMatrixInterface, singleObservableCorrections );
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
         break;
     case position_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
-                    observableType, linkEnds, bodyMap, parametersToEstimate,
-                    stateTransitionMatrixInterface, singleObservableCorrections );
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
         break;
     default:
         throw std::runtime_error(

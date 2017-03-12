@@ -79,14 +79,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Generate one-way range model
         boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    oneWayRange, linkEnds, bodyMap  );
+                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                        observation_models::one_way_range ), bodyMap  );
 
         // Create parameter objects.
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, true, true );
+                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, true, true );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -102,14 +103,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Generate one-way range model
         boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    oneWayRange, linkEnds, bodyMap  );
+                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                        observation_models::one_way_range ), bodyMap  );
 
         // Create parameter objects.
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, oneWayRange, 1.0E-6, false, true );
+                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
     }
 }
 

@@ -68,7 +68,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             // Check type of observable
             switch( observableType )
             {
-            case observation_models::oneWayRange:
+            case observation_models::one_way_range:
             {
                 boost::shared_ptr< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
@@ -79,7 +79,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
-            case observation_models::oneWayDoppler:
+            case observation_models::one_way_doppler:
             {
                 boost::shared_ptr< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
@@ -217,11 +217,11 @@ public:
                 boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
         switch( observableType )
         {
-        case observation_models::oneWayRange:
+        case observation_models::one_way_range:
             observationPartialList = createOneWayRangePartials< ParameterType >(
                         linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
-        case observation_models::oneWayDoppler:
+        case observation_models::one_way_doppler:
             observationPartialList = createOneWayDopplerPartials< ParameterType >(
                         linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;

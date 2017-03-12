@@ -143,42 +143,46 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
             observableCorrections;
 
     // Define link ends
-    std::vector< LinkEnds > linkEnds;
+    LinkEnds linkEnds;
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsMap;
 
-        if(observableType == 0 )
-        {
-            linkEnds.resize( 1 );
-            linkEnds[ 0 ][ observed_body ] = std::make_pair( "Earth", "" );
-            linkEndsMap[ position_observable ] = linkEnds;
-        }
-        else
-        {
-            linkEnds.resize( 1 );
-            linkEnds[ 0 ][ transmitter ] = std::make_pair( "Earth", "" );
-            linkEnds[ 0 ][ receiver ] = std::make_pair( "Mars", "" );
+    observation_models::ObservationSettingsMap observationSettingsMap;
 
-            if( observableType == 1 )
-            {
-                linkEndsMap[ oneWayRange ] = linkEnds;
-            }
-            else if( observableType == 2 )
-            {
-                linkEndsMap[ angular_position ] = linkEnds;
-            }
-            else if( observableType == 3 )
-            {
-                linkEndsMap[ oneWayDoppler ] = linkEnds;
-            }
+    if(observableType == 0 )
+    {
+        linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
+        observationSettingsMap[ position_observable ][ linkEnds ] = boost::make_shared< ObservationSettings >(
+                    position_observable );
+    }
+    else
+    {
+        linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
+        linkEnds[ receiver ] = std::make_pair( "Mars", "" );
+
+        if( observableType == 1 )
+        {
+            observationSettingsMap[ one_way_range ][ linkEnds ] = boost::make_shared< ObservationSettings >(
+                        one_way_range );
         }
+        else if( observableType == 2 )
+        {
+            observationSettingsMap[ angular_position ][ linkEnds ] = boost::make_shared< ObservationSettings >(
+                        angular_position );
+        }
+        else if( observableType == 3 )
+        {
+            observationSettingsMap[ one_way_doppler ][ linkEnds ] = boost::make_shared< ObservationSettings >(
+                        one_way_doppler );
+        }
+    }
 
 
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                bodyMap, parametersToEstimate,
-                linkEndsMap, integratorSettings, propagatorSettings, observableCorrections );
+                bodyMap, parametersToEstimate, observationSettingsMap,
+                integratorSettings, propagatorSettings );
 
 
     // Define observation times.
@@ -199,28 +203,28 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
     std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > singleObservableSimulationInput;
     initialObservationTimes = utilities::addScalarToVector( initialObservationTimes, 30.0 );
-        if( observableType == 0 )
-        {
-            singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, observed_body );
-            measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
-        }
-        else
-        {
-            singleObservableSimulationInput[ linkEnds[ 0 ] ] = std::make_pair( initialObservationTimes, transmitter );
+    if( observableType == 0 )
+    {
+        singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, observed_body );
+        measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
+    }
+    else
+    {
+        singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, transmitter );
 
-            if( observableType == 1 )
-            {
-                measurementSimulationInput[ oneWayRange ] = singleObservableSimulationInput;
-            }
-            else if( observableType == 2 )
-            {
-                measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
-            }
-            else if( observableType == 3 )
-            {
-                measurementSimulationInput[ oneWayDoppler ] = singleObservableSimulationInput;
-            }
+        if( observableType == 1 )
+        {
+            measurementSimulationInput[ one_way_range ] = singleObservableSimulationInput;
         }
+        else if( observableType == 2 )
+        {
+            measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
+        }
+        else if( observableType == 3 )
+        {
+            measurementSimulationInput[ one_way_doppler ] = singleObservableSimulationInput;
+        }
+    }
 
     singleObservableSimulationInput.clear( );
 

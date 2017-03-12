@@ -234,6 +234,12 @@ public:
         return ObservationSize;
     }
 
+    boost::shared_ptr< ObservationBias< ObservationSize > > getObservationBiasCalculator( )
+    {
+        return observationBiasCalculator_;
+    }
+
+
 protected:
 
     //! Type of observable, used for derived class type identification without explicit casts.
