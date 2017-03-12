@@ -138,21 +138,16 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
               TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
               cowell, boost::shared_ptr< DependentVariableSaveSettings >( ), 600.0 );
 
-    // Define light-time corrections.
-    std::map< ObservableType, std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > >
-            observableCorrections;
 
     // Define link ends
     LinkEnds linkEnds;
-    std::map< ObservableType, std::vector< LinkEnds > > linkEndsMap;
-
     observation_models::ObservationSettingsMap observationSettingsMap;
 
     if(observableType == 0 )
     {
         linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
-        observationSettingsMap[ position_observable ][ linkEnds ] = boost::make_shared< ObservationSettings >(
-                    position_observable );
+        observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                    position_observable ) ) );
     }
     else
     {
@@ -161,18 +156,27 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
         if( observableType == 1 )
         {
-            observationSettingsMap[ one_way_range ][ linkEnds ] = boost::make_shared< ObservationSettings >(
-                        one_way_range );
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        one_way_range ) ) );
         }
         else if( observableType == 2 )
         {
-            observationSettingsMap[ angular_position ][ linkEnds ] = boost::make_shared< ObservationSettings >(
-                        angular_position );
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        angular_position ) ) );
         }
         else if( observableType == 3 )
         {
-            observationSettingsMap[ one_way_doppler ][ linkEnds ] = boost::make_shared< ObservationSettings >(
-                        one_way_doppler );
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        one_way_doppler ) ) );
+        }
+        else if( observableType == 4 )
+        {
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        one_way_range ) ) );
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        one_way_doppler ) ) );
+            observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                        angular_position ) ) );
         }
     }
 
@@ -224,6 +228,12 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         {
             measurementSimulationInput[ one_way_doppler ] = singleObservableSimulationInput;
         }
+        else if( observableType == 4 )
+        {
+            measurementSimulationInput[ one_way_range ] = singleObservableSimulationInput;
+            measurementSimulationInput[ one_way_doppler ] = singleObservableSimulationInput;
+            measurementSimulationInput[ angular_position ] = singleObservableSimulationInput;
+        }
     }
 
     singleObservableSimulationInput.clear( );
@@ -254,7 +264,15 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
                 observationsAndTimes, initialParameterEstimate.rows( ), inverseAPrioriCovariance,
                 initialParameterEstimate - truthParameters );
-    podInput->setConstantWeightsMatrix( weight );
+    if( observableType == 4 )
+    {
+        std::map< observation_models::ObservableType, double > weightPerObservable;
+        weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
+        weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-9 * 1.0E-9 );
+        weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
+
+        podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    }
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(

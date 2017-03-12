@@ -198,10 +198,33 @@ public:
             const NamedBodyMap &bodyMap,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
+            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+        parametersToEstimate_( parametersToEstimate )
+    {
+        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
+    }
+
+    OrbitDeterminationManager(
+            const NamedBodyMap &bodyMap,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
         parametersToEstimate_( parametersToEstimate )
+    {
+        initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
+                                                 observationSettingsMap ), integratorSettings, propagatorSettings );
+    }
+
+
+    void initializeOrbitDeterminationManager(
+            const NamedBodyMap &bodyMap,
+            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
@@ -211,7 +234,7 @@ public:
         std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
                 initialDynamicalStates =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >(
-                    parametersToEstimate );
+                    parametersToEstimate_ );
         if( initialDynamicalStates.size( ) > 0 )
         {
 
@@ -219,7 +242,7 @@ public:
 
             variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
                     < ObservationScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, 1,
+                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
                         boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
         }
         else
@@ -247,13 +270,13 @@ public:
         }
 
         // Iterate over all observables and create observation managers.
-        for( ObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
+        for( SortedObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
              observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
         {
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
                     createObservationManagerBase< ObservationScalarType, TimeType >(
-                        observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate,
+                        observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate_,
                         stateTransitionAndSensitivityMatrixInterface_ );
         }
 
