@@ -122,7 +122,7 @@ public:
         for( typename PodInputDataType::const_iterator observablesIterator = observationsAndTimes_.begin( );
              observablesIterator != observationsAndTimes_.end( ); observablesIterator++ )
         {
-            if( weightPerObservable.count( observablesIterator->first ) != NULL )
+            if( weightPerObservable.count( observablesIterator->first ) != 0 )
             {
                 for( typename SingleObservablePodInputType::const_iterator dataIterator =
                      observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )

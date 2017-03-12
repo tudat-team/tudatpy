@@ -97,7 +97,11 @@ public:
     boost::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
 
-typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > ObservationSettingsMap;
+typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+typedef std::multimap< LinkEnds, boost::shared_ptr< ObservationSettings > > ObservationSettingsMap;
+
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsMap& unsortedObservationSettingsMap );
 
 template< int ObservationSize = 1 >
 boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
