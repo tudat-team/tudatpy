@@ -273,6 +273,10 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
         podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
     }
+    else
+    {
+        podInput->setConstantWeightsMatrix( weight );
+    }
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
