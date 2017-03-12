@@ -101,7 +101,6 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
         const boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
-        const bool createPositionPartial = true,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
@@ -185,7 +184,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
         // Create position one-way doppler partial for current body
         boost::shared_ptr< ObservationPartial< 1 > > currentDopplerPartialWrtPosition = createOneWayDopplerPartialWrtBodyState(
-                    oneWayDopplerLinkEnds, bodyMap, acceleratedBody, oneWayDopplerScaling, true, lightTimeCorrectionPartialObjects );
+                    oneWayDopplerLinkEnds, bodyMap, acceleratedBody, oneWayDopplerScaling, lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-null (i.e. whether dependency exists between current doppler and current body)
         if( currentDopplerPartialWrtPosition != NULL )

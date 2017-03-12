@@ -22,8 +22,7 @@ namespace observation_partials
 std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string bodyToEstimate,
-        const bool createPositionPartial )
+        const std::string bodyToEstimate )
 {
     // Declare data map to return.
     std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
@@ -294,7 +293,7 @@ boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWr
         const boost::shared_ptr< PositionObservationScaling > positionObservableScaler )
 {
     std::map<  observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate, true );
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
     boost::shared_ptr< PositionObervationPartial > positionObervationPartial;
 
     if( positionPartials.size( ) > 0 )
