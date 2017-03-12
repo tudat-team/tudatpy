@@ -60,7 +60,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 
 //! Function to multiply information matrix by diagonal weights matrix
 /*!
- * \Function to multiply information matrix by diagonal weights matrix
+ * Function to multiply information matrix by diagonal weights matrix
  * \param informationMatrix Matrix containing partial derivatives of observations (rows) w.r.t. estimated parameters
  * (columns)
  * \param diagonalOfWeightMatrix Diagonal of observation weights matrix (assumes all weights to be uncorrelated)
