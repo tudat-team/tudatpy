@@ -191,8 +191,6 @@ public:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
-     *  \param observableCorrections List of correction function to for each observable type and set of link ends (
-     *  relativistic, troposphere, etc. )
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
@@ -206,6 +204,17 @@ public:
         initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
     }
 
+    //! Constructor
+    /*!
+     *  Constructor
+     *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
+     *  \param parametersToEstimate Container object for all parameters that are to be estimated
+     *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
+     *  for which measurement data is to be provided in orbit determination process
+     *  (through estimateParameters function)
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
@@ -217,71 +226,6 @@ public:
     {
         initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
                                                  observationSettingsMap ), integratorSettings, propagatorSettings );
-    }
-
-
-    void initializeOrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
-    {
-        using namespace numerical_integrators;
-        using namespace orbit_determination;
-        using namespace observation_models;
-
-        // Check if any dynamics is to be estimated
-        std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
-                initialDynamicalStates =
-                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >(
-                    parametersToEstimate_ );
-        if( initialDynamicalStates.size( ) > 0 )
-        {
-
-            integrateAndEstimateOrbit_ = true;
-
-            variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                    < ObservationScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                        boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
-        }
-        else
-        {
-            integrateAndEstimateOrbit_ = false;
-        }
-
-        // Set state transition matrix interface.
-        if( integrateAndEstimateOrbit_ )
-        {
-            stateTransitionAndSensitivityMatrixInterface_ =
-                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
-        }
-        else if( propagatorSettings == NULL )
-        {
-            stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-                    propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        0, parametersToEstimate_->getParameterSetSize( ) );
-        }
-        else if( propagatorSettings != NULL )
-        {
-            throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
-        }
-
-        // Iterate over all observables and create observation managers.
-        for( SortedObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
-             observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
-        {
-            // Create observation manager for current observable.
-            observationManagers_[ observablesIterator->first ] =
-                    createObservationManagerBase< ObservationScalarType, TimeType >(
-                        observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate_,
-                        stateTransitionAndSensitivityMatrixInterface_ );
-        }
-
-        // Set current parameter estimate from body initial states and parameter set.
-        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
     }
 
     //! Function to retrieve map of all observation managers
@@ -716,6 +660,80 @@ public:
 
 
 protected:
+
+    //! Function called by either constructor to initialize the object.
+    /*!
+     *  Function called by either constructor to initialize the object.
+     *  \param bodyMap Map of body objects with names of bodies, storing all environment models used in simulation.
+     *  \param observationSettingsMap Sets of observation model settings per link ends (i.e. transmitter, receiver, etc.)
+     *  for which measurement data is to be provided in orbit determination process
+     *  (through estimateParameters function)
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     */
+    void initializeOrbitDeterminationManager(
+            const NamedBodyMap &bodyMap,
+            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
+    {
+        using namespace numerical_integrators;
+        using namespace orbit_determination;
+        using namespace observation_models;
+
+        // Check if any dynamics is to be estimated
+        std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+                initialDynamicalStates =
+                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >(
+                    parametersToEstimate_ );
+        if( initialDynamicalStates.size( ) > 0 )
+        {
+
+            integrateAndEstimateOrbit_ = true;
+
+            variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
+                    < ObservationScalarType, TimeType > >(
+                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
+                        boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+        }
+        else
+        {
+            integrateAndEstimateOrbit_ = false;
+        }
+
+        // Set state transition matrix interface.
+        if( integrateAndEstimateOrbit_ )
+        {
+            stateTransitionAndSensitivityMatrixInterface_ =
+                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
+        }
+        else if( propagatorSettings == NULL )
+        {
+            stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
+                    propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                        0, parametersToEstimate_->getParameterSetSize( ) );
+        }
+        else if( propagatorSettings != NULL )
+        {
+            throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
+        }
+
+        // Iterate over all observables and create observation managers.
+        for( SortedObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
+             observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
+        {
+            // Create observation manager for current observable.
+            observationManagers_[ observablesIterator->first ] =
+                    createObservationManagerBase< ObservationScalarType, TimeType >(
+                        observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate_,
+                        stateTransitionAndSensitivityMatrixInterface_ );
+        }
+
+        // Set current parameter estimate from body initial states and parameter set.
+        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+    }
 
     //! Boolean to denote whether any dynamical parameters are estimated
     bool integrateAndEstimateOrbit_;
