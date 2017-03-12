@@ -239,6 +239,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         dependentVariables.push_back(
                     boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Apollo", "Earth", 0 ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        central_gravity, "Apollo", "Moon", 0 ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        third_body_central_gravity, "Apollo", "Moon", 0 ) );
 
 
         // Create acceleration models and propagation settings.
@@ -311,6 +317,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             Eigen::Vector3d momentCoefficients = variableIterator->second.segment( 27, 3 );
             Eigen::Vector3d forceCoefficients = variableIterator->second.segment( 30, 3 );
             Eigen::Vector3d aerodynamicAcceleration = variableIterator->second.segment( 33, 3 );
+            Eigen::Vector3d moonAcceleration1 = variableIterator->second.segment( 36, 3 );
+            Eigen::Vector3d moonAcceleration2 = variableIterator->second.segment( 39, 3 );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -460,6 +468,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                         std::fabs( momentCoefficients( 1 ) ), 1.0E-10 );
             BOOST_CHECK_SMALL(
                         std::fabs( momentCoefficients( 2 ) ), 1.0E-14 );
+
+            // Check if third-body gravity saving is done correctly
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( moonAcceleration1, moonAcceleration2,
+                                               ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         }
     }
