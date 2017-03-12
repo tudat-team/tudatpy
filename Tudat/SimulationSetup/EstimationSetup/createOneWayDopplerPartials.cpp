@@ -30,7 +30,6 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
         const boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
-        const bool createPositionPartial,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects  )
 {
@@ -41,7 +40,7 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
 
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodyMap, bodyToEstimate, createPositionPartial );
+            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodyMap, bodyToEstimate );
 
     // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< OneWayDopplerPartial > oneWayDopplerPartial;
