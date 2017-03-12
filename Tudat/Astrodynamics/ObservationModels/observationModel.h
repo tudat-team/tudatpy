@@ -234,6 +234,11 @@ public:
         return ObservationSize;
     }
 
+    //! Functiomn to return the object for calculating system-dependent errors in the observable.
+    /*!
+     * Functiomn to return the object for calculating system-dependent errors in the observable.
+     * \return Object for calculating system-dependent errors in the observable.
+     */
     boost::shared_ptr< ObservationBias< ObservationSize > > getObservationBiasCalculator( )
     {
         return observationBiasCalculator_;

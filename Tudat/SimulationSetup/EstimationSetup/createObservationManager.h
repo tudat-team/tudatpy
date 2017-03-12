@@ -32,9 +32,9 @@ namespace observation_models
 /*!
  *  Function to create an object to simulate observations of a given type
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
- *  \param linkEnds List of LinkEnds for which the object is to be able to simulate observations of this kind
+ *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
+ *  for each required set of link ends (each settings object must be consistent with observableType).
  *  \param bodyMap Map of Body objects that comprise the environment
- *  \param singleObservableCorrections Settings for light-time corrections (per link end) that are to be used.
  *  \return Object that simulates the observables according to the provided settings.
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
@@ -65,12 +65,11 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
 /*!
  *  Function to create an object to simulate observations of a given type and associated partials
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
- *  \param linkEnds List of LinkEnds for which the object is to be able to simulate observations of this kind
+ *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
+ *  for each required set of link ends (each settings object must be consistent with observableType).
  *  \param bodyMap Map of Body objects that comprise the environment
  *  \param parametersToEstimate Object containing the list of all parameters that are to be estimated
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
- *  \param bodyMap Map of Body objects that comprise the environment
- *  \param singleObservableCorrections Settings for light-time corrections (per link end) that are to be used.
  *  \return Object that simulates the observations of a given type and associated partials
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
@@ -125,13 +124,11 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
 /*!
  *  Function to create an object to simulate observations of a given type and associated partials
  *  \param observableType Type of observable for which object is to simulate ObservationSimulator
- *  \param settingsPerLinkEnds List of observation model setting for list of linkEnds for which the object is to be able to
- *  simulate observations of this kind
+ *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
+ *  for each required set of link ends (each settings object must be consistent with observableType).
  *  \param bodyMap Map of Body objects that comprise the environment
  *  \param parametersToEstimate Object containing the list of all parameters that are to be estimated
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
- *  \param bodyMap Map of Body objects that comprise the environment
- *  \param singleObservableCorrections Settings for light-time corrections (per link end) that are to be used.
  *  \return Object that simulates the observations of a given type and associated partials
  */
 template< typename ObservationScalarType = double, typename TimeType = double >

@@ -22,6 +22,7 @@ namespace tudat
 namespace observation_models
 {
 
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap )
 {

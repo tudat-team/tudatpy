@@ -34,39 +34,78 @@ namespace tudat
 namespace observation_models
 {
 
+//! Base class to define settings for creation of an observation bias model.
+/*!
+ *  Base class to define settings for creation of an observation bias model. For each specific bias type, a derived class
+ *  is to be implemented, in which the specific properties of the bias model are given
+ */
 class ObservationBiasSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationBiasType Type of bias model that is to be created.
+     */
     ObservationBiasSettings(
             const observation_models::ObservationBiasTypes observationBiasType ):
     observationBiasType_( observationBiasType ){ }
 
+    //! Destructor
     virtual ~ObservationBiasSettings( ){ }
 
+    //! Type of bias model that is to be created.
     observation_models::ObservationBiasTypes observationBiasType_;
 };
 
+//! Class for defining settings for the creation of a constant additive observation bias model
 class ConstantObservationBiasSettings: public ObservationBiasSettings
 {
 public:
 
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
+     * size of the observable to which it is assigned.
+     */
     ConstantObservationBiasSettings(
             const Eigen::VectorXd& observationBias ):
     ObservationBiasSettings( constant_additive_bias ), observationBias_( observationBias )
     { }
 
+    //! Destructor
     ~ConstantObservationBiasSettings( ){ }
 
+    //! Constant bias that is to be added to the observable.
+    /*!
+     *  Constant bias that is to be added to the observable. The size of this vector must be equal to the
+     *  size of the observable to which it is assigned.
+     */
     Eigen::VectorXd observationBias_;
 
 };
 
+//! Class used for defining the settings for an observation model that is to be created.
+/*!
+ * Class used for defining the settings for an observation model that is to be created. This class allows the type, light-time
+ * corrections and bias for the observation to be set. For observation models that require additional information (e.g.
+ * integration time, retransmission time, etc.), a specific derived class must be implemented.
+ */
 class ObservationSettings
 {
 public:
 
 
+    //! Constructor
+    /*!
+     * Constructor (single light-time correction)
+     * \param observableType Type of observation model that is to be created
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * (NULL if none)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
     ObservationSettings(
             const observation_models::ObservableType observableType,
             const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
@@ -80,6 +119,14 @@ public:
         }
     }
 
+    //! Constructor
+    /*!
+     * Constructor (multiple light-time correction)
+     * \param observableType Type of observation model that is to be created
+     * \param lightTimeCorrectionsList List of settings for a single light-time correction that is to be used for the observation
+     * model
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
     ObservationSettings(
             const observation_models::ObservableType observableType,
             const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
@@ -88,21 +135,46 @@ public:
         observableType_( observableType ),lightTimeCorrectionsList_( lightTimeCorrectionsList ),
         biasSettings_( biasSettings ){ }
 
+    //! Destructor
     ~ObservationSettings( ){ }
 
+    //! Type of observation model that is to be created
     observation_models::ObservableType observableType_;
 
+    //! List of settings for a single light-time correction that is to be used for the observation model
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList_;
 
+    //! Settings for the observation bias model that is to be used (default none: NULL)
     boost::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
 
+//! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
+//! with contents of ObservationSettings pointers. The ObservationSettingsMap may be used as well, which contains the same
+//! type of information. This typedef, however, has some advantages in terms of book-keeping when creating observation models.
 typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+
+//! Typedef of list of observation models per link ends. Multiple observation models for a single set of link ends are allowed,
+//! since this typedef represents a multimap.
 typedef std::multimap< LinkEnds, boost::shared_ptr< ObservationSettings > > ObservationSettingsMap;
 
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+/*!
+ * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+ * \param unsortedObservationSettingsMap List (multimap_) of observation models sorted link ends
+ * \return List (map of maps) of observation models sorted by observable type and link ends
+ */
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap );
 
+//! Function to create an object that computes an observation bias
+/*!
+ *  Function to create an object that computes an observation bias, which can represent any type of system-dependent influence
+ *  on the observed value (e.g. additive bias, multiplicative bias, clock drift, etc.)
+ *  \param linkEnds Observation link ends for which the bias is to be created.
+ *  \param biasSettings Settings for teh observation bias that is to be created.
+ *  \param bodyMap List of body objects that comprises the environment.
+ *  \return Object that computes an observation bias according to requested settings.
+ */
 template< int ObservationSize = 1 >
 boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
             const LinkEnds linkEnds,
@@ -114,6 +186,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     {
     case constant_additive_bias:
     {
+        // Check input consistency
         boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
                 ConstantObservationBiasSettings >( biasSettings );
         if( constantBiasSettings == NULL )
@@ -121,6 +194,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
             throw std::runtime_error( "Error when making constant observation bias, settings are inconsistent" );
         }
 
+        // Check if size of bias is consistent with requested observable size
         if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
             throw std::runtime_error( "Error when making constant observation bias, bias size is inconsistent" );
@@ -154,11 +228,9 @@ public:
     //! Function to create an observation model.
     /*!
      * Function to create an observation model.
-     * \param observableType Type of observation model that is to be created.
      * \param linkEnds Link ends for observation model that is to be created
+     * \param observationSettings Settings for observation model that is to be created.
      * \param bodyMap List of body objects that comprises the environment
-     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
-     * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
@@ -166,11 +238,6 @@ public:
             const LinkEnds linkEnds,
             const boost::shared_ptr< ObservationSettings > observationSettings,
             const simulation_setup::NamedBodyMap &bodyMap );
-
-   static boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
-           const LinkEnds linkEnds,
-           const boost::shared_ptr< ObservationBiasSettings > observationSettings,
-           const simulation_setup::NamedBodyMap &bodyMap );
 };
 
 //! Interface class for creating observation models of size 1.
@@ -182,11 +249,9 @@ public:
     //! Function to create an observation model of size 1.
     /*!
      * Function to create an observation model of size 1.
-     * \param observableType Type of observation model that is to be created.
      * \param linkEnds Link ends for observation model that is to be created
+     * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
      * \param bodyMap List of body objects that comprises the environment
-     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
-     * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
@@ -297,11 +362,9 @@ public:
     //! Function to create an observation model of size 2.
     /*!
      * Function to create an observation model of size 2.
-     * \param observableType Type of observation model that is to be created.
      * \param linkEnds Link ends for observation model that is to be created
+     * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
      * \param bodyMap List of body objects that comprises the environment
-     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
-     * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
@@ -377,11 +440,9 @@ public:
     //! Function to create an observation model of size 3.
     /*!
      * Function to create an observation model of size 3.
-     * \param observableType Type of observation model that is to be created.
      * \param linkEnds Link ends for observation model that is to be created
+     * \param observationSettings Settings for observation model that is to be created (must be for observation model if size 1).
      * \param bodyMap List of body objects that comprises the environment
-     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
-     * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
     static boost::shared_ptr< observation_models::ObservationModel<
