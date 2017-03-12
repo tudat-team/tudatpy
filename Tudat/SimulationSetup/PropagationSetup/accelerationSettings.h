@@ -153,8 +153,8 @@ public:
      * \param calculateSchwarzschildCorrection Boolean denoting wheter the Schwarzschild term is used.
      * \param calculateLenseThirringCorrection Boolean denoting wheter the Lense-Thirring term is used.
      * \param calculateDeSitterCorrection Boolean denoting wheter the de Sitter term is used.
-     * \param primaryBodyName Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
-     * \param angularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this function
+     * \param primaryBody Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
+     * \param centralBodyAngularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this function
      * is temporary: in the future this will be done consistently with rotation/gravity field.
      */
     RelativisticAccelerationCorrectionSettings(
