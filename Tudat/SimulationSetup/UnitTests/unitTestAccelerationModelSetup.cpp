@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Compare results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                expectedAcceleration, calculatedAcceleration, ( std::numeric_limits< double >::epsilon( ) ) );
+                expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
 
 }
