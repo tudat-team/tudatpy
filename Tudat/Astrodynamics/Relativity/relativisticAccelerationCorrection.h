@@ -82,6 +82,7 @@ Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
  * \param relativeDistance Distance between bodies undergoing and exerting acceleration (norm of relativePosition)
  * \param commonCorrectionTerm Common term in relativistic accelerations, as computed by
  * calculateRelativisticAccelerationCorrectionsCommonterm function
+ * \param centralBodyAngularMomentum Angular momentum vector of central body.
  * \param ppnParameterGamma PPN parameter gamma
  * \return Lense-Thirring term of the relativistic acceleration correction.
  */
@@ -111,7 +112,7 @@ Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
 //! Function to compute the de Sitter term of the relativistic acceleration correction.
 /*!
  *  Function to compute the  de Sitter term of the relativistic acceleration correction.
- * \param relativePosition Velocity of body undergoing, w.r.t. body exerting, acceleration.
+ * \param orbiterRelativeVelocity Velocity of body undergoing, w.r.t. body exerting, acceleration.
  * \param orbitedBodyPositionWrtLargerBody Position of body undergoing acceleration w.r.t. its central body. For an
  * acceleration on a satellite orbiting the Earth, this would be the position of the Earth w.r.t. the Sun.
  * \param orbitedBodyVelocityWrtLargerBody Velocity of body undergoing acceleration w.r.t. its central body. For an
@@ -238,7 +239,6 @@ public:
      * \param gravitationalParameterFunctionOfCentralBody Function returning the gravitational parameter of the central body
      * \param ppnParameterGammaFunction Function returning the PPN parameter gamma (default 1)
      * \param ppnParameterBetaFunction Function returning the PPN parameter beta (default 1)
-     * \param calculateSchwarzschildCorrection Boolean denoting whether the schwarzschild term is to be used.
      */
     RelativisticAccelerationCorrection(
             boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
