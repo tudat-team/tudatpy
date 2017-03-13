@@ -22,6 +22,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -50,7 +51,7 @@ public:
      */
     ObservationBiasSettings(
             const observation_models::ObservationBiasTypes observationBiasType ):
-    observationBiasType_( observationBiasType ){ }
+        observationBiasType_( observationBiasType ){ }
 
     //! Destructor
     virtual ~ObservationBiasSettings( ){ }
@@ -72,7 +73,7 @@ public:
      */
     ConstantObservationBiasSettings(
             const Eigen::VectorXd& observationBias ):
-    ObservationBiasSettings( constant_additive_bias ), observationBias_( observationBias )
+        ObservationBiasSettings( constant_additive_bias ), observationBias_( observationBias )
     { }
 
     //! Destructor
@@ -136,7 +137,7 @@ public:
         biasSettings_( biasSettings ){ }
 
     //! Destructor
-    ~ObservationSettings( ){ }
+    virtual ~ObservationSettings( ){ }
 
     //! Type of observation model that is to be created
     observation_models::ObservableType observableType_;
@@ -146,6 +147,30 @@ public:
 
     //! Settings for the observation bias model that is to be used (default none: NULL)
     boost::shared_ptr< ObservationBiasSettings > biasSettings_;
+};
+
+class OneWayDifferencedRangeRateObservationSettings: public ObservationSettings
+{
+public:
+    OneWayDifferencedRangeRateObservationSettings(
+            const boost::function< double( const double ) > integrationTimeFunction,
+            const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( one_way_differenced_range, lightTimeCorrections, biasSettings ),
+        integrationTimeFunction_( integrationTimeFunction ){ }
+
+    OneWayDifferencedRangeRateObservationSettings(
+            const boost::function< double( const double ) > integrationTimeFunction,
+            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( one_way_differenced_range, lightTimeCorrectionsList, biasSettings ),
+        integrationTimeFunction_( integrationTimeFunction ){ }
+
+    ~OneWayDifferencedRangeRateObservationSettings( ){ }
+
+    const boost::function< double( const double ) > integrationTimeFunction_;
+
 };
 
 //! Typedef of list of observation models per obserable type and link ends: note that ObservableType key must be consistent
@@ -166,6 +191,7 @@ typedef std::multimap< LinkEnds, boost::shared_ptr< ObservationSettings > > Obse
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap );
 
+
 //! Function to create an object that computes an observation bias
 /*!
  *  Function to create an object that computes an observation bias, which can represent any type of system-dependent influence
@@ -177,9 +203,9 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
  */
 template< int ObservationSize = 1 >
 boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
-            const LinkEnds linkEnds,
-            const boost::shared_ptr< ObservationBiasSettings > biasSettings,
-            const simulation_setup::NamedBodyMap &bodyMap )
+        const LinkEnds linkEnds,
+        const boost::shared_ptr< ObservationBiasSettings > biasSettings,
+        const simulation_setup::NamedBodyMap &bodyMap )
 {
     boost::shared_ptr< ObservationBias< ObservationSize > > observationBias;
     switch( biasSettings->observationBiasType_ )
@@ -291,57 +317,104 @@ public:
             if( observationSettings->biasSettings_ != NULL )
             {
                 observationBias =
-                    createObservationBiasCalculator(
-                       linkEnds, observationSettings->biasSettings_,bodyMap );
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
             observationModel = boost::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                        linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                        bodyMap, observationSettings->lightTimeCorrectionsList_ ),
-                         observationBias );
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                        observationBias );
 
             break;
         }
         case one_way_doppler:
-         {
-             // Check consistency input.
-             if( linkEnds.size( ) != 2 )
-             {
-                 std::string errorMessage =
-                         "Error when making 1 way range model, " +
-                         boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
-                 throw std::runtime_error( errorMessage );
-             }
-             if( linkEnds.count( receiver ) == 0 )
-             {
-                 throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
-             }
-             if( linkEnds.count( transmitter ) == 0 )
-             {
-                 throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
-             }
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 2 )
+            {
+                std::string errorMessage =
+                        "Error when making 1 way range model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
+            }
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
+            }
 
-             boost::shared_ptr< ObservationBias< 1 > > observationBias;
-             if( observationSettings->biasSettings_ != NULL )
-             {
-                 observationBias =
-                     createObservationBiasCalculator(
-                        linkEnds, observationSettings->biasSettings_,bodyMap );
-             }
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
 
-             // Create observation model
-             observationModel = boost::make_shared< OneWayDopplerObservationModel<
-                     ObservationScalarType, TimeType > >(
-                         createLightTimeCalculator< ObservationScalarType, TimeType >(
-                         linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                         bodyMap, observationSettings->lightTimeCorrectionsList_ ),
-                         observationBias );
+            // Create observation model
+            observationModel = boost::make_shared< OneWayDopplerObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                        observationBias );
 
-             break;
-         }
+            break;
+        }
+        case one_way_differenced_range:
+        {
+            boost::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
+                    boost::dynamic_pointer_cast< OneWayDifferencedRangeRateObservationSettings >( observationSettings );
+            if( rangeRateObservationSettings == NULL )
+            {
+                throw std::runtime_error( "Error when making differenced one-way range rate, input type is inconsistent" );
+            }
+            // Check consistency input.
+            if( linkEnds.size( ) != 2 )
+            {
+                std::string errorMessage =
+                        "Error when making 1 way range model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
+            }
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
+            }
+
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
+
+            // Create observation model
+            observationModel = boost::make_shared< OneWayDifferencedRangeObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                        createLightTimeCalculator< ObservationScalarType, TimeType >(
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            bodyMap, observationSettings->lightTimeCorrectionsList_ ),
+                        rangeRateObservationSettings->integrationTimeFunction_,
+                        observationBias );
+
+            break;
+        }
         default:
             std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
                         observationSettings->observableType_ ) +
@@ -404,8 +477,8 @@ public:
             if( observationSettings->biasSettings_ != NULL )
             {
                 observationBias =
-                    createObservationBiasCalculator< 2 >(
-                       linkEnds, observationSettings->biasSettings_,bodyMap );
+                        createObservationBiasCalculator< 2 >(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -487,8 +560,8 @@ public:
             if( observationSettings->biasSettings_ != NULL )
             {
                 observationBias =
-                    createObservationBiasCalculator< 3 >(
-                       linkEnds, observationSettings->biasSettings_,bodyMap );
+                        createObservationBiasCalculator< 3 >(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
             }
 
 

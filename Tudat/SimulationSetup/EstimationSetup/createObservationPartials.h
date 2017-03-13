@@ -20,6 +20,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
 
 namespace tudat
 {
@@ -31,7 +32,6 @@ namespace observation_partials
 typedef std::map< observation_models::LinkEnds,
 std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >
 PerLinkEndPerLightTimeSolutionCorrections;
-
 
 //! Function to retrieve a list of light-time corrections per link end from a list of observation models.
 /*!
@@ -91,6 +91,17 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 break;
             }
             case observation_models::angular_position:
+            {
+                boost::shared_ptr< observation_models::AngularPositionObservationModel
+                        < ObservationScalarType, TimeType> > angularPositionModel =
+                        boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::one_way_differenced_range:
             {
                 boost::shared_ptr< observation_models::AngularPositionObservationModel
                         < ObservationScalarType, TimeType> > angularPositionModel =
@@ -223,6 +234,10 @@ public:
             break;
         case observation_models::one_way_doppler:
             observationPartialList = createOneWayDopplerPartials< ParameterType >(
+                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+            break;
+        case observation_models::one_way_differenced_range:
+            observationPartialList = createDifferencedOneWayRangeRatePartials< ParameterType >(
                         linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
             break;
 
