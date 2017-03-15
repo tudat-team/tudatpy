@@ -65,6 +65,8 @@ public:
                 removeCentralGravityAccelerations(
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_ );
+        this->createAccelerationModelList( );
+
     }
 
     //! Destructor
@@ -100,7 +102,7 @@ public:
                         bodyCartesianState ) * stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
             stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
                         currentKeplerianState, currentAccelerationInRswFrame,
-                        centralBodyGravitationalParameters_.at( i )( ) );
+                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
     }
 
@@ -126,7 +128,7 @@ public:
             double meanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
                         eccentricAnomaly, currentKeplerianState( 1 ) );
             currentKeplerianState( 5 ) = meanAnomaly;
-            currentState.segment( i * 6, 6 ) = currentKeplerianState;
+            currentState.segment( i * 6, 6 ) = currentKeplerianState.template cast< StateScalarType >( );
         }
 
         return currentState;
