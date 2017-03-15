@@ -152,7 +152,7 @@ public:
             currentKeplerianState( 5 ) = currentTrueAnomaly;
 
             currentCartesianLocalSoluton.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
-                    currentKeplerianState, centralBodyGravitationalParameters_.at( i )( ) );
+                    currentKeplerianState, centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
         //std::cout<<"From Keplerian: "<<std::setprecision( 16 )<<time<<" "<<currentKeplerianState.transpose( )<<std::endl<<std::endl;
     }
