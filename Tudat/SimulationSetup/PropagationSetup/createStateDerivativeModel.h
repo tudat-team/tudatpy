@@ -18,6 +18,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussVariationalStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -156,6 +157,17 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
                   initialKeplerElements, propagationStartTime );
+
+        break;
+    }
+    case gauss:
+    {
+        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
+
+        // Create Encke state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyGaussStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
 
         break;
     }

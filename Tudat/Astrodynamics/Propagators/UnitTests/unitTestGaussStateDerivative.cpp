@@ -13,26 +13,12 @@
 #include <limits>
 #include <string>
 #include <thread>
-#include <omp.h>
 
 #include <boost/make_shared.hpp>
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-
-#include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
-#include "Tudat/SimulationSetup/defaultBodies.h"
-#include "Tudat/SimulationSetup/createBodies.h"
-#include "Tudat/SimulationSetup/createAccelerationModels.h"
-#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
+#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
 namespace tudat
 {
@@ -77,40 +63,54 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         bodyNames[ 6 ] = "Jupiter";
 
         double initialEphemerisTime = 1.0E7;
-        double finalEphemerisTime = 2.0E7;
-        double maximumTimeStep = 3600.0;
+        double finalEphemerisTime = 1.0E7 + 100000.0;
+        double maximumTimeStep = 250.0;
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        NamedBodyMap bodyMap = createBodies(
-                    getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
+        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer );
+        bodySettings[ "Sun" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                    Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
+
+        //        bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Sun" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Venus" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Mercury" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+        //        bodySettings[ "Jupiter" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+
+
+        NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
         accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        //accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        //accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
         accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         //accelerationsOfMars[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         //accelerationsOfMars[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationMap[ "Mars" ] = accelerationsOfMars;
+        //accelerationMap[ "Mars" ] = accelerationsOfMars;
 
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-        //accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        //        accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        //accelerationsOfMoon[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationMap[ "Moon" ] = accelerationsOfMoon;
+        //        accelerationsOfMoon[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        //accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
         // Propagate Earth, Mars and Moon
         std::vector< std::string > bodiesToPropagate;
         bodiesToPropagate.push_back( "Earth" );
-        bodiesToPropagate.push_back( "Mars" );
-        bodiesToPropagate.push_back( "Moon" );
+        //        bodiesToPropagate.push_back( "Mars" );
+        //        bodiesToPropagate.push_back( "Moon" );
 
         unsigned int numberOfNumericalBodies = bodiesToPropagate.size( );
 
@@ -118,16 +118,17 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         std::vector< std::string > centralBodies;
         std::map< std::string, std::string > centralBodyMap;
         centralBodies.resize( numberOfNumericalBodies );
-        for( int i = 0; i < 3; i++ )
+        for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
         {
-            if( i == 2 && simulationCase == 1 )
-            {
-                centralBodies[ i ] = "Earth";
-            }
-            else
-            {
-                centralBodies[ i ] = "Sun";
-            }
+            centralBodies[ i ] = "Sun";
+            //            if( i == 2 && simulationCase == 1 )
+            //            {
+            //                centralBodies[ i ] = "Earth";
+            //            }
+            //            else
+            //            {
+            //                centralBodies[ i ] = "Sun";
+            //            }
             centralBodyMap[ bodiesToPropagate[ i ] ] = centralBodies[ i ];
         }
 
@@ -140,6 +141,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
                     bodyMap[ bodiesToPropagate[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime ) -
                     bodyMap[ centralBodies[ i ] ]->getStateInBaseFrameFromEphemeris( initialEphemerisTime );
         }
+
+        Eigen::Vector6d initialKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements(
+                    Eigen::Vector6d( systemInitialState ), spice_interface::getBodyGravitationalParameter( "Sun" ) +
+                    spice_interface::getBodyGravitationalParameter( "Earth" ) );
 
         // Create acceleratiuon models.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -158,91 +163,100 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Define ephemeris interrogation settings.
-        double initialTestTime = initialEphemerisTime + 10.0 * maximumTimeStep;
-        double finalTestTime = finalEphemerisTime - 10.0 * maximumTimeStep;
-        double testTimeStep = 1.0E4;
+        double initialTestTime = initialEphemerisTime;
+        double finalTestTime = finalEphemerisTime;
+        double testTimeStep = 250.0;
 
         // Get resutls of Cowell integration at given times.
         double currentTestTime = initialTestTime;
-        std::map< double, Eigen::Matrix< double, 18, 1 > > cowellIntegrationResults;
+        std::map< double, Eigen::Matrix< double, 6, 1 > > cowellIntegrationResults;
+        bodyMap[ "Earth" ]->recomputeStateOnNextCall( );
         while( currentTestTime < finalTestTime )
         {
             cowellIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
+                    //bodyMap[ "Earth" ]->getEphemeris( )->getCartesianState( currentTestTime );//
                     bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
-            cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
-            cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+            //            cowellIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
+            //                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+            //            cowellIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
+            //                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
 
             currentTestTime += testTimeStep;
         }
 
         // Create propagation settings (Encke)
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, gaussian_vop );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, gauss );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                    bodyMap, integratorSettings, propagatorSettings, true );
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
         // Get resutls of Encke integration at given times.
         currentTestTime = initialTestTime;
-        std::map< double, Eigen::Matrix< double, 18, 1 > > enckeIntegrationResults;
+        std::map< double, Eigen::Matrix< double, 6, 1 > > gaussIntegrationResults;
         while( currentTestTime < finalTestTime )
         {
-            enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
+            gaussIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
+                    //  bodyMap[ "Earth" ]->getEphemeris( )->getCartesianState( currentTestTime );//
                     bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
-            enckeIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
-                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
-            enckeIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
-                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+            //            gaussIntegrationResults[ currentTestTime ].segment( 6, 6 ) =
+            //                    bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
+            //            gaussIntegrationResults[ currentTestTime ].segment( 12, 6 ) =
+            //                    bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( currentTestTime );
             currentTestTime += testTimeStep;
         }
 
         // Compare results of Cowell and Encke propagations
-        std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator enckeIterator = enckeIntegrationResults.begin( );
-        std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
-        for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
+        std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator gaussIterator = gaussIntegrationResults.begin( );
+        Eigen::Vector6d currentCartesianState, currentKeplerianStateDifference;
+        std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
+        for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
         {
-            std::cout<<( enckeIterator->second - cowellIterator->second ).transpose( )<<std::endl;
-            std::cout<<( enckeIterator->second ).transpose( )<<std::endl;
-            std::cout<<( cowellIterator->second ).transpose( )<<std::endl<<std::endl;
+            currentCartesianState = gaussIterator->second;
+            currentKeplerianStateDifference = convertCartesianToKeplerianElements(
+                        currentCartesianState, spice_interface::getBodyGravitationalParameter( "Sun" ) +
+                        spice_interface::getBodyGravitationalParameter( "Earth" ) ) -
+                    initialKeplerianState;
+            std::cout<<gaussIterator->first<<" "<<( gaussIterator->second - cowellIterator->second ).transpose( )<<std::endl;
+            std::cout<<gaussIterator->first<<" "<<currentKeplerianStateDifference.transpose( )<<std::endl;
+            std::cout<<cowellIterator->first<<" "<<( cowellIterator->second ).transpose( )<<std::endl<<std::endl;
 
             for( int j= 0; j< 3; j++ )
             {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
+                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
             }
 
-            for( int j = 6; j < 9; j++ )
-            {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
-            }
+            //            for( int j = 6; j < 9; j++ )
+            //            {
+            //                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );
+            //            }
 
-            for( int j = 12; j < 15; j++ )
-            {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.075 );
-            }
+            //            for( int j = 12; j < 15; j++ )
+            //            {
+            //                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.075 );
+            //            }
 
             for( int j = 3; j < 6; j++ )
             {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-8 );
+                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-8 );
             }
 
-            for( int j = 9; j < 12; j++ )
-            {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-8 );
+            //            for( int j = 9; j < 12; j++ )
+            //            {
+            //                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-8 );
 
-            }
+            //            }
 
-            for( int j = 15; j < 18; j++ )
-            {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-6 );
+            //            for( int j = 15; j < 18; j++ )
+            //            {
+            //                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 1.0E-6 );
 
-            }
-            enckeIterator++;
+            //            }
+            gaussIterator++;
             cowellIterator++;
         }
     }
@@ -396,7 +410,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
 //        // Create propagation settings (Encke)
 //        propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-//                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, gaussian_vop );
+//                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, gauss );
 
 //        // Propagate orbit with Encke method
 //        SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -404,30 +418,30 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
 //        // Get resutls of Encke integration at given times.
 //        currentTestTime = initialTestTime;
-//        std::map< double, Eigen::Matrix< double, 6, 1 > > enckeIntegrationResults;
+//        std::map< double, Eigen::Matrix< double, 6, 1 > > gaussIntegrationResults;
 //        while( currentTestTime < finalTestTime )
 //        {
-//            enckeIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
+//            gaussIntegrationResults[ currentTestTime ].segment( 0, 6 ) =
 //                    bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianStateFromEphemeris( currentTestTime );
 //            currentTestTime += testTimeStep;
 //        }
 
 //        // Compare results of Cowell and Encke propagations
-//        std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator enckeIterator = enckeIntegrationResults.begin( );
+//        std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator gaussIterator = gaussIntegrationResults.begin( );
 //        std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
-//        for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
+//        for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
 //        {
 //            for( int j= 0; j< 3; j++ )
 //            {
-//                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second )( j ), 0.02 );
+//                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 0.02 );
 //            }
 
 //            for( int j = 3; j < 6; j++ )
 //            {
-//                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second )( j ), 1.0E-5 );
+//                BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 1.0E-5 );
 
 //            }
-//            enckeIterator++;
+//            gaussIterator++;
 //            cowellIterator++;
 //        }
 //    }
