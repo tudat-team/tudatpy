@@ -402,6 +402,11 @@ public:
                     {
                     case cowell:
                         break;
+                    case encke:
+                        throw std::runtime_error( "Error, reference orbit not reset in Encke propagator" );
+                        break;
+                    case gauss:
+                        break;
                     default:
                         throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
                         break;
