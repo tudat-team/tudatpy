@@ -54,7 +54,7 @@ ScalarType computeSemiLatusRectum(
     ScalarType semiLatusRectum;
 
     // Compute semi-latus rectum in the case it is not a parabola.
-    if ( fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) >
+    if ( std::fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) >
          tolerance  )
     {
         semiLatusRectum = semiMajorAxis * (

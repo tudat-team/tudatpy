@@ -100,7 +100,6 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         currentCartesianLocalSoluton = internalSolution;
-        std::cout<<"From Cartesian: "<<time<<std::setprecision( 16 )<<" "<<currentCartesianLocalSoluton.transpose( )<<std::endl;
     }
 };
 
