@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_NGAUSSSTATEDERIVATIVE_H
-#define TUDAT_NGAUSSSTATEDERIVATIVE_H
+#ifndef TUDAT_NGAUSSMODIFIEDEQUINOCTIALSTATEDERIVATIVE_H
+#define TUDAT_NGAUSSMODIFIEDEQUINOCTIALSTATEDERIVATIVE_H
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
@@ -21,27 +21,14 @@ namespace tudat
 namespace propagators
 {
 
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
-        const Eigen::Vector3d& accelerationsInRswFrame,
-        const double semiLatusRectum,
-        const double distance,
-        const double meanMotion,
-        const double orbitalAngularMomentum );
-
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
+Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
+        const Eigen::Vector6d& osculatingModifiedEquinoctialElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
 
-Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
-        const Eigen::Vector6d& currentOsculatingKeplerElements,
-        const Eigen::Vector6d& currentCartesianState,
-        const Eigen::Vector3d& accelerationsInInertialFrame,
-        const double centralBodyGravitationalParameter );
 
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyGaussStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyGaussModifiedEquinictialStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
 
@@ -58,20 +45,12 @@ public:
      *  the global origins.
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
-    NBodyGaussStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                               const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-                               const std::vector< std::string >& bodiesToIntegrate,
-                               const TranslationalPropagatorType propagatorType ):
+    NBodyGaussModifiedEquinictialStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+                                                  const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                                                  const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, propagatorType, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate )
     {
-        if( ( propagatorType != gauss_keplerian ) && ( propagatorType != gauss_modified_equinoctial ) )
-        {
-            std::string errorMessage = "Error when making Gauss state derivative model, found propagator type " +
-                    boost::lexical_cast< std::string >( propagatorType );
-            throw std::runtime_error( errorMessage );
-        }
-
         currentTrueAnomalies_.resize( bodiesToIntegrate.size( ) );
         originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
 
@@ -85,7 +64,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyGaussStateDerivative( ){ }
+    ~NBodyGaussModifiedEquinictialStateDerivative( ){ }
 
 
     void calculateSystemStateDerivative(
@@ -95,24 +74,19 @@ public:
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
-        if( this->propagatorType_ == gauss_keplerian )
+
+        Eigen::Vector3d currentAccelerationInRswFrame;
+        for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            Eigen::Vector6d currentKeplerianState;
+            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                        currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
+                    stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
-            Eigen::Vector3d currentAccelerationInRswFrame;
-            for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
-            {
-                currentKeplerianState = stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( );
-                currentKeplerianState( 5 ) = currentTrueAnomalies_.at( i );
-
-                currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                            currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
-                        stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
-                stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
-                            currentKeplerianState, currentAccelerationInRswFrame,
-                            centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
-            }
+            stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
+                        stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ), currentAccelerationInRswFrame,
+                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
+
     }
 
 
@@ -123,22 +97,14 @@ public:
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
 
-        // Subtract frame origin and Keplerian states from inertial state.
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
 
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 );
-            currentKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements (
-                        currentCartesianState, static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
-            StateScalarType eccentricAnomaly = orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
-                        currentKeplerianState( 5 ), currentKeplerianState( 1 ) );
-            StateScalarType meanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
-                        eccentricAnomaly, currentKeplerianState( 1 ) );
-            currentKeplerianState( 5 ) = meanAnomaly;
-            currentState.segment( i * 6, 6 ) = currentKeplerianState;
+            currentState.segment( i * 6, 6 ) = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
+                         cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                            centralBodyGravitationalParameters_.at( i )( ) ), true );
         }
 
         return currentState;
@@ -154,17 +120,10 @@ public:
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 );
-            StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                        currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-            StateScalarType currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                        currentEccentricAnomaly, currentKeplerianState( 1 ) );
-            currentKeplerianState( 5 ) = currentTrueAnomaly;
-
-            currentTrueAnomalies_[ i ] = currentTrueAnomaly;
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
-                    currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
-
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
+                    orbital_element_conversions::convertModifiedEquinoctialToCartesianElements(
+                        internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                            centralBodyGravitationalParameters_.at( i )( ) ), true );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
@@ -180,8 +139,7 @@ private:
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
     std::vector< boost::function< double( ) > > centralBodyGravitationalParameters_;
 
-
-    //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_/
+    //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
     std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
@@ -198,4 +156,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_NGAUSSSTATEDERIVATIVE_H
+#endif // TUDAT_NGAUSSMODIFIEDEQUINOCTIALSTATEDERIVATIVE_H

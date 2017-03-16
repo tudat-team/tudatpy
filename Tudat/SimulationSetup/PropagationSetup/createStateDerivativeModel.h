@@ -18,7 +18,8 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyGaussVariationalStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -162,12 +163,19 @@ createTranslationalStateDerivativeModel(
     }
     case gauss_keplerian:
     {
-        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
-
         // Create Encke state derivative object.
-        stateDerivativeModel = boost::make_shared< NBodyGaussStateDerivative< StateScalarType, TimeType > >
+        stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
-                  translationPropagatorSettings->bodiesToIntegrate_, gauss_keplerian );
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+
+        break;
+    }
+    case gauss_modified_equinoctial:
+    {
+        // Create Encke state derivative object.:
+        stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
 
         break;
     }
