@@ -405,7 +405,7 @@ public:
                     case encke:
                         throw std::runtime_error( "Error, reference orbit not reset in Encke propagator" );
                         break;
-                    case gauss:
+                    case gauss_keplerian:
                         break;
                     default:
                         throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );

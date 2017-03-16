@@ -36,7 +36,8 @@ enum TranslationalPropagatorType
 {
     cowell = 0,
     encke = 1,
-    gauss = 2
+    gauss_keplerian = 2,
+    gauss_modified_equinoctial = 3
 };
 
 //! Function to remove the central gravity acceleration from an AccelerationMap
@@ -356,6 +357,8 @@ protected:
      * function.
      * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
      * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
+     * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
+     * to the state derivative vector.
      */
     void sumStateDerivativeContributions(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,

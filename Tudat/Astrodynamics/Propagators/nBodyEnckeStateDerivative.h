@@ -136,7 +136,7 @@ public:
 
         // Get Cartesian state derivative for all bodies of Encke state (excluding central gravitational accelerations).
         this->sumStateDerivativeContributions(
-                    stateOfSystemToBeIntegrated, stateDerivative );
+                    stateOfSystemToBeIntegrated, stateDerivative, true );
 
         // Initialize Encke algorithm variables.
         StateScalarType qValue = 0.0;

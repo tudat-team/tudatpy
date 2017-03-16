@@ -34,6 +34,12 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
 
+Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
+        const Eigen::Vector6d& currentOsculatingKeplerElements,
+        const Eigen::Vector6d& currentCartesianState,
+        const Eigen::Vector3d& accelerationsInInertialFrame,
+        const double centralBodyGravitationalParameter );
+
 template< typename StateScalarType = double, typename TimeType = double >
 class NBodyGaussStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
@@ -54,10 +60,19 @@ public:
      */
     NBodyGaussStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                                const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-                               const std::vector< std::string >& bodiesToIntegrate ):
+                               const std::vector< std::string >& bodiesToIntegrate,
+                               const TranslationalPropagatorType propagatorType ):
         NBodyStateDerivative< StateScalarType, TimeType >(
-            accelerationModelsPerBody, centralBodyData, gauss, bodiesToIntegrate )
+            accelerationModelsPerBody, centralBodyData, propagatorType, bodiesToIntegrate )
     {
+        if( ( propagatorType != gauss_keplerian ) && ( propagatorType != gauss_modified_equinoctial ) )
+        {
+            std::string errorMessage = "Error when making Gauss state derivative model, found propagator type " +
+                    boost::lexical_cast< std::string >( propagatorType );
+            throw std::runtime_error( errorMessage );
+        }
+
+        currentTrueAnomalies_.resize( bodiesToIntegrate.size( ) );
         originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
 
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
@@ -80,29 +95,23 @@ public:
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
-        Eigen::Vector6d bodyCartesianState;
-        Eigen::Vector6d currentKeplerianState;
-
-        Eigen::Vector3d currentAccelerationInRswFrame;
-        for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
+        if( this->propagatorType_ == gauss_keplerian )
         {
-            currentKeplerianState = stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( );
-            double currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
-                        currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-            double currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                        currentEccentricAnomaly, currentKeplerianState( 1 ) );
-            currentKeplerianState( 5 ) = currentTrueAnomaly;
+            Eigen::Vector6d currentKeplerianState;
 
+            Eigen::Vector3d currentAccelerationInRswFrame;
+            for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
+            {
+                currentKeplerianState = stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( );
+                currentKeplerianState( 5 ) = currentTrueAnomalies_.at( i );
 
-            bodyCartesianState = orbital_element_conversions::convertKeplerianToCartesianElements(
-                        currentKeplerianState,
-                        centralBodyGravitationalParameters_.at( i )( ) );
-
-            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        bodyCartesianState ) * stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
-            stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
-                        currentKeplerianState, currentAccelerationInRswFrame,
-                        centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+                currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                            currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
+                        stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
+                stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
+                            currentKeplerianState, currentAccelerationInRswFrame,
+                            centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+            }
         }
     }
 
@@ -115,20 +124,21 @@ public:
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
 
         // Subtract frame origin and Keplerian states from inertial state.
-        Eigen::Vector6d currentCartesianState;
-        Eigen::Vector6d currentKeplerianState;
+        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
+        Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
 
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( );
+            currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 );
             currentKeplerianState = orbital_element_conversions::convertCartesianToKeplerianElements (
-                        currentCartesianState, centralBodyGravitationalParameters_.at( i )( ) );
-            double eccentricAnomaly = orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
+                        currentCartesianState, static_cast< StateScalarType >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) );
+            StateScalarType eccentricAnomaly = orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
                         currentKeplerianState( 5 ), currentKeplerianState( 1 ) );
-            double meanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
+            StateScalarType meanAnomaly = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
                         eccentricAnomaly, currentKeplerianState( 1 ) );
             currentKeplerianState( 5 ) = meanAnomaly;
-            currentState.segment( i * 6, 6 ) = currentKeplerianState.template cast< StateScalarType >( );
+            currentState.segment( i * 6, 6 ) = currentKeplerianState;
         }
 
         return currentState;
@@ -141,20 +151,23 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
-        Eigen::Vector6d currentKeplerianState;
+        Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 ).template cast< double >( );
-            double currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
+            currentKeplerianState = internalSolution.block( i * 6, 0, 6, 1 );
+            StateScalarType currentEccentricAnomaly = orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly(
                         currentKeplerianState( 1 ), currentKeplerianState( 5 ) );
-            double currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+            StateScalarType currentTrueAnomaly = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
                         currentEccentricAnomaly, currentKeplerianState( 1 ) );
             currentKeplerianState( 5 ) = currentTrueAnomaly;
 
+            currentTrueAnomalies_[ i ] = currentTrueAnomaly;
             currentCartesianLocalSoluton.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
-                    currentKeplerianState, centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
+                    currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
+
         }
-        //std::cout<<"From Keplerian: "<<std::setprecision( 16 )<<time<<" "<<currentKeplerianState.transpose( )<<std::endl<<std::endl;
+
+        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
     }
 
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
@@ -172,7 +185,14 @@ private:
     std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
-    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;};
+    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
+
+    Eigen::VectorXd currentCartesianLocalSoluton_;
+
+    std::vector< double > currentTrueAnomalies_;
+
+};
+
 
 } // namespace propagators
 
