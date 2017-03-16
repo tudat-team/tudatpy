@@ -74,22 +74,6 @@ enum UnifiedStateModelElementIndices
     etaQuaternionIndex = 6
 };
 
-//! Cartesian acceleration indices.
-enum CartesianAccelerationElementIndices
-{
-    xCartesianAccelerationIndex,
-    yCartesianAccelerationIndex,
-    zCartesianAccelerationIndex
-};
-
-//! Acceleration indices in CSN frame for orbital elements.
-enum CSNAccelerationElementIndices
-{
-    cAccelerationIndex,
-    sAccelerationIndex,
-    nAccelerationIndex
-};
-
 } // namespace orbital_element_conversions
 } // namespace tudat
 

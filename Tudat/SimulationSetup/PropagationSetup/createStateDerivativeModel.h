@@ -160,14 +160,14 @@ createTranslationalStateDerivativeModel(
 
         break;
     }
-    case gauss:
+    case gauss_keplerian:
     {
         std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
 
         // Create Encke state derivative object.
         stateDerivativeModel = boost::make_shared< NBodyGaussStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
-                  translationPropagatorSettings->bodiesToIntegrate_ );
+                  translationPropagatorSettings->bodiesToIntegrate_, gauss_keplerian );
 
         break;
     }
