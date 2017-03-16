@@ -104,7 +104,7 @@ public:
         {
             currentState.segment( i * 6, 6 ) = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
                          cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), true );
+                            centralBodyGravitationalParameters_.at( i )( ) ), false );
         }
 
         return currentState;
@@ -123,7 +123,7 @@ public:
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertModifiedEquinoctialToCartesianElements(
                         internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), true );
+                            centralBodyGravitationalParameters_.at( i )( ) ), false );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
