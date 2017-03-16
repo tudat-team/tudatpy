@@ -36,6 +36,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
     double parameterK = osculatingModifiedEquinoctialElements( kElementIndex );
 
     double parameterW = 1.0 + parameterF * cosineTrueLongitude + parameterG * sineTrueLongitude;
+    double parameterSSquared = 1.0 + parameterH * parameterH + parameterK * parameterK;
 
     Eigen::Vector6d stateDerivative;
     stateDerivative( 0 ) = 2.0 * semiLatusRectrum / parameterW * angularMomentumPerUnitGravitationalParameter *
@@ -43,23 +44,34 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
 
     double recurringTermInFGTerms = ( parameterH * sineTrueLongitude - parameterK * cosineTrueLongitude ) / parameterW;
     stateDerivative( 1 ) = angularMomentumPerUnitGravitationalParameter * (
+
                 sineTrueLongitude * accelerationsInRswFrame( 0 ) +
-                ( ( parameterW + 1.0 ) * cosineTrueLongitude + parameterF ) / parameterW *accelerationsInRswFrame( 1 ) -
+
+                ( ( parameterW + 1.0 ) * cosineTrueLongitude + parameterF ) / parameterW * accelerationsInRswFrame( 1 ) -
+
                 parameterG * recurringTermInFGTerms * accelerationsInRswFrame( 2 ) );
+
     stateDerivative( 2 ) = angularMomentumPerUnitGravitationalParameter * (
+
                 -cosineTrueLongitude * accelerationsInRswFrame( 0 ) +
-                ( ( parameterW + 1.0 ) * cosineTrueLongitude + parameterG ) / parameterW *accelerationsInRswFrame( 1 ) -
+
+                ( ( parameterW + 1.0 ) * sineTrueLongitude + parameterG ) / parameterW * accelerationsInRswFrame( 1 ) +
+
                 parameterF * recurringTermInFGTerms * accelerationsInRswFrame( 2 ) );
 
-    double parameterSSquared = 1.0 + parameterH * parameterH + parameterK * parameterK;
     double recurringTermInHKJTerms = angularMomentumPerUnitGravitationalParameter * parameterSSquared /
             ( 2.0 * parameterW );
+
     stateDerivative( 3 ) = recurringTermInHKJTerms * cosineTrueLongitude * accelerationsInRswFrame( 2 );
     stateDerivative( 4 ) = recurringTermInHKJTerms * sineTrueLongitude * accelerationsInRswFrame( 2 );
 
     stateDerivative( 5 ) =
-            std::sqrt( semiLatusRectrum * centralBodyGravitationalParameter ) * parameterW * parameterW / semiLatusRectrum +
+            std::sqrt( semiLatusRectrum * centralBodyGravitationalParameter ) * parameterW * parameterW / (
+                semiLatusRectrum  * semiLatusRectrum ) +
             angularMomentumPerUnitGravitationalParameter * recurringTermInFGTerms * accelerationsInRswFrame( 2 );
+
+    //std::cout<<accelerationsInRswFrame.transpose( )<<" "<<stateDerivative.transpose( )<<" "<<parameterW<<" "<<
+    //           parameterSSquared<<" "<<angularMomentumPerUnitGravitationalParameter<<std::endl;
     return stateDerivative;
 }
 
