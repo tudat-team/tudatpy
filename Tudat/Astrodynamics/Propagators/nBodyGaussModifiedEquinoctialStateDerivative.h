@@ -121,7 +121,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertModifiedEquinoctialToCartesianElements(
+                    orbital_element_conversions::convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
                         internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ), false );
         }

@@ -182,6 +182,11 @@ Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
  *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
  *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
  */
+Eigen::Vector6d convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
+        const double centralBodyGravitationalParameter,
+        const bool avoidSingularityAtPiInclination );
+
 Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
         const Eigen::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,

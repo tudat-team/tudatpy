@@ -919,6 +919,14 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then that to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+                    intermediateModifiedEquinoctialElements, gravitationalParameter,
+                    avoidSingularity );
+
+        // Compare.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
+                                           tolerance );
+
         computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
@@ -945,7 +953,7 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
-        computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
 
@@ -975,7 +983,7 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
-        computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
 
@@ -999,6 +1007,14 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+                    intermediateModifiedEquinoctialElements, gravitationalParameter,
+                    avoidSingularity );
+
+        // Compare.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
+                                           1.0E-13 );
+
         computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
@@ -1024,6 +1040,14 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+                    intermediateModifiedEquinoctialElements, gravitationalParameter,
+                    avoidSingularity );
+
+        // Compare.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
+                                           tolerance );
+
         computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
@@ -1049,6 +1073,14 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+                    intermediateModifiedEquinoctialElements, gravitationalParameter,
+                    avoidSingularity );
+
+        // Compare.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
+                                           tolerance );
+
         computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
@@ -1072,7 +1104,7 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         // Convert to modified equinoctial elements, then to Cartesian.
         intermediateModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( testKepler, avoidSingularity );
-        computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
+        computedCartesianElements = convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
                     intermediateModifiedEquinoctialElements, gravitationalParameter,
                     avoidSingularity );
 
