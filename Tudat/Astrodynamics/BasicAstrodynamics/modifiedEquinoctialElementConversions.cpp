@@ -281,7 +281,7 @@ Eigen::Vector6d convertCartesianToModifiedEquinoctialElements(
 }
 
 //! Convert Modified Equinoctial Elements to Cartesian Elements.
-Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
+Eigen::Vector6d convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
         const Eigen::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
@@ -361,6 +361,52 @@ Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
     return convertedCartesianElements;
 }
 
+Eigen::Vector6d convertModifiedEquinoctialToCartesianElements(
+        const Eigen::Vector6d& modifiedEquinoctialElements,
+        const double centralBodyGravitationalParameter,
+        const bool avoidSingularityAtPiInclination )
+{
+
+    double semiLatusRectrum = modifiedEquinoctialElements( semiParameterIndex );
+    double angularMomentumPerUnitGravitationalParameter =
+            std::sqrt( semiLatusRectrum / centralBodyGravitationalParameter );
+
+    double sineTrueLongitude = std::sin( modifiedEquinoctialElements( trueLongitudeIndex ) );
+    double cosineTrueLongitude = std::cos( modifiedEquinoctialElements( trueLongitudeIndex ) );
+
+    double parameterF = modifiedEquinoctialElements( fElementIndex );
+    double parameterG = modifiedEquinoctialElements( gElementIndex );
+    double parameterH = modifiedEquinoctialElements( hElementIndex );
+    double parameterK = modifiedEquinoctialElements( kElementIndex );
+
+    double parameterW = 1.0 + parameterF * cosineTrueLongitude + parameterG * sineTrueLongitude;
+    double parameterSSquared = 1.0 + parameterH * parameterH + parameterK * parameterK;
+    double parameterAlphaSquared = parameterH * parameterH - parameterK * parameterK;
+
+    Eigen::Vector6d cartesianElements;
+    cartesianElements( 0 ) = cosineTrueLongitude + parameterAlphaSquared * cosineTrueLongitude +
+            2.0 * parameterH * parameterK * sineTrueLongitude;
+    cartesianElements( 1 ) = ( avoidSingularityAtPiInclination == true ? -1.0 : 1.0 ) *
+            ( sineTrueLongitude - parameterAlphaSquared * sineTrueLongitude +
+            2.0 * parameterH * parameterK * cosineTrueLongitude );
+    cartesianElements( 2 ) = 2.0 * ( parameterH * sineTrueLongitude - parameterK * cosineTrueLongitude );
+    cartesianElements.segment( 0, 3 ) *= semiLatusRectrum / ( parameterW * parameterSSquared );
+
+    cartesianElements( 3 ) =  -( sineTrueLongitude + parameterAlphaSquared * sineTrueLongitude -
+            2.0 * parameterH * parameterK * cosineTrueLongitude + parameterG - 2.0 * parameterF * parameterH * parameterK +
+            parameterAlphaSquared * parameterG );
+    cartesianElements( 4 ) =  ( avoidSingularityAtPiInclination == true ? -1.0 : 1.0 ) *
+            -( -cosineTrueLongitude + parameterAlphaSquared * cosineTrueLongitude +
+            2.0 * parameterH * parameterK * sineTrueLongitude - parameterF + 2.0 * parameterG * parameterH * parameterK +
+            parameterAlphaSquared * parameterF );
+    cartesianElements( 5 ) =  2.0 * ( parameterH * cosineTrueLongitude + parameterK * sineTrueLongitude +
+                                      parameterF * parameterH +  parameterG * parameterK );
+    cartesianElements.segment( 3, 3 ) *= 1.0 / ( parameterSSquared * angularMomentumPerUnitGravitationalParameter );
+
+    return cartesianElements;
+
+
+}
 } // namespace orbital_element_conversions
 
 } // namespace tudat
