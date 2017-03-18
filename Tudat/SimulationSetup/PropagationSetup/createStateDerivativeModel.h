@@ -18,6 +18,8 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -156,6 +158,40 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
                   initialKeplerElements, propagationStartTime );
+
+        break;
+    }
+    case gauss_keplerian:
+    {
+        // Create Encke state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+
+        break;
+    }
+    case gauss_modified_equinoctial:
+    {
+        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements;
+        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
+
+        for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+        {
+            if( bodyMap.count( centralBodies[ i ] ) == 0 )
+            {
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
+                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                throw std::runtime_error( errorMessage );
+            }
+            initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                        translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
+                            bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) ) );
+        }
+
+        // Create Encke state derivative object.:
+        stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
 
         break;
     }

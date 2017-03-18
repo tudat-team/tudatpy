@@ -198,6 +198,10 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
 Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
+        const Eigen::Vector6d bodyState );
+
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
  * Returns transformation quaternion from inertial referenceframe (I) to the rotating
