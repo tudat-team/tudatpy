@@ -199,8 +199,8 @@ public:
     //! Function to convert the Encke-propagator-specific form of the state to the conventional form.
     /*!
      * Function to convert the Encle-propagator-specific form of the state to the conventional form. For the Encke
-     * propagator, this transforms the Cartesian state w.r.t. the central body (conventional form) to the Cartesian deviation
-     * from the Kepler orbit w.r.t. this central body (Encke form).
+     * propagator, this transforms the Cartesian deviation from the Kepler orbit w.r.t. this central body (Encke form) to
+     * Cartesian state w.r.t. the central body (conventional form).
      * In contrast to the convertCurrentStateToGlobalRepresentation function, this
      * function does not provide the state in the inertial frame, but instead provides it in the
      * frame in which it is propagated.

@@ -21,6 +21,20 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate the Gauss planetary equations for Kepler elements
+/*!
+ * Function to evaluate the Gauss planetary equations for Kepler elements, providing the time-derivatives of the
+ * Kepler elements from the accelerations expressed in an RSW frame (see Vallado, 2001). This function takes a number
+ * of precomputed quantities as input, to reduce computational burden
+ * \param currentOsculatingKeplerElements Current osculating Kepler elements of the body for which the Gauss equations are
+ * to be evaluated
+ * \param accelerationsInRswFrame Accelerations acting on body, expressed in RSW frame
+ * \param semiLatusRectum Semi-latus rectum of osculating orbit
+ * \param distance Distance from propagated body to its central body
+ * \param meanMotion Instantaneous mean motion of body w.r.t. its central body
+ * \param orbitalAngularMomentum Norm of orbital angular momentum vector of body, w.r.t. its central body
+ * \return Time derivatives of osculating Kepler elements.
+ */
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
@@ -29,17 +43,45 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const double meanMotion,
         const double orbitalAngularMomentum );
 
+//! Function to evaluate the Gauss planetary equations for Kepler elements
+/*!
+ * Function to evaluate the Gauss planetary equations for Kepler elements, providing the time-derivatives of the
+ * Kepler elements from the accelerations expressed in an RSW frame (see Vallado, 2001).
+ * \param currentOsculatingKeplerElements Current osculating Kepler elements of the body for which the Gauss equations are
+ * to be evaluated
+ * \param accelerationsInRswFrame Accelerations acting on body, expressed in RSW frame
+ * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
+ * \return Time derivatives of osculating Kepler elements.
+ */
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
 
+//! Function to evaluate the Gauss planetary equations for Kepler elements
+/*!
+ * Function to evaluate the Gauss planetary equations for Kepler elements, providing the time-derivatives of the
+ * Kepler elements from the accelerations expressed in an RSW frame (see Vallado, 2001).  This function takes the accelerations
+ * in the inertial frame, as well as the Cartesian inertial state, and converts the accelerations to the RSW frame.
+ * \param currentOsculatingKeplerElements Current osculating Kepler elements of the body for which the Gauss equations are
+ * to be evaluated
+ * \param currentCartesianState Current Cartesian state of the body for which the Gauss equations are to be evaluated
+ * \param accelerationsInInertialFrame Accelerations acting on body, expressed in inertial frame
+ * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
+ * \return Time derivatives of osculating Kepler elements.
+ */
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter );
 
+//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+/*!
+ * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+ * In this method, the derivative of the Kepler elements are computed from the total Cartesian accelerations, with the Kepler
+ * elements of the bodies the states being numerically propagated.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 class NBodyGaussKeplerStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
@@ -79,7 +121,19 @@ public:
     //! Destructor
     ~NBodyGaussKeplerStateDerivative( ){ }
 
-
+    //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for Kepler elememts
+    /*!
+     *  Calculates the state derivative of the translational motion of the system, using the Gauss equations for
+     *  Kepler elements. The input is the current state in Kepler elememts. The state derivate of this
+     *  set is computed. TO do so the accelerations are internally transformed into the RSW frame, using the current
+     *  Cartesian state as set by the last call to the convertToOutputSolution function
+     *  \param time Time (TDB seconds since J2000) at which the system is to be updated.
+     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing Kepler
+     *  elements of the bodies being integrated.
+     *  The order of the values is defined by the order of bodies in bodiesToBeIntegratedNumerically_
+     *  \param stateDerivative Current derivative of the Kepler elements of the
+     *  system of bodies integrated numerically (returned by reference).
+     */
     void calculateSystemStateDerivative(
             const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
@@ -103,7 +157,14 @@ public:
 
     }
 
-
+    //! Function to convert the state in the conventional form to the Kepler Elements form.
+    /*!
+     * Function to convert the state in the conventional form to the propagator-specific form. For the Gauss-Kepler propagator,
+     * this transforms the Cartesian state w.r.t. the central body (conventional form) to the Kepler Elements
+     * \param cartesianSolution State in 'conventional form'
+     * \param time Current time at which the state is valid, used to computed Kepler orbits
+     * \return State (outputSolution), converted to the Kepler Elements
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
@@ -133,7 +194,19 @@ public:
 
     }
 
-
+    //! Function to convert the Kepler states of the bodies to the conventional form.
+    /*!
+     * Function to convert the Kepler Elements state to the conventional form. For the Gauss-Kepler
+     * propagator, this transforms Kepler Elements w.r.t. the central bodies to the Cartesian states w.r.t. these
+     * same central bodies: In contrast to the convertCurrentStateToGlobalRepresentation function, this
+     * function does not provide the state in the inertial frame, but instead provides it in the
+     * frame in which it is propagated.
+     * \param internalSolution State in Kepler Elemements (i.e. form that is used in
+     * numerical integration)
+     * \param time Current time at which the state is valid
+     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
+     *  converted to the 'conventional form' (returned by reference).
+     */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
@@ -158,6 +231,12 @@ public:
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton.template cast< double >( );
     }
 
+    //! Function to get the acceleration models
+    /*!
+     * Function to get the acceleration models, including the central body accelerations that are removed for the Gauss
+     * propagation scheme
+     * \return List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
+     */
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return originalAccelerationModelsPerBody_;
@@ -172,10 +251,17 @@ private:
     std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
+    //! List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
     basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
+    //! Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies
+    /*!
+     *  Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies. These variables are set when calling
+     *  the convertToOutputSolution function.
+     */
     Eigen::VectorXd currentCartesianLocalSoluton_;
 
+    //! List of true anomalies of the bodies being propagated, computed by the last call to the convertToOutputSolution function
     std::vector< double > currentTrueAnomalies_;
 
 };
