@@ -44,6 +44,41 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
+template< typename ScalarType = double >
+ScalarType computeSemiLatusRectum(
+        const ScalarType eccentricity,
+        const ScalarType semiMajorAxis,
+        const ScalarType tolerance )
+{
+    // Declare semi-latus rectum.
+    ScalarType semiLatusRectum;
+
+    // Compute semi-latus rectum in the case it is not a parabola.
+    if ( std::fabs( eccentricity - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) >
+         tolerance  )
+    {
+        semiLatusRectum = semiMajorAxis * (
+                    mathematical_constants::getFloatingInteger< ScalarType >( 1 ) -
+                    eccentricity * eccentricity );
+    }
+
+    // Else set the semi-latus rectum given for a parabola as the first element in the vector
+    // of Keplerian elements..
+    else
+    {
+        semiLatusRectum = semiMajorAxis;
+    }
+    return semiLatusRectum;
+}
+
+template< typename ScalarType = double >
+ScalarType computeOrbitalAngularMomentum(
+        const ScalarType semiLatusRectum,
+        const ScalarType centralBodyGravitationalParameter )
+{
+    return std::sqrt( semiLatusRectum * centralBodyGravitationalParameter );
+}
+
 //! Convert Keplerian to Cartesian orbital elements.
 /*!
  * Converts Keplerian to Cartesian orbital elements (Chobotov, 2002). Use the
@@ -111,23 +146,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements(
     ScalarType sineOfTrueAnomaly_ = sin( trueAnomaly_ );
 
     // Declare semi-latus rectum.
-    ScalarType semiLatusRectum_ = -mathematical_constants::getFloatingInteger< ScalarType >( 0 );
-
-    // Compute semi-latus rectum in the case it is not a parabola.
-    if ( fabs( eccentricity_ - mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) >
-         tolerance_  )
-    {
-        semiLatusRectum_ = semiMajorAxis_ * (
-                    mathematical_constants::getFloatingInteger< ScalarType >( 1 ) -
-                    eccentricity_ * eccentricity_ );
-    }
-
-    // Else set the semi-latus rectum given for a parabola as the first element in the vector
-    // of Keplerian elements..
-    else
-    {
-        semiLatusRectum_ = semiMajorAxis_;
-    }
+    ScalarType semiLatusRectum_ = computeSemiLatusRectum< ScalarType >( eccentricity_, semiMajorAxis_, tolerance_ );
 
     // Definition of position in the perifocal coordinate system.
     Eigen::Matrix< ScalarType, 2, 1 > positionPerifocal_;
@@ -177,7 +196,6 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements(
     // Return Cartesian elements.
     return convertedCartesianElements_;
 }
-
 
 //! Convert Cartesian to Keplerian orbital elements.
 /*!
@@ -377,7 +395,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
         dotProductPositionAndEccentricityVectors =
                 mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
-    
+
     if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
                     dotProductPositionAndEccentricityVectors ) < tolerance )
     {

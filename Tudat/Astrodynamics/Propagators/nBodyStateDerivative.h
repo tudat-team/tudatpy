@@ -35,9 +35,30 @@ namespace propagators
 enum TranslationalPropagatorType
 {
     cowell = 0,
-    encke = 1
+    encke = 1,
+    gauss_keplerian = 2,
+    gauss_modified_equinoctial = 3
 };
 
+//! Function to remove the central gravity acceleration from an AccelerationMap
+/*!
+ * Function to remove the central gravity acceleration from an AccelerationMap. This is crucial for propagation methods in
+ * which the deviation from a reference Kepler orbit is propagated. If the central gravity is a spherical harmonic
+ * acceleration, the point mass term is removed by setting the C(0,0) coefficnet to 0
+ *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
+ *  \param centralBodies List of names of bodies of which the central terms are to be removed
+ *  (per entry of bodiesToIntegrate)
+ *  \param accelerationModelsPerBody A map containing the list of accelerations acting on each
+ *  body, identifying the body being acted on and the body acted on by an acceleration. The map
+ *  has as key a string denoting the name of the body the list of accelerations, provided as the
+ *  value corresponding to a key, is acting on.  This map-value is again a map with string as
+ *  key, denoting the body exerting the acceleration, and as value a pointer to an acceleration
+ *  model.
+ * \return Functions returning the gravitational parameters of the central terms that were removed.
+ */
+std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
+        const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
+        basic_astrodynamics::AccelerationMap& accelerationModelsPerBody );
 
 //! Function to determine in which order the ephemerides are to be updated
 /*!
@@ -336,10 +357,13 @@ protected:
      * function.
      * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
      * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
+     * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
+     * to the state derivative vector.
      */
     void sumStateDerivativeContributions(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative,
+            const bool addPositionDerivatives = true )
     {
         using namespace basic_astrodynamics;
 
@@ -369,9 +393,12 @@ protected:
                 }
             }
 
-            // Add body velocity as derivative of its position.
-            stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) =
-                    ( stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 ) );
+            if( addPositionDerivatives )
+            {
+                // Add body velocity as derivative of its position.
+                stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) =
+                        ( stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 ) );
+            }
             currentAccelerationIndex++;
         }
     }
