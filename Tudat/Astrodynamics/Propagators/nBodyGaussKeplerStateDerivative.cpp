@@ -16,6 +16,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate the Gauss planetary equations for Kepler elements
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
@@ -24,6 +25,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const double meanMotion,
         const double orbitalAngularMomentum )
 {
+    // Retrieve Kepler elements and precompute reused terms
     double semiMajorAxis = currentOsculatingKeplerElements( 0 );
     double eccentricity = currentOsculatingKeplerElements( 1 );
     double inclination = currentOsculatingKeplerElements( 2 );
@@ -36,6 +38,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
 
     Eigen::Vector6d stateDerivative;
 
+    // Evaluate Gauss equations.
     stateDerivative( 0 ) = 2.0 / ( meanMotion * eccentricityTerm ) * (
                 eccentricity * sineTrueAnomaly * accelerationsInRswFrame( 0 ) +
                 semiLatusRectum / distance * accelerationsInRswFrame( 1 ) );
@@ -69,11 +72,13 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
 
 }
 
+//! Function to evaluate the Gauss planetary equations for Kepler elements
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
 {
+    // Compute orbit properties
     double semiLatusRectum =  orbital_element_conversions::computeSemiLatusRectum(
                 currentOsculatingKeplerElements( 1 ),
                 currentOsculatingKeplerElements( 0 ),
@@ -85,12 +90,13 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
     double distance = semiLatusRectum /
             ( 1.0 + currentOsculatingKeplerElements( 1 ) * std::cos( currentOsculatingKeplerElements( 5 ) ) );
 
+    // Evaluate Gauss equations
     return computeGaussPlanetaryEquationsForKeplerElements(
                 currentOsculatingKeplerElements, accelerationsInRswFrame, semiLatusRectum, distance, meanMotion,
                 orbitalAngularMomentum );
 }
 
-
+//! Function to evaluate the Gauss planetary equations for Kepler elements
 Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector6d& currentOsculatingKeplerElements,
         const Eigen::Vector6d& currentCartesianState,

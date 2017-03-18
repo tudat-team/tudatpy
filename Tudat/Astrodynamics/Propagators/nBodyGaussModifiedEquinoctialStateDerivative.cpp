@@ -16,6 +16,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate the Gauss planetary equations for modified equinictial elements
 Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
         const Eigen::Vector6d& osculatingModifiedEquinoctialElements,
         const Eigen::Vector3d& accelerationsInRswFrame,

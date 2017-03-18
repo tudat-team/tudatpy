@@ -21,12 +21,27 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate the Gauss planetary equations for modified equinictial elements
+/*!
+ * Function to evaluate the Gauss planetary equations for modified equinictial elements, providing the time-derivatives of the
+ * modified equinictial elements from the accelerations expressed in an RSW frame (see Vallado, 2001).
+ * \param osculatingModifiedEquinoctialElements Current osculating modified equinoctial elements of the body for which the Gauss
+ * equations are  to be evaluated
+ * \param accelerationsInRswFrame Accelerations acting on body, expressed in RSW frame
+ * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
+ * \return Time derivatives of osculating dified equinictial elements.
+ */
 Eigen::Vector6d computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
         const Eigen::Vector6d& osculatingModifiedEquinoctialElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
 
-
+//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with MEE.
+/*!
+ * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Modified Equinoctial
+ * elements (MEE). In this method, the derivative of the MEE are computed from the total Cartesian accelerations, with the MEE
+ * of the bodies the states being numerically propagated.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 class NBodyGaussModifiedEquinictialStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
@@ -63,6 +78,7 @@ public:
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
 
+        // Check if singularity in equations of motion should be palced at 0 or 180 degrees inclination
         flipSingularities_.resize( bodiesToIntegrate.size( ) );
         for( unsigned int i = 0; i < initialKeplerElements.size( ); i++ )
         {
@@ -87,15 +103,29 @@ public:
     //! Destructor
     ~NBodyGaussModifiedEquinictialStateDerivative( ){ }
 
-
+    //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for MEE
+    /*!
+     *  Calculates the state derivative of the translational motion of the system, using the Gauss equations for modified
+     *  equinoctial elements. The input is the current state in modified equinoctial elememts. The state derivate of this
+     *  set is computed. TO do so the accelerations are internally transformed into the RSW frame, using the current
+     *  Cartesian state as set by the last call to the convertToOutputSolution function
+     *  \param time Time (TDB seconds since J2000) at which the system is to be updated.
+     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing modified equinoctial
+     *  elements of the bodies being integrated.
+     *  The order of the values is defined by the order of bodies in bodiesToBeIntegratedNumerically_
+     *  \param stateDerivative Current derivative of the modified equinoctial elements of the
+     *  system of bodies integrated numerically (returned by reference).
+     */
     void calculateSystemStateDerivative(
             const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
+        // Get total inertial accelerations acting on bodies
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
 
+        // Compute RSW accelerations for each body, and evaluate MEE Gauss equations.
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
@@ -110,7 +140,14 @@ public:
 
     }
 
-
+    //! Function to convert the state in the conventional form to the Modified Equinoctial Elements form.
+    /*!
+     * Function to convert the state in the conventional form to the propagator-specific form. For the Gauss-MEE propagator,
+     * this transforms the Cartesian state w.r.t. the central body (conventional form) to the Modified Equinoctial Elements
+     * \param cartesianSolution State in 'conventional form'
+     * \param time Current time at which the state is valid, used to computed Kepler orbits
+     * \return State (outputSolution), converted to the Modified Equinoctial Elements
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
@@ -118,9 +155,11 @@ public:
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
 
+        // Convert state to MEE for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentState.segment( i * 6, 6 ) = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements< StateScalarType >(
+            currentState.segment( i * 6, 6 ) =
+                    orbital_element_conversions::convertCartesianToModifiedEquinoctialElements< StateScalarType >(
                         cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );
         }
@@ -129,11 +168,24 @@ public:
 
     }
 
-
+    //! Function to convert the MEE states of the bodies to the conventional form.
+    /*!
+     * Function to convert the Modified Equinoctial Elements state to the conventional form. For the Gauss-MEE
+     * propagator, this transforms Modfied Equinoctial Elements w.r.t. the central bodies to the Cartesian states w.r.t. these
+     * same central bodies: In contrast to the convertCurrentStateToGlobalRepresentation function, this
+     * function does not provide the state in the inertial frame, but instead provides it in the
+     * frame in which it is propagated.
+     * \param internalSolution State in Modified Equinoctial Elemements (i.e. form that is used in
+     * numerical integration)
+     * \param time Current time at which the state is valid
+     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
+     *  converted to the 'conventional form' (returned by reference).
+     */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
+        // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
@@ -145,6 +197,12 @@ public:
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
     }
 
+    //! Function to get the acceleration models
+    /*!
+     * Function to get the acceleration models, including the central body accelerations that are removed for the Gauss
+     * propagation scheme
+     * \return List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
+     */
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return originalAccelerationModelsPerBody_;
@@ -159,10 +217,18 @@ private:
     std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
+    //! List of acceleration models, including the central body accelerations thta are removed in this propagation scheme.
     basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
+    //! Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies
+    /*!
+     *  Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies. These variables are set when calling
+     *  the convertToOutputSolution function.
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;
 
+    //! List of booleans to denote, per propagated body, if the singularity in the MEE equations it o be flipped to 0 inclination
+    //! (if true) or if it remains at 180 degree inclination (if false)
     std::vector< bool > flipSingularities_;
 
 };

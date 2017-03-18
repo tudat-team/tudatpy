@@ -395,7 +395,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
         dotProductPositionAndEccentricityVectors =
                 mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
-    
+
     if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
                     dotProductPositionAndEccentricityVectors ) < tolerance )
     {
