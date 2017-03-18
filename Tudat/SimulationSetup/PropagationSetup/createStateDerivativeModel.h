@@ -172,10 +172,26 @@ createTranslationalStateDerivativeModel(
     }
     case gauss_modified_equinoctial:
     {
+        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements;
+        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
+
+        for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+        {
+            if( bodyMap.count( centralBodies[ i ] ) == 0 )
+            {
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
+                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                throw std::runtime_error( errorMessage );
+            }
+            initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                        translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
+                            bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) ) );
+        }
+
         // Create Encke state derivative object.:
         stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
-                  translationPropagatorSettings->bodiesToIntegrate_ );
+                  translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
 
         break;
     }

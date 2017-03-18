@@ -155,7 +155,7 @@ public:
 
         }
 
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
+        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton.template cast< double >( );
     }
 
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
