@@ -44,14 +44,16 @@ public:
      *  \param centralBodyData Object responsible for providing the current integration origins from
      *  the global origins.
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
+     *  \param initialKeplerElements Kepler elements of bodiesToIntegrate, at initial propagation time
      */
-    NBodyGaussModifiedEquinictialStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                                                  const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-                                                  const std::vector< std::string >& bodiesToIntegrate ):
+    NBodyGaussModifiedEquinictialStateDerivative(
+            const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
+            const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+            const std::vector< std::string >& bodiesToIntegrate ,
+            const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, gauss_modified_equinoctial, bodiesToIntegrate )
     {
-        currentTrueAnomalies_.resize( bodiesToIntegrate.size( ) );
         originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
 
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
@@ -60,6 +62,25 @@ public:
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
+
+        flipSingularities_.resize( bodiesToIntegrate.size( ) );
+        for( unsigned int i = 0; i < initialKeplerElements.size( ); i++ )
+        {
+            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) >  mathematical_constants::PI / 2.0 )
+            {
+                flipSingularities_[ i ] = true;
+            }
+            else
+            {
+                flipSingularities_[ i ] = false;
+            }
+
+            if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) >
+                    mathematical_constants::PI  )
+            {
+                throw std::runtime_error( "Error when setting N Body Gauss MEE propagator, initial inclination of body is larger than pi." );
+            }
+        }
 
     }
 
@@ -79,11 +100,11 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
+                        currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForModifiedEquinoctialElements(
-                        stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ), currentAccelerationInRswFrame,
+                        stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
                         centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
 
@@ -97,14 +118,11 @@ public:
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
 
-        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
-        Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
-
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentState.segment( i * 6, 6 ) = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
-                         cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), false );
+            currentState.segment( i * 6, 6 ) = orbital_element_conversions::convertCartesianToModifiedEquinoctialElements< StateScalarType >(
+                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                            centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );
         }
 
         return currentState;
@@ -116,14 +134,12 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
-        Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertModifiedEquinoctialToCartesianElementsViaKeplerElements(
+                    orbital_element_conversions::convertModifiedEquinoctialToCartesianElements< StateScalarType >(
                         internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), false );
+                            centralBodyGravitationalParameters_.at( i )( ) ), flipSingularities_.at( i ) );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
@@ -145,9 +161,9 @@ private:
 
     basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
-    Eigen::VectorXd currentCartesianLocalSoluton_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;
 
-    std::vector< double > currentTrueAnomalies_;
+    std::vector< bool > flipSingularities_;
 
 };
 
