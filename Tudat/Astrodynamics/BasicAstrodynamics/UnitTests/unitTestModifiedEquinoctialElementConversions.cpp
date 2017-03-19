@@ -1081,13 +1081,13 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
                                            tolerance );
 
-        computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
-                    intermediateModifiedEquinoctialElements, gravitationalParameter,
-                    avoidSingularity );
+//        computedCartesianElements = convertModifiedEquinoctialToCartesianElements(
+//                    intermediateModifiedEquinoctialElements, gravitationalParameter,
+//                    avoidSingularity );
 
-        // Compare.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
-                                           tolerance );
+//        // Compare.
+//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianElements, computedCartesianElements,
+//                                           tolerance );
     }
 
     // Case 7: 0 eccentricity and inclination.
