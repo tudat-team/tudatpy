@@ -145,6 +145,8 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
                 convertCartesianToKeplerianElements(
                     Eigen::Vector6d( systemInitialState.segment( 0, 6 ) ), bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
                     bodyMap.at( "Sun" )->getGravityFieldModel( )->getGravitationalParameter( ) );
+
+        earthInitialKeplerElements( 2 ) = mathematical_constants::PI - earthInitialKeplerElements( 2 );
         earthInitialKeplerElements( 4 ) = earthInitialKeplerElements( 4 ) - 0.4;
         systemInitialState.segment( 0, 6 ) =
                 convertKeplerianToCartesianElements(
