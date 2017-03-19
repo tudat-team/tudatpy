@@ -44,7 +44,8 @@ namespace orbital_element_conversions
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  * \param flipSingularityToZeroInclination Boolean flag to indicate whether the set of equations for
- *          the inclination = PI singular case are to be used. Take note: the same set of equations
+ *          the inclination = 180 degrees (false) or 0 degrees (true) singular case are to be used.
+ *          Take note: the same set of equations
  *          is required for conversion back to Keplerian elements to retrieve original state!
  * \return Converted state in modified equinoctial elements. The order of elements is fixed!
  *         modifiedEquinoctialElements( 0 ) = semi-latus rectum,                                [m]
@@ -200,7 +201,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
  *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  * \param flipSingularityToZeroInclination Boolean flag to indicate whether the set of equations for
- *          the inclination = PI singular case are to be used. Take note: the same set of equations
+ *          the inclination = 180 degrees (false) or 0 degrees (true) singular case are to be used.
+ *          Take note: the same set of equations
  *          is required for conversion back to modified equinoctial elements to retrieve original
  *          state!
  * \return Converted state in Keplerian elements. The order of elements is fixed!
@@ -367,7 +369,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
  *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.
  * \param flipSingularityToZeroInclination Boolean flag to indicate whether the set of equations for
- *          the inclination = PI singular case are to be used. Take note: the same set of equations
+ *          the inclination = 180 degrees (false) or 0 degrees (true) singular case are to be used.
+ *          Take note: the same set of equations
  *          is required for conversion back to Cartesian elements to retrieve original state!
  * \return Converted state in modified equinoctial elements. The order of elements is fixed!
  *         modifiedEquinoctialElements( 0 ) = semi-latus rectum,                                [m]
@@ -394,7 +397,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
 //! Convert modified equinoctial elements to Cartesian orbital elements.
 /*!
  * Converts modified equinoctial elements to Cartesian orbital elements using one of two sets of
- * equations specified by the user.
+ * equations specified by the user. This function first converts to Keplerian elements, and then to Cartesian elements.
  * \param modifiedEquinoctialElements Vector containing modified equinoctial elements. Order of
  * elements is important!
  *         modifiedEquinoctialElements( 0 ) = semi-latus rectum,                                [m]
@@ -405,7 +408,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
  *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.
  * \param flipSingularityToZeroInclination Boolean flag to indicate whether the set of equations for
- *          the inclination = PI singular case are to be used. Take note: the same set of equations
+ *          the inclination = 180 degrees (false) or 0 degrees (true) singular case are to be used.
+ *          Take note: the same set of equations
  *          is required for conversion back to modified equinoctial elements to retrieve original
  *          state!
  * \return Converted state in Cartesian elements. The order of elements is fixed!
@@ -501,14 +505,46 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElementsV
     return convertedCartesianElements;
 }
 
+//! Convert modified equinoctial elements to Cartesian orbital elements.
+/*!
+ * Converts modified equinoctial elements to Cartesian orbital elements using one of two sets of
+ * equations specified by the user.
+ * \param modifiedEquinoctialElements Vector containing modified equinoctial elements. Order of
+ * elements is important!
+ *         modifiedEquinoctialElements( 0 ) = semi-latus rectum,                                [m]
+ *         modifiedEquinoctialElements( 1 ) = f-element,                                        [-]
+ *         modifiedEquinoctialElements( 2 ) = g-element,                                        [-]
+ *         modifiedEquinoctialElements( 3 ) = h-element,                                        [-]
+ *         modifiedEquinoctialElements( 4 ) = k-element,                                        [-]
+ *         modifiedEquinoctialElements( 5 ) = true longitude.                                 [rad]
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body.
+ * \param flipSingularityToZeroInclination Boolean flag to indicate whether the set of equations for
+ *          the inclination = 180 degrees (false) or 0 degrees (true) singular case are to be used.
+ *          Take note: the same set of equations
+ *          is required for conversion back to modified equinoctial elements to retrieve original
+ *          state!
+ * \return Converted state in Cartesian elements. The order of elements is fixed!
+ *         cartesianElements( 0 ) = x-position coordinate,                                      [m]
+ *         cartesianElements( 1 ) = y-position coordinate,                                      [m]
+ *         cartesianElements( 2 ) = z-position coordinate,                                      [m]
+ *         cartesianElements( 3 ) = x-velocity coordinate,                                    [m/s]
+ *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
+ *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
+ */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& modifiedEquinoctialElements,
         const ScalarType centralBodyGravitationalParameter,
         const bool flipSingularityToZeroInclination )
 {
+    if( flipSingularityToZeroInclination )
+    {
+        throw std::runtime_error(
+                    "Error in direct conversion from MEE to Cartesian elements, implementation with singularity at 0 degrees not yet implemented" );
+    }
     using mathematical_constants::getFloatingInteger;
 
+    // Retrieve MEE components and compute intermediate quantities
     ScalarType semiLatusRectrum = modifiedEquinoctialElements( semiParameterIndex );
     ScalarType angularMomentumPerUnitGravitationalParameter =
             std::sqrt( semiLatusRectrum / centralBodyGravitationalParameter );
@@ -526,12 +562,11 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElements(
     ScalarType parameterSSquared = getFloatingInteger< ScalarType >( 1 ) + parameterH * parameterH + parameterK * parameterK;
     ScalarType parameterAlphaSquared = parameterH * parameterH - parameterK * parameterK;
 
+    // Compute Cartesian elements
     Eigen::Matrix< ScalarType, 6, 1 > cartesianElements;
     cartesianElements( 0 ) = cosineTrueLongitude + parameterAlphaSquared * cosineTrueLongitude +
             getFloatingInteger< ScalarType >( 2 ) * parameterH * parameterK * sineTrueLongitude;
-    cartesianElements( 1 ) = ( flipSingularityToZeroInclination == true ?
-                                   -getFloatingInteger< ScalarType >( 1 ) : getFloatingInteger< ScalarType >( 1 ) ) *
-            ( sineTrueLongitude - parameterAlphaSquared * sineTrueLongitude +
+    cartesianElements( 1 ) = ( sineTrueLongitude - parameterAlphaSquared * sineTrueLongitude +
               getFloatingInteger< ScalarType >( 2 ) * parameterH * parameterK * cosineTrueLongitude );
     cartesianElements( 2 ) =
             getFloatingInteger< ScalarType >( 2 ) * ( parameterH * sineTrueLongitude - parameterK * cosineTrueLongitude );
@@ -542,9 +577,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToCartesianElements(
                getFloatingInteger< ScalarType >( 2 ) * parameterH * parameterK * cosineTrueLongitude + parameterG -
                getFloatingInteger< ScalarType >( 2 ) * parameterF * parameterH * parameterK +
                parameterAlphaSquared * parameterG );
-    cartesianElements( 4 ) =  ( flipSingularityToZeroInclination == true ?
-                                    -getFloatingInteger< ScalarType >( 1 ) : getFloatingInteger< ScalarType >( 1 ) ) *
-            -( -cosineTrueLongitude + parameterAlphaSquared * cosineTrueLongitude +
+    cartesianElements( 4 ) = -( -cosineTrueLongitude + parameterAlphaSquared * cosineTrueLongitude +
                getFloatingInteger< ScalarType >( 2 ) * parameterH * parameterK * sineTrueLongitude -
                parameterF + getFloatingInteger< ScalarType >( 2 ) * parameterG * parameterH * parameterK +
                parameterAlphaSquared * parameterF );
