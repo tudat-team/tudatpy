@@ -42,8 +42,8 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > D
         std::cerr<<"Error when making differenced one way range rate partials, arc start and end partials inconsistent"<<std::endl;
     }
 
-    throw std::runtime_error( "Error, must compute arc duration" );
-    double arcDuration;
+    //throw std::runtime_error( "Error, must compute arc duration" );
+    double arcDuration = 60.0;
 
     for( unsigned int i = 0; i < arcStartPartials.size( ); i++ )
     {

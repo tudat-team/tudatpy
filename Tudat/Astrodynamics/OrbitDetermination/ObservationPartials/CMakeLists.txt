@@ -53,6 +53,10 @@ add_executable(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/Uni
 setup_custom_test_program(test_OneWayRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_OneWayRangePartials tudat_observation_partials_test_functions  ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_OneWayDifferencedRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestDifferencedOneWayRangePartials.cpp")
+setup_custom_test_program(test_OneWayDifferencedRangePartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
+target_link_libraries(test_OneWayDifferencedRangePartials tudat_observation_partials_test_functions  ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 add_executable(test_OneWayDopplerPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestOneWayDopplerPartials.cpp")
 setup_custom_test_program(test_OneWayDopplerPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_OneWayDopplerPartials tudat_observation_partials_test_functions  ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
