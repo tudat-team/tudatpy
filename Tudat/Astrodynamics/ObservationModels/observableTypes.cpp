@@ -38,6 +38,9 @@ std::string getObservableName( const ObservableType observableType )
     case one_way_doppler:
         observableName = "OneWayDoppler";
         break;
+    case one_way_differenced_range:
+        observableName = "OneWayDifferencedRange";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type "+ boost::lexical_cast< std::string >( observableType ) +
@@ -67,6 +70,10 @@ ObservableType getObservableType( const std::string& observableName )
     else if( observableName ==  "OneWayDoppler" )
     {
         observableType = one_way_doppler;
+    }
+    else if( observableName ==  "OneWayDifferencedRange" )
+    {
+        observableType = one_way_differenced_range;
     }
     else
     {
@@ -120,6 +127,24 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
                     boost::lexical_cast< std::string >( observableType );
             throw std::runtime_error( errorMessage );
         }
+        break;
+    case one_way_differenced_range:
+        switch( linkEndType )
+        {
+        case transmitter:
+            linkEndIndices.push_back( 0 );
+            linkEndIndices.push_back( 2 );
+            break;
+        case receiver:
+            linkEndIndices.push_back( 1 );
+            linkEndIndices.push_back( 3 );
+            break;
+        default:
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );        }
         break;
     case angular_position:
         switch( linkEndType )
