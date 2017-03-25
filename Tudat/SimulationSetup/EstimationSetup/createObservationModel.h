@@ -337,17 +337,17 @@ public:
             if( linkEnds.size( ) != 2 )
             {
                 std::string errorMessage =
-                        "Error when making 1 way range model, " +
+                        "Error when making 1 way Doppler model, " +
                         boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
             {
-                throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
+                throw std::runtime_error( "Error when making 1 way Doppler model, no receiver found" );
             }
             if( linkEnds.count( transmitter ) == 0 )
             {
-                throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
+                throw std::runtime_error( "Error when making 1 way Doppler model, no transmitter found" );
             }
 
             boost::shared_ptr< ObservationBias< 1 > > observationBias;
