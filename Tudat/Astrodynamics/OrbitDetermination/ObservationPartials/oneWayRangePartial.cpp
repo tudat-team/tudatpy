@@ -50,7 +50,8 @@ void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndSt
 OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime )
+        const observation_models::LinkEndType linkEndOfFixedTime,
+        const Eigen::Vector1d& currentObservation )
 {
     if( linkEndOfFixedTime != oneWayRangeScaler_->getCurrentLinkEndType( ) )
     {

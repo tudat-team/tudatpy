@@ -105,7 +105,8 @@ void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkE
 AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime )
+        const observation_models::LinkEndType linkEndOfFixedTime,
+        const Eigen::Vector2d& currentObservation )
 {
     if( linkEndOfFixedTime != angularPositionScaler_->getCurrentLinkEndType( ) )
     {

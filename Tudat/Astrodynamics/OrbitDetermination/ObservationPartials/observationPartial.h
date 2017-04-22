@@ -21,8 +21,11 @@
 
 #include "Tudat/Basics/basicTypedefs.h"
 
+#include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -94,7 +97,9 @@ public:
     virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver ) = 0;
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+            Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) ) = 0;
 
     //! Function to get parameter id of for specifc parameter of which partial is computed by object.
     /*!
@@ -115,6 +120,73 @@ protected:
 
 };
 
+template< int ObservationSize >
+class ObservationPartialWrtConstantAdditiveBias: public ObservationPartial< ObservationSize >
+{
+public:
+    ObservationPartialWrtConstantAdditiveBias( const observation_models::ObservableType observableType,
+                                               const observation_models::LinkEnds& linkEnds ):
+        ObservationPartial< ObservationSize >(
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+        observableType_( observableType ), linkEnds_( linkEnds )
+    {
+        constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
+    }
+
+    ~ObservationPartialWrtConstantAdditiveBias( ){ }
+
+    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+            Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) )
+    {
+        return { std::make_pair( constantPartial_, times.at( 0 ) ) };
+    }
+
+private:
+    observation_models::ObservableType observableType_;
+
+    observation_models::LinkEnds linkEnds_;
+
+    Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
+
+};
+
+template< int ObservationSize >
+class ObservationPartialWrtConstantMultiplicativeBias: public ObservationPartial< ObservationSize >
+{
+public:
+    ObservationPartialWrtConstantMultiplicativeBias( const observation_models::ObservableType observableType,
+                                                     const observation_models::LinkEnds& linkEnds ):
+        ObservationPartial< ObservationSize >(
+            std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
+        observableType_( observableType ), linkEnds_( linkEnds )
+    {
+        constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
+    }
+
+    ~ObservationPartialWrtConstantMultiplicativeBias( ){ }
+
+    std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
+            Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
+    {
+        return { std::make_pair( currentObservation, times.at( 0 ) ) };
+    }
+
+private:
+    observation_models::ObservableType observableType_;
+
+    observation_models::LinkEnds linkEnds_;
+
+    Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
+
+};
 
 //! Typedef for map of observation partials.
 /*!
@@ -144,6 +216,59 @@ typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
 
+
+template< int ObservationSize >
+boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartialWrtLinkProperty(
+        const observation_models::LinkEnds& linkEnds,
+        const observation_models::ObservableType observableType,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
+{
+    boost::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
+    switch( parameterToEstimate->getParameterName( ).first )
+    {
+    case estimatable_parameters::constant_additive_observation_bias:
+    {
+        boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
+                boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
+                    parameterToEstimate );
+        if( constantBias == NULL )
+        {
+            throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
+        }
+        else
+        {
+            if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
+            {
+                observationPartial = boost::make_shared< ObservationPartialWrtConstantAdditiveBias< ObservationSize > >(
+                            observableType, linkEnds );
+            }
+        }
+        break;
+    }
+    case estimatable_parameters::constant_relative_observation_bias:
+    {
+        boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > constantBias =
+                boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+                    parameterToEstimate );
+        if( constantBias == NULL )
+        {
+            throw std::runtime_error( "Error when making partial w.r.t. observation bias, type is inconsistent" );
+        }
+        else
+        {
+            if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
+            {
+                observationPartial = boost::make_shared< ObservationPartialWrtConstantMultiplicativeBias< ObservationSize > >(
+                            observableType, linkEnds );
+            }
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return observationPartial;
+}
 
 }
 

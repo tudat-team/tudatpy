@@ -11,6 +11,8 @@
 #ifndef TUDAT_OBSERVATIONBIASPARAMETER_H
 #define TUDAT_OBSERVATIONBIASPARAMETER_H
 
+#include <iostream>
+
 #include "Tudat/Astrodynamics/ObservationModels/observationBias.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
@@ -111,7 +113,7 @@ public:
             const boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType ):
-        EstimatableParameter< Eigen::VectorXd >( constant_additive_observation_bias, linkEnds.begin( )->second.first ),
+        EstimatableParameter< Eigen::VectorXd >( constant_relative_observation_bias, linkEnds.begin( )->second.first ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor

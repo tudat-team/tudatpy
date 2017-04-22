@@ -91,6 +91,24 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
     return flag;
 }
 
+bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case constant_additive_observation_bias:
+        flag = true;
+        break;
+    case constant_relative_observation_bias:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
+
 
 
 }

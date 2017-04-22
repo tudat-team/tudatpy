@@ -142,7 +142,7 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes, linkEndStates ).
+                    this->observationBiasCalculator_->getObservationBias( linkEndTimes, linkEndStates, currentObservation ).
                     template cast< ObservationScalarType >( );
         }
     }
@@ -194,7 +194,7 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes_, linkEndStates_ ).
+                    this->observationBiasCalculator_->getObservationBias( linkEndTimes_, linkEndStates_, currentObservation ).
                     template cast< ObservationScalarType >( );
         }
     }

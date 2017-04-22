@@ -209,6 +209,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                             boost::function< void( const Eigen::VectorXd& ) >( ),
                             biasSettings->linkEnds_, biasSettings->observableType_ );
             }
+            break;
         }
         case constant_relative_observation_bias:
         {
@@ -225,6 +226,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                             boost::function< void( const Eigen::VectorXd& ) >( ),
                             biasSettings->linkEnds_, biasSettings->observableType_ );
             }
+            break;
         }
         case rotation_pole_position:
             if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )

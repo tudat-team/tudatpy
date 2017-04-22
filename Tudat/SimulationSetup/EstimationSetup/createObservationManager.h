@@ -62,6 +62,8 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
 
 }
 
+
+
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 void performObservationParameterEstimationClosure(
         boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
