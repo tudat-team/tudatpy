@@ -12,6 +12,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
@@ -193,6 +194,38 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
+        case constant_additive_observation_bias:
+        {
+            boost::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ConstantObservationBiasParameter >(
+                            boost::function< Eigen::VectorXd( ) >( ),
+                            boost::function< void( const Eigen::VectorXd& ) >( ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+        }
+        case constant_relative_observation_bias:
+        {
+            boost::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ConstantRelativeObservationBiasParameter >(
+                            boost::function< Eigen::VectorXd( ) >( ),
+                            boost::function< void( const Eigen::VectorXd& ) >( ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+        }
         case rotation_pole_position:
             if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )
             {
@@ -241,10 +274,10 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     getCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
-                                                                 timeDependentShField );
+                                timeDependentShField );
                     setCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
-                                                                 timeDependentShField, _1 );
+                                timeDependentShField, _1 );
                 }
 
                 // Create cosine coefficients estimation object.
@@ -301,10 +334,10 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     getSineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
-                                                               timeDependentShField );
+                                timeDependentShField );
                     setSineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
-                                                               timeDependentShField, _1 );
+                                timeDependentShField, _1 );
                 }
 
                 // Create sine coefficients estimation object.

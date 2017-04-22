@@ -11,6 +11,8 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 #define TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 
+#include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 namespace tudat
@@ -121,6 +123,25 @@ public:
     std::vector< std::pair< int, int > > blockIndices_;
 };
 
+class ConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    ConstantObservationBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const bool isBiasAdditive ):
+        EstimatableParameterSettings(
+            linkEnds.begin( )->second.first,
+            isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
+            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+
+    ~ConstantObservationBiasEstimatableParameterSettings( ){ }
+
+      observation_models::LinkEnds linkEnds_;
+
+      observation_models::ObservableType observableType_;
+
+};
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings

@@ -60,6 +60,21 @@ public:
     observation_models::ObservationBiasTypes observationBiasType_;
 };
 
+class MultipleObservationBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    MultipleObservationBiasSettings(
+            const std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList ):
+        ObservationBiasSettings( multiple_observation_biases ),
+        biasSettingsList_( biasSettingsList ){ }
+
+    //! Destructor
+    ~MultipleObservationBiasSettings( ){ }
+
+   std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList_;
+};
+
 //! Class for defining settings for the creation of a constant additive observation bias model
 class ConstantObservationBiasSettings: public ObservationBiasSettings
 {
@@ -85,6 +100,23 @@ public:
      *  size of the observable to which it is assigned.
      */
     Eigen::VectorXd observationBias_;
+
+};
+
+//! Class for defining settings for the creation of a constant multiplicative observation bias model
+class ConstantRelativeObservationBiasSettings: public ObservationBiasSettings
+{
+public:
+
+    ConstantRelativeObservationBiasSettings(
+            const Eigen::VectorXd& relativeObservationBias ):
+        ObservationBiasSettings( constant_multiplicative_bias ), relativeObservationBias_( relativeObservationBias )
+    { }
+
+    //! Destructor
+    ~ConstantRelativeObservationBiasSettings( ){ }
+
+    Eigen::VectorXd relativeObservationBias_;
 
 };
 
@@ -228,6 +260,40 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
         observationBias = boost::make_shared< ConstantObservationBias< ObservationSize > >(
                     constantBiasSettings->observationBias_ );
         break;
+    }
+    case constant_multiplicative_bias:
+    {
+        // Check input consistency
+        boost::shared_ptr< ConstantRelativeObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
+                ConstantRelativeObservationBiasSettings >( biasSettings );
+        if( constantBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making constant relative observation bias, settings are inconsistent" );
+        }
+
+        // Check if size of bias is consistent with requested observable size
+        if( constantBiasSettings->relativeObservationBias_.rows( ) != ObservationSize )
+        {
+            throw std::runtime_error( "Error when making constant relative observation bias, bias size is inconsistent" );
+        }
+        observationBias = boost::make_shared< ConstantRelativeObservationBias< ObservationSize > >(
+                    constantBiasSettings->relativeObservationBias_ );
+        break;
+    }
+    case multiple_observation_biases:
+    {
+        boost::shared_ptr< MultipleObservationBiasSettings > multiBiasSettings = boost::dynamic_pointer_cast<
+                MultipleObservationBiasSettings >( biasSettings );
+        if( multiBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making multiple observation biases, settings are inconsistent" );
+        }
+        std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > observationBiasList;
+        for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
+        {
+            observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
+                                               linkEnds, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
+        }
     }
     default:
     {

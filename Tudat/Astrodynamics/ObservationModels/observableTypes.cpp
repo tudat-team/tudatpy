@@ -13,6 +13,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -84,6 +85,35 @@ ObservableType getObservableType( const std::string& observableName )
     }
 
     return observableType;
+}
+
+
+int getObservableSize( const ObservableType observableType )
+{
+    int observableSize = TUDAT_NAN;
+    switch( observableType )
+    {
+    case one_way_range:
+        observableSize = 1;
+        break;
+    case angular_position:
+        observableSize = 2;
+        break;
+    case position_observable:
+        observableSize = 3;
+        break;
+    case one_way_doppler:
+        observableSize = 1;
+        break;
+    case one_way_differenced_range:
+        observableSize = 1;
+        break;
+    default:
+       std::string errorMessage = "Error, did not recognize observable " + boost::lexical_cast< std::string >( observableType )
+               + ", when getting observable size";
+       throw std::runtime_error( errorMessage );
+    }
+    return observableSize;
 }
 
 //! Function to get the indices in link end times/states for a given link end type and observable type
