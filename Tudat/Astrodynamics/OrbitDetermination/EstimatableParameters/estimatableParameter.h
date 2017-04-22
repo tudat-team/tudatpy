@@ -40,7 +40,9 @@ enum EstimatebleParametersEnum
     spherical_harmonics_cosine_coefficient_block,
     spherical_harmonics_sine_coefficient_block,
     constant_rotation_rate,
-    rotation_pole_position
+    rotation_pole_position,
+    constant_additive_observation_bias,
+    constant_relative_observation_bias
 };
 
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.

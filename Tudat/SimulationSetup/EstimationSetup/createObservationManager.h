@@ -18,6 +18,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationPartials.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
@@ -61,6 +62,93 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
 
 }
 
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
+void performObservationParameterEstimationClosure(
+        boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+        parametersToEstimate )
+{
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels =
+            observationSimulator->getObservationModels( );
+
+    for( unsigned int i = 0; i < parametersToEstimate->getEstimatedVectorParameters( ).size( ); i++ )
+    {
+        if( parametersToEstimate->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first ==
+                estimatable_parameters::constant_additive_observation_bias )
+        {
+            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
+                        parametersToEstimate->getEstimatedVectorParameters( ).at( i ) );
+
+            if( observationSimulator->getObservableType( ) == biasParameter->getObservableType( ) )
+            {
+                if( observationModels.count( biasParameter->getLinkEnds( ) ) != 0 )
+                {
+                    if( observationModels.at( biasParameter->getLinkEnds( ) )->getObservationBiasCalculator( ) != NULL )
+                    {
+                        boost::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
+                                boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >(
+                                    observationModels.at( biasParameter->getLinkEnds( ) )->getObservationBiasCalculator( ) );
+                        if( constantBiasObject != NULL )
+                        {
+                            biasParameter->setObservationBiasFunctions(
+                                        boost::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                                     constantBiasObject ),
+                                        boost::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                     constantBiasObject, _1 ) );
+                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error, cannot perform bias closure for additive bias" );
+                    }
+                }
+            }
+        }
+        else if( parametersToEstimate->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first ==
+                 estimatable_parameters::constant_relative_observation_bias )
+        {
+            boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+                        parametersToEstimate->getEstimatedVectorParameters( ).at( i ) );
+
+            if( observationSimulator->getObservableType( ) == biasParameter->getObservableType( ) )
+            {
+                if( observationModels.count( biasParameter->getLinkEnds( ) ) != 0 )
+                {
+                    if( observationModels.at( biasParameter->getLinkEnds( ) )->getObservationBiasCalculator( ) != NULL )
+                    {
+                        boost::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
+                                boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >(
+                                    observationModels.at( biasParameter->getLinkEnds( ) )->getObservationBiasCalculator( ) );
+                        if( constantBiasObject != NULL )
+                        {
+                            biasParameter->setObservationBiasFunctions(
+                                        boost::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                                     constantBiasObject ),
+                                        boost::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                     constantBiasObject, _1 ) );                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error, cannot perform bias closure for additive bias" );
+                    }
+                }
+            }
+
+        }
+    }
+
+}
+
 //! Function to create an object to simulate observations of a given type and associated partials
 /*!
  *  Function to create an object to simulate observations of a given type and associated partials
@@ -90,6 +178,9 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, settingsPerLinkEnds, bodyMap );
 
+    performObservationParameterEstimationClosure(
+                observationSimulator, parametersToEstimate );
+
     // Get light-time corrections for current observable
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionList =
             getLightTimeCorrectionsList( observationSimulator->getObservationModels( ) );
@@ -102,9 +193,9 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
     if( parametersToEstimate != NULL )
     {
         observationPartialsAndScaler =
-            observationPartialCreator->createObservationPartials(
-                observableType, utilities::createVectorFromMapKeys( settingsPerLinkEnds ), bodyMap, parametersToEstimate,
-                lightTimeCorrectionList );
+                observationPartialCreator->createObservationPartials(
+                    observableType, utilities::createVectorFromMapKeys( settingsPerLinkEnds ), bodyMap, parametersToEstimate,
+                    lightTimeCorrectionList );
     }
 
     // Split position partial scaling and observation partial objects.

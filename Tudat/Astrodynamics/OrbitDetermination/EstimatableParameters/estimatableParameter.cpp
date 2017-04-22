@@ -59,6 +59,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case rotation_pole_position:
         isDoubleParameter = false;
         break;
+    case constant_additive_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case constant_relative_observation_bias:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );

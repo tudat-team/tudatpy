@@ -25,6 +25,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationRate.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantDragCoefficient.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationalOrientation.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/observationBiasParameter.h"
 )
 
 # Add static libraries.

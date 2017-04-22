@@ -48,6 +48,8 @@ std::string getObservableName( const ObservableType observableType );
  */
 ObservableType getObservableType( const std::string& observableName );
 
+int getObservableSize( const ObservableType observableType );
+
 //! Function to get the indices in link end times/states for a given link end type and observable type
 /*!
  * Function to get the indices in link end times/states for a given link end type and observable type

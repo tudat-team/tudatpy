@@ -35,7 +35,9 @@ namespace observation_models
 //! Enum listing types of observation biases that are availabe
 enum ObservationBiasTypes
 {
-    constant_additive_bias
+    multiple_observation_biases,
+    constant_additive_bias,
+    constant_multiplicative_bias
 };
 
 //! Base class (non-functional) for describing observation biases
@@ -64,7 +66,9 @@ public:
      */
     virtual Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
             const std::vector< double >& linkEndTimes,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
+            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) ) = 0;
 
     //! Function to return the size of the associated observation
     /*!
@@ -103,9 +107,39 @@ public:
      */
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
             const std::vector< double >& linkEndTimes,
-            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
+            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
     {
         return observationBias_;
+    }
+
+
+    Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
+    {
+        return observationBias_;
+    }
+
+    void resetConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 >& observationBias )
+    {
+        observationBias_ = observationBias;
+    }
+
+    Eigen::VectorXd getTemplateFreeConstantObservationBias( )
+    {
+        return observationBias_;
+    }
+
+    void resetConstantObservationBiasTemplateFree( const Eigen::VectorXd& observationBias )
+    {
+        if( observationBias.rows( ) == ObservationSize )
+        {
+            observationBias_ = observationBias;
+        }
+        else
+        {
+            throw std::runtime_error( "Error whem resetting constant bias, size is inconsistent" );
+        }
     }
 
 
@@ -113,6 +147,113 @@ private:
 
     //! Constant (entry-wise) observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > observationBias_;
+
+};
+
+//! Class for a constant relative observation bias of a given size
+template< int ObservationSize = 1 >
+class ConstantRelativeObservationBias: public ObservationBias< ObservationSize >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationBias Constant (entry-wise) observation bias.
+     */
+    ConstantRelativeObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias ):
+        relativeObservationBias_( relativeObservationBias ){ }
+
+    //! Destructor
+    ~ConstantRelativeObservationBias( ){ }
+
+    //! Function to retrieve the constant observation bias.
+    /*!
+     * Function to retrieve the constant observation bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \return Relative observation bias.
+     */
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue )
+    {
+        return relativeObservationBias_.cwiseProduct( currentObservableValue );
+    }
+
+    Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
+    {
+        return relativeObservationBias_;
+    }
+
+    void resetConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 >& relativeObservationBias )
+    {
+        relativeObservationBias_ = relativeObservationBias;
+    }
+
+
+    Eigen::VectorXd getTemplateFreeConstantObservationBias( )
+    {
+        return relativeObservationBias_;
+    }
+
+    void resetConstantObservationBiasTemplateFree( const Eigen::VectorXd& relativeObservationBias )
+    {
+        if( relativeObservationBias.rows( ) == ObservationSize )
+        {
+            relativeObservationBias_ = relativeObservationBias;
+        }
+        else
+        {
+            throw std::runtime_error( "Error whem resetting constant bias, size is inconsistent" );
+        }
+    }
+
+private:
+
+    //! Constant (entry-wise) observation bias.
+    Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias_;
+
+};
+
+template< int ObservationSize = 1 >
+class MultiTypeObservationBias: public ObservationBias< ObservationSize >
+{
+public:
+
+
+    MultiTypeObservationBias( const std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList ):
+        biasList_( biasList ){ }
+
+    //! Destructor
+    ~MultiTypeObservationBias( ){ }
+
+    //! Function to retrieve the constant observation bias.
+    /*!
+     * Function to retrieve the constant observation bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \return Constant observation bias.
+     */
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue )
+    {
+        Eigen::Matrix< double, ObservationSize, 1 > totalBias = Eigen::Matrix< double, ObservationSize, 1 >::Zero( );
+        for( unsigned int i = 0; i < biasList_.size( ); i++ )
+        {
+            totalBias += biasList_.at( i )->getObservationBias( linkEndTimes, linkEndStates, currentObservableValue );
+        }
+        return totalBias;
+    }
+
+
+private:
+
+    //! Constant (entry-wise) observation bias.
+    std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList_;
 
 };
 
