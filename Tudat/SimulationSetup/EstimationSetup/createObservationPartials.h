@@ -448,11 +448,13 @@ public:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
                     boost::lexical_cast< std::string >( observableType ) + " of size dynamic ";
-            throw std::runtime_error( errorMessage );        }
+            throw std::runtime_error( errorMessage );
+        }
         return observationPartialList;
     }
 
 };
+
 
 }
 

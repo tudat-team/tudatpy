@@ -9,7 +9,8 @@ namespace observation_partials
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > DifferencedOneWayRangeRatePartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime )
+        const observation_models::LinkEndType linkEndOfFixedTime,
+        const Eigen::Vector1d& currentObservation )
 {
 
     using namespace observation_partials;

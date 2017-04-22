@@ -158,7 +158,8 @@ public:
     virtual OneWayRangePartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime );
+            const observation_models::LinkEndType linkEndOfFixedTime,
+            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Zero( ) );
 
     //! Function to get scaling object used for mapping partials of positions to partials of observable
     /*!

@@ -322,7 +322,8 @@ public:
     virtual PositionObservationPartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
-            const observation_models::LinkEndType linkEndOfFixedTime )
+            const observation_models::LinkEndType linkEndOfFixedTime,
+            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Zero( ) )
     {
         PositionObservationPartialReturnType returnPartial;
 

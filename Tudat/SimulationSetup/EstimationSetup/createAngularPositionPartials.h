@@ -154,16 +154,16 @@ createAngularPositionPartials(
                     initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
 
         // Create position angular position partial for current body
-        boost::shared_ptr< AngularPositionPartial > currentRangePartial = createAngularPositionPartialWrtBodyPosition(
+        boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtBodyPosition(
                     angularPositionLinkEnds, bodyMap, acceleratedBody, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
         // Check if partial is non-null (i.e. whether dependency exists between current angular position and current body)
-        if( currentRangePartial != NULL )
+        if( currentAngularPositionPartial != NULL )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( currentIndex, 6 );
-            angularPositionPartials[ currentPair ] = currentRangePartial;
+            angularPositionPartials[ currentPair ] = currentAngularPositionPartial;
         }
 
         // Increment current index by size of body initial state (6).
@@ -178,15 +178,15 @@ createAngularPositionPartials(
          parameterIterator != doubleParametersToEstimate.end( ); parameterIterator++ )
     {
         // Create position angular position partial for current parameter
-        boost::shared_ptr< AngularPositionPartial > currentRangePartial = createAngularPositionPartialWrtParameter(
+        boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
                     angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
-        if( currentRangePartial != NULL )
+        if( currentAngularPositionPartial != NULL )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first, 1 );
-            angularPositionPartials[ currentPair ] = currentRangePartial;
+            angularPositionPartials[ currentPair ] = currentAngularPositionPartial;
         }
     }
 
@@ -199,17 +199,30 @@ createAngularPositionPartials(
     {
 
         // Create position angular position partial for current parameter
-        boost::shared_ptr< AngularPositionPartial > currentRangePartial = createAngularPositionPartialWrtParameter(
+        boost::shared_ptr< ObservationPartial< 2 > > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
                     angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
+
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
+                        angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
+                        lightTimeCorrectionPartialObjects );
+        }
+        else
+        {
+            currentAngularPositionPartial = createObservationPartialWrtLinkProperty< 2 >(
+                        angularPositionLinkEnds, observation_models::angular_position, parameterIterator->second );
+        }
+
         // Check if partial is non-null (i.e. whether dependency exists between current observable and current parameter)
-        if( currentRangePartial != NULL )
+        if( currentAngularPositionPartial != NULL )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first,
                                                  parameterIterator->second->getParameterSize( ) );
-            angularPositionPartials[ currentPair ] = currentRangePartial;
+            angularPositionPartials[ currentPair ] = currentAngularPositionPartial;
         }
 
     }

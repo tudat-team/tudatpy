@@ -227,10 +227,20 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
          parameterIterator =
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
-        // Create position one-way doppler partial for current parameter
-        boost::shared_ptr< ObservationPartial< 1 > > currentDopplerPartial = createOneWayDopplerPartialWrtParameter(
-                    oneWayDopplerLinkEnds, bodyMap, parameterIterator->second, oneWayDopplerScaling,
-                    lightTimeCorrectionPartialObjects );
+
+        boost::shared_ptr< ObservationPartial< 1 > > currentDopplerPartial;
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentDopplerPartial = createOneWayDopplerPartialWrtParameter(
+                        oneWayDopplerLinkEnds, bodyMap, parameterIterator->second, oneWayDopplerScaling,
+                        lightTimeCorrectionPartialObjects );
+        }
+        else
+        {
+            currentDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
+                        oneWayDopplerLinkEnds, observation_models::one_way_doppler, parameterIterator->second );
+        }
+
 
         // Check if partial is non-null (i.e. whether dependency exists between current doppler and current parameter)
         if( currentDopplerPartial != NULL )

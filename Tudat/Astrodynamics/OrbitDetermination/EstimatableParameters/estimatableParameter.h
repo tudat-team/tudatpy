@@ -69,6 +69,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
  */
 bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType );
 
+bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;

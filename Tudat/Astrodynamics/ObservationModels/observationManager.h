@@ -268,7 +268,8 @@ public:
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
-                        currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, linkEndAssociatedWithTime );
+                        currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
+                        linkEndAssociatedWithTime );
 
         }
 
@@ -318,6 +319,7 @@ protected:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime )
     {
         // Initialize partial vector of observation w.r.t. all parameter.
@@ -345,7 +347,7 @@ protected:
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
-                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime );
+                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.

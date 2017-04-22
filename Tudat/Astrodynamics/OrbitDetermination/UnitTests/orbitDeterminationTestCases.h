@@ -43,7 +43,8 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         const int observableType = 1,
         Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
         Eigen::MatrixXd inverseAPrioriCovariance  = Eigen::MatrixXd::Zero( 7, 7 ),
-        const double weight = 1.0 )
+        const double weight = 1.0,
+        const bool biasType = 0 )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -120,6 +121,22 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
                                       "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
                               centralBodyMap[ "Earth" ] ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+    if( observableType == 1 )
+    {
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
+        linkEnds[ receiver ] = std::make_pair( "Mars", "" );
+        if( biasType == 0 )
+        {
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEnds, one_way_range, true ) );
+        }
+        else
+        {
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEnds, one_way_range, false ) );
+        }
+    }
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
@@ -147,7 +164,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     {
         linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
         observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                    position_observable ) ) );
+                                                           position_observable ) ) );
     }
     else
     {
@@ -156,13 +173,25 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
         if( observableType == 1 )
         {
+            boost::shared_ptr< ObservationBiasSettings > biasSettings;
+
+            if( biasType == 0 )
+            {
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            ( Eigen::Vector1d( ) << 1.0E5 ).finished( ) );
+            }
+            else if( biasType == 1 )
+            {
+                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
+                            ( Eigen::Vector1d( ) << 1.0E-3 ).finished( ) );
+            }
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        one_way_range ) ) );
+                                                               one_way_range, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) ) );
         }
         else if( observableType == 2 )
         {
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        angular_position ) ) );
+                                                               angular_position ) ) );
         }
         else if( observableType == 3 )
         {
@@ -259,6 +288,18 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         initialParameterEstimate( i ) += parameterPerturbation( i );
     }
 
+    if( observableType == 1 )
+    {
+        if( biasType == 0 )
+        {
+            initialParameterEstimate( 7 ) += 2.0E5;
+        }
+        else
+        {
+            initialParameterEstimate( 7 ) += 1.0E-6;
+        }
+    }
+
     // Define estimation input
     boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
@@ -280,7 +321,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, true );
 
     return std::make_pair( podOutput,
                            ( podOutput->parameterEstimate_.template cast< double >( ) -

@@ -104,7 +104,8 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime )
+        const observation_models::LinkEndType linkEndOfFixedTime,
+        const Eigen::Vector1d& currentObservation )
 {
     if( linkEndOfFixedTime != oneWayDopplerScaler_->getCurrentLinkEndType( ) )
     {

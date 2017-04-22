@@ -205,9 +205,19 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
         // Create position one-way range partial for current parameter
-        boost::shared_ptr< ObservationPartial< 1 > > currentRangePartial = createOneWayRangePartialWrtParameter(
+        boost::shared_ptr< ObservationPartial< 1 > > currentRangePartial;
+
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentRangePartial = createOneWayRangePartialWrtParameter(
                     oneWayRangeLinkEnds, bodyMap, parameterIterator->second, oneWayRangeScaling,
                     lightTimeCorrectionPartialObjects );
+        }
+        else
+        {
+            currentRangePartial = createObservationPartialWrtLinkProperty< 1 >(
+                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second );
+        }
 
         // Check if partial is non-null (i.e. whether dependency exists between current range and current parameter)
         if( currentRangePartial != NULL )

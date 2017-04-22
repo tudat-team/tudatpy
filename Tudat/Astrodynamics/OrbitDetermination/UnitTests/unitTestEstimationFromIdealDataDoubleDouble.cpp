@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int simulationType = 0; simulationType < 5; simulationType++ )
+    for( int simulationType = 0; simulationType < 2; simulationType++ )
     {
 
         std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
@@ -38,7 +38,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
 
-        totalError = executeParameterEstimation< double, double >( simulationType ).second;
+        totalError = executeParameterEstimation< double, double >( 1, getDefaultInitialParameterPerturbation( ),
+                                                                   Eigen::MatrixXd::Zero( 8, 8 ), 1.0, simulationType ).second;
 
         // Adjust tolerance based on simulation settings
         double toleranceMultiplier = 20.0;
