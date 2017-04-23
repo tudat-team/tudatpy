@@ -44,28 +44,28 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
 
     // Run estimation with strong a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, inverseAPrioriCovariance );
 
     // Run estimation with effectively zero covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, 1.0E-64 * inverseAPrioriCovariance );
 
     // Run estimation with moderate a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation,  moderateInverseAPriopriCovariance );
 
     // Run estimation without a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation );
 
     // Run estimation without a priori covariance and increased weights
     double constantWeight = 100.0;
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, Eigen::MatrixXd::Zero( 7, 7 ), constantWeight);
 
     // Retrieve estimation errors and a priori covariances

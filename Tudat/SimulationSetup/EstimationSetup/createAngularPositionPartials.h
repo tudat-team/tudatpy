@@ -199,10 +199,7 @@ createAngularPositionPartials(
     {
 
         // Create position angular position partial for current parameter
-        boost::shared_ptr< ObservationPartial< 2 > > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
-                    angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
-                    lightTimeCorrectionPartialObjects );
-
+        boost::shared_ptr< ObservationPartial< 2 > > currentAngularPositionPartial;
 
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {

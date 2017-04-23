@@ -65,9 +65,9 @@ public:
             const boost::function< Eigen::VectorXd( ) > getCurrentBias,
             const boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
-        if( !getCurrentBias.empty( ) || !resetCurrentBias_.empty( ) )
+        if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
         {
-            std::cerr<<"Warning when resetting relative observation bias in estimation object, existing contents not empty"<<std::endl;
+            std::cerr<<"Warning when resetting absolute observation bias in estimation object, existing contents not empty"<<std::endl;
         }
 
         getCurrentBias_ = getCurrentBias;
@@ -138,7 +138,7 @@ public:
             const boost::function< Eigen::VectorXd( ) > getCurrentBias,
             const boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
-        if( !getCurrentBias.empty( ) || !resetCurrentBias_.empty( ) )
+        if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
         {
             std::cerr<<"Warning when resetting relative observation bias in estimation object, existing contents not empty"<<std::endl;
         }

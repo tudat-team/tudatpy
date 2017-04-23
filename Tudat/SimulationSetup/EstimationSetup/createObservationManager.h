@@ -93,6 +93,8 @@ void performObservationParameterEstimationClosure(
                                     observationModels.at( biasParameter->getLinkEnds( ) )->getObservationBiasCalculator( ) );
                         if( constantBiasObject != NULL )
                         {
+                            LinkEnds currentLinkEnds = biasParameter->getLinkEnds( );
+
                             biasParameter->setObservationBiasFunctions(
                                         boost::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                      constantBiasObject ),
