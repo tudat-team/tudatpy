@@ -6,6 +6,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 
 namespace tudat
 {
@@ -24,6 +25,8 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
+using namespace tudat::coordinate_conversions;
+
 
 Eigen::VectorXd getDefaultInitialParameterPerturbation( )
 {
@@ -39,12 +42,11 @@ Eigen::VectorXd getDefaultInitialParameterPerturbation( )
 }
 
 template< typename TimeType = double, typename StateScalarType  = double >
-std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executeParameterEstimation(
+std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
         const int observableType = 1,
         Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
         Eigen::MatrixXd inverseAPrioriCovariance  = Eigen::MatrixXd::Zero( 7, 7 ),
-        const double weight = 1.0,
-        const bool biasType = 0 )
+        const double weight = 1.0 )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -126,16 +128,8 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         LinkEnds linkEnds;
         linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
         linkEnds[ receiver ] = std::make_pair( "Mars", "" );
-        if( biasType == 0 )
-        {
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEnds, one_way_range, true ) );
-        }
-        else
-        {
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEnds, one_way_range, false ) );
-        }
+        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                      linkEnds, one_way_range, true ) );
     }
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
@@ -173,18 +167,8 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
         if( observableType == 1 )
         {
-            boost::shared_ptr< ObservationBiasSettings > biasSettings;
-
-            if( biasType == 0 )
-            {
-                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-                            ( Eigen::Vector1d( ) << 1.0E5 ).finished( ) );
-            }
-            else if( biasType == 1 )
-            {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            ( Eigen::Vector1d( ) << 1.0E-3 ).finished( ) );
-            }
+            boost::shared_ptr< ObservationBiasSettings > biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                        ( Eigen::Vector1d( ) << 10.0 ).finished( ) );
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
                                                                one_way_range, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) ) );
         }
@@ -196,16 +180,16 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         else if( observableType == 3 )
         {
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        one_way_doppler ) ) );
+                                                               one_way_doppler ) ) );
         }
         else if( observableType == 4 )
         {
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        one_way_range ) ) );
+                                                               one_way_range ) ) );
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        one_way_doppler ) ) );
+                                                               one_way_doppler ) ) );
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                        angular_position ) ) );
+                                                               angular_position ) ) );
         }
     }
 
@@ -290,14 +274,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     if( observableType == 1 )
     {
-        if( biasType == 0 )
-        {
-            initialParameterEstimate( 7 ) += 2.0E5;
-        }
-        else
-        {
-            initialParameterEstimate( 7 ) += 1.0E-6;
-        }
+        initialParameterEstimate( 7 ) += 3.0;
     }
 
     // Define estimation input
@@ -321,11 +298,306 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
 
     return std::make_pair( podOutput,
                            ( podOutput->parameterEstimate_.template cast< double >( ) -
                              truthParameters .template cast< double >( ) ) );
+}
+
+template< typename TimeType = double, typename StateScalarType  = double >
+std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executeEarthOrbiterParameterEstimation( )
+{
+
+    //Load spice kernels.
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+
+    // Define bodies in simulation
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+    bodyNames.push_back( "Mars" );
+
+    // Specify initial time
+    TimeType initialEphemerisTime = TimeType( 1.0E7 );
+    TimeType finalEphemerisTime = initialEphemerisTime + 3.0 * 86400.0;
+
+    // Create bodies needed in simulation
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodyNames );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
+
+    // Create aerodynamic coefficient interface settings.
+    double referenceArea = 4.0;
+    double aerodynamicCoefficient = 1.2;
+    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( )<<1.2, -0.1, -0.4 ).finished( ), 1, 1 );
+
+    // Create and set aerodynamic coefficients object
+    bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
+
+    // Create radiation pressure settings
+    double referenceAreaRadiation = 4.0;
+    double radiationPressureCoefficient = 1.2;
+    std::vector< std::string > occultingBodies;
+    occultingBodies.push_back( "Earth" );
+    boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+
+    // Create and set radiation pressure settings
+    bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
+                "Sun", createRadiationPressureInterface(
+                    asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
+
+    bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< TabulatedCartesianEphemeris< > >(
+                                            boost::shared_ptr< interpolators::OneDimensionalInterpolator
+                                            < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    std::cout<<"Stations creating"<<std::endl;
+
+
+    // Creatre ground stations: same position, but different representation
+    std::vector< std::string > groundStationNames;
+    groundStationNames.push_back( "Station1" );
+    groundStationNames.push_back( "Station2" );
+    groundStationNames.push_back( "Station3" );
+
+    createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
+    createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
+    createGroundStation( bodyMap.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
+
+    std::cout<<"Stations created"<<std::endl;
+
+    // Set accelerations on Vehicle that are to be taken into account.
+    SelectedAccelerationMap accelerationMap;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                   basic_astrodynamics::central_gravity ) );
+    accelerationsOfVehicle[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                    basic_astrodynamics::central_gravity ) );
+    accelerationsOfVehicle[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                    basic_astrodynamics::central_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+    std::cout<<"Acc. created"<<std::endl;
+
+
+    // Set bodies for which initial state is to be estimated and integrated.
+    std::vector< std::string > bodiesToIntegrate;
+    std::vector< std::string > centralBodies;
+    bodiesToIntegrate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
+
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    // Set (perturbed) initial state.
+    Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    std::cout<<"In. state. created"<<std::endl;
+
+    // Create propagator settings
+    boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
+              TimeType( finalEphemerisTime ), cowell );
+
+    // Create integrator settings
+    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
+            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 40.0,
+              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+              40.0, 40.0, 1.0, 1.0 );
+
+    // Define parameters.
+    std::vector< LinkEnds > stationReceiverLinkEnds;
+    std::vector< LinkEnds > stationTransmitterLinkEnds;
+
+    for( unsigned int i = 0; i < groundStationNames.size( ); i++ )
+    {
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = std::make_pair( "Earth", groundStationNames.at( i ) );
+        linkEnds[ receiver ] = std::make_pair( "Vehicle", "" );
+        stationTransmitterLinkEnds.push_back( linkEnds );
+
+        linkEnds.clear( );
+        linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
+        linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
+        stationReceiverLinkEnds.push_back( linkEnds );
+        std::cout<<"Creating LE "<<i<<std::endl;
+    }
+
+    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
+
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
+
+    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
+
+    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back(
+                boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    "Vehicle", systemInitialState, "Earth" ) );
+
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
+
+//    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                  2, 0, 3, 3, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+//    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                  2, 1, 3, 3, "Earth", spherical_harmonics_sine_coefficient_block ) );
+    parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
+    parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                  linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, false ) );
+    // Create parameters
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodyMap );
+
+    std::cout<<"Parameters created"<<std::endl;
+
+    observation_models::ObservationSettingsMap observationSettingsMap;
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+
+
+        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            boost::shared_ptr< ObservationBiasSettings > biasSettings;
+            if( ( currentObservable == one_way_range ) && ( i == 0 ) )
+            {
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ) );
+            }
+            else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
+            {
+                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ) );
+            }
+
+            observationSettingsMap.insert(
+                        std::make_pair( currentLinkEndsList.at( i ),
+                                        boost::make_shared< ObservationSettings >(
+                                            currentObservable, boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                                            biasSettings ) ) );
+        }
+    }
+
+    std::cout<<"obs. settings created"<<std::endl;
+
+    // Create orbit determination object.
+    OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
+            OrbitDeterminationManager< StateScalarType, TimeType >(
+                bodyMap, parametersToEstimate, observationSettingsMap,
+                integratorSettings, propagatorSettings );
+
+    std::vector< TimeType > baseTimeList;
+    double observationTimeStart = initialEphemerisTime + 1000.0;
+    double  observationInterval = 20.0;
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 500; j++ )
+        {
+            baseTimeList.push_back( observationTimeStart + ( double )i * 86400.0 + ( double ) j * observationInterval );
+        }
+    }
+    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
+                        std::make_pair( baseTimeList, receiver );
+        }
+    }
+
+
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
+    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< TimeType >, LinkEndType > > > SingleObservablePodInputType;
+    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
+
+    // Simulate observations
+    PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
+
+    // Perturb parameter estimate
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
+            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterPerturbation =
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
+    parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
+    parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
+    parameterPerturbation( 6 ) = 0.05;
+    parameterPerturbation( 7 ) = 0.05;
+    initialParameterEstimate += parameterPerturbation;
+
+    // Define estimation input
+    boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
+            boost::make_shared< PodInput< StateScalarType, TimeType > >(
+                observationsAndTimes, initialParameterEstimate.rows( ),
+                Eigen::MatrixXd::Zero( truthParameters.rows( ), truthParameters.rows( ) ),
+                initialParameterEstimate - truthParameters );
+
+    std::map< observation_models::ObservableType, double > weightPerObservable;
+    weightPerObservable[ one_way_range ] = 1.0 / ( 1.0 * 1.0 );
+    weightPerObservable[ angular_position ] = 1.0 / ( 1.0E-5 * 1.0E-5 );
+    weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
+
+    podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+
+    // Perform estimation
+    boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 5 ), true, true, true, true );
+
+
+    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "informationMatrixTest.dat" );
+    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "informationMatrixNormalizationTest.dat" );
+    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_, "weightsDiagonalTest.dat" );
+    input_output::writeMatrixToFile( podOutput->residuals_, "residualsTest.dat" );
+
+    //return results;
 }
 
 }

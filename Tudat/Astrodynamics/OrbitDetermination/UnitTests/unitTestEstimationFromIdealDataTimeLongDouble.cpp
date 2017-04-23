@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
-        totalError = executeParameterEstimation< Time, long double >( simulationType ).second;
+        totalError = executePlanetaryParameterEstimation< Time, long double >( simulationType ).second;
 
 
         // Adjust tolerance based on simulation settings
