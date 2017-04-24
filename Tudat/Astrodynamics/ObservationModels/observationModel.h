@@ -269,6 +269,22 @@ protected:
 
 };
 
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
+std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
+        std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels )
+{
+    std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > biasList;
+    for( typename std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
+         observationModelIterator = observationModels.begin( ); observationModelIterator != observationModels.end( );
+         observationModelIterator++ )
+    {
+        if( observationModelIterator->second->getObservationBiasCalculator( ) != NULL )
+        {
+            biasList[ observationModelIterator->first ] = observationModelIterator->second->getObservationBiasCalculator( );
+        }
+    }
+    return biasList;
+}
 
 } // namespace observation_models
 

@@ -257,6 +257,31 @@ private:
 
 };
 
+template< int ObservationSize >
+ObservationBiasTypes getObservationBiasType(
+        const boost::shared_ptr< ObservationBias< ObservationSize > > biasObject )
+{
+    ObservationBiasTypes biasType;
+    if( boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( biasObject ) != NULL )
+    {
+        biasType = constant_additive_bias;
+    }
+    else if( boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( biasObject ) != NULL )
+    {
+        biasType = constant_multiplicative_bias;
+    }
+    else if( boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( biasObject ) != NULL )
+    {
+        biasType = multiple_observation_biases;
+    }
+    else
+    {
+        std::string errorMessage = "Error, did not recognize observation bias when retrieveing bias type";
+        throw std::runtime_error( errorMessage );
+    }
+    return biasType;
+ }
+
 } // namespace observation_models
 
 } // namespace tudat
