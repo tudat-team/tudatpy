@@ -360,7 +360,7 @@ public:
 
     Eigen::VectorXd normalizeObservationMatrix( Eigen::MatrixXd& observationMatrix )
     {
-        Eigen::VectorXd range = Eigen::VectorXd( observationMatrix.cols( ) );
+        Eigen::VectorXd normalizationTerms = Eigen::VectorXd( observationMatrix.cols( ) );
 
         for( int i = 0; i < observationMatrix.cols( ); i++ )
         {
@@ -369,17 +369,44 @@ public:
             double maximum = currentVector.maxCoeff( );
             if( std::fabs( minimum ) > maximum )
             {
-                range( i ) = minimum;
+                normalizationTerms( i ) = minimum;
             }
             else
             {
-                range( i ) = maximum;
+                normalizationTerms( i ) = maximum;
             }
-            currentVector = currentVector / range( i );
+            currentVector = currentVector / normalizationTerms( i );
 
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
-        return range;
+
+        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
+        {
+            int currentColumn = observationLinkParameterIndices_.at( i );
+            int startIndex = -1;
+            int endIndex = -1;
+            std::vector< double > partialMaximum;
+            bool isInRange = 0;
+
+            for( unsigned int j = 0; j < observationMatrix.rows( ); j++ )
+            {
+                if( observationMatrix( j, currentColumn ) != 0.0 )
+                {
+                   if( isInRange == 0 )
+                   {
+                       isInRange = 1;
+                       startIndex = j;
+                   }
+                }
+                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
+                {
+                    isInRange = 0;
+                    endIndex = j;
+                }
+
+            }
+        }
+        return normalizationTerms;
     }
 
     //! Function to perform parameter estimation from measurement data.
@@ -733,6 +760,34 @@ protected:
 
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
+
+        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+                parametersToEstimate_->getDoubleParameters( );
+        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
+        {
+            if( estimatable_parameters::isParameterObservationLinkProperty(
+                        parameterIterator->second->getParameterName( ).first ) )
+            {
+                observationLinkParameterIndices_.push_back( parameterIterator->first );
+            }
+        }
+
+        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+                parametersToEstimate_->getVectorParameters( );
+        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
+             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
+        {
+            if( estimatable_parameters::isParameterObservationLinkProperty(
+                        parameterIterator->second->getParameterName( ).first ) )
+            {
+                for( unsigned int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
+                {
+                    observationLinkParameterIndices_.push_back( parameterIterator->first + i );
+                }
+            }
+        }
+
     }
 
     //! Boolean to denote whether any dynamical parameters are estimated
@@ -751,6 +806,8 @@ protected:
 
     //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
+
+    std::vector< int > observationLinkParameterIndices_;
 
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
