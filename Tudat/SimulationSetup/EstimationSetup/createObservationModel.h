@@ -294,6 +294,9 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
                                                linkEnds, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
         }
+        observationBias = boost::make_shared< MultiTypeObservationBias< ObservationSize > >(
+                    observationBiasList );
+        break;
     }
     default:
     {

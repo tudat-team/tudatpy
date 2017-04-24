@@ -69,65 +69,79 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         const LinkEnds linkEnds,
         const ObservableType observableType )
 {
-    switch( parameter->getParameterName( ).first )
+    ObservationBiasTypes biasType = getObservationBiasType( observationBias );
+    if( biasType == multiple_observation_biases )
     {
-    case estimatable_parameters::constant_additive_observation_bias:
-    {
-        boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
-                    parameter );
-        if( biasParameter == NULL )
+        boost::shared_ptr< MultiTypeObservationBias< ObservationSize > > multiTypeBias =
+                boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( observationBias );
+        for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
-            throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
+            performObservationParameterEstimationClosureForSingleModelSet(
+                        parameter, multiTypeBias->getBiasList( ).at( i ), linkEnds, observableType );
         }
-
-        boost::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
-                boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( observationBias );
-        if( constantBiasObject != NULL )
-        {
-            if( linkEnds == biasParameter->getLinkEnds( ) &&
-                    observableType == biasParameter->getObservableType( ) )
-            {
-                biasParameter->setObservationBiasFunctions(
-                            boost::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                         constantBiasObject ),
-                            boost::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                         constantBiasObject, _1 ) );
-            }
-        }
-        break;
     }
-    case estimatable_parameters::constant_relative_observation_bias:
+    else
     {
-        boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
-                boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
-                    parameter );
-        if( biasParameter == NULL )
+        switch( parameter->getParameterName( ).first )
         {
-            throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
-        }
-
-        boost::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
-                boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( observationBias );
-        if( constantBiasObject != NULL )
+        case estimatable_parameters::constant_additive_observation_bias:
         {
-            if( linkEnds == biasParameter->getLinkEnds( ) &&
-                    observableType == biasParameter->getObservableType( ) )
+            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
+                        parameter );
+            if( biasParameter == NULL )
             {
-                biasParameter->setObservationBiasFunctions(
-                            boost::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                         constantBiasObject ),
-                            boost::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                         constantBiasObject, _1 ) );
+                throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
             }
-        }
-        break;
-    }
-    default:
-        std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
-                boost::lexical_cast< std::string >( parameter->getParameterName( ).first );
-        throw std::runtime_error( errorMessage );
 
+            boost::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
+                    boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != NULL )
+            {
+                if( linkEnds == biasParameter->getLinkEnds( ) &&
+                        observableType == biasParameter->getObservableType( ) )
+                {
+                    biasParameter->setObservationBiasFunctions(
+                                boost::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                             constantBiasObject ),
+                                boost::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                             constantBiasObject, _1 ) );
+                }
+            }
+            break;
+        }
+        case estimatable_parameters::constant_relative_observation_bias:
+        {
+            boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+                        parameter );
+            if( biasParameter == NULL )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
+            }
+
+            boost::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
+                    boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != NULL )
+            {
+                if( linkEnds == biasParameter->getLinkEnds( ) &&
+                        observableType == biasParameter->getObservableType( ) )
+                {
+                    biasParameter->setObservationBiasFunctions(
+                                boost::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                             constantBiasObject ),
+                                boost::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                             constantBiasObject, _1 ) );
+                }
+            }
+            break;
+        }
+        default:
+            std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
+                    boost::lexical_cast< std::string >( parameter->getParameterName( ).first );
+            throw std::runtime_error( errorMessage );
+
+        }
     }
 }
 
