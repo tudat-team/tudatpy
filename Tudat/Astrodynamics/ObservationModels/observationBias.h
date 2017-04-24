@@ -249,10 +249,14 @@ public:
         return totalBias;
     }
 
+    std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > getBiasList( )
+    {
+        return biasList_;
+    }
+
 
 private:
 
-    //! Constant (entry-wise) observation bias.
     std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList_;
 
 };

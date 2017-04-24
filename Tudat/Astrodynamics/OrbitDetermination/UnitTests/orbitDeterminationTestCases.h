@@ -484,6 +484,8 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                                   linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
     parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                  linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, false ) );
+    parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                                   linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, false ) );
     // Create parameters
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
@@ -504,8 +506,14 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
             boost::shared_ptr< ObservationBiasSettings > biasSettings;
             if( ( currentObservable == one_way_range ) && ( i == 0 ) )
             {
-                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-                            Eigen::Vector1d::Zero( ) );
+                std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+
+                biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ) ) );
+                biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ) ) );
+                biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
+                            biasSettingsList );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
