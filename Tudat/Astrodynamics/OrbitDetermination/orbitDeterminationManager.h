@@ -781,7 +781,7 @@ protected:
             if( estimatable_parameters::isParameterObservationLinkProperty(
                         parameterIterator->second->getParameterName( ).first ) )
             {
-                for( unsigned int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
+                for( int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
                 {
                     observationLinkParameterIndices_.push_back( parameterIterator->first + i );
                 }
