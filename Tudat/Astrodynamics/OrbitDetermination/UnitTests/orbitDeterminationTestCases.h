@@ -123,14 +123,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
                                       "Earth", centralBodyMap[ "Earth" ], bodyMap, initialEphemerisTime ),
                               centralBodyMap[ "Earth" ] ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
-    if( observableType == 1 )
-    {
-        LinkEnds linkEnds;
-        linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
-        linkEnds[ receiver ] = std::make_pair( "Mars", "" );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEnds, one_way_range, true ) );
-    }
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
@@ -167,10 +159,9 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
         if( observableType == 1 )
         {
-            boost::shared_ptr< ObservationBiasSettings > biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-                        ( Eigen::Vector1d( ) << 10.0 ).finished( ) );
+
             observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
-                                                               one_way_range, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ) ) );
+                                                               one_way_range ) ) );
         }
         else if( observableType == 2 )
         {
@@ -272,11 +263,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         initialParameterEstimate( i ) += parameterPerturbation( i );
     }
 
-    if( observableType == 1 )
-    {
-        initialParameterEstimate( 7 ) += 3.0;
-    }
-
     // Define estimation input
     boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
@@ -306,7 +292,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 }
 
 template< typename TimeType = double, typename StateScalarType  = double >
-std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executeEarthOrbiterParameterEstimation( )
+Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
 {
 
     //Load spice kernels.
@@ -365,8 +351,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
-    std::cout<<"Stations creating"<<std::endl;
-
 
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
@@ -377,8 +361,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ), geodetic_position );
     createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ), geodetic_position );
     createGroundStation( bodyMap.at( "Earth" ), "Station3", ( Eigen::Vector3d( ) << 0.0, 0.05, 4.0 ).finished( ), geodetic_position );
-
-    std::cout<<"Stations created"<<std::endl;
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -395,8 +377,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
-    std::cout<<"Acc. created"<<std::endl;
-
 
     // Set bodies for which initial state is to be estimated and integrated.
     std::vector< std::string > bodiesToIntegrate;
@@ -410,7 +390,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
     asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
@@ -424,8 +404,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     // Set (perturbed) initial state.
     Eigen::Matrix< StateScalarType, 6, 1 > systemInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
-
-    std::cout<<"In. state. created"<<std::endl;
 
     // Create propagator settings
     boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
@@ -455,7 +433,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         linkEnds[ receiver ] = std::make_pair( "Earth", groundStationNames.at( i ) );
         linkEnds[ transmitter ] = std::make_pair( "Vehicle", "" );
         stationReceiverLinkEnds.push_back( linkEnds );
-        std::cout<<"Creating LE "<<i<<std::endl;
     }
 
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
@@ -490,8 +467,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     // Create parameters
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
-
-    std::cout<<"Parameters created"<<std::endl;
 
     observation_models::ObservationSettingsMap observationSettingsMap;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
@@ -528,8 +503,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
                                             biasSettings ) ) );
         }
     }
-
-    std::cout<<"obs. settings created"<<std::endl;
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
@@ -597,15 +570,17 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( 5 ), true, true, true, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 5 ), true, true, false, false );
 
+    Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
+    std::cout<<( estimationError ).transpose( )<<std::endl;
 
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "informationMatrixTest.dat" );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "informationMatrixNormalizationTest.dat" );
-    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_, "weightsDiagonalTest.dat" );
-    input_output::writeMatrixToFile( podOutput->residuals_, "residualsTest.dat" );
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "informationMatrixTest.dat" );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "informationMatrixNormalizationTest.dat" );
+//    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_, "weightsDiagonalTest.dat" );
+//    input_output::writeMatrixToFile( podOutput->residuals_, "residualsTest.dat" );
 
-    //return results;
+    return estimationError;
 }
 
 }
