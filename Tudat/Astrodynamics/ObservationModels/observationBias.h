@@ -36,8 +36,8 @@ namespace observation_models
 enum ObservationBiasTypes
 {
     multiple_observation_biases,
-    constant_additive_bias,
-    constant_multiplicative_bias
+    constant_absolute_bias,
+    constant_relative_bias
 };
 
 //! Base class (non-functional) for describing observation biases
@@ -62,6 +62,8 @@ public:
      * typically computed by the ObservationModel)
      * \param linkEndTimes List of times at each link end during observation.
      * \param linkEndStates List of states at each link end during observation.
+     * \param currentObservableValue  Unbiased value of the observable (default NAN for compatibility purposes with original
+     * version of code).
      * \return Observation bias at given times and states.
      */
     virtual Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
@@ -81,7 +83,11 @@ public:
     }
 };
 
-//! Class for a constant observation bias of a given size
+//! Class for a constant absolute observation bias of a given size
+/*!
+ *  Class for a constant absolute observation bias of a given size. For unbiases observation h and bias A, the biased observation
+ *  is computed as h + A
+ */
 template< int ObservationSize = 1 >
 class ConstantObservationBias: public ObservationBias< ObservationSize >
 {
@@ -103,6 +109,7 @@ public:
      * Function to retrieve the constant observation bias.
      * \param linkEndTimes List of times at each link end during observation (unused).
      * \param linkEndStates List of states at each link end during observation (unused).
+     * \param currentObservableValue  Unbiased value of the observable (unused and default NAN).
      * \return Constant observation bias.
      */
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
@@ -115,21 +122,42 @@ public:
     }
 
 
+    //! Function retrieve the constant (entry-wise) absolute observation bias.
+    /*!
+     * Function retrieve the constant (entry-wise) absolute observation bias.
+     * \return The constant (entry-wise) absolute observation bias.
+     */
     Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
     {
         return observationBias_;
     }
 
+    //! Function to reset the constant (entry-wise) absolute observation bias.
+    /*!
+     * Function to reset the constant (entry-wise) absolute observation bias.
+     * \param observationBias The new constant (entry-wise) absolute observation bias.
+     */
     void resetConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 >& observationBias )
     {
         observationBias_ = observationBias;
     }
 
+    //! Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector.
+    /*!
+     * Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector
+     * \return The constant (entry-wise) absolute observation bias.
+     */
     Eigen::VectorXd getTemplateFreeConstantObservationBias( )
     {
         return observationBias_;
     }
 
+    //! Function to reset the constant (entry-wise) absolute observation bias with variable-size input.
+    /*!
+     * Function to reset the constant (entry-wise) absolute observation bias with variable-size input. Input VectorXd size
+     * must match ObservationSize class template parameter.
+     * \param observationBias The new constant (entry-wise) absolute observation bias.
+     */
     void resetConstantObservationBiasTemplateFree( const Eigen::VectorXd& observationBias )
     {
         if( observationBias.rows( ) == ObservationSize )
@@ -151,6 +179,10 @@ private:
 };
 
 //! Class for a constant relative observation bias of a given size
+/*!
+ *  Class for a constant relative observation bias of a given size. For unbiases observation h and bias A, the biased observation
+ *  is computed as h .* A, where .* is the component-wise multiplication.
+ */
 template< int ObservationSize = 1 >
 class ConstantRelativeObservationBias: public ObservationBias< ObservationSize >
 {
@@ -159,7 +191,7 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param observationBias Constant (entry-wise) observation bias.
+     * \param relativeObservationBias Constant (entry-wise) observation bias.
      */
     ConstantRelativeObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias ):
         relativeObservationBias_( relativeObservationBias ){ }
@@ -167,11 +199,12 @@ public:
     //! Destructor
     ~ConstantRelativeObservationBias( ){ }
 
-    //! Function to retrieve the constant observation bias.
+    //! Function to retrieve the constant relative observation bias.
     /*!
-     * Function to retrieve the constant observation bias.
+     * Function to retrieve the constant relative observation bias.
      * \param linkEndTimes List of times at each link end during observation (unused).
      * \param linkEndStates List of states at each link end during observation (unused).
+     * \param currentObservableValue Unbiased value of the observable
      * \return Relative observation bias.
      */
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
@@ -182,22 +215,42 @@ public:
         return relativeObservationBias_.cwiseProduct( currentObservableValue );
     }
 
+    //! Function retrieve the constant (entry-wise) relative observation bias.
+    /*!
+     * Function retrieve the constant (entry-wise) relative observation bias.
+     * \return The constant (entry-wise) relative observation bias.
+     */
     Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
     {
         return relativeObservationBias_;
     }
 
+    //! Function to reset the constant (entry-wise) relative observation bias.
+    /*!
+     * Function to reset the constant (entry-wise) relative observation bias.
+     * \param relativeObservationBias The new constant (entry-wise) relative observation bias.
+     */
     void resetConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 >& relativeObservationBias )
     {
         relativeObservationBias_ = relativeObservationBias;
     }
 
-
+    //! Function retrieve the constant (entry-wise) relative observation bias as a variable-size vector.
+    /*!
+     * Function retrieve the constant (entry-wise) relative observation bias as a variable-size vector
+     * \return The constant (entry-wise) relative observation bias.
+     */
     Eigen::VectorXd getTemplateFreeConstantObservationBias( )
     {
         return relativeObservationBias_;
     }
 
+    //! Function to reset the constant (entry-wise) relative observation bias with variable-size input.
+    /*!
+     * Function to reset the constant (entry-wise) relative observation bias with variable-size input. Input VectorXd size
+     * must match ObservationSize class template parameter.
+     * \param relativeObservationBias The new constant (entry-wise) relative observation bias.
+     */
     void resetConstantObservationBiasTemplateFree( const Eigen::VectorXd& relativeObservationBias )
     {
         if( relativeObservationBias.rows( ) == ObservationSize )
@@ -212,29 +265,39 @@ public:
 
 private:
 
-    //! Constant (entry-wise) observation bias.
+    //! Constant (entry-wise) relative observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias_;
 
 };
 
+//! Class for combining multiple observation bias models into a single bias value
+/*!
+ *  Class for combining multiple observation bias models into a single bias value. This class computes a list of biases,
+ *  all based on the nominal, unbiased, observation and sums them up to form the total observation bias.
+ */
 template< int ObservationSize = 1 >
 class MultiTypeObservationBias: public ObservationBias< ObservationSize >
 {
 public:
 
-
+    //! Constructor
+    /*!
+     * Constructor
+     * \param biasList List of bias objects that are to be combined.
+     */
     MultiTypeObservationBias( const std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList ):
         biasList_( biasList ){ }
 
     //! Destructor
     ~MultiTypeObservationBias( ){ }
 
-    //! Function to retrieve the constant observation bias.
+    //! Function to retrieve the total observation bias.
     /*!
-     * Function to retrieve the constant observation bias.
-     * \param linkEndTimes List of times at each link end during observation (unused).
-     * \param linkEndStates List of states at each link end during observation (unused).
-     * \return Constant observation bias.
+     * Function to retrieve the total observation bias.
+     * \param linkEndTimes List of times at each link end during observation.
+     * \param linkEndStates List of states at each link end during observation.
+     * \param currentObservableValue  Unbiased value of the observable.
+     * \return Total observation bias.
      */
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
             const std::vector< double >& linkEndTimes,
@@ -249,6 +312,11 @@ public:
         return totalBias;
     }
 
+    //! Function to retrieve the list of bias objects that are to be combined.
+    /*!
+     * Function to retrieve the list of bias objects that are to be combined.
+     * \return The list of bias objects that are to be combined.
+     */
     std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > getBiasList( )
     {
         return biasList_;
@@ -257,22 +325,32 @@ public:
 
 private:
 
+
+    //! List of bias objects that are to be combined.
     std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList_;
 
 };
 
+//! Function to retrieve the type of an observation bias
+/*!
+ *  Function to retrieve the type of an observation bias.
+ *  \param biasObject Bias for which the type is to be determined
+ *  \return Bias type for biasObject.
+ */
 template< int ObservationSize >
 ObservationBiasTypes getObservationBiasType(
         const boost::shared_ptr< ObservationBias< ObservationSize > > biasObject )
 {
     ObservationBiasTypes biasType;
+
+    // Check available bias types
     if( boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( biasObject ) != NULL )
     {
-        biasType = constant_additive_bias;
+        biasType = constant_absolute_bias;
     }
     else if( boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( biasObject ) != NULL )
     {
-        biasType = constant_multiplicative_bias;
+        biasType = constant_relative_bias;
     }
     else if( boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( biasObject ) != NULL )
     {
@@ -290,4 +368,4 @@ ObservationBiasTypes getObservationBiasType(
 
 } // namespace tudat
 
-#endif // TUDAT_OBSERVATIONMODEL_H
+#endif // TUDAT_OBSERVATIONBIAS_H

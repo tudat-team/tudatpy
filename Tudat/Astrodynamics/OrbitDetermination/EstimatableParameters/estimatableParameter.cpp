@@ -91,6 +91,7 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
     return flag;
 }
 
+//! Function to determine whether the given parameter influences an observation link directly
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType )
 {
     bool flag;

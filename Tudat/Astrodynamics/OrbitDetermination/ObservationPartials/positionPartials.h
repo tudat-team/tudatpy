@@ -201,45 +201,6 @@ private:
     boost::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame_;
 };
 
-////! Class to compute the partial derivative of the three-dimensional position of a body w.r.t. to body-fixed position of
-////! some reference point (e.g. ground station)
-//class CartesianStatePartialWrtBodyFixedPosition: public CartesianStatePartial
-//{
-//public:
-
-//    //! Constructor
-//    /*!
-//     * Constructor
-//     * \param bodyRotationModel Object to compute the rotation to/from the body-fixed frame.
-//     */
-//    CartesianStatePartialWrtBodyFixedPosition( const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
-//        bodyRotationModel_( bodyRotationModel ){ }
-
-//    //! Destructor
-//    ~CartesianStatePartialWrtBodyFixedPosition( ){ }
-
-//    //! Function for determining partial at current time and body state.
-//    /*!
-//     *  Function for determining partial at current time and body state wrt body-fixed point position
-//     *  \param state Current inertial state of point of which partial is to be calculated by derived class
-//     *  \param time Current time
-//     *  \return Partial of point position wrt body-fixed point position
-//     */
-//    Eigen::Matrix< double, 3, Eigen::Dynamic > calculatePartialOfPosition(
-//            const Eigen::Vector6d& state,
-//            const double time )
-//    {
-//        return calculatePartialOfPointPositionWrtBodyFixedPointPosition(
-//                    Eigen::Matrix3d( bodyRotationModel_->getRotationToBaseFrame( time ) ) );
-//    }
-
-
-//private:
-
-//    //! Object to compute the rotation to/from the body-fixed frame.
-//    boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
-//};
-
 
 //! Derived class for scaling three-dimensional position partial to position observable partial
 /*!
@@ -317,13 +278,15 @@ public:
      *  \param states Link end stats. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end time.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  compatibility purposes)
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual PositionObservationPartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Zero( ) )
+            const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
     {
         PositionObservationPartialReturnType returnPartial;
 

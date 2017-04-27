@@ -147,6 +147,33 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         // Test numerical derivative against Doppler observable
         BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity  - dopplerObservable ), 1.0E-14 );
     }
+
+    // Test observation biases
+    {
+        // Create observation and bias settings
+        std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+        biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >( Eigen::Vector1d( 1.0E-6 ) ) );
+        biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ) ) );
+        boost::shared_ptr< ObservationBiasSettings > biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
+                    biasSettingsList );
+
+        boost::shared_ptr< ObservationSettings > biasedObservableSettings = boost::make_shared< ObservationSettings >
+                ( one_way_doppler, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
+
+        // Create observation model
+        boost::shared_ptr< ObservationModel< 1, double, double> > biasedObservationModel =
+                ObservationModelCreator< 1, double, double>::createObservationModel(
+                    linkEnds, biasedObservableSettings, bodyMap );
+
+        double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+
+        double unbiasedObservation = biasedObservationModel->computeIdealObservations(
+                    observationTime, receiver )( 0 );
+        double biasedObservation = biasedObservationModel->computeObservations(
+                    observationTime, receiver )( 0 );
+        BOOST_CHECK_CLOSE_FRACTION( biasedObservation, 1.0E-6 + ( 1.0 + 2.5E-4 ) * unbiasedObservation, 1.0E-15 );
+
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

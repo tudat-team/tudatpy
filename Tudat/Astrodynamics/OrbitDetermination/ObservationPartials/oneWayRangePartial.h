@@ -153,13 +153,15 @@ public:
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end time.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  compatibility purposes)
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual OneWayRangePartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Zero( ) );
+            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
 
     //! Function to get scaling object used for mapping partials of positions to partials of observable
     /*!

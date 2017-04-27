@@ -142,7 +142,8 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes, linkEndStates, currentObservation ).
+                    this->observationBiasCalculator_->getObservationBias(
+                        linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) ).
                     template cast< ObservationScalarType >( );
         }
     }
@@ -194,7 +195,8 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes_, linkEndStates_, currentObservation ).
+                    this->observationBiasCalculator_->getObservationBias(
+                        linkEndTimes_, linkEndStates_, currentObservation.template cast< double >( ) ).
                     template cast< ObservationScalarType >( );
         }
     }
@@ -269,12 +271,22 @@ protected:
 
 };
 
+//! Function to extract a list of observtion bias models from a list of observation models.
+/*!
+ *  Function to extract a list of observtion bias models from a list of observation models. Function iterates over input
+ *  map of observationModels, extracts the bias from it and adds it to the list of bias objects if it is not NULL.
+ *  \param observationModels List of observation models (per LinkEnds) from which the bias objects are to be extracted
+ *  \return List of observation bias objects (per LinkEnds), as extracted from observationModels (NULL bias objects not
+ *  added to list).
+ */
 template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
 std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
-        std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels )
+        std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+        observationModels )
 {
     std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > biasList;
-    for( typename std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
+    for( typename std::map< LinkEnds, boost::shared_ptr<
+         ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
          observationModelIterator = observationModels.begin( ); observationModelIterator != observationModels.end( );
          observationModelIterator++ )
     {

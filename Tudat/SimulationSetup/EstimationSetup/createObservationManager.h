@@ -9,8 +9,8 @@
  */
 
 
-#ifndef CREATEOBSERVATIONMANAGER_H
-#define CREATEOBSERVATIONMANAGER_H
+#ifndef TUDAT_CREATEOBSERVATIONMANAGER_H
+#define TUDAT_CREATEOBSERVATIONMANAGER_H
 
 #include <vector>
 #include <map>
@@ -62,6 +62,12 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
 
 }
 
+//! Function to perform the closure a single observation bias and a single estimated bias parameter.
+/*!
+ *  Function to perform the closure a single observation bias and a single estimated bias parameter. Estimated parameter objects
+ *  are typically created prior to observation models. This function must be called for the estimated parameter object creation
+ *  to be finalized, in the case link properties are estimated (e.g. observation biases).
+ */
 template< int ObservationSize = 1 >
 void performObservationParameterEstimationClosureForSingleModelSet(
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
@@ -70,10 +76,19 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         const ObservableType observableType )
 {
     ObservationBiasTypes biasType = getObservationBiasType( observationBias );
+
+    // Check if bias type is multi-type
     if( biasType == multiple_observation_biases )
     {
+        // Test input consistency
         boost::shared_ptr< MultiTypeObservationBias< ObservationSize > > multiTypeBias =
                 boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( observationBias );
+        if( multiTypeBias == NULL )
+        {
+            throw std::runtime_error( "Error, cannot perform bias closure for multi-type bias, inconsistent bias types" );
+        }
+
+        // Perform closure for each constituent bias object
         for( unsigned int i = 0; i < multiTypeBias->getBiasList( ).size( ); i++ )
         {
             performObservationParameterEstimationClosureForSingleModelSet(
@@ -82,10 +97,12 @@ void performObservationParameterEstimationClosureForSingleModelSet(
     }
     else
     {
+        // Check bias type
         switch( parameter->getParameterName( ).first )
         {
         case estimatable_parameters::constant_additive_observation_bias:
         {
+            // Test input consistency
             boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
                     boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameter );
@@ -94,10 +111,12 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                 throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
             }
 
+            // Check if bias object is of same type as estimated parameter
             boost::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
                     boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( observationBias );
             if( constantBiasObject != NULL )
             {
+                // Check if bias and parameter link properties are equal
                 if( linkEnds == biasParameter->getLinkEnds( ) &&
                         observableType == biasParameter->getObservableType( ) )
                 {
@@ -112,6 +131,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         }
         case estimatable_parameters::constant_relative_observation_bias:
         {
+            // Test input consistency
             boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
                     boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
                         parameter );
@@ -120,10 +140,12 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                 throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
             }
 
+            // Check if bias object is of same type as estimated parameter
             boost::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
                     boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( observationBias );
             if( constantBiasObject != NULL )
             {
+                // Check if bias and parameter link properties are equal
                 if( linkEnds == biasParameter->getLinkEnds( ) &&
                         observableType == biasParameter->getObservableType( ) )
                 {
@@ -145,34 +167,25 @@ void performObservationParameterEstimationClosureForSingleModelSet(
     }
 }
 
-template< int ObservationSize = 1 >
-void performObservationParameterEstimationClosure(
-        const std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorBiasParameters,
-        const std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > observationBiases,
-        const ObservableType observableType )
-{
-    for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
-    {
-        for( typename std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator biasIterator =
-             observationBiases.begin( ); biasIterator != observationBiases.end( ); biasIterator++ )
-        {
-            performObservationParameterEstimationClosureForSingleModelSet(
-                        vectorBiasParameters.at( i ), biasIterator->second, biasIterator->first, observableType );
-        }
-    }
-}
-
+//! Function to perform the closure between observation models and estimated parameters.
+/*!
+ *  Function to perform the closure between observation models and estimated parameters. Estimated parameter objects are typically
+ *  created prior to observation models. This function must be called for the estimated parameter object creation to be
+ *  finalized, in the case link properties are estimated (e.g. observation biases).
+ */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 void performObservationParameterEstimationClosure(
         boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
         parametersToEstimate )
 {
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModels =
-            observationSimulator->getObservationModels( );
+    // Retrieve observation models and parameter
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+            observationModels = observationSimulator->getObservationModels( );
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getEstimatedVectorParameters( );
 
+    // Retrieve estimated bias parameters.
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorBiasParameters;
     for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
     {
@@ -184,11 +197,21 @@ void performObservationParameterEstimationClosure(
 
     if( vectorBiasParameters.size( ) > 0 )
     {
+        // Retrieve bias objects
         std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
                 extractObservationBiasList( observationModels );
 
-        performObservationParameterEstimationClosure< ObservationSize >(
-                    vectorParameters, observationBiases, observationSimulator->getObservableType( ) );
+        // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
+        for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
+        {
+            for( typename std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator
+                 biasIterator = observationBiases.begin( ); biasIterator != observationBiases.end( ); biasIterator++ )
+            {
+                performObservationParameterEstimationClosureForSingleModelSet(
+                            vectorParameters.at( i ), biasIterator->second, biasIterator->first,
+                            observationSimulator->getObservableType( ) );
+            }
+        }
     }
 }
 
@@ -315,4 +338,4 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
 }
 
 
-#endif // CREATEOBSERVATIONMANAGER_H
+#endif // TUDAT_CREATEOBSERVATIONMANAGER_H
