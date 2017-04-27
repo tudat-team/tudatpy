@@ -84,14 +84,16 @@ public:
      */
     virtual ~ObservationPartial( ) { }
 
-    //! Pure virtual function to calculate the obsevration partial(s) at required time(s) and state(s)
+    //! Pure virtual function to calculate the observation partial(s) at required time(s) and state(s)
     /*!
-     *  Pure virtual function to calculate the obsevration partial(s) at required time(s) and state(s). States and times
+     *  Pure virtual function to calculate the observation partial(s) at required time(s) and state(s). States and times
      *  are typically obtained from evaluation of associated observation model.
      *  Derived class functions implement this for a specific observable.
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end times.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  compatibility purposes).
      *  \return Vector of pairs containing partial values and associated times.
      */
     virtual std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
@@ -99,7 +101,7 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime = observation_models::receiver,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
-            Eigen::Matrix< double, ObservationSize, 1 >::Zero( ) ) = 0;
+            Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
 
     //! Function to get parameter id of for specifc parameter of which partial is computed by object.
     /*!
@@ -120,21 +122,46 @@ protected:
 
 };
 
+//! Class for computing the derivative of any observable w.r.t. a constant absolute observation bias
+/*!
+ *  Class for computing the derivative of any observable w.r.t. a constant absolute observation bias. Note that this partial is
+ *  distinct from most other ObservationPartial partial derived classes, as its implementation is based on the parameter
+ *  (constant observation bias), not the type of observable: the implementation is identical for each observable.
+ */
 template< int ObservationSize >
-class ObservationPartialWrtConstantAdditiveBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantAbsoluteBias: public ObservationPartial< ObservationSize >
 {
 public:
-    ObservationPartialWrtConstantAdditiveBias( const observation_models::ObservableType observableType,
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Observable type for which the bias is active.
+     * \param linkEnds Observation link ends for which the bias is active.
+     */
+    ObservationPartialWrtConstantAbsoluteBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
             std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
     {
+        // Compute partial (vector of ObservationSize with 1.0 entries).
         constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
     }
 
-    ~ObservationPartialWrtConstantAdditiveBias( ){ }
+    //! Destructor
+    ~ObservationPartialWrtConstantAbsoluteBias( ){ }
 
+    //! Function to calculate the observation partial w.r.t. constant absolute bias
+    /*!
+     *  Function to calculate the observation partial w.r.t. constant absolute bias. Note that output is independent of input.
+     *  Associated time defined at times[ 0 ].
+     *  \param states Link end states (unused).
+     *  \param times Link end times  (unused).
+     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable  (unused).
+     *  \param currentObservation Value of the observation for which the partial is to be computed  (unused).
+     *  \return Vector of pairs containing partial values and associated times.
+     */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
@@ -146,29 +173,55 @@ public:
     }
 
 private:
+
+    //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
+    //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
 
+    //! Observation partial: constant for all conditions.
     Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
 
 };
 
+//! Class for computing the derivative of any observable w.r.t. a constant relative observation bias
+/*!
+ *  Class for computing the derivative of any observable w.r.t. a constant relative observation bias. Note that this partial is
+ *  distinct from most other ObservationPartial partial derived classes, as its implementation is based on the parameter
+ *  (constant observation bias), not the type of observable: the implementation is identical for each observable.
+ */
 template< int ObservationSize >
-class ObservationPartialWrtConstantMultiplicativeBias: public ObservationPartial< ObservationSize >
+class ObservationPartialWrtConstantRelativeBias: public ObservationPartial< ObservationSize >
 {
 public:
-    ObservationPartialWrtConstantMultiplicativeBias( const observation_models::ObservableType observableType,
-                                                     const observation_models::LinkEnds& linkEnds ):
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Observable type for which the bias is active.
+     * \param linkEnds Observation link ends for which the bias is active.
+     */
+    ObservationPartialWrtConstantRelativeBias( const observation_models::ObservableType observableType,
+                                               const observation_models::LinkEnds& linkEnds ):
         ObservationPartial< ObservationSize >(
             std::make_pair( estimatable_parameters::constant_additive_observation_bias, linkEnds.begin( )->second ) ),
         observableType_( observableType ), linkEnds_( linkEnds )
-    {
-        constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
-    }
+    {  }
 
-    ~ObservationPartialWrtConstantMultiplicativeBias( ){ }
+    //! Destructor
+    ~ObservationPartialWrtConstantRelativeBias( ){ }
 
+    //! Function to calculate the observation partial w.r.t. constant relative bias
+    /*!
+     *  Function to calculate the observation partial w.r.t. constant bias. Note that output is independent of input times and
+     *  states. Associated time defined at times[ 0 ].
+     *  \param states Link end states (unused).
+     *  \param times Link end times  (unused).
+     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable  (unused).
+     *  \param currentObservation Value of the observation for which the partial is to be computed.
+     *  \return Vector of pairs containing partial values and associated times.
+     */
     std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
@@ -180,12 +233,12 @@ public:
     }
 
 private:
+
+    //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
 
+    //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
-
-    Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
-
 };
 
 //! Typedef for map of observation partials.
@@ -216,7 +269,15 @@ typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 3 > > > SingleLinkObservationThreePartialList;
 
 
-
+//! Function to create partials of observation w.r.t. a link property.
+/*!
+ *  Function to create partials of observation w.r.t. a link property, e.g. a parameter that does not influence either link end's
+ *  dynamics, only the observable itself, such as observation biases and clock parameters.
+ *  \param linkEnds Link ends of observable for which partial is to be made.
+ *  \param observableType Type of observable for which partial is to be made.
+ *  \param parameterToEstimate Parameter w.r.t. which the partial is to be taken
+ *  \return Object that computes the partial of the observation w.r.t. parameterToEstimate (NULL if no dependency).
+ */
 template< int ObservationSize >
 boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartialWrtLinkProperty(
         const observation_models::LinkEnds& linkEnds,
@@ -224,10 +285,13 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
 {
     boost::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
+
+    // Check parameter type
     switch( parameterToEstimate->getParameterName( ).first )
     {
     case estimatable_parameters::constant_additive_observation_bias:
     {
+        // Check input consistency
         boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
                 boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                     parameterToEstimate );
@@ -237,9 +301,10 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
         }
         else
         {
+            // Check dependency between parameter and link properties.
             if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
             {
-                observationPartial = boost::make_shared< ObservationPartialWrtConstantAdditiveBias< ObservationSize > >(
+                observationPartial = boost::make_shared< ObservationPartialWrtConstantAbsoluteBias< ObservationSize > >(
                             observableType, linkEnds );
             }
         }
@@ -247,6 +312,7 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
     }
     case estimatable_parameters::constant_relative_observation_bias:
     {
+        // Check input consistency
         boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > constantBias =
                 boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
                     parameterToEstimate );
@@ -256,9 +322,10 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
         }
         else
         {
+            // Check dependency between parameter and link properties.
             if( linkEnds == constantBias->getLinkEnds( ) && observableType == constantBias->getObservableType( ) )
             {
-                observationPartial = boost::make_shared< ObservationPartialWrtConstantMultiplicativeBias< ObservationSize > >(
+                observationPartial = boost::make_shared< ObservationPartialWrtConstantRelativeBias< ObservationSize > >(
                             observableType, linkEnds );
             }
         }

@@ -123,9 +123,18 @@ public:
     std::vector< std::pair< int, int > > blockIndices_;
 };
 
+//! Class to define settings for estimation of constant observation biases (absolute or relative)
 class ConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param isBiasAdditive True if bias is absolute, false if it is relative
+     */
     ConstantObservationBiasEstimatableParameterSettings(
             const observation_models::LinkEnds& linkEnds,
             const observation_models::ObservableType observableType,
@@ -135,11 +144,14 @@ public:
             isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
             linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
 
+    //! Destructor
     ~ConstantObservationBiasEstimatableParameterSettings( ){ }
 
-      observation_models::LinkEnds linkEnds_;
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
 
-      observation_models::ObservableType observableType_;
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
 
 };
 //! Class to define settings for estimating an initial translational state.

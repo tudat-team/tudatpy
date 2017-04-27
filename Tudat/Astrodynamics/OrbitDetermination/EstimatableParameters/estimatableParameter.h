@@ -69,6 +69,13 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
  */
 bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType );
 
+//! Function to determine whether the given parameter influences an observation link directly
+/*!
+ * Function to determine whether the given parameter influences an observation link directly, such as observation biases or
+ * clock parameters
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is a property of an observation link
+ */
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.

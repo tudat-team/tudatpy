@@ -44,10 +44,16 @@ std::string getObservableName( const ObservableType observableType );
 /*!
  * Function to get the observable type.ssociated with the name (string) of observable.
  * \param observableName of observable
- * \return observableType Type of observable.
+ * \return Type of observable.
  */
 ObservableType getObservableType( const std::string& observableName );
 
+//! Function to get the size of an observable of a given type.
+/*!
+ * Function to get the size of an observable of a given type.
+ * \param observableType Type of observable.
+ * \return Size of observable.
+ */
 int getObservableSize( const ObservableType observableType );
 
 //! Function to get the indices in link end times/states for a given link end type and observable type

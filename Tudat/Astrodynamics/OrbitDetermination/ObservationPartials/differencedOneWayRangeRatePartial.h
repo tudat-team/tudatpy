@@ -58,7 +58,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Zero( ) );
+            const Eigen::Vector1d& currentObservation = Eigen::Vector1d::Constant( TUDAT_NAN ) );
 
 protected:
 

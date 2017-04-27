@@ -87,10 +87,10 @@ ObservableType getObservableType( const std::string& observableName )
     return observableType;
 }
 
-
+//! Function to get the size of an observable of a given type.
 int getObservableSize( const ObservableType observableType )
 {
-    int observableSize = TUDAT_NAN;
+    int observableSize = -1;
     switch( observableType )
     {
     case one_way_range:

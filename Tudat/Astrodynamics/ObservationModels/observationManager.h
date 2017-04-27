@@ -311,6 +311,7 @@ protected:
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param currentObservation Value of observation for which partials are to be computed
      *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */

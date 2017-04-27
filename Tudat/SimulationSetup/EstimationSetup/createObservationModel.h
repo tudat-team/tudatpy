@@ -60,10 +60,16 @@ public:
     observation_models::ObservationBiasTypes observationBiasType_;
 };
 
+//! Class for defining settings for the creation of a multiple biases for a single observable
 class MultipleObservationBiasSettings: public ObservationBiasSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param biasSettingsList List of settings for bias objects that are to be created.
+     */
     MultipleObservationBiasSettings(
             const std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList ):
         ObservationBiasSettings( multiple_observation_biases ),
@@ -72,7 +78,8 @@ public:
     //! Destructor
     ~MultipleObservationBiasSettings( ){ }
 
-   std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList_;
+    //! List of settings for bias objects that are to be created.
+    std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList_;
 };
 
 //! Class for defining settings for the creation of a constant additive observation bias model
@@ -88,7 +95,7 @@ public:
      */
     ConstantObservationBiasSettings(
             const Eigen::VectorXd& observationBias ):
-        ObservationBiasSettings( constant_additive_bias ), observationBias_( observationBias )
+        ObservationBiasSettings( constant_absolute_bias ), observationBias_( observationBias )
     { }
 
     //! Destructor
@@ -103,14 +110,14 @@ public:
 
 };
 
-//! Class for defining settings for the creation of a constant multiplicative observation bias model
+//! Class for defining settings for the creation of a constant relative observation bias model
 class ConstantRelativeObservationBiasSettings: public ObservationBiasSettings
 {
 public:
 
     ConstantRelativeObservationBiasSettings(
             const Eigen::VectorXd& relativeObservationBias ):
-        ObservationBiasSettings( constant_multiplicative_bias ), relativeObservationBias_( relativeObservationBias )
+        ObservationBiasSettings( constant_relative_bias ), relativeObservationBias_( relativeObservationBias )
     { }
 
     //! Destructor
@@ -227,7 +234,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
 //! Function to create an object that computes an observation bias
 /*!
  *  Function to create an object that computes an observation bias, which can represent any type of system-dependent influence
- *  on the observed value (e.g. additive bias, multiplicative bias, clock drift, etc.)
+ *  on the observed value (e.g. absolute bias, relative bias, clock drift, etc.)
  *  \param linkEnds Observation link ends for which the bias is to be created.
  *  \param biasSettings Settings for teh observation bias that is to be created.
  *  \param bodyMap List of body objects that comprises the environment.
@@ -242,7 +249,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     boost::shared_ptr< ObservationBias< ObservationSize > > observationBias;
     switch( biasSettings->observationBiasType_ )
     {
-    case constant_additive_bias:
+    case constant_absolute_bias:
     {
         // Check input consistency
         boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
@@ -261,7 +268,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
                     constantBiasSettings->observationBias_ );
         break;
     }
-    case constant_multiplicative_bias:
+    case constant_relative_bias:
     {
         // Check input consistency
         boost::shared_ptr< ConstantRelativeObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
@@ -282,18 +289,23 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     }
     case multiple_observation_biases:
     {
+        // Check input consistency
         boost::shared_ptr< MultipleObservationBiasSettings > multiBiasSettings = boost::dynamic_pointer_cast<
                 MultipleObservationBiasSettings >( biasSettings );
         if( multiBiasSettings == NULL )
         {
             throw std::runtime_error( "Error when making multiple observation biases, settings are inconsistent" );
         }
+
+        // Create list of biases
         std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > observationBiasList;
         for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
         {
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
                                                linkEnds, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
         }
+
+        // Create combined bias object
         observationBias = boost::make_shared< MultiTypeObservationBias< ObservationSize > >(
                     observationBiasList );
         break;
