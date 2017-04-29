@@ -39,6 +39,10 @@ typedef std::pair< std::string, std::string > LinkEndId;
 //! Typedef for list of link ends, with associated role, used for a single observation (model).
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
+std::string getLinkEndTypeString( const LinkEndType linkEndType );
+
+std::string getLinkEndsString( const LinkEnds linkEnds );
+
 } // namespace observation_models
 
 } // namespace tudat
