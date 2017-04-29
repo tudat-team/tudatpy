@@ -62,14 +62,21 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
     for( unsigned int i = 0; i <3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-5 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 6 ) ), 1.0E-6 );
-
     }
+
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 1.0E-5 );
+
     BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 1.0E-13 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 1.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 1.0E-13 );
+
+    for( unsigned int i = 0; i < 5; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 10 ) ), 1.0E-12 );
+    }
 
 }
 

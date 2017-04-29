@@ -446,6 +446,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
     linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
     linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
+    std::cout<<"Link ends "<<getLinkEndsString( linkEndsPerObservable[ one_way_doppler ].at( 0 ) )<<std::endl;
+
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back(
                 boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
@@ -453,20 +455,22 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
 
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
-
-//    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-//                                  2, 0, 3, 3, "Earth", spherical_harmonics_cosine_coefficient_block ) );
-//    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-//                                  2, 1, 3, 3, "Earth", spherical_harmonics_sine_coefficient_block ) );
     parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                                   linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, true ) );
     parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                                   linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, false ) );
     parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                                   linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, false ) );
+
+    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
     // Create parameters
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
+
+    printEstimatableParameterEntries( parametersToEstimate );
 
     observation_models::ObservationSettingsMap observationSettingsMap;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
@@ -570,7 +574,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( 5 ), true, true, false, false );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 5 ), true, true, false, true );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout<<( estimationError ).transpose( )<<std::endl;

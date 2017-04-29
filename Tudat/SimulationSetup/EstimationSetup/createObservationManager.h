@@ -202,13 +202,13 @@ void performObservationParameterEstimationClosure(
                 extractObservationBiasList( observationModels );
 
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
-        for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
+        for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
             for( typename std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator
                  biasIterator = observationBiases.begin( ); biasIterator != observationBiases.end( ); biasIterator++ )
             {
                 performObservationParameterEstimationClosureForSingleModelSet(
-                            vectorParameters.at( i ), biasIterator->second, biasIterator->first,
+                            vectorBiasParameters.at( i ), biasIterator->second, biasIterator->first,
                             observationSimulator->getObservableType( ) );
             }
         }

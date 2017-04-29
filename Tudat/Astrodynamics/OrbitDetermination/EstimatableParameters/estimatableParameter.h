@@ -11,6 +11,7 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERS_H
 #define TUDAT_ESTIMATABLEPARAMETERS_H
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <vector>
@@ -44,6 +45,8 @@ enum EstimatebleParametersEnum
     constant_additive_observation_bias,
     constant_relative_observation_bias
 };
+
+std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
 
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
 /*!
@@ -130,6 +133,20 @@ public:
      */
     EstimatebleParameterIdentifier getParameterName( ) { return parameterName_; }
 
+    virtual std::string getParameterDescription( )
+    {
+        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first;
+        if( parameterName_.second.second == "" )
+        {
+            parameterDescription += ").";
+        }
+        else
+        {
+            parameterDescription += ", parameterName_.second.secon).";
+        }
+        return parameterDescription;
+    }
+
     //! Function to retrieve the size of the parameter
     /*!
      *  Pure virtual function to retrieve the size of the parameter (i.e. 1 for double parameters)
@@ -177,7 +194,7 @@ public:
             const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
             < InitialStateParameterType, Eigen::Dynamic, 1 > > > >& estimateInitialStateParameters =
             ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
-            < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
+              < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
         estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
         estimateInitialStateParameters_( estimateInitialStateParameters )
     {
@@ -301,7 +318,7 @@ public:
         {
             throw std::runtime_error( "Error when resetting parameters of parameter set, given vector has size " +
                                       boost::lexical_cast< std::string >( newParameterValues.rows( ) ) +
-                                       ", while internal size is " + boost::lexical_cast< std::string >( totalParameterSetSize_ ) );
+                                      ", while internal size is " + boost::lexical_cast< std::string >( totalParameterSetSize_ ) );
         }
         else
         {
@@ -353,6 +370,11 @@ public:
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getVectorParameters( )
     {
         return vectorParameters_;
+    }
+
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialStateParameters( )
+    {
+        return initialStateParameters_;
     }
 
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
@@ -427,6 +449,42 @@ protected:
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
 };
+
+template< typename InitialStateParameterType >
+void printEstimatableParameterEntries(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::map< int, boost::shared_ptr<
+            EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters =
+            estimatableParameters->getInitialStateParameters( );
+    std::map< int, boost::shared_ptr<
+            EstimatableParameter< double > > > doubleParameters = estimatableParameters->getDoubleParameters( );
+    std::map< int, boost::shared_ptr<
+            EstimatableParameter< Eigen::VectorXd > > > vectorParameters = estimatableParameters->getVectorParameters( );
+
+    std::cout<<"Parameter start index, Parameter definition"<<std::endl;
+    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::Matrix<
+         InitialStateParameterType, Eigen::Dynamic, 1 > > > >::const_iterator parameterIterator = initialStateParameters.begin( );
+         parameterIterator != initialStateParameters.end( ); parameterIterator++ )
+    {
+        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+    }
+
+    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< double > > >::const_iterator
+         parameterIterator = doubleParameters.begin( );
+         parameterIterator != doubleParameters.end( ); parameterIterator++ )
+    {
+        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+    }
+
+    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::VectorXd > > >::const_iterator
+         parameterIterator = vectorParameters.begin( );
+         parameterIterator != vectorParameters.end( ); parameterIterator++ )
+    {
+        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+    }
+     std::cout<<std::endl;
+}
 
 //! Function to get the list of names of bodies for which initial translational dynamical state is estimated.
 /*!
@@ -504,7 +562,7 @@ getListOfInitialDynamicalStateParametersEstimate(
         {
             initialDynamicalStateParametersEstimate[ propagators::transational_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );
-        }       
+        }
     }
 
     return initialDynamicalStateParametersEstimate;

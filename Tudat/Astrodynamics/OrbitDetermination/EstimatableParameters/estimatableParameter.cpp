@@ -16,6 +16,49 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+std::string getParameterTypeString( const EstimatebleParametersEnum parameterType )
+{
+    std::string parameterDescription;
+    switch( parameterType )
+    {
+    case initial_body_state:
+        parameterDescription = "translational state ";
+        break;
+    case gravitational_parameter:
+        parameterDescription = "gravitational parameter ";
+        break;
+    case constant_drag_coefficient:
+        parameterDescription = "constant drag coefficient ";
+        break;
+    case radiation_pressure_coefficient:
+        parameterDescription = "radiation pressure coefficient ";
+        break;
+    case spherical_harmonics_cosine_coefficient_block:
+        parameterDescription = "cosine spherical harmonic coefficient block ";
+        break;
+    case spherical_harmonics_sine_coefficient_block:
+        parameterDescription = "sine spherical harmonic coefficient block ";
+        break;
+    case constant_rotation_rate:
+        parameterDescription = "constant rotation rate ";
+        break;
+    case rotation_pole_position:
+        parameterDescription = "pole position ";
+        break;
+    case constant_additive_observation_bias:
+        parameterDescription = "absolute observation bias ";
+        break;
+    case constant_relative_observation_bias:
+        parameterDescription = "relative observation bias ";
+        break;
+    default:
+        std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
+                boost::lexical_cast< std::string >( parameterType );
+        throw std::runtime_error( errorMessage );
+    }
+    return parameterDescription;
+}
+
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
 bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum parameterType )
 {
