@@ -114,6 +114,11 @@ public:
     {
         return terminationSettings_;
     }
+    void resetTerminationSettings( const boost::shared_ptr< PropagationTerminationSettings > terminationSettings )
+    {
+        terminationSettings_ = terminationSettings;
+    }
+
 
     //! Function to retrieve settings for the dependent variables that are to be saved during propagation (default none).
     /*!
