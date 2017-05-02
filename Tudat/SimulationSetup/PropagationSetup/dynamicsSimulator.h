@@ -112,7 +112,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     // Create ReferenceFrameManager and call overloaded function.
     return getInitialStatesOfBodies< TimeType, StateScalarType >(
                 bodiesToIntegrate, centralBodies, bodyMap, initialTime,
-                                     createFrameManager( bodyMap ) );
+                createFrameManager( bodyMap ) );
 }
 
 //! Function to get the states of single body, w.r.t. some central body, at the requested time.
@@ -167,7 +167,7 @@ public:
             const bool setIntegratedResult = true ):
         bodyMap_( bodyMap ), integratorSettings_( integratorSettings ),
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult )
+        setIntegratedResult_( setIntegratedResult ), initialPropagationTime_( integratorSettings_->initialTime_ )
     {
         if( propagatorSettings == NULL )
         {
@@ -190,7 +190,7 @@ public:
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
-                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_  ),
+                        propagatorSettings_, bodyMap_, initialPropagationTime_ ),
                     boost::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
                                  environmentUpdater_, _1, _2, _3 ) );
         propagationTerminationCondition_ = createPropagationTerminationConditions(
@@ -316,6 +316,18 @@ public:
         return propagationTerminationCondition_;
     }
 
+    std::map< IntegratedStateType, std::vector< boost::shared_ptr<
+    IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
+    {
+        return integratedStateProcessors_;
+    }
+
+    void resetSetIntegratedResult( const bool setIntegratedResult )
+    {
+        setIntegratedResult_ = setIntegratedResult;
+    }
+
+
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -385,6 +397,8 @@ protected:
 
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
+
+    double initialPropagationTime_;
 
 
 };
@@ -465,11 +479,12 @@ public:
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
+        integratorSettings_->initialTime_ = this->initialPropagationTime_;
         // Integrate equations of motion numerically.
         EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
-                        initialStates, integratorSettings_->initialTime_ ), integratorSettings_,
+                        initialStates, this->initialPropagationTime_ ), integratorSettings_,
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                  propagationTerminationCondition_, _1 ),
                     dependentVariableHistory_,
@@ -560,6 +575,234 @@ protected:
     //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
 
+};
+
+template< typename StateScalarType = double >
+std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > > getInitialStatesPerArc(
+        const std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > propagatorSettings )
+{
+    std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > > initialStatesList;
+    for( unsigned int i = 0; i < propagatorSettings.size( ); i++ )
+    {
+        initialStatesList.push_back( propagatorSettings.at( i )->getInitialStates( ) );
+    }
+
+    return initialStatesList;
+}
+
+
+template< typename StateScalarType = double, typename TimeType = double >
+class MultiArcDynamicsSimulator
+{
+public:
+
+    //! Constructor of simulator.
+    /*!
+     *  Constructor of simulator, constructs integrator and object for calculating each time step of integration.
+     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end of the contructor or not.
+     */
+    MultiArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const std::vector< boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
+            const std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > propagatorSettings,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true ):
+        clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult )
+    {
+        if( integratorSettings.size( ) != propagatorSettings.size( ) )
+        {
+            throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is inconsistent" );
+        }
+        else
+        {
+            for( unsigned int i = 0; i < propagatorSettings.size( ); i++ )
+            {
+                singleArcDynamicsSimulators_.push_back(
+                            boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                                bodyMap, integratorSettings.at( i ), propagatorSettings.at( i ), false, false, true ) );
+                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+            }
+        }
+
+        equationsOfMotionNumericalSolution_.resize( integratorSettings.size( ) );
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( getInitialStatesPerArc( propagatorSettings ) );
+        }
+    }
+
+    //! Constructor of simulator.
+    /*!
+     *  Constructor of simulator, constructs integrator and object for calculating each time step of integration.
+     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end of the contructor or not.
+     */
+    MultiArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > arcInitialStates,
+            const std::vector< double > arcStartTimes,
+            const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettingsList,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true ):
+        clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult )
+    {
+        if( arcStartTimes.size( ) != terminationSettingsList.size( ) )
+        {
+            throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is inconsistent" );
+        }
+        else
+        {
+            for( unsigned int i = 0; i < terminationSettingsList.size( ); i++ )
+            {
+                propagatorSettings->resetTerminationSettings( terminationSettingsList.at( i ) );
+                integratorSettings->initialTime_ = arcStartTimes.at( i );
+
+                singleArcDynamicsSimulators_.push_back(
+                            boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                                bodyMap, integratorSettings, propagatorSettings, false, false, true ) );
+                singleArcDynamicsSimulators_[ i ]->resetSetIntegratedResult( false );
+            }
+        }
+
+        equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
+
+
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( arcInitialStates );
+        }
+    }
+
+    MultiArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > arcInitialStates,
+            const std::vector< std::pair< double, double > > arcStartEndTimes,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true ):
+        arcStartAndEndTimes_( arcStartEndTimes ),
+        clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult )
+    {
+        for( unsigned int i = 0; i < arcStartEndTimes.size( ); i++ )
+        {
+            propagatorSettings->resetTerminationSettings(
+                        boost::make_shared< PropagationTimeTerminationSettings >( arcStartAndEndTimes_.at( i ).second ) );
+            integratorSettings->initialTime_ = arcStartAndEndTimes_.at( i ).first;
+
+            singleArcDynamicsSimulators_.push_back(
+                        boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                            bodyMap, integratorSettings, propagatorSettings, false, false, true ) );
+            singleArcDynamicsSimulators_.at( i )->resetSetIntegratedResult( false );
+        }
+
+        equationsOfMotionNumericalSolution_.resize( arcStartEndTimes.size( ) );
+
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( arcInitialStates );
+        }
+    }
+
+    //! Virtual destructor
+    /*!
+     *  Virtual destructor
+     */
+    ~MultiArcDynamicsSimulator( ) { }
+
+    //! This function numerically (re-)integrates the equations of motion.
+    /*!
+     *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
+     *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
+     *  \param initialState Initial state vector that is to be used for numerical integration.
+     */
+    void integrateEquationsOfMotion(
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& initialGlobalStates )
+    {
+        for( unsigned int i = 0; i < equationsOfMotionNumericalSolution_.size( ); i++ )
+        {
+            equationsOfMotionNumericalSolution_.at( i ).clear( );
+        }
+        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        {           
+
+            singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( initialGlobalStates.at( i ) );
+            equationsOfMotionNumericalSolution_[ i ] =
+                    singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
+        }
+
+        if( this->setIntegratedResult_ )
+        {
+            processNumericalEquationsOfMotionSolution( );
+        }
+    }
+
+    //! Function to return the numerical solution to the equations of motion.
+    /*!
+     *  Function to return the numerical solution to the equations of motion for last numerical integration. Key of map denotes time, values are concatenated vectors of
+     *  body states in order of bodiesToIntegrate
+     *  \return Map of state history of numerically integrated bodies.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolution( )
+    {
+        return equationsOfMotionNumericalSolution_;
+    }
+
+    void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
+            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& equationsOfMotionNumericalSolution )
+    {
+        equationsOfMotionNumericalSolution_.resize( equationsOfMotionNumericalSolution.size( ) );
+        for( unsigned int i = 0; i < equationsOfMotionNumericalSolution.size( ); i++ )
+        {
+            equationsOfMotionNumericalSolution_[ i ] = equationsOfMotionNumericalSolution[ i ];
+            equationsOfMotionNumericalSolution_[ i ].clear( );
+        }
+        processNumericalEquationsOfMotionSolution( );
+    }
+protected:
+
+    void processNumericalEquationsOfMotionSolution( )
+    {
+        resetIntegratedMultiArcStatesWithEqualArcDynamics(
+                    equationsOfMotionNumericalSolution_, singleArcDynamicsSimulators_.at( 0 )->getIntegratedStateProcessors( ),
+                    arcStartAndEndTimes_ );
+                if( clearNumericalSolutions_ )
+                {
+                    for( unsigned int i = 0; i < equationsOfMotionNumericalSolution_.size( ); i++ )
+                    {
+                        equationsOfMotionNumericalSolution_.at( i ).clear( );
+                    }
+                    equationsOfMotionNumericalSolution_.clear( );
+                }
+    }
+
+    //! Map of state history of numerically integrated bodies.
+    /*!
+     *  Map of state history of numerically integrated bodies. Key of map denotes time, values are concatenated vectors of
+     *  body states in order of bodiesToIntegrate
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > equationsOfMotionNumericalSolution_;
+
+    std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators_;
+
+    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+
+    //! Boolean to determine whether to clear the raw numerical solution member variables after propagation and
+    //! resetting ephemerides.
+    bool clearNumericalSolutions_;
+
+    //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
+    bool setIntegratedResult_;
 };
 
 } // namespace propagators
