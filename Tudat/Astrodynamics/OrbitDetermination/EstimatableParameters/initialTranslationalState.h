@@ -94,6 +94,86 @@ private:
 
 };
 
+template< typename InitialStateParameterType = double >
+class ArcWiseInitialTranslationalStateParameter: public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+{
+public:
+
+    ArcWiseInitialTranslationalStateParameter(
+            const std::string& associatedBody,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >& initialTranslationalState,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state, associatedBody ),
+        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+    {
+        if( arcStartAndEndTimes_.size( ) != initialTranslationalState.size( ) )
+        {
+            std::cerr<<"Error B when creatiung arc-wise initial translational state parameters, incompatible sizes "<<
+                       arcStartAndEndTimes_.size( )<<" "<<initialTranslationalState.size( )<<std::endl;
+        }
+        else
+        {
+            for( unsigned int i = 0; i < initialTranslationalState.size( ); i++ )
+            {
+                initialTranslationalState_.segment( i * 6, 6 ) = initialTranslationalState.at( i );
+            }
+        }
+    }
+
+    ArcWiseInitialTranslationalStateParameter(
+            const std::string& associatedBody,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalStates,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state, associatedBody ),
+        initialTranslationalState_( initialTranslationalStates ),
+        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+    {
+        if( 6 * static_cast< int >( arcStartAndEndTimes_.size( ) ) != initialTranslationalStates.rows( ) )
+        {
+            std::cerr<<"Error A when creatiung arc-wise initial translational state parameters, incompatible sizes "<<
+                       6 * static_cast< int >( arcStartAndEndTimes_.size( ) )<<" "<<initialTranslationalStates.rows( )<<std::endl;
+        }
+    }
+
+    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
+    {
+        return initialTranslationalState_;
+    }
+
+    void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
+    {
+        initialTranslationalState_ = parameterValue;
+    }
+
+    int getParameterSize( )
+    {
+        return 6 * arcStartAndEndTimes_.size( );
+    }
+
+    int getNumberOfStateArcs( )
+    {
+        return arcStartAndEndTimes_.size( );
+    }
+
+    std::string getCentralBody( )
+    {
+        return centralBody_;
+    }
+
+private:
+
+    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
+
+    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+
+    std::string centralBody_;
+
+    std::string frameOrientation_;
+
+};
+
 //! Function to retrieve the size of the estimatable parameter set.
 /*!
  *  Function to retrieve the size of the estimatable parameter set.
@@ -110,7 +190,12 @@ int getSingleArcParameterSetSize(
 
     for( unsigned int i = 0; i < initialStateParameters.size( ); i++ )
     {
-        if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) )
+        if( initialStateParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+        {
+            totalParameterSetSize -= ( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                        initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
+        }
+        else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) )
         {
             throw std::runtime_error( "Error when getting single arc paramater vector, did not recognize initial state parameter " +
                         boost::lexical_cast< std::string >( initialStateParameters.at( i )->getParameterName( ).first ) );

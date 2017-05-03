@@ -22,6 +22,9 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
     bool flag;
     switch( parameterType )
     {
+    case arc_wise_initial_body_state:
+        flag = true;
+        break;
     case initial_body_state:
         flag = true;
         break;

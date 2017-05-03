@@ -33,6 +33,7 @@ namespace estimatable_parameters
 //! List of parameters that can be estimated by the orbit determination code.
 enum EstimatebleParametersEnum
 {
+    arc_wise_initial_body_state,
     initial_body_state,
     gravitational_parameter,
     constant_drag_coefficient,
@@ -460,7 +461,8 @@ std::vector< std::string > getListOfBodiesToEstimate(
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
@@ -490,7 +492,8 @@ getListOfInitialDynamicalStateParametersEstimate(
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
+            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::transational_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );

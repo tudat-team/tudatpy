@@ -136,6 +136,25 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
                 boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( centralBody ), bodyMap, initialTime );
 }
 
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody(
+        const std::string& bodyToIntegrate,
+        const std::string& centralBody,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< TimeType > arcStartTimes )
+{
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                6 * arcStartTimes.size( ), 1 );
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+    {
+        //std::cout<<"Get state of body "<<i<<std::endl;
+        initialStates.block( 6 * i, 0, 6, 1 ) = getInitialStateOfBody< double, StateScalarType >(
+                    bodyToIntegrate, centralBody, bodyMap, arcStartTimes.at( i ) );
+        //std::cout<<"Get state of body "<<i<<std::endl;
+    }
+    return initialStates;
+}
+
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
  *  Base class for performing full numerical integration of a dynamical system. Governing equations are set once,
@@ -399,8 +418,6 @@ protected:
     bool setIntegratedResult_;
 
     double initialPropagationTime_;
-
-
 };
 
 //! Class for performing full numerical integration of a dynamical system in a single arc.
@@ -479,7 +496,9 @@ public:
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
+        // Reset initial time to ensure consistency with multi-arc propagation.
         integratorSettings_->initialTime_ = this->initialPropagationTime_;
+
         // Integrate equations of motion numerically.
         EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
@@ -647,7 +666,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > arcInitialStates,
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStates,
             const std::vector< double > arcStartTimes,
             const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettingsList,
             const bool areEquationsOfMotionToBeIntegrated = true,
@@ -686,7 +705,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > arcInitialStates,
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStates,
             const std::vector< std::pair< double, double > > arcStartEndTimes,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
@@ -720,6 +739,14 @@ public:
      */
     ~MultiArcDynamicsSimulator( ) { }
 
+    void integrateEquationsOfMotion(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
+    {
+        std::vector< Eigen::VectorXd > splitInitialState;
+        throw std::runtime_error( "Error, split initial state not yet implemented" );
+        integrateEquationsOfMotion( splitInitialState );
+    }
+
     //! This function numerically (re-)integrates the equations of motion.
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
@@ -727,7 +754,7 @@ public:
      *  \param initialState Initial state vector that is to be used for numerical integration.
      */
     void integrateEquationsOfMotion(
-            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >& initialGlobalStates )
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& initialGlobalStates )
     {
         for( unsigned int i = 0; i < equationsOfMotionNumericalSolution_.size( ); i++ )
         {
@@ -769,6 +796,22 @@ public:
         }
         processNumericalEquationsOfMotionSolution( );
     }
+
+    std::vector< boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > getDynamicsStateDerivative( )
+    {
+        std::vector< boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > dynamicsStateDerivatives;
+        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        {
+            dynamicsStateDerivatives.push_back( singleArcDynamicsSimulators_.at( i )->getDynamicsStateDerivative( ) );
+        }
+        return dynamicsStateDerivatives;
+    }
+
+    std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > getSingleArcDynamicsSimulators( )
+    {
+        return singleArcDynamicsSimulators_;
+    }
+
 protected:
 
     void processNumericalEquationsOfMotionSolution( )

@@ -151,6 +151,10 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
         }
+        else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+        {
+            acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
+        }
         else
         {
             throw std::runtime_error( "Error when making one way range partials, could not identify parameter " +

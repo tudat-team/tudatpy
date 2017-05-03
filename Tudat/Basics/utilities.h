@@ -322,6 +322,17 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
         const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
 
 
+template< typename S, typename T >
+std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )
+{
+    std::vector< S > outputVector;
+
+    for( unsigned int i = 0; i < inputVector.size( ); i++ )
+    {
+        outputVector.push_back( inputVector.at( i ).first );
+    }
+    return outputVector;
+}
 
 } // namespace utilities
 

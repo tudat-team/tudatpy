@@ -89,8 +89,6 @@ public:
     void resetSingleArcEphemerides(
             const std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
-        std::cout<<"Resetting multi-arc ephemeris "<<singleArcEphemerides.size( )<<std::endl;
-
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }
