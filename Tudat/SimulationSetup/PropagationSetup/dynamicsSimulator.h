@@ -743,7 +743,20 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
     {
         std::vector< Eigen::VectorXd > splitInitialState;
-        throw std::runtime_error( "Error, split initial state not yet implemented" );
+
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        {
+            int currentSize = singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getStateSize( );
+            splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
+            currentIndex += currentSize;
+        }
+
+        if( currentIndex != concatenatedInitialStates.rows( ) )
+        {
+            throw std::runtime_error( "Error when doing multi-arc integration, input state vector size is incompatible with settings" );
+        }
+
         integrateEquationsOfMotion( splitInitialState );
     }
 
@@ -789,10 +802,11 @@ public:
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& equationsOfMotionNumericalSolution )
     {
         equationsOfMotionNumericalSolution_.resize( equationsOfMotionNumericalSolution.size( ) );
+
         for( unsigned int i = 0; i < equationsOfMotionNumericalSolution.size( ); i++ )
         {
-            equationsOfMotionNumericalSolution_[ i ] = equationsOfMotionNumericalSolution[ i ];
             equationsOfMotionNumericalSolution_[ i ].clear( );
+            equationsOfMotionNumericalSolution_[ i ] = equationsOfMotionNumericalSolution[ i ];
         }
         processNumericalEquationsOfMotionSolution( );
     }
