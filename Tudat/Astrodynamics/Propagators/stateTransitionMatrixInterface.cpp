@@ -45,6 +45,108 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     return combinedStateTransitionMatrix_;
 }
 
+MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
+        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators,
+        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators,
+        const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+        const int numberOfInitialDynamicalParameters,
+        const int numberOfParameters ):
+    CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
+    stateTransitionMatrixInterpolators_( stateTransitionMatrixInterpolators ),
+    sensitivityMatrixInterpolators_( sensitivityMatrixInterpolators ),
+    arcStartAndEndTimes_( arcStartAndEndTimes )
+{
+    numberOfStateArcs_ = arcStartAndEndTimes_.size( );
+
+    sensitivityMatrixSize_ = numberOfParameters - numberOfStateArcs_ * stateTransitionMatrixSize_;
+
+    if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) || stateTransitionMatrixInterpolators_.size( ) !=
+            static_cast< unsigned int >( numberOfStateArcs_ ) )
+    {
+        std::cerr<<"Error when making multi arc state transition and sensitivity interface, vector sizes are inconsistent"<<std::endl;
+    }
+
+    std::vector< double > arcSplitTimes;
+    arcSplitTimes.push_back( arcStartAndEndTimes_[ 0 ].first );
+    for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
+    {
+        arcSplitTimes.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
+    }
+    arcSplitTimes.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+    lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                arcSplitTimes );
+}
+
+void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
+        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolator,
+        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolator,
+        const std::vector< std::pair< double, double > >& arcStartAndEndTimes )
+{
+    stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolator;
+    sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolator;
+    arcStartAndEndTimes_ =  arcStartAndEndTimes;
+
+    if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
+            stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
+    {
+        std::cerr<<"Error when resetting multi arc state transition and sensitivity interface, vector sizes are inconsistent "<<
+                   stateTransitionMatrixInterpolators_.size( )<<" "<<sensitivityMatrixInterpolators_.size( )<<" "<<
+                   stateTransitionMatrixInterpolators_.size( )<<" "<<static_cast< unsigned int >( numberOfStateArcs_ )<<std::endl;
+    }
+
+    std::vector< double > arcSplitTimes;
+    arcSplitTimes.push_back( arcStartAndEndTimes_[ 0 ].first );
+    for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
+    {
+        arcSplitTimes.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
+    }
+    arcSplitTimes.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+
+    lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                arcSplitTimes );
+}
+
+Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime )
+{
+    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
+                stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+
+    int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
+
+    // Set Phi and S matrices.
+
+    combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
+            stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+    combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
+            sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+
+    return combinedStateTransitionMatrix;
+}
+
+Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
+        const double evaluationTime )
+{
+    //std::cout<<"Getting matrix A"<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<" "<<numberOfStateArcs_<<" "<<std::endl;
+    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
+                stateTransitionMatrixSize_, numberOfStateArcs_ * stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+
+    int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
+    // Set Phi and S matrices.
+    //std::cout<<"Getting matrix B"<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<" "<<numberOfStateArcs_<<" "<<std::endl;
+
+    combinedStateTransitionMatrix.block( 0, currentArc * stateTransitionMatrixSize_, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
+            stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+    //std::cout<<"Getting matrix C"<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<" "<<numberOfStateArcs_<<" "<<std::endl;
+
+    combinedStateTransitionMatrix.block(
+                0, numberOfStateArcs_ * stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
+            sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+    //std::cout<<"Getting matrix D"<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<" "<<numberOfStateArcs_<<" "<<std::endl;
+
+
+    return combinedStateTransitionMatrix;
+}
+
 }
 
 }

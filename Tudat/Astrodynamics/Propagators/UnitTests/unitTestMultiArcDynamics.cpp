@@ -60,8 +60,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
-            resetMakeMultiArcEphemeris( true );
+    bodySettings[ "Moon" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
 
@@ -100,7 +99,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
     unsigned int numberOfIntegrationArcs = integrationArcs.size( );
 
-    std::vector< Eigen::MatrixXd > systemInitialStates;
+    std::vector< Eigen::VectorXd > systemInitialStates;
     std::vector< Eigen::Vector6d > initialKeplerElements;
 
     systemInitialStates.resize( numberOfIntegrationArcs );

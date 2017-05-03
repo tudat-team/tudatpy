@@ -64,16 +64,7 @@ void checkTranslationalStatesFeasibility(
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
                                           bodyToIntegrate + " no ephemeris found" );
             }
-
-            // If current ephemeris is not already a tabulated ephemeris, give error message.
-            else if( !ephemerides::isTabulatedEphemeris( bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) )
-            {
-                std::cerr << "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + " no tabulated ephemeris found"<<std::endl;
-
-            }
         }
-
     }
 
 }
