@@ -41,7 +41,8 @@ enum EphemerisType
     tabulated_ephemeris,
     interpolated_spice,
     constant_ephemeris,
-    kepler_ephemeris
+    kepler_ephemeris,
+    custom_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -387,6 +388,42 @@ private:
 
     //! Constant state that will be provided as output of the ephemeris at all times.
     Eigen::Vector6d constantState_;
+};
+
+//! EphemerisSettings derived class for defining settings of an ephemeris producing a custom
+//! state (e.g. arbitrary state as a function of time)
+class CustomEphemerisSettings: public EphemerisSettings
+{
+public:
+
+    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*!
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
+     * \param customStateFunction Function returning the state as a function of time
+     * \param frameOrigin Origin of frame in which ephemeris data is defined.
+     * \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     */
+    CustomEphemerisSettings( const boost::function< Eigen::Vector6d( const double ) > customStateFunction,
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000" ):
+        EphemerisSettings( custom_ephemeris,
+                           frameOrigin,
+                           frameOrientation ), customStateFunction_( customStateFunction ){ }
+
+    //! Function to return the function returning the state as a function of time
+    /*!
+     *  Function to return the function returning the state as a function of time
+     *  \return  Function returning the state as a function of time
+     */
+    boost::function< Eigen::Vector6d( const double ) > getCustomStateFunction( )
+    {
+        return customStateFunction_;
+    }
+
+private:
+
+    //! Function returning the state as a function of time
+    boost::function< Eigen::Vector6d( const double ) > customStateFunction_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
