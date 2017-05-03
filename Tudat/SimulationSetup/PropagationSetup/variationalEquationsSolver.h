@@ -697,6 +697,7 @@ public:
                     bodyMap, integratorSettings, propagatorSettings, arcInitialStates, arcStartEndTimes,
                     false, clearNumericalSolution, false );
 
+
         std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
         for( unsigned int i = 0; i < singleArcDynamicsSimulators.size( ); i++ )
@@ -769,6 +770,7 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const std::vector< VectorType >& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
+
         std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
 
@@ -792,8 +794,6 @@ public:
 
             for( unsigned int i = 0; i < arcStartAndEndTimes_.size( ); i++ )
             {
-                std::map< TimeType, MatrixType > rawNumericalSolutions;
-
                 // Retrieve integrator settings, and ensure correct initial time.
                 boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
@@ -821,20 +821,22 @@ public:
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
-                            rawNumericalSolutions, equationsOfMotionNumericalSolutions[ i ],
+                            rawNumericalSolution, equationsOfMotionNumericalSolutions[ i ],
                             std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
+
 
                 // Transform equations of motion solution to output formulation
                 equationsOfMotionNumericalSolutions[ i ] = convertNumericalStateSolutionsToOutputSolutions(
                             equationsOfMotionNumericalSolutions[ i ], dynamicsStateDerivatives_.at( i ) );
 
+
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(
-                            rawNumericalSolutions, variationalEquationsSolution_[ i ],
+                            rawNumericalSolution, variationalEquationsSolution_[ i ],
                             std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
                             stateTransitionMatrixSize_, parameterVectorSize_ );
 
-            }
+            }            
 
             // Process numerical solution of equations of motion
             dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution( equationsOfMotionNumericalSolutions );
