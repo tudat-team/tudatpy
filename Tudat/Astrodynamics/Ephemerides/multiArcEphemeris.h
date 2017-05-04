@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef TUDAT_MULTIARCEPHEMERIS_H
 #define TUDAT_MULTIARCEPHEMERIS_H
 
@@ -15,9 +26,23 @@ namespace tudat
 namespace ephemerides
 {
 
+//! Class to define an ephemeris in an arc-wise manner
+/*!
+ *  Class to define an ephemeris in an arc-wise manner, where each arc is time-delimited and a separate ephemeris object
+ *  is provided for each of these arcs.
+ */
 class MultiArcEphemeris: public Ephemeris
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param singleArcEphemerides Map of single arc ephemerides, with map key the minimum and maximum time at which the
+     * ephemeris is valid. In case of arc overlaps, the arc with the highest start time is used to determine the state.
+     *  \param referenceFrameOrigin Origin of reference frame (string identifier).
+     *  \param referenceFrameOrientation Orientation of reference frame (string identifier).
+     */
     MultiArcEphemeris(
             const std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > >& singleArcEphemerides,
             const std::string& referenceFrameOrigin = "",
@@ -26,6 +51,7 @@ public:
         singleArcEphemerides_( utilities::createVectorFromMapValues( singleArcEphemerides ) ),
         arcStartAndEndTimes_( utilities::createVectorFromMapKeys( singleArcEphemerides ) )
     {
+        // Create times at which the look up changes from one arc to the other.
         arcSplitTimes_.clear( );
         arcSplitTimes_.push_back( arcStartAndEndTimes_[ 0 ].first );
         for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
@@ -34,12 +60,20 @@ public:
         }
         arcSplitTimes_.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
 
+        // Create lookup scheme to determine which ephemeris to use.
         lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                     arcSplitTimes_ );
     }
 
+    //! Destructor
     ~MultiArcEphemeris( ){ }
 
+    //! Get state from ephemeris.
+    /*!
+     * Returns state from ephemeris at given Julian date.
+     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \return State from ephemeris.
+     */
     Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch )
     {
@@ -47,6 +81,12 @@ public:
                 getCartesianState( double( secondsSinceEpoch ) );
     }
 
+    //! Get state from ephemeris (long double state output).
+    /*!
+     * Returns state from ephemeris at given Julian date.
+     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \return State from ephemeris.
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongState(
             const double secondsSinceEpoch )
     {
@@ -54,6 +94,12 @@ public:
                 getCartesianLongState( secondsSinceEpoch );
     }
 
+    //! Get state from ephemeris (Time time input)
+    /*!
+     * Returns state from ephemeris at given Julian date.
+     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \return State from ephemeris.
+     */
     Eigen::Vector6d getCartesianStateFromExtendedTime(
             const Time& currentTime )
     {
@@ -61,6 +107,12 @@ public:
                 getCartesianStateFromExtendedTime( currentTime );
     }
 
+    //! Get state from ephemeris (long double state output and Time time input)
+    /*!
+     * Returns state from ephemeris at given Julian date.
+     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \return State from ephemeris.
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
             const Time& currentTime )
     {
@@ -68,13 +120,20 @@ public:
                 getCartesianLongStateFromExtendedTime( currentTime );
     }
 
+    //! Function to reset the constituent arc ephemerides
+    /*!
+     * Function to reset the constituent arc ephemerides
+     * \param singleArcEphemerides New list of arc ephemeris objects
+     * \param arcStartAndEndTimes New list of ephemeris start and end times
+     */
     void resetSingleArcEphemerides(
             const std::vector< boost::shared_ptr< Ephemeris > >& singleArcEphemerides,
             const std::vector< std::pair< double, double > >& arcStartAndEndTimes )
-    {
+    {        
         singleArcEphemerides_ = singleArcEphemerides;
         arcStartAndEndTimes_ = arcStartAndEndTimes;
 
+        // Create times at which the look up changes from one arc to the other.
         arcSplitTimes_.clear( );
         arcSplitTimes_.push_back( arcStartAndEndTimes_[ 0 ].first );
         for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
@@ -86,6 +145,11 @@ public:
                     arcSplitTimes_ );
     }
 
+    //! Function to reset the constituent arc ephemerides
+    /*!
+     * Function to reset the constituent arc ephemerides
+     * \param singleArcEphemerides Map of of ephemeris objects as a function of their start and end times
+     */
     void resetSingleArcEphemerides(
             const std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
@@ -93,11 +157,21 @@ public:
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }
 
+    //! Function to retrieve times at which the look up changes from one arc to the other.
+    /*!
+     *  Function to retrieve times at which the look up changes from one arc to the other.
+     *  \return Times at which the look up changes from one arc to the other.
+     */
     std::vector< double > getArcSplitTimes( )
     {
         return arcSplitTimes_;
     }
 
+    //! Function to retrieve the list of arc ephemeris objects
+    /*!
+     *  Function to retrieve the list of arc ephemeris objects
+     *  \return List of arc ephemeris objects
+     */
     std::vector< boost::shared_ptr< Ephemeris > > getSingleArcEphemerides( )
     {
         return singleArcEphemerides_;
@@ -105,12 +179,17 @@ public:
 
 
 private:
+
+    //! List of arc ephemeris objects
     std::vector< boost::shared_ptr< Ephemeris > > singleArcEphemerides_;
 
+    //! List of ephemeris start and end times
     std::vector< std::pair< double, double > > arcStartAndEndTimes_;
 
+    //! Times at which the look up changes from one arc to the other.
     std::vector< double > arcSplitTimes_;
 
+    //! Lookup scheme to determine which ephemeris to use.
     boost::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
 
 
