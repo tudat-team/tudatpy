@@ -245,9 +245,9 @@ Eigen::VectorXd  executeParameterEstimation( )
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
-BOOST_AUTO_TEST_CASE( test_ClockParameterEstimation )
+BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
-    Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( );
+    Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( );
     int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
     for( int i = 0; i < numberOfEstimatedArcs; i++ )
     {
