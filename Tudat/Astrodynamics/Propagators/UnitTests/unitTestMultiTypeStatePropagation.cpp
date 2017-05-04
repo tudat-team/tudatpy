@@ -121,7 +121,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 earthGravitationalParameter );
 
 
-    boost::shared_ptr< PropagatorSettings< double > > translationalPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
@@ -132,13 +132,13 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 boost::lambda::constant( -0.01 ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
                 boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
                 boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings;
     if( ( simulationCase  % 3 ) == 0 )
     {
         propagatorSettings = translationalPropagatorSettings;
@@ -149,7 +149,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     }
     else if( ( simulationCase  % 3 ) == 2 )
     {
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > >  propagatorSettingsList;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
         propagatorSettingsList.push_back( translationalPropagatorSettings );
         propagatorSettingsList.push_back( massPropagatorSettings );
 

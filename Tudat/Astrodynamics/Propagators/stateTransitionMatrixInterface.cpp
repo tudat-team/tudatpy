@@ -119,14 +119,12 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
             stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
     combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
             sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-
     return combinedStateTransitionMatrix;
 }
 
 Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
 {
-    //std::cout<<"Getting matrix A"<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<" "<<numberOfStateArcs_<<" "<<std::endl;
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize_, numberOfStateArcs_ * stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
 

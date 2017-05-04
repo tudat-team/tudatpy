@@ -666,7 +666,7 @@ template< typename TimeType, typename StateScalarType >
 std::map< IntegratedStateType,
 std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
 createIntegratedStateProcessors(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
         const int startIndex = 0 )
@@ -675,7 +675,7 @@ createIntegratedStateProcessors(
             < TimeType, StateScalarType > > > > integratedStateProcessors;
 
     // Check dynamics type.
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case hybrid:
     {
@@ -684,7 +684,7 @@ createIntegratedStateProcessors(
         std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
                 singleTypeIntegratedStateProcessors;
         int currentStartIndex = 0;
-        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
         {
@@ -781,7 +781,7 @@ createIntegratedStateProcessors(
     }
     default:
         throw std::runtime_error( "Error, could not process integrated state type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
+                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
     }
 
     return integratedStateProcessors;

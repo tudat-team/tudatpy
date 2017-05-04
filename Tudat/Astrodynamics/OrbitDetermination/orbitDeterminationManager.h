@@ -201,7 +201,7 @@ public:
             const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeSingleArcOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
+        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
     }
 
     //! Constructor
@@ -224,8 +224,8 @@ public:
             const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeSingleArcOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                                                          observationSettingsMap ), integratorSettings, propagatorSettings );
+        initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
+                                                 observationSettingsMap ), integratorSettings, propagatorSettings );
     }
 
     //! Function to retrieve map of all observation managers
@@ -671,7 +671,7 @@ protected:
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      */
-    void initializeSingleArcOrbitDeterminationManager(
+    void initializeOrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -720,81 +720,13 @@ protected:
             throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
 
-        initializeObservationManagers( bodyMap, observationSettingsMap );
-    }
-
-    void initializeMultiArcOrbitDeterminationManager(
-            const NamedBodyMap &bodyMap,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
-            const std::vector< boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > >& integratorSettings,
-            const std::vector< boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > >& propagatorSettings )
-    {
-        using namespace numerical_integrators;
-        using namespace orbit_determination;
-        using namespace observation_models;
-
-        // Check if any dynamics is to be estimated
-        std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
-                initialDynamicalStates =
-                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ObservationScalarType >(
-                    parametersToEstimate_ );
-        if( initialDynamicalStates.size( ) > 0 )
-        {
-
-            integrateAndEstimateOrbit_ = true;
-
-            boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
-            boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings;
-            std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > arcInitialStates;
-            std::vector< std::pair< double, double > > arcStartEndTimes;
-
-            variationalEquationsSolver_ = boost::make_shared< propagators::MultiArcVariationalEquationsSolver
-                    < ObservationScalarType, TimeType > >(
-                    bodyMap, integratorSettings, propagatorSettings, arcInitialStates, arcStartEndTimes,
-                    parametersToEstimate_, true,
-                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ) );
-        }
-        else
-        {
-            integrateAndEstimateOrbit_ = false;
-        }
-
-//        // Set state transition matrix interface.
-//        if( integrateAndEstimateOrbit_ )
-//        {
-//            stateTransitionAndSensitivityMatrixInterface_ =
-//                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
-//        }
-//        else if( propagatorSettings == NULL )
-//        {
-//            stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-//                    propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-//                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-//                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-//                        0, parametersToEstimate_->getParameterSetSize( ) );
-//        }
-//        else if( propagatorSettings != NULL )
-//        {
-//            throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
-//        }
-
-        initializeObservationManagers( bodyMap, observationSettingsMap );
-    }
-
-
-    void initializeObservationManagers(
-            const NamedBodyMap &bodyMap,
-            const observation_models::SortedObservationSettingsMap& observationSettingsMap )
-    {
-
         // Iterate over all observables and create observation managers.
-        for( observation_models::SortedObservationSettingsMap::const_iterator
-             observablesIterator = observationSettingsMap.begin( );
+        for( SortedObservationSettingsMap::const_iterator observablesIterator = observationSettingsMap.begin( );
              observablesIterator != observationSettingsMap.end( ); observablesIterator++ )
         {
             // Create observation manager for current observable.
             observationManagers_[ observablesIterator->first ] =
-                    observation_models::createObservationManagerBase< ObservationScalarType, TimeType >(
+                    createObservationManagerBase< ObservationScalarType, TimeType >(
                         observablesIterator->first, observablesIterator->second, bodyMap, parametersToEstimate_,
                         stateTransitionAndSensitivityMatrixInterface_ );
         }
