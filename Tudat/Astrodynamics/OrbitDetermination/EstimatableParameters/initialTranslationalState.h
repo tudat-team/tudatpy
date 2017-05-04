@@ -162,6 +162,17 @@ public:
         return centralBody_;
     }
 
+    std::vector< double > getArcStartTimes( )
+    {
+        std::vector< double > arcStartTimes;
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            arcStartTimes.push_back( arcStartAndEndTimes_.at( i ).first );
+        }
+
+        return arcStartTimes;
+    }
+
 private:
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
@@ -216,6 +227,40 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
 {
     return getSingleArcParameterSetSize( estimatableParameterSet ) -
             ( estimatableParameterSet->getEstimatedParameterSetSize( ) - estimatableParameterSet->getInitialDynamicalStateParameterSize( ) );
+}
+
+template< typename InitialStateParameterType >
+std::vector< double > getMultiArcStateEstimationArcStartTimes(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    // Retrieve initial dynamical parameters.
+    std::vector< boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    std::vector< double > arcStartTimes;
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+        {
+            boost::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
+            boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                        initialDynamicalParameters.at( i ) );
+            if( arcWiseStateParameter == NULL )
+            {
+                throw std::runtime_error( "Error when getting arc times from estimated parameters, parameter is inconsistent" );
+            }
+            arcStartTimes = arcWiseStateParameter->getArcStartTimes( );
+
+        }
+        else
+        {
+            throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
+        }
+    }
+
+    return arcStartTimes;
 }
 
 

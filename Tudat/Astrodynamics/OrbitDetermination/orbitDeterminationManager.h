@@ -19,6 +19,7 @@
 #include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/podInputOutputTypes.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
 
@@ -688,20 +689,40 @@ protected:
                     parametersToEstimate_ );
         if( initialDynamicalStates.size( ) > 0 )
         {
-
             integrateAndEstimateOrbit_ = true;
-
-            variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                    < ObservationScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                        boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
         }
         else
         {
             integrateAndEstimateOrbit_ = false;
         }
 
-        // Set state transition matrix interface.
+        if( boost::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != NULL )
+        {
+            dynamicsIsMultiArc_ = true;
+
+            if( integrateAndEstimateOrbit_ )
+            {
+                std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
+                            parametersToEstimate_ );
+                variationalEquationsSolver_ =  boost::make_shared< propagators::MultiArcVariationalEquationsSolver
+                        < ObservationScalarType, TimeType > >(
+                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
+                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+            }
+        }
+        else
+        {
+            dynamicsIsMultiArc_ = false;
+
+            if( integrateAndEstimateOrbit_ )
+            {
+                variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
+                        < ObservationScalarType, TimeType > >(
+                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
+                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+            }
+        }
+
         if( integrateAndEstimateOrbit_ )
         {
             stateTransitionAndSensitivityMatrixInterface_ =
@@ -709,11 +730,23 @@ protected:
         }
         else if( propagatorSettings == NULL )
         {
-            stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-                    propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                        0, parametersToEstimate_->getParameterSetSize( ) );
+            if( !dynamicsIsMultiArc_ )
+            {
+                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
+                        propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                            0, parametersToEstimate_->getParameterSetSize( ) );
+            }
+            else
+            {
+                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
+                        propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                            std::vector< std::pair< double, double > >( ),
+                            0, parametersToEstimate_->getParameterSetSize( ) );
+            }
         }
         else if( propagatorSettings != NULL )
         {
@@ -755,6 +788,8 @@ protected:
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
+
+    bool dynamicsIsMultiArc_;
 
 };
 

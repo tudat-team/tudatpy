@@ -760,7 +760,7 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
     {
-        std::vector< Eigen::VectorXd > splitInitialState;
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
 
         int currentIndex = 0;
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )

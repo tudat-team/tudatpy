@@ -654,7 +654,7 @@ private:
     boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
 
-template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 class MultiArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
 {
 public:
@@ -682,7 +682,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
             const std::vector< double > arcStartTimes,
             const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
@@ -808,7 +808,7 @@ public:
             // Allocate maps that stored numerical solution for equations of motion
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
                     equationsOfMotionNumericalSolutions;
-            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+            std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
                     dependentVariableHistorySolutions;
             equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
             dependentVariableHistorySolutions.resize( numberOfArcs_ );
@@ -875,16 +875,17 @@ public:
             dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
             arcStartAndEndTimes_ = dynamicsSimulator_->getArcStartAndEndTimes( );
 
-            std::map< double, Eigen::MatrixXd > rawNumericalSolutions;
+            std::map< TimeType, MatrixType > rawNumericalSolutions;
 
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
+            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
             for( int i = 0; i < numberOfArcs_; i++ )
             {
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             boost::assign::list_of( transational_state ), 0, 1 );
-                Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
+                MatrixType initialVariationalState = this->createInitialVariationalEquationsSolution( ).
+                        template cast< StateScalarType >( );
 
-                EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
+                EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState, singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             boost::bind( &PropagationTerminationCondition::checkStopCondition,
