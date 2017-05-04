@@ -223,7 +223,7 @@ public:
         if( targetIndependentVariableValue < independentValues_.at( 0 ) ||
                 targetIndependentVariableValue > independentValues_.at( independentValues_.size( ) -1 ) )
         {
-            std::cerr<<"Warning in Lagrange interpolation, outside range "<<
+            std::cout<<"Warning in Lagrange interpolation, outside range "<<
                        independentValues_.at( 0 ) <<" "<<independentValues_.at( independentValues_.size( ) -1 )<<" "<<
                        targetIndependentVariableValue<<std::endl;
         }

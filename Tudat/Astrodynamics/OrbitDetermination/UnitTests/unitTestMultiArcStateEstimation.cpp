@@ -206,8 +206,8 @@ Eigen::VectorXd  executeParameterEstimation( )
     typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     std::cout<<"pre-sim"<<std::endl;
-    PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType, StateScalarType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
+    PodInputDataType observationsAndTimes;// = simulateObservations< ObservationScalarType, TimeType, StateScalarType >(
+              //  measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
     std::cout<<"post-sim"<<std::endl;
 
 

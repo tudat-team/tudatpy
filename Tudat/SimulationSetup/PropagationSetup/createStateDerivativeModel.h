@@ -231,7 +231,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
 createStateDerivativeModel(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType propagationStartTime )
 {
@@ -239,7 +239,7 @@ createStateDerivativeModel(
 
     // Check dynamics type and call associated function to create
     // specific type of state derivative model.
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case transational_state:
     {
@@ -298,7 +298,7 @@ createStateDerivativeModel(
     default:
         throw std::runtime_error(
                     "Error, could not process state type "
-                    + boost::lexical_cast< std::string >( propagatorSettings->stateType_ )
+                    + boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) )
                     + " when making state derivative model" );
     }
     return stateDerivativeModel;
@@ -317,7 +317,7 @@ createStateDerivativeModel(
 template< typename StateScalarType = double, typename TimeType = double >
 std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
 createStateDerivativeModels(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType propagationStartTime )
 {
@@ -325,7 +325,7 @@ createStateDerivativeModels(
     stateDerivativeModels;
 
     // Check type of state derivative model and call associated create function.
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     // If hybrid, call create function separately for each entry.
     case hybrid:
@@ -335,7 +335,7 @@ createStateDerivativeModels(
 
         // Iterate over all propagation settings
         for( typename std::map< IntegratedStateType,
-             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
+             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::iterator
              propagatorIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              propagatorIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); propagatorIterator++ )
         {
