@@ -101,16 +101,16 @@ public:
 
     ArcWiseInitialTranslationalStateParameter(
             const std::string& associatedBody,
-            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::vector< double >& arcStartTimes,
             const std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >& initialTranslationalState,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state, associatedBody ),
-        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
     {
-        if( arcStartAndEndTimes_.size( ) != initialTranslationalState.size( ) )
+        if( arcStartTimes_.size( ) != initialTranslationalState.size( ) )
         {
             std::cerr<<"Error B when creatiung arc-wise initial translational state parameters, incompatible sizes "<<
-                       arcStartAndEndTimes_.size( )<<" "<<initialTranslationalState.size( )<<std::endl;
+                       arcStartTimes_.size( )<<" "<<initialTranslationalState.size( )<<std::endl;
         }
         else
         {
@@ -123,17 +123,17 @@ public:
 
     ArcWiseInitialTranslationalStateParameter(
             const std::string& associatedBody,
-            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::vector< double >& arcStartTimes,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalStates,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( arc_wise_initial_body_state, associatedBody ),
         initialTranslationalState_( initialTranslationalStates ),
-        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
     {
-        if( 6 * static_cast< int >( arcStartAndEndTimes_.size( ) ) != initialTranslationalStates.rows( ) )
+        if( 6 * static_cast< int >( arcStartTimes_.size( ) ) != initialTranslationalStates.rows( ) )
         {
             std::cerr<<"Error A when creatiung arc-wise initial translational state parameters, incompatible sizes "<<
-                       6 * static_cast< int >( arcStartAndEndTimes_.size( ) )<<" "<<initialTranslationalStates.rows( )<<std::endl;
+                       6 * static_cast< int >( arcStartTimes_.size( ) )<<" "<<initialTranslationalStates.rows( )<<std::endl;
         }
     }
 
@@ -149,12 +149,12 @@ public:
 
     int getParameterSize( )
     {
-        return 6 * arcStartAndEndTimes_.size( );
+        return 6 * arcStartTimes_.size( );
     }
 
     int getNumberOfStateArcs( )
     {
-        return arcStartAndEndTimes_.size( );
+        return arcStartTimes_.size( );
     }
 
     std::string getCentralBody( )
@@ -165,9 +165,9 @@ public:
     std::vector< double > getArcStartTimes( )
     {
         std::vector< double > arcStartTimes;
-        for( unsigned int i = 0; i < arcStartAndEndTimes_.size( ); i++ )
+        for( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
         {
-            arcStartTimes.push_back( arcStartAndEndTimes_.at( i ).first );
+            arcStartTimes.push_back( arcStartTimes_.at( i ) );
         }
 
         return arcStartTimes;
@@ -177,7 +177,7 @@ private:
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
 
-    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+    std::vector< double > arcStartTimes_;
 
     std::string centralBody_;
 

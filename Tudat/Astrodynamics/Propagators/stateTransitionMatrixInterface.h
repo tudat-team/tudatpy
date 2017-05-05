@@ -227,7 +227,7 @@ public:
     MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators,
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators,
-            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::vector< double >& arcStartTimes,
             const int numberOfInitialDynamicalParameters,
             const int numberOfParameters );
 
@@ -236,7 +236,7 @@ public:
     void updateMatrixInterpolators(
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolator,
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolator,
-            const std::vector< std::pair< double, double > >& arcStartAndEndTimes );
+            const std::vector< double >& arcStartTimes );
     std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     getStateTransitionMatrixInterpolators( )
     {
@@ -264,7 +264,7 @@ private:
 
     std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators_;
 
-    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+    std::vector< double > arcStartTimes_;
 
     int numberOfStateArcs_;
 

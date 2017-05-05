@@ -119,7 +119,7 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                 {
                     initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                                 initialStateSettings->parameterType_.second.first,
-                                initialStateSettings->arcStartAndEndTimes_,
+                                initialStateSettings->arcStartTimes_,
                                 initialStateSettings->initialStateValue_,
                                 initialStateSettings->centralBody_,
                                 initialStateSettings->frameOrientation_ );
@@ -127,10 +127,10 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                 else
                 {
                     initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
-                                initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartAndEndTimes_,
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
                                 propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
                                     initialStateSettings->parameterType_.second.first, initialStateSettings->centralBody_, bodyMap,
-                                    utilities::createVectorFromVectorOfPairFirsts< double, double >( initialStateSettings->arcStartAndEndTimes_ ) ),
+                                    initialStateSettings->arcStartTimes_ ),
                                 initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
                 }
             }

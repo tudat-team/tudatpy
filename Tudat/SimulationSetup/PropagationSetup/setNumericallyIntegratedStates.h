@@ -329,7 +329,7 @@ template< typename TimeType, typename StateScalarType >
 void resetMultiArcIntegratedEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& equationsOfMotionNumericalSolution,
-        const std::vector< std::pair< double, double > > arcStartEndTimes,
+        const std::vector< double > arcStartTimes,
         const std::vector< std::string >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
@@ -360,7 +360,7 @@ void resetMultiArcIntegratedEphemerides(
                        ", original ephemeris is of incompatible type"<<std::endl;
         }
 
-        for( unsigned int j = 0; j < arcStartEndTimes.size( ); j++ )
+        for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
         {
             boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = NULL;
             if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
@@ -380,7 +380,7 @@ void resetMultiArcIntegratedEphemerides(
 
         }
 
-        currentBodyEphemeris->resetSingleArcEphemerides( arcEphemerisList, arcStartEndTimes );
+        currentBodyEphemeris->resetSingleArcEphemerides( arcEphemerisList, arcStartTimes );
     }
 
     // Having set new ephemerides, update body properties depending on ephemerides.
@@ -474,7 +474,7 @@ public:
 
     virtual void processIntegratedMultiArcStates(
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< std::pair< double, double > >& arcStartEndTimes ) = 0;
+            const std::vector< double >& arcStartTimes ) = 0;
 
 
     //! Type of state that is to be set in environment.
@@ -551,10 +551,10 @@ public:
 
     void processIntegratedMultiArcStates(
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< std::pair< double, double > >& arcStartEndTimes )
+            const std::vector< double >& arcStartTimes )
     {
         resetMultiArcIntegratedEphemerides< TimeType, StateScalarType >(
-                    bodyMap_, numericalSolution, arcStartEndTimes,
+                    bodyMap_, numericalSolution, arcStartTimes,
                     bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_, integrationToEphemerisFrameFunctions_ );
     }
 
@@ -619,7 +619,7 @@ public:
 
     void processIntegratedMultiArcStates(
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< std::pair< double, double > >& arcStartEndTimes )
+            const std::vector< double >& arcStartTimes )
     {
         throw std::runtime_error( "Error, cannot yet reset multi-arc mass model" );
     }
@@ -824,14 +824,14 @@ void resetIntegratedMultiArcStatesWithEqualArcDynamics(
         const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& equationsOfMotionNumericalSolution,
         const std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
         integratedStateProcessors,
-        const std::vector< std::pair< double, double > >& arcStartEndTimes )
+        const std::vector< double >& arcStartTimes )
 {
     for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >::
          const_iterator updateIterator = integratedStateProcessors.begin( ); updateIterator != integratedStateProcessors.end( ); updateIterator++ )
     {
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
         {
-            updateIterator->second.at( i )->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution, arcStartEndTimes );
+            updateIterator->second.at( i )->processIntegratedMultiArcStates( equationsOfMotionNumericalSolution, arcStartTimes );
         }
     }
 }

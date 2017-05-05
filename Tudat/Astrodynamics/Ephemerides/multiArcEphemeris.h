@@ -38,27 +38,22 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param singleArcEphemerides Map of single arc ephemerides, with map key the minimum and maximum time at which the
+     * \param singleArcEphemerides Map of single arc ephemerides, with map key the minimum time at which the
      * ephemeris is valid. In case of arc overlaps, the arc with the highest start time is used to determine the state.
      *  \param referenceFrameOrigin Origin of reference frame (string identifier).
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier).
      */
     MultiArcEphemeris(
-            const std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > >& singleArcEphemerides,
+            const std::map< double, boost::shared_ptr< Ephemeris > >& singleArcEphemerides,
             const std::string& referenceFrameOrigin = "",
             const std::string& referenceFrameOrientation = "" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
         singleArcEphemerides_( utilities::createVectorFromMapValues( singleArcEphemerides ) ),
-        arcStartAndEndTimes_( utilities::createVectorFromMapKeys( singleArcEphemerides ) )
+        arcStartTimes_( utilities::createVectorFromMapKeys( singleArcEphemerides ) )
     {
         // Create times at which the look up changes from one arc to the other.
-        arcSplitTimes_.clear( );
-        arcSplitTimes_.push_back( arcStartAndEndTimes_[ 0 ].first );
-        for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
-        {
-            arcSplitTimes_.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
-        }
-        arcSplitTimes_.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+        arcSplitTimes_ = arcStartTimes_;
+        arcSplitTimes_.push_back( std::numeric_limits< double >::max( ) );
 
         // Create lookup scheme to determine which ephemeris to use.
         lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
@@ -124,23 +119,18 @@ public:
     /*!
      * Function to reset the constituent arc ephemerides
      * \param singleArcEphemerides New list of arc ephemeris objects
-     * \param arcStartAndEndTimes New list of ephemeris start and end times
+     * \param arcStartTimes New list of ephemeris start times
      */
     void resetSingleArcEphemerides(
             const std::vector< boost::shared_ptr< Ephemeris > >& singleArcEphemerides,
-            const std::vector< std::pair< double, double > >& arcStartAndEndTimes )
+            const std::vector< double >& arcStartTimes )
     {        
         singleArcEphemerides_ = singleArcEphemerides;
-        arcStartAndEndTimes_ = arcStartAndEndTimes;
+        arcStartTimes_ = arcStartTimes;
 
         // Create times at which the look up changes from one arc to the other.
-        arcSplitTimes_.clear( );
-        arcSplitTimes_.push_back( arcStartAndEndTimes_[ 0 ].first );
-        for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
-        {
-            arcSplitTimes_.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
-        }
-        arcSplitTimes_.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+        arcSplitTimes_ = arcStartTimes_;
+        arcSplitTimes_.push_back(  std::numeric_limits< double >::max( ) );
         lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                     arcSplitTimes_ );
     }
@@ -148,10 +138,10 @@ public:
     //! Function to reset the constituent arc ephemerides
     /*!
      * Function to reset the constituent arc ephemerides
-     * \param singleArcEphemerides Map of of ephemeris objects as a function of their start and end times
+     * \param singleArcEphemerides Map of of ephemeris objects as a function of their start times
      */
     void resetSingleArcEphemerides(
-            const std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > >& singleArcEphemerides )
+            const std::map< double, boost::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
@@ -183,8 +173,8 @@ private:
     //! List of arc ephemeris objects
     std::vector< boost::shared_ptr< Ephemeris > > singleArcEphemerides_;
 
-    //! List of ephemeris start and end times
-    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+    //! List of ephemeris start times
+    std::vector< double > arcStartTimes_;
 
     //! Times at which the look up changes from one arc to the other.
     std::vector< double > arcSplitTimes_;

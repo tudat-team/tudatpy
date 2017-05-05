@@ -78,7 +78,6 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         bodiesToIntegrate.push_back( "Moon" );
         centralBodies.push_back( "SSB" );
 
-        std::vector< std::pair< double, double > > integrationArcs;
         std::vector< double > integrationArcStarts, integrationArcEnds;
 
         double integrationStartTime = initialEphemerisTime + 1.0E4;
@@ -91,7 +90,6 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
         do
         {
-            integrationArcs.push_back( std::make_pair( currentStartTime, currentEndTime ) );
             integrationArcStarts.push_back( currentStartTime );
             integrationArcEnds.push_back( currentEndTime );
 
@@ -100,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         }
         while( currentEndTime < integrationEndTime );
 
-        unsigned int numberOfIntegrationArcs = integrationArcs.size( );
+        unsigned int numberOfIntegrationArcs = integrationArcStarts.size( );
 
         std::vector< Eigen::VectorXd > systemInitialStates;
         std::vector< Eigen::Vector6d > initialKeplerElements;
@@ -112,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
         for(  unsigned int j = 0; j < numberOfIntegrationArcs; j++ )
         {
             systemInitialStates[ j ]  = spice_interface::getBodyCartesianStateAtEpoch(
-                        bodiesToIntegrate[ 0 ], "Earth", "ECLIPJ2000", "NONE", integrationArcs[ j ].first );
+                        bodiesToIntegrate[ 0 ], "Earth", "ECLIPJ2000", "NONE", integrationArcStarts[ j ] );
             initialKeplerElements[ j ] = (
                         orbital_element_conversions::convertCartesianToKeplerianElements(
                             Eigen::Vector6d( systemInitialStates[ j ] ),
@@ -162,24 +160,24 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
         Eigen::Vector6d stateDifference;
 
-        for( unsigned int i = 0; i < integrationArcs.size( ); i++ )
+        for( unsigned int i = 0; i < numberOfIntegrationArcs ; i++ )
         {
             if( i == 0 )
             {
-                testStartTime = integrationArcs.at( i ).first + timeBuffer;
+                testStartTime = integrationArcStarts.at( i ) + timeBuffer;
             }
             else
             {
-                testStartTime = integrationArcs.at( i - 1 ).second + timeBuffer;
+                testStartTime = integrationArcEnds.at( i - 1 ) + timeBuffer;
             }
 
-            if( i == integrationArcs.size( ) - 1 )
+            if( i == numberOfIntegrationArcs - 1 )
             {
-                testEndTime = integrationArcs.at( i ).second - timeBuffer;
+                testEndTime = integrationArcEnds.at( i ) - timeBuffer;
             }
             else
             {
-                testEndTime = integrationArcs.at( i + 1 ).first - timeBuffer;
+                testEndTime = integrationArcStarts.at( i + 1 ) - timeBuffer;
             }
 
             double currentTestTime = testStartTime;
@@ -187,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             {
                 stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
                         ( orbital_element_conversions::convertKeplerianToCartesianElements(
-                              propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcs.at( i ).first,
+                              propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
                                                     earthGravitationalParameter ), earthGravitationalParameter ) );
                 for( int i = 0; i < 3; i++ )
                 {

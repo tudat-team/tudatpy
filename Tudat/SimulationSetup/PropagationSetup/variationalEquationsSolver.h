@@ -743,7 +743,7 @@ public:
                         stateDerivativePartials, parametersToEstimate_, dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ) );
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
-            arcStartAndEndTimes_.push_back( std::make_pair( arcStartTimes.at( i ), TUDAT_NAN ) );
+            arcStartTimes_.push_back( arcStartTimes.at( i ) );
         }
 
         numberOfArcs_ = dynamicsStateDerivatives_.size( );
@@ -883,7 +883,7 @@ public:
                 // Retrieve integrator settings, and ensure correct initial time.
                 boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
-                integratorSettings->initialTime_ = arcStartAndEndTimes_.at( i ).first;
+                integratorSettings->initialTime_ = arcStartTimes_.at( i );
 
                 // Set state derivative model to propagate both variational equations and equations of motion
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
@@ -916,9 +916,7 @@ public:
                 // Transform equations of motion solution to output formulation
                 equationsOfMotionNumericalSolutions[ i ] = convertNumericalStateSolutionsToOutputSolutions(
                             equationsOfMotionNumericalSolutions[ i ], dynamicsStateDerivatives_.at( i ) );
-                arcStartAndEndTimes_[ i ] = std::make_pair(
-                            equationsOfMotionNumericalSolutions[ i ].begin( )->first,
-                            equationsOfMotionNumericalSolutions[ i ].rbegin( )->first );
+                arcStartTimes_[ i ] = equationsOfMotionNumericalSolutions[ i ].begin( )->first;
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(
@@ -944,7 +942,7 @@ public:
                             std::vector< IntegratedStateType >( ), 1, 0 );
             }
             dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
-            arcStartAndEndTimes_ = dynamicsSimulator_->getArcStartAndEndTimes( );
+            arcStartTimes_ = dynamicsSimulator_->getArcStartTimes( );
 
             std::map< TimeType, MatrixType > rawNumericalSolutions;
             std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
@@ -1064,7 +1062,7 @@ private:
         {
             stateTransitionInterface_ = boost::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        arcStartAndEndTimes_,
+                        arcStartTimes_,
                         propagatorSettings_->getSingleArcSettings( ).at( 0 )->getStateSize( ),
                         parametersToEstimate_->getParameterSetSize( ) );
         }
@@ -1073,7 +1071,7 @@ private:
             boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        arcStartAndEndTimes_ );
+                        arcStartTimes_ );
         }
     }
 
@@ -1089,8 +1087,8 @@ private:
      */
     std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > variationalEquationsSolution_;
 
-    //! List of start and end times of each arc. NOTE: This list is updated after every propagation.
-    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+    //! List of start times of each arc. NOTE: This list is updated after every propagation.
+    std::vector< double > arcStartTimes_;
 
 
     //! Settings for propagation of equations of motion.
