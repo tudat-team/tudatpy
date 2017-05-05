@@ -84,6 +84,8 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
 
     parameterSettings.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
                                      "Sun", gravitational_parameter ) );
+    parameterSettings.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+                                     "global_metric", ppn_parameter_gamma ) );
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate( parameterSettings, bodyMap );
 
@@ -105,8 +107,9 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
     boost::function< double( const double ) > observationFunction = boost::bind(
                 &ObservationModel< 1, double, double >::computeObservationEntry, oneWayRangeModel, _1, transmitter, 0 );
 
-    std::vector< double > perturbations = boost::assign::list_of( 1.0E16 );
-    std::vector< double > tolerances = boost::assign::list_of( 1.0E-4 );
+    std::vector< double > perturbations = boost::assign::list_of( 1.0E16 )( 1.0E8 );
+    std::vector< double > tolerances = boost::assign::list_of( 1.0E-4 )( 10E-4 );
+
 
     for( SingleLinkObservationPartialList::iterator partialIterator = partialList.first.begin( ); partialIterator != partialList.first.end( );
          partialIterator++ )
@@ -117,7 +120,7 @@ BOOST_AUTO_TEST_CASE( test_LightTimePartials )
         Eigen::Matrix< double, 1, Eigen::Dynamic > totalPartial = Eigen::Matrix< double, 1, Eigen::Dynamic >::Zero( 1, 1 );
         for( unsigned int j = 0; j < calculatedPartial.size( ); j++ )
         {
-            totalPartial += calculatedPartial[ j ].first;
+            totalPartial += calculatedPartial.at( j ).first;
         }
 
 
@@ -164,14 +167,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+                                     "global_metric", ppn_parameter_gamma ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate< double >( parameterNames, bodyMap );
-
-
-
-
 
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             parametersToEstimate->getEstimatedDoubleParameters( );
@@ -185,7 +186,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                 getLightTimeCorrectionsList< double, double, 1 >( oneWayRangeModelMap ) ).begin( )->second;
 
     boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
-
 
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
@@ -206,9 +206,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 
         for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
         {
-            for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
+            for( unsigned int j = 0; j < analyticalObservationPartials.at( i ).size( ); j++ )
             {
-                BOOST_CHECK_CLOSE_FRACTION( analyticalObservationPartials[ i ][ j ].second,
+                BOOST_CHECK_CLOSE_FRACTION( analyticalObservationPartials.at( i ).at( j ).second,
                                             ( vectorOfTimes.at( 0 ) + vectorOfTimes.at( 1 ) ) / 2.0,  std::numeric_limits< double >::epsilon( ) );
             }
 
@@ -219,8 +219,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                     &ObservationModel< 1, double, double >::computeObservations, oneWayRangeModel, _1, linkEndIterator->first );
 
         // Settings for parameter partial functions.
-        std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E18 )( 1.0E15 )( 1.0E15 );
+        std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E18 )( 1.0E15 )( 1.0E15 )( 1.0E8 );
         std::vector< boost::function< void( ) > > updateFunctionList;
+        updateFunctionList.push_back( emptyVoidFunction );
         updateFunctionList.push_back( emptyVoidFunction );
         updateFunctionList.push_back( emptyVoidFunction );
         updateFunctionList.push_back( emptyVoidFunction );
@@ -234,16 +235,16 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         {
 
             currentParameterPartial = 0.0;
-            for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
+            for( unsigned int j = 0; j < analyticalObservationPartials.at( i ).size( ); j++ )
             {
-                currentParameterPartial += analyticalObservationPartials[ i ][ j ].first.x( );
+                currentParameterPartial += analyticalObservationPartials.at( i ).at( j ).first.x( );
 
             }
 
-            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters[ i ].x( ), 1.0E-4 );
+            BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters.at( i ).x( ), 1.0E-4 );
         }
 
-        BOOST_CHECK_EQUAL( numericalPartialsWrtDoubleParameters[ 2 ].x( ), 0.0 );
+        BOOST_CHECK_EQUAL( numericalPartialsWrtDoubleParameters[ 3 ].x( ), 0.0 );
 
     }
 }

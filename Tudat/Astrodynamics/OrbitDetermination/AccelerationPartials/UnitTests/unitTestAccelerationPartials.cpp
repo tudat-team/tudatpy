@@ -27,6 +27,8 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
@@ -466,11 +468,14 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     earth->setGravityFieldModel( earthGravityField );
 
     // Create acceleration model.
+    boost::function< double( ) > ppnParameterGammaFunction = boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
+    boost::function< double( ) > ppnParameterBetaFunction = boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
     boost::shared_ptr< RelativisticAccelerationCorrection > accelerationModel =
             boost::make_shared< RelativisticAccelerationCorrection >
             ( boost::bind( &Body::getState, vehicle ),
               boost::bind( &Body::getState, earth ),
-              boost::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ) );
+              boost::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
+              ppnParameterGammaFunction, ppnParameterBetaFunction );
 
     // Create acceleration partial object.
     boost::shared_ptr< RelativisticAccelerationPartial > accelerationPartial = boost::make_shared< RelativisticAccelerationPartial >(
@@ -479,10 +484,10 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     // Create parameter objects.
     boost::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = boost::make_shared<
             GravitationalParameter >( earthGravityField, "Earth" );
-//    boost::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = boost::make_shared<
-//            PPNParameterGamma >( ppnParameterSet );
-//    boost::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = boost::make_shared<
-//            PPNParameterBeta >( ppnParameterSet );
+    boost::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = boost::make_shared<
+            PPNParameterGamma >( ppnParameterSet );
+    boost::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = boost::make_shared<
+            PPNParameterBeta >( ppnParameterSet );
 
     // Calculate analytical partials.
     accelerationModel->updateMembers( );
@@ -502,8 +507,9 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
 
     Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter(
                 gravitationalParameterParameter );
-//    Eigen::Vector3d partialWrtGamma = accelerationPartial->wrtParameter( ppnParameterGamma );
-//    Eigen::Vector3d partialWrtBeta = accelerationPartial->wrtParameter( ppnParameterBeta );
+
+    Eigen::Vector3d partialWrtGamma = accelerationPartial->wrtParameter( ppnParameterGamma );
+    Eigen::Vector3d partialWrtBeta = accelerationPartial->wrtParameter( ppnParameterBeta );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -522,10 +528,10 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
                 earthStateSetFunction, accelerationModel, earth->getState( ), velocityPerturbation, 3 );
     Eigen::Vector3d testPartialWrtEarthGravitationalParameter = calculateAccelerationWrtParameterPartials(
                 gravitationalParameterParameter, accelerationModel, 1.0E10 );
-//    Eigen::Vector3d testPartialWrtPpnParameterGamma = calculateAccelerationWrtParameterPartials(
-//                ppnParameterGamma, accelerationModel, 100.0 );
-//    Eigen::Vector3d testPartialWrtPpnParameterBeta = calculateAccelerationWrtParameterPartials(
-//                ppnParameterBeta, accelerationModel, 100.0 );
+    Eigen::Vector3d testPartialWrtPpnParameterGamma = calculateAccelerationWrtParameterPartials(
+                ppnParameterGamma, accelerationModel, 100.0 );
+    Eigen::Vector3d testPartialWrtPpnParameterBeta = calculateAccelerationWrtParameterPartials(
+                ppnParameterBeta, accelerationModel, 100.0 );
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
@@ -543,9 +549,12 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
                                        partialWrtEarthGravitationalParameter, 1.0e-8 );
 
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterGamma, partialWrtGamma, 1.0e-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterGamma, partialWrtGamma, 1.0e-8 );
 
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
+
+    // Check whether partials are ok (had to add factor 2 beta/gamma partial functions)
+    //BOOST_CHECK_EQUAL( true, false );
 }
 
 

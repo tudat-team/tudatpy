@@ -57,26 +57,28 @@ void computePartialOfSchwardschildAccelerationCorrectionWrtGravitationalParamete
               position / distance );
 }
 
-Eigen::Vector3d computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
+void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
         const Eigen::Vector6d relativeState,
-        const double gravitationalParameter )
+        const double gravitationalParameter,
+        Eigen::MatrixXd& partialMatrix )
 {
     Eigen::Vector3d position = relativeState.segment( 0, 3 );
     Eigen::Vector3d velocity = relativeState.segment( 3, 3 );
     double distance = position.norm( );
 
-    return physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * gravitationalParameter / ( distance * distance * distance ) * (
+    partialMatrix = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * gravitationalParameter / ( distance * distance * distance ) * (
                 ( 2.0 * gravitationalParameter / distance - velocity.dot( velocity ) ) * position + 2.0 * position.dot( velocity ) * velocity );
 }
 
-Eigen::Vector3d computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
+void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
         const Eigen::Vector6d relativeState,
-        const double gravitationalParameter )
+        const double gravitationalParameter,
+        Eigen::MatrixXd& partialMatrix )
 {
     Eigen::Vector3d position = relativeState.segment( 0, 3 );
     double distance = position.norm( );
 
-    return physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * gravitationalParameter / ( distance * distance * distance ) * (
+    partialMatrix = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT * gravitationalParameter / ( distance * distance * distance ) * (
                 ( 2.0 * gravitationalParameter / distance ) * position );
 }
 
@@ -101,30 +103,28 @@ RelativisticAccelerationPartial::getParameterPartialFunction(
             break;
         }
     }
-//    else if( parameter->getParameterName( ).second.first == "global_metric"  )
-//    {
-//        switch( parameter->getParameterName( ).first )
-//        {
-//        case estimatable_parameters::ppn_parameter_gamma:
+    else if( parameter->getParameterName( ).second.first == "global_metric"  )
+    {
+        switch( parameter->getParameterName( ).first )
+        {
+        case estimatable_parameters::ppn_parameter_gamma:
 
-//            std::cout<<"PPN gamma "<<std::endl;
-//            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma,
-//                                           this );
-//            numberOfRows = 1;
+            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma,
+                                           this, _1 );
+            numberOfRows = 1;
 
-//            break;
-//        case estimatable_parameters::ppn_parameter_beta:
+            break;
+        case estimatable_parameters::ppn_parameter_beta:
 
-//            std::cout<<"PPN beta "<<std::endl;
-//            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta,
-//                                           this );
-//            numberOfRows = 1;
+            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta,
+                                           this, _1 );
+            numberOfRows = 1;
 
-//            break;
-//        default:
-//            break;
-//        }
-//    }
+            break;
+        default:
+            break;
+        }
+    }
     return std::make_pair( partialFunction, numberOfRows );
 }
 
