@@ -34,8 +34,8 @@ namespace relativity
  * \return Common term in relativistic accelerations.
  */
 double calculateRelativisticAccelerationCorrectionsCommonterm(
-        double centralBodyGravitationalParameter,
-        double relativeDistance );
+        const double centralBodyGravitationalParameter,
+        const double relativeDistance );
 
 //! Function to compute the Schwarzschild term of the relativistic acceleration correction.
 /*!
@@ -51,13 +51,13 @@ double calculateRelativisticAccelerationCorrectionsCommonterm(
  * \return Schwarzschild term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
-        double centralBodyGravitationalParameter,
-        Eigen::Vector3d relativePosition,
-        Eigen::Vector3d relativeVelocity,
-        double relativeDistance,
-        double commonCorrectionTerm,
-        double ppnParameterGamma = 1.0,
-        double ppnParameterBeta = 1.0 );
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& relativePosition,
+        const Eigen::Vector3d& relativeVelocity,
+        const double relativeDistance,
+        const double commonCorrectionTerm,
+        const double ppnParameterGamma = 1.0,
+        const double ppnParameterBeta = 1.0 );
 
 //! Function to compute the Schwarzschild term of the relativistic acceleration correction.
 /*!
@@ -69,10 +69,10 @@ Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
  * \return Schwarzschild term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
-        double centralBodyGravitationalParameter,
-        Eigen::Vector6d relativeState,
-        double ppnParameterGamma = 1.0,
-        double ppnParameterBeta = 1.0 );
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector6d& relativeState,
+        const double ppnParameterGamma = 1.0,
+        const double ppnParameterBeta = 1.0 );
 
 //! Function to compute the Lense-Thirring term of the relativistic acceleration correction.
 /*!
@@ -87,12 +87,12 @@ Eigen::Vector3d calculateScharzschildGravitationalAccelerationCorrection(
  * \return Lense-Thirring term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
-        Eigen::Vector3d relativePosition,
-        Eigen::Vector3d relativeVelocity,
-        double relativeDistance,
-        double commonCorrectionTerm,
-        Eigen::Vector3d centralBodyAngularMomentum,
-        double ppnParameterGamma = 1.0 );
+        const Eigen::Vector3d& relativePosition,
+        const Eigen::Vector3d& relativeVelocity,
+        const double relativeDistance,
+        const double commonCorrectionTerm,
+        const Eigen::Vector3d& centralBodyAngularMomentum,
+        const double ppnParameterGamma = 1.0 );
 
 //! Function to compute the Lense-Thirring term of the relativistic acceleration correction.
 /*!
@@ -104,10 +104,10 @@ Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
  * \return Schwarzschild term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
-        double centralBodyGravitationalParameter,
-        Eigen::Vector6d relativeState,
-        Eigen::Vector3d centralBodyAngularMomentum,
-        double ppnParameterGamma = 1.0 );
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector6d& relativeState,
+        const Eigen::Vector3d& centralBodyAngularMomentum,
+        const double ppnParameterGamma = 1.0 );
 
 //! Function to compute the de Sitter term of the relativistic acceleration correction.
 /*!
@@ -123,11 +123,11 @@ Eigen::Vector3d calculateLenseThirringCorrectionAcceleration(
  * \return De Sitter term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
-        Eigen::Vector3d orbiterRelativeVelocity,
-        Eigen::Vector3d orbitedBodyPositionWrtLargerBody,
-        Eigen::Vector3d orbitedBodyVelocityWrtLargerBody,
-        double commonCorrectionTermOfLargerBody,
-        double ppnParameterGamma = 1.0 );
+        const Eigen::Vector3d& orbiterRelativeVelocity,
+        const Eigen::Vector3d& orbitedBodyPositionWrtLargerBody,
+        const Eigen::Vector3d& orbitedBodyVelocityWrtLargerBody,
+        const double commonCorrectionTermOfLargerBody,
+        const double ppnParameterGamma = 1.0 );
 
 //! Function to compute the de Sitter term of the relativistic acceleration correction.
 /*!
@@ -141,10 +141,10 @@ Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
  * \return De Sitter term of the relativistic acceleration correction.
  */
 Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
-        double largerBodyGravitationalParameter,
-        Eigen::Vector6d orbiterRelativeState,
-        Eigen::Vector6d orbitedBodyStateWrtLargerBody,
-        double ppnParameterGamma = 1.0 );
+        const double largerBodyGravitationalParameter,
+        const Eigen::Vector6d& orbiterRelativeState,
+        const Eigen::Vector6d& orbitedBodyStateWrtLargerBody,
+        const double ppnParameterGamma = 1.0 );
 
 //! Class to compute typical relativistic corrections to the dynamics of an orbiter.
 /*!

@@ -552,9 +552,6 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterGamma, partialWrtGamma, 1.0e-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
-
-    // Check whether partials are ok (had to add factor 2 beta/gamma partial functions)
-    //BOOST_CHECK_EQUAL( true, false );
 }
 
 
