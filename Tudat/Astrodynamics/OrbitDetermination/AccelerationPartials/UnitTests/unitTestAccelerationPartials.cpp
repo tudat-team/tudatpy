@@ -28,6 +28,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
@@ -39,6 +40,7 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace tudat::relativity;
 using namespace tudat::gravitation;
 using namespace tudat::aerodynamics;
 using namespace tudat::ephemerides;
@@ -420,6 +422,132 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
                                        partialWrtEarthGravitationalParameter, std::numeric_limits< double >::epsilon(  ) );
 }
+
+
+BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
+{
+    // Create earth and vehicle bodies.
+    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
+    boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
+
+    // Create links to set and get state functions of bodies.
+    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            boost::bind( &Body::setState, earth, _1  );
+    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            boost::bind( &Body::setState, vehicle, _1  );
+    boost::function< Eigen::Vector6d( ) > earthStateGetFunction =
+            boost::bind( &Body::getState, earth );
+    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+            boost::bind( &Body::getState, vehicle );
+
+    // Load spice kernel.
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+
+    // Set vehicle and earth state.
+    earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
+    Eigen::Vector6d vehicleKeplerElements;
+    vehicleKeplerElements<<6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ),
+            convertDegreesToRadians( 217.6968 ), convertDegreesToRadians( 268.2663 ), convertDegreesToRadians( 142.3958 );
+    vehicle->setState( earth->getState( ) + convertKeplerianToCartesianElements( vehicleKeplerElements,
+                                                                                 getBodyGravitationalParameter( "Earth" ) ) );
+
+
+    NamedBodyMap bodyMap;
+    bodyMap[ "Vehicle" ] = vehicle;
+    bodyMap[ "Earth" ] = earth;
+
+    // Create gravity field.
+    boost::shared_ptr< GravityFieldSettings > gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+    boost::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+            createGravityFieldModel( gravityFieldSettings, "Earth", bodyMap );
+    earth->setGravityFieldModel( earthGravityField );
+
+    // Create acceleration model.
+    boost::shared_ptr< RelativisticAccelerationCorrection > accelerationModel =
+            boost::make_shared< RelativisticAccelerationCorrection >
+            ( boost::bind( &Body::getState, vehicle ),
+              boost::bind( &Body::getState, earth ),
+              boost::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ) );
+
+    // Create acceleration partial object.
+    boost::shared_ptr< RelativisticAccelerationPartial > accelerationPartial = boost::make_shared< RelativisticAccelerationPartial >(
+                accelerationModel, "Vehicle", "Earth" );
+
+    // Create parameter objects.
+    boost::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = boost::make_shared<
+            GravitationalParameter >( earthGravityField, "Earth" );
+//    boost::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = boost::make_shared<
+//            PPNParameterGamma >( ppnParameterSet );
+//    boost::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = boost::make_shared<
+//            PPNParameterBeta >( ppnParameterSet );
+
+    // Calculate analytical partials.
+    accelerationModel->updateMembers( );
+    accelerationPartial->update( );
+
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ) );
+
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ) );
+
+    Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter(
+                gravitationalParameterParameter );
+//    Eigen::Vector3d partialWrtGamma = accelerationPartial->wrtParameter( ppnParameterGamma );
+//    Eigen::Vector3d partialWrtBeta = accelerationPartial->wrtParameter( ppnParameterBeta );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation<< 10.0, 10.0, 10.0;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation<< 1.0, 1.0, 1.0;
+
+    // Calculate numerical partials.
+    Eigen::Matrix3d testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), positionPerturbation, 0 );
+    Eigen::Matrix3d testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3 );
+    Eigen::Matrix3d testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, accelerationModel, earth->getState( ), positionPerturbation, 0 );
+    Eigen::Matrix3d testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, accelerationModel, earth->getState( ), velocityPerturbation, 3 );
+    Eigen::Vector3d testPartialWrtEarthGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                gravitationalParameterParameter, accelerationModel, 1.0E10 );
+//    Eigen::Vector3d testPartialWrtPpnParameterGamma = calculateAccelerationWrtParameterPartials(
+//                ppnParameterGamma, accelerationModel, 100.0 );
+//    Eigen::Vector3d testPartialWrtPpnParameterBeta = calculateAccelerationWrtParameterPartials(
+//                ppnParameterBeta, accelerationModel, 100.0 );
+
+    // Compare numerical and analytical results.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition,
+                                       partialWrtEarthPosition, 1.0e-7 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity,
+                                       partialWrtEarthVelocity, 1.0e-7 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition,
+                                       partialWrtVehiclePosition, 1.0e-7 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
+                                       partialWrtVehicleVelocity, 1.0e-7 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
+                                       partialWrtEarthGravitationalParameter, 1.0e-8 );
+
+//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterGamma, partialWrtGamma, 1.0e-8 );
+
+//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPpnParameterBeta, partialWrtBeta, 1.0e-8 );
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

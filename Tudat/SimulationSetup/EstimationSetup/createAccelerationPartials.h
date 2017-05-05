@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/radiationPressureAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/relativisticAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
@@ -77,6 +78,21 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
             // Create partial-calculating object.
             accelerationPartial = boost::make_shared< CentralGravitationPartial >
                     ( boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ),
+                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    case relativistic_correction_acceleration:
+
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (relativistic_correction_acceleration) when making acceleration partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = boost::make_shared< RelativisticAccelerationPartial  >
+                    ( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ),
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
