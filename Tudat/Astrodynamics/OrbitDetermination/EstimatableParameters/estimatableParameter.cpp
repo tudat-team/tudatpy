@@ -111,6 +111,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case constant_relative_observation_bias:
         isDoubleParameter = false;
         break;
+    case ppn_parameter_gamma:
+        isDoubleParameter = true;
+        break;
+    case ppn_parameter_beta:
+        isDoubleParameter = true;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );

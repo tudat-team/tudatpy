@@ -9,7 +9,6 @@
  */
 
 #include <iostream>
-#include <iomanip>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
 
@@ -98,11 +97,11 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
                 unperturbedParameterValue + parameterPerturbation );
     updateDependentVariables( );
     timeDependentUpdateDependentVariables( currentTime );
+    accelerationModel->resetTime( TUDAT_NAN );
 
     Eigen::Vector3d upPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
     accelerationModel->resetTime( TUDAT_NAN );
-
     // Calculate down-perturbation.
     parameter->setParameterValue(
                 unperturbedParameterValue - parameterPerturbation );
@@ -111,6 +110,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 
     Eigen::Vector3d downPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
                 accelerationModel, currentTime );
+
     accelerationModel->resetTime( TUDAT_NAN );
 
     // Reset to original value.
@@ -148,6 +148,8 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
     }
 
     Eigen::Matrix< double, 3, Eigen::Dynamic > partialMatrix = Eigen::MatrixXd::Zero( 3, unperturbedParameterValue.size( ) );
+
+    accelerationModel->resetTime( TUDAT_NAN );
 
     Eigen::VectorXd perturbedParameterValue;
     for( int i = 0; i < unperturbedParameterValue.size( ); i++ )

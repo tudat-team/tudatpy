@@ -65,6 +65,12 @@ getLightTimeParameterPartialFunction(
                                          currentLightTimeCorrectorPartial, _1, _2, bodyIndex ), 1 );
             }
         }
+        else if( parameterId.first == estimatable_parameters::ppn_parameter_gamma )
+        {
+            partialFunction = std::make_pair(
+                        boost::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::wrtPpnParameterGamma,
+                                     currentLightTimeCorrectorPartial, _1, _2 ), 1 );
+        }
         break;
     }
     default:
