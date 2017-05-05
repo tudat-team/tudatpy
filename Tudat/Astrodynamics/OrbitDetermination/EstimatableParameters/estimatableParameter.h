@@ -44,7 +44,8 @@ enum EstimatebleParametersEnum
     constant_rotation_rate,
     rotation_pole_position,
     constant_additive_observation_bias,
-    constant_relative_observation_bias
+    constant_relative_observation_bias,
+    ground_station_position
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -143,7 +144,7 @@ public:
         }
         else
         {
-            parameterDescription += ", parameterName_.second.secon).";
+            parameterDescription += ", " + parameterName_.second.second + ").";
         }
         return parameterDescription;
     }

@@ -13,6 +13,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/groundStationPosition.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
@@ -357,6 +358,40 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
             }
 
+            break;
+        }
+        case ground_station_position:
+        {
+
+            if( currentBody->getGroundStationMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
+            {
+                std::string errorMessage =
+                        "Error, requested ground station position parameter of "
+                        + vectorParameterName->parameterType_.second.first + " "
+                        + vectorParameterName->parameterType_.second.second + " , but ground station was not found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                boost::shared_ptr< ground_stations::GroundStationState > groundStationState =
+                        currentBody->getGroundStation( vectorParameterName->parameterType_.second.second )->
+                        getNominalStationState( );
+                if( groundStationState == NULL )
+                {
+                    std::string errorMessage =
+                            "Error, requested ground station position parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " +
+                            vectorParameterName->parameterType_.second.second +
+                            "  but nominal ground station state is NULL";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = boost::make_shared< GroundStationPosition  >(
+                                groundStationState, vectorParameterName->parameterType_.second.first,
+                                vectorParameterName->parameterType_.second.second );
+                }
+            }
             break;
         }
         default:

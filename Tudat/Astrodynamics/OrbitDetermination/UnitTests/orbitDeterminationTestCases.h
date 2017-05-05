@@ -316,6 +316,13 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
+    bodySettings[ "Earth" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+                "ECLIPJ2000", "IAU_Earth",
+                spice_interface::computeRotationQuaternionBetweenFrames(
+                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                initialEphemerisTime, 2.0 * mathematical_constants::PI /
+                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+
     NamedBodyMap bodyMap = createBodies( bodySettings );
     bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
@@ -466,6 +473,10 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
                                   2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                   2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
+    parameterNames.push_back(  boost::make_shared< EstimatableParameterSettings >
+                               ( "Earth", rotation_pole_position ) );
+    parameterNames.push_back(  boost::make_shared< EstimatableParameterSettings >
+                               ( "Earth", ground_station_position, "Station1" ) );
     // Create parameters
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
