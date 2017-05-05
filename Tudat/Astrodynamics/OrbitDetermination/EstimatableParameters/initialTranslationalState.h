@@ -165,7 +165,7 @@ public:
     std::vector< double > getArcStartTimes( )
     {
         std::vector< double > arcStartTimes;
-        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        for( unsigned int i = 0; i < arcStartAndEndTimes_.size( ); i++ )
         {
             arcStartTimes.push_back( arcStartAndEndTimes_.at( i ).first );
         }

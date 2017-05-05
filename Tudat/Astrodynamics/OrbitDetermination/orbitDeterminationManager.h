@@ -408,6 +408,7 @@ public:
             const bool saveInformationmatrix = 1,
             const bool printOutput = 1 )
     {
+        currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
         // Get size of parameter vector and number of observations (total and per type)
         int parameterVectorSize = currentParameterEstimate_.size( );
@@ -482,6 +483,9 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
+
+            input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
+            input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;
@@ -707,7 +711,7 @@ protected:
                 variationalEquationsSolver_ =  boost::make_shared< propagators::MultiArcVariationalEquationsSolver
                         < ObservationScalarType, TimeType > >(
                             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
             }
         }
         else
@@ -719,7 +723,7 @@ protected:
                 variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
                         < ObservationScalarType, TimeType > >(
                             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0 );
+                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
             }
         }
 

@@ -783,15 +783,30 @@ public:
     }
 
     void integrateVariationalAndDynamicalEquations(
-            const VectorType& concatenatedInitialState, const bool integrateEquationsConcurrently )
+            const VectorType& concatenatedInitialStates, const bool integrateEquationsConcurrently )
     {
-        throw std::runtime_error( "Error, multi-arc variational equations from concatenated list not yet available" );
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
+
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < dynamicsSimulator_->getSingleArcDynamicsSimulators( ).size( ); i++ )
+        {
+            int currentSize = dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getPropagatorSettings( )->getStateSize( );
+
+            splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
+            currentIndex += currentSize;
+        }
+
+        if( currentIndex != concatenatedInitialStates.rows( ) )
+        {
+            throw std::runtime_error( "Error when doing multi-arc variational equation integration, input state vector size is incompatible with settings" );
+        }
+
+        integrateVariationalAndDynamicalEquations( splitInitialState, integrateEquationsConcurrently );
     }
 
     void integrateVariationalAndDynamicalEquations(
             const std::vector< VectorType >& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
-
         std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
 
@@ -909,7 +924,25 @@ public:
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
+        // Reset values of parameters.
+        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        propagatorSettings_->resetInitialStates(
+                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
 
+        //dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
+        //            propagatorSettings_->getInitialStates( ) );
+
+        // Check if re-integration of variational equations is requested
+        if( areVariationalEquationsToBeIntegrated )
+        {
+
+            // Integrate variational and state equations.
+            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+        }
+        else
+        {
+            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+        }
     }
 
     //! Function to return the numerical solution history of numerically integrated variational equations.

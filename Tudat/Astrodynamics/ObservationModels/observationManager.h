@@ -322,6 +322,7 @@ protected:
     {
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
+
         Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > partialMatrix =
                 Eigen::MatrixXd::Zero( observationSize, fullParameterVector );
 
