@@ -12,12 +12,14 @@
 set(RELATIVITY_SOURCES
   "${SRCROOT}${RELATIVITYDIR}/relativisticLightTimeCorrection.cpp"
   "${SRCROOT}${RELATIVITYDIR}/relativisticAccelerationCorrection.cpp"
+  "${SRCROOT}${RELATIVITYDIR}/metric.cpp"
 )
 
 # Set the header files.
 set(RELATIVITY_HEADERS 
   "${SRCROOT}${RELATIVITYDIR}/relativisticLightTimeCorrection.h"
   "${SRCROOT}${RELATIVITYDIR}/relativisticAccelerationCorrection.h"
+  "${SRCROOT}${RELATIVITYDIR}/metric.h"
 )
 
 # Add static libraries.
