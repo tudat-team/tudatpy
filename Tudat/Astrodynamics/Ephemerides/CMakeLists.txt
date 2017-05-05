@@ -42,6 +42,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.h"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/constantEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
 )
 
 # Add static libraries.

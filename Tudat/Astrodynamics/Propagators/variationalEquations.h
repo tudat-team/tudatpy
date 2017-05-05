@@ -62,7 +62,7 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
-    {
+    {        
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
                     parametersToEstimate );
@@ -383,6 +383,17 @@ private:
                 centralBodies.push_back( boost::dynamic_pointer_cast
                                          < estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getCentralBody( ) );
+            }
+            else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+            {
+                propagatedBodies.push_back(
+                            initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+                centralBodies.push_back( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                                             initialDynamicalParameters.at( i ) )->getCentralBody( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when settinf up variational equations, did not recognize initial state type" );
             }
         }
 

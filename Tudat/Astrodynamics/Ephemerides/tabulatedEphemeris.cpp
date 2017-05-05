@@ -84,7 +84,37 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
 }
 
 
+//! Get cartesian state from ephemeris (in double precision), double StateScalarType
+template< >
+Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState(
+        const double ephemerisTime )
+{
+    return interpolator_->interpolate( Time( ephemerisTime ) );
+}
 
+//! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongState(
+        const double secondsSinceEpoch )
+{
+    return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
+}
+
+//! Get cartesian state from ephemeris (in double precision from Time input).
+template< >
+Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time );
+}
+
+//! Get cartesian state from ephemeris (in long double precision from Time input).
+template< >
+Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::getCartesianLongStateFromExtendedTime(
+        const Time& time )
+{
+    return interpolator_->interpolate( time ).cast< long double >( );
+}
 
 
 

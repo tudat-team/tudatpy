@@ -75,6 +75,21 @@ boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, Tim
                 setIntegratedResult );
 }
 
+//template< typename StateScalarType = double, typename TimeType = double >
+//boost::shared_ptr< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > > createMultiArcDynamicsSimulator(
+//        const  simulation_setup::NamedBodyMap& bodyMap,
+//        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+//        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+//        const bool areEquationsOfMotionToBeIntegrated = true,
+//        const bool clearNumericalSolutions = true,
+//        const bool setIntegratedResult = true )
+//{
+//    return boost::make_shared< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+//                bodyMap,
+//                integratorSettings, propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
+//                setIntegratedResult );
+//}
+
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
 boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createSingleArcVariationalEquationsSolver(
