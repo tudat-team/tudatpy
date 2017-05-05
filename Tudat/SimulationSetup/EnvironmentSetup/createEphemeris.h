@@ -71,7 +71,8 @@ public:
                        const  std::string& frameOrientation = "ECLIPJ2000" ):
         ephemerisType_( ephemerisType ),
         frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation ){ }
+        frameOrientation_( frameOrientation ),
+        makeMultiArcEphemeris_( false ){ }
 
     //! Destructor
     virtual ~EphemerisSettings( ){ }
@@ -97,6 +98,11 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
+    double getMakeMultiArcEphemeris( )
+    {
+        return makeMultiArcEphemeris_;
+    }
+
     //! Function to reset the origin of the frame.
     /*!
      * Function to reset the origin of the frame.
@@ -111,6 +117,11 @@ public:
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
+    void resetMakeMultiArcEphemeris( const bool makeMultiArcEphemeris )
+    {
+        makeMultiArcEphemeris_ = makeMultiArcEphemeris;
+    }
+
 protected:
 
     //! Type of ephemeris model that is to be created.
@@ -121,6 +132,8 @@ protected:
 
     //! Orientation of frame in which ephemeris data is defined.
     std::string frameOrientation_;
+
+    bool makeMultiArcEphemeris_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.

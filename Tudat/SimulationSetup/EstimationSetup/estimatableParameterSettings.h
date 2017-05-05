@@ -206,6 +206,40 @@ public:
 
 };
 
+template< typename InitialStateParameterType >
+class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
+        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        isStateSet_( 1 ){ }
+
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
+        arcStartAndEndTimes_( arcStartAndEndTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        isStateSet_( 0 ){ }
+
+
+    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue_;
+
+    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+
+    std::string centralBody_;
+
+    std::string frameOrientation_;
+
+    bool isStateSet_;
+
+};
+
 } // namespace estimatable_parameters
 
 } // namespace tudat

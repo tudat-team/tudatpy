@@ -60,5 +60,8 @@ add_executable(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTest
 setup_custom_test_program(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_EstimationInput ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestMultiArcStateEstimation.cpp")
+setup_custom_test_program(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_MultiArcStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 

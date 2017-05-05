@@ -220,6 +220,59 @@ private:
     sensitivityMatrixInterpolator_;
 };
 
+
+class MultiArcCombinedStateTransitionAndSensitivityMatrixInterface: public CombinedStateTransitionAndSensitivityMatrixInterface
+{
+public:
+    MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
+            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators,
+            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+            const int numberOfInitialDynamicalParameters,
+            const int numberOfParameters );
+
+    ~MultiArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
+
+    void updateMatrixInterpolators(
+            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolator,
+            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolator,
+            const std::vector< std::pair< double, double > >& arcStartAndEndTimes );
+    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    getStateTransitionMatrixInterpolators( )
+    {
+        return stateTransitionMatrixInterpolators_;
+    }
+
+    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    getSensitivityMatrixInterpolator( )
+    {
+        return sensitivityMatrixInterpolators_;
+    }
+
+    int getFullParameterVectorSize( )
+    {
+        return sensitivityMatrixSize_ + numberOfStateArcs_ * stateTransitionMatrixSize_;
+    }
+
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+private:
+
+    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators_;
+
+    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators_;
+
+    std::vector< std::pair< double, double > > arcStartAndEndTimes_;
+
+    int numberOfStateArcs_;
+
+    boost::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
+
+};
+
+
 } // namespace propagators
 
 } // namespace tudat

@@ -132,6 +132,7 @@ void integrateEquationsFromIntegrator(
         }
     }
     while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
+
 }
 
 

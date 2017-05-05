@@ -281,8 +281,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == accelerationIterator->first )
             {
-                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
-                      estimatable_parameters::initial_body_state ) )
+                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+                        ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) )
                 {
                     // Get object for body undergoing acceleration
                     const std::string acceleratedBody = accelerationIterator->first;

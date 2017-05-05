@@ -72,14 +72,14 @@ createMassPropagationEnvironmentUpdaterSettings(
 template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate,
     std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate,
         std::vector< std::string > > environmentModelsToUpdate;
 
     // Check dynamics type
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case hybrid:
     {
@@ -91,7 +91,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
         for( typename std::map< IntegratedStateType,
-             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
         {
@@ -142,7 +142,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
+                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
     }
     }
     return environmentModelsToUpdate;
@@ -173,7 +173,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
 template< typename StateScalarType, typename TimeType >
 boost::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > >
 createEnvironmentUpdaterForDynamicalEquations(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     // Create environment update settings.
