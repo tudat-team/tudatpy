@@ -17,47 +17,98 @@
 
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
+
 namespace tudat
 {
 
 namespace acceleration_partials
 {
 
-
-Eigen::Matrix3d computePartialOfSchwardschildAccelerationCorrectionWrtPosition(
-        const Eigen::Vector6d relativeState, Eigen::Vector3d currentAcceleration,
+//! Function to compute partial of Schwarzschild acceleration correction w.r.t. position of body undergoing acceleration
+/*!
+ * Function to compute partial of Schwarzschild acceleration correction w.r.t. position of body undergoing acceleration
+ * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
+ * \param currentAcceleration Current Schwarzschild acceleration correction
+ * \param partialMatrix Requested (returnd by reference)
+ * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
+ * \param ppnParameterGamma PPN parameter gamma
+ * \param ppnParameterBeta PPN parameter bet
+ */
+void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
+        const Eigen::Vector6d& relativeState, Eigen::Vector3d& currentAcceleration, Eigen::Matrix3d& partial,
         const double gravitationalParameter, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
 
-Eigen::Matrix3d computePartialOfSchwardschildAccelerationCorrectionWrtVelocity(
-        const Eigen::Vector6d relativeState,
+//! Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
+/*!
+ * Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
+ * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
+ * \param relativeState Current Schwarzschild acceleration correction
+ * \param partialMatrix Requested (returnd by reference)
+ * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
+ * \param ppnParameterGamma PPN parameter gamma
+ * \param ppnParameterBeta PPN parameter bet
+ */
+void computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
+        const Eigen::Vector6d& relativeState, Eigen::Matrix3d& partial,
         const double gravitationalParameter, const double ppnParameterGamma = 1.0 );
 
-void computePartialOfSchwardschildAccelerationCorrectionWrtGravitationalParameter(
-        const Eigen::Vector6d relativeState,
+//! Function to compute partial derivative of Schwarzschild acceleration correction w.r.t. central body gravitational patameter.
+/*!
+ * Function to compute partial derivative of Schwarzschild acceleration correction w.r.t. central body gravitational patameter.
+ * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
+ * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
+ * \param partialMatrix Requested (returnd by reference)
+ * \param ppnParameterGamma PPN parameter gamma
+ * \param ppnParameterBeta PPN parameter bet
+ */
+void computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter(
+        const Eigen::Vector6d& relativeState,
         const double gravitationalParameter,
         Eigen::MatrixXd& partial, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
 
-void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
-        const Eigen::Vector6d relativeState,
+//! Function to compute the partial derivative of Schwarzschild acceleration correction w.r.t. PPN parameter gamma
+/*!
+ * Function to compute the partial derivative of Schwarzschild acceleration correction w.r.t. PPN parameter gamma
+ * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
+ * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
+ * \param partialMatrix Requested (returnd by reference)
+ */
+void computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterGamma(
+        const Eigen::Vector6d& relativeState,
         const double gravitationalParameter,
         Eigen::MatrixXd& partialMatrix );
 
-void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
-        const Eigen::Vector6d relativeState,
+//! Function to compute the partial derivative of Schwarzschild acceleration correction w.r.t. PPN parameter beta
+/*!
+ * Function to compute the partial derivative of Schwarzschild acceleration correction w.r.t. PPN parameter beta
+ * \param relativeState Position of body undergoing, w.r.t. body exerting, acceleration.
+ * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
+ * \param partialMatrix Requested (returnd by reference)
+ */
+void computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta(
+        const Eigen::Vector6d& relativeState,
         const double gravitationalParameter,
         Eigen::MatrixXd& partialMatrix );
 
+//! Class to calculate the partials of the relativistic acceleration correction w.r.t. parameters and states.
 class RelativisticAccelerationPartial: public AccelerationPartial
 {
 public:
-    using AccelerationPartial::getParameterPartialFunction;
 
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param accelerationModel Relativistic acceleration correction w.r.t. which partials are to be taken.
+     *  \param acceleratedBody Body undergoing acceleration.
+     *  \param acceleratingBody Body exerting acceleration.
+     */
     RelativisticAccelerationPartial(
             const boost::shared_ptr< relativity::RelativisticAccelerationCorrection > accelerationModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::relativistic_correction_acceleration )
     {
+        // Only Schwarzschild correction is implemented so far.
         if( accelerationModel->getCalculateDeSitterCorrection( ) || accelerationModel->getCalculateLenseThirringCorrection( ) )
         {
             throw std::runtime_error( "Error when creating relativistic acceleration correction partial, only Schwarzschild term implemented" );
@@ -72,7 +123,7 @@ public:
                                                     accelerationModel );
     }
 
-    //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
     /*!
      *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
      *  and adding it to the existing partial block
@@ -97,9 +148,9 @@ public:
         }
     }
 
-    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
     /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration and
      *  adding it to the existing partial block.
      *  The update( ) function must have been called during current time step before calling this function.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
@@ -121,6 +172,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
@@ -135,6 +197,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratingBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
@@ -149,7 +222,15 @@ public:
         }
     }
 
-
+    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
+    /*!
+     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
+     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration
+     *  (and undergoing acceleration if mutual attraction is used) is requested.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
+     *  \return True if dependency exists (non-zero partial), false otherwise.
+     */
     bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
@@ -163,9 +244,23 @@ public:
         return 0;
     }
 
+    //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
+    /*!
+     *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
+     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
+     *  \param parameter Parameter w.r.t. which partial is to be taken.
+     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
+     */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
+    //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
+    /*!
+     *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
+     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
+     *  \param parameter Parameter w.r.t. which partial is to be taken.
+     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
+     */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
@@ -173,48 +268,89 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
+    //! Function to compute partial derivative of relativistic acceleration correction w.r.t. central body gravitational patameter.
+    /*!
+     * Function to compute partial derivative of relativistic acceleration correction w.r.t. central body gravitational patameter.
+     * \param partialMatrix Requested (returnd by reference)
+     */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
     {
-        computePartialOfSchwardschildAccelerationCorrectionWrtGravitationalParameter(
+        computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter(
                     currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix,
                     ppnGammaParameterFunction_( ), ppnBetaParameterFunction_( ) );
     }
 
-
+    //! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter gamma
+    /*!
+     * Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter gamma
+     * \param partialMatrix Requested (returnd by reference)
+     */
     void wrtPpnParameterGamma( Eigen::MatrixXd& partialMatrix )
     {
-        return computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
+        return computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterGamma(
                     currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
     }
 
+    //! Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter beta
+    /*!
+     * Function to compute partial derivative of relativistic acceleration correction w.r.t. PPN parameter beta
+     * \param partialMatrix Requested (returnd by reference)
+     */
     void wrtPpnParameterBeta( Eigen::MatrixXd& partialMatrix )
     {
-        return computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
+        return computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta(
                     currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
     }
 
+
+    //! Function for updating partial w.r.t. the bodies' states
+    /*!
+     *  Function for updating common blocks of partial to current state. For the this acceleration,
+     *  position and velocity partials is computed and set. Also, member variables are updated to current time/state.
+     *  \param currentTime Time at which partials are to be calculated
+     */
     void update( const double currentTime = TUDAT_NAN );
 
 private:
 
+    //! Function to retrieve current state of body exerting acceleration.
     boost::function< Eigen::Vector6d( ) > centralBodyState_;
 
+    //! Function to retrieve current state of body undergoing acceleration.
     boost::function< Eigen::Vector6d( ) > acceleratedBodyState_;
 
+    //! Function to retrieve PPN parameter gamma
     boost::function< double( ) > ppnGammaParameterFunction_;
 
+    //! Function to retrieve PPN parameter beta
     boost::function< double( ) > ppnBetaParameterFunction_;
 
+    //! Function to retrieve current gravitational parameter of central body.
     boost::function< double( ) > centralBodyGravitationalParameterFunction_;
 
+    //! Function to retrieve current relativistic acceleration correction.
     boost::function< Eigen::Vector3d( ) > currentAccelerationFunction_;
 
+    //! Current partial of relativistic acceleration correction w.r.t. position of body undergoing acceleration
+    /*!
+     *  Current partial of relativistic acceleration correction w.r.t. position of body undergoing acceleration
+     * ( = -partial of central gravity acceleration w.r.t. position of body exerting acceleration),
+     *  calculated and set by update( ) function.
+     */
     Eigen::Matrix3d currentPartialWrtPosition_;
 
+    //! Current partial of relativistic acceleration correction w.r.t. velocity of body undergoing acceleration
+    /*!
+     *  Current partial of relativistic acceleration correction w.r.t. velocity of body undergoing acceleration
+     * ( = -partial of central gravity acceleration w.r.t. velocity of body exerting acceleration),
+     *  calculated and set by update( ) function.
+     */
     Eigen::Matrix3d currentPartialWrtVelocity_;
 
+    //! Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
     Eigen::Vector6d currentRelativeState_;
 
+    //! Current relativistic acceleration correction
     Eigen::Vector3d currentAcceleration_;
 
 };
