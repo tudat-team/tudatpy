@@ -138,7 +138,6 @@ executeMultiArcEarthMoonSimulation(
 
 
     // Define arc times.
-    std::vector< std::pair< double, double > > integrationArcs;
     std::vector< double > arcStartTimes, arcEndTimes;
     TimeType integrationStartTime = initialEphemerisTime;
     TimeType integrationEndTime = finalEphemerisTime;
@@ -148,7 +147,6 @@ executeMultiArcEarthMoonSimulation(
 
     do
     {
-        integrationArcs.push_back( std::make_pair( currentStartTime, currentEndTime ) );
         arcStartTimes.push_back( currentStartTime );
         arcEndTimes.push_back( currentEndTime );
 
@@ -159,10 +157,10 @@ executeMultiArcEarthMoonSimulation(
 
     // Set (perturbed) initial state.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > systemInitialStates;
-    for( unsigned int i = 0; i < integrationArcs.size( ); i++ )
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
         systemInitialStates.push_back( getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                           bodiesToIntegrate, centralBodies, bodyMap, integrationArcs.at( i ).first ) );
+                                           bodiesToIntegrate, centralBodies, bodyMap, arcStartTimes.at( i ) ) );
         systemInitialStates[ i ] += initialStateDifference;
     }
 
@@ -190,10 +188,10 @@ executeMultiArcEarthMoonSimulation(
     {
         parameterNames.push_back(
                     boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", integrationArcs, centralBodies[ 0 ] ) );
+                        "Moon", arcStartTimes, centralBodies[ 0 ] ) );
         parameterNames.push_back(
                     boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", integrationArcs, centralBodies[ 1 ] ) );
+                        "Earth", arcStartTimes, centralBodies[ 1 ] ) );
         parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
         parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
@@ -213,10 +211,9 @@ executeMultiArcEarthMoonSimulation(
 
     std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
-
     {
         // Create dynamics simulator
-        MultiArcVariationalEquationsSolver < StateScalarType, TimeType > variationalEquations =
+        MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
                         propagatorSettingsList ), parametersToEstimate, arcStartTimes );
@@ -233,9 +230,9 @@ executeMultiArcEarthMoonSimulation(
 
 
         // Retrieve test data
-        for( unsigned int arc = 0; arc < integrationArcs.size( ); arc++ )
+        for( unsigned int arc = 0; arc < arcEndTimes.size( ); arc++ )
         {
-            double testEpoch = integrationArcs.at( arc ).second - 2.0E4;
+            double testEpoch = arcEndTimes.at( arc ) - 2.0E4;
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );

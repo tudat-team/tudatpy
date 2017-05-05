@@ -48,15 +48,15 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators,
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolators,
-        const std::vector< std::pair< double, double > >& arcStartAndEndTimes,
+        const std::vector< double >& arcStartTimes,
         const int numberOfInitialDynamicalParameters,
         const int numberOfParameters ):
     CombinedStateTransitionAndSensitivityMatrixInterface( numberOfInitialDynamicalParameters, numberOfParameters ),
     stateTransitionMatrixInterpolators_( stateTransitionMatrixInterpolators ),
     sensitivityMatrixInterpolators_( sensitivityMatrixInterpolators ),
-    arcStartAndEndTimes_( arcStartAndEndTimes )
+    arcStartTimes_( arcStartTimes )
 {
-    numberOfStateArcs_ = arcStartAndEndTimes_.size( );
+    numberOfStateArcs_ = arcStartTimes_.size( );
 
     sensitivityMatrixSize_ = numberOfParameters - numberOfStateArcs_ * stateTransitionMatrixSize_;
 
@@ -66,13 +66,8 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
         std::cerr<<"Error when making multi arc state transition and sensitivity interface, vector sizes are inconsistent"<<std::endl;
     }
 
-    std::vector< double > arcSplitTimes;
-    arcSplitTimes.push_back( arcStartAndEndTimes_[ 0 ].first );
-    for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
-    {
-        arcSplitTimes.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
-    }
-    arcSplitTimes.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+    std::vector< double > arcSplitTimes = arcStartTimes_;
+    arcSplitTimes.push_back(  std::numeric_limits< double >::max( ));
     lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 arcSplitTimes );
 }
@@ -80,11 +75,11 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
 void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolator,
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > sensitivityMatrixInterpolator,
-        const std::vector< std::pair< double, double > >& arcStartAndEndTimes )
+        const std::vector< double >& arcStartTimes )
 {
     stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolator;
     sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolator;
-    arcStartAndEndTimes_ =  arcStartAndEndTimes;
+    arcStartTimes_ =  arcStartTimes;
 
     if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||
             stateTransitionMatrixInterpolators_.size( ) != static_cast< unsigned int >( numberOfStateArcs_ ) )
@@ -94,13 +89,8 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixI
                    stateTransitionMatrixInterpolators_.size( )<<" "<<static_cast< unsigned int >( numberOfStateArcs_ )<<std::endl;
     }
 
-    std::vector< double > arcSplitTimes;
-    arcSplitTimes.push_back( arcStartAndEndTimes_[ 0 ].first );
-    for( unsigned int i = 1; i < arcStartAndEndTimes_.size( ); i++ )
-    {
-        arcSplitTimes.push_back( arcStartAndEndTimes_.at( i ).first - 0.1 );
-    }
-    arcSplitTimes.push_back( arcStartAndEndTimes_.at( arcStartAndEndTimes_.size( ) - 1 ).second );
+    std::vector< double > arcSplitTimes = arcStartTimes_;
+    arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
 
     lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 arcSplitTimes );

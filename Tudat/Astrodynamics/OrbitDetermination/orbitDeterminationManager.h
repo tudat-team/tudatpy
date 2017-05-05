@@ -444,7 +444,7 @@ public:
         int totalNumberOfObservations = observationNumberPair.second;
 
         // Declare variables to be returned (i.e. results from best iteration)
-        double bestResidual = 1.0E100;
+        double bestResidual =  std::numeric_limits< double >::max( );
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Zero( parameterVectorSize );
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Zero( parameterVectorSize );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Zero( totalNumberOfObservations );
@@ -775,7 +775,7 @@ protected:
                         propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                             std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< std::pair< double, double > >( ),
+                            std::vector< double >( ),
                             0, parametersToEstimate_->getParameterSetSize( ) );
             }
         }

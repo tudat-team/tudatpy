@@ -115,7 +115,9 @@ Eigen::VectorXd  executeParameterEstimation( )
                 bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
 
 
-    std::vector< std::pair< double, double > > integrationArcs;
+    std::vector< double > integrationArcStartTimes;
+    std::vector< double > integrationArcEndTimes;
+
     std::vector< double > integrationArcLimits;
 
     double integrationStartTime = initialEphemerisTime + 1.0E4;
@@ -128,17 +130,18 @@ Eigen::VectorXd  executeParameterEstimation( )
     do
     {
         integrationArcLimits.push_back( currentStartTime );
-        integrationArcs.push_back( std::make_pair( currentStartTime, currentEndTime ) );
+        integrationArcEndTimes.push_back( currentEndTime );
+        integrationArcStartTimes.push_back( currentStartTime );
         currentStartTime = currentEndTime - arcOverlap;
         currentEndTime = currentStartTime + arcDuration;
     }
     while( currentEndTime < integrationEndTime );
-    integrationArcLimits.push_back( integrationArcs.at( integrationArcs.size( ) - 1 ).second );
+    integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
     // Set parameters that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                                  "Earth", integrationArcs ) );
+                                  "Earth", integrationArcStartTimes ) );
     parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
                               ( "Mars", constant_rotation_rate ) );
     parameterNames.push_back(  boost::make_shared< EstimatableParameterSettings >
@@ -169,16 +172,16 @@ Eigen::VectorXd  executeParameterEstimation( )
             ( rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0 );
 
     std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
-    for( unsigned int i = 0; i < integrationArcs.size( ); i++ )
+    for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
                 getInitialStateOfBody< TimeType, StateScalarType>(
-                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodyMap, integrationArcs.at( i ).first );
+                    bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodyMap, integrationArcStartTimes.at( i ) );
         propagatorSettingsList.push_back(
                     boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       currentInitialState,
-                      integrationArcs.at( i ).second ) );
+                      integrationArcEndTimes.at( i ) ) );
     }
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
             boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
@@ -200,7 +203,7 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 
     std::vector< TimeType > initialObservationTimes;
-    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcs.size( ) );
+    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
 
     for( unsigned int i = 0; i < integrationArcLimits.size( ) - 1; i++ )
     {
@@ -234,7 +237,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     std::cout<<"Truth "<<std::setprecision( 16 )<<truthParameters.transpose( )<<std::endl;
 
-    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcs.size( ); i++ )
+    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
     {
         initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
         initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
@@ -243,7 +246,7 @@ Eigen::VectorXd  executeParameterEstimation( )
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
     }
-    for( unsigned int i = numberOfNumericalBodies * integrationArcs.size( ); i < initialParameterEstimate.rows( ); i++ )
+    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( ); i < initialParameterEstimate.rows( ); i++ )
     {
         initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
     }

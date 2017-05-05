@@ -43,10 +43,10 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 
     if( ephemerisSettings->getMakeMultiArcEphemeris( ) )
     {
-        std::map< std::pair< double, double >, boost::shared_ptr< Ephemeris > > singleArcEphemerides;
+        std::map< double, boost::shared_ptr< Ephemeris > > singleArcEphemerides;
         ephemerisSettings->resetMakeMultiArcEphemeris( false );
 
-        singleArcEphemerides[ std::make_pair( -1.0E100, 1.0E100 ) ] = createBodyEphemeris(
+        singleArcEphemerides[ -std::numeric_limits< double >::min( ) ] = createBodyEphemeris(
                     ephemerisSettings, bodyName );
 
         ephemeris = boost::make_shared< MultiArcEphemeris >(
