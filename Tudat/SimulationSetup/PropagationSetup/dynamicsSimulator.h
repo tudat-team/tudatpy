@@ -171,7 +171,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
  *  (single-arc/multi-arc/etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class DynamicsSimulators
+class DynamicsSimulator
 {
 public:
 

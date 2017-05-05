@@ -138,6 +138,20 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 #endif
 }
 
+Eigen::Vector6d computeCustomState(
+        const double time, const double angularVelocity, const double radius, const double speed )
+{
+    Eigen::Vector6d currentState = Eigen::Vector6d::Zero( );
+    currentState( 0 ) = radius * cos( angularVelocity * time );
+    currentState( 1 ) = radius * sin( angularVelocity * time );
+
+    currentState( 3 ) = -speed * sin( angularVelocity * time );
+    currentState( 4 ) = speed * cos( angularVelocity * time );
+
+    return currentState;
+
+}
+
 #if USE_CSPICE
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
@@ -183,6 +197,35 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
                     ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create custom ephemeris
+        double angularVelocity = 2.0 * tudat::mathematical_constants::PI / ( 2.0 * 3600.0 );
+        double radius = 8000.0E3;
+        double speed = 5000.0;
+
+        boost::shared_ptr< EphemerisSettings > customEphemerisSettings =
+                boost::make_shared< CustomEphemerisSettings >(
+                    boost::bind( &computeCustomState, _1,  angularVelocity, radius, speed ),
+                    "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > customEphemeris =
+                createBodyEphemeris( customEphemerisSettings, "Satellite" );
+
+        double testTime = 4.0E8;
+
+        Eigen::Vector6d currentState = customEphemeris->getCartesianState(
+                    testTime );
+        Eigen::Vector6d currentTestState = computeCustomState(
+                    testTime, angularVelocity, radius, speed );
+
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 0 ), currentTestState( 0 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 1 ), currentTestState( 1 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 2 ),  2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 3 ), currentTestState( 3 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 4 ), currentTestState( 4 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 5 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+
     }
 
     {

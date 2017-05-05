@@ -15,6 +15,7 @@
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #endif
 
+#include "Tudat/Astrodynamics/Ephemerides/customEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/multiArcEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
@@ -202,6 +203,26 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             break;
         }
+        case custom_ephemeris:
+        {
+            // Check consistency of type and class.
+            boost::shared_ptr< CustomEphemerisSettings > customEphemerisSettings =
+                    boost::dynamic_pointer_cast< CustomEphemerisSettings >( ephemerisSettings );
+            if( customEphemerisSettings == NULL )
+            {
+                throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
+            }
+            else
+            {
+                // Create ephemeris
+                ephemeris = boost::make_shared< CustomEphemeris >(
+                            customEphemerisSettings->getCustomStateFunction( ),
+                            customEphemerisSettings->getFrameOrigin( ),
+                            customEphemerisSettings->getFrameOrientation( ) );
+            }
+            break;
+        }
+
         case kepler_ephemeris:
         {
             // Check consistency of type and class.
