@@ -386,7 +386,8 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates )
     {
         // Iterate over all dynamics types
-        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
             switch( stateDerivativeModelsIterator_->first )

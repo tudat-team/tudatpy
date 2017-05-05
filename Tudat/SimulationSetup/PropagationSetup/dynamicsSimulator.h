@@ -119,10 +119,10 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
 /*!
 * Function to get the states of  single body, w.r.t. some central body, at the requested time. This function creates
 * frameManager from input data to perform all required conversions.
-* \param bodyToIntegrate Bodies for which to retrieve state
-* \param centralBody Origins w.r.t. which to retrieve state of bodyToIntegrate.
+* \param bodyToIntegrate Body for which to retrieve state
+* \param centralBody Origin w.r.t. which to retrieve state of bodyToIntegrate.
 * \param bodyMap List of bodies to use in simulations.
-* \param initialTime Time at which to retrieve states.
+* \param initialTime Time at which to retrieve state.
 * \return Initial state vector of bodyToIntegrate
 */
 template< typename TimeType = double, typename StateScalarType = double >
@@ -136,6 +136,16 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
                 boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( centralBody ), bodyMap, initialTime );
 }
 
+//! Function to get the state of single body, w.r.t. some central body, at a set of requested times, concatanated into one vector.
+/*!
+* Function to get the states of  single body, w.r.t. some central body, at a set of requested times, concatanated into one vector.
+* This function creates frameManager from input data to perform all required conversions.
+* \param bodyToIntegrate Body for which to retrieve state
+* \param centralBody Origin w.r.t. which to retrieve state of bodyToIntegrate.
+* \param bodyMap List of bodies to use in simulations.
+* \param arcStartTimes List of times at which to retrieve states.
+* \return Initial state vectosr of bodyToIntegrate at requested times.
+*/
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody(
         const std::string& bodyToIntegrate,
@@ -161,7 +171,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
  *  (single-arc/multi-arc/etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class DynamicsSimulator
+class DynamicsSimulators
 {
 public:
 
@@ -629,19 +639,19 @@ class MultiArcDynamicsSimulator
 {
 public:
 
-//    //! Constructor of multi-arc simulator for different propagation/integration settings per arc.
-//    /*!
-//     *  Constructor of multi-arc simulator for different propagation/integration settings per arc.
-//     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-//     *  \param integratorSettings List of integrator settings for numerical integrator, defined per arc.
-//     *  \param propagatorSettings List of propagator settings for numerical integrator, defined per arc.
-//     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end
-//     *  of the contructor or not.
-//     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-//     *  after propagation and resetting ephemerides (default true).
-//     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-//     *  ephemerides (default true).
-//     */
+    //! Constructor of multi-arc simulator for same integration settings per arc.
+    /*!
+     *  Constructor of multi-arc simulator for same integration settings per arc.
+     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param integratorSettingsIntegrator settings for numerical integrator, used for all arcs.
+     *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
+     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
+     *  the end of the contructor or not.
+     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
+     *  after propagation and resetting ephemerides (default true).
+     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
+     *  ephemerides (default true).
+     */
     MultiArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -690,19 +700,19 @@ public:
         }
     }
 
-    //    //! Constructor of multi-arc simulator for different propagation/integration settings per arc.
-    //    /*!
-    //     *  Constructor of multi-arc simulator for different propagation/integration settings per arc.
-    //     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-    //     *  \param integratorSettings List of integrator settings for numerical integrator, defined per arc.
-    //     *  \param propagatorSettings List of propagator settings for numerical integrator, defined per arc.
-    //     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end
-    //     *  of the contructor or not.
-    //     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-    //     *  after propagation and resetting ephemerides (default true).
-    //     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-    //     *  ephemerides (default true).
-    //     */
+        //! Constructor of multi-arc simulator for different integration settings per arc.
+        /*!
+         *  Constructor of multi-arc simulator for different integration settings per arc.
+         *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+         *  \param integratorSettings List of integrator settings for numerical integrator, defined per arc.
+         *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
+         *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
+         *  the end of the contructor or not.
+         *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
+         *  after propagation and resetting ephemerides (default true).
+         *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
+         *  ephemerides (default true).
+         */
         MultiArcDynamicsSimulator(
                 const simulation_setup::NamedBodyMap& bodyMap,
                 const std::vector< boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
@@ -880,13 +890,22 @@ public:
         return singleArcDynamicsSimulators_;
     }
 
+    //! Function to retrieve the current state and end times of the arcs
+    /*!
+     * Function to retrieve the current state and end times of the arcs
+     * \return The current state and end times of the arcs
+     */
     std::vector< std::pair< double, double > > getArcStartAndEndTimes( )
     {
         return arcStartAndEndTimes_;
     }
 
-
-    bool resetIntegratedResult( const bool setIntegratedResult )
+    //! Function to reset whether the integration results are to be used to update the environment
+    /*!
+     * Function to reset whether the integration results are to be used to update the environment
+     * \param setIntegratedResult Boolean denoting  whether the integration results are to be used to update the environment
+     */
+    void resetIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
     }
