@@ -7,12 +7,15 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat
@@ -48,7 +51,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         // Check if body associated with parameter exists.
         std::string currentBodyName = doubleParameterName->parameterType_.second.first;
         boost::shared_ptr< Body > currentBody;
-        if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
+        if( ( currentBodyName != "global_metric" ) && ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Error when creating parameters to estimate, body " +
                     boost::lexical_cast< std::string >( currentBodyName ) +
@@ -56,7 +59,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
                     boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
-        else if( currentBodyName != "" )
+        else if( ( currentBodyName != "" ) && ( currentBodyName != "global_metric" ) )
         {
             currentBody = bodyMap.at( currentBodyName );
         }
@@ -119,6 +122,16 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
                             boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >
                             ( currentBody->getRotationalEphemeris( ) ), currentBodyName );
             }
+            break;
+        }
+        case ppn_parameter_gamma:
+        {
+            doubleParameterToEstimate = boost::make_shared< PPNParameterGamma >( relativity::ppnParameterSet );
+            break;
+        }
+        case ppn_parameter_beta:
+        {
+            doubleParameterToEstimate = boost::make_shared< PPNParameterBeta >( relativity::ppnParameterSet );
             break;
         }
         default:

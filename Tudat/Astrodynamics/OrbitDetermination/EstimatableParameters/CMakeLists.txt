@@ -24,6 +24,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationRate.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationalOrientation.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/ppnParameters.h"
 )
 
 # Add static libraries.

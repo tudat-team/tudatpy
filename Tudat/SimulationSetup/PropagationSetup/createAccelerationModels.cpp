@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
@@ -818,11 +819,15 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
         if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == false &&
                 relativisticAccelerationSettings->calculateDeSitterCorrection_ == false )
         {
+            boost::function< double( ) > ppnGammaFunction = boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
+            boost::function< double( ) > ppnBetaFunction = boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
+
             // Create acceleration model.
             accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
                     ( stateFunctionOfBodyUndergoingAcceleration,
                       stateFunctionOfBodyExertingAcceleration,
-                      centralBodyGravitationalParameterFunction );
+                      centralBodyGravitationalParameterFunction,
+                      ppnGammaFunction, ppnBetaFunction );
 
         }
         else
@@ -873,8 +878,8 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
                           primaryBodyGravitationalParameterFunction,
                           relativisticAccelerationSettings->primaryBody_,
                           angularMomentumFunction,
-                          boost::lambda::constant( 1.0 ),
-                          boost::lambda::constant( 1.0 ),
+                          boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                          boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
                           relativisticAccelerationSettings->calculateSchwarzschildCorrection_ );
             }
             else
@@ -885,8 +890,8 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
                           stateFunctionOfBodyExertingAcceleration,
                           centralBodyGravitationalParameterFunction,
                           angularMomentumFunction,
-                          boost::lambda::constant( 1.0 ),
-                          boost::lambda::constant( 1.0 ),
+                          boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                          boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
                           relativisticAccelerationSettings->calculateSchwarzschildCorrection_ );
             }
         }

@@ -1,5 +1,15 @@
-#ifndef RELATIVISTICACCELERATIONPARTIAL_H
-#define RELATIVISTICACCELERATIONPARTIAL_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
+#define TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -27,13 +37,15 @@ void computePartialOfSchwardschildAccelerationCorrectionWrtGravitationalParamete
         const double gravitationalParameter,
         Eigen::MatrixXd& partial, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
 
-Eigen::Vector3d computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
+void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
         const Eigen::Vector6d relativeState,
-        const double gravitationalParameter );
+        const double gravitationalParameter,
+        Eigen::MatrixXd& partialMatrix );
 
-Eigen::Vector3d computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
+void computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
         const Eigen::Vector6d relativeState,
-        const double gravitationalParameter );
+        const double gravitationalParameter,
+        Eigen::MatrixXd& partialMatrix );
 
 class RelativisticAccelerationPartial: public AccelerationPartial
 {
@@ -169,16 +181,16 @@ public:
     }
 
 
-    Eigen::MatrixXd wrtPpnParameterGamma( )
+    void wrtPpnParameterGamma( Eigen::MatrixXd& partialMatrix )
     {
         return computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterGamma(
-                    currentRelativeState_, centralBodyGravitationalParameterFunction_( ) );
+                    currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
     }
 
-    Eigen::MatrixXd wrtPpnParameterBeta( )
+    void wrtPpnParameterBeta( Eigen::MatrixXd& partialMatrix )
     {
         return computePartialOfSchwardschildAccelerationCorrectionWrtPpnParameterBeta(
-                    currentRelativeState_, centralBodyGravitationalParameterFunction_( ) );
+                    currentRelativeState_, centralBodyGravitationalParameterFunction_( ), partialMatrix );
     }
 
     void update( const double currentTime = TUDAT_NAN );
@@ -211,4 +223,4 @@ private:
 
 }
 
-#endif // RELATIVISTICACCELERATIONPARTIAL_H
+#endif // TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
