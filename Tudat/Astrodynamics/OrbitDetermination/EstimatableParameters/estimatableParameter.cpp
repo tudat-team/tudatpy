@@ -51,6 +51,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case constant_relative_observation_bias:
         parameterDescription = "relative observation bias ";
         break;
+    case ground_station_position:
+        parameterDescription = "ground station position ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 boost::lexical_cast< std::string >( parameterType );
@@ -109,6 +112,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = false;
         break;
     case constant_relative_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case ground_station_position:
         isDoubleParameter = false;
         break;
     default:
