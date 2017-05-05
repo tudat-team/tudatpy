@@ -665,6 +665,10 @@ public:
 
             arcStartAndEndTimes_.resize( arcStartTimes.size( ) );
 
+            if( singleArcSettings.size( ) != arcStartTimes.size( ) )
+            {
+                throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is inconsistent" );
+            }
             // Create dynamics simulators
             for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
             {
