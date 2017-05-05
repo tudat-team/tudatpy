@@ -66,7 +66,7 @@ public:
      *  Reset values (Cartesian x,y,z position) of ground station position
      *  \param parameterValue New values (Cartesian x,y,z position) of ground station position
      */
-    setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( Eigen::VectorXd parameterValue )
     {
         groundStationState_->resetGroundStationPositionAtEpoch( parameterValue );
     }
