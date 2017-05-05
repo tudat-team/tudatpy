@@ -1,4 +1,4 @@
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -20,7 +20,7 @@ namespace tudat
 {
 namespace unit_tests
 {
-//BOOST_AUTO_TEST_SUITE( test_clock_parameter_estimation )
+BOOST_AUTO_TEST_SUITE( test_clock_parameter_estimation )
 
 //Using declarations.
 using namespace tudat::observation_models;
@@ -66,11 +66,11 @@ Eigen::VectorXd  executeParameterEstimation( )
     bodySettings[ "Earth" ]->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
     bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
     bodySettings[ "Mars" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
-                        "ECLIPJ2000", "IAU_Mars",
-                        spice_interface::computeRotationQuaternionBetweenFrames(
-                            "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
-                        initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                        ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+                "ECLIPJ2000", "IAU_Mars",
+                spice_interface::computeRotationQuaternionBetweenFrames(
+                    "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
+                initialEphemerisTime, 2.0 * mathematical_constants::PI /
+                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -85,7 +85,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.push_back( grazStation );
     groundStations.push_back( mslStation );
-   // createGroundStations( bodyMap, groundStations );
+    // createGroundStations( bodyMap, groundStations );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -159,9 +159,9 @@ Eigen::VectorXd  executeParameterEstimation( )
 
     observation_models::ObservationSettingsMap observationSettingsMap;
     observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], boost::make_shared< ObservationSettings >(
-                one_way_range ) ) );
+                                       one_way_range ) ) );
     observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], boost::make_shared< ObservationSettings >(
-                one_way_range ) ) );
+                                       one_way_range ) ) );
 
     // Define integrator settings.
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
@@ -242,7 +242,7 @@ Eigen::VectorXd  executeParameterEstimation( )
         initialParameterEstimate[ 3 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
-    }    
+    }
     for( unsigned int i = numberOfNumericalBodies * integrationArcs.size( ); i < initialParameterEstimate.rows( ); i++ )
     {
         initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
@@ -260,33 +260,30 @@ Eigen::VectorXd  executeParameterEstimation( )
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
 
-}
 
-}
-
-
-//BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
-
-int main( )
+BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
-    Eigen::VectorXd parameterError = tudat::unit_tests::executeParameterEstimation< long double, tudat::Time, long double >( );
+    Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( );
     int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
     std::cout<<parameterError.transpose( )<<std::endl;
-//    for( int i = 0; i < numberOfEstimatedArcs; i++ )
-//    {
-//        for( unsigned int j = 0; j < 3; j++ )
-//        {
-//            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 2.5E-3 );
-//            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 5.0E-9 );
-//        }
-//    }
+    for( int i = 0; i < numberOfEstimatedArcs; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-5 );
+            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-11  );
+        }
+    }
 
-//    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
-//    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-13 );
-//    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-14 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-14 );
 
 }
 
-//BOOST_AUTO_TEST_SUITE_END( )
+BOOST_AUTO_TEST_SUITE_END( )
 
+}
+
+}
