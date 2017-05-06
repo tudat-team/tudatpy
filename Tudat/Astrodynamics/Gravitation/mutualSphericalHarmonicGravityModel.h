@@ -142,7 +142,7 @@ public:
         // to zero to prevent the double computation of the central term. Note that the order of the position functions is
         // switched wrt the regular input, to ensure that the acceleration vector points in the right direction
         // (i.e. from body undergoing to body exerting acceleration).
-        accelerationModelFromShExpansionOfBodyundergoingAcceleration_ = boost::make_shared<
+        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_ = boost::make_shared<
                 SphericalHarmonicsGravitationalAccelerationModel >(
                     positionOfBodyExertingAccelerationFunction, gravitationalParameterFunction,
                     equatorialRadiusOfBodyUndergoingAcceleration,
@@ -161,7 +161,8 @@ public:
     virtual void updateMembers( const double currentTime = TUDAT_NAN )
     {
         accelerationModelFromShExpansionOfBodyExertingAcceleration_->updateMembers( currentTime );
-        accelerationModelFromShExpansionOfBodyundergoingAcceleration_->updateMembers( currentTime );
+        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->updateMembers( currentTime );
+
         this->currentTime_ = currentTime;
     }
 
@@ -175,7 +176,7 @@ public:
         currentTime_ = currentTime;
 
         accelerationModelFromShExpansionOfBodyExertingAcceleration_->resetTime( currentTime );
-        accelerationModelFromShExpansionOfBodyundergoingAcceleration_->resetTime( currentTime );
+        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->resetTime( currentTime );
     }
 
     //! Function to get the mutual sh acceleration value.
@@ -185,7 +186,7 @@ public:
     Eigen::Vector3d getAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyExertingAcceleration_->getAcceleration( ) -
-                accelerationModelFromShExpansionOfBodyundergoingAcceleration_->getAcceleration( );
+                accelerationModelFromShExpansionOfBodyUndergoingAcceleration_->getAcceleration( );
     }
 
     //! Function returning whether the acceleration is expressed in a frame centered on the body exerting the acceleration.
@@ -224,7 +225,7 @@ public:
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
     getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
     {
-        return accelerationModelFromShExpansionOfBodyundergoingAcceleration_;
+        return accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
     }
 
 protected:
@@ -255,7 +256,7 @@ protected:
      *  as this term is only calculated by accelerationModelFromShExpansionOfBodyExertingAcceleration_.
      */
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-    accelerationModelFromShExpansionOfBodyundergoingAcceleration_;
+    accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
 
 
 };

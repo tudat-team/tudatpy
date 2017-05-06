@@ -14,6 +14,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 
@@ -42,6 +44,15 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     {
         accelerationType = third_body_central_gravity;
     }
+    else if( boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( directGravityPartial ) != NULL )
+    {
+        accelerationType = third_body_spherical_harmonic_gravity;
+    }
+    else if( boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >( directGravityPartial ) != NULL )
+    {
+        accelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
+
     else
     {
         throw std::runtime_error( "Error when getting third body partial type, type not identified" );
