@@ -40,7 +40,8 @@ namespace gravitation
  *  coefficients is left untouched, not compromising the environment  model, while the C(0,0) term is not calculated doubly
  *  by the MutualSphericalHarmonicsGravitationalAccelerationModel class.
  */
-Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const boost::function< Eigen::MatrixXd( ) > originalCosineCoefficientFunction );
+Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const boost::function< Eigen::MatrixXd( ) >
+                                                    originalCosineCoefficientFunction );
 
 //! Class to calculate the mutual spherical harmonic gravitational acceleration between two bodies.
 /*!

@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -46,6 +56,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_mutual_sh_acceleration_partials )
 
+//! Retrieve Phobos gravity field
 boost::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
 {
     Eigen::MatrixXd phobosCosineCoefficients = Eigen::MatrixXd::Zero( 20, 20 );
@@ -59,6 +70,7 @@ boost::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
                 7.087546066894452E05, 12.0E3, phobosCosineCoefficients,  Eigen::MatrixXd::Zero( 20, 20 ), "IAU_Phobos" );
 }
 
+//! Retrieve Moon gravity field and use as Mars gravity field (makes no difference for test purposes)
 boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
@@ -71,6 +83,7 @@ boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
               coefficients.first, coefficients.second, "IAU_Moon" );
 }
 
+//! Test whether partials of mutual spherical harmonic acceleration are computed correctly
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 {
     // Load spice kernel.
@@ -85,24 +98,26 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
     bodyList.push_back( "Sun" );
     bodyList.push_back( "Mars" );
 
+    // Run test for inertial and Mars-centered acceleration.
     for( int testCase = 0; testCase < 2; testCase++ )
     {
 
         double initialTime = 1.0E6 - 1.0E5;
 
+        // Retrieve body settings
         std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings(
                     bodyList, 1.0E6 - 1.0E5, 1.0E6 + 1.0E5 );
+        bodySettings[ "Phobos" ] = boost::make_shared< BodySettings >( );
+        bodySettings[ "Phobos" ]->ephemerisSettings = getDefaultEphemerisSettings(
+                    "Phobos" );
+
+        // Update rotation models
         bodySettings[ "Mars" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Mars",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Mars", initialTime ),
                     initialTime, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-
-        bodySettings[ "Phobos" ] = boost::make_shared< BodySettings >( );
-
-        bodySettings[ "Phobos" ]->ephemerisSettings = getDefaultEphemerisSettings(
-                    "Phobos" );
         bodySettings[ "Phobos" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Phobos",
                     spice_interface::computeRotationQuaternionBetweenFrames(
@@ -110,12 +125,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     initialTime, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY / 4.0 ) );
 
-        // Create gravity settings.
+        // Update gravity field settings.
         bodySettings[ "Mars" ]->gravityFieldSettings = getMarsGravityFieldSettings( );
         bodySettings[ "Phobos" ]->gravityFieldSettings = getPhobosGravityFieldSettings( );
 
+        // Create body objects
         NamedBodyMap bodyMap = createBodies( bodySettings );
-
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Create links to set and get state functions of bodies.
         boost::shared_ptr< Body > mars = bodyMap.at( "Mars" );
@@ -128,16 +144,30 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         boost::function< Eigen::Vector6d( ) > phobosStateGetFunction = boost::bind( &Body::getState, phobos );
         phobos->setStateFromEphemeris( 1.0E6 );
 
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
-
         // Calculate and set mars orientation at epoch.
         mars->setCurrentRotationToLocalFrameFromEphemeris( 1.0E6 );
         mars->setStateFromEphemeris( 1.0E6 );
         phobos->setCurrentRotationToLocalFrameFromEphemeris( 1.0E6 );
         phobos->setStateFromEphemeris( 1.0E6 );
 
+        // Define central body
+        std::string centralBody = "";
+        boost::shared_ptr< Body > centralBodyObject;
+        if( testCase == 1 )
+        {
+            centralBody = "Mars";
+            centralBodyObject = mars;
+        }
 
-        // Create Mars gravity field
+        // Create acceleration model.
+        boost::shared_ptr< AccelerationSettings > accelerationSettings =
+                boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0 );
+        boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel =
+                boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
+                    createAccelerationModel( phobos, mars, accelerationSettings, "Phobos", "Mars",
+                                             centralBodyObject, centralBody ) );
+
+        // Retrieve gravity fields
         boost::shared_ptr< SphericalHarmonicsGravityField > marsGravityField =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
                     bodyMap.at( "Mars" )->getGravityFieldModel( ) );
@@ -146,35 +176,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
                     bodyMap.at( "Phobos" )->getGravityFieldModel( ) );
 
-        // Create acceleration model.
-
-        std::string centralBody = "";
-        boost::shared_ptr< Body > centralBodyObject;
-
-        if( testCase == 1 )
-        {
-            centralBody = "Mars";
-            centralBodyObject = mars;
-        }
-
-        boost::shared_ptr< AccelerationSettings > accelerationSettings =
-                boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0 );
-        boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel =
-                boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
-                    createAccelerationModel( phobos, mars, accelerationSettings, "Phobos", "Mars",
-                                             centralBodyObject, centralBody ) );
-
-        mars->setCurrentRotationToLocalFrameFromEphemeris( 1.0E6 );
-        mars->setStateFromEphemeris( 1.0E6 );
-        phobos->setCurrentRotationToLocalFrameFromEphemeris( 1.0E6 );
-        phobos->setStateFromEphemeris( 1.0E6 );
-        bodyMap[ "Sun" ]->setStateFromEphemeris( 1.0E6 );
-
-        // Create parameter objects.
+        // Create gravitational parameter estimation settings.
         boost::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterObject = boost::make_shared<
                 GravitationalParameter >( marsGravityField, "Mars" );
         boost::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterObject = boost::make_shared<
                 GravitationalParameter >( phobosGravityField, "Phobos" );
+
+        // Create rotation parameter estimation settings.
         boost::shared_ptr< EstimatableParameter< double > > marsRotationRate = boost::make_shared<
                 RotationRate >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                     mars->getRotationalEphemeris( ) ), "Mars" );
@@ -188,6 +196,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 ConstantRotationalOrientation >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                                      phobos->getRotationalEphemeris( ) ), "Phobos" );
 
+        // Create Mars gravity field coefficient estimation settings.
         boost::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction =
                 boost::bind( &SphericalHarmonicsGravityField::getSineCoefficients, marsGravityField );
         boost::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction =
@@ -201,12 +210,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 boost::make_shared< SphericalHarmonicsSineCoefficients >(
                     getSineCoefficientsFunction, setSineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 3, 1, 5, 5 ), "Mars" );
-
         boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsCosineCoefficients =
                 boost::make_shared< SphericalHarmonicsCosineCoefficients >(
                     getCosineCoefficientsFunction, setCosineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 3, 0, 5, 5 ), "Mars" );
 
+        // Create Phobos gravity field coefficient estimation settings.
         getSineCoefficientsFunction =
                 boost::bind( &SphericalHarmonicsGravityField::getSineCoefficients, phobosGravityField );
         setSineCoefficientsFunction =
@@ -220,12 +229,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 boost::make_shared< SphericalHarmonicsSineCoefficients >(
                     getSineCoefficientsFunction, setSineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 2, 1, 2, 2 ), "Phobos" );
-
         boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosCosineCoefficients =
                 boost::make_shared< SphericalHarmonicsCosineCoefficients >(
                     getCosineCoefficientsFunction, setCosineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 2, 0, 2, 2 ), "Phobos" );
 
+        // Create parameter objects
         std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameters;
         doubleParameters.push_back( marsGravitationalParameterObject );
         doubleParameters.push_back( phobosGravitationalParameterObject );
@@ -255,6 +264,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         accelerationModel->updateMembers( 1.0E6 );
         accelerationPartial->update( 1.0E6 );
 
+        // Get analytical partials w.r.t. positions and velocities
         Eigen::MatrixXd partialWrtMarsPosition = Eigen::Matrix3d::Zero( );
         accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtMarsPosition.block( 0, 0, 3, 3 ) );
         Eigen::MatrixXd partialWrtMarsVelocity = Eigen::Matrix3d::Zero( );
@@ -264,6 +274,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         Eigen::MatrixXd partialWrtPhobosVelocity = Eigen::Matrix3d::Zero( );
         accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtPhobosVelocity.block( 0, 0, 3, 3 ) );
 
+        // Get analytical partials w.r.t. parameters
         Eigen::Vector3d partialWrtMarsGravitationalParameter = accelerationPartial->wrtParameter(
                     marsGravitationalParameterObject );
         Eigen::Vector3d partialWrtPhobosGravitationalParameter = accelerationPartial->wrtParameter(
@@ -285,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         Eigen::MatrixXd partialWrtPhobosSineCoefficients = accelerationPartial->wrtParameter(
                     phobosSineCoefficients );
 
-        // Declare perturbations in position for numerical partial/
+        // Set perturbations in position and velocity for numerical partial
         Eigen::Vector3d positionPerturbation;
         positionPerturbation<< 100.0, 100.0, 100.0;
         Eigen::Vector3d velocityPerturbation;
@@ -294,19 +305,15 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         // Calculate numerical partials.
         Eigen::Matrix3d testPartialWrtPhobosPosition = calculateAccelerationWrtStatePartials(
                     phobosStateSetFunction, accelerationModel, phobos->getState( ), positionPerturbation, 0 );
-
         Eigen::Matrix3d testPartialWrtPhobosVelocity = calculateAccelerationWrtStatePartials(
                     phobosStateSetFunction, accelerationModel, phobos->getState( ), velocityPerturbation, 3 );
-
         Eigen::Matrix3d testPartialWrtMarsPosition = calculateAccelerationWrtStatePartials(
                     marsStateSetFunction, accelerationModel, mars->getState( ), positionPerturbation, 0 );
-
         Eigen::Matrix3d testPartialWrtMarsVelocity = calculateAccelerationWrtStatePartials(
                     marsStateSetFunction, accelerationModel, mars->getState( ), velocityPerturbation, 3 );
 
         Eigen::Vector3d testPartialWrtMarsGravitationalParameter = calculateAccelerationWrtParameterPartials(
                     marsGravitationalParameterObject, accelerationModel, 1.0E12 );
-
         Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateAccelerationWrtParameterPartials(
                     phobosGravitationalParameterObject, accelerationModel, 1.0E12 );
 
@@ -339,7 +346,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     phobosSineCoefficients, accelerationModel, Eigen::VectorXd::Constant(
                         phobosSineCoefficients->getParameterValue( ).size( ), 1, 1.0 ) );
 
-        // Compare numerical and analytical results.
+        // Compare numerical and analytical partials of position and velocity partials.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsPosition, partialWrtMarsPosition, 1.0e-9 );
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -365,7 +372,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
             }
         }
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter, partialWrtMarsGravitationalParameter, 1.0e-14 );
+        // Compare numerical and analytical partials of gravitational parameters
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter,
+                                           partialWrtMarsGravitationalParameter, 1.0e-14 );
 
         if( testCase == 0 )
         {
@@ -380,16 +389,19 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         }
         else
         {
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosGravitationalParameter, partialWrtPhobosGravitationalParameter, 1.0e-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosGravitationalParameter,
+                                               partialWrtPhobosGravitationalParameter, 1.0e-14 );
 
         }
 
+        // Compare numerical and analytical partials of rotation parameters
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsRotationRate, partialWrtMarsRotationRate, 1.0e-5 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPolePosition, partialWrtMarsPolePosition, 1.0e-5 );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosRotationRate, partialWrtPhobosRotationRate, 1.0e-5 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosPolePosition, partialWrtPhobosPolePosition, 1.0e-5 );
 
+        // Compare numerical and analytical partials of gravity field coefficients
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsSineCoefficients, partialWrtMarsSineCoefficients, 1.0E-10 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsCosineCoefficients, partialWrtMarsCosineCoefficients, 1.0E-10 );
 
