@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 totalGradientCartesianPartial, numericalTotalSphericalGradient, 1.0E-6 );
 }
 
-BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );

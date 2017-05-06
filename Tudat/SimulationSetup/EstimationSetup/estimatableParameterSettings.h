@@ -59,6 +59,23 @@ public:
 
 };
 
+inline std::vector< std::pair< int, int > > getSphericalHarmonicBlockIndices(
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    std::vector< std::pair< int, int > > blockIndices;
+    for( int i = minimumDegree; i <= maximumDegree; i++ )
+    {
+        for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
+        {
+            blockIndices.push_back( std::make_pair( i, j ) );
+        }
+    }
+    return blockIndices;
+}
+
 //! Class for providing settings spherical harmonic coefficient(s) parameter
 class SphericalHarmonicEstimatableParameterSettings: public EstimatableParameterSettings
 {
@@ -110,13 +127,7 @@ public:
             throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
 
-        for( int i = minimumDegree; i <= maximumDegree; i++ )
-        {
-            for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
-            {
-                blockIndices_.push_back( std::make_pair( i, j ) );
-            }
-        }
+        blockIndices_ = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
     }
 
     //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.

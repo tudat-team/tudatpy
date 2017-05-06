@@ -196,7 +196,7 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         if( parameterId.second.first == acceleratingBody_ )
         {
             partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1 );
+                                           this, _1, 0 );
             numberOfColumns = 1;
 
         }
@@ -206,7 +206,7 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
             if( accelerationUsesMutualAttraction_ )
             {
                 partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1 );
+                                               this, _1, 0 );
                 numberOfColumns = 1;
             }
         }
