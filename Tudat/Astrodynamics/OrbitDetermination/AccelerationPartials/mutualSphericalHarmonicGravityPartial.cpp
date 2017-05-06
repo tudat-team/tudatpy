@@ -16,18 +16,21 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > parameterPartial;
 
+    // Check if parameter is gravitational parameter of either
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
+        // Check of acceleration depends on gravitational parameter of given body
         if( parameter->getParameterName( ).second.first == acceleratingBody_ ||
                 ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) )
         {
             parameterPartial = std::make_pair(
-                        boost::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody, this, _1 ), 1 );
+                        boost::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, _1 ), 1 );
         }
         else
         {
@@ -36,17 +39,20 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHar
     }
     else
     {
+        // Get partial functions for constituent partial objects
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
                 accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
                 accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
 
+        // Combine partial functions
         parameterPartial = orbit_determination::createMergedParameterPartialFunction(
                     partialFunctionFromBodyExertingAcceleration, partialFunctionFromBodyUndergoingAcceleration );
     }
     return parameterPartial;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
@@ -59,14 +65,93 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHar
                 partialFunctionFromBodyExertingAcceleration, partialFunctionFromBodyUndergoingAcceleration );
 }
 
-
-void MutualSphericalHarmonicsGravityPartial::update( const double currentTime )
+//! Function to set a dependency of this partial object w.r.t. a given double parameter.
+int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    accelerationPartialOfShExpansionOfBodyExertingAcceleration_->update( currentTime );
-    accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->update( currentTime );
+    int partialSize = 0;
 
-    currentTime_ = currentTime;
+    // Check if parameter is gravitational parameter of either
+    if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
+    {
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction  =
+                getParameterPartialFunction( parameter );
+        partialSize = partialFunction.second;
 
+        if( partialFunction.second > 0 )
+        {
+            parameterDoublePartialFunctions_[ parameter ] = partialFunction.first;
+            isCurrentDoubleParameterPartialSet_[ parameter ] = 0;
+            currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, 1 );
+        }
+    }
+    else
+    {
+        // Get partial function for acceleration from body exerting acceleration
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
+                accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
+        if( partialFunctionFromExertingExpansion.second > 0 )
+        {
+            accelerationPartialOfShExpansionOfBodyExertingAcceleration_->setParameterPartialUpdateFunction( parameter );
+        }
+
+        // Get partial function for acceleration from body undergoing acceleration
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
+                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+        if( partialFunctionFromUndergoingGravity.second > 0 )
+        {
+            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
+        }
+
+        // Update this partial object with new dependencies
+        if( partialFunctionFromUndergoingGravity.second > 0 || partialFunctionFromExertingExpansion.second > 0 )
+        {
+            parameterDoublePartialFunctions_[ parameter ] =
+                    getCombinedCurrentDoubleParameterFunction(
+                        accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
+                        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
+                        parameter, partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second, 1 );
+            isCurrentDoubleParameterPartialSet_[ parameter ] = 0;
+            currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, 1 );
+        }
+        partialSize = std::max( partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second );
+    }
+    return partialSize;
+}
+
+//! Function to set a dependency of this partial object w.r.t. a given vector parameter.
+int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+{
+    // Get partial function for acceleration from body exerting acceleration
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
+            accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
+    if( partialFunctionFromExertingExpansion.second > 0 )
+    {
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->setParameterPartialUpdateFunction( parameter );
+    }
+
+    // Get partial function for acceleration from body undergoing acceleration
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
+            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+    if( partialFunctionFromUndergoingGravity.second > 0 )
+    {
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
+    }
+
+    // Update this partial object with new dependencies
+    if( partialFunctionFromUndergoingGravity.second > 0 || partialFunctionFromExertingExpansion.second > 0 )
+    {
+        parameterVectorPartialFunctions_[ parameter ] =
+                getCombinedCurrentVectorParameterFunction(
+                    accelerationPartialOfShExpansionOfBodyExertingAcceleration_,
+                    accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_,
+                    parameter, partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second, 1 );
+        isCurrentVectorParameterPartialSet_[ parameter ] = 0;
+        currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
+
+    }
+    return std::max( partialFunctionFromExertingExpansion.second, partialFunctionFromUndergoingGravity.second );
 }
 
 }

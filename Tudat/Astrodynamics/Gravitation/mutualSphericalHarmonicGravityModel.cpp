@@ -24,6 +24,8 @@ Eigen::MatrixXd setDegreeAndOrderCoefficientToZero(
     return newCoefficients;
 }
 
+
+
 }
 
 }
