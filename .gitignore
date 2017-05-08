@@ -53,6 +53,11 @@ bin/
 lib/
 
 #
+# Spice Kernel creation tools
+#
+Tudat/External/SpiceInterface/Kernels/KernelMerge/
+
+#
 # Editor related
 #
 *~
