@@ -182,6 +182,27 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     break;
                 case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
                     break;
+                case estimatable_parameters::ground_station_position:
+
+                    // Check if current link end station is same station as that of which position is to be estimated.
+                    if( linkEndIterator->second.second == parameterToEstimate->getParameterName( ).second.second )
+                    {
+                        if( currentBody->getRotationalEphemeris( ) == NULL )
+                        {
+                            throw std::runtime_error(
+                                        "Warning, body's rotation model is not found when making position w.r.t. ground station position position partial" );
+                        }
+                        if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+                        {
+                                std::runtime_error( "Warning, ground station " + linkEndIterator->second.second +
+                                           "not found when making ground station position position partial" );
+                        }
+
+                        // Create partial object.
+                        partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianPartialWrtBodyFixedPosition >(
+                                    currentBody->getRotationalEphemeris( ) );
+                    }
+                    break;
                 default:
                     std::string errorMessage =
                             "Parameter " + boost::lexical_cast< std::string >(

@@ -46,7 +46,8 @@ enum EstimatebleParametersEnum
     constant_additive_observation_bias,
     constant_relative_observation_bias,
     ppn_parameter_gamma,
-    ppn_parameter_beta
+    ppn_parameter_beta,
+    ground_station_position
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -145,7 +146,7 @@ public:
         }
         else
         {
-            parameterDescription += ", parameterName_.second.secon).";
+            parameterDescription += ", " + parameterName_.second.second + ").";
         }
         return parameterDescription;
     }
