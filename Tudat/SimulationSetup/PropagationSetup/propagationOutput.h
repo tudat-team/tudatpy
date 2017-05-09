@@ -719,17 +719,22 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     return std::make_pair( variableFunction, parameterSize );
 }
 
-//! Function to evaluate a set of double and vector-returning functions and concatenate the results.
+//! Function to return a vector containing only one value given by doubleFunction
 /*!
- * Function to evaluate a set of double and vector-returning functions and concatenate the results. Results of double
- * function list are put in return vector first, followed by those in vector function list.
- * \param doubleFunctionList List of functions returning double variables
+ *
+ * \param doubleFunction Function returning the double value
+ * \return The vector containing only one element
+ */
+Eigen::VectorXd getVectorFromDoubleFunction( const boost::function< double( ) >& doubleFunction );
+
+//! Function to evaluate a set of vector-returning functions and concatenate the results.
+/*!
+ * Function to evaluate a set of vector-returning functions and concatenate the results.
  * \param vectorFunctionList List of functions returning vector variables (pairs denote function and return vector size)
  * \param totalSize Total size of concatenated vector (used as input for efficiency.
  * \return Concatenated results from input functions.
  */
-Eigen::VectorXd evaluateListOfFunctions(
-        const std::vector< boost::function< double( ) > >& doubleFunctionList,
+Eigen::VectorXd evaluateListOfVectorFunctions(
         const std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList,
         const int totalSize );
 
@@ -758,54 +763,41 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
     std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables =
             saveSettings->dependentVariables_;
 
-    // create list of double and vector parameters
-    std::vector< boost::function< double( ) > > doubleFunctionList;
+    // create list of vector parameters
     std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
-
-    std::vector< std::string > doubleVariableList;
     std::vector< std::pair< std::string, int > > vectorVariableList;
 
-    for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
+    for( boost::shared_ptr< SingleDependentVariableSaveSettings > variable: dependentVariables )
     {
+        std::pair< boost::function< Eigen::VectorXd( ) >, int > vectorFunction;
         // Create double parameter
-        if( getDependentVariableSize( dependentVariables.at( i )->variableType_ ) == 1 )
+        if( getDependentVariableSize( variable->variableType_ ) == 1 )
         {
-            doubleFunctionList.push_back( getDoubleDependentVariableFunction(
-                                              dependentVariables.at( i ),
-                                              bodyMap, stateDerivativeModels ) );
-            doubleVariableList.push_back( getDependentVariableId(
-                        dependentVariables.at( i ) ) );
+            boost::function< double( ) > doubleFunction =
+                    getDoubleDependentVariableFunction( variable, bodyMap, stateDerivativeModels );
+            vectorFunction = std::make_pair( boost::bind( &getVectorFromDoubleFunction, doubleFunction ), 1 );
         }
         // Create vector parameter
         else
         {
-            vectorFunctionList.push_back( getVectorDependentVariableFunction(
-                                              dependentVariables.at( i ),
-                                              bodyMap, stateDerivativeModels ) );
-            vectorVariableList.push_back( std::make_pair( getDependentVariableId(
-                        dependentVariables.at( i ) ), vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second ) );
+            vectorFunction = getVectorDependentVariableFunction( variable, bodyMap, stateDerivativeModels );
         }
+        vectorFunctionList.push_back( vectorFunction );
+        vectorVariableList.push_back( std::make_pair( getDependentVariableId( variable ), vectorFunction.second ) );
     }
 
     // Set list of variable ids/indices in correc otder.
     int totalVariableSize = 0;
-    std::map< int, std::string > dependentVariableId;
-    for( unsigned int i = 0; i < doubleVariableList.size( ); i++ )
+    std::map< int, std::string > dependentVariableIds;
+    for( std::pair< std::string, int > vectorVariable: vectorVariableList )
     {
-        dependentVariableId[ totalVariableSize ] = doubleVariableList.at( i );
-        totalVariableSize++;
-    }
-
-    for( unsigned int i = 0; i < vectorFunctionList.size( ); i++ )
-    {
-        dependentVariableId[ totalVariableSize ] = vectorVariableList.at( i ).first;
-        totalVariableSize += vectorVariableList.at( i ).second;
+        dependentVariableIds[ totalVariableSize ] = vectorVariable.first;
+        totalVariableSize += vectorVariable.second;
     }
 
     // Create function conatenating function results.
-    return std::make_pair(
-                boost::bind( &evaluateListOfFunctions, doubleFunctionList, vectorFunctionList, totalVariableSize ),
-                dependentVariableId );
+    return std::make_pair( boost::bind( &evaluateListOfVectorFunctions, vectorFunctionList, totalVariableSize ),
+                           dependentVariableIds );
 }
 
 
