@@ -42,26 +42,26 @@ namespace propagators
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
- *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
+ *  \return Event that triggered the termination of the propagation
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-void integrateEquationsFromIntegrator(
+PropagationTerminationReason integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
         const boost::function< bool( const double ) > stopPropagationFunction,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-        PropagationTerminationReason &propagationTerminationReason,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN )
 {
+    PropagationTerminationReason propagationTerminationReason;
 
     // Get Initial state and time.
     TimeType currentTime = integrator->getCurrentIndependentVariable( );
@@ -86,7 +86,7 @@ void integrateEquationsFromIntegrator(
 
     int saveIndex = 0;
 
-    propagationTerminationReason = termination_condition_reached;
+    propagationTerminationReason = unknown_propagation_termination_reason;
     bool breakPropagation = 0;
     // Perform numerical integration steps until end time reached.
     do
@@ -127,6 +127,13 @@ void integrateEquationsFromIntegrator(
                                timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
                 }
             }
+
+            if( stopPropagationFunction( static_cast< double >( currentTime ) ) )
+            {
+                propagationTerminationReason = termination_condition_reached;
+                breakPropagation = true;
+            }
+
         }
         catch( const std::exception &caughtException )
         {
@@ -134,10 +141,12 @@ void integrateEquationsFromIntegrator(
             std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
                        ", returning propagation data up to current time"<<std::endl;
             breakPropagation = 1;
-            propagationTerminationReason = runtime_error_caught;
+            propagationTerminationReason = runtime_error_caught_in_propagation;
         }
     }
     while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
+
+    return propagationTerminationReason;
 }
 
 
@@ -164,20 +173,18 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
-     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \return Event that triggered the termination of the propagation
      */
-    static void integrateEquations(
+    static PropagationTerminationReason integrateEquations(
             boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             std::map< TimeType, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::function< bool( const double ) > stopPropagationFunction,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-            PropagationTerminationReason &propagationTerminationReason,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             const TimeType printInterval = TUDAT_NAN );
@@ -200,20 +207,18 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
-     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \return Event that triggered the termination of the propagation
      */
-    static void integrateEquations(
+    static PropagationTerminationReason integrateEquations(
             boost::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
             std::map< double, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const boost::function< bool( const double ) > stopPropagationFunction,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-            PropagationTerminationReason &propagationTerminationReason,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             const double printInterval = TUDAT_NAN )
@@ -223,9 +228,9 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        integrateEquationsFromIntegrator< StateType, double >(
+        return integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
-                    dependentVariableHistory, propagationTerminationReason,
+                    dependentVariableHistory,
                     dependentVariableFunction,
                     integratorSettings->saveFrequency_, printInterval );
     }
@@ -248,20 +253,18 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
-     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \return Event that triggered the termination of the propagation
      */
-    static void integrateEquations(
+    static PropagationTerminationReason integrateEquations(
             boost::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
             std::map< Time, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
             const boost::function< bool( const double ) > stopPropagationFunction,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
-            PropagationTerminationReason &propagationTerminationReason,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             const Time printInterval = TUDAT_NAN )
@@ -271,9 +274,9 @@ public:
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        integrateEquationsFromIntegrator< StateType, Time, long double >(
+        return integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
-                    dependentVariableHistory, propagationTerminationReason,
+                    dependentVariableHistory,
                     dependentVariableFunction,
                     integratorSettings->saveFrequency_, printInterval );
     }
