@@ -53,6 +53,7 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/mapTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.h"
@@ -74,6 +75,10 @@ add_library(tudat_input_output STATIC ${INPUTOUTPUT_SOURCES} ${INPUTOUTPUT_HEADE
 setup_tudat_library_target(tudat_input_output "${SRCROOT}${INPUTOUTPUTDIR}")
 
 # Add unit tests.
+add_executable(test_MapTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMapTextFileReader.cpp")
+setup_custom_test_program(test_MapTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_MapTextFileReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
 add_executable(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMatrixTextFileReader.cpp")
 setup_custom_test_program(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_MatrixTextFileReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
