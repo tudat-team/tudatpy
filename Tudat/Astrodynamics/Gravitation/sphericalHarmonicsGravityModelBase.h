@@ -151,6 +151,16 @@ public:
         return isMutualAttractionUsed_;
     }
 
+    //! Function to return the current gravitational paramter.
+    /*!
+     *  Function to return the current gravitational paramter. Must be called after updateBaseMembers( ).
+     * \return The value of the current gravitational parameter.
+     */
+    double getCurrentGravitationalParameter( )
+    {
+        return gravitationalParameter;
+    }
+
     //! Function to return current position vector of body exerting gravitational acceleration in inertial frame.
     /*!
      *  Function to return current position vector of body exerting gravitational acceleration in inertial frame.

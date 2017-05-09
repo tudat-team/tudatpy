@@ -15,6 +15,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+
 namespace tudat
 {
 namespace basic_astrodynamics
@@ -64,6 +66,26 @@ double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbit
 {
     return 1.0 / std::fabs( 1.0 / orbitalPeriodBody1 - 1.0 / orbitalPeriodBody2 );
 }
+
+
+//! Compute periapsis altitude from Keplerian state.
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
+                                                   const double centralBodyAverageRadius )
+{
+    using namespace orbital_element_conversions;
+    return state( semiMajorAxisIndex ) * ( 1 - state( eccentricityIndex ) ) - centralBodyAverageRadius;
+}
+
+//! Compute periapsis altitude from Cartesian state.
+double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d state,
+                                                   const double centralBodyGravitationalParameter,
+                                                   const double centralBodyAverageRadius )
+{
+    return computePeriapsisAltitudeFromKeplerianState(
+                orbital_element_conversions::convertCartesianToKeplerianElements(
+                    state, centralBodyGravitationalParameter ), centralBodyAverageRadius );
+}
+
 
 } // namespace basic_astrodynamics
 } // namespace tudat
