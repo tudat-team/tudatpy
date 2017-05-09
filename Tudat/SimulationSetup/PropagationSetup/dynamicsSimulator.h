@@ -392,7 +392,7 @@ protected:
     bool setIntegratedResult_;
 
     //! Event that triggered the termination of the propagation
-    PropagationTerminationReason propagationTerminationReason_;
+    PropagationTerminationReason propagationTerminationReason_ = unknown_reason;
 
 };
 
