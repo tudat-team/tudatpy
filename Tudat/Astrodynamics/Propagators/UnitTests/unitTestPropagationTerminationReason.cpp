@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Create body objects.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-        getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-    bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-    bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -76,12 +76,12 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-        boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-        referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
-        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -89,13 +89,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
     boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-        boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodyMap[ "Asterix" ]->setRadiationPressureInterface(
-        "Sun", createRadiationPressureInterface(
-            asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                "Sun", createRadiationPressureInterface(
+                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
 
     // Finalize body creation.
@@ -115,20 +115,20 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
-                            basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
-                             basic_astrodynamics::aerodynamic ) );
+                                                     basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -140,23 +140,23 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
     asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-        = unit_conversions::convertDegreesToRadians( 235.7 );
+            = unit_conversions::convertDegreesToRadians( 235.7 );
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-        = unit_conversions::convertDegreesToRadians( 23.4 );
+            = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-        asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-        boost::make_shared< TranslationalStatePropagatorSettings< double > >
-        ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-        boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-        bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == unknown_reason );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
@@ -219,11 +219,11 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     // Create body objects.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-        getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-    bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-    bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -239,12 +239,12 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-        boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-        referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
-        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -252,13 +252,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
     boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-        boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodyMap[ "Asterix" ]->setRadiationPressureInterface(
-        "Sun", createRadiationPressureInterface(
-            asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                "Sun", createRadiationPressureInterface(
+                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
 
     // Finalize body creation.
@@ -278,20 +278,20 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
-                            basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
-                             basic_astrodynamics::aerodynamic ) );
+                                                     basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -303,14 +303,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.0;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
     asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-        = unit_conversions::convertDegreesToRadians( 235.7 );
+            = unit_conversions::convertDegreesToRadians( 235.7 );
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-        = unit_conversions::convertDegreesToRadians( 23.4 );
+            = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-        asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
 
     // Termination condition
@@ -334,13 +334,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
             propagators::PropagationHybridTerminationSettings >( constituentSettings, 1 );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-        boost::make_shared< TranslationalStatePropagatorSettings< double > >
-        ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, terminationSettings );
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, terminationSettings );
 
 
     const double fixedStepSize = 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-        boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -349,10 +349,10 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-        bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == unknown_reason );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
 
 //! Test that after a propagation in which an error is caught, the propagation termination reason is
-//! `runtime_error_caught`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
+//! `runtime_error_caught_in_propagation`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
 BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,11 +403,11 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Create body objects.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-        getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
+            getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
     {
-    bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-    bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -423,12 +423,12 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-        boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-        referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
-        createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
 
     // Create radiation pressure settings
     double referenceAreaRadiation = 4.0;
@@ -436,13 +436,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
     boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-        boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-        "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
     bodyMap[ "Asterix" ]->setRadiationPressureInterface(
-        "Sun", createRadiationPressureInterface(
-            asterixRadiationPressureSettings, "Asterix", bodyMap ) );
+                "Sun", createRadiationPressureInterface(
+                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
 
     // Finalize body creation.
@@ -462,20 +462,20 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::central_gravity ) );
+                                                   basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
-                            basic_astrodynamics::central_gravity ) );
+                                                    basic_astrodynamics::central_gravity ) );
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                           basic_astrodynamics::cannon_ball_radiation_pressure ) );
+                                                   basic_astrodynamics::cannon_ball_radiation_pressure ) );
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
-                             basic_astrodynamics::aerodynamic ) );
+                                                     basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
@@ -487,23 +487,23 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.0;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
     asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-        = unit_conversions::convertDegreesToRadians( 235.7 );
+            = unit_conversions::convertDegreesToRadians( 235.7 );
     asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-        = unit_conversions::convertDegreesToRadians( 23.4 );
+            = unit_conversions::convertDegreesToRadians( 23.4 );
     asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
-        asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-        boost::make_shared< TranslationalStatePropagatorSettings< double > >
-        ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
     const double fixedStepSize = 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-        boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, fixedStepSize );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
@@ -512,16 +512,16 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Create simulation object (but do not propagate dynamics).
     SingleArcDynamicsSimulator< > dynamicsSimulator(
-        bodyMap, integratorSettings, propagatorSettings, false, false, false );
+                bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == unknown_reason );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == runtime_error_caught );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
 
 }
 
