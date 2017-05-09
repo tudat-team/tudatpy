@@ -195,34 +195,6 @@ public:
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > listOfPropagatorSettings;
-        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >
-                multiTypePropagatorSettings = boost::dynamic_pointer_cast<
-                MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if ( multiTypePropagatorSettings != NULL )
-        {
-            listOfPropagatorSettings = multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
-        }
-        else
-        {
-            listOfPropagatorSettings = { propagatorSettings };
-        }
-
-        for ( auto propSettings: listOfPropagatorSettings )
-        {
-            boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                    translationalPropagatorSettings = boost::dynamic_pointer_cast<
-                    TranslationalStatePropagatorSettings< StateScalarType > >( propSettings );
-            if ( translationalPropagatorSettings != NULL )
-            {
-                if ( translationalPropagatorSettings->propagator_ == dsst )
-                {
-                    dynamicsStateDerivative_->assessPropagationTerminationConditionDuringIntegrationSubsteps = true;
-                    break;
-                }
-            }
-        }
-
         if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
         {
             std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
@@ -343,12 +315,6 @@ public:
         return propagationTerminationCondition_;
     }
 
-    //! Event that triggered the termination of the propagation
-    PropagationTerminationReason getPropagationTerminationReason()
-    {
-        return propagationTerminationReason_;
-    }
-
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -419,8 +385,6 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 
-    //! Event that triggered the termination of the propagation
-    PropagationTerminationReason propagationTerminationReason_;
 
 };
 
@@ -447,7 +411,6 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::integratedStateProcessors_;
     using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationCondition_;
     using DynamicsSimulator< StateScalarType, TimeType >::dependentVariablesFunctions_;
-    using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationReason_;
 
 
     //! Constructor of simulator.
@@ -497,7 +460,6 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
 
-        propagationTerminationReason_ = unknown_reason;
         equationsOfMotionNumericalSolution_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
@@ -510,10 +472,8 @@ public:
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                  propagationTerminationCondition_, _1 ),
                     dependentVariableHistory_,
-                    propagationTerminationReason_,
                     dependentVariablesFunctions_,
-                    propagatorSettings_->getPrintInterval( ),
-                    dynamicsStateDerivative_->assessPropagationTerminationConditionDuringIntegrationSubsteps );
+                    propagatorSettings_->getPrintInterval( ) );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 
