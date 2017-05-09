@@ -16,6 +16,7 @@
 #include <limits>
 
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -137,6 +138,20 @@ public:
         return stateDerivativeFunction_;
     }
 
+    //! Function to return a boolean indicating whether the propagation should terminate, discarding the last
+    //! integrated state.
+    bool getPropagationTerminationConditionReached( )
+    {
+        return propagationTerminationConditionReached_;
+    }
+
+    //! Setter for the propagation termination function to be evaluated during the intermediate state updates
+    //! performed to compute the quantities necessary to integrate the state to a new epoch.
+    void setPropagationTerminationFunction( boost::function< bool( const double ) > terminationFunction )
+    {
+        propagationTerminationFunction_ = terminationFunction;
+    }
+
 protected:
 
     //! Function that returns the state derivative.
@@ -145,6 +160,15 @@ protected:
      */
     StateDerivativeFunction stateDerivativeFunction_;
 
+    //! Whether the propagation termination condition was reached during the evaluation of one of the sub-steps
+    //! necessary to perform the last integration step.
+    bool propagationTerminationConditionReached_ = false;
+
+    //! Propagation termination function to be evaluated during the intermediate state updates performed to compute
+    //! the quantities necessary to integrate the state to a new epoch.
+    //! By default, this function evaluates always to false, so the propagation termination conditions will not be
+    //! checked during the integration subteps.
+    boost::function< bool( const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.
