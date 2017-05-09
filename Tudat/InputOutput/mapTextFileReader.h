@@ -43,17 +43,17 @@ namespace input_output
 /*!
  * Read a textfile whith separated (space, tab, comma etc...) values.
  * The first element of each line is a key.
- * Successive elements in the current line are the associated values, stored as a vector.
+ * Successive elements in the current line are the associated values, stored as an STL vector.
  * \param relativePath Relative path to file.
  * \param separators Separators used, every character in the string will be used as separators.
  *         (multiple seperators possible).
  * \param skipLinesCharacter Skip lines starting with this character.
- * \return The data map.
+ * \return The map with data as read from the file.
  */
 template< typename KeyType, typename ScalarValueType >
-std::map< KeyType, std::vector< ScalarValueType > > readMapFromFile( const std::string& relativePath,
-                                                               const std::string& separators = "\t ;,",
-                                                               const std::string& skipLinesCharacter = "%" )
+std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
+        const std::string& relativePath,  const std::string& separators = "\t ;,",
+        const std::string& skipLinesCharacter = "%" )
 {
     // Open input and output.
     std::fstream file( relativePath.c_str( ), std::ios::in );
@@ -118,7 +118,7 @@ std::map< KeyType, std::vector< ScalarValueType > > readMapFromFile( const std::
         // Determine the number of columns from.
         std::vector< std::string > lineSplit_;
         boost::algorithm::split( lineSplit_, lines_[ rowIndex ], boost::is_any_of( realSeparators ),
-                boost::algorithm::token_compress_on );
+                                 boost::algorithm::token_compress_on );
 
         // Determine key and put single line entries into vector.
         KeyType key;
