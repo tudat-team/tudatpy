@@ -92,6 +92,18 @@ void integrateEquationsFromIntegrator(
 
             // Perform integration step.
             newState = integrator->performIntegrationStep( timeStep );
+
+            // Check if the termination condition was reached during evaluation of integration sub-steps.
+            // If evaluation of the termination condition during integration sub-steps is disabled,
+            // this function returns always `false`.
+            // If the termination condition was reached, the last step could not be computed correctly because some
+            // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
+            if ( integrator->getPropagationTerminationConditionReached() )
+            {
+                return;
+            }
+
+            // Update epoch and step-size
             currentTime = integrator->getCurrentIndependentVariable( );
             timeStep = integrator->getNextStepSize( );
 
@@ -211,6 +223,11 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
+        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        {
+            integrator->setPropagationTerminationFunction( stopPropagationFunction );
+        }
+
         integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
                     dependentVariableHistory,
@@ -255,6 +272,11 @@ public:
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
+
+        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        {
+            integrator->setPropagationTerminationFunction( stopPropagationFunction );
+        }
 
         integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
