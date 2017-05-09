@@ -525,13 +525,12 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
-            PropagationTerminationReason propagationTerminationReason = unknown_reason;
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                      dynamicsSimulator_->getPropagationTerminationCondition( ), _1 ),
-                        dependentVariableHistory, propagationTerminationReason );
+                        dependentVariableHistory );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution;
             utilities::createVectorBlockMatrixHistory(
@@ -560,14 +559,13 @@ public:
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
-            PropagationTerminationReason propagationTerminationReason = unknown_reason;
 
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                      dynamicsSimulator_->getPropagationTerminationCondition( ), _1 ),
-                        dependentVariableHistory, propagationTerminationReason );
+                        dependentVariableHistory );
 
             setVariationalEquationsSolution< double, double >(
                         rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
