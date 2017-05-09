@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testPeriapsisAltitude )
 
     // Cartesian state
     Eigen::Vector6d cartesianState;
-    cartesianState << -1.37680391533182e4, 1.96258638621682e3, 0.0, -3.07409891380464e4, -1.28521484507207e5, 0.0;
+    cartesianState << -1.376803915331821e4, 1.962586386216818e3, 0.0, -3.074098913804636e4, -1.285214845072070e5, 0.0;
 
     // Body radius
     const double centralBodyRadius = 1000.0;
