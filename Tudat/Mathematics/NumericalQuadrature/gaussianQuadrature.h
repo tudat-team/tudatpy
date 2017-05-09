@@ -35,7 +35,7 @@ namespace numerical_quadrature
 //! Read Gaussian nodes from text file
 template< typename IndependentVariableType >
 static void readGaussianQuadratureNodes(
-        std::map< unsigned int, Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic> >& gaussQuadratureNodes )
+        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureNodes )
 {
    gaussQuadratureNodes =
            utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, double >(
@@ -46,7 +46,7 @@ static void readGaussianQuadratureNodes(
 //! Read Gaussian weight factors from text file
 template< typename IndependentVariableType >
 static void readGaussianQuadratureWeights(
-        std::map< unsigned int, Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic> >& gaussQuadratureWeights )
+        std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureWeights )
 {
     gaussQuadratureWeights = utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, double >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
@@ -82,7 +82,11 @@ public:
                         const IndependentVariableType lowerLimit, const IndependentVariableType upperLimit,
                         const unsigned int numberOfNodes ):
         integrand_ ( integrand ), lowerLimit_( lowerLimit ), upperLimit_ ( upperLimit ),
-        numberOfNodes_( numberOfNodes ), quadratureHasBeenPerformed_( false ){ }
+        numberOfNodes_( numberOfNodes ), quadratureHasBeenPerformed_( false )
+    {
+        readGaussianQuadratureNodes( uniqueNodes_ );
+        readGaussianQuadratureWeights( uniqueWeights_ );
+    }
 
 
     //! Reset the current Gaussian quadrature.
@@ -113,18 +117,22 @@ public:
      */
     DependentVariableType getQuadrature( )
     {
-        if ( ! quadratureHasBeenPerformed_ ) {
-            if ( integrand_.empty() ) {
+        if ( ! quadratureHasBeenPerformed_ )
+        {
+            if ( integrand_.empty() )
+            {
                 throw std::runtime_error(
                             "The integrand for the Gaussian quadrature has not been set." );
             }
 
-            if ( lowerLimit_ > upperLimit_ ) {
+            if ( lowerLimit_ > upperLimit_ )
+            {
                 throw std::runtime_error(
                             "The lower limit for the Gaussian quadrature is larger than the upper limit." );
             }
 
-            if ( numberOfNodes_ < 2 || numberOfNodes_ > 64 ) {
+            if ( numberOfNodes_ < 2 || numberOfNodes_ > 64 )
+            {
                 throw std::runtime_error(
                             "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
             }
@@ -137,26 +145,29 @@ public:
     }
 
 
-    typedef Eigen::Array< DependentVariableType, 1, Eigen::Dynamic > DependentVariableArray;
-    typedef Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic > IndependentVariableArray;
+    typedef Eigen::Array< DependentVariableType, Eigen::Dynamic, 1 > DependentVariableArray;
+    typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
     //! Get all the nodes (i.e. n nodes for nth order) from uniqueNodes_
     IndependentVariableArray getNodes( const unsigned int n )
     {
-        if ( nodes_.count( n ) == 0 ) {
+        if ( nodes_.count( n ) == 0 )
+        {
             IndependentVariableArray newNodes( n );
 
             // Include node 0.0 if n is odd
             unsigned int i = 0;
-            if ( n % 2 == 1 ) {
-                newNodes.col( i++ ) = 0.0;
+            if ( n % 2 == 1 )
+            {
+                newNodes.row( i++ ) = 0.0;
             }
 
             // Include ± nodes
             IndependentVariableArray uniqueNodes_ = getUniqueNodes( n );
-            for ( unsigned int j = 0; j < uniqueNodes_.size(); j++ ) {
-                newNodes.col( i++ ) = -uniqueNodes_[ j ];
-                newNodes.col( i++ ) =  uniqueNodes_[ j ];
+            for ( unsigned int j = 0; j < uniqueNodes_.size(); j++ )
+            {
+                newNodes.row( i++ ) = -uniqueNodes_[ j ];
+                newNodes.row( i++ ) =  uniqueNodes_[ j ];
             }
 
             nodes_[ n ] = newNodes;
@@ -168,22 +179,24 @@ public:
     //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights_
     IndependentVariableArray getWeights( const unsigned int n )
     {
-        if ( weights_.count( n ) == 0 ) {
+        if ( weights_.count( n ) == 0 )
+        {
             IndependentVariableArray newWeights( n );
 
-            IndependentVariableArray uniqueWeights_ = getUniqueWeights( n );
-
+            IndependentVariableArray orderNWeights = getUniqueWeights( n );
             // Include non-repeated weight factor if n is odd
             unsigned int i = 0;
             unsigned int j = 0;
-            if ( n % 2 == 1 ) {
-                newWeights.col( i++ ) = uniqueWeights_[ j++ ];
+            if ( n % 2 == 1 )
+            {
+                newWeights.row( i++ ) = orderNWeights[ j++ ];
             }
 
             // Include repeated weight factors
-            for ( ; j < uniqueWeights_.size(); j++ ) {
-                newWeights.col( i++ ) = uniqueWeights_[ j ];
-                newWeights.col( i++ ) = uniqueWeights_[ j ];
+            for ( ; j < orderNWeights.size( ); j++ )
+            {
+                newWeights.row( i++ ) = orderNWeights[ j ];
+                newWeights.row( i++ ) = orderNWeights[ j ];
             }
 
             weights_[ n ] = newWeights;
@@ -214,11 +227,12 @@ protected:
 
         // Determine the value of the dependent variable
         DependentVariableArray weighedIntegrands( numberOfNodes_ );
-        for ( unsigned int i = 0; i < numberOfNodes_; i++ ) {
+        for ( unsigned int i = 0; i < numberOfNodes_; i++ )
+        {
             weighedIntegrands( i ) = weights( i ) * integrand_( independentVariables( i ) );
         }
 
-        quadratureResult_ = 0.5 * ( upperLimit_ - lowerLimit_ ) * weighedIntegrands.sum();
+        quadratureResult_ = 0.5 * ( upperLimit_ - lowerLimit_ ) * weighedIntegrands.sum( );
     }
 
 
@@ -242,16 +256,16 @@ private:
     boost::function< DependentVariableType( IndependentVariableType ) > integrand_;
 
     //! Lower limit for the integral.
-    IndependentVariableType lowerLimit_ = 0;
+    IndependentVariableType lowerLimit_;
 
     //! Upper limit for the integral.
-    IndependentVariableType upperLimit_ = 0;
+    IndependentVariableType upperLimit_;
 
     //! Number of nodes.
-    unsigned int numberOfNodes_ = 0;
+    unsigned int numberOfNodes_;
 
     //! Whether quadratureResult has been set for the current integrand, lowerLimit, upperLimit and numberOfNodes.
-    bool quadratureHasBeenPerformed_ = false;
+    bool quadratureHasBeenPerformed_;
 
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult_;
@@ -265,8 +279,9 @@ private:
     {
         if ( uniqueNodes_.count( n ) == 0 )
         {
-            // Reads all the nodes from n=2 to n=64
-            readGaussianQuadratureNodes( uniqueNodes_ );
+            std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" +
+                    boost::lexical_cast< std::string >( n );
+            throw std::runtime_error( errorMessage );
         }
         return uniqueNodes_.at( n );
     }
@@ -280,8 +295,9 @@ private:
     {
         if ( uniqueWeights_.count( n ) == 0 )
         {
-            // this Reas all the weights from n=2 to n=64
-            readGaussianQuadratureWeights( uniqueWeights_ );
+            std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" +
+                    boost::lexical_cast< std::string >( n );
+            throw std::runtime_error( errorMessage );
         }
         return uniqueWeights_.at( n );
     }
