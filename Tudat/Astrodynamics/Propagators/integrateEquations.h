@@ -144,7 +144,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             propagationTerminationReason = runtime_error_caught_in_propagation;
         }
     }
-    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
+    while( !breakPropagation );
 
     return propagationTerminationReason;
 }
