@@ -166,7 +166,7 @@ public:
             const bool setIntegratedResult = true ):
         bodyMap_( bodyMap ), integratorSettings_( integratorSettings ),
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
-        setIntegratedResult_( setIntegratedResult )
+        setIntegratedResult_( setIntegratedResult ), propagationTerminationReason_( propagation_never_run )
     {
         if( propagatorSettings == NULL )
         {
@@ -310,9 +310,24 @@ public:
         return bodyMap_;
     }
 
+    //! Function to retrieve the Object defining when the propagation is to be terminated.
+    /*!
+     * Function to retrieve the Object defining when the propagation is to be terminated.
+     * \return Object defining when the propagation is to be terminated.
+     */
     boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
     {
         return propagationTerminationCondition_;
+    }
+
+    //! Function to retrieve the event that triggered the termination of the last propagation
+    /*!
+     * Function to retrieve the event that triggered the termination of the last propagation
+     * \return Event that triggered the termination of the last propagation
+     */
+    PropagationTerminationReason getPropagationTerminationReason()
+    {
+        return propagationTerminationReason_;
     }
 
 protected:
@@ -385,6 +400,8 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 
+    //! Event that triggered the termination of the propagation
+    PropagationTerminationReason propagationTerminationReason_;
 
 };
 
@@ -411,6 +428,7 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::integratedStateProcessors_;
     using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationCondition_;
     using DynamicsSimulator< StateScalarType, TimeType >::dependentVariablesFunctions_;
+    using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationReason_;
 
 
     //! Constructor of simulator.
@@ -460,12 +478,14 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
 
+        propagationTerminationReason_ = unknown_propagation_termination_reason;
         equationsOfMotionNumericalSolution_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
         // Integrate equations of motion numerically.
-        EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
+        propagationTerminationReason_ =
+                EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_,

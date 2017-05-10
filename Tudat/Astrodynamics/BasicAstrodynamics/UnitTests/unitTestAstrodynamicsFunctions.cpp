@@ -164,6 +164,43 @@ BOOST_AUTO_TEST_CASE( testSynodicPeriod )
                                 std::numeric_limits< double >::epsilon( ) );
 }
 
+//! Test if the periapsis altitude is computed correctly.
+BOOST_AUTO_TEST_CASE( testPeriapsisAltitude )
+{
+    // Keplerian state
+    Eigen::Vector6d keplerianState;
+    keplerianState << 10000.0, 0.4, 0.0, 0.0, 0.0, 3.0;
+
+    // Cartesian state, equivalent to keplerianState
+    Eigen::Vector6d cartesianState;
+    cartesianState << -1.376803915331821e4, 1.962586386216818e3, 0.0, -3.074098913804636e4, -1.285214845072070e5, 0.0;
+
+    // Body radius
+    const double centralBodyRadius = 1000.0;
+
+    // Body gravitational parameter
+    const double centralBodyGravitationalParameter = 3.9860044189e14;
+
+    // Declare and set expected periapsis altitude.
+    const double expectedPeriapsisAltitude = 5000.0;
+
+    // Compute periapsis altitude from Keplerian state.
+    const double periapsisAltitudeFromKeplerian = basic_astrodynamics::computePeriapsisAltitudeFromKeplerianState(
+                keplerianState, centralBodyRadius );
+
+    // Compute periapsis altitude from Cartesian state.
+    const double periapsisAltitudeFromCartesian = basic_astrodynamics::computePeriapsisAltitudeFromCartesianState(
+                cartesianState, centralBodyGravitationalParameter, centralBodyRadius );
+
+    // Check if computed periapsis altitude from Keplerian is right.
+    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromKeplerian, expectedPeriapsisAltitude,
+                                std::numeric_limits< double >::epsilon( ) );
+
+    // Check if computed periapsis altitude from Cartesian is right.
+    BOOST_CHECK_CLOSE_FRACTION( periapsisAltitudeFromCartesian, expectedPeriapsisAltitude,
+                                std::numeric_limits< double >::epsilon( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
