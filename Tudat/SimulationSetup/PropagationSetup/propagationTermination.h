@@ -22,6 +22,15 @@ namespace tudat
 namespace propagators
 {
 
+//! Possible events that can trigger the termination of a propagation
+enum PropagationTerminationReason
+{
+    propagation_never_run,
+    unknown_propagation_termination_reason,
+    termination_condition_reached,
+    runtime_error_caught_in_propagation
+};
+
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
 /*!
  *  Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived
