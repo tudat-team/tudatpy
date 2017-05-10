@@ -83,7 +83,7 @@ OutputType evaluateBivariateFunction(
  */
 template< typename OutputType, typename FirstInputType, typename SecondInputType, typename ThirdInputType >
 OutputType evaluateTrivariateFunction(
-        const boost::function< OutputType( const FirstInputType, const SecondInputType, const ThirdInputType ) >
+        const boost::function< OutputType( const FirstInputType&, const SecondInputType, const ThirdInputType ) >
         functionToEvaluate,
         const boost::function< FirstInputType( ) > firstInput,
         const boost::function< SecondInputType( ) > secondInput,
@@ -491,7 +491,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case periapsis_altitude_dependent_variable:
     {
         using namespace Eigen;
-        boost::function< double( const Vector6d, const double, const double ) > functionToEvaluate =
+        boost::function< double( const Vector6d&, const double, const double ) > functionToEvaluate =
                 boost::bind( &basic_astrodynamics::computePeriapsisAltitudeFromCartesianState, _1, _2, _3 );
 
         // Retrieve function for propagated body's Cartesian state in the global reference frame.

@@ -94,26 +94,26 @@ double computeKeplerEnergy( const double semiMajorAxis,
 double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbitalPeriodBody2 );
 
 
-//! Compute periapsis altitude from Keplerian state.
+//! Compute periapsis altitude from Keplerian state for spherical central body.
 /*!
- * Compute periapsis altitude from Keplerian state.
+ * Compute periapsis altitude from Keplerian state for spherical central body.
  * \param state Keplerian state of the propagated body.
- * \param centralBodyAverageRadius Average radius of the central body.
- * \return The distance from the propagated body to the central body's surface at periapsis.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at periapsis.
  */
-double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
-                                                   const double centralBodyAverageRadius );
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyRadius );
 
-//! Compute periapsis altitude from Cartesian state.
+//! Compute periapsis altitude from Cartesian state for spherical central body.
 /*!
- * Compute periapsis altitude from Cartesian state.
+ * Compute periapsis altitude from Cartesian state for spherical central body.
  * \param state Cartesian state of the propagated body.
- * \param centralBodyAverageRadius Average radius of the central body.
- * \return The distance from the propagated body to the central body's surface at periapsis.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at periapsis.
  */
-double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d state,
+double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
                                                    const double centralBodyGravitationalParameter,
-                                                   const double centralBodyAverageRadius );
+                                                   const double centralBodyRadius );
 
 
 } // namespace basic_astrodynamics
