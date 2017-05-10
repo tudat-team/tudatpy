@@ -68,22 +68,22 @@ double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbit
 }
 
 
-//! Compute periapsis altitude from Keplerian state.
-double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
-                                                   const double centralBodyAverageRadius )
+//! Compute periapsis altitude from Keplerian state for spherical central body.
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyRadius )
 {
-    using namespace orbital_element_conversions;
-    return state( semiMajorAxisIndex ) * ( 1 - state( eccentricityIndex ) ) - centralBodyAverageRadius;
+    return state( orbital_element_conversions::semiMajorAxisIndex ) *
+            ( 1.0 - state( orbital_element_conversions::eccentricityIndex ) ) - centralBodyRadius;
 }
 
-//! Compute periapsis altitude from Cartesian state.
-double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d state,
+//! Compute periapsis altitude from Cartesian state for spherical central body.
+double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
                                                    const double centralBodyGravitationalParameter,
-                                                   const double centralBodyAverageRadius )
+                                                   const double centralBodyRadius )
 {
     return computePeriapsisAltitudeFromKeplerianState(
                 orbital_element_conversions::convertCartesianToKeplerianElements(
-                    state, centralBodyGravitationalParameter ), centralBodyAverageRadius );
+                    state, centralBodyGravitationalParameter ), centralBodyRadius );
 }
 
 

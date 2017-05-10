@@ -171,14 +171,14 @@ BOOST_AUTO_TEST_CASE( testPeriapsisAltitude )
     Eigen::Vector6d keplerianState;
     keplerianState << 10000.0, 0.4, 0.0, 0.0, 0.0, 3.0;
 
-    // Cartesian state
+    // Cartesian state, equivalent to keplerianState
     Eigen::Vector6d cartesianState;
     cartesianState << -1.376803915331821e4, 1.962586386216818e3, 0.0, -3.074098913804636e4, -1.285214845072070e5, 0.0;
 
     // Body radius
     const double centralBodyRadius = 1000.0;
 
-    // Body µ
+    // Body gravitational parameter
     const double centralBodyGravitationalParameter = 3.9860044189e14;
 
     // Declare and set expected periapsis altitude.
