@@ -115,26 +115,39 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
 
 #if USE_NRLMSISE00
-    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings =
-            boost::make_shared< AtmosphereSettings >( nrlmsise00 );
-    boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
-            createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
+    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
+    for( int atmosphereTest = 0; atmosphereTest < 2; atmosphereTest++ )
+    {
+        if( atmosphereTest == 0 )
+        {
+        nrlmsise00AtmosphereSettings =
+                boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+        }
+        else
+        {
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< NRLMSISE00AtmosphereSettings >(
+                        input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt" );
+        }
+        boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
+                createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
 
-    // Compute properties using NRLMSISE00
-    double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
-            basic_astrodynamics::JULIAN_DAY_ON_J2000;
-    nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
+        // Compute properties using NRLMSISE00
+        double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
+                basic_astrodynamics::JULIAN_DAY_ON_J2000;
+        nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
 
-    // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
-    aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
-                nrlmsiseAtmosphere )->getNRLMSISE00Input( );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
+        // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
+        aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+                    nrlmsiseAtmosphere )->getNRLMSISE00Input( );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
 
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+    }
 #endif
 }
 

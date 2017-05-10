@@ -135,6 +135,38 @@ private:
     double specificGasConstant_;
 };
 
+
+//! AtmosphereSettings for defining an NRLMSISE00 atmosphere reading space weather data from a text file.
+class NRLMSISE00AtmosphereSettings: public AtmosphereSettings
+{
+public:
+
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param spaceWeatherFile File containing space weather data, as in
+     *  https://celestrak.com/SpaceData/sw19571001.txt
+     */
+    NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile ):
+        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ){ }
+
+    //! Function to return file containing space weather data.
+    /*!
+     *  Function to return file containing space weather data.
+     *  \return Filename containing space weather data.
+     */
+    std::string getSpaceWeatherFile( ){ return spaceWeatherFile_; }
+
+private:
+
+    //! File containing space weather data.
+    /*!
+     *  File containing space weather data, as in https://celestrak.com/SpaceData/sw19571001.txt
+     */
+    std::string spaceWeatherFile_;
+};
+
+
 //! AtmosphereSettings for defining an atmosphere with tabulated data from file.
 class TabulatedAtmosphereSettings: public AtmosphereSettings
 {
