@@ -140,12 +140,12 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *  time steps, with n = saveFrequency).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control
-     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
      */
     RungeKuttaVariableStepSizeSettings(
             const AvailableIntegrators integratorType,
@@ -156,10 +156,10 @@ public:
             const TimeType relativeErrorTolerance = 1.0E-12,
             const TimeType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
             const TimeType safetyFactorForNextStepSize = 0.8,
             const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeType minimumFactorDecreaseForNextStepSize = 0.1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false ):
+            const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
         IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency,
                                         assessPropagationTerminationConditionDuringIntegrationSubsteps ),
         coefficientSet_( coefficientSet ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
