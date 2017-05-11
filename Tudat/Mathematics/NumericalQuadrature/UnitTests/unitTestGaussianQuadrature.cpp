@@ -27,16 +27,126 @@ namespace unit_tests
 
 // Functions to be tested
 
-double sinFunction( const double x ) {
+double sinFunction( const double x )
+{
     return std::sin( x );
 }
 
-double expFunction( const double x ) {
+double expFunction( const double x )
+{
     return std::exp( x );
 }
 
-double polyFunction( const double x ) {
+double polyFunction( const double x )
+{
     return std::pow( x, 9 ) + 2 * std::pow( x, 7 ) - std::pow( x, 4 ) + 8 * std::pow( x, 2 ) - 11;
+}
+
+
+// Even-order derivatives for error assessment
+
+double minSinFunction( const double x )
+{
+    return -std::sin( x );
+}
+
+boost::function< double( const double ) > dSinFunction( unsigned int n )
+{
+    if ( n % 2 == 0 )
+    {
+        if ( n % 4 == 0 )
+        {
+            return sinFunction;
+        }
+        else
+        {
+            return minSinFunction;
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Unknown derivative" );
+    }
+}
+
+boost::function< double( const double ) > dExpFunction( unsigned int n )
+{
+    return expFunction;
+}
+
+double d4PolyFunction( const double x )
+{
+    return 24 * ( 126 * std::pow( x, 5 ) + 70 * std::pow( x, 3 ) - 1 );
+}
+
+double d6PolyFunction( const double x )
+{
+    return 10080 * ( 6 * std::pow( x, 3 ) + x );
+}
+
+double d8PolyFunction( const double x )
+{
+    return 362800 * x;
+}
+
+boost::function< double( const double ) > dPolyFunction( unsigned int n )
+{
+    switch( n )
+    {
+    case 4: return d4PolyFunction;
+    case 6: return d6PolyFunction;
+    case 8: return d8PolyFunction;
+    default: throw std::runtime_error( "Unknown derivative" );
+    }
+}
+
+
+// Factorial
+unsigned int factorial( const unsigned int x )
+{
+    if ( x > 0 )
+    {
+        return x * factorial( x - 1 );
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+// Error function for Gaussian quadrature [ from https://en.wikipedia.org/wiki/Gaussian_quadrature#Error_estimates ]
+double gaussianQuadratureError( const unsigned int n, boost::function< double( const double ) > derivative2nth,
+                                const double abscissa, const double lowerLimit, const double upperLimit )
+{
+    return std::pow( upperLimit - lowerLimit, 2 * n + 1 ) * std::pow( factorial( n ), 4 )
+            / double( ( 2 * n + 1 ) * std::pow( factorial( 2 * n ), 3 ) ) * derivative2nth( abscissa );
+}
+
+// Check error is within bounds and decreasing for increasing number of nodes.
+// Number of nodes ranges from minOrder to maxOrder (both included).
+// It must hold that lowerLimit ≤ abscissa ≤ upperLimit.
+// The derivative is a function taking as input an `int n` (the nth derivative) that returns a function taking as input
+// a `double x` (the absicssa at which it will be evaluated).
+void checkErrorWithinBounds( const unsigned int minOrder, const unsigned int maxOrder,
+                             boost::function< double( const double ) > function,
+                             const double lowerLimit, const double upperLimit,
+                             boost::function< boost::function< double( const double ) >( const unsigned int ) > derivative,
+                             const double abscissa, const double expectedSolution )
+{
+    double obtainedError;
+    double errorBound;
+    for ( unsigned int n = minOrder; n <= maxOrder; n++ )
+    {
+        const double previousObtainedError = obtainedError;
+        numerical_quadrature::GaussianQuadrature< double, double > integrator( function, lowerLimit, upperLimit, n );
+        obtainedError = std::fabs( expectedSolution - integrator.getQuadrature() );
+        errorBound = std::fabs( gaussianQuadratureError( n, derivative( 2 * n ), abscissa, lowerLimit, upperLimit ) );
+        BOOST_CHECK( obtainedError < errorBound );
+        if ( n > minOrder )
+        {
+            BOOST_CHECK( obtainedError < previousObtainedError );
+        }
+    }
 }
 
 
@@ -48,14 +158,19 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
     using namespace mathematical_constants;
     using namespace numerical_quadrature;
 
-    const unsigned int steps = 8;
-    GaussianQuadrature< double, double > integrator( sinFunction, 0, PI, steps );
+    const unsigned int order = 8;
+    const double lowerLimit = 0.0;
+    const double upperLimit = PI;
+    GaussianQuadrature< double, double > integrator( sinFunction, lowerLimit, upperLimit, order );
 
-    const double expectedIntegral = 2.0;
-    const double computedIntegral = integrator.getQuadrature();
+    const double expectedSolution = 2.0;
+    const double computedSolution = integrator.getQuadrature();
 
-    // Check if computed sample mean matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( computedIntegral, expectedIntegral, 1E-10 );
+    // Check if computed solution matches expected value for a high order (8).
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
+
+    // Check if error is within bounds for order 2...4
+    checkErrorWithinBounds( 2, 4, sinFunction, lowerLimit, upperLimit, dSinFunction, PI / 2, expectedSolution );
 }
 
 
@@ -65,14 +180,19 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
     using namespace mathematical_constants;
     using namespace numerical_quadrature;
 
-    const unsigned int steps = 7;
-    GaussianQuadrature< double, double > integrator( expFunction, -2, 2, steps );
+    const unsigned int order = 7;
+    const double lowerLimit = -2.0;
+    const double upperLimit = 2.0;
+    GaussianQuadrature< double, double > integrator( expFunction, lowerLimit, upperLimit, order );
 
-    const double expectedIntegral = 7.25372081569404;
-    const double computedIntegral = integrator.getQuadrature();
+    const double expectedSolution = 7.25372081569404;
+    const double computedSolution = integrator.getQuadrature();
 
-    // Check if computed sample mean matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( computedIntegral, expectedIntegral, 1E-10 );
+    // Check if computed solution matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
+
+    // Check if error is within bounds for order 2...6
+    checkErrorWithinBounds( 2, 6, expFunction, lowerLimit, upperLimit, dExpFunction, 1.0, expectedSolution );
 }
 
 
@@ -83,14 +203,19 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
     using namespace numerical_quadrature;
 
     // A polynomial of order 2*steps - 1 is computed exactly. Order of tested polynomial is 9, thus steps = 5.
-    const unsigned int steps = 5;
-    GaussianQuadrature< double, double > integrator( polyFunction, -2, 4, steps );
+    const unsigned int order = 5;
+    const double lowerLimit = -2.0;
+    const double upperLimit = 4.0;
+    GaussianQuadrature< double, double > integrator( polyFunction, lowerLimit, upperLimit, order );
 
-    const double expectedIntegral = 120990;
-    const double computedIntegral = integrator.getQuadrature();
+    const double expectedSolution = 120990;
+    const double computedSolution = integrator.getQuadrature();
 
-    // Check if computed sample mean matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( computedIntegral, expectedIntegral, 1E-12 );
+    // Check if computed solution matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
+
+    // Check if error is within bounds for order 2...4
+    checkErrorWithinBounds( 2, 4, polyFunction, lowerLimit, upperLimit, dPolyFunction, 2.0, expectedSolution );
 }
 
 
