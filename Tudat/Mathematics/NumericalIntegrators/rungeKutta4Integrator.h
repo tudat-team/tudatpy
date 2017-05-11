@@ -12,8 +12,6 @@
 #ifndef TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 
-#include <vector>
-
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -107,8 +105,6 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
-        using namespace Eigen;
-
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
 
@@ -147,7 +143,7 @@ public:
             if ( this->propagationTerminationFunction_( static_cast< double >( time ) ) )
             {
                 this->propagationTerminationConditionReached_ = true;
-                return this->currentState_;
+                return currentState_;
             }
         }
 
