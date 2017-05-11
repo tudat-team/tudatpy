@@ -62,8 +62,8 @@ struct GaussQuadratureNodesAndWeights
 
     GaussQuadratureNodesAndWeights( )
     {
-        readGaussianQuadratureNodes( uniqueNodes_ );
-        readGaussianQuadratureWeights( uniqueWeights_ );
+        readGaussianQuadratureNodes< IndependentVariableType >( uniqueNodes_ );
+        readGaussianQuadratureWeights< IndependentVariableType >( uniqueWeights_ );
     }
 
     //! Get the unique nodes for a specified order `n`.
