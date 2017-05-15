@@ -165,13 +165,13 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Compute numerical partial derivative of light time.
         double timePerturbation = 100.0;
-        double upPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 0 ) + timePerturbation, false );
-        double downPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 0 ) - timePerturbation, false );
+        double upPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
+        double downPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
 
-        double lightTimeSensitivity = ( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
+        double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
 
         // Test numerical derivative against Doppler observable
-        BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity  - dopplerObservable ), 1.0E-14 );
+        BOOST_CHECK_SMALL( std::fabs( lightTimeSensitivity - dopplerObservable ), 1.0E-14 );
     }
 
     // Test observation biases
@@ -236,8 +236,32 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                     observationTime, receiver ).x( );
         double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
                     observationTime, receiver ).x( );
-        std::cout<<std::setprecision( 16 )<<
-                   observationWithoutCorrections<<std::endl<<observationWithCorrections<<std::endl;
+
+        boost::shared_ptr< RotationalEphemeris > earthRotationModel =
+                bodyMap.at( "Earth" )->getRotationalEphemeris( );
+        Eigen::Vector3d groundStationVelocityVector =
+                earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
+                ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
+
+        boost::shared_ptr< Ephemeris > spacecraftEphemeris =
+                bodyMap.at( "Spacecraft" )->getEphemeris( );
+        Eigen::Vector6d spacecraftState =
+                spacecraftEphemeris->getCartesianState( observationTime );
+
+        double spacecraftProperTimeRate = 1.0 - physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
+                  earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) );
+        double groundStationProperTimeRate = 1.0 - physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
+                  earthGravitationalParameter / stationCartesianPosition.norm( ) );
+
+        std::cout<<"Manual: "<<spacecraftProperTimeRate - 1.0 <<" "<<groundStationProperTimeRate - 1.0<<std::endl;
+
+        long double manualDopplerValue =
+                static_cast< long double >( groundStationProperTimeRate ) *
+                ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) /
+                static_cast< long double >( spacecraftProperTimeRate ) - 1.0L;
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ), 1.0E-16 );
 
     }
 }
