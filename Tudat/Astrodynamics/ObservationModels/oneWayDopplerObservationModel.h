@@ -114,14 +114,31 @@ ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
     ObservationScalarType currentTaylorSeries = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
     for( int i = 0; i < taylorSeriesOrder; i++ )
     {
-        currentTaylorSeriesTerm *= receiverTerm;
+        currentTaylorSeriesTerm *= transmitterTerm;
         currentTaylorSeries += currentTaylorSeriesTerm;
     }
 
     // Compute Doppler term
-    return -transmitterTerm + currentTaylorSeries *
-            ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) - transmitterTerm );
+    return -receiverTerm + currentTaylorSeries *
+            ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) - receiverTerm );
+}
 
+template< typename ObservationScalarType = double >
+ObservationScalarType computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
+        const ObservationScalarType transmitterProperTimeRateDifference,
+        const ObservationScalarType receiverProperTimeRateDifference,
+        const int taylorSeriesOrder )
+{
+    ObservationScalarType currentTaylorSeriesTerm = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+    ObservationScalarType currentTaylorSeries = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+    for( int i = 0; i < taylorSeriesOrder; i++ )
+    {
+        currentTaylorSeriesTerm *= -receiverProperTimeRateDifference;
+        currentTaylorSeries += currentTaylorSeriesTerm;
+    }
+
+    return ( currentTaylorSeries + transmitterProperTimeRateDifference  ) +
+            transmitterProperTimeRateDifference * currentTaylorSeries;
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -160,7 +177,6 @@ public:
     {
         if( linkEndTimes.size( ) != 2 || linkEndStates.size( ) != 2 )
         {
-            std::cout<<linkEndTimes.size( )<<" "<<linkEndStates.size( )<<std::endl;
             throw std::runtime_error( "Error when getting custom proper time rate for Doppler data, inconsistent input" );
         }
 
@@ -232,7 +248,9 @@ public:
 
         double centralBodyGravitationalParameter = gravitationalParameterFunction_( );
 
-        std::cout<<"Computing rate "<<computationPointRelativeState.transpose( )<<" "<<centralBodyGravitationalParameter<<std::endl;
+        std::cout<<"Computing rate "<<computationPointRelativeState.transpose( )<<" "<<centralBodyGravitationalParameter<<" "<<
+                   relativity::calculateFirstCentralBodyProperTimeRateDifference(
+                                       computationPointRelativeState, centralBodyGravitationalParameter )<<std::endl;
 
 
         return relativity::calculateFirstCentralBodyProperTimeRateDifference(
@@ -413,25 +431,22 @@ public:
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
 
-        std::cout<<"Rates: "<<transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                       linkEndTimes, linkEndStates, linkEndAssociatedWithTime )<<std::endl<<
-                   receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                                          linkEndTimes, linkEndStates, linkEndAssociatedWithTime )<<std::endl;
+        ObservationScalarType properTimeCorrectionTerm =
+                computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
+                    transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                                           linkEndTimes, linkEndStates, linkEndAssociatedWithTime ),
+                    receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                                           linkEndTimes, linkEndStates, linkEndAssociatedWithTime ), 3 );
 
         // Compute and return one-way Doppler observable
         ObservationScalarType firstOrderDopplerObservable =
                 computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
                 ObservationScalarType >( transmitterState_, receiverState_, taylorSeriesExpansionOrder_ );
 
-        ObservationScalarType transmitterProperTimeRateDifference =
-                transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                                       linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
-        ObservationScalarType receiverProperTimeRateDifference =
-                receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                    linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
 
-        ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable + transmitterProperTimeRateDifference +
-                receiverProperTimeRateDifference;
+        ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
+                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +
+                properTimeCorrectionTerm;
 
         return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << totalDopplerObservable ).finished( );
 
