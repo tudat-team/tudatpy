@@ -280,7 +280,6 @@ boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeTy
         const simulation_setup::NamedBodyMap &bodyMap,
         const LinkEndType linkEndForCalculator )
 {
-    std::cout<<"Creating interface"<<std::endl;
     boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > > properTimeRateInterface;
     switch( properTimeRateSettings->dopplerProperTimeRateType_ )
     {

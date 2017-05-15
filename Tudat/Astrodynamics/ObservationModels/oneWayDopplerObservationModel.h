@@ -248,11 +248,6 @@ public:
 
         double centralBodyGravitationalParameter = gravitationalParameterFunction_( );
 
-        std::cout<<"Computing rate "<<computationPointRelativeState.transpose( )<<" "<<centralBodyGravitationalParameter<<" "<<
-                   relativity::calculateFirstCentralBodyProperTimeRateDifference(
-                                       computationPointRelativeState, centralBodyGravitationalParameter )<<std::endl;
-
-
         return relativity::calculateFirstCentralBodyProperTimeRateDifference(
                     computationPointRelativeState, centralBodyGravitationalParameter );
     }

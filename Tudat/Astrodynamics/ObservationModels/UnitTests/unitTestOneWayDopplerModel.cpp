@@ -203,8 +203,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Test proper time rates
     {
-        std::cout<<"Testing proper time rates"<<std::endl;
-
         // Define link ends for observations.
         LinkEnds linkEndsStationSpacecraft;
         linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
@@ -248,21 +246,22 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         Eigen::Vector6d spacecraftState =
                 spacecraftEphemeris->getCartesianState( observationTime );
 
-        double spacecraftProperTimeRate = 1.0 - physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
-                  earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) );
-        double groundStationProperTimeRate = 1.0 - physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
-                  earthGravitationalParameter / stationCartesianPosition.norm( ) );
-
-        std::cout<<"Manual: "<<spacecraftProperTimeRate - 1.0 <<" "<<groundStationProperTimeRate - 1.0<<std::endl;
+        long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
+                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                    ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
+                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
+        long double spacecraftProperTimeRate = 1.0L - static_cast< long double >(
+                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                    ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
+                      earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
 
         long double manualDopplerValue =
-                static_cast< long double >( groundStationProperTimeRate ) *
+                groundStationProperTimeRate *
                 ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) /
-                static_cast< long double >( spacecraftProperTimeRate ) - 1.0L;
-        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ), 1.0E-16 );
+                spacecraftProperTimeRate - 1.0L;
 
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ),
+                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
     }
 }
 
