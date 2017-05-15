@@ -21,6 +21,7 @@ namespace tudat
 namespace relativity
 {
 
+
 //! Minkowski metric (-1,1,1,1 signature) represented as a Matrix
 const static Eigen::Matrix4d minkowskiMetric = ( Eigen::Matrix4d( ) <<
                                                  -1.0, 0.0, 0.0, 0.0,
@@ -99,6 +100,7 @@ protected:
 //! Global PPN parameter set, initialized upon compilation.
 extern boost::shared_ptr< PPNParameterSet > ppnParameterSet;
 
+extern double equivalencePrincipleLpiViolationParameters_;
 
 }
 

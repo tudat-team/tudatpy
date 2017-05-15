@@ -195,6 +195,7 @@ protected:
 
 };
 
+
 template< typename StateScalarType = double >
 int getConcatenatedStateSize(
        const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
@@ -460,8 +461,55 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
     }
     return ( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 1 )
              << stateDerivativeFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
-
 }
+
+
+//class RelativisticTimeStatePropagatorSettings: public PropagatorSettings< double >
+//{
+//public:
+//    RelativisticTimeStatePropagatorSettings(
+//            const std::pair< std::string, std::string > referencePointId,
+//            const RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
+//            const boost::function< double( const double ) > timeVariableConversionFunction = &basic_astrodynamics::doDummyTimeConversion< double >,
+//            const double distanceScalingFactor = 1.0 ):
+//        PropagatorSettings< double >( proper_time, Eigen::Matrix< double, 1, 1 >::Zero( ) ),
+//        relativisticStateDerivativeType_( relativisticStateDerivativeType ), referencePointId_( referencePointId ),
+//        timeVariableConversionFunction_( timeVariableConversionFunction ), distanceScalingFactor_( distanceScalingFactor )
+//    { }
+
+//    virtual ~RelativisticTimeStatePropagatorSettings( ){ }
+
+//    RelativisticTimeStateDerivativeType getRelativisticStateDerivativeType( )
+//    {
+//        return relativisticStateDerivativeType_;
+//    }
+
+//    std::pair< std::string, std::string > getReferencePointId( )
+//    {
+//        return referencePointId_;
+//    }
+
+//    boost::function< double( const double ) > getTimeVariableConversionFunction( )
+//    {
+//        return timeVariableConversionFunction_;
+//    }
+
+//    double getDistanceScalingFactor( )
+//    {
+//        return distanceScalingFactor_;
+//    }
+
+//protected:
+//    RelativisticTimeStateDerivativeType relativisticStateDerivativeType_;
+
+//    std::pair< std::string, std::string > referencePointId_;
+
+//    boost::function< double( const double ) > timeVariableConversionFunction_;
+
+//    double distanceScalingFactor_;
+
+//};
+
 
 //! Class used to provide settings for a custom state derivative model
 /*!
