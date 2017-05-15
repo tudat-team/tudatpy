@@ -6,12 +6,14 @@
 
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticTimeConversion.h"
 
 namespace tudat
 {
@@ -122,6 +124,149 @@ ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
 
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+class DopplerProperTimeRateInterface
+{
+public:
+    DopplerProperTimeRateInterface(
+            const LinkEndType computationPointLinkEndType ):
+        computationPointLinkEndType_( computationPointLinkEndType )
+    { }
+
+    virtual ObservationScalarType getOberverProperTimeDeviation(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const LinkEndType linkEndAssociatedWithTime ) = 0;
+protected:
+    LinkEndType computationPointLinkEndType_;
+};
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+class CustomDopplerProperTimeRateInterface:
+        public DopplerProperTimeRateInterface< ObservationScalarType, TimeType >
+{
+public:
+    CustomDopplerProperTimeRateInterface(
+            const LinkEndType computationPointLinkEndType,
+            const boost::function< ObservationScalarType( const TimeType) > properTimeRateFunction ):
+        DopplerProperTimeRateInterface< ObservationScalarType, TimeType >( computationPointLinkEndType ),
+        properTimeRateFunction_( properTimeRateFunction )
+    { }
+
+    virtual ObservationScalarType getOberverProperTimeDeviation(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const LinkEndType linkEndAssociatedWithTime )
+    {
+        if( linkEndTimes.size( ) != 2 || linkEndStates.size( ) != 2 )
+        {
+            std::cout<<linkEndTimes.size( )<<" "<<linkEndStates.size( )<<std::endl;
+            throw std::runtime_error( "Error when getting custom proper time rate for Doppler data, inconsistent input" );
+        }
+
+        return properTimeRateFunction_(
+                    ( this->computationPointLinkEndType_ == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 ) );
+    }
+
+private:
+
+    boost::function< ObservationScalarType( const TimeType ) > properTimeRateFunction_;
+
+
+};
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+class DirectFirstOrderDopplerProperTimeRateInterface:
+        public DopplerProperTimeRateInterface< ObservationScalarType, TimeType >
+{
+public:
+    DirectFirstOrderDopplerProperTimeRateInterface(
+            const LinkEndType computationPointLinkEndType,
+            const boost::function< double( ) > gravitationalParameterFunction,
+            const LinkEndType referencePointLinkEndType = unidentified_link_end,
+            const boost::function< Eigen::Vector6d( const double ) > referencePointStateFunction =
+            boost::function< Eigen::Vector6d( const double ) >( ) ):
+        DopplerProperTimeRateInterface< ObservationScalarType, TimeType >( computationPointLinkEndType ),
+        gravitationalParameterFunction_( gravitationalParameterFunction ),
+        referencePointLinkEndType_( referencePointLinkEndType ),
+        referencePointStateFunction_( referencePointStateFunction )
+    {
+        if( this->computationPointLinkEndType_ == referencePointLinkEndType )
+        {
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, input link end types must be different" );
+        }
+        else if( ( this->computationPointLinkEndType_ != receiver ) &&
+                 ( this->computationPointLinkEndType_ != transmitter ) )
+        {
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, computation point must be receiver or transmitter" );
+        }
+        else if( ( this->computationPointLinkEndType_ != receiver ) &&
+                 ( this->computationPointLinkEndType_ != transmitter ) &&
+                 ( this->computationPointLinkEndType_ != unidentified_link_end ) )
+        {
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must be receiver, transmitter or unidentified" );
+        }
+        else if( ( referencePointLinkEndType == unidentified_link_end ) && referencePointStateFunction.empty( ) )
+        {
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have state information" );
+        }
+        else if( ( referencePointLinkEndType != unidentified_link_end ) && !referencePointStateFunction.empty( ) )
+        {
+            throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have unambiguous state information" );
+        }
+    }
+
+    ObservationScalarType getOberverProperTimeDeviation(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const LinkEndType linkEndAssociatedWithTime  )
+    {
+        if( linkEndTimes.size( ) != 2 || linkEndStates.size( ) != 2 )
+        {
+            throw std::runtime_error( "Error when getting first order direct proper time rate for Doppler data, inconsistent input" );
+        }
+
+        Eigen::Vector6d computationPointRelativeState =
+                ( ( this->computationPointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) ) -
+                getReferencePointState( linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
+
+        double centralBodyGravitationalParameter = gravitationalParameterFunction_( );
+
+        std::cout<<"Computing rate "<<computationPointRelativeState.transpose( )<<" "<<centralBodyGravitationalParameter<<std::endl;
+
+
+        return relativity::calculateFirstCentralBodyProperTimeRateDifference(
+                    computationPointRelativeState, centralBodyGravitationalParameter );
+    }
+private:
+    Eigen::Vector6d  getReferencePointState(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const LinkEndType linkEndAssociatedWithTime )
+    {
+        if( referencePointLinkEndType_ == unidentified_link_end )
+        {
+            return referencePointStateFunction_(
+                        ( ( this->computationPointLinkEndType_ == transmitter ) ? linkEndTimes.at( 0 ) : linkEndTimes.at( 1 ) ) );
+        }
+        else
+        {
+            return ( ( referencePointLinkEndType_ == transmitter ) ? linkEndStates.at( 0 ) : linkEndStates.at( 1 ) );
+        }
+    }
+
+
+    boost::function< double( ) > gravitationalParameterFunction_;
+
+    LinkEndType referencePointLinkEndType_;
+
+    boost::function< Eigen::Vector6d( const double ) > referencePointStateFunction_;
+
+    std::string referenceBody_;
+
+    std::pair< std::string, std::string > pointIdentification_;
+};
+
 //! Computes observable the (simplified) one-way Doppler observation between two link ends, omitting proper time rates and
 //! light time corrections.
 /*!
@@ -148,10 +293,42 @@ public:
     OneWayDopplerObservationModel(
             const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             lightTimeCalculator,
+            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL,
+            const boost::function< ObservationScalarType( const TimeType ) > transmitterProperTimeRateFunction
+            = boost::lambda::constant( mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 ) ),
+            const boost::function< ObservationScalarType( const TimeType ) > receiverProperTimeRateFunction
+            = boost::lambda::constant( mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 ) ) ):
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
+        lightTimeCalculator_( lightTimeCalculator ),
+        transmitterProperTimeRateCalculator_(
+            boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
+                transmitter, transmitterProperTimeRateFunction ) ),
+        receiverProperTimeRateCalculator_(
+            boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
+                receiver, receiverProperTimeRateFunction ) )
+    {
+        one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
+        taylorSeriesExpansionOrder_ = 3;
+    }
+
+    OneWayDopplerObservationModel(
+            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+            lightTimeCalculator,
+            const boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > >
+            transmitterProperTimeRateCalculator,
+            const boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > >
+            receiverProperTimeRateFunction,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator )
+        lightTimeCalculator_( lightTimeCalculator ),
+        transmitterProperTimeRateCalculator_( transmitterProperTimeRateCalculator ),
+        receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )
     {
+        if( ( transmitterProperTimeRateCalculator == NULL ) || (
+                   receiverProperTimeRateFunction == NULL ) )
+        {
+            throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
+        }
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
         taylorSeriesExpansionOrder_ = 3;
     }
@@ -175,30 +352,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime )
 
     {
-        ObservationScalarType lightTime;
-
-        bool isTimeAtReception = -1;
-        switch( linkEndAssociatedWithTime )
-        {
-        case receiver:
-            isTimeAtReception = true;
-            break;
-        case transmitter:
-            isTimeAtReception = false;
-            break;
-        default:
-            throw std::runtime_error(
-                        "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
-        }
-
-        // Compute light time
-        lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverState_, transmitterState_, time, true );
-
-        // Compute one-way Doppler
-        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( )
-                 << computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
-                     transmitterState_, receiverState_, taylorSeriesExpansionOrder_ ) ).finished( );
+       return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
     }
 
     //! Function to compute one-way Doppler observable without any corrections.
@@ -249,6 +403,9 @@ public:
                         "Error when calculating one way Doppler observation, link end is not transmitter or receiver" );
         }
 
+        linkEndTimes.clear( );
+        linkEndStates.clear( );
+
         // Save link end times and states
         linkEndTimes.push_back( transmissionTime );
         linkEndTimes.push_back( receptionTime );
@@ -256,10 +413,27 @@ public:
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
 
+        std::cout<<"Rates: "<<transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                       linkEndTimes, linkEndStates, linkEndAssociatedWithTime )<<std::endl<<
+                   receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                                          linkEndTimes, linkEndStates, linkEndAssociatedWithTime )<<std::endl;
+
         // Compute and return one-way Doppler observable
-        ObservationScalarType dopplerObservable = computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
+        ObservationScalarType firstOrderDopplerObservable =
+                computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
                 ObservationScalarType >( transmitterState_, receiverState_, taylorSeriesExpansionOrder_ );
-        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << dopplerObservable ).finished( );
+
+        ObservationScalarType transmitterProperTimeRateDifference =
+                transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                                       linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
+        ObservationScalarType receiverProperTimeRateDifference =
+                receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                    linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
+
+        ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable + transmitterProperTimeRateDifference +
+                receiverProperTimeRateDifference;
+
+        return ( Eigen::Matrix<  ObservationScalarType, 1, 1  >( ) << totalDopplerObservable ).finished( );
 
 
     }
@@ -294,6 +468,13 @@ private:
 
     //! Pre-declared transmitter state, to prevent many (de-)allocations
     StateType transmitterState_;
+
+    boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > > transmitterProperTimeRateCalculator_;
+
+    boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > > receiverProperTimeRateCalculator_;
+
+    std::vector< double > linkEndTimes_;
+    std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
 

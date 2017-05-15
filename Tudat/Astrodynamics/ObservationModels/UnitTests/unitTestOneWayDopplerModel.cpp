@@ -26,6 +26,8 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 namespace tudat
 {
@@ -36,6 +38,9 @@ using namespace tudat::observation_models;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
+using namespace tudat::orbital_element_conversions;
+using namespace tudat::coordinate_conversions;
+using namespace tudat::unit_conversions;
 
 
 BOOST_AUTO_TEST_SUITE( test_one_way_doppler_model )
@@ -69,6 +74,27 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
+
+    // Create ground station
+    const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    createGroundStation( bodyMap.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
+
+    // Create Spacecraft
+    Eigen::Vector6d spacecraftOrbitalElements;
+    spacecraftOrbitalElements( semiMajorAxisIndex ) = 10000.0E3;
+    spacecraftOrbitalElements( eccentricityIndex ) = 0.33;
+    spacecraftOrbitalElements( inclinationIndex ) = convertDegreesToRadians( 65.3 );
+    spacecraftOrbitalElements( argumentOfPeriapsisIndex )
+            = convertDegreesToRadians( 235.7 );
+    spacecraftOrbitalElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 23.4 );
+    spacecraftOrbitalElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    bodyMap[ "Spacecraft" ] = boost::make_shared< Body >( );
+    bodyMap[ "Spacecraft" ]->setEphemeris(
+                createBodyEphemeris( boost::make_shared< KeplerEphemerisSettings >(
+                                         spacecraftOrbitalElements, 0.0, earthGravitationalParameter, "Earth" ), "Spacecraft" ) );
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
@@ -172,6 +198,46 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         double biasedObservation = biasedObservationModel->computeObservations(
                     observationTime, receiver )( 0 );
         BOOST_CHECK_CLOSE_FRACTION( biasedObservation, 1.0E-6 + ( 1.0 + 2.5E-4 ) * unbiasedObservation, 1.0E-15 );
+
+    }
+
+    // Test proper time rates
+    {
+        std::cout<<"Testing proper time rates"<<std::endl;
+
+        // Define link ends for observations.
+        LinkEnds linkEndsStationSpacecraft;
+        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
+        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
+
+        // Create observation settings
+        boost::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections = boost::make_shared< ObservationSettings >
+                ( one_way_doppler );
+
+        // Create observation model.
+        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrections =
+               ObservationModelCreator< 1, double, double>::createObservationModel(
+                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
+
+        // Create observation settings
+        boost::shared_ptr< ObservationSettings > observableSettingsWithCorrections = boost::make_shared< OneWayDopperObservationSettings >
+                (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
+
+        // Create observation model.
+        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
+               ObservationModelCreator< 1, double, double>::createObservationModel(
+                    linkEndsStationSpacecraft, observableSettingsWithCorrections, bodyMap );
+
+        double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+
+        double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
+                    observationTime, receiver ).x( );
+        double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
+                    observationTime, receiver ).x( );
+        std::cout<<std::setprecision( 16 )<<
+                   observationWithoutCorrections<<std::endl<<observationWithCorrections<<std::endl;
 
     }
 }
