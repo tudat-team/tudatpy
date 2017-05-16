@@ -296,6 +296,24 @@ public:
         return newLightTimeCalculation;
     }
 
+    Eigen::Matrix< ObservationScalarType, 1, 3 > getPartialOfLightTimeWrtLinkEndPosition(
+            const StateType& transmitterState,
+            const StateType& receiverState,
+            const TimeType transmitterTime,
+            const TimeType receiverTime,
+            const bool isPartialWrtReceiver )
+    {
+        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime );
+
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
+                receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
+        return ( relativePosition.normalized( ) ).transpose( ) *
+                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) +
+                  currentCorrection_ / relativePosition.norm( ) ) *
+                ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
+                                         mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
+    }
+
     //! Function to get list of light-time correction functions
     /*!
      * Function to get list of light-time correction functions

@@ -35,7 +35,8 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
      Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
      double distance = vectorToReceiver.norm( );
 
-     return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime( vectorToReceiver, normalizedVector, distance, linkEndVelocity ).dot( linkEndVelocity ) +
+     return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime(
+                 vectorToReceiver, normalizedVector, distance, linkEndVelocity ).dot( linkEndVelocity ) +
              normalizedVector.dot( linkEndAcceleration );
 }
 
