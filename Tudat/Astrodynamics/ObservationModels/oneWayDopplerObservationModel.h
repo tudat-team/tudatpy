@@ -94,19 +94,17 @@ template< typename ObservationScalarType = double >
 ObservationScalarType computeOneWayFirstOrderDopplerTaylorSeriesExpansion(
         Eigen::Matrix< ObservationScalarType, 6, 1 >& transmitterState,
         Eigen::Matrix< ObservationScalarType, 6, 1 >& receiverState,
+        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtTransmitterPositionPartial,
+        Eigen::Matrix< ObservationScalarType, 1, 3 >& lightTimeWrtReceiverPositionPartial,
         const int taylorSeriesOrder )
 {
-    // Compute line of sight unit vector
-    Eigen::Matrix< ObservationScalarType, 3, 1 > relativePostion =
-            ( ( receiverState - transmitterState ).segment( 0, 3 ) ).normalized( );
-
     // Compute projected velocity components
     ObservationScalarType transmitterTerm  =
-            ( relativePostion.dot( transmitterState.segment( 3, 3 ) ) /
-              physical_constants::getSpeedOfLight< ObservationScalarType >( )  );
+            ( -lightTimeWrtTransmitterPositionPartial * ( transmitterState.segment( 3, 3 ) ) /
+              physical_constants::getSpeedOfLight< ObservationScalarType >( )  )( 0 );
     ObservationScalarType receiverTerm =
-            ( relativePostion.dot( receiverState.segment( 3, 3 ) ) /
-              physical_constants::getSpeedOfLight< ObservationScalarType >( ) );
+            ( lightTimeWrtReceiverPositionPartial * ( receiverState.segment( 3, 3 ) ) /
+              physical_constants::getSpeedOfLight< ObservationScalarType >( ) )( 0 );
 
     // Compute Taylor series of 1/(1-r21*v2) up to required order
     ObservationScalarType currentTaylorSeriesTerm =
@@ -429,14 +427,24 @@ public:
         ObservationScalarType properTimeCorrectionTerm =
                 computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
                     transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                                           linkEndTimes, linkEndStates, linkEndAssociatedWithTime ),
+                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime ),
                     receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                                           linkEndTimes, linkEndStates, linkEndAssociatedWithTime ), 3 );
+                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime ), 3 );
+
+        lightTimePartialWrtReceiverPosition_ =
+                lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
+                                transmitterState_, receiverState_, transmissionTime, receptionTime, true );
+        lightTimePartialWrtTransmitterPosition_ =
+                            lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
+                                transmitterState_, receiverState_, transmissionTime, receptionTime, false );
 
         // Compute and return one-way Doppler observable
         ObservationScalarType firstOrderDopplerObservable =
                 computeOneWayFirstOrderDopplerTaylorSeriesExpansion<
-                ObservationScalarType >( transmitterState_, receiverState_, taylorSeriesExpansionOrder_ );
+                ObservationScalarType >(
+                    transmitterState_, receiverState_,
+                    lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
+                    taylorSeriesExpansionOrder_ );
 
 
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
@@ -485,6 +493,10 @@ private:
 
     std::vector< double > linkEndTimes_;
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
+
+    Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtReceiverPosition_;
+
+    Eigen::Matrix< ObservationScalarType, 1, 3 > lightTimePartialWrtTransmitterPosition_;
 
 };
 

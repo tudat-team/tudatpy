@@ -218,7 +218,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                     linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
 
         // Create observation settings
-        boost::shared_ptr< ObservationSettings > observableSettingsWithCorrections = boost::make_shared< OneWayDopperObservationSettings >
+        boost::shared_ptr< ObservationSettings > observableSettingsWithCorrections =
+                boost::make_shared< OneWayDopperObservationSettings >
                 (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );

@@ -12,10 +12,12 @@ namespace relativity
 {
 
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const double relativeSpeed, const double gravitationalScalarPotential );
+        const double relativeSpeed, const double gravitationalScalarPotential,
+        const double equivalencePrincipleLpiViolationParameter = 0.0 );
 
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter );
+        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter,
+        const double equivalencePrincipleLpiViolationParameter = 0.0 );
 
 }
 

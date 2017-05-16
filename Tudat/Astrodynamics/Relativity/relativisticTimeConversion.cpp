@@ -9,18 +9,20 @@ namespace relativity
 {
 
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const double relativeSpeed, const double gravitationalScalarPotential )
+        const double relativeSpeed, const double gravitationalScalarPotential,
+        const double equivalencePrincipleLpiViolationParameter )
 {
-    return ( -( 0.5 * relativeSpeed * relativeSpeed + gravitationalScalarPotential )  ) *
-            physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
+    return ( -( 0.5 * relativeSpeed * relativeSpeed + ( 1.0 + equivalencePrincipleLpiViolationParameter ) *
+                gravitationalScalarPotential )  ) * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
 }
 
 double calculateFirstCentralBodyProperTimeRateDifference(
-        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter )
+        const Eigen::Vector6d relativeStateVector, const double centralBodyGravitationalParameter,
+        const double equivalencePrincipleLpiViolationParameter )
 {
     return calculateFirstCentralBodyProperTimeRateDifference(
                 relativeStateVector.segment( 3, 3 ).norm( ), centralBodyGravitationalParameter /
-                relativeStateVector.segment( 0, 3 ).norm( ) );
+                relativeStateVector.segment( 0, 3 ).norm( ), equivalencePrincipleLpiViolationParameter );
 }
 
 }
