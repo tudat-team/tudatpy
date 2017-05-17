@@ -446,8 +446,6 @@ public:
                 computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
                     transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
 
-        std::cout<<properTimeCorrectionTerm<<std::endl;
-
         lightTimePartialWrtReceiverPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
                     transmitterState_, receiverState_, transmissionTime, receptionTime, true );

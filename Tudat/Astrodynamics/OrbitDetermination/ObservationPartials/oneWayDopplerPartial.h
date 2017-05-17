@@ -62,7 +62,7 @@ public:
      */
     Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( -1.0 ) : ( 1.0 ) );
+        return positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
     }
 
     Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )

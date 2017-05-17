@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
     BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-6 );
     BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 1.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 5.0E-6 );
 
     BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 1.0E-11 );
     BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 1.0E-11 );
