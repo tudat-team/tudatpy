@@ -56,22 +56,22 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
                 lineOfSightVector, transmitterVelocity );
 
 
-    double scalingTermA = -1.0;
-    double scalingTermB = 0.0;
+    double transmitterPartialScalingTerm = 0.0;
+    double receiverPartialScalingTerm = -1.0;
 
     double currentTaylorSeriesTerm = 1.0;
 
-    for( int i = 1; i < 3; i++ )
+    for( int i = 1; i <= 3; i++ )
     {
-        scalingTermB += static_cast< double >( i ) * currentTaylorSeriesTerm;
-        currentTaylorSeriesTerm *= lineOfSightVelocityReceiver;
-        scalingTermA -= currentTaylorSeriesTerm;
+        transmitterPartialScalingTerm += static_cast< double >( i ) * currentTaylorSeriesTerm;
+        currentTaylorSeriesTerm *= lineOfSightVelocityTransmitter;
+        receiverPartialScalingTerm -= currentTaylorSeriesTerm;
     }
 
-    scalingTermB *= ( 1.0 - lineOfSightVelocityTransmitter );
+    transmitterPartialScalingTerm *= ( 1.0 - lineOfSightVelocityReceiver );
 
     positionScalingFactor_ =
-            -( receiverVelocity.transpose( ) * scalingTermB + transmitterVelocity.transpose( ) * scalingTermA ) /
+            ( receiverVelocity.transpose( ) * receiverPartialScalingTerm + transmitterVelocity.transpose( ) * transmitterPartialScalingTerm ) /
             physical_constants::SPEED_OF_LIGHT *
             ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
 
@@ -94,8 +94,8 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 
 
     positionScalingFactor_ += lightTimeEffectPositionScalingFactor_;
-    receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * scalingTermB / physical_constants::SPEED_OF_LIGHT;
-    transmitterVelocityScalingFactor_ =-lineOfSightVector.transpose( ) * scalingTermA / physical_constants::SPEED_OF_LIGHT;
+    receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * receiverPartialScalingTerm / physical_constants::SPEED_OF_LIGHT;
+    transmitterVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * transmitterPartialScalingTerm / physical_constants::SPEED_OF_LIGHT;
 
     currentLinkEndType_ = fixedLinkEnd;
 

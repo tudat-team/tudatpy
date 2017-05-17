@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                 boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( rungeKuttaVariableStepSize, 0.0, 10.0,
-                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-14, 1.0E-14 );
+                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
