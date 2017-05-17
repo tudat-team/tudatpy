@@ -312,10 +312,12 @@ public:
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(
-            boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
+            ( transmitterProperTimeRateFunction.empty( ) ) ?
+                NULL : boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
                 transmitter, transmitterProperTimeRateFunction ) ),
         receiverProperTimeRateCalculator_(
-            boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
+            receiverProperTimeRateFunction.empty( ) ?
+                NULL : boost::make_shared< CustomDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
                 receiver, receiverProperTimeRateFunction ) )
     {
         one_ = mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 );
@@ -336,7 +338,7 @@ public:
         receiverProperTimeRateCalculator_( receiverProperTimeRateFunction )
     {
         if( ( transmitterProperTimeRateCalculator == NULL ) || (
-                   receiverProperTimeRateFunction == NULL ) )
+                    receiverProperTimeRateFunction == NULL ) )
         {
             throw std::runtime_error( "Error when making one-way Doppler model, input proper time rates are zero" );
         }
@@ -363,7 +365,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime )
 
     {
-       return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
+        return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
     }
 
     //! Function to compute one-way Doppler observable without any corrections.
@@ -424,19 +426,34 @@ public:
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
 
+        ObservationScalarType transmitterProperTimeDifference =
+                mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+        if( transmitterProperTimeRateCalculator_ != NULL )
+        {
+            transmitterProperTimeDifference = transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
+        }
+
+        ObservationScalarType receiverProperTimeDifference =
+                mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
+        if( receiverProperTimeRateCalculator_ != NULL )
+        {
+            receiverProperTimeDifference = receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
+                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime );
+        }
+
         ObservationScalarType properTimeCorrectionTerm =
                 computeDopplerProperTimeInfluenceTaylorSeriesExpansion(
-                    transmitterProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime ),
-                    receiverProperTimeRateCalculator_->getOberverProperTimeDeviation(
-                        linkEndTimes, linkEndStates, linkEndAssociatedWithTime ), 3 );
+                    transmitterProperTimeDifference, receiverProperTimeDifference, taylorSeriesExpansionOrder_ );
+
+        std::cout<<properTimeCorrectionTerm<<std::endl;
 
         lightTimePartialWrtReceiverPosition_ =
                 lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                                transmitterState_, receiverState_, transmissionTime, receptionTime, true );
+                    transmitterState_, receiverState_, transmissionTime, receptionTime, true );
         lightTimePartialWrtTransmitterPosition_ =
-                            lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
-                                transmitterState_, receiverState_, transmissionTime, receptionTime, false );
+                lightTimeCalculator_->getPartialOfLightTimeWrtLinkEndPosition(
+                    transmitterState_, receiverState_, transmissionTime, receptionTime, false );
 
         // Compute and return one-way Doppler observable
         ObservationScalarType firstOrderDopplerObservable =
