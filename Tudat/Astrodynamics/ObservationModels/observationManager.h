@@ -139,7 +139,7 @@ public:
 
     // Using statements
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixSize_;
-    using ObservationManagerBase< ObservationScalarType, TimeType >::updatePartials;
+    using ObservationManagerBase< ObservationScalarType, TimeType >::observationPartialScalers_;
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixInterface_;
 
     //! Constructor
@@ -301,7 +301,8 @@ protected:
             const LinkEndType linkEndAssociatedWithTime,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation)
     {
-        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime );
+        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime,
+                                                           currentObservation.template cast< double >( ) );
     }
 
     //! Function to calculate range partials at given states between link ends and reception and transmission time.

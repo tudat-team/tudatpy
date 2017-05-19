@@ -57,7 +57,8 @@ public:
      */
     virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                          const std::vector< double >& times,
-                         const observation_models::LinkEndType fixedLinkEnd ) = 0;
+                         const observation_models::LinkEndType fixedLinkEnd,
+                         const Eigen::VectorXd currentObservation ) = 0;
 };
 
 //! Base class of partial derivative of an observable w.r.t. an estimated parameter.

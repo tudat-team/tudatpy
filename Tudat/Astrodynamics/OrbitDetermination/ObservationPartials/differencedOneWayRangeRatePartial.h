@@ -25,7 +25,8 @@ public:
 
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
-                 const observation_models::LinkEndType fixedLinkEnd )
+                 const observation_models::LinkEndType fixedLinkEnd,
+                 const Eigen::VectorXd currentObservation )
     {
         oneWayRangeScalerArcStart_->update(
                     std::vector< Eigen::Vector6d >(

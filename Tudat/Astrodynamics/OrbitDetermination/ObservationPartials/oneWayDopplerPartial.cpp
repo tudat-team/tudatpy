@@ -44,7 +44,8 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
 //! Update the scaling object to the current times and states
 void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                    const std::vector< double >& times,
-                                   const observation_models::LinkEndType fixedLinkEnd )
+                                   const observation_models::LinkEndType fixedLinkEnd,
+                                   const Eigen::VectorXd currentObservation )
 {
     double distance = ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ).norm( );
     Eigen::Vector3d lineOfSightVector = ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ).normalized( );
@@ -76,32 +77,31 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
             physical_constants::SPEED_OF_LIGHT *
             ( Eigen::Matrix3d::Identity( ) - lineOfSightVector * lineOfSightVector.transpose( ) ) / distance;
 
-    std::cout<<receiverPartialScalingTerm<<" "<<transmitterPartialScalingTerm<<std::endl;
     if( fixedLinkEnd == observation_models::receiver )
     {
         lightTimeEffectPositionScalingFactor_ =
                 - transmitterPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
                     ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    transmitterVelocity, transmitterVelocity,  transmitterAccelerationFunction_( times.at( 0 ) ), false )
+                    transmitterVelocity + receiverVelocity, transmitterVelocity,  transmitterAccelerationFunction_( times.at( 0 ) ), false )
                 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-        lightTimeEffectPositionScalingFactor_ -=
-                receiverPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    receiverVelocity, transmitterVelocity,  Eigen::Vector3d::Zero( ), false )
-                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+//        lightTimeEffectPositionScalingFactor_ -=
+//                receiverPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+//                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+//                    receiverVelocity, transmitterVelocity,  Eigen::Vector3d::Zero( ), false )
+//                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
     }
     else if( fixedLinkEnd == observation_models::transmitter )
     {
         lightTimeEffectPositionScalingFactor_ =
                 receiverPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
                     ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    receiverVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true )
+                    receiverVelocity + transmitterVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true )
                 / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-        lightTimeEffectPositionScalingFactor_ +=
-                transmitterPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true )
-                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+//        lightTimeEffectPositionScalingFactor_ +=
+//                transmitterPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+//                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+//                    transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true )
+//                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
     }
 
 

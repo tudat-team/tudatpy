@@ -142,11 +142,12 @@ inline void testObservationPartials(
         std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
         double observationTime = 1.1E7;
-        observationModel->computeObservationsWithLinkEndData(
+        Eigen::VectorXd currentObservation = observationModel->computeObservationsWithLinkEndData(
                     observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates );
 
         // Calculate analytical observation partials.
-        positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ) );
+        positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ),
+                                       currentObservation );
         typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >
                 ObservationPartialReturnType;
         std::vector< ObservationPartialReturnType > analyticalObservationPartials =

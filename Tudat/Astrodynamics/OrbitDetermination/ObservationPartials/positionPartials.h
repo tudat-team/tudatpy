@@ -276,7 +276,8 @@ public:
      */
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
-                 const observation_models::LinkEndType fixedLinkEnd ){ }
+                 const observation_models::LinkEndType fixedLinkEnd,
+                 const Eigen::VectorXd currentObservatio ){ }
 
     //! Function to retrieve the scaling factor for specific link end
     /*!

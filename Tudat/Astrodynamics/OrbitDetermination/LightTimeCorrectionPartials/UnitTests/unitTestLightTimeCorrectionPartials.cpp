@@ -101,10 +101,11 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
         double testTime = 1.1E7;
-        oneWayRangeModel->computeObservationsWithLinkEndData( testTime, transmitter, linkEndTimes, linkEndStates );
+        Eigen::VectorXd currentPositionObservation =
+                oneWayRangeModel->computeObservationsWithLinkEndData( testTime, transmitter, linkEndTimes, linkEndStates );
 
         // Update position partial scaler for current observation
-        positionPartialScaler->update( linkEndStates, linkEndTimes, transmitter );
+        positionPartialScaler->update( linkEndStates, linkEndTimes, transmitter, currentPositionObservation );
 
 
         // Define numerical partial settings
@@ -196,11 +197,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             std::vector< Eigen::Vector6d > vectorOfStates;
             std::vector< double > vectorOfTimes;
             double observationTime = 1.1E7;
-            oneWayRangeModel->computeObservationsWithLinkEndData(
+            Eigen::VectorXd currentRangeObservation = oneWayRangeModel->computeObservationsWithLinkEndData(
                         observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates );
 
             // Calculate analytical observation partials.
-            positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ) );
+            positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ),
+                                           currentRangeObservation );
             typedef std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > ObservationPartialReturnType;
             std::vector< ObservationPartialReturnType > analyticalObservationPartials =
                     calculateAnalyticalPartials(
