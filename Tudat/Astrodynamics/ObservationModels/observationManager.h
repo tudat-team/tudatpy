@@ -104,24 +104,6 @@ protected:
         return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
     }
 
-    //! Function to perform updates of dependent variables used by (subset of) observation partials.
-    /*!
-     *  Function to perform updates of dependent variables used by (subset of) observation partials, in order
-     *  to decrease redundant computations (i.e. scaling of position partials for range partials).
-     *  is kept constant (to input value)
-     *  \param states List of times at each link end during observation
-     *  \param times List of states at each link end during observation
-     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     */
-    virtual void updatePartials(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const LinkEnds& linkEnds,
-            const LinkEndType linkEndAssociatedWithTime )
-    {
-        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime );
-    }
 
     //! Type of observable for which the instance of this class will compute observations/observation partials
     ObservableType observableType_;
@@ -302,6 +284,26 @@ public:
 
 protected:
 
+    //! Function to perform updates of dependent variables used by (subset of) observation partials.
+    /*!
+     *  Function to perform updates of dependent variables used by (subset of) observation partials, in order
+     *  to decrease redundant computations (i.e. scaling of position partials for range partials).
+     *  is kept constant (to input value)
+     *  \param states List of times at each link end during observation
+     *  \param times List of states at each link end during observation
+     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     */
+    virtual void updatePartials(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const LinkEnds& linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation)
+    {
+        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime );
+    }
+
     //! Function to calculate range partials at given states between link ends and reception and transmission time.
     /*!
      *  Function to calculate range partials at given states of link ends and reception and transmission times.
@@ -333,7 +335,7 @@ protected:
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
         // Perform updates of dependent variables used by (subset of) observation partials.
-        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime );
+        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
 
         currentLinkEndPartials = observationPartials_[ linkEnds ];
 

@@ -141,7 +141,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                          nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
                          nominalVectorToReceiver.norm( ), nominalTransmitterState.segment( 3, 3 ) );
              double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                         nominalVectorToReceiver, nominalTransmitterState.segment( 3, 3 ), \
+                         nominalVectorToReceiver,
+                         nominalTransmitterState.segment( 3, 3 ),
+                         nominalTransmitterState.segment( 3, 3 ),
                          numericalStateDerivative.segment( 3, 3 ), false );
 
 
@@ -182,7 +184,9 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                          nominalVectorToReceiver, nominalVectorToReceiver.normalized( ),
                          nominalVectorToReceiver.norm( ), nominalReceiverState.segment( 3, 3 ) );
              double analyticalProjectedVelocityDerivative = computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                         nominalVectorToReceiver, nominalReceiverState.segment( 3, 3 ), \
+                         nominalVectorToReceiver,
+                         nominalReceiverState.segment( 3, 3 ),
+                         nominalReceiverState.segment( 3, 3 ),\
                          numericalStateDerivative.segment( 3, 3 ), true );
 
              for( unsigned int i = 0; i < 3; i++ )
@@ -218,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-4, true, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5, true, true );
     }
 
     std::cout<<"*******************************************************"<<std::endl;

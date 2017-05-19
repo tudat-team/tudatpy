@@ -109,7 +109,8 @@ Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
 
 double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
         const Eigen::Vector3d& vectorToReceiver,
-        const Eigen::Vector3d& linkEndVelocity,
+        const Eigen::Vector3d& projectedLinkEndVelocity,
+        const Eigen::Vector3d& variableLinkEndVelocity,
         const Eigen::Vector3d& linkEndAcceleration,
         const bool linkEndIsReceiver );
 
