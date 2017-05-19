@@ -200,11 +200,14 @@ inline void testObservationPartials(
                 {
                     bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first;
                 }
-
                 // Test position partial
                 if( observableType != angular_position )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
+                    std::cout<<"PARTIALS A: "<<
+                               bodyPositionPartial<<std::endl<<
+                               numericalPartialWrtBodyPosition<<std::endl<<
+                               ( bodyPositionPartial - numericalPartialWrtBodyPosition ).cwiseQuotient( numericalPartialWrtBodyPosition )<<" "<<tolerance<<std::endl<<std::endl;
                 }
                 else
                 {
