@@ -68,7 +68,8 @@ Eigen::Matrix< double, 2, 3 > calculatePartialOfAngularPositionWrtLinkEndPositio
 //! Update the scaling object to the current times and states
 void AngularPositionScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                      const std::vector< double >& times,
-                                     const observation_models::LinkEndType fixedLinkEnd )
+                                     const observation_models::LinkEndType fixedLinkEnd,
+                                     const Eigen::VectorXd currentObservation )
 {
     Eigen::Vector3d relativeRangeVector = ( linkEndStates[ 1 ] - linkEndStates[ 0 ] ).segment( 0, 3 );
     Eigen::Vector3d normalizedRelativeRangeVector = relativeRangeVector.normalized( );

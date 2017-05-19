@@ -20,7 +20,8 @@ namespace observation_partials
 //! Update the scaling object to the current times and states
 void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                  const std::vector< double >& times,
-                                 const observation_models::LinkEndType fixedLinkEnd )
+                                 const observation_models::LinkEndType fixedLinkEnd,
+                                 const Eigen::VectorXd currentObservation )
 {
     // Compute Euclidean distance vector
     Eigen::Vector3d rangeVector = linkEndStates[ 1 ].segment( 0, 3 ) - linkEndStates[ 0 ].segment( 0, 3 );
