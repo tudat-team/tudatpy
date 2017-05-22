@@ -56,9 +56,11 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     using namespace unit_conversions;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
 
     // Set simulation end epoch.
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
