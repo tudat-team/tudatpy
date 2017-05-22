@@ -36,10 +36,11 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+
 
     // Create bodies.
     NamedBodyMap bodyMap;
