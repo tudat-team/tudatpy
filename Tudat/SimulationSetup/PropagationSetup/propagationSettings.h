@@ -51,6 +51,9 @@ public:
                         const bool isMultiArc ):
         initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ), isMultiArc_( isMultiArc ){ }
 
+    //! Destructor
+    virtual ~PropagatorSettings( ){ }
+
     //! Function to retrieve the initial state used as input for numerical integration
     /*!
      * Function to retrieve the initial state used as input for numerical integration
@@ -244,6 +247,8 @@ public:
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
         }
     }
+
+    virtual ~MultiArcPropagatorSettings( ){ }
 
     std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > getSingleArcSettings( )
     {

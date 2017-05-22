@@ -388,10 +388,10 @@ public:
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
-        ObservationScalarType lightTime;
-        TimeType transmissionTime, receptionTime;
+        ObservationScalarType lightTime = TUDAT_NAN;
+        TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
-        bool fixTransmissionTime;
+        bool fixTransmissionTime = -1;
 
         // Compute light time
         switch( linkEndAssociatedWithTime )

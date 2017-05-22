@@ -65,7 +65,7 @@ Eigen::MatrixXd multiplyInformationMatrixByDiagonalWeightMatrix(
 {
     Eigen::MatrixXd weightedInformationMatrix = Eigen::MatrixXd::Zero( informationMatrix.rows( ), informationMatrix.cols( ) );
 
-    for( unsigned int i = 0; i < informationMatrix.cols( ); i++ )
+    for( int i = 0; i < informationMatrix.cols( ); i++ )
     {
         weightedInformationMatrix.block( 0, i, informationMatrix.rows( ), 1 ) =
                 informationMatrix.block( 0, i, informationMatrix.rows( ), 1 ).cwiseProduct( diagonalOfWeightMatrix );
@@ -153,7 +153,7 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
     Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
 
     // Compute information matrix
-    for( unsigned int i = 0; i < independentValues.rows( ); i++ )
+    for( int i = 0; i < independentValues.rows( ); i++ )
     {
         for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
         {
