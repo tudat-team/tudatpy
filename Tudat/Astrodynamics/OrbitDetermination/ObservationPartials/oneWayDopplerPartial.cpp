@@ -30,15 +30,16 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
         const Eigen::Vector3d& vectorToReceiver,
         const Eigen::Vector3d& projectedLinkEndVelocity,
         const Eigen::Vector3d& variableLinkEndVelocity,
-        const Eigen::Vector3d& linkEndAcceleration,
-        const bool linkEndIsReceiver )
+        const Eigen::Vector3d& projectedLinkEndAcceleration,
+        const bool linkEndIsReceiver,
+        const bool projectedLinkEndIsVariableLinkEnd )
 {
      Eigen::Vector3d normalizedVector = vectorToReceiver.normalized( );
      double distance = vectorToReceiver.norm( );
 
      return static_cast< double >( linkEndIsReceiver ? 1.0 : -1.0 ) * computePartialOfUnitVectorWrtLinkEndTime(
                  vectorToReceiver, normalizedVector, distance, variableLinkEndVelocity ).dot( projectedLinkEndVelocity ) +
-             normalizedVector.dot( linkEndAcceleration );
+             static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
 }
 
 //! Update the scaling object to the current times and states
@@ -80,32 +81,34 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     if( fixedLinkEnd == observation_models::receiver )
     {
         lightTimeEffectPositionScalingFactor_ =
-                - transmitterPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    transmitterVelocity + receiverVelocity, transmitterVelocity,  transmitterAccelerationFunction_( times.at( 0 ) ), false )
-                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-//        lightTimeEffectPositionScalingFactor_ -=
-//                receiverPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-//                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-//                    receiverVelocity, transmitterVelocity,  Eigen::Vector3d::Zero( ), false )
-//                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+                -1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( transmitterVelocity ) ) *
+                         physical_constants::SPEED_OF_LIGHT ) *
+                ( transmitterPartialScalingTerm *
+                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                      transmitterVelocity, transmitterVelocity,  transmitterAccelerationFunction_( times.at( 0 ) ), false, true ) +
+                  receiverPartialScalingTerm *
+                  computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                      ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                      receiverVelocity, transmitterVelocity,  Eigen::Vector3d::Zero( ), false, false ) );
     }
     else if( fixedLinkEnd == observation_models::transmitter )
     {
         lightTimeEffectPositionScalingFactor_ =
-                receiverPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                1.0 / ( ( physical_constants::SPEED_OF_LIGHT - lineOfSightVector.dot( receiverVelocity ) ) *
+                   physical_constants::SPEED_OF_LIGHT ) *
+                ( receiverPartialScalingTerm *
+                computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
                     ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-                    receiverVelocity + transmitterVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true )
-                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-//        lightTimeEffectPositionScalingFactor_ +=
-//                transmitterPartialScalingTerm * lineOfSightVector.transpose( ) * computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
-//                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
-//                    transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true )
-//                / ( physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+                    receiverVelocity, receiverVelocity, receiverAccelerationFunction_( times.at( 1 ) ), true, true ) +
+                transmitterPartialScalingTerm *
+                computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
+                    ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ),
+                    transmitterVelocity, receiverVelocity, Eigen::Vector3d::Zero( ), true, true ) );
     }
 
 
-    positionScalingFactor_ += lightTimeEffectPositionScalingFactor_;
+    positionScalingFactor_ += lineOfSightVector.transpose( ) * lightTimeEffectPositionScalingFactor_;
     receiverVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * receiverPartialScalingTerm / physical_constants::SPEED_OF_LIGHT;
     transmitterVelocityScalingFactor_ = -lineOfSightVector.transpose( ) * transmitterPartialScalingTerm / physical_constants::SPEED_OF_LIGHT;
 
@@ -151,24 +154,14 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
                         oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartialOfVelocity(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
+    }
 
-//        std::cout<<"Position: "<<oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-//                   ( positionPartialIterator_->second->calculatePartialOfPosition(
-//                         currentState_ , currentTime_ ) )<<std::endl;
-//        std::cout<<"Velocity: "<<oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-//                   ( positionPartialIterator_->second->calculatePartialOfVelocity(
-//                         currentState_ , currentTime_ ) )<<std::endl;
-//        std::cout<<"Ratio: "<<
-//                   ( oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first ) *
-//                                      ( positionPartialIterator_->second->calculatePartialOfPosition(
-//                                            currentState_ , currentTime_ ) ) ).cwiseQuotient
-//                   ( oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
-//                   ( positionPartialIterator_->second->calculatePartialOfVelocity(
-//                         currentState_ , currentTime_ ) ) )<<std::endl<<std::endl;
-//        std::cout<<"Pos. part: "<<positionPartialIterator_->second->calculatePartialOfPosition(
-//                       currentState_ , currentTime_ )<<std::endl;
-//        std::cout<<"Vel. part: "<<positionPartialIterator_->second->calculatePartialOfVelocity(
-//                       currentState_ , currentTime_ )<<std::endl;
+    // Add scaled light-time correcion partials.
+    for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
+    {
+        returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
+        returnPartial[ returnPartial.size( ) - 1 ].first *=
+                oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
     }
 
     return returnPartial;

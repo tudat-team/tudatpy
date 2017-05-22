@@ -274,9 +274,9 @@ struct PodOutput
     {
         Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
 
-        for( unsigned int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
+        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {
-            for( unsigned int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
+            for( int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
             {
                 inverseUnnormalizedCovarianceMatrix( i, j ) *=
                         informationMatrixTransformationDiagonal_( i ) * informationMatrixTransformationDiagonal_( j );

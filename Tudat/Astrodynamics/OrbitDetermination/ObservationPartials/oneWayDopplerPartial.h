@@ -81,12 +81,18 @@ public:
         return currentLinkEndType_;
     }
 
+    double getLightTimeCorrectionPartialScaling( )
+    {
+        return lightTimeEffectPositionScalingFactor_;
+    }
+
+
 private:
 
     //! Computed scaling factor (at receiver)
     Eigen::Matrix< double, 1, 3 > positionScalingFactor_;
 
-    Eigen::Matrix< double, 1, 3 > lightTimeEffectPositionScalingFactor_;
+    double lightTimeEffectPositionScalingFactor_;
 
     Eigen::Matrix< double, 1, 3 > receiverVelocityScalingFactor_;
 
@@ -112,8 +118,9 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
         const Eigen::Vector3d& vectorToReceiver,
         const Eigen::Vector3d& projectedLinkEndVelocity,
         const Eigen::Vector3d& variableLinkEndVelocity,
-        const Eigen::Vector3d& linkEndAcceleration,
-        const bool linkEndIsReceiver );
+        const Eigen::Vector3d& projectedLinkEndAcceleration,
+        const bool linkEndIsReceiver,
+        const bool projectedLinkEndIsVariableLinkEnd = true );
 
 //! Class to compute the partial derivatives of a one-way doppler observation partial.
 class OneWayDopplerPartial: public ObservationPartial< 1 >

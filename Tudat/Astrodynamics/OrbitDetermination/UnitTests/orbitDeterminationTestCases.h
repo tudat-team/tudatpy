@@ -532,7 +532,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
     {
         for( unsigned int j = 0; j < 500; j++ )
         {
-            baseTimeList.push_back( observationTimeStart + ( double )i * 86400.0 + ( double ) j * observationInterval );
+            baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
+                                    static_cast< double >( j ) * observationInterval );
         }
     }
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;

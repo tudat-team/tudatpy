@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
-                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5, true, true );
+                    oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5, true, true, 10.0 );
     }
 
     std::cout<<"*******************************************************"<<std::endl;

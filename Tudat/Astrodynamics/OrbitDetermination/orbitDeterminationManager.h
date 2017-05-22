@@ -381,32 +381,32 @@ public:
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
 
-        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
-        {
-            int currentColumn = observationLinkParameterIndices_.at( i );
-            int startIndex = -1;
-            int endIndex = -1;
-            std::vector< double > partialMaximum;
-            bool isInRange = 0;
+//        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
+//        {
+//            int currentColumn = observationLinkParameterIndices_.at( i );
+//            int startIndex = -1;
+//            int endIndex = -1;
+//            std::vector< double > partialMaximum;
+//            bool isInRange = 0;
 
-            for( unsigned int j = 0; j < observationMatrix.rows( ); j++ )
-            {
-                if( observationMatrix( j, currentColumn ) != 0.0 )
-                {
-                   if( isInRange == 0 )
-                   {
-                       isInRange = 1;
-                       startIndex = j;
-                   }
-                }
-                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
-                {
-                    isInRange = 0;
-                    endIndex = j;
-                }
+//            for( int j = 0; j < observationMatrix.rows( ); j++ )
+//            {
+//                if( observationMatrix( j, currentColumn ) != 0.0 )
+//                {
+//                   if( isInRange == 0 )
+//                   {
+//                       isInRange = 1;
+//                       startIndex = j;
+//                   }
+//                }
+//                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
+//                {
+//                    isInRange = 0;
+//                    endIndex = j;
+//                }
 
-            }
-        }
+//            }
+//        }
         return normalizationTerms;
     }
 
