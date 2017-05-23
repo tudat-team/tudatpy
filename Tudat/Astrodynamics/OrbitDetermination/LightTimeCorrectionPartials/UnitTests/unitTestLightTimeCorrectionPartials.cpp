@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                         linkEndIterator->first );
 
             // Settings for parameter partial functions.
-            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E18 )( 1.0E15 )( 1.0E15 )( 1.0E8 );
+            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E16 )( 1.0E8 );
             std::vector< boost::function< void( ) > > updateFunctionList;
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );
@@ -237,6 +237,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
                         doubleParameterVector, updateFunctionList, parameterPerturbations, observationFunction, observationTime );
 
+            std::cout<<"Partials"<<std::endl;
             // Compare analytical and numerical partials
             for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
             {
@@ -248,6 +249,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
                 }
 
+                std::cout<<"Diff: "<<( currentParameterPartial - numericalPartialsWrtDoubleParameters.at( i ).x( ) ) / currentParameterPartial<<std::endl;
                 BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters.at( i ).x( ), 1.0E-4 );
             }
 
