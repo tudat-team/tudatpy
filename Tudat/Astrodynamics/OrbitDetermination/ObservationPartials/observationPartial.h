@@ -54,6 +54,7 @@ public:
      *  \param times List of times at each link end during observation.
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
+     *  \param currentObservation Value of observation for which partial scaling is to be computed
      */
     virtual void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                          const std::vector< double >& times,
