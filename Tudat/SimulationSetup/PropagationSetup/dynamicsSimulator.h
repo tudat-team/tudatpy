@@ -171,7 +171,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
  *  (single-arc/multi-arc/etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class DynamicsSimulators
+class DynamicsSimulator
 {
 public:
 
@@ -643,8 +643,9 @@ public:
     /*!
      *  Constructor of multi-arc simulator for same integration settings per arc.
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettingsIntegrator settings for numerical integrator, used for all arcs.
+     *  \param integratorSettings Integrator settings for numerical integrator, used for all arcs.
      *  \param propagatorSettings Propagator settings for dynamics (must be of multi arc type)
+     *  \param arcStartTimes Times at which the separate arcs start
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at
      *  the end of the contructor or not.
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
@@ -797,7 +798,7 @@ public:
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
      *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
-     *  \param initialStates Initial state vector that is to be used for numerical integration. Note that this state should
+     *  \param initialStatesList Initial state vector that is to be used for numerical integration. Note that this state should
      *  be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_), but not in the propagator-
      *  specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all stored, in order, in the input
      *  std vector.
