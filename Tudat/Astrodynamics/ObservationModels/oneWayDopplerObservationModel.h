@@ -148,6 +148,8 @@ public:
         computationPointLinkEndType_( computationPointLinkEndType )
     { }
 
+    virtual ~DopplerProperTimeRateInterface( ){ }
+
     virtual ObservationScalarType getOberverProperTimeDeviation(
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
@@ -167,6 +169,8 @@ public:
         DopplerProperTimeRateInterface< ObservationScalarType, TimeType >( computationPointLinkEndType ),
         properTimeRateFunction_( properTimeRateFunction )
     { }
+
+    ~CustomDopplerProperTimeRateInterface( ){ }
 
     virtual ObservationScalarType getOberverProperTimeDeviation(
             const std::vector< double >& linkEndTimes,
@@ -229,6 +233,8 @@ public:
             throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have unambiguous state information" );
         }
     }
+
+    ~DirectFirstOrderDopplerProperTimeRateInterface( ){ }
 
     ObservationScalarType getOberverProperTimeDeviation(
             const std::vector< double >& linkEndTimes,
@@ -388,10 +394,8 @@ public:
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
-        ObservationScalarType lightTime;
-        TimeType transmissionTime, receptionTime;
-
-        bool fixTransmissionTime;
+        ObservationScalarType lightTime = TUDAT_NAN;
+        TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
         // Compute light time
         switch( linkEndAssociatedWithTime )
@@ -401,7 +405,6 @@ public:
                         receiverState_, transmitterState_, time, true );
             transmissionTime = time - lightTime;
             receptionTime = time;
-            fixTransmissionTime = 0;
             break;
 
         case transmitter:
@@ -409,7 +412,6 @@ public:
                         receiverState_, transmitterState_, time, false );
             transmissionTime = time;
             receptionTime = time + lightTime;
-            fixTransmissionTime = 1;
             break;
         default:
             throw std::runtime_error(
