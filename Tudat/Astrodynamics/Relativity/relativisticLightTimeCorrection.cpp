@@ -36,6 +36,37 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 
 }
 
+Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
+        const double bodyGravitationalParameter,
+        const Eigen::Vector3d& transmitterPosition,
+        const Eigen::Vector3d& receiverPosition,
+        const Eigen::Vector3d& centralBodyPosition,
+        const bool evaluateGradientAtReceiver,
+        const double ppnParameterGamma )
+{
+    Eigen::Vector3d relativePositionVector = ( receiverPosition - transmitterPosition );
+    double receiverDistance = ( receiverPosition - centralBodyPosition ).norm( );
+    double transmitterDistance = ( transmitterPosition - centralBodyPosition ).norm( );
+    double linkEndDistance = relativePositionVector.norm( );
+
+    Eigen::Matrix< double, 1, 3 > gradient = ( receiverDistance + transmitterDistance ) *
+            ( relativePositionVector.normalized( ) ).transpose( );
+    if( evaluateGradientAtReceiver )
+    {
+       gradient -= relativePositionVector.norm( ) * ( receiverPosition.normalized( ) ).transpose( );
+    }
+    else
+    {
+        gradient += relativePositionVector.norm( ) * ( transmitterPosition.normalized( ) ).transpose( );\
+    }
+
+    return 2.0 * ppnParameterGamma * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * gradient /
+            ( ( receiverDistance + transmitterDistance ) * ( receiverDistance + transmitterDistance ) -
+                  linkEndDistance * linkEndDistance );
+
+
+}
+
 }
 
 }
