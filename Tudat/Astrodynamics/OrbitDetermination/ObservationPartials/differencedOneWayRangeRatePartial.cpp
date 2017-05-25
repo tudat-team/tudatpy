@@ -6,7 +6,9 @@ namespace tudat
 namespace observation_partials
 {
 
-std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > DifferencedOneWayRangeRatePartial::calculatePartial(
+//! Function to calculate the observation partial(s) at required time and state
+std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > >
+DifferencedOneWayRangeRatePartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime )
@@ -14,6 +16,7 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > D
 
     using namespace observation_partials;
 
+    // Split input times/states for arc start and end ranges
     std::vector< Eigen::Vector6d > arcStartStates;
     arcStartStates.push_back( states.at( 0 ) );
     arcStartStates.push_back( states.at( 1 ) );
@@ -29,6 +32,7 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > D
     arcEndTimes.push_back( times.at( 3 ) );
 
 
+    // Obtain arc start and end range partials
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > arcStartPartials =
             arcStartRangePartial_->calculatePartial( arcStartStates, arcStartTimes, linkEndOfFixedTime );
 
@@ -42,24 +46,30 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > D
         std::cerr<<"Error when making differenced one way range rate partials, arc start and end partials inconsistent"<<std::endl;
     }
 
-    //throw std::runtime_error( "Error, must compute arc duration" );
-    double arcDuration = 60.0;
+    // Retrieve arc length
+    double arcDuration = TUDAT_NAN;
+    if ( linkEndOfFixedTime == observation_models::transmitter )
+    {
+        arcDuration = times[ 2 ] - times[ 0 ];
+    }
+    else if ( linkEndOfFixedTime == observation_models::receiver )
+    {
+        arcDuration = times[ 3 ] - times[ 1 ];
+    }
 
+
+    // Scale partials by arc duration
     for( unsigned int i = 0; i < arcStartPartials.size( ); i++ )
     {
-        //std::cout<<arcStartPartials[ i ].first - arcEndPartials[ i ].first<<" "<<arcStartPartials[ i ].second -  arcEndPartials[ i ].second <<std::endl;
         differencedRangeRatePartials.push_back(
                     std::make_pair( -arcStartPartials[ i ].first / arcDuration, arcStartPartials[ i ].second ) );
     }
 
     for( unsigned int i = 0; i < arcEndPartials.size( ); i++ )
     {
-        //std::cout<<arcEndPartials[ i ].first<<std::endl;
         differencedRangeRatePartials.push_back(
                     std::make_pair( arcEndPartials[ i ].first / arcDuration, arcEndPartials[ i ].second ) );
     }
-
-    //std::cout<<( differencedRangeRatePartials[ 0 ].first+differencedRangeRatePartials[ 1 ].first ).cwiseQuotient( differencedRangeRatePartials[ 1 ].first  )<<std::endl;
 
     return differencedRangeRatePartials;
 }
