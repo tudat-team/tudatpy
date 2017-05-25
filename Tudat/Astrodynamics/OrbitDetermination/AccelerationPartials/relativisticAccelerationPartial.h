@@ -32,10 +32,10 @@ namespace acceleration_partials
  * \param partialMatrix Requested (returnd by reference)
  * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
  * \param ppnParameterGamma PPN parameter gamma
- * \param ppnParameterBeta PPN parameter bet
+ * \param ppnParameterBeta PPN parameter beta
  */
 void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
-        const Eigen::Vector6d& relativeState, Eigen::Vector3d& currentAcceleration, Eigen::Matrix3d& partial,
+        const Eigen::Vector6d& relativeState, Eigen::Vector3d& currentAcceleration, Eigen::Matrix3d& partialMatrix,
         const double gravitationalParameter, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
 
 //! Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
@@ -46,10 +46,9 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
  * \param partialMatrix Requested (returnd by reference)
  * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
  * \param ppnParameterGamma PPN parameter gamma
- * \param ppnParameterBeta PPN parameter bet
  */
 void computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
-        const Eigen::Vector6d& relativeState, Eigen::Matrix3d& partial,
+        const Eigen::Vector6d& relativeState, Eigen::Matrix3d& partialMatrix,
         const double gravitationalParameter, const double ppnParameterGamma = 1.0 );
 
 //! Function to compute partial derivative of Schwarzschild acceleration correction w.r.t. central body gravitational patameter.
@@ -64,7 +63,7 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
 void computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter(
         const Eigen::Vector6d& relativeState,
         const double gravitationalParameter,
-        Eigen::MatrixXd& partial, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
+        Eigen::MatrixXd& partialMatrix, const double ppnParameterGamma = 1.0, const double ppnParameterBeta = 1.0 );
 
 //! Function to compute the partial derivative of Schwarzschild acceleration correction w.r.t. PPN parameter gamma
 /*!
