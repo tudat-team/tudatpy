@@ -85,7 +85,9 @@ ObservationScalarType calculateLineOfSightVelocityAsCFractionFromReceiverStateFu
  *  time corrections are not included in this function. The Taylor series of the denominator of dt1/dt2 is used in the
  *  calculation, to an order that is provided as input.
  *  \param transmitterState Cartesian state of the transmitter at t1
- *  \param receiverState Cartesian state of the receiver at t1
+ *  \param receiverState Cartesian state of the receiver at t2
+ *  \param lightTimeWrtTransmitterPositionPartial Light time partial w.r.t. transmitter position
+ *  \param lightTimeWrtReceiverPositionPartial Light time partial w.r.t. receiver position
  *  \param taylorSeriesOrder Order to which Taylor series is to be expanded
  *  \return First-order Doppler effect for electromagnetic signal transmission from transmitter to receiver as: (dt1/dt2 -1)
  *   with t2 the coordinate reception time and t1 the coordinate transmission time of the signal.
@@ -306,6 +308,10 @@ public:
      *  \param lightTimeCalculator Object to compute the light-time (including any corrections w.r.t. Euclidean case)
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
+     *  \param transmitterProperTimeRateFunction Function to compute derivative of deviation between proper and coordinate time
+     *  at transmitter, w.r.t. coordinate time.
+     *  \param receiverProperTimeRateFunction Function to compute derivative of deviation between proper and coordinate time
+     *  at receiver w.r.t. coordinate time.
      */
     OneWayDopplerObservationModel(
             const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
