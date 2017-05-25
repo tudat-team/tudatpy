@@ -97,7 +97,7 @@ public:
     //! Get state from ephemeris (Time time input)
     /*!
      * Returns state from ephemeris at given Julian date.
-     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
     Eigen::Vector6d getCartesianStateFromExtendedTime(
@@ -110,8 +110,8 @@ public:
     //! Get state from ephemeris (long double state output and Time time input)
     /*!
      * Returns state from ephemeris at given Julian date.
-     * \param secondsSinceEpoch Seconds since epoch (J2000) at which ephemeris is to be evaluated.
-     * \return State from ephemeris.
+     * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
+     * \return State currentTime ephemeris.
      */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime(
             const Time& currentTime )
