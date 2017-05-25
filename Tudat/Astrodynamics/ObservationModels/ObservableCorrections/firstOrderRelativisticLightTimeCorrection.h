@@ -109,6 +109,24 @@ public:
                                          const double transmissionTime,
                                          const double receptionTime );
 
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        return 0.0;
+    }
+
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated );
+
     //! Function to get the names of bodies causing light-time correction.
     /*!
      * Function to get the names of bodies causing light-time correction.
