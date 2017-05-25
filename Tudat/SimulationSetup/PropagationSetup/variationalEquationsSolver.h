@@ -54,13 +54,8 @@ public:
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and
      *  equations of motion.
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Settings for numerical integrator of combined propagation of variational equations
-     *  and equations of motion.
-     *  \param propagatorSettings Settings for propagation of equations of motion.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
      *  settings and values.
-     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
-     *  equations.
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      */

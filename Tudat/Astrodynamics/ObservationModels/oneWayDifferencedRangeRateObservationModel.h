@@ -1,6 +1,15 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_ONEWAYDIFFERENCEDRANGERATEOBSERVATIONMODEL_H
 #define TUDAT_ONEWAYDIFFERENCEDRANGERATEOBSERVATIONMODEL_H
-
 
 #include <map>
 
@@ -19,6 +28,13 @@ namespace tudat
 namespace observation_models
 {
 
+//! Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable
+/*!
+ *  Class for simulating one-way differenced range (e.g. closed-loop Doppler) observable. The observable is obtained by
+ *  subtracting the range at two time intervals, and dividing by the time difference. It represents the time-averages value
+ *  of the range-rate over this integration time.
+ *  The user may add observation biases to model system-dependent deviations between measured and true observation.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class OneWayDifferencedRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
@@ -35,7 +51,7 @@ public:
      *  \param arcEndLightTimeCalculator Object to compute the light-time (including any corrections w.r.t. Euclidean case)
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
-     *  \param dopplerIntervalFunction Function returning the integration time of the observable as a function of the
+     *  \param integrationTimeFunction Function returning the integration time of the observable as a function of the
      *  current observation time.
      */
     OneWayDifferencedRangeObservationModel(
@@ -43,11 +59,11 @@ public:
             arcStartLightTimeCalculator,
             const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcEndLightTimeCalculator,
-            boost::function< double( const double ) > dopplerIntervalFunction,
+            boost::function< double( const double ) > integrationTimeFunction,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator ),
-        dopplerIntervalFunction_( dopplerIntervalFunction )
+        integrationTimeFunction_( integrationTimeFunction )
     {
 
     }
@@ -55,6 +71,17 @@ public:
     //! Destructor
     ~OneWayDifferencedRangeObservationModel( ){ }
 
+    //! Function to compute ideal one-way differenced range observation without any corrections at given time.
+    /*!
+     *  This function compute ideal one-way differenced range without any corrections at a given time.
+     *  The time argument can be either the reception or transmission time (defined by linkEndAssociatedWithTime input).
+     *  It does not include system-dependent measurement
+     *  errors, such as biases or clock errors.
+     *  \param time Time at which observation is to be simulated
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \return Calculated observed one-way differenced range
+     */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime )
@@ -62,13 +89,13 @@ public:
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
-        TimeType currentDopplerCountInterval = dopplerIntervalFunction_( time );
+        TimeType currentIntegrationTime = integrationTimeFunction_( time );
 
         if ( linkEndAssociatedWithTime == receiver )
         {
             // Calculate light times at the start of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ) - currentDopplerCountInterval, 1 );
+                        static_cast< double >( time ) - currentIntegrationTime, 1 );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTime(
@@ -80,7 +107,7 @@ public:
 
             // Calculate light times at the start of the reception interval
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTime(
-                        static_cast< double >( time ) - currentDopplerCountInterval, 0 );
+                        static_cast< double >( time ) - currentIntegrationTime, 0 );
 
             // Calculate light times at the end of the reception interval
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTime(
@@ -94,13 +121,13 @@ public:
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << ( lightTimeAtEndInterval - lightTimeAtStartInterval ) *
                  physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
-                 static_cast< ObservationScalarType >( currentDopplerCountInterval ) ).finished( );
+                 static_cast< ObservationScalarType >( currentIntegrationTime ) ).finished( );
     }
 
-    //! Function to compute one-way Doppler observable without any corrections.
+    //! Function to compute one-way differenced range observable without any corrections.
     /*!
-     *  Function to compute one-way Doppler  observable without any corrections, i.e. the true physical Doppler as computed
-     *  from the defined link ends. It does not include system-dependent measurement
+     *  Function to compute one-way differenced range  observable without any corrections, i.e. the true physical differenced
+     *  range as computed from the defined link ends. It does not include system-dependent measurement
      *  errors, such as biases or clock errors.
      *  The times and states of the link ends are also returned in double precision. These states and times are returned by
      *  reference.
@@ -109,7 +136,7 @@ public:
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation.
      *  \param linkEndStates List of states at each link end during observation.
-     *  \return Ideal one-way Doppler observable.
+     *  \return Ideal one-way differenced range observable.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
@@ -119,7 +146,7 @@ public:
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
-        TimeType currentDopplerCountInterval = dopplerIntervalFunction_( time );
+        TimeType currentIntegrationTime = integrationTimeFunction_( time );
 
         linkEndTimes.resize( 4 );
         linkEndStates.resize( 4 );
@@ -128,7 +155,7 @@ public:
         if ( linkEndAssociatedWithTime == receiver )
         {
             //Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 1 ] = static_cast< double >( time ) - currentDopplerCountInterval;
+            linkEndTimes[ 1 ] = static_cast< double >( time ) - currentIntegrationTime;
             linkEndTimes[ 3 ] = static_cast< double >( time );
 
             // Calculate light times at the start of the reception interval
@@ -146,7 +173,7 @@ public:
         else if ( linkEndAssociatedWithTime == transmitter )
         {
             //Calculate reception time at ground station at the start and end of the count interval at reception time.
-            linkEndTimes[ 0 ] = static_cast< double >( time ) - currentDopplerCountInterval;
+            linkEndTimes[ 0 ] = static_cast< double >( time ) - currentIntegrationTime;
             linkEndTimes[ 2 ] = static_cast< double >( time );
 
             // Calculate light times at the start of the reception interval
@@ -173,19 +200,22 @@ public:
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << ( lightTimeAtEndInterval - lightTimeAtStartInterval ) *
                  physical_constants::getSpeedOfLight< ObservationScalarType >( ) /
-                 static_cast< ObservationScalarType >( currentDopplerCountInterval ) ).finished( );
+                 static_cast< ObservationScalarType >( currentIntegrationTime ) ).finished( );
     }
 
 
 private:
 
+    //! Light time calculator to compute light time at the beginning of the integration time
     boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     arcStartLightTimeCalculator_;
 
+    //! Light time calculator to compute light time at the end of the integration time
     boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     arcEndLightTimeCalculator_;
 
-    boost::function< double( const double ) > dopplerIntervalFunction_;
+    //! Function returning the integration time of the observable as a function of the current observation time.
+    boost::function< double( const double ) > integrationTimeFunction_;
 
 };
 
