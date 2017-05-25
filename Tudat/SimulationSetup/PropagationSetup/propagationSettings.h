@@ -46,6 +46,7 @@ public:
     /*!
      * Constructor
      * \param initialBodyStates Initial state used as input for numerical integration
+     * \param isMultiArc Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
      */
     PropagatorSettings( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
                         const bool isMultiArc ):
@@ -82,6 +83,11 @@ public:
         return stateSize_;
     }
 
+    //! Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+    /*!
+     *  Function to get boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+     *  \return Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
+     */
     bool getIsMultiArc( )
     {
         return isMultiArc_;
@@ -96,6 +102,7 @@ protected:
     //! Total size of the propagated state.
     int stateSize_;
 
+    //! Boolean denoting whether the propagation settings are multi-arc (if true) or single arc (if false).
     bool isMultiArc_;
 };
 
