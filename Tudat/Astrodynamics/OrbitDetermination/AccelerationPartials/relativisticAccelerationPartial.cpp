@@ -18,31 +18,31 @@ namespace acceleration_partials
 
 //! Function to compute partial of Schwarzschild acceleration correction w.r.t. position of body undergoing acceleration
 void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
-        const Eigen::Vector6d& relativeState, Eigen::Vector3d& currentAcceleration, Eigen::Matrix3d& partial,
+        const Eigen::Vector6d& relativeState, Eigen::Vector3d& currentAcceleration, Eigen::Matrix3d& partialMatrix,
         const double gravitationalParameter, const double ppnParameterGamma, const double ppnParameterBeta )
 {
     Eigen::Vector3d position = relativeState.segment( 0, 3 );
     Eigen::Vector3d velocity = relativeState.segment( 3, 3 );
     double distance = position.norm( );
 
-    partial = 2.0 * ( ppnParameterGamma + ppnParameterBeta ) * gravitationalParameter / distance * (
+    partialMatrix = 2.0 * ( ppnParameterGamma + ppnParameterBeta ) * gravitationalParameter / distance * (
                 Eigen::Matrix3d::Identity( ) - position * position.transpose( ) / ( distance * distance ) );
-    partial -= ppnParameterGamma * velocity.dot( velocity ) * Eigen::Matrix3d::Identity( );
-    partial += 2.0 * ( 1.0 + ppnParameterGamma ) * velocity * velocity.transpose( );
-    partial *= gravitationalParameter *  physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance );
-    partial -= 3.0 * currentAcceleration * position.transpose( ) / ( distance * distance );
+    partialMatrix -= ppnParameterGamma * velocity.dot( velocity ) * Eigen::Matrix3d::Identity( );
+    partialMatrix += 2.0 * ( 1.0 + ppnParameterGamma ) * velocity * velocity.transpose( );
+    partialMatrix *= gravitationalParameter *  physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance );
+    partialMatrix -= 3.0 * currentAcceleration * position.transpose( ) / ( distance * distance );
 }
 
 //! Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
 void computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
-        const Eigen::Vector6d& relativeState, Eigen::Matrix3d& partial,
+        const Eigen::Vector6d& relativeState, Eigen::Matrix3d& partialMatrix,
         const double gravitationalParameter, const double ppnParameterGamma )
 {
     Eigen::Vector3d position = relativeState.segment( 0, 3 );
     Eigen::Vector3d velocity = relativeState.segment( 3, 3 );
     double distance = position.norm( );
 
-    partial = gravitationalParameter * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance ) *
+    partialMatrix = gravitationalParameter * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance ) *
             ( - 2.0 * ppnParameterGamma * position * velocity.transpose( ) +
               2.0 * ( 1.0 + ppnParameterGamma ) * (
                   position.dot( velocity ) * Eigen::Matrix3d::Identity( ) + velocity * position.transpose( ) ) );
@@ -53,13 +53,13 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtVelocity(
 void computePartialOfSchwarzschildAccelerationCorrectionWrtGravitationalParameter(
         const Eigen::Vector6d& relativeState,
         const double gravitationalParameter,
-        Eigen::MatrixXd& partial, const double ppnParameterGamma, const double ppnParameterBeta )
+        Eigen::MatrixXd& partialMatrix, const double ppnParameterGamma, const double ppnParameterBeta )
 {
     Eigen::Vector3d position = relativeState.segment( 0, 3 );
     Eigen::Vector3d velocity = relativeState.segment( 3, 3 );
     double distance = position.norm( );
 
-    partial = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance ) *
+    partialMatrix = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT / ( distance * distance * distance ) *
             ( -ppnParameterGamma * ( velocity.dot( velocity ) ) * position +
               2.0 * ( 1.0 + ppnParameterGamma ) *
               ( position.dot( velocity ) ) * velocity
