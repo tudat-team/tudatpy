@@ -151,6 +151,11 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
 
     // Create scaling object, to be used for all one-way doppler partials in current link end.
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials =
+            createDopplerProperTimePartials( );
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
+            createDopplerProperTimePartials( );
+
     boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ) );
