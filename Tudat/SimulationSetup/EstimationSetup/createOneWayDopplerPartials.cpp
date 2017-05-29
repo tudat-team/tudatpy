@@ -57,6 +57,12 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
     return oneWayDopplerPartial;
 }
 
+boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
+        const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
+        const observation_models::LinkEnds oneWayDopplerLinkEnds )
+{
+
+}
 
 }
 

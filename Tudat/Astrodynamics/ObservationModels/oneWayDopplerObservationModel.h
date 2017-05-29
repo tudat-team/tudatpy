@@ -503,6 +503,17 @@ public:
         return lightTimeCalculator_;
     }
 
+    boost::shared_ptr< DopplerProperTimeRateInterface > getTransmitterProperTimeRateCalculator( )
+    {
+        return transmitterProperTimeRateCalculator_;
+    }
+
+    boost::shared_ptr< DopplerProperTimeRateInterface > getReceiverProperTimeRateCalculator( )
+    {
+        return receiverProperTimeRateCalculator_;
+    }
+
+
 
 private:
 

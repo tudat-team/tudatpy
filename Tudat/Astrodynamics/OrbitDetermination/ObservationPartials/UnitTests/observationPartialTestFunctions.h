@@ -127,11 +127,13 @@ inline void testObservationPartials(
             fullEstimatableParameterSet->getEstimatedVectorParameters( );
 
     // Create observation partials.
-    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double > > observationPartialCreator;
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
+    observationModelList[ linkEnds ] = observationModel;
+    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator;
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
-                observableType, boost::assign::list_of( linkEnds ), bodyMap, fullEstimatableParameterSet ).begin( )->second;
+                observableType, observationModelList, bodyMap, fullEstimatableParameterSet ).begin( )->second;
     boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
     // Iterate over link ends, compute and test partials for observable referenced at each link end.
