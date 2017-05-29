@@ -274,13 +274,13 @@ public:
 };
 
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > > createOneWayDopplerProperTimeCalculator(
+boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeCalculator(
         boost::shared_ptr< DopplerProperTimeRateSettings > properTimeRateSettings,
         const LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
         const LinkEndType linkEndForCalculator )
 {
-    boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeType > > properTimeRateInterface;
+    boost::shared_ptr< DopplerProperTimeRateInterface > properTimeRateInterface;
     switch( properTimeRateSettings->dopplerProperTimeRateType_ )
     {
     case direct_first_order_doppler_proper_time_rate:
@@ -316,7 +316,7 @@ boost::shared_ptr< DopplerProperTimeRateInterface< ObservationScalarType, TimeTy
             if( ( linkEnds.at( receiver ) != referencePointId ) && ( linkEnds.at( transmitter ) != referencePointId ) )
             {
                 properTimeRateInterface = boost::make_shared<
-                        DirectFirstOrderDopplerProperTimeRateInterface< ObservationScalarType, TimeType > >(
+                        DirectFirstOrderDopplerProperTimeRateInterface >(
                             linkEndForCalculator, gravitationalParameterFunction, unidentified_link_end,
                             getLinkEndCompleteEphemerisFunction< double, double >(
                                 std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodyMap ) );

@@ -82,9 +82,9 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     ( bodyMap[ "Moon" ] )->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
     ( bodyMap[ "Mars" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) * 10000.0 ) );
     ( bodyMap[ "Earth" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) * 10000.0 ) );
 
 
     ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
