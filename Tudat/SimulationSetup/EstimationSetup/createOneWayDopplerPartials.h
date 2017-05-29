@@ -105,6 +105,11 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
+boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
+        const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
+        const observation_models::LinkEnds oneWayDopplerLinkEnds );
+
+
 //! Function to generate one-way doppler partials and associated scaler for single link end.
 /*!
  *  Function to generate one-way doppler partials and associated scaler for all parameters that are to be estimated,
@@ -126,6 +131,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > transmitterDopplerProperTimeInterface,
+        const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > receiverDopplerProperTimeInterface,
         const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
         std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
 {
@@ -152,13 +159,15 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
     // Create scaling object, to be used for all one-way doppler partials in current link end.
     boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials =
-            createDopplerProperTimePartials( );
+            createDopplerProperTimePartials( transmitterDopplerProperTimeInterface, oneWayDopplerLinkEnds );
     boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
-            createDopplerProperTimePartials( );
+            createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds );
 
     boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
-            boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ) );
+            boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ),
+                transmitterProperTimePartials,
+                receiverProperTimePartials );
 
 
     // Initialize vector index variables.
@@ -276,46 +285,49 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  \return Map of SingleLinkObservationPartialList, representing all necessary one-way doppler partials of a single link end,
  *  and OneWayDopplerScaling, object, used for scaling the position partial members of all OneWayDopplerPartials in link end.
  */
-template< typename ParameterType >
+template< typename ObservationScalarType, typename TimeType >
 std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
 boost::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
-        const std::vector< observation_models::LinkEnds >& linkEnds,
+        const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > > observationModelList,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
-        std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
 {
     // Declare return list.
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
             boost::shared_ptr< PositionPartialScaling > > > dopplerPartials;
 
     // Iterate over all link ends.
-    for( unsigned int i = 0; i < linkEnds.size( ); i++ )
+    for( auto linkIterator: observationModelList )
     {
         // Check if required link end types are present
-        if( ( linkEnds[ i ].count( observation_models::receiver ) == 0 ) ||
-                ( linkEnds[ i ].count( observation_models::transmitter ) == 0 ) )
+        if( ( linkIterator.first.count( observation_models::receiver ) == 0 ) ||
+                ( linkIterator.first.count( observation_models::transmitter ) == 0 ) )
         {
             throw std::runtime_error( "Error when making 1-way doppler partials, did not find both receiver and transmitter in link ends" );
 
         }
 
+
+         boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > dopplerObservationModel =
+                 boost::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                            linkIterator.second );
+
         std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
-        if( lightTimeCorrections.count( linkEnds.at( i ) ) > 0 )
+        if( dopplerObservationModel == NULL )
         {
-            if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) != 1 )
-            {
-                std::cerr<<"Error when making one way doppler partials, light time corrections for "<<
-                           lightTimeCorrections.at( linkEnds.at( i ) ).size( )<<" links found"<<std::endl;
-            }
-            singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
+            throw std::runtime_error( "Error when making one-way Doppler partials. Type is inconsistent" );
+        }
+        else
+        {
+            singleLinkLightTimeCorrections = dopplerObservationModel->getLightTimeCalculator( )->getLightTimeCorrection( );
         }
 
         // Create doppler partials for current link ends
-        dopplerPartials[ linkEnds[ i ] ] = createOneWayDopplerPartials< ParameterType >(
-                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections );
+        dopplerPartials[ linkIterator.first ] = createOneWayDopplerPartials< ObservationScalarType >(
+                    linkIterator.first, bodyMap, parametersToEstimate,
+                    dopplerObservationModel->getTransmitterProperTimeRateCalculator( ),
+                    dopplerObservationModel->getReceiverProperTimeRateCalculator( ),
+                    singleLinkLightTimeCorrections );
     }
 
     // Return complete set of link ends.
