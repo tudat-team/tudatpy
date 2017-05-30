@@ -489,8 +489,6 @@ public:
                     lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
                     taylorSeriesExpansionOrder_ );
 
-        std::cout<<"Doppler comp.: "<<firstOrderDopplerObservable<<" "<<properTimeCorrectionTerm<<std::endl;
-
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
                 ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +
                 properTimeCorrectionTerm;
