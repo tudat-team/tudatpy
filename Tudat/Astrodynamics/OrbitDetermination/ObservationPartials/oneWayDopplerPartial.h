@@ -38,9 +38,7 @@ class OneWayDopplerDirectFirstOrderProperTimeComponentScaling: public OneWayDopp
 public:
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
             const boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
-            const observation_models::LinkEndType linkEndWithPartial,
-            const double transmitterMultiplier,
-            const double receiverMultiplier ):
+            const observation_models::LinkEndType linkEndWithPartial ):
         properTimeRateModel_( properTimeRateModel ), linkEndWithPartial_( linkEndWithPartial )
     {
 
@@ -51,32 +49,31 @@ public:
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation )
     {
-        Eigen::Vector6d relativeState = properTimeRateModel_->getReferencePointState(
+        Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
                     times, linkEndStates, linkEndWithPartial_ );
         double distance = relativeState.segment( 0, 3 ).norm( );
 
         double currentGravitationalParameter = properTimeRateModel_->getGravitationalParameter( );
 
-        if( linkEndWithPartial_ == observation_models::transmitter )
-        {
-            partialWrPosition_ = physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT *
-                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
-                    currentGravitationalParameter / ( distance * distance ) *
-                    ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
-            partialWrtVelocity_ = -physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * relativeState.segment( 3, 3 );
-        }
+        partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
+                currentGravitationalParameter / ( distance * distance ) *
+                ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
+        partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                ( relativeState.segment( 3, 3 ) ).transpose( );
+        std::cout<<"Computed partials: "<<partialWrPosition_<<" "<<partialWrtVelocity_<<std::endl;
     }
 
     Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        return partialWrPosition_ * ( ( linkEndType == observation_models::receiver ) ?
-                                          ( receiverMultiplier_ ) : ( transmitterMultiplier_ ) );
+        return partialWrPosition_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
+                                          ( 1.0 ) : ( 0.0 ) );
     }
 
     Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
     {
-        return partialWrtVelocity_ * ( ( linkEndType == observation_models::receiver ) ?
-                                           ( receiverMultiplier_ ) : ( transmitterMultiplier_ ) );
+        return partialWrtVelocity_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
+                                           ( 1.0 ) : ( 0.0 ) );
     }
 
 
@@ -89,11 +86,6 @@ private:
     Eigen::Matrix< double, 1, 3 > partialWrPosition_;
 
     Eigen::Matrix< double, 1, 3 > partialWrtVelocity_;
-
-    double transmitterMultiplier_;
-
-    double receiverMultiplier_;
-
 };
 
 //! Derived class for scaling three-dimensional position partial to one-way doppler observable partial
@@ -111,10 +103,10 @@ public:
             const boost::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
             const boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = NULL,
             const boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = NULL ):
-    transmitterAccelerationFunction_( transmitterAccelerationFunction ),
-    receiverAccelerationFunction_( receiverAccelerationFunction ),
-    transmitterProperTimePartials_( transmitterProperTimePartials ),
-    receiverProperTimePartials_( receiverProperTimePartials ){ }
+        transmitterAccelerationFunction_( transmitterAccelerationFunction ),
+        receiverAccelerationFunction_( receiverAccelerationFunction ),
+        transmitterProperTimePartials_( transmitterProperTimePartials ),
+        receiverProperTimePartials_( receiverProperTimePartials ){ }
 
     ~OneWayDopplerScaling( ){ }
 
@@ -152,7 +144,7 @@ public:
 
         if( receiverProperTimePartials_ != NULL )
         {
-            scalingFactor += receiverProperTimePartials_->getPositionScalingFactor( linkEndType );
+            scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType );
         }
 
         return scalingFactor;
@@ -161,8 +153,8 @@ public:
     Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
     {
         Eigen::Matrix< double, 1, 3 > scalingFactor =
-         ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ ) :
-                                                                   ( receiverVelocityScalingFactor_ ) );
+                ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ ) :
+                                                                    ( receiverVelocityScalingFactor_ ) );
 
         if( transmitterProperTimePartials_ != NULL )
         {
@@ -171,7 +163,7 @@ public:
 
         if( receiverProperTimePartials_ != NULL )
         {
-            scalingFactor += receiverProperTimePartials_->getVelocityScalingFactor( linkEndType );
+            scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType );
         }
 
         return scalingFactor;
@@ -192,6 +184,16 @@ public:
         return lightTimeEffectPositionScalingFactor_;
     }
 
+
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > getTransmitterProperTimePartials( )
+    {
+        return transmitterProperTimePartials_;
+    }
+
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > getReceiverProperTimePartials( )
+    {
+        return receiverProperTimePartials_;
+    }
 
 private:
 
@@ -274,7 +276,7 @@ public:
             }
         }
     }
-\
+    \
     //! Destructor.
     ~OneWayDopplerPartial( ) { }
 
