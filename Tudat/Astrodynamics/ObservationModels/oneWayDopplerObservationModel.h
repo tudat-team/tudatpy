@@ -155,6 +155,12 @@ public:
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const LinkEndType linkEndAssociatedWithTime ) = 0;
+
+    LinkEndType getComputationPointLinkEndType( )
+    {
+        return computationPointLinkEndType_;
+    }
+
 protected:
     LinkEndType computationPointLinkEndType_;
 };
@@ -483,6 +489,7 @@ public:
                     lightTimePartialWrtTransmitterPosition_, lightTimePartialWrtReceiverPosition_,
                     taylorSeriesExpansionOrder_ );
 
+        std::cout<<"Doppler comp.: "<<firstOrderDopplerObservable<<" "<<properTimeCorrectionTerm<<std::endl;
 
         ObservationScalarType totalDopplerObservable = firstOrderDopplerObservable *
                 ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) + properTimeCorrectionTerm ) +

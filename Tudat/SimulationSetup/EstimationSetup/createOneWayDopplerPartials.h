@@ -107,8 +107,8 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
 
 boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
-        const observation_models::LinkEnds oneWayDopplerLinkEnds );
-
+        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed  );
 
 //! Function to generate one-way doppler partials and associated scaler for single link end.
 /*!
@@ -136,7 +136,6 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
         std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
 {
-
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
     if( lightTimeCorrections.size( ) > 0 )
     {
@@ -155,13 +154,13 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
                 numerical_derivatives::order8 );
 
 
-
-
     // Create scaling object, to be used for all one-way doppler partials in current link end.
     boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials =
-            createDopplerProperTimePartials( transmitterDopplerProperTimeInterface, oneWayDopplerLinkEnds );
+           createDopplerProperTimePartials( transmitterDopplerProperTimeInterface, oneWayDopplerLinkEnds,
+                                            observation_models::transmitter );
     boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials =
-            createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds );
+            createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds,
+                                             observation_models::receiver  );
 
     boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),

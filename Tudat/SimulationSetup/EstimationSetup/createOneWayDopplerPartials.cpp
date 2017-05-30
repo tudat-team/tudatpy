@@ -59,13 +59,30 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
 
 boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
-        const observation_models::LinkEnds oneWayDopplerLinkEnds )
+        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed )
 {
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = NULL;
+    if( dopplerProperTimeInterface == NULL )
+    {
+        properTimeRateDopplerPartial = NULL;
+    }
+    else if( boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                 dopplerProperTimeInterface ) != NULL )
+    {
+        properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
+                    boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                                     dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed );
+    }
+    else
+    {
+        std::cerr<<"Warning, proper time contribution to Doppler observable not incorporated into Doppler partial"<<std::endl;
+        properTimeRateDopplerPartial = NULL;
+    }
+    return properTimeRateDopplerPartial;
 
 }
 
 }
 
 }
-
-
