@@ -166,13 +166,6 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
                         oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first ) *
                         ( positionPartialIterator_->second->calculatePartialOfVelocity(
                               currentState_ , currentTime_ ) ), currentTime_ ) );
-
-        std::cout<<"Partials: "<<std::setprecision( 16 )<<oneWayDopplerScaler_->getPositionScalingFactor( positionPartialIterator_->first )<<" "<<
-                   oneWayDopplerScaler_->getVelocityScalingFactor( positionPartialIterator_->first )<<" "<<
-                   ( positionPartialIterator_->second->calculatePartialOfPosition(
-                         currentState_ , currentTime_ ) )<<" "<<
-                   ( positionPartialIterator_->second->calculatePartialOfVelocity(
-                         currentState_ , currentTime_ ) )<<std::endl;
     }
 
     // Add scaled light-time correcion partials.
