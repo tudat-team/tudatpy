@@ -162,15 +162,29 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
     const double lowerLimit = 0.0;
     const double upperLimit = PI;
     GaussianQuadrature< double, double > integrator( sinFunction, lowerLimit, upperLimit, order );
+    double computedSolution = integrator.getQuadrature();
 
-    const double expectedSolution = 2.0;
-    const double computedSolution = integrator.getQuadrature();
+    // Expected solution from Wolfram Alpha
+    double expectedSolution = 2.0;
 
     // Check if computed solution matches expected value for a high order (8).
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
 
+
+    /// Check that it is a Gaussian quadrature and not just any quadrature
+
     // Check if error is within bounds for order 2...4
     checkErrorWithinBounds( 2, 4, sinFunction, lowerLimit, upperLimit, dSinFunction, PI / 2, expectedSolution );
+
+    // Set to order 2
+    integrator.reset( sinFunction, lowerLimit, upperLimit, 2 );
+    computedSolution = integrator.getQuadrature();
+
+    // Expected solution from http://keisan.casio.com/exec/system/1330940731
+    expectedSolution = 1.9358195746511370184019497173109914411780661179299;
+
+    // Check if computed solution matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
 
 
@@ -184,15 +198,29 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
     const double lowerLimit = -2.0;
     const double upperLimit = 2.0;
     GaussianQuadrature< double, double > integrator( expFunction, lowerLimit, upperLimit, order );
+    double computedSolution = integrator.getQuadrature();
 
-    const double expectedSolution = 7.25372081569404;
-    const double computedSolution = integrator.getQuadrature();
+    // Expected solution from Wolfram Alpha
+    double expectedSolution = 7.25372081569404;
 
     // Check if computed solution matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-10 );
 
+
+    /// Check that it is a Gaussian quadrature and not just any quadrature
+
     // Check if error is within bounds for order 2...6
     checkErrorWithinBounds( 2, 6, expFunction, lowerLimit, upperLimit, dExpFunction, 1.0, expectedSolution );
+
+    // Set to order 2
+    integrator.reset( expFunction, lowerLimit, upperLimit, 2 );
+    computedSolution = integrator.getQuadrature();
+
+    // Expected solution from http://keisan.casio.com/exec/system/1330940731
+    expectedSolution = 6.9764499206151121988504219845072175547665355367817;
+
+    // Check if computed solution matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
 
 
@@ -207,15 +235,34 @@ BOOST_AUTO_TEST_CASE( testIntegralPolyFunction )
     const double lowerLimit = -2.0;
     const double upperLimit = 4.0;
     GaussianQuadrature< double, double > integrator( polyFunction, lowerLimit, upperLimit, order );
+    double computedSolution = integrator.getQuadrature();
 
-    const double expectedSolution = 120990;
-    const double computedSolution = integrator.getQuadrature();
+    // Expected solution from Wolfram Alpha
+    double expectedSolution = 120990;
 
     // Check if computed solution matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 
+    // Check that this isn't the case for 4 nodes
+    integrator.reset( polyFunction, lowerLimit, upperLimit, 4 );
+    computedSolution = integrator.getQuadrature();
+    BOOST_CHECK( std::fabs( computedSolution - expectedSolution) > 1 );
+
+
+    /// Check that it is a Gaussian quadrature and not just any quadrature
+
     // Check if error is within bounds for order 2...4
     checkErrorWithinBounds( 2, 4, polyFunction, lowerLimit, upperLimit, dPolyFunction, 2.0, expectedSolution );
+
+    // Set to order 2
+    integrator.reset( polyFunction, lowerLimit, upperLimit, 2 );
+    computedSolution = integrator.getQuadrature();
+
+    // Expected solution from http://keisan.casio.com/exec/system/1330940731
+    expectedSolution = 32214;
+
+    // Check if computed solution matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( computedSolution, expectedSolution, 1E-12 );
 }
 
 
