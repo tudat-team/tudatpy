@@ -39,7 +39,7 @@ public:
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
             const boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
             const observation_models::LinkEndType linkEndWithPartial ):
-        properTimeRateModel_( properTimeRateModel ), linkEndWithPartial_( linkEndWithPartial )
+        properTimeRateModel_( properTimeRateModel )
     {
 
     }
@@ -50,7 +50,7 @@ public:
                  const Eigen::VectorXd currentObservation )
     {
         Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
-                    times, linkEndStates, linkEndWithPartial_ );
+                    times, linkEndStates );
         double distance = relativeState.segment( 0, 3 ).norm( );
 
         double currentGravitationalParameter = properTimeRateModel_->getGravitationalParameter( );
@@ -61,7 +61,6 @@ public:
                 ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
         partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
                 ( relativeState.segment( 3, 3 ) ).transpose( );
-        std::cout<<"Computed partials: "<<partialWrPosition_<<" "<<partialWrtVelocity_<<std::endl;
     }
 
     Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
@@ -80,8 +79,6 @@ public:
 private:
 
     boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel_;
-
-    observation_models::LinkEndType linkEndWithPartial_;
 
     Eigen::Matrix< double, 1, 3 > partialWrPosition_;
 

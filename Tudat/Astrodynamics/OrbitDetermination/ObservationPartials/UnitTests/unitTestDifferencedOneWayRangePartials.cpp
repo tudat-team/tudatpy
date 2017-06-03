@@ -16,7 +16,7 @@
  *
  */
 
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_MAIN
 
 #include <limits>
 #include <string>
@@ -40,10 +40,10 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
 
-namespace tudat
-{
-namespace unit_tests
-{
+//namespace tudat
+//{
+//namespace unit_tests
+//{
 
 using namespace tudat::gravitation;
 using namespace tudat::ephemerides;
@@ -52,11 +52,14 @@ using namespace tudat::simulation_setup;
 using namespace tudat::spice_interface;
 using namespace tudat::observation_partials;
 using namespace tudat::estimatable_parameters;
+using namespace tudat::unit_tests;
+using namespace tudat;
 
-BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
+//BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
 
 //! Test partial derivatives of one-way differenced range observable, using general test suite of observation partials.
-BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
+int main( )
+//BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 {
 
     Eigen::VectorXd parameterPerturbationMultipliers =
@@ -120,11 +123,11 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 }
 
 
-BOOST_AUTO_TEST_SUITE_END( )
+//BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
+//} // namespace unit_tests
 
-} // namespace tudat
+//} // namespace tudat
 
 
 

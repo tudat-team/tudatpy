@@ -317,7 +317,8 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
             {
                 properTimeRateInterface = boost::make_shared<
                         DirectFirstOrderDopplerProperTimeRateInterface >(
-                            linkEndForCalculator, gravitationalParameterFunction, unidentified_link_end,
+                            linkEndForCalculator, gravitationalParameterFunction,
+                            directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
                             getLinkEndCompleteEphemerisFunction< double, double >(
                                 std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodyMap ) );
             }
