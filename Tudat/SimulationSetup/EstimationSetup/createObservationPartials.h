@@ -65,6 +65,8 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         }
         else
         {
+            std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
+
             // Check type of observable
             switch( observableType )
             {
@@ -75,7 +77,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
@@ -86,7 +88,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
@@ -97,7 +99,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
@@ -108,7 +110,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             angularPositionModel->getArcStartLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
@@ -123,8 +125,16 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 throw std::runtime_error( errorMessage );
             }
 
-            // Add light-time correctionsfor current link ends
-            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+            if( singleObservableCorrectionList.size( ) > 0 )
+            {
+                currentLightTimeCorrections.push_back( singleObservableCorrectionList );
+            }
+
+            // Add light-time correctionsfor current link ends.
+            if( currentLightTimeCorrections.size( ) > 0 )
+            {
+                lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+            }
         }
 
     }
