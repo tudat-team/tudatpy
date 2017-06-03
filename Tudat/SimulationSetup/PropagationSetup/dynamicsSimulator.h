@@ -378,7 +378,8 @@ public:
         integratorSettings_->initialTime_ = this->initialPropagationTime_;
 
         // Integrate equations of motion numerically.
-        EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
+        propagationTerminationReason_ =
+                EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
@@ -710,6 +711,7 @@ public:
             }
 
             equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
+            propagationTerminationReasons_.resize( arcStartTimes.size( ) );
 
             // Integrate equations of motion if required.
             if( areEquationsOfMotionToBeIntegrated )
@@ -770,6 +772,7 @@ public:
                 }
 
                 equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
+                propagationTerminationReasons_.resize( singleArcSettings.size( ) );
 
                 // Integrate equations of motion if required.
                 if( areEquationsOfMotionToBeIntegrated )
@@ -836,6 +839,7 @@ public:
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( initialStatesList.at( i ) );
             equationsOfMotionNumericalSolution_[ i ] =
                     singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
+            propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
 
@@ -954,6 +958,10 @@ protected:
 
     //! List of start times of each arc. NOTE: This list is updated after every propagation.
     std::vector< double > arcStartTimes_;
+
+    //! Event that triggered the termination of the propagation
+    std::vector< PropagationTerminationReason > propagationTerminationReasons_;
+
 
 };
 
