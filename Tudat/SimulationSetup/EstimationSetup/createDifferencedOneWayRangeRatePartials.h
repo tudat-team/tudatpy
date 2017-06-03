@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
 #define TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
 
@@ -14,7 +24,9 @@ namespace tudat
 namespace observation_partials
 {
 
-typedef std::map< observation_models::LinkEnds, std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > > PerLinkEndPerLightTimeSolutionCorrections;
+typedef std::map< observation_models::LinkEnds,
+std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >
+PerLinkEndPerLightTimeSolutionCorrections;
 
 
 
@@ -22,11 +34,14 @@ typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 
 void removeObservationBiasPartialFromList( SingleLinkObservationPartialList& observationPartialList );
 
 
-std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections > splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
+std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections >
+splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
         const PerLinkEndPerLightTimeSolutionCorrections& combinedCorrections );
 
 template< typename ParameterType >
-std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > createDifferencedOneWayRangeRatePartials(
+std::map< observation_models::LinkEnds,
+std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
+createDifferencedOneWayRangeRatePartials(
         const std::vector< observation_models::LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
@@ -35,27 +50,32 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 {
     using namespace observation_partials;
 
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > rangeRatePartials;
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > rangeRatePartials;
 
 
     std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections > splitLightTimeCorrections =
             splitOneWayRangeRateLightTimeCorrectionsBetweenArcs( lightTimeCorrections );
 
     // Create one way range partials for link at start of arc.
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > arcStartPartials
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > arcStartPartials
             = createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate, splitLightTimeCorrections.first );
 
     // Create one way range partials for link at end of arc.
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList , boost::shared_ptr< PositionPartialScaling > > > arcEndPartials
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList , boost::shared_ptr< PositionPartialScaling > > > arcEndPartials
             = createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate, splitLightTimeCorrections.second );
 
-    for( std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
+    for( std::map< observation_models::LinkEnds,
+         std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
          linkEndIterator = arcStartPartials.begin( ); linkEndIterator != arcStartPartials.end( ); linkEndIterator++ )
     {
         removeObservationBiasPartialFromList( linkEndIterator->second.first );
     }
 
-    for( std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
+    for( std::map< observation_models::LinkEnds,
+         std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
          linkEndIterator = arcEndPartials.begin( ); linkEndIterator != arcEndPartials.end( ); linkEndIterator++ )
     {
         removeObservationBiasPartialFromList( linkEndIterator->second.first );
@@ -64,13 +84,16 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )
     {
-        std::cerr<<"Error when making differenced one way range rate partials, arc start and end partial set size is not consistent"<<std::endl;
+        throw std::runtime_error(
+                    "Error when making differenced one way range rate partials, arc start and end partial set size is not consistent" );
     }
 
     // Create iterators over created partial links.
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
             arcStartIterator = arcStartPartials.begin( );
-    std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
             arcEndIterator = arcEndPartials.begin( );
 
     // Pre-create iterators over one-way range partials for the single sets of link ends at the start and end of the arc.
@@ -84,7 +107,8 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 
         if( arcEndIterator->first != arcStartIterator->first )
         {
-            std::cerr<<"Error when making differenced one way range rate partials, arc start and end partial link ends not consistent"<<std::endl;
+            throw std::runtime_error(
+                        "Error when making differenced one way range rate partials, arc start and end partial link ends not consistent" );
         }
 
         // Set iterators over set of partials for current link ends.
@@ -97,7 +121,8 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
             if( currentLinkEndArcStartIterator->second->getParameterIdentifier( ) !=
                     currentLinkEndArcEndIterator->second->getParameterIdentifier( ) )
             {
-                std::cerr<<"Error when making differenced one way range partial, parameters did not match"<<std::endl;
+                throw std::runtime_error(
+                            "Error when making differenced one way range partial, parameters did not match" );
             }
             else
             {
@@ -132,4 +157,4 @@ std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialL
 }
 
 }
-#endif // CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
+#endif // TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
