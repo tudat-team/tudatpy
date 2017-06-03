@@ -260,7 +260,7 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param lightTimeCorrections List of settings for a single light-time correction that is to be used for teh observation
+     * \param lightTimeCorrectionsList List of settings for a single light-time correction that is to be used for teh observation
      * model (empty if none)
      * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
@@ -310,7 +310,7 @@ public:
     /*!
      * Constructor
      * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrections List of ettings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for teh observation model
      * (empty if none)
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
      */

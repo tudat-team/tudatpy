@@ -172,6 +172,7 @@ public:
         transmitterProperTimePartials_( transmitterProperTimePartials ),
         receiverProperTimePartials_( receiverProperTimePartials ){ }
 
+    //! Destructor
     ~OneWayDopplerScaling( ){ }
 
     //! Update the scaling object to the current times and states
@@ -251,7 +252,7 @@ public:
 
     //!
     /*!
-     * \brief getLightTimeCorrectionPartialScaling
+     * \param AAAA
      */
     double getLightTimeCorrectionPartialScaling( )
     {
@@ -326,7 +327,7 @@ Eigen::Vector3d computePartialOfUnitVectorWrtLinkEndTime(
  * Function to computed the derivative of velocity component along line-of-sight vector w.r.t. the observation time
  * \param vectorToReceiver Vector from transmitter to receiver (unnormalized).
  * \param projectedLinkEndVelocity Velocity vector of link end, projected along line-of-sight vector
- * \param linkEndVelocity Velocity of link end at which the time is varied
+ * \param variableLinkEndVelocity Velocity of link end at which the time is varied
  * \param projectedLinkEndAcceleration Acceleration vector of link end, projected along line-of-sight vector
  * \param linkEndIsReceiver Boolean denoting whether the link end at which partial is taken at receiver (if true) or transmitter
  * (if false)
