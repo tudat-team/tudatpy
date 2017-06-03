@@ -52,6 +52,7 @@ public:
      *  \param times List of times at each link end during observation.
      *  \param fixedLinkEnd Link end at which observation time is defined, i.e. link end for which associated time
      *  is kept constant when computing observable.
+     *  \param currentObservation Current value of observation for which scaling is to be computed
      */
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
@@ -104,6 +105,7 @@ public:
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end time.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+     *  \param currentObservation Current value of observation for which partial is to be computed
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > calculatePartial(
