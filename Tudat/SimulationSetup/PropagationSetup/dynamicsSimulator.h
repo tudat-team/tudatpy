@@ -288,7 +288,7 @@ public:
         integratorSettings_( integratorSettings ),
         propagatorSettings_(
             boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
-        initialPropagationTime_( integratorSettings_->initialTime_ )
+        initialPropagationTime_( integratorSettings_->initialTime_ ), propagationTerminationReason_( propagation_never_run )
     {
         if( propagatorSettings == NULL )
         {
@@ -496,6 +496,11 @@ public:
     }
 
 
+    //! Function to retrieve the Object defining when the propagation is to be terminated.
+    /*!
+     * Function to retrieve the Object defining when the propagation is to be terminated.
+     * \return Object defining when the propagation is to be terminated.
+     */
     boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
     {
         return propagationTerminationCondition_;
@@ -507,6 +512,16 @@ public:
         return integratedStateProcessors_;
     }
 
+
+    //! Function to retrieve the event that triggered the termination of the last propagation
+    /*!
+     * Function to retrieve the event that triggered the termination of the last propagation
+     * \return Event that triggered the termination of the last propagation
+     */
+    PropagationTerminationReason getPropagationTerminationReason()
+    {
+        return propagationTerminationReason_;
+    }
 
 protected:
 
@@ -603,6 +618,9 @@ protected:
 
     double initialPropagationTime_;
 
+    //! Event that triggered the termination of the propagation
+    PropagationTerminationReason propagationTerminationReason_;
+
 };
 
 //! Function to get a vector of initial states from a vector of propagator settings
@@ -637,7 +655,6 @@ public:
 
     using DynamicsSimulator< StateScalarType, TimeType >::bodyMap_;
     using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
-    using DynamicsSimulator< StateScalarType, TimeType >::setIntegratedResult_;
 
     //! Constructor of multi-arc simulator for same integration settings per arc.
     /*!
@@ -774,30 +791,29 @@ public:
      *  specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all arcs must be concatenated in
      *  order into a single Eigen Vector.
      */
-    void integrateEquationsOfMotion(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
-    {
-        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
-
-        int currentIndex = 0;
-        for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+        void integrateEquationsOfMotion(
+                const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& concatenatedInitialStates )
         {
-            int currentSize = singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getStateSize( );
+            std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
 
-            splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
-            currentIndex += currentSize;
+            int currentIndex = 0;
+            for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
+            {
+                int currentSize = singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getStateSize( );
+                splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
+                currentIndex += currentSize;
+            }
+
+            if( currentIndex != concatenatedInitialStates.rows( ) )
+            {
+                throw std::runtime_error( "Error when doing multi-arc integration, input state vector size is incompatible with settings" );
+            }
+
+            integrateEquationsOfMotion( splitInitialState );
         }
 
-        if( currentIndex != concatenatedInitialStates.rows( ) )
-        {
-            throw std::runtime_error( "Error when doing multi-arc integration, input state vector size is incompatible with settings" );
-        }
-
-        integrateEquationsOfMotion( splitInitialState );
-    }
-
-    //! This function numerically (re-)integrates the equations of motion, using separate states for all arcs
-    /*!
+        //! This function numerically (re-)integrates the equations of motion, using separate states for all arcs
+        /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
      *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
      *  \param initialStatesList Initial state vector that is to be used for numerical integration. Note that this state should

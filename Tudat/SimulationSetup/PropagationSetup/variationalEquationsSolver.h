@@ -478,6 +478,7 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
+
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
