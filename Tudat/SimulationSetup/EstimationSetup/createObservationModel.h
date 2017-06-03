@@ -188,12 +188,14 @@ public:
     boost::shared_ptr< ObservationBiasSettings > biasSettings_;
 };
 
+//! Enum defining all possible types of proper time rate computations in one-way Doppler
 enum DopplerProperTimeRateType
 {
     custom_doppler_proper_time_rate,
     direct_first_order_doppler_proper_time_rate
 };
 
+//! Base class to define the settings for proper time rate (at a single link end) in one-way Doppler mode.
 class DopplerProperTimeRateSettings
 {
 public:
@@ -205,24 +207,47 @@ public:
     DopplerProperTimeRateType dopplerProperTimeRateType_;
 };
 
-
+//! Class to define the settings for first-order, single body, proper time rate (at a single link end) in one-way Doppler mode.
 class DirectFirstOrderDopplerProperTimeRateSettings: public DopplerProperTimeRateSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param centralBodyName Name of central body, fromw which the mass monopole is retrieved to compute the proper time rate,
+     * and w.r.t. which the velocity of the point at which proper time rate is computed is taken
+     */
     DirectFirstOrderDopplerProperTimeRateSettings(
             const std::string centralBodyName ):
         DopplerProperTimeRateSettings( direct_first_order_doppler_proper_time_rate ),
         centralBodyName_( centralBodyName ){ }
 
+    //! Destructor.
     ~DirectFirstOrderDopplerProperTimeRateSettings( ){ }
 
+    //! Name of central body
+    /*!
+     * Name of central body, fromw which the mass monopole is retrieved to compute the proper time rate,
+     * and w.r.t. which the velocity of the point at which proper time rate is computed is taken
+     */
     std::string centralBodyName_;
 };
 
-
+//! Class to define the settings for one-way Doppler observable
 class OneWayDopperObservationSettings: public ObservationSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * (NULL if none)
+     * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
+     * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
+     */
     OneWayDopperObservationSettings(
             const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = NULL,
@@ -230,8 +255,17 @@ public:
             const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
         ObservationSettings( one_way_doppler, lightTimeCorrections, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-    receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param lightTimeCorrections List of settings for a single light-time correction that is to be used for teh observation
+     * model (empty if none)
+     * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
+     * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
+     */
     OneWayDopperObservationSettings(
             const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
@@ -240,18 +274,31 @@ public:
             const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
         ObservationSettings( one_way_doppler, lightTimeCorrectionsList, biasSettings ),
         transmitterProperTimeRateSettings_( transmitterProperTimeRateSettings ),
-    receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
+        receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
+    //! Destructor
     ~OneWayDopperObservationSettings( ){ }
 
+    //! Settings for proper time rate at transmitter
     boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings_;
 
+    //! Settings for proper time rate at receiver
     boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings_;
 };
 
+//! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
 class OneWayDifferencedRangeRateObservationSettings: public ObservationSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * (NULL if none)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
     OneWayDifferencedRangeRateObservationSettings(
             const boost::function< double( const double ) > integrationTimeFunction,
             const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
@@ -259,6 +306,14 @@ public:
         ObservationSettings( one_way_differenced_range, lightTimeCorrections, biasSettings ),
         integrationTimeFunction_( integrationTimeFunction ){ }
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+     * \param lightTimeCorrections List of ettings for a single light-time correction that is to be used for teh observation model
+     * (empty if none)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
     OneWayDifferencedRangeRateObservationSettings(
             const boost::function< double( const double ) > integrationTimeFunction,
             const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
@@ -267,12 +322,23 @@ public:
         ObservationSettings( one_way_differenced_range, lightTimeCorrectionsList, biasSettings ),
         integrationTimeFunction_( integrationTimeFunction ){ }
 
+    //! Destructor
     ~OneWayDifferencedRangeRateObservationSettings( ){ }
 
+    //! Function that returns the integration time of observable as a function of time
     const boost::function< double( const double ) > integrationTimeFunction_;
 
 };
 
+//! Function to create the proper time rate calculator for use in one-way Doppler
+/*!
+ *  Function to create the proper time rate calculator for use in one-way Doppler
+ *  \param properTimeRateSettings Settings for proper time rate model
+ *  \param linkEnds Link ends of one-way Doppler observation  model
+ *  \param bodyMap List of body objects that constitutes the environment
+ *  \param linkEndForCalculator Link end for which the proper time rate is to be computed
+ *  \return Proper time rate calculator for use in one-way Doppler
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeCalculator(
         boost::shared_ptr< DopplerProperTimeRateSettings > properTimeRateSettings,
@@ -281,18 +347,20 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
         const LinkEndType linkEndForCalculator )
 {
     boost::shared_ptr< DopplerProperTimeRateInterface > properTimeRateInterface;
+
+    // Check tyope of proper time rate model
     switch( properTimeRateSettings->dopplerProperTimeRateType_ )
     {
     case direct_first_order_doppler_proper_time_rate:
     {
+        // Check input consistency
         boost::shared_ptr< DirectFirstOrderDopplerProperTimeRateSettings > directFirstOrderDopplerProperTimeRateSettings =
                 boost::dynamic_pointer_cast< DirectFirstOrderDopplerProperTimeRateSettings >( properTimeRateSettings );
         if( directFirstOrderDopplerProperTimeRateSettings == NULL )
         {
             throw std::runtime_error( "Error when making DopplerProperTimeRateInterface, input type (direct_first_order_doppler_proper_time_rate) is inconsistent" );
         }
-
-        if( linkEnds.count( linkEndForCalculator ) == 0 )
+        else if( linkEnds.count( linkEndForCalculator ) == 0 )
         {
             std::string errorMessage = "Error when creating one-way Doppler proper time calculator, did not find link end " +
                     boost::lexical_cast< std::string >( linkEndForCalculator );
@@ -307,25 +375,29 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
             }
             else
             {
+                // Retrieve gravitational parameter
                 boost::function< double( ) > gravitationalParameterFunction =
                         boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                                      bodyMap.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->
                                      getGravityFieldModel( ) );
 
-            LinkEndId referencePointId = std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
-            if( ( linkEnds.at( receiver ) != referencePointId ) && ( linkEnds.at( transmitter ) != referencePointId ) )
-            {
-                properTimeRateInterface = boost::make_shared<
-                        DirectFirstOrderDopplerProperTimeRateInterface >(
-                            linkEndForCalculator, gravitationalParameterFunction,
-                            directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
-                            getLinkEndCompleteEphemerisFunction< double, double >(
-                                std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodyMap ) );
-            }
-            else
-            {
-                throw std::runtime_error( "Error, proper time reference point as link end not yet implemented for DopplerProperTimeRateInterface creation" );
-            }
+                // Create calculation object.
+                LinkEndId referencePointId =
+                        std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, "" );
+                if( ( linkEnds.at( receiver ) != referencePointId ) && ( linkEnds.at( transmitter ) != referencePointId ) )
+                {
+                    properTimeRateInterface = boost::make_shared<
+                            DirectFirstOrderDopplerProperTimeRateInterface >(
+                                linkEndForCalculator, gravitationalParameterFunction,
+                                directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, unidentified_link_end,
+                                getLinkEndCompleteEphemerisFunction< double, double >(
+                                    std::make_pair( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_, ""), bodyMap ) );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                                "Error, proper time reference point as link end not yet implemented for DopplerProperTimeRateInterface creation" );
+                }
             }
         }
         break;
