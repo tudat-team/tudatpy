@@ -70,9 +70,14 @@ boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProper
     else if( boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                  dopplerProperTimeInterface ) != NULL )
     {
-        properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
-                    boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                                     dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed );
+        if( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).first !=
+                boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                    dopplerProperTimeInterface )->getCentralBody( ) )
+        {
+            properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
+                        boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                            dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed );
+        }
     }
     else
     {
