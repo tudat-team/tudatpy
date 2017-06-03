@@ -1,5 +1,5 @@
-#ifndef CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
-#define CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
+#ifndef TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
+#define TUDAT_CREATEDIFFERENCEDONEWAYRANGERATEPARTIALS_H
 
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
