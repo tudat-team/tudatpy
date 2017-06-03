@@ -106,12 +106,13 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             case observation_models::one_way_differenced_range:
             {
                 boost::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
-                        < ObservationScalarType, TimeType> > angularPositionModel =
+                        < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
                         boost::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 singleObservableCorrectionList = (
-                            angularPositionModel->getArcStartLightTimeCalculator( )->getLightTimeCorrection( ) );
+                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+                            getLightTimeCorrection( ) );
                 break;
             }
             case observation_models::position_observable:
@@ -141,12 +142,24 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
     return lightTimeCorrectionsList;
 }
 
+//! Function to split observation partials and scaling object (produced by observationPartialsAndScaler function) into separate
+//! containers
+/*!
+ *  Function to split observation partials and scaling object (produced by observationPartialsAndScaler function) into separate
+ *  containers
+ *  \param observationPartialsAndScalers Combined list of observation partials and scaling objects
+ *  \param observationPartials List of observation partials, per link ends, and per parameter indices (returned by reference)
+ *  \param observationPartialScalers List of position partial scaling objects, per link ends (returned by reference)
+ */
 template< int ObservationSize >
 void splitObservationPartialsAndScalers(
-        const std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
+        const std::map< observation_models::LinkEnds,
+        std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
         boost::shared_ptr< PositionPartialScaling > > >& observationPartialsAndScalers,
-        std::map< observation_models::LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
-        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >& observationPartialScalers )
+        std::map< observation_models::LinkEnds, std::map< std::pair< int, int >,
+        boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
+        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+        observationPartialScalers )
 {
     observationPartials.clear( );
     observationPartialScalers.clear( );
@@ -194,9 +207,12 @@ public:
     boost::shared_ptr< ObservationPartial< ObservationSize > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate );
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate );
 };
 
 //! Interface class for creating observation partials for observables of size 1.
@@ -225,9 +241,12 @@ public:
     boost::shared_ptr< ObservationPartial< 1 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 1 > > >,
@@ -286,9 +305,11 @@ public:
     boost::shared_ptr< ObservationPartial< 2 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 2 > > >,
@@ -338,9 +359,12 @@ public:
     boost::shared_ptr< ObservationPartial< 3 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 3 > > >,
@@ -388,9 +412,12 @@ public:
     boost::shared_ptr< ObservationPartial< 6 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 6 > > >,
@@ -435,9 +462,12 @@ public:
     boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > > observationModelList,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,

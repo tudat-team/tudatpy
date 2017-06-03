@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
 
 namespace tudat
@@ -44,7 +54,9 @@ std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolu
         {
             if( correctionIterator->second.size( ) != 2 )
             {
-                std::cerr<<"Error when splitting one-way range rate light time corrections, size is "<<correctionIterator->second.size( )<<std::endl;
+               throw std::runtime_error(
+                            "Error when splitting one-way range rate light time corrections, size is " +
+                            boost::lexical_cast< std::string >( correctionIterator->second.size( ) ) );
             }
             else
             {
