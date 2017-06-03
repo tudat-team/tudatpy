@@ -179,8 +179,6 @@ public:
     /*!
      *  Constructor of simulator, constructs integrator and object for calculating each time step of integration.
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Settings for numerical integrator.
-     *  \param propagatorSettings Settings for propagator.
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
      *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set

@@ -191,11 +191,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -225,11 +223,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -289,11 +285,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -343,11 +337,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -396,11 +388,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -446,11 +436,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
