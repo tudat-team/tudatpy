@@ -50,7 +50,8 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double initialEphemerisTime = 1.0E7,
                                const double finalEphemerisTime = 1.2E7,
                                const double stateEvaluationTime = 0.0,
-                               const bool useConstantEphemerides = 1 );
+                               const bool useConstantEphemerides = 1,
+                               const double gravitationalParameterScaling = 1.0 );
 
 //! Function to create estimated parameters for general observation partial tests.
 boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
@@ -61,6 +62,12 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
         const boost::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime, const int observableSize );
+
+//! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
+Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
+        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const int observableSize );
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
@@ -127,11 +134,13 @@ inline void testObservationPartials(
             fullEstimatableParameterSet->getEstimatedVectorParameters( );
 
     // Create observation partials.
-    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double > > observationPartialCreator;
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
+    observationModelList[ linkEnds ] = observationModel;
+    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator;
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
-                observableType, boost::assign::list_of( linkEnds ), bodyMap, fullEstimatableParameterSet ).begin( )->second;
+                observableType, observationModelList, bodyMap, fullEstimatableParameterSet ).begin( )->second;
     boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
     // Iterate over link ends, compute and test partials for observable referenced at each link end.

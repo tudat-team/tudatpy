@@ -32,7 +32,8 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double initialEphemerisTime,
                                const double finalEphemerisTime,
                                const double stateEvaluationTime,
-                               const bool useConstantEphemerides )
+                               const bool useConstantEphemerides,
+                               const double gravitationalParameterScaling )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -83,9 +84,11 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     ( bodyMap[ "Moon" ] )->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
     ( bodyMap[ "Mars" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
+                                                         gravitationalParameterScaling ) );
     ( bodyMap[ "Earth" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
+                                                         gravitationalParameterScaling ) );
 
 
     ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
@@ -204,6 +207,44 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 
     return numericalPartialWrtBodyPosition;
 }
+
+//! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
+Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
+        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const int observableSize )
+{
+    // Calculate numerical partials w.r.t. body state.
+    boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
+                bodyMap.at( bodyName )->getEphemeris( ) );
+    Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
+    Eigen::Vector6d perturbedBodyState;
+
+    Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
+            Eigen::Matrix< double, Eigen::Dynamic, 3 >::Zero( observableSize, 3 );
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedBodyState = bodyUnperturbedState;
+        perturbedBodyState( i + 3 ) += bodyVelocityVariation( i );
+        bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+        Eigen::VectorXd upPerturbedObservation = observationFunction( observationTime );
+
+        perturbedBodyState = bodyUnperturbedState;
+        perturbedBodyState( i + 3 ) -= bodyVelocityVariation( i );
+        bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+        Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
+
+        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
+                ( 2.0 * bodyVelocityVariation( i ) );
+    }
+    bodyEphemeris->updateConstantState( bodyUnperturbedState );
+    bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+
+    return numericalPartialWrtBodyPosition;
+}
+
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(

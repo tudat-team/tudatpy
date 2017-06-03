@@ -180,12 +180,11 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
         // Create observation partials.
-        boost::shared_ptr< ObservationPartialCreator< 1, double > > observationPartialCreator;
+        boost::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator;
         std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >,
                 boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
                 observationPartialCreator->createObservationPartials(
-                    one_way_range, boost::assign::list_of( linkEnds ), bodyMap, parametersToEstimate,
-                    getLightTimeCorrectionsList< double, double, 1 >( oneWayRangeModelMap ) ).begin( )->second;
+                    one_way_range, oneWayRangeModelMap, bodyMap, parametersToEstimate ).begin( )->second;
 
         boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 

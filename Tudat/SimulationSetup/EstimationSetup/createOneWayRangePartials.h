@@ -281,12 +281,15 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
         if( lightTimeCorrections.count( linkEnds.at( i ) ) > 0 )
         {
-            if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) != 1 )
+            if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) > 1 )
             {
                 std::cerr<<"Error when making one way range partials, light time corrections for "<<
                            lightTimeCorrections.at( linkEnds.at( i ) ).size( )<<" links found"<<std::endl;
             }
-            singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
+            else if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) == 1 )
+            {
+                singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
+            }
         }
 
         // Create range partials for current link ends

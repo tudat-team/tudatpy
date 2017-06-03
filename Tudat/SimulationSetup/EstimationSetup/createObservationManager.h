@@ -226,7 +226,7 @@ void performObservationParameterEstimationClosure(
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
  *  \return Object that simulates the observations of a given type and associated partials
  */
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
+template< int ObservationSize = 1, typename ObservationScalarType, typename TimeType >
 boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
         const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
@@ -244,15 +244,12 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, settingsPerLinkEnds, bodyMap );
 
+
     performObservationParameterEstimationClosure(
                 observationSimulator, parametersToEstimate );
 
-    // Get light-time corrections for current observable
-    PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionList =
-            getLightTimeCorrectionsList( observationSimulator->getObservationModels( ) );
-
     // Create observation partials for all link ends/parameters
-    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType > > observationPartialCreator;
+    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator;
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >,
             boost::shared_ptr< ObservationPartial< ObservationSize > > >,
             boost::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
@@ -260,8 +257,7 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
     {
         observationPartialsAndScaler =
                 observationPartialCreator->createObservationPartials(
-                    observableType, utilities::createVectorFromMapKeys( settingsPerLinkEnds ), bodyMap, parametersToEstimate,
-                    lightTimeCorrectionList );
+                    observableType, observationSimulator->getObservationModels( ), bodyMap, parametersToEstimate );
     }
 
     // Split position partial scaling and observation partial objects.
@@ -288,7 +284,7 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
  *  \param stateTransitionMatrixInterface Object used to compute the state transition/sensitivity matrix at a given time
  *  \return Object that simulates the observations of a given type and associated partials
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType, typename TimeType >
 boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
         const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
