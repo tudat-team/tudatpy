@@ -100,7 +100,7 @@ protected:
 //! Global PPN parameter set, initialized upon compilation.
 extern boost::shared_ptr< PPNParameterSet > ppnParameterSet;
 
-extern double equivalencePrincipleLpiViolationParameters_;
+extern double equivalencePrincipleLpiViolationParameter;
 
 }
 

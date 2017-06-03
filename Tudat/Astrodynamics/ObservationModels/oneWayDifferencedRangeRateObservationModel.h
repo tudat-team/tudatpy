@@ -203,6 +203,17 @@ public:
                  static_cast< ObservationScalarType >( currentIntegrationTime ) ).finished( );
     }
 
+    //! Light time calculator to compute light time at the beginning of the integration time
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcStartLightTimeCalculator( )
+    {
+        return arcStartLightTimeCalculator_;
+    }
+
+    //! Light time calculator to compute light time at the end of the integration time
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcEndLightTimeCalculator( )
+    {
+        return arcEndLightTimeCalculator_;
+    }
 
 private:
 

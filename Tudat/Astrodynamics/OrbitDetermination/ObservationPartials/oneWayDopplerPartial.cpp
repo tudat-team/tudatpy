@@ -114,6 +114,18 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 
     currentLinkEndType_ = fixedLinkEnd;
 
+    if( transmitterProperTimePartials_ != NULL )
+    {
+        transmitterProperTimePartials_->update(
+                    linkEndStates, times, fixedLinkEnd, currentObservation );
+    }
+
+    if( receiverProperTimePartials_ != NULL )
+    {
+        receiverProperTimePartials_->update(
+                    linkEndStates, times, fixedLinkEnd, currentObservation );
+    }
+
 }
 
 //! Function to calculate the observation partial(s) at required time and state
