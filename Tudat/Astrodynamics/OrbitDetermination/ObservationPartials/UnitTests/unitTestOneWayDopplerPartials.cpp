@@ -225,19 +225,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 // Generate one-way doppler model
                 boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
+                std::vector< std::string > perturbingBodies;
+                perturbingBodies.push_back( "Earth" );
                 if( useProperTimeRates == 0 )
                 {
                     oneWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 linkEnds, boost::make_shared< observation_models::ObservationSettings >(
-                                    observation_models::one_way_doppler ), bodyMap  );
+                                    observation_models::one_way_doppler,
+                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                     perturbingBodies ) ), bodyMap  );
                 }
                 else
                 {
                     oneWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 linkEnds, boost::make_shared< OneWayDopperObservationSettings >
-                                (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                                (  boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                       perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodyMap  );
                 }
@@ -266,19 +271,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 std::cout<<"Rates: "<<useProperTimeRates<<std::endl;
                 // Generate one-way doppler model
                 boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
+                std::vector< std::string > perturbingBodies;
+                perturbingBodies.push_back( "Earth" );
                 if( useProperTimeRates == 0 )
                 {
                     oneWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 linkEnds, boost::make_shared< observation_models::ObservationSettings >(
-                                    observation_models::one_way_doppler ), bodyMap  );
+                                    observation_models::one_way_doppler,
+                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                     perturbingBodies ) ), bodyMap  );
                 }
                 else
                 {
                     oneWayDopplerModel =
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                                 linkEnds, boost::make_shared< OneWayDopperObservationSettings >
-                                (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                                (  boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                       perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ), bodyMap  );
                 }

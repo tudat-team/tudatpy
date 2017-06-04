@@ -181,7 +181,7 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
     {
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
         returnPartial[ returnPartial.size( ) - 1 ].first *=
-                oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
+                physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
     }
 
     return returnPartial;

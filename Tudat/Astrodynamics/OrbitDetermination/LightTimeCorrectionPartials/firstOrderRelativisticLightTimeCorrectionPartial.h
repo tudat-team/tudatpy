@@ -80,6 +80,7 @@ public:
         {
             throw std::runtime_error( "Error, bodyIndex in FirstOrderRelativisticLightTimeCorrectionPartial not consistent with contents" );
         }
+
         double partialValue = getPartialOfFirstOrderRelativisticLightTimeCorrectionWrtSingleGravitationalParameter(
                     correctionCalculator_->getCurrentLightTimeCorrectionComponent( bodyIndex ),
                     perturbingBodyGravitationalParameterFunctions_.at( bodyIndex )( ) );
