@@ -77,18 +77,21 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParam
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
 {
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
-
-    // Create angular position partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< AngularPositionPartial > angularPositionPartial;
-    if( positionPartials.size( ) > 0 )
+
     {
-        angularPositionPartial = boost::make_shared< AngularPositionPartial >(
+        std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+                createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
+
+        boost::shared_ptr< AngularPositionPartial > testAngularPositionPartial = boost::make_shared< AngularPositionPartial >(
                     angularPositionScaler, positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
+        // Create angular position partials if any position partials are created (i.e. if any dependency exists).
+        if( positionPartials.size( ) > 0 || testAngularPositionPartial->getNumberOfLighTimeCorrectionPartialsFunctions( ) )
+        {
+            angularPositionPartial = testAngularPositionPartial;
+        }
     }
-
     return angularPositionPartial;
 }
 
@@ -181,6 +184,9 @@ createAngularPositionPartials(
         boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
                     angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
+
+        std::cout<<"Creating partial: "<<parameterIterator->first<<" "<<
+                   ( currentAngularPositionPartial == NULL )<<" "<<lightTimeCorrectionPartialObjects.size( )<<std::endl;
 
         if( currentAngularPositionPartial != NULL )
         {

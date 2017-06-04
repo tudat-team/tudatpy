@@ -162,6 +162,8 @@ public:
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                 bool > lightTimeCorrectionPartial;
 
+        std::cout<<"Light-time partials: "<<lighTimeCorrectionPartials.size( )<<std::endl;
+
         // Create light time correction partial functions
         for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
         {
@@ -193,6 +195,16 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
             const Eigen::Vector2d& currentObservation = Eigen::Vector2d::Constant( TUDAT_NAN ) );
+
+    //! Function to get the number of light-time correction partial functions.
+    /*!
+     * Number of light-time correction partial functions.
+     * \return Number of light-time correction partial functions.
+     */
+    int getNumberOfLighTimeCorrectionPartialsFunctions( )
+    {
+        return lighTimeCorrectionPartialsFunctions_.size( );
+    }
 
 protected:
 

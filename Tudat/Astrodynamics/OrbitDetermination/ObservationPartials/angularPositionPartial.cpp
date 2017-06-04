@@ -144,7 +144,8 @@ AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial:
     {
         currentLinkTimeCorrectionPartial_ = lighTimeCorrectionPartialsFunctions_.at( i )( states, times );
         returnPartial.push_back(
-                    std::make_pair( angularPositionScaler_->getLightTimePartialScalingFactor( ) * currentLinkTimeCorrectionPartial_.first,
+                    std::make_pair( angularPositionScaler_->getLightTimePartialScalingFactor( ) *
+                                    physical_constants::SPEED_OF_LIGHT * currentLinkTimeCorrectionPartial_.first,
                     currentLinkTimeCorrectionPartial_.second ) );
     }
 

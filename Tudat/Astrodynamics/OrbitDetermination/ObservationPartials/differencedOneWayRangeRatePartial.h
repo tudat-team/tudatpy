@@ -109,11 +109,7 @@ public:
      *  \param states Link end states. Index maps to link end for a given ObsevableType through getLinkEndIndex function.
      *  \param times Link end time.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
-<<<<<<< HEAD
      *  \param currentObservation Value of observation for which partial scaling is to be computed
-=======
-     *  \param currentObservation Current value of observation for which partial is to be computed
->>>>>>> DopplerObservables
      *  \return Vector of pairs containing partial values and associated times.
      */
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > calculatePartial(
