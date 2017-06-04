@@ -110,9 +110,16 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                singleObservableCorrectionList = (
+                currentLightTimeCorrections.push_back(
                             oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
-                            getLightTimeCorrection( ) );
+                                                       getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
+                                                       getLightTimeCorrection( ) );
+
+//                singleObservableCorrectionList = (
+//                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+//                            getLightTimeCorrection( ) );
                 break;
             }
             case observation_models::position_observable:
