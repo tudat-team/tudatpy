@@ -123,6 +123,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case ground_station_position:
         isDoubleParameter = false;
         break;
+    case equivalence_principle_lpi_violation_parameter:
+        isDoubleParameter = true;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );
