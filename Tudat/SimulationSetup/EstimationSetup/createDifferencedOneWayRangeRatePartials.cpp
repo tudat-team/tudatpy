@@ -16,27 +16,9 @@ namespace tudat
 namespace observation_partials
 {
 
-typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > > SingleLinkObservationPartialList;
-void removeObservationBiasPartialFromList( SingleLinkObservationPartialList& observationPartialList )
-{
-    std::vector< std::pair< int, int > > entriesToDelete;
-    for( SingleLinkObservationPartialList::iterator partialIterator = observationPartialList.begin( );
-         partialIterator != observationPartialList.end( ); partialIterator++ )
-    {
-        if( false )
-                //boost::dynamic_pointer_cast< ObservationPartialWrtBias< 1 > >( partialIterator->second ) )
-        {
-            entriesToDelete.push_back( partialIterator->first );
-        }
-    }
-
-    for( unsigned int i = 0; i < entriesToDelete.size( ); i++ )
-    {
-        observationPartialList.erase( entriesToDelete[ i ] );
-    }
-}
-
-std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections > splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
+//! Function to split the total list of light-time corrections for one-way differenced range rate into list for either arc.
+std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections >
+splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
         const PerLinkEndPerLightTimeSolutionCorrections& combinedCorrections )
 {
     PerLinkEndPerLightTimeSolutionCorrections arcStartCorrections;
@@ -45,11 +27,14 @@ std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolu
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentArcStartCorrections;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentArcEndCorrections;
 
+    // Iterate over all link ends
     for( PerLinkEndPerLightTimeSolutionCorrections::const_iterator correctionIterator = combinedCorrections.begin( );
          correctionIterator != combinedCorrections.end( ); correctionIterator++ )
     {
         currentArcStartCorrections.clear( );
         currentArcEndCorrections.clear( );
+
+        // if light-time corrections exist; split and put into separate lists.
         if( correctionIterator->second.size( ) > 0 )
         {
             if( correctionIterator->second.size( ) != 2 )

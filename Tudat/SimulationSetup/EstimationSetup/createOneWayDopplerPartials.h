@@ -54,7 +54,7 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParame
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
-        const boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
+        const boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
@@ -74,7 +74,9 @@ boost::shared_ptr< ObservationPartial< 1 > > createOneWayDopplerPartialWrtParame
                     boost::dynamic_pointer_cast< OneWayDopplerScaling >( oneWayDopplerScaler ),
                     positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
-        if( positionPartials.size( ) > 0 || testOneWayDopplerPartial->getNumberOfLighTimeCorrectionPartialsFunctions( ) > 0 )
+
+        if( positionPartials.size( ) > 0 || testOneWayDopplerPartial->getNumberOfLighTimeCorrectionPartialsFunctions( ) > 0
+                || oneWayDopplerScaler->getProperTimeParameterDependencySize( parameterToEstimate->getParameterName( ) ) > 0 )
         {
             oneWayDopplerPartial = testOneWayDopplerPartial;
         }
@@ -105,6 +107,15 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
+//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
+/*!
+ * Function to create an object that computes the scaling of the state partials to obtain proper time rate partials. A single
+ * scaling object is used for a single link end of the one-way Doppler partials
+ * \param dopplerProperTimeInterface Object that is used to computed proper-time rate in one-way Doppler modelkkl
+ * \param oneWayDopplerLinkEnds Link ends of observable
+ * \param linkEndAtWhichPartialIsComputed Link end for which proper-time partials are to be created
+ * \return Scaling object for proper-time rate partials
+ */
 boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
@@ -155,7 +166,6 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
                     oneWayDopplerLinkEnds.at( observation_models::receiver ), bodyMap ), _1, 100.0,
                 numerical_derivatives::order8 );
 
-
     // Create scaling object, to be used for all one-way doppler partials in current link end.
     boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials =
            createDopplerProperTimePartials( transmitterDopplerProperTimeInterface, oneWayDopplerLinkEnds,
@@ -164,7 +174,11 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
             createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds,
                                              observation_models::receiver  );
 
-    boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
+    std::cout<<"Created partial interfaces: "<<
+               ( transmitterProperTimePartials == NULL )<<" "<<
+               ( receiverProperTimePartials == NULL )<<std::endl;
+
+    boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ),
                 transmitterProperTimePartials,

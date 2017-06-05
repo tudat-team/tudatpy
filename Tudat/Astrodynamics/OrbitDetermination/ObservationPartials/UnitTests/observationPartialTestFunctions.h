@@ -245,7 +245,7 @@ inline void testObservationPartials(
                 // Settings for parameter partial functions.
                 std::vector< double > parameterPerturbations = boost::assign::list_of
                         ( 1.0E-10 * parameterPerturbationMultipliers( 0 ) )( 1.0E-10 * parameterPerturbationMultipliers( 1 ) )
-                        ( 1.0E8 );
+                        ( 1.0E4 );
                 std::vector< boost::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );

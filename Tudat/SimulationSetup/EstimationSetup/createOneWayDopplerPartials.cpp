@@ -57,6 +57,7 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
     return oneWayDopplerPartial;
 }
 
+//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
 boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
         const observation_models::LinkEnds oneWayDopplerLinkEnds,
@@ -70,18 +71,16 @@ boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProper
     else if( boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
                  dopplerProperTimeInterface ) != NULL )
     {
-        if( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).first !=
+        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).first !=
                 boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                    dopplerProperTimeInterface )->getCentralBody( ) )
-        {
-            properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
-                        boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
-                            dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed );
-        }
+                    dopplerProperTimeInterface )->getCentralBody( ) );
+        properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
+                    boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
     }
     else
     {
-        std::cerr<<"Warning, proper time contribution to Doppler observable not incorporated into Doppler partial"<<std::endl;
+        std::cerr<<"Warning, proper time contribution to Doppler observable not incorporated into Doppler partial "<<std::endl;
         properTimeRateDopplerPartial = NULL;
     }
     return properTimeRateDopplerPartial;

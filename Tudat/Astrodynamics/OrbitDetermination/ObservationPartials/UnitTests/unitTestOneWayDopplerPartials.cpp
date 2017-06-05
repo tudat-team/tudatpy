@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             linkEnds[ transmitter ] = groundStations[ 1 ];
             linkEnds[ receiver ] = groundStations[ 0 ];
 
-            for( unsigned int useProperTimeRates = 0; useProperTimeRates < 2; useProperTimeRates++ )
+            for( unsigned int useProperTimeRates = 1; useProperTimeRates < 2; useProperTimeRates++ )
             {
                 // Generate one-way doppler model
                 boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             linkEnds[ transmitter ] = groundStations[ 1 ];
             linkEnds[ receiver ] = groundStations[ 0 ];
 
-            for( unsigned int useProperTimeRates = 0; useProperTimeRates < 2; useProperTimeRates++ )
+            for( unsigned int useProperTimeRates = 1; useProperTimeRates < 2; useProperTimeRates++ )
             {
                 std::cout<<"Rates: "<<useProperTimeRates<<std::endl;
                 // Generate one-way doppler model

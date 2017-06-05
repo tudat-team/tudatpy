@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -161,6 +162,11 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         case ppn_parameter_beta:
         {
             doubleParameterToEstimate = boost::make_shared< PPNParameterBeta >( relativity::ppnParameterSet );
+            break;
+        }
+        case equivalence_principle_lpi_violation_parameter:
+        {
+            doubleParameterToEstimate = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
             break;
         }
         default:

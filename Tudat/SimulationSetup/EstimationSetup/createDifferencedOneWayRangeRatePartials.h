@@ -24,20 +24,39 @@ namespace tudat
 namespace observation_partials
 {
 
+//! Typedef for list of light time corrections for a list of link ends
 typedef std::map< observation_models::LinkEnds,
 std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >
 PerLinkEndPerLightTimeSolutionCorrections;
 
-
-
+//! Typedef for single observation partial list, with key parameter start index and size
 typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > > SingleLinkObservationPartialList;
-void removeObservationBiasPartialFromList( SingleLinkObservationPartialList& observationPartialList );
 
-
+//! Function to split the total list of light-time corrections for one-way differenced range rate into list for either arc.
+/*!
+ * Function to split the total list of light-time corrections for one-way differenced range rate into list for either arc.
+ * \param combinedCorrections Total list of light-time corrections for one-way differenced range rate, per link end. First
+ * vector in map entry should always have size two: entry 0 is for arc start, entry 1 for arc end.
+ * \return List of light-time corrections for two arcs of one-way differenced range rate.
+ */
 std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections >
 splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
         const PerLinkEndPerLightTimeSolutionCorrections& combinedCorrections );
 
+//! Function to generate one-way differenced range partials for all parameters that are to be estimated, for all sets of link ends
+/*!
+ *  Function to generate one-way differenced range partials for all parameters that are to be estimated, for all sets of link ends
+ *  The one-way differenced range partials are generated per set of link ends, using partials for the range of the arc start and
+ *  arc end links The set of parameters and bodies that are to be estimated, as well as the set of link ends (each of which must
+ *  contain a transmitter and receiever linkEndType) that are to be used.
+ *  \param linkEnds Vector of all link ends for which  partials are to be calculated
+ *  \param bodyMap List of all bodies that consitute the environment
+ *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
+ *  of requested bodies)
+ *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \return Map of SingleLinkObservationPartialList, representing all necessary one-way differenced range partials of a single
+ *  link end, and scaling, object, used for scaling the position partial members of all partial in link end.
+ */
 template< typename ParameterType >
 std::map< observation_models::LinkEnds,
 std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
@@ -50,10 +69,11 @@ createDifferencedOneWayRangeRatePartials(
 {
     using namespace observation_partials;
 
+
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > rangeRatePartials;
 
-
+    // Retrieve separate light-time corrections for arc start and arc end.
     std::pair< PerLinkEndPerLightTimeSolutionCorrections, PerLinkEndPerLightTimeSolutionCorrections > splitLightTimeCorrections =
             splitOneWayRangeRateLightTimeCorrectionsBetweenArcs( lightTimeCorrections );
 
@@ -67,21 +87,7 @@ createDifferencedOneWayRangeRatePartials(
             std::pair< SingleLinkObservationPartialList , boost::shared_ptr< PositionPartialScaling > > > arcEndPartials
             = createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate, splitLightTimeCorrections.second );
 
-    for( std::map< observation_models::LinkEnds,
-         std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
-         linkEndIterator = arcStartPartials.begin( ); linkEndIterator != arcStartPartials.end( ); linkEndIterator++ )
-    {
-        removeObservationBiasPartialFromList( linkEndIterator->second.first );
-    }
-
-    for( std::map< observation_models::LinkEnds,
-         std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >::iterator
-         linkEndIterator = arcEndPartials.begin( ); linkEndIterator != arcEndPartials.end( ); linkEndIterator++ )
-    {
-        removeObservationBiasPartialFromList( linkEndIterator->second.first );
-    }
-
-
+    // Check output consistency
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )
     {
         throw std::runtime_error(
