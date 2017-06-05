@@ -174,10 +174,6 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
             createDopplerProperTimePartials( receiverDopplerProperTimeInterface, oneWayDopplerLinkEnds,
                                              observation_models::receiver  );
 
-    std::cout<<"Created partial interfaces: "<<
-               ( transmitterProperTimePartials == NULL )<<" "<<
-               ( receiverProperTimePartials == NULL )<<std::endl;
-
     boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling = boost::make_shared< OneWayDopplerScaling >(
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
             boost::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ),

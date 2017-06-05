@@ -38,6 +38,11 @@ class OneWayDopplerProperTimeComponentScaling: public PositionPartialScaling
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEndWithPartial Link end for which this object computes partials
+     */
     OneWayDopplerProperTimeComponentScaling( const observation_models::LinkEndType linkEndWithPartial ):
         linkEndWithPartial_( linkEndWithPartial ){ }
 
@@ -60,14 +65,29 @@ public:
      */
     virtual Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType ) = 0;
 
+    //! Function to get the direct partial derivative, and associated time, of proper time
+    /*!
+     *  Function to get the direct partial derivative (e.g. independent of state partials), and associated time, of proper
+     *  time, w.r.t. parameter defined by parameterType.
+     *  \param parameterType Parameter for which partial is to be checked
+     *  \return Direct partial derivative, and associated time, of proper time rate
+     */
     virtual std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > getProperTimeParameterPartial(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
 
+    //! Function to get the size of the direct dependency of proper time rate on parameter
+    /*!
+     * Function to get the size of the direct dependency (e.g. independent of state dependency) of proper time rate on parameter.
+     * Returns zero for no dependency.
+     * \param parameterType Parameter for which dependency is to be checked.
+     * \return Number of columns in direct partial derivative of proper time rates w.r.t. parameterType
+     */
     virtual int getParameterDependencySize(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterType ) = 0;
 
 protected:
 
+    //! Link end for which this object computes partials
     observation_models::LinkEndType linkEndWithPartial_;
 
 };
@@ -104,27 +124,7 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation )
-    {
-        // Get relative state
-        Eigen::Vector6d relativeState = properTimeRateModel_->getComputationPointRelativeState(
-                    times, linkEndStates );
-        currentDistance_ = relativeState.segment( 0, 3 ).norm( );
-        currentGravitationalParameter_ = properTimeRateModel_->getGravitationalParameter( );
-
-        currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
-
-        // Compute partials w.r.t. position and velocity
-        if( computeStatePartials_ )
-        {
-            partialWrPosition_ = -physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( 1.0 + relativity::equivalencePrincipleLpiViolationParameter ) *
-                    currentGravitationalParameter_ / ( currentDistance_ * currentDistance_ ) *
-                    ( relativeState.segment( 0, 3 ).normalized( ) ).transpose( );
-            partialWrtVelocity_ = physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-                    ( relativeState.segment( 3, 3 ) ).transpose( );
-        }
-    }
+                 const Eigen::VectorXd currentObservation );
 
     //! Function to retrieve the scaling factor for the derivative w.r.t. the position of a given link end
     /*!
@@ -132,19 +132,7 @@ public:
      * \param linkEndType Link end position for which partial scaling is to be retrieved.
      * \return The scaling factor for the derivative w.r.t. the position of a given link end
      */
-    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
-    {
-        if( computeStatePartials_ )
-        {
-            return partialWrPosition_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
-                                              ( 1.0 ) : ( 0.0 ) );
-        }
-        else
-        {
-            return Eigen::Matrix< double, 1, 3 >::Zero( );
-        }
-    }
-
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType );
 
     //! Function to retrieve the scaling factor for the derivative w.r.t. the velocity of a given link end
     /*!
@@ -152,51 +140,36 @@ public:
      * \param linkEndType Link end velocity for which partial scaling is to be retrieved.
      * \return The scaling factor for the derivative w.r.t. the velocity of a given link end
      */
-    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
-    {
-        if( computeStatePartials_ )
-        {
-            return partialWrtVelocity_ * ( ( linkEndType == properTimeRateModel_->getComputationPointLinkEndType( ) ) ?
-                                               ( 1.0 ) : ( 0.0 ) );
-        }
-        else
-        {
-            return Eigen::Matrix< double, 1, 3 >::Zero( );
-        }
-    }
+    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
 
+    //! Function to compute partial of proper time rate w.r.t. equivalence principle violation parameter
+    /*!
+     * Function to compute partial of proper time rate w.r.t. equivalence principle violation parameter
+     * \return Partial of proper time rate w.r.t. equivalence principle violation parameter
+     */
     double getEquivalencePrincipleViolationParameterPartial( )
     {
         return -currentGravitationalParameter_ / currentDistance_ * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
 
+    //! Function to get the direct partial derivative, and associated time, of proper time
+    /*!
+     *  Function to get the direct partial derivative (e.g. independent of state partials), and associated time, of proper
+     *  time, w.r.t. parameter defined by parameterType.
+     *  \param parameterType Parameter for which partial is to be checked
+     *  \return Direct partial derivative, and associated time, of proper time rate
+     */
     std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > getProperTimeParameterPartial(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
-    {
-        if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
-        {
-            return std::make_pair( ( Eigen::Matrix< double, 1, 1 >( ) << getEquivalencePrincipleViolationParameterPartial( ) ).finished( ),
-                                   currentLinkEndTime_ );
-        }
-        else
-        {
-            return std::make_pair( Eigen::Matrix< double, 1, 0 >::Zero( ), TUDAT_NAN );
-        }
-    }
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
-
-    int getParameterDependencySize(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
-    {
-        if( parameterType.first == estimatable_parameters::equivalence_principle_lpi_violation_parameter )
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
+    //! Function to get the size of the direct dependency of proper time rate on parameter
+    /*!
+     * Function to get the size of the direct dependency (e.g. independent of state dependency) of proper time rate on parameter.
+     * Returns zero for no dependency.
+     * \param parameterType Parameter for which dependency is to be checked.
+     * \return Number of columns in direct partial derivative of proper time rates w.r.t. parameterType
+     */
+    int getParameterDependencySize( const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
 private:
 
@@ -209,12 +182,20 @@ private:
     //! Partial of proper time rate w.r.t. velocity, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrtVelocity_;
 
+    //! Current time at link end for which this object computes proper time ratre partials
     double currentLinkEndTime_;
 
+    //! Current distance between perturbing body center of mass and computation point.
     double currentDistance_;
 
+    //! Current value of gravitational parameter of central body.
     double currentGravitationalParameter_;
 
+    //! Boolean to denote whether state partials are to be computed
+    /*!
+     *  Boolean to denote whether state partials are to be computed. It is false if the link end for whicj this object computes
+     *  the proper time partials is fixed to the perturbing body.
+     */
     bool computeStatePartials_;
 };
 
@@ -272,23 +253,7 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Position partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
-    {
-        Eigen::Matrix< double, 1, 3 > scalingFactor =
-                positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
-
-        if( transmitterProperTimePartials_ != NULL )
-        {
-            scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType );
-        }
-
-        if( receiverProperTimePartials_ != NULL )
-        {
-            scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType );
-        }
-
-        return scalingFactor;
-    }
+    Eigen::Matrix< double, 1, 3 > getPositionScalingFactor( const observation_models::LinkEndType linkEndType );
 
     //! Function to retrieve the velocity scaling factor for specific link end
     /*!
@@ -296,24 +261,7 @@ public:
      * \param linkEndType Link end for which scaling factor is to be returned
      * \return Velocity partial scaling factor at current link end
      */
-    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
-    {
-        Eigen::Matrix< double, 1, 3 > scalingFactor =
-                ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ ) :
-                                                                    ( receiverVelocityScalingFactor_ ) );
-
-        if( transmitterProperTimePartials_ != NULL )
-        {
-            scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType );
-        }
-
-        if( receiverProperTimePartials_ != NULL )
-        {
-            scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType );
-        }
-
-        return scalingFactor;
-    }
+    Eigen::Matrix< double, 1, 3 > getVelocityScalingFactor( const observation_models::LinkEndType linkEndType );
 
     //! Function to get the fixed link end for last computation of update() function.
     /*!
@@ -354,73 +302,26 @@ public:
         return receiverProperTimePartials_;
     }
 
+    //! Function to get the size of the direct dependency of proper time rate on parameter
+    /*!
+     * Function to get the size of the direct dependency (e.g. independent of state dependency) of proper time rate on parameter.
+     * Returns zero for no dependency. Requires that the transmitter/receiver have the same size of dependency, or that
+     * one of them has dependency size zero (no dependency).
+     * \param parameterType Parameter for which dependency is to be checked.
+     * \return Number of columns in direct partial derivative of proper time rates w.r.t. parameterType
+     */
     int getProperTimeParameterDependencySize(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
-    {
-        int transmitterDependencySize = 0;
-        if( transmitterProperTimePartials_ != NULL )
-        {
-            transmitterDependencySize = transmitterProperTimePartials_->getParameterDependencySize( parameterType );
-        }
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType );
 
-        int receiverDependencySize = 0;
-        if( receiverProperTimePartials_ != NULL )
-        {
-            receiverDependencySize = receiverProperTimePartials_->getParameterDependencySize( parameterType );
-        }
-
-
-        int totalDependencySize = 0;
-        if( transmitterDependencySize == receiverDependencySize )
-        {
-            totalDependencySize = transmitterDependencySize;
-        }
-        else if( transmitterDependencySize == 0 )
-        {
-            totalDependencySize = receiverDependencySize;
-        }
-        else if( receiverDependencySize == 0 )
-        {
-            totalDependencySize = transmitterDependencySize;
-        }
-        else
-        {
-            throw std::runtime_error( "Error, proper time parameter dependency has inconsistent size" );
-        }
-        return totalDependencySize;
-    }
-
+    //! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
+    /*!
+     *  Function to get the direct partial derivatives (e.g. independent of state partials), and associated times, of proper
+     *  time components of Doppler partials, w.r.t. parameter defined by parameterType.
+     *  \param parameterType Parameter for which partial is to be checked
+     *  \return Direct partial derivatives, and associated times, of proper time components of Doppler partials
+     */
     std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > getProperTimeParameterPartial(
-            const estimatable_parameters::EstimatebleParameterIdentifier parameterType  )
-    {
-        std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > transmitterPartial =
-                transmitterProperTimePartials_->getProperTimeParameterPartial( parameterType );
-        std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > receiverPartial =
-                receiverProperTimePartials_->getProperTimeParameterPartial( parameterType );
-
-        std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > totalPartial;
-        if( transmitterPartial.first.rows( ) == receiverPartial.first.rows( ) )
-        {
-            totalPartial.push_back( transmitterPartial );
-            totalPartial.push_back( receiverPartial );
-
-            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
-        }
-        else if( transmitterPartial.first.rows( ) == 0 )
-        {
-            totalPartial.push_back( receiverPartial );
-            totalPartial[ totalPartial.size( ) - 1 ].first *= -1.0;
-        }
-        else if( receiverPartial.first.rows( ) == 0 )
-        {
-            totalPartial.push_back( transmitterPartial );
-        }
-        else
-        {
-            throw std::runtime_error( "Error, proper time parameter partials have inconsistent size" );
-        }
-        return totalPartial;
-    }
+            const estimatable_parameters::EstimatebleParameterIdentifier parameterType  );
 
 private:
 
@@ -509,33 +410,7 @@ public:
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
             const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
             lighTimeCorrectionPartials =
-            std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
-        ObservationPartial< 1 >( parameterIdentifier ), oneWayDopplerScaler_( oneWayDopplerScaler ),
-        positionPartialList_( positionPartialList )
-    {
-        std::pair< boost::function< SingleOneWayDopplerPartialReturnType(
-                    const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
-
-        // Create light time correction partial functions
-        for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
-        {
-            lightTimeCorrectionPartial = getLightTimeParameterPartialFunction(
-                        parameterIdentifier_, lighTimeCorrectionPartials.at( i ) );
-            if( lightTimeCorrectionPartial.second != 0 )
-            {
-                lighTimeCorrectionPartialsFunctions_.push_back( lightTimeCorrectionPartial.first );
-            }
-        }
-
-        if( oneWayDopplerScaler->getProperTimeParameterDependencySize( parameterIdentifier ) > 0 )
-        {
-            addProperTimeParameterPartials_ = true;
-        }
-        else
-        {
-            addProperTimeParameterPartials_ = false;
-        }
-    }
+            std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
     //! Destructor.
     ~OneWayDopplerPartial( ) { }
@@ -602,6 +477,7 @@ protected:
     //! Pre-declared time variable to be used in calculatePartial function.
     double currentTime_;
 
+    //! Boolean to denote whether partials of proper time w.r.t. parameters should be added to final partial.
     bool addProperTimeParameterPartials_;
 
 };
