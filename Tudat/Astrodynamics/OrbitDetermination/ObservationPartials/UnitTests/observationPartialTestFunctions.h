@@ -55,7 +55,8 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 //! Function to create estimated parameters for general observation partial tests.
 boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
-        const NamedBodyMap& bodyMap, const double initialTime );
+        const NamedBodyMap& bodyMap, const double initialTime,
+        const bool useEquivalencePrincipleParameter = false );
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
@@ -245,7 +246,7 @@ inline void testObservationPartials(
                 // Settings for parameter partial functions.
                 std::vector< double > parameterPerturbations = boost::assign::list_of
                         ( 1.0E-10 * parameterPerturbationMultipliers( 0 ) )( 1.0E-10 * parameterPerturbationMultipliers( 1 ) )
-                        ( 1.0E8 );
+                        ( 1.0E8 * parameterPerturbationMultipliers( 2 ) );
                 std::vector< boost::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );
@@ -269,6 +270,10 @@ inline void testObservationPartials(
 
                     }
 
+                    std::cout<<"Partial: "<<i<<" "<<fullEstimatableParameterSet->getEstimatedDoubleParameters( ).at( i )->
+                               getParameterName( ).first<<std::endl<<
+                    currentParameterPartial<<" "<<std::endl<<numericalPartialsWrtDoubleParameters[ i ]<<std::endl;
+
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
                 }
@@ -282,8 +287,8 @@ inline void testObservationPartials(
 
                 // Settings for parameter partial functions.
                 std::vector< Eigen::VectorXd > parameterPerturbations;
-                parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 2 ) ) );
-                parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 2 ) ) );
+                parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 3 ) ) );
+                parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 3 ) ) );
 
                 std::vector< boost::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );

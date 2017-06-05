@@ -12,6 +12,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 
 namespace tudat
@@ -129,7 +130,8 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 //! Function to create estimated parameters for general observation partial tests.
 boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
-        const NamedBodyMap& bodyMap, const double initialTime )
+        const NamedBodyMap& bodyMap, const double initialTime,
+        const bool useEquivalencePrincipleParameter )
 {
     boost::shared_ptr< RotationRate > earthRotationRate = boost::make_shared< RotationRate >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
@@ -145,15 +147,23 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
             boost::make_shared< ConstantRotationalOrientation >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
-    boost::shared_ptr< PPNParameterGamma > ppnParameterGamma =
-            boost::make_shared< PPNParameterGamma >( );
+    boost::shared_ptr< EstimatableParameter< double > > relativisticParameter;
+    if( useEquivalencePrincipleParameter )
+    {
+        relativisticParameter = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+    }
+    else
+    {
+        relativisticParameter = boost::make_shared< PPNParameterGamma >( );
+    }
+
 
 
 
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
     estimatableDoubleParameters.push_back( earthRotationRate );
     estimatableDoubleParameters.push_back( marsRotationRate );
-    estimatableDoubleParameters.push_back( ppnParameterGamma );
+    estimatableDoubleParameters.push_back( relativisticParameter );
 
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
     estimatableVectorParameters.push_back( earthRotationOrientation );
