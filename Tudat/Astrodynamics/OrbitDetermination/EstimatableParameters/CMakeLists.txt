@@ -28,6 +28,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/observationBiasParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/ppnParameters.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/groundStationPosition.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/equivalencePrincipleViolationParameter.h"
 )
 
 # Add static libraries.

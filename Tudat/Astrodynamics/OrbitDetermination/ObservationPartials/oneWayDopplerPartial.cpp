@@ -184,6 +184,16 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
                 physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
     }
 
+    if( addProperTimeParameterPartials_ )
+    {
+        OneWayDopplerPartialReturnType properTimeReturnPartials = oneWayDopplerScaler_->getProperTimeParameterPartial(
+                    parameterIdentifier_ );
+        for( unsigned int i = 0; i < properTimeReturnPartials.size( ); i++ )
+        {
+            returnPartial.push_back( properTimeReturnPartials.at( i ) );
+        }
+    }
+
     return returnPartial;
 }
 

@@ -47,7 +47,8 @@ enum EstimatebleParametersEnum
     constant_relative_observation_bias,
     ppn_parameter_gamma,
     ppn_parameter_beta,
-    ground_station_position
+    ground_station_position,
+    equivalence_principle_lpi_violation_parameter
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

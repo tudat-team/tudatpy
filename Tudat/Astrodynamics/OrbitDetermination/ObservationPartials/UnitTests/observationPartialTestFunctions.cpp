@@ -12,6 +12,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 
 namespace tudat
@@ -144,8 +145,8 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
             boost::make_shared< ConstantRotationalOrientation >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
-    boost::shared_ptr< PPNParameterGamma > ppnParameterGamma =
-            boost::make_shared< PPNParameterGamma >( );
+    boost::shared_ptr< EquivalencePrincipleLpiViolationParameter > ppnParameterGamma =
+            boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
 
 
 
