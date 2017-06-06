@@ -460,9 +460,9 @@ public:
             lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL,
             const boost::function< ObservationScalarType( const TimeType ) > transmitterProperTimeRateFunction
-            = boost::lambda::constant( mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 ) ),
+            = boost::function< ObservationScalarType( const TimeType ) >( ),
             const boost::function< ObservationScalarType( const TimeType ) > receiverProperTimeRateFunction
-            = boost::lambda::constant( mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 ) ) ):
+            = boost::function< ObservationScalarType( const TimeType ) >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(

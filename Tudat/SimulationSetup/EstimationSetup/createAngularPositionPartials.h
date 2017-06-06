@@ -185,9 +185,6 @@ createAngularPositionPartials(
                     angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
-        std::cout<<"Creating partial: "<<parameterIterator->first<<" "<<
-                   ( currentAngularPositionPartial == NULL )<<" "<<lightTimeCorrectionPartialObjects.size( )<<std::endl;
-
         if( currentAngularPositionPartial != NULL )
         {
             // Add partial to the list.
