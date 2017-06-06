@@ -162,8 +162,6 @@ public:
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                 bool > lightTimeCorrectionPartial;
 
-        std::cout<<"Light-time partials: "<<lighTimeCorrectionPartials.size( )<<std::endl;
-
         // Create light time correction partial functions
         for( unsigned int i = 0; i < lighTimeCorrectionPartials.size( ); i++ )
         {
