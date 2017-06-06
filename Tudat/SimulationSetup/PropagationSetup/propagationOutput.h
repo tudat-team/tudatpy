@@ -13,6 +13,8 @@
 
 #include <boost/function.hpp>
 
+#include "Tudat/Basics/utilities.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
@@ -67,6 +69,27 @@ OutputType evaluateBivariateFunction(
         const boost::function< InputType( ) > secondInput )
 {
     return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+//! Function to evaluate a function with three input variables from function pointers
+/*!
+ *  Function to evaluate a function with three input variables from function pointers that return these
+ *  three input variables.
+ *  \param functionToEvaluate Function that is to be evaluated with input from function pointers.
+ *  \param firstInput Function returning first input to functionToEvaluate.
+ *  \param secondInput Function returning second input to functionToEvaluate.
+ *  \param thirdInput Function returning third input to functionToEvaluate.
+ *  \return Output from functionToEvaluate, using functions firstInput, secondInput and thirdInput as input.
+ */
+template< typename OutputType, typename FirstInputType, typename SecondInputType, typename ThirdInputType >
+OutputType evaluateTrivariateFunction(
+        const boost::function< OutputType( const FirstInputType&, const SecondInputType, const ThirdInputType ) >
+        functionToEvaluate,
+        const boost::function< FirstInputType( ) > firstInput,
+        const boost::function< SecondInputType( ) > secondInput,
+        const boost::function< ThirdInputType( ) > thirdInput )
+{
+    return functionToEvaluate( firstInput( ), secondInput( ), thirdInput( ) );
 }
 
 
@@ -463,6 +486,40 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                 boost::bind( &BodyMassStateDerivative< StateScalarType, TimeType >::getTotalMassRateForBody, nBodyModel,
                              bodyWithProperty );
 
+        break;
+    }
+    case periapsis_altitude_dependent_variable:
+    {
+        using namespace Eigen;
+        boost::function< double( const Vector6d&, const double, const double ) > functionToEvaluate =
+                boost::bind( &basic_astrodynamics::computePeriapsisAltitudeFromCartesianState, _1, _2, _3 );
+
+        // Retrieve function for propagated body's Cartesian state in the global reference frame.
+        boost::function< Vector6d( ) > propagatedBodyStateFunction =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( bodyWithProperty ) );
+
+        // Retrieve function for central body's Cartesian state in the global reference frame.
+        boost::function< Vector6d( ) > centralBodyStateFunction =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( secondaryBody ) );
+
+        // Retrieve function for propagated body's Cartesian state in the propagation reference frame.
+        boost::function< Vector6d( ) > firstInput =
+                boost::bind( &utilities::subtractFunctionReturn< Vector6d >,
+                             propagatedBodyStateFunction, centralBodyStateFunction );
+
+        // Retrieve function for central body's gravitational parameter.
+        boost::function< double( ) > secondInput =
+                boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                             bodyMap.at( secondaryBody )->getGravityFieldModel( ) );
+
+        // Retrieve function for central body's average radius.
+        boost::function< double( ) > thirdInput =
+                boost::bind( &basic_astrodynamics::BodyShapeModel::getAverageRadius,
+                             bodyMap.at( secondaryBody )->getShapeModel( ) );
+
+
+        variableFunction = boost::bind( &evaluateTrivariateFunction< double, Vector6d, double, double >,
+                                        functionToEvaluate, firstInput, secondInput, thirdInput );
         break;
     }
     default:
