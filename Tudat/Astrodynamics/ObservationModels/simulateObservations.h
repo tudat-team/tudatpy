@@ -12,8 +12,9 @@
 #define TUDAT_SIMULATEOBSERVATIONS_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
-#include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
+#include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 
 namespace tudat
 {
@@ -93,9 +94,9 @@ simulateSingleObservationSet(
 //! Function to simulate observations for single observable and single set of link ends.
 /*!
  *  Function to simulate observations for single observable and single set of link ends. From the observation time settings and
- *  the observation manager (model), the required observations are simulated and returned.
+ *  the observation simulator, the required observations are simulated and returned.
  *  \param observationsToSimulate Object that computes/defines settings for observation times/reference link end
- *  \param observationManager Observation manager for observable for which observations are to be calculated.
+ *  \param observationSimulator Observation simulator for observable for which observations are to be calculated.
  *  \param linkEnds Link end set for which observations are to be calculated.
  *  \return Pair of first: vector of observations; second: vector of times at which observations are taken
  *  (reference to link end defined in observationsToSimulate).
@@ -104,16 +105,16 @@ template< typename ObservationScalarType = double, typename TimeType = double, i
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< std::vector< TimeType >, LinkEndType > >
 simulateSingleObservationSet(
         const boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > observationsToSimulate,
-        const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationManager,
+        const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator,
         const LinkEnds& linkEnds )
 {
-    if( observationManager == NULL )
+    if( observationSimulator == NULL )
     {
-        throw std::runtime_error( "Error when simulating single observation set, observation manager is NULL" );
+        throw std::runtime_error( "Error when simulating single observation set, Observation simulator is NULL" );
     }
 
     return simulateSingleObservationSet< ObservationScalarType, TimeType, ObservationSize >(
-                observationsToSimulate, observationManager->getObservationModel( linkEnds ) );
+                observationsToSimulate, observationSimulator->getObservationModel( linkEnds ) );
 }
 
 //! Function to generate ObservationSimulationTimeSettings objects from simple time list input.
@@ -156,7 +157,7 @@ createObservationSimulationTimeSettingsMap(
  *  Function calls function for creation of ObservationSimulationTimeSettings and subsequently uses these for function call
  *  to observation simulation function.
  *  \param observationsToSimulate List of observation times per link end set per observable type.
- *  \param observationManagers List of observation managers per link end set per observable type.
+ *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -165,11 +166,11 @@ std::pair< std::vector< TimeType >, LinkEndType > > > >
 simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > >&
         observationsToSimulate,
-        const std::map< ObservableType, boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > >&
-        observationManagers )
+        const std::map< ObservableType, boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >&
+        observationSimulators )
 {
     return simulateObservations< ObservationScalarType, TimeType >(
-                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationManagers );
+                createObservationSimulationTimeSettingsMap( observationsToSimulate ), observationSimulators );
 }
 
 //! Function to simulate observations from set of observables and link and sets
@@ -177,7 +178,7 @@ simulateObservations(
  *  Function to simulate observations from set of observables and link and setss and simple vectors of requested times.
  *  Iterates over all observables and link ends and simulates observations.
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
- *  \param observationManagers List of observation managers per link end set per observable type.
+ *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -187,7 +188,7 @@ simulateObservations(
         const std::map< ObservableType, std::map< LinkEnds,
         boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
         const std::map< ObservableType,
-        boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > >& observationManagers )
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators )
 {
     // Declare return map.
     std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
@@ -204,18 +205,18 @@ simulateObservations(
              boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > >::const_iterator linkEndIterator =
              observationIterator->second.begin( ); linkEndIterator != observationIterator->second.end( ); linkEndIterator++ )
         {
-            int observationSize = observationManagers.at( observationIterator->first )->getObservationSize(
+            int observationSize = observationSimulators.at( observationIterator->first )->getObservationSize(
                         linkEndIterator->first );
 
             switch( observationSize )
             {
             case 1:
             {
-                boost::shared_ptr< ObservationManager< 1, ObservationScalarType, TimeType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 1, ObservationScalarType, TimeType > >(
-                            observationManagers.at( observationIterator->first ) );
+                boost::shared_ptr< ObservationSimulator< 1, ObservationScalarType, TimeType > > derivedObservationSimulator =
+                        boost::dynamic_pointer_cast< ObservationSimulator< 1, ObservationScalarType, TimeType > >(
+                            observationSimulators.at( observationIterator->first ) );
 
-                if( derivedObservationManager == NULL )
+                if( derivedObservationSimulator == NULL )
                 {
                     throw std::runtime_error( "Error when simulating observation: dynamic case to size 1 is NULL" );
                 }
@@ -223,17 +224,17 @@ simulateObservations(
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
                         simulateSingleObservationSet< ObservationScalarType, TimeType, 1 >(
-                            linkEndIterator->second, derivedObservationManager->getObservationSimulator( ),
+                            linkEndIterator->second, derivedObservationSimulator,
                             linkEndIterator->first );
                 break;
             }
             case 2:
             {
-                boost::shared_ptr< ObservationManager< 2, ObservationScalarType, TimeType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 2, ObservationScalarType, TimeType > >(
-                            observationManagers.at( observationIterator->first ) );
+                boost::shared_ptr< ObservationSimulator< 2, ObservationScalarType, TimeType > > derivedObservationSimulator =
+                        boost::dynamic_pointer_cast< ObservationSimulator< 2, ObservationScalarType, TimeType > >(
+                            observationSimulators.at( observationIterator->first ) );
 
-                if( derivedObservationManager == NULL )
+                if( derivedObservationSimulator == NULL )
                 {
                     throw std::runtime_error( "Error when simulating observation: dynamic case to size 2 is NULL" );
                 }
@@ -241,17 +242,17 @@ simulateObservations(
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
                         simulateSingleObservationSet< ObservationScalarType, TimeType, 2 >(
-                            linkEndIterator->second, derivedObservationManager->getObservationSimulator( ),
+                            linkEndIterator->second, derivedObservationSimulator,
                             linkEndIterator->first );
                 break;
             }
             case 3:
             {
-                boost::shared_ptr< ObservationManager< 3, ObservationScalarType, TimeType > > derivedObservationManager =
-                        boost::dynamic_pointer_cast< ObservationManager< 3, ObservationScalarType, TimeType > >(
-                            observationManagers.at( observationIterator->first ) );
+                boost::shared_ptr< ObservationSimulator< 3, ObservationScalarType, TimeType > > derivedObservationSimulator =
+                        boost::dynamic_pointer_cast< ObservationSimulator< 3, ObservationScalarType, TimeType > >(
+                            observationSimulators.at( observationIterator->first ) );
 
-                if( derivedObservationManager == NULL )
+                if( derivedObservationSimulator == NULL )
                 {
                     throw std::runtime_error( "Error when simulating observation: dynamic case to size 3 is NULL" );
                 }
@@ -259,7 +260,7 @@ simulateObservations(
                 // Simulate observations for current observable and link ends set.
                 observations[ observationIterator->first ][ linkEndIterator->first ] =
                         simulateSingleObservationSet< ObservationScalarType, TimeType, 3 >(
-                            linkEndIterator->second, derivedObservationManager->getObservationSimulator( ), linkEndIterator->first );
+                            linkEndIterator->second, derivedObservationSimulator, linkEndIterator->first );
                 break;
             }
             default:
@@ -272,6 +273,161 @@ simulateObservations(
     return observations;
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::pair< std::vector< TimeType >, LinkEndType > > > >
+simulateObservationsWithNoise(
+        const std::map< ObservableType, std::map< LinkEnds,
+        boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
+        const std::map< ObservableType,
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+        const std::map< ObservableType, std::map< LinkEnds, boost::function< Eigen::VectorXd( const double ) > > >& noiseFunctions )
+{
+    // Declare return map.
+    typedef std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+            std::pair< std::vector< TimeType >, LinkEndType > > > SingelTypeObservationsMap;
+    typedef std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+            std::pair< std::vector< TimeType >, LinkEndType > > > > ObservationsMap;
+    ObservationsMap noiseFreeObservationsList = simulateObservations(
+                observationsToSimulate, observationSimulators );
+    ObservationsMap noisyObservationsList;
+
+    for( typename ObservationsMap::iterator observationIterator = noiseFreeObservationsList.begin( );
+         observationIterator != noiseFreeObservationsList.end( ); observationIterator++ )
+    {
+        int currentObservableSize = getObservableSize( observationIterator->first );
+
+        SingelTypeObservationsMap singleObservableObservationsWithNoise;
+        for( typename SingelTypeObservationsMap::iterator linkIterator = observationIterator->second.begin( );
+             linkIterator != observationIterator->second.end( ); linkIterator++ )
+        {
+            std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+                    std::pair< std::vector< TimeType >, LinkEndType > > nominalObservationsAndTimes =
+                    linkIterator->second;
+
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > noisyObservations = nominalObservationsAndTimes.first;
+            std::vector< TimeType > nominalTimes = nominalObservationsAndTimes.second.first;
+
+            if( static_cast< int >( nominalTimes.size( ) ) != noisyObservations.rows( ) / currentObservableSize )
+            {
+                throw std::runtime_error( "Error when adding noise to observations, input data is inconsistent" );
+            }
+
+
+            boost::function< Eigen::VectorXd( const double ) > currentNoiseFunction =
+                    noiseFunctions.at( observationIterator->first ).at( linkIterator->first );
+
+            // Simulate noise for all observations and add to calculated values
+            for( unsigned int i = 0; i < nominalTimes.size( ); i++ )
+            {
+                if( i == 0 )
+                {
+                    if( currentNoiseFunction( nominalTimes.at( i ) ).rows( ) != currentObservableSize )
+                    {
+                        throw std::runtime_error( "Error when adding noise to observations, noise size is inconsistent" );
+                    }
+                }
+                noisyObservations.segment( i * currentObservableSize, currentObservableSize ) +=
+                        currentNoiseFunction( nominalTimes.at( i ) );
+            }
+
+            singleObservableObservationsWithNoise[ linkIterator->first ] =
+                    std::make_pair( noisyObservations, nominalObservationsAndTimes.second );
+        }
+        noisyObservationsList[ observationIterator->first ] = singleObservableObservationsWithNoise;
+    }
+    return noisyObservationsList;
+}
+
+Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
+        const boost::function< double( const double ) > noiseFunction,
+        const int observationSize,
+        const double evaluationTime )
+{
+    Eigen::VectorXd noiseValues = Eigen::VectorXd( observationSize );
+    for( int i = 0; i < observationSize; i++ )
+    {
+        noiseValues( i ) = noiseFunction( evaluationTime );
+    }
+    return noiseValues;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::pair< std::vector< TimeType >, LinkEndType > > > >
+simulateObservationsWithNoise(
+        const std::map< ObservableType, std::map< LinkEnds,
+        boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
+        const std::map< ObservableType,
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+        const std::map< ObservableType, boost::function< Eigen::VectorXd( const double ) > >& noiseFunctions )
+{
+    std::map< ObservableType, std::map< LinkEnds, boost::function< Eigen::VectorXd( const double ) > > > fullNoiseFunctions;
+    // Iterate over all observables.
+    for( typename std::map< ObservableType, std::map< LinkEnds,
+         boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > >  > >::const_iterator observationIterator =
+         observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
+    {
+        if( noiseFunctions.at( observationIterator->first ) == 0 )
+        {
+            throw std::runtime_error( "Error when setting observation noise function, missing observable" );
+        }
+
+        // Iterate over all link ends for current observable.
+        for( typename std::map< LinkEnds,
+             boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > >::const_iterator linkEndIterator =
+             observationIterator->second.begin( ); linkEndIterator != observationIterator->second.end( ); linkEndIterator++ )
+        {
+            fullNoiseFunctions[ observationIterator->first ][ linkEndIterator->first ] =
+                   noiseFunctions .at( observationIterator->first );
+        }
+    }
+
+    return simulateObservationsWithNoise( observationsToSimulate, observationSimulators, fullNoiseFunctions );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::pair< std::vector< TimeType >, LinkEndType > > > >
+simulateObservationsWithNoise(
+        const std::map< ObservableType, std::map< LinkEnds,
+        boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
+        const std::map< ObservableType,
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+        const std::map< ObservableType, boost::function< double( const double ) > >& noiseFunctions )
+{
+    std::map< ObservableType, boost::function< Eigen::VectorXd( const double ) > > noiseVectorFunctions;
+    for( std::map< ObservableType, boost::function< double( const double ) > >::const_iterator noiseIterator =
+         noiseFunctions.begin( ); noiseIterator != noiseFunctions.end( ); noiseIterator++ )
+    {
+        noiseVectorFunctions[ noiseIterator->first ] =
+                boost::bind(
+                    &getIdenticallyAndIndependentlyDistributedNoise, noiseIterator->second,
+                    getObservableSize( noiseIterator->first ), _1 );
+    }
+    return simulateObservationsWithNoise( observationsToSimulate, observationSimulators, noiseVectorFunctions );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::pair< std::vector< TimeType >, LinkEndType > > > >
+simulateObservationsWithNoise(
+        const std::map< ObservableType, std::map< LinkEnds,
+        boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
+        const std::map< ObservableType,
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+        const boost::function< double( const double ) >& noiseFunction )
+{
+    std::map< ObservableType, boost::function< double( const double ) > > noiseFunctionList;
+
+    for( typename std::map< ObservableType, std::map< LinkEnds,
+         boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > >  > >::const_iterator observationIterator =
+         observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
+    {
+        noiseFunctionList[ observationIterator->first ] = noiseFunction;
+    }
+    return simulateObservationsWithNoise( observationsToSimulate, observationSimulators, noiseFunctionList );
+}
 
 }
 

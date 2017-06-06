@@ -29,39 +29,6 @@ namespace tudat
 namespace observation_models
 {
 
-//! Function to create an object to simulate observations of a given type
-/*!
- *  Function to create an object to simulate observations of a given type
- *  \param observableType Type of observable for which object is to simulate ObservationSimulator
- *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
- *  for each required set of link ends (each settings object must be consistent with observableType).
- *  \param bodyMap Map of Body objects that comprise the environment
- *  \return Object that simulates the observables according to the provided settings.
- */
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
-boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
-        const ObservableType observableType,
-        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
-        const simulation_setup::NamedBodyMap &bodyMap )
-{
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
-            observationModels;
-
-    // Iterate over all link ends
-    for( std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > >::const_iterator settingIterator =
-         settingsPerLinkEnds.begin( ); settingIterator != settingsPerLinkEnds.end( ); settingIterator++ )
-    {
-        observationModels[ settingIterator->first ] = ObservationModelCreator<
-                ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
-                    settingIterator->first, settingIterator->second, bodyMap );
-    }
-
-    return boost::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
-                observableType, observationModels );
-
-
-}
-
 //! Function to perform the closure a single observation bias and a single estimated bias parameter.
 /*!
  *  Function to perform the closure a single observation bias and a single estimated bias parameter. Estimated parameter objects
