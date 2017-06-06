@@ -132,7 +132,8 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
             }
             else
             {
-                values.push_back( boost::lexical_cast< ScalarValueType >( lineSplit_.at( columnIndex ) ) );
+                values.push_back( static_cast< ScalarValueType >(
+                                      boost::lexical_cast< double >( lineSplit_.at( columnIndex ) ) ) );
             }
         }
 

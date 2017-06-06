@@ -85,8 +85,19 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 #if USE_NRLMSISE00
     case nrlmsise00:
     {
-        std::string folder = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/";
-        std::string spaceWeatherFilePath = folder + "sw19571001.txt";
+        std::string spaceWeatherFilePath;
+        boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
+                boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+        if( nrlmsise00AtmosphereSettings == NULL )
+        {
+            // Use default space weather file stored in tudatBundle.
+            spaceWeatherFilePath = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt";
+        }
+        else
+        {
+            // Use space weather file specified by user.
+            spaceWeatherFilePath = nrlmsise00AtmosphereSettings->getSpaceWeatherFile( );
+        }
 
         tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
                 tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;

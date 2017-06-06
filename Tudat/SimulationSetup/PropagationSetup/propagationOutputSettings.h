@@ -51,7 +51,8 @@ enum PropagationDependentVariables
     geodetic_latitude_dependent_variable = 22,
     control_surface_deflection_dependent_variable = 23,
     total_mass_rate_dependent_variables = 24,
-    lvlh_to_inertial_frame_rotation_dependent_variable = 25
+    lvlh_to_inertial_frame_rotation_dependent_variable = 25,
+    periapsis_altitude_dependent_variable = 26
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
