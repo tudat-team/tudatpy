@@ -44,6 +44,7 @@ double computePartialOfProjectedLinkEndVelocityWrtAssociatedTime(
              static_cast< double >( projectedLinkEndIsVariableLinkEnd ) * normalizedVector.dot( projectedLinkEndAcceleration );
 }
 
+//! Update the scaling object to the current times and states
 void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
              const std::vector< double >& times,
              const observation_models::LinkEndType fixedLinkEnd,
@@ -101,7 +102,7 @@ OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getVelocityScalingFacto
     }
 }
 
-
+//! Function to get the direct partial derivative, and associated time, of proper time
 std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double >
 OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getProperTimeParameterPartial(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
@@ -117,7 +118,7 @@ OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getProperTimeParameterP
     }
 }
 
-
+//! Function to get the size of the direct dependency of proper time rate on parameter
 int OneWayDopplerDirectFirstOrderProperTimeComponentScaling::getParameterDependencySize(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
@@ -226,11 +227,6 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
 }
 
 //! Function to retrieve the position scaling factor for specific link end
-/*!
- * Function to retrieve the position scaling factor for specific link end
- * \param linkEndType Link end for which scaling factor is to be returned
- * \return Position partial scaling factor at current link end
- */
 Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( const observation_models::LinkEndType linkEndType )
 {
     Eigen::Matrix< double, 1, 3 > scalingFactor =
@@ -250,11 +246,6 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( co
 }
 
 //! Function to retrieve the velocity scaling factor for specific link end
-/*!
- * Function to retrieve the velocity scaling factor for specific link end
- * \param linkEndType Link end for which scaling factor is to be returned
- * \return Velocity partial scaling factor at current link end
- */
 Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( const observation_models::LinkEndType linkEndType )
 {
     Eigen::Matrix< double, 1, 3 > scalingFactor =
@@ -274,7 +265,7 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( co
     return scalingFactor;
 }
 
-
+//! Function to get the size of the direct dependency of proper time rate on parameter
 int OneWayDopplerScaling::getProperTimeParameterDependencySize(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
@@ -311,6 +302,7 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
     return totalDependencySize;
 }
 
+//! Function to get the direct partial derivatives, and associated times, of proper time components of Doppler partials
 std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > OneWayDopplerScaling::getProperTimeParameterPartial(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType  )
 {
