@@ -231,7 +231,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     PodInputDataType observationsAndTimes = simulateObservations< ObservationScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationManagers( )  );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;

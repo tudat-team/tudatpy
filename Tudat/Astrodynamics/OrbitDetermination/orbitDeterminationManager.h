@@ -242,6 +242,24 @@ public:
         return observationManagers_;
     }
 
+    std::map< observation_models::ObservableType,
+    boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+    getObservationSimulators( ) const
+    {
+        std::map< observation_models::ObservableType,
+        boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+
+        for( typename std::map< observation_models::ObservableType,
+        boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
+             managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
+             managerIterator++ )
+        {
+            observationSimulators[ managerIterator->first ] = managerIterator->second->getObservationSimulator( );
+        }
+
+        return observationSimulators;
+    }
+
     //! Function to determine the number of observations per link end.
     /*!
      *  Function to determine the number of observations per link end from a map of observations for each link ends.

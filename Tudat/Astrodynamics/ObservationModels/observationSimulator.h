@@ -113,33 +113,13 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
     return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
 }
 
-
-//! Objects used to simulate a set of observations of a given kind
-/*!
- *  Objects used to simulate a set of observations of a given kind.
- *  NOTE: In the current application, this class does not add much to the existing interfaces. It is included in
- *  anticipation of the inclusion of observation viability checking, measurement noise simulation, etc., which
- *  will be added in an upcoming pull request
- */
-template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
-class ObservationSimulator
+template< typename ObservationScalarType = double, typename TimeType = double >
+class ObservationSimulatorBase
 {
 public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param observableType Type of observable for which this object computes observations
-     * \param observationModels List of observation models of type observableType
-     */
-    ObservationSimulator(
-            const ObservableType observableType,
-            const std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize,
-            ObservationScalarType, TimeType > > >& observationModels ):
-        observableType_( observableType ), observationModels_( observationModels ){ }
-
-    //! Virtual destructor
-    virtual ~ObservationSimulator( ){ }
+    ObservationSimulatorBase(
+            const ObservableType observableType ):
+        observableType_( observableType ){ }
 
     //! Function to get the type of observable for which this object computes observations
     /*!
@@ -150,6 +130,78 @@ public:
     {
         return observableType_;
     }
+
+    //! Function to get the observation model for a given set of link ends
+    /*!
+     * Function to get the observation model for a given set of link ends
+     * \return Observation model for a given set of link ends
+     */
+    virtual int getObservationSize( const LinkEnds& linkEnds ) = 0;
+
+    //! Function to simulate observations between specified link ends.
+    /*!
+     *  Function to simulate observations between specified link ends. Users can specify whether to check for availability of
+     *  link at given reception time.
+     *  \param observationTimes Vector of times at which observations taked place (i.e. reception time)
+     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Reference link end for observable
+     *  \param checkTimes Boolean denoting whether the observation times are to be checked for viability
+     *  \return Observations at given times (concatenated in an Eigen vector), with associated times
+     */
+    virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > >
+    simulateObservations( const std::vector< TimeType >& observationTimes,
+                          const LinkEnds linkEnds,
+                          const LinkEndType linkEndAssociatedWithTime,
+                          const bool checkTimes = true ) = 0;
+
+    //! Function to simulate observations between specified link ends.
+    /*!
+     *  Function to simulate observations between specified link ends. Users can specify whether to check for availability of
+     *  link at given reception time.
+     *  \param observationTimes Vector of times at which observations taked place (i.e. reception time)
+     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Reference link end for observable
+     *  \param checkTimes Boolean denoting whether the observation times are to be checked for viability
+     *  \return Observations at given times (concatenated in an Eigen vector), with associated times and reference link end.
+     */
+    virtual std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, LinkEndType > >
+    simulateObservationsWithLinkEndId( const std::vector< TimeType >& observationTimes,
+                                       const LinkEnds linkEnds,
+                                       const LinkEndType linkEndAssociatedWithTime,
+                                       const bool checkTimes = true ) = 0;
+
+protected:
+    //! Type of observable for which this object computes observations
+    ObservableType observableType_;
+};
+
+//! Objects used to simulate a set of observations of a given kind
+/*!
+ *  Objects used to simulate a set of observations of a given kind.
+ *  NOTE: In the current application, this class does not add much to the existing interfaces. It is included in
+ *  anticipation of the inclusion of observation viability checking, measurement noise simulation, etc., which
+ *  will be added in an upcoming pull request
+ */
+template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
+class ObservationSimulator: public ObservationSimulatorBase< ObservationScalarType, TimeType >
+{
+public:
+
+    using ObservationSimulatorBase< ObservationScalarType, TimeType >::observableType_;
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Type of observable for which this object computes observations
+     * \param observationModels List of observation models of type observableType
+     */
+    ObservationSimulator(
+            const ObservableType observableType,
+            const std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize,
+            ObservationScalarType, TimeType > > >& observationModels ):
+        ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels ){ }
+
+    //! Virtual destructor
+    virtual ~ObservationSimulator( ){ }
 
     //! Function to get the size of the observable for a given set of link ends
     /*!
@@ -247,9 +299,6 @@ public:
     }
 
 protected:
-
-    //! Type of observable for which this object computes observations
-    ObservableType observableType_;
 
     //! List of observation models of type observableType
     std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >

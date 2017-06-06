@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 
@@ -883,6 +884,90 @@ public:
         return observationModel;
     }
 };
+
+//! Function to create an object to simulate observations of a given type
+/*!
+ *  Function to create an object to simulate observations of a given type
+ *  \param observableType Type of observable for which object is to simulate ObservationSimulator
+ *  \param settingsPerLinkEnds Map of settings for the observation models that are to be created in the simulator object: one
+ *  for each required set of link ends (each settings object must be consistent with observableType).
+ *  \param bodyMap Map of Body objects that comprise the environment
+ *  \return Object that simulates the observables according to the provided settings.
+ */
+template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > createObservationSimulator(
+        const ObservableType observableType,
+        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+        const simulation_setup::NamedBodyMap &bodyMap )
+{
+    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+            observationModels;
+
+    // Iterate over all link ends
+    for( std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > >::const_iterator settingIterator =
+         settingsPerLinkEnds.begin( ); settingIterator != settingsPerLinkEnds.end( ); settingIterator++ )
+    {
+        observationModels[ settingIterator->first ] = ObservationModelCreator<
+                ObservationSize, ObservationScalarType, TimeType >::createObservationModel(
+                    settingIterator->first, settingIterator->second, bodyMap );
+    }
+
+    return boost::make_shared< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >(
+                observableType, observationModels );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType,
+boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+        observation_models::SortedObservationSettingsMap observationSettingsMap,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    std::map< ObservableType,
+    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+
+    typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+    for( SortedObservationSettingsMap::const_iterator settingsIterator = observationSettingsMap.begin( );
+         settingsIterator != observationSettingsMap.end( ); settingsIterator++ )
+    {
+        int observableSize = getObservableSize( settingsIterator->first );
+        switch( observableSize )
+        {
+        case 1:
+        {
+            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 1, ObservationScalarType, TimeType >(
+                        settingsIterator->first, settingsIterator->second, bodyMap );
+            break;
+        }
+        case 2:
+        {
+            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 2, ObservationScalarType, TimeType >(
+                        settingsIterator->first, settingsIterator->second, bodyMap );
+            break;
+        }
+        case 3:
+        {
+            observationSimulators[ settingsIterator->first ] = createObservationSimulator< 3, ObservationScalarType, TimeType >(
+                        settingsIterator->first, settingsIterator->second, bodyMap );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error, cannot create observation simulator for size other than 1,2 and 3 ");
+        }
+    }
+    return observationSimulators;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType,
+boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
+        observation_models::ObservationSettingsMap observationSettingsMap,
+        const simulation_setup::NamedBodyMap &bodyMap )
+{
+    return createObservationSimulators< ObservationScalarType, TimeType >(
+                convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodyMap );
+}
+
+
 
 } // namespace observation_models
 

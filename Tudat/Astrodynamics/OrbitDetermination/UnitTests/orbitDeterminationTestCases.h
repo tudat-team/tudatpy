@@ -248,7 +248,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
@@ -556,7 +556,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation( )
 
     // Simulate observations
     PodInputDataType observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationManagers( ) );
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
 
     // Perturb parameter estimate
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =

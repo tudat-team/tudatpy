@@ -91,6 +91,9 @@ public:
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime ) = 0;
 
+    virtual boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( ) = 0;
+
+
 protected:
 
     //! Function to get the state transition and sensitivity matrix.
@@ -201,7 +204,7 @@ public:
      * Function to return the object used to simulate ideal observations
      * \return Object used to simulate ideal observations
      */
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > getObservationSimulator( )
+    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( )
     {
         return observationSimulator_;
     }
