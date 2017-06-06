@@ -102,6 +102,8 @@ public:
      * Constructor
      * \param properTimeRateModel Object used to compute proper time rate
      * \param linkEndWithPartial Link end for which this partial is created
+     * \param computeStatePartials Boolean to denote whether state partials are to be computed. It is false if the link end for
+     * which this object computes the proper time partials is fixed to the perturbing body.
      */
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
             const boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
@@ -109,8 +111,7 @@ public:
             const bool computeStatePartials ):
         OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
         properTimeRateModel_( properTimeRateModel ),
-        computeStatePartials_( computeStatePartials )
-    { }
+        computeStatePartials_( computeStatePartials ){ }
 
     //! Update the scaling object to the current times and states
     /*!
@@ -273,9 +274,10 @@ public:
         return currentLinkEndType_;
     }
 
-    //!
+    //! Function to return factor by which light-time correction state partial is to be scaled for  one-way Doppler partial
     /*!
-     * \param AAAA
+     *  Function to return factor by which light-time correction state partial is to be scaled to be added to one-way
+     *  \return Factor by which light-time correction state partial is to be scaled for  one-way Doppler partial
      */
     double getLightTimeCorrectionPartialScaling( )
     {
@@ -325,13 +327,20 @@ public:
 
 private:
 
-    //! Computed scaling factor (at receiver)
+    //! Computed position scaling factor, for relative position vector (transmitter to receiver)
     Eigen::Matrix< double, 1, 3 > positionScalingFactor_;
 
+    //! Factor by which light time correction state partial is to be scaled to be added to one-way Doppler partial
+    /*!
+     *  Factor by which light time correction state partial is to be scaled to be added to one-way Doppler partial. ALso forms
+     *  part of the total partial w.r.t. the relative position.
+     */
     double lightTimeEffectPositionScalingFactor_;
 
+    //! Computed scaling factor for receiver velocity partials.
     Eigen::Matrix< double, 1, 3 > receiverVelocityScalingFactor_;
 
+    //! Computed scaling factor for transmitter velocity partials.
     Eigen::Matrix< double, 1, 3 > transmitterVelocityScalingFactor_;
 
     //! Fixed link end for last computation of update() function.
