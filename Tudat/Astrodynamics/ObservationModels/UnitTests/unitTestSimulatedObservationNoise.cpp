@@ -17,8 +17,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Mathematics/Statistics/basicStatistics.h"
-#include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
 #include "Tudat/SimulationSetup/tudatEstimationHeader.h"
 
 namespace tudat

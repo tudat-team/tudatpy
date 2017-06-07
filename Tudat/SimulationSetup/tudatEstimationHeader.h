@@ -18,4 +18,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
 
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
+#include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
+
 #endif // TUDAT_ESTIMATIONHEADER_H
