@@ -199,7 +199,6 @@ simulateObservations(
          boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > >  > >::const_iterator observationIterator =
          observationsToSimulate.begin( ); observationIterator != observationsToSimulate.end( ); observationIterator++ )
     {
-
         // Iterate over all link ends for current observable.
         for( typename std::map< LinkEnds,
              boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > >::const_iterator linkEndIterator =
@@ -350,6 +349,32 @@ Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
         noiseValues( i ) = noiseFunction( evaluationTime );
     }
     return noiseValues;
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
+std::pair< std::vector< TimeType >, LinkEndType > > > >
+simulateObservationsWithNoise(
+        const std::map< ObservableType, std::map< LinkEnds,
+        boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > > >& observationsToSimulate,
+        const std::map< ObservableType,
+        boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > >& observationSimulators,
+        const std::map< ObservableType, std::map< LinkEnds, boost::function< double( const double ) > > >& noiseFunctions )
+{
+    std::map< ObservableType, std::map< LinkEnds, boost::function< Eigen::VectorXd( const double ) > > > noiseVectorFunctions;
+    for( std::map< ObservableType, std::map< LinkEnds, boost::function< double( const double ) > > >::const_iterator noiseIterator =
+         noiseFunctions.begin( ); noiseIterator != noiseFunctions.end( ); noiseIterator++ )
+    {
+        for( std::map< LinkEnds, boost::function< double( const double ) > >::const_iterator
+             linkEndIterator = noiseIterator->second.begin( ); linkEndIterator != noiseIterator->second.end( ); linkEndIterator++ )
+        {
+            noiseVectorFunctions[ noiseIterator->first ][ linkEndIterator->first ] =
+                    boost::bind(
+                        &getIdenticallyAndIndependentlyDistributedNoise, linkEndIterator->second,
+                        getObservableSize( noiseIterator->first ), _1 );
+        }
+    }
+    return simulateObservationsWithNoise( observationsToSimulate, observationSimulators, noiseVectorFunctions );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = double >

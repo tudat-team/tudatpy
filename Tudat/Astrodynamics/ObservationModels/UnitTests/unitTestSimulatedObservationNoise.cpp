@@ -67,6 +67,12 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
+    bodySettings[ "Earth" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+                "ECLIPJ2000", "IAU_Earth",
+                spice_interface::computeRotationQuaternionBetweenFrames(
+                    "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                initialEphemerisTime, 2.0 * mathematical_constants::PI /
+                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -141,15 +147,15 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     std::map< ObservableType,
-    boost::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
+            boost::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
             createObservationSimulators( observationSettingsMap, bodyMap );
 
     std::vector< double > baseTimeList;
     double observationTimeStart = initialEphemerisTime + 1000.0;
-    double observationInterval = 10.0;
+    double observationInterval = 5.0;
     for( unsigned int i = 0; i < 3; i++ )
     {
-        for( unsigned int j = 0; j < 5000; j++ )
+        for( unsigned int j = 0; j < 10000; j++ )
         {
             baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                     static_cast< double >( j ) * observationInterval );
@@ -181,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     PodInputDataType idealObservationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, observationSimulators );
 
-    double constantOffset = 0.1;
+    double constantOffset = 12.0;
     double constantStandardDeviation = 0.5;
     boost::function< double( ) > inputFreeNoiseFunction = createBoostContinuousRandomVariableGeneratorFunction(
                 normal_boost_distribution, boost::assign::list_of( constantOffset )( constantStandardDeviation ), 0.0 );
@@ -199,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
          dataIterator != constantNoiseObservationsAndTimes.end( ); dataIterator++ )
     {
         for( SingleObservablePodInputType::const_iterator innerDataIterator = dataIterator->second.begin( );
-            innerDataIterator != dataIterator->second.end( ); innerDataIterator++ )
+             innerDataIterator != dataIterator->second.end( ); innerDataIterator++ )
         {
             Eigen::VectorXd dataDifference = innerDataIterator->second.first -
                     idealObservationsAndTimes.at( dataIterator->first ).at( innerDataIterator->first ).first;
@@ -207,21 +213,125 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                     computeAverageOfVectorComponents( dataDifference );
             standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ] =
                     computeStandardDeviationOfVectorComponents( dataDifference );
-            std::cout<<meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ]<<" "<<
-                                standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ]<<std::endl;
+
+            BOOST_CHECK_CLOSE_FRACTION(
+                        meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ], constantOffset, 1.0E-2 );
+            BOOST_CHECK_CLOSE_FRACTION(
+                        standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ], constantStandardDeviation, 1.0E-2 );
         }
     }
 
     std::map< ObservableType, double > constantOffsets;
-    constantOffsets[ one_way_range ] = -0.2;
-    constantOffsets[ one_way_doppler ] = 2.4E-8;
-    constantOffsets[ angular_position ] = 3.0E-7;
+    constantOffsets[ one_way_range ] = -200.0;
+    constantOffsets[ one_way_doppler ] = -2.8E-5;
+    constantOffsets[ angular_position ] = 3.0E-4;
 
     std::map< ObservableType, double > constantStandardDeviations;
-    constantOffsets[ one_way_range ] = 2.4;
-    constantOffsets[ one_way_doppler ] = 7.5E-7;
-    constantOffsets[ angular_position ] = -6.3E-6;
+    constantStandardDeviations[ one_way_range ] = 2.4;
+    constantStandardDeviations[ one_way_doppler ] = 7.5E-8;
+    constantStandardDeviations[ angular_position ] = 6.3E-6;
 
+    std::map< ObservableType, boost::function< double( const double ) > > noiseFunctionPerObservable;
+    for( std::map< ObservableType, double >::const_iterator typeIterator = constantOffsets.begin( );
+         typeIterator != constantOffsets.end( ); typeIterator++ )
+    {
+        noiseFunctionPerObservable[ typeIterator->first ] =
+                boost::bind( &ignoreInputeVariable, createBoostContinuousRandomVariableGeneratorFunction(
+                                 normal_boost_distribution,
+                                 boost::assign::list_of( constantOffsets.at( typeIterator->first ) )
+                                 ( constantStandardDeviations.at( typeIterator->first ) ), 0.0 ), _1 );
+    }
+
+    PodInputDataType noisyPerObservableObservationsAndTimes = simulateObservationsWithNoise< double, double >(
+                measurementSimulationInput, observationSimulators, noiseFunctionPerObservable );
+
+    for( PodInputDataType::const_iterator dataIterator = noisyPerObservableObservationsAndTimes.begin( );
+         dataIterator != noisyPerObservableObservationsAndTimes.end( ); dataIterator++ )
+    {
+        for( SingleObservablePodInputType::const_iterator innerDataIterator = dataIterator->second.begin( );
+             innerDataIterator != dataIterator->second.end( ); innerDataIterator++ )
+        {
+            Eigen::VectorXd dataDifference = innerDataIterator->second.first -
+                    idealObservationsAndTimes.at( dataIterator->first ).at( innerDataIterator->first ).first;
+            meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ] =
+                    computeAverageOfVectorComponents( dataDifference );
+            standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ] =
+                    computeStandardDeviationOfVectorComponents( dataDifference );
+
+            BOOST_CHECK_CLOSE_FRACTION(
+                        meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ],
+                    constantOffsets[ dataIterator->first ], 1.0E-2 );
+            BOOST_CHECK_CLOSE_FRACTION(
+                        standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ],
+                    constantStandardDeviations[ dataIterator->first ], 1.0E-2 );
+        }
+    }
+
+    std::map< ObservableType, std::map< LinkEnds, double > > constantOffsetsPerStation;
+    constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 2.4;
+    constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = -65.3;
+    constantOffsetsPerStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 54.1;
+
+    constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 4.3E-6;
+    constantOffsetsPerStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = -3.4E-5;
+
+    constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 5.3E-7;
+    constantOffsetsPerStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 3.33E-6;
+
+    std::map< ObservableType, std::map< LinkEnds, double > > constantStandardDeviationsStation;
+    constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 0 ) ] = 0.65;
+    constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 1 ) ] = 1.34;
+    constantStandardDeviationsStation[ one_way_range ][ linkEndsPerObservable[ one_way_range ].at( 2 ) ] = 4.33;
+
+    constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 0 ) ] = 2.6E-8;
+    constantStandardDeviationsStation[ one_way_doppler ][ linkEndsPerObservable[ one_way_doppler ].at( 1 ) ] = 2.2E-8;;
+
+    constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 0 ) ] = 1.2E-12;
+    constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
+
+    std::map< ObservableType, std::map< LinkEnds, boost::function< double( const double ) > > > noiseFunctionPerLinkEnd;
+    for( std::map< ObservableType, std::map< LinkEnds, double > >::const_iterator
+         typeIterator = constantOffsetsPerStation.begin( );
+         typeIterator != constantOffsetsPerStation.end( );
+         typeIterator++ )
+    {
+        for( std::map< LinkEnds, double >::const_iterator linkEndIterator = typeIterator->second.begin( );
+             linkEndIterator != typeIterator->second.end( ); linkEndIterator++ )
+        {
+            noiseFunctionPerLinkEnd[ typeIterator->first ][ linkEndIterator->first ] =
+                    boost::bind( &ignoreInputeVariable, createBoostContinuousRandomVariableGeneratorFunction(
+                                     normal_boost_distribution,
+                                     boost::assign::list_of
+                                     ( constantOffsetsPerStation.at( typeIterator->first ).at( linkEndIterator->first ) )
+                                     ( constantStandardDeviationsStation.at( typeIterator->first ).at( linkEndIterator->first ) ),
+                                     0.0 ), _1 );
+        }
+    }
+
+    PodInputDataType noisyPerObservableAndLinkEndsObservationsAndTimes = simulateObservationsWithNoise< double, double >(
+                measurementSimulationInput, observationSimulators, noiseFunctionPerLinkEnd );
+
+    for( PodInputDataType::const_iterator dataIterator = noisyPerObservableAndLinkEndsObservationsAndTimes.begin( );
+         dataIterator != noisyPerObservableAndLinkEndsObservationsAndTimes.end( ); dataIterator++ )
+    {
+        for( SingleObservablePodInputType::const_iterator innerDataIterator = dataIterator->second.begin( );
+             innerDataIterator != dataIterator->second.end( ); innerDataIterator++ )
+        {
+            Eigen::VectorXd dataDifference = innerDataIterator->second.first -
+                    idealObservationsAndTimes.at( dataIterator->first ).at( innerDataIterator->first ).first;
+            meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ] =
+                    computeAverageOfVectorComponents( dataDifference );
+            standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ] =
+                    computeStandardDeviationOfVectorComponents( dataDifference );
+
+            BOOST_CHECK_CLOSE_FRACTION(
+                        meanObservationDifference[ dataIterator->first ][ innerDataIterator->first ],
+                    constantOffsetsPerStation[ dataIterator->first ][ innerDataIterator->first ], 1.0E-2 );
+            BOOST_CHECK_CLOSE_FRACTION(
+                        standardDeviationObservationDifference[ dataIterator->first ][ innerDataIterator->first ],
+                    constantStandardDeviationsStation[ dataIterator->first ][ innerDataIterator->first ], 1.0E-2 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
