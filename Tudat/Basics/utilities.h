@@ -347,6 +347,13 @@ std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pai
     return outputVector;
 }
 
+template< typename T, typename S >
+T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputFreeFunction, const S dummyInput )
+{
+    return inputFreeFunction( );
+}
+
+
 } // namespace utilities
 
 } // namespace tudat

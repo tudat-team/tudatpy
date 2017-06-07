@@ -78,8 +78,8 @@ public:
 
     //! Function to simulate observations between specified link ends and associated partials at set of observation times.
     /*!
-     *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
-     *  used the sensitivity and state transition matrix interpolators set in this base class.
+     *  Function(pure virtual)   to simulate observations between specified link ends  and associated partials at set of
+     *  observation times, used the sensitivity and state transition matrix interpolators set in this base class.
      *  \param times Vector of times at which observations are performed
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time
@@ -91,6 +91,11 @@ public:
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime ) = 0;
 
+    //! Function (ṕure virtual) to return the object used to simulate noise-free observations
+    /*!
+     * Function (ṕure virtual) to return the object used to simulate noise-free observations
+     * \return Object used to simulate ideal observations
+     */
     virtual boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( ) = 0;
 
 
@@ -199,9 +204,9 @@ public:
        return observationSimulator_->getObservationModel( linkEnds );
     }
 
-    //! Function to return the object used to simulate ideal observations
+    //! Function to return the object used to simulate noise-free observations
     /*!
-     * Function to return the object used to simulate ideal observations
+     * Function to return the object used to simulate noise-free observations
      * \return Object used to simulate ideal observations
      */
     boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( )
@@ -212,7 +217,7 @@ public:
     //! Function to simulate observations between specified link ends and associated partials at set of observation times.
     /*!
      *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
-     *  used the sensitivity and state transition matrix interpolators set in this base class.
+     *  used the sensitivity and state transition matrix interpolators set in the base class.
      *  \param times Vector of times at which observations are performed
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time

@@ -242,6 +242,13 @@ public:
         return observationManagers_;
     }
 
+    //! Function to retrieve map of all observation simulators
+    /*!
+     *  Function to retrieve map of all observation simulators. A single observation simulators can simulate observations all
+     *  link ends involved in the given observable type. The observation simulators are retrieved from the observation manager
+     *  objects (that are stored in the observationManagers_ map).
+     *  \return Map of observation simulators for all observable types involved in current orbit determination.
+     */
     std::map< observation_models::ObservableType,
     boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
     getObservationSimulators( ) const
