@@ -113,10 +113,23 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
     return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
 }
 
+//! Virtual base class for the observation simulator class.
+/*!
+ *  Virtual base class for the observation simulator class, which is used to compute observable values of a
+ *  single type of observable This base class is used for practical purposes, as the derived class has a
+ *  template argument for the observable size, precluding the possibility of making a list of objects for all observation
+ *  simulators (e.g. one for each observable type)
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 class ObservationSimulatorBase
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observableType Type of observable for which this object computes observations.
+     */
     ObservationSimulatorBase(
             const ObservableType observableType ):
         observableType_( observableType ){ }
@@ -138,10 +151,10 @@ public:
      */
     virtual int getObservationSize( const LinkEnds& linkEnds ) = 0;
 
-    //! Function to simulate observations between specified link ends.
+    //! Function (pure virtual) to simulate observations between specified link ends.
     /*!
-     *  Function to simulate observations between specified link ends. Users can specify whether to check for availability of
-     *  link at given reception time.
+     *  Function (pure virtual) to simulate observations between specified link ends. Users can specify whether to check for
+     *  availability of link at given reception time.
      *  \param observationTimes Vector of times at which observations taked place (i.e. reception time)
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Reference link end for observable
@@ -154,10 +167,10 @@ public:
                           const LinkEndType linkEndAssociatedWithTime,
                           const bool checkTimes = true ) = 0;
 
-    //! Function to simulate observations between specified link ends.
+    //! Function (pure virtual)  to simulate observations between specified link ends.
     /*!
-     *  Function to simulate observations between specified link ends. Users can specify whether to check for availability of
-     *  link at given reception time.
+     *  Function (pure virtual)  to simulate observations between specified link ends. Users can specify whether to check for
+     *  availability of  link at given reception time.
      *  \param observationTimes Vector of times at which observations taked place (i.e. reception time)
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Reference link end for observable
@@ -171,6 +184,7 @@ public:
                                        const bool checkTimes = true ) = 0;
 
 protected:
+
     //! Type of observable for which this object computes observations
     ObservableType observableType_;
 };

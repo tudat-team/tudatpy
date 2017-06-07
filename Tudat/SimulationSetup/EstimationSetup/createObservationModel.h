@@ -916,6 +916,15 @@ boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType,
                 observableType, observationModels );
 }
 
+//! Function to create a map of object to simulate observations (one object for each type of observable).
+/*!
+ *  Function to create a map of object to simulate observations (one object for each type of observable).
+ *  \param observationSettingsMap Map of settings for the observation models that are to be created in the simulator object: first
+ *  map key is observable type, second is link ends for observation. One observation settings object must be given
+ *  for each required set of link ends/observable (each settings object must be consistent with observable type in first entry).
+ *  \param bodyMap Map of Body objects that comprise the environment
+ *  \return List of objects that simulate the observables according to the provided settings.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
@@ -925,10 +934,12 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
     std::map< ObservableType,
     boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
+    // Iterate over all observables
     typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
     for( SortedObservationSettingsMap::const_iterator settingsIterator = observationSettingsMap.begin( );
          settingsIterator != observationSettingsMap.end( ); settingsIterator++ )
     {
+        // Call createObservationSimulator of required observation size
         int observableSize = getObservableSize( settingsIterator->first );
         switch( observableSize )
         {
@@ -957,6 +968,16 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
     return observationSimulators;
 }
 
+
+//! Function to create a map of object to simulate observations (one object for each type of observable).
+/*!
+ *  Function to create a map of object to simulate observations (one object for each type of observable), from a list of
+ *  observation settings not sorted by observable type.
+ *  \param observationSettingsMap Multi-map of settings for the observation models that are to be created in the simulator object
+ *  map key is link ends for observation.
+ *  \param bodyMap Map of Body objects that comprise the environment
+ *  \return List of objects that simulate the observables according to the provided settings.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType,
 boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > createObservationSimulators(
