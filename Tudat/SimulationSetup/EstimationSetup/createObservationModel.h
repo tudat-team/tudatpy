@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
+#include "Tudat/Astrodynamics/ObservationModels/nWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
@@ -327,6 +328,38 @@ public:
 
     //! Function that returns the integration time of observable as a function of time
     const boost::function< double( const double ) > integrationTimeFunction_;
+
+};
+
+//! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
+class NWayRangeObservationSettings: public ObservationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * (NULL if none)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
+    NWayRangeObservationSettings(
+            const std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings,
+            const boost::function< std::vector< double >( ) > integrationTimeFunction =
+            boost::function< std::vector< double >( ) >( ),
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( n_way_range, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
+        integrationTimeFunction_( integrationTimeFunction ){ }
+
+    //! Destructor
+    ~NWayRangeObservationSettings( ){ }
+
+    std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings_;
+
+    //! Function that returns the integration time of observable as a function of time
+    boost::function< std::vector< double >( ) > integrationTimeFunction_;
 
 };
 
@@ -713,6 +746,88 @@ public:
 
             break;
         }
+        case n_way_range:
+        {
+            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
+                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
+            if( nWayRangeObservationSettings == NULL )
+            {
+                throw std::runtime_error( "Error when making differenced n-way range, input type is inconsistent" );
+            }
+
+            // Check consistency input.
+            if( linkEnds.size( ) < 2 )
+            {
+                std::string errorMessage =
+                        "Error when making n way range model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making n way range model, no receiver found" );
+            }
+
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making n way range model, no transmitter found" );
+            }
+
+            if( linkEnds.size( ) != ( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) + 1 ) )
+            {
+                throw std::runtime_error( "Error when making n way range model, input is inconsistent" );
+            }
+
+            for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+                 linkEndIterator++ )
+            {
+                if( ( linkEndIterator->first != transmitter ) && ( linkEndIterator->first != receiver ) )
+                {
+                    int linkEndIndex = static_cast< int >( linkEndIterator->first );
+                    LinkEndType previousLinkEndType = static_cast< LinkEndType >( linkEndIndex - 1 );
+
+                    if( linkEnds.count( previousLinkEndType ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making n-way range model, did not find link end type " +
+                                                  boost::lexical_cast< std::string >( previousLinkEndType ) );
+                    }
+                }
+            }
+
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->biasSettings_, bodyMap );
+            }
+
+            std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
+
+            LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
+            LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
+            receiverIterator++;
+
+            for( unsigned int i = 0; i < nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ); i++ )
+            {
+                lightTimeCalculators.push_back(
+                            createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                transmitterIterator->second, receiverIterator->second,
+                                bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )
+                                ->lightTimeCorrectionsList_ ) );
+                transmitterIterator++;
+                receiverIterator++;
+            }
+
+            // Create observation model
+            observationModel = boost::make_shared< NWayRangeObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        lightTimeCalculators, nWayRangeObservationSettings->integrationTimeFunction_,
+                        observationBias );
+
+            break;
+        }
+
         default:
             std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
                         observationSettings->observableType_ ) +

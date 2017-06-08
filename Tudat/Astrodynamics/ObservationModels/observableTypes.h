@@ -29,7 +29,8 @@ enum ObservableType
     angular_position = 1,
     position_observable = 2,
     one_way_doppler = 3,
-    one_way_differenced_range = 4
+    one_way_differenced_range = 4,
+    n_way_range = 5
 };
 
 //! Function to get the name (string) associated with a given observable type.
@@ -64,7 +65,7 @@ int getObservableSize( const ObservableType observableType );
  * \return Indices in link end times/states for given link end type and observable type
  */
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
-        const ObservableType observableType, const LinkEndType linkEndType );
+        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
 
 } // namespace observation_models
 

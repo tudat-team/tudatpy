@@ -29,9 +29,12 @@ enum LinkEndType
 {
     unidentified_link_end = -1,
     transmitter = 0,
-    reflector = 1,
-    receiver = 2,
-    observed_body = 3
+    reflector1 = 1,
+    reflector2 = 2,
+    reflector3 = 3,
+    reflector4 = 4,
+    receiver = 5,
+    observed_body = 6
 };
 
 //! Typedef for the identifier of a given link-end (body and reference points)
@@ -43,6 +46,8 @@ typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 std::string getLinkEndTypeString( const LinkEndType linkEndType );
 
 std::string getLinkEndsString( const LinkEnds linkEnds );
+
+int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int numberOfLinkEnds );
 
 } // namespace observation_models
 
