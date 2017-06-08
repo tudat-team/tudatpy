@@ -85,7 +85,6 @@ Eigen::VectorXd  executeParameterEstimation( )
     std::vector< std::pair< std::string, std::string > > groundStations;
     groundStations.push_back( grazStation );
     groundStations.push_back( mslStation );
-    // createGroundStations( bodyMap, groundStations );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

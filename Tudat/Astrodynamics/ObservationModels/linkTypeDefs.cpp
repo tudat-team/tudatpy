@@ -26,8 +26,17 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     case transmitter:
         linkEndString = "transmitter";
         break;
-    case reflector:
-        linkEndString = "reflector";
+    case reflector1:
+        linkEndString = "reflector_1";
+        break;
+    case reflector2:
+        linkEndString = "reflector_2";
+        break;
+    case reflector3:
+        linkEndString = "reflector_3";
+        break;
+    case reflector4:
+        linkEndString = "reflector_4";
         break;
     case receiver:
         linkEndString = "receiver";
@@ -67,6 +76,27 @@ std::string getLinkEndsString( const LinkEnds linkEnds )
     return linkEndsString;
 }
 
+int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int numberOfLinkEnds )
+{
+    int linkEndIndex;
+    if( linkEndType == transmitter )
+    {
+        linkEndIndex = 0;
+    }
+    else if( linkEndType == receiver )
+    {
+        linkEndIndex = numberOfLinkEnds - 1;
+    }
+    else
+    {
+        linkEndIndex = static_cast< int >( linkEndType ) - static_cast< int >( reflector1 ) + 1;
+        if( linkEndIndex > numberOfLinkEnds - 2 )
+        {
+            throw std::runtime_error( "Error when getting n-way link end index; value too large." );
+        }
+    }
+    return linkEndIndex;
+}
 
 } // namespace observation_models
 
