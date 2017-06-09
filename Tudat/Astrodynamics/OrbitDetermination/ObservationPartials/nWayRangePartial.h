@@ -46,6 +46,7 @@ public:
     /*!
      * Constructor
      * \param constituentRangeScalings Map of consitutent one-way range scaling objects, with link end index as map key
+     * \param numberOfLinkEnds Number of link ends in observable
      */
     NWayRangeScaling( const std::map< int, boost::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings,
                       const int numberOfLinkEnds ):

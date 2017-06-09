@@ -43,7 +43,8 @@ namespace observation_partials
  *  \param bodyMap List of all bodies, for creating n-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
- *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
+ *  index of link in n-way link ends, second vector is list of light-time corrections.
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
  *  representing all  necessary n-way range partials of a single link end, and NWayRangeScaling, object, used for
  *  scaling the position partial members of all NWayRangePartials in link end.
@@ -142,11 +143,12 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
  *  that are to be used.
  *  The n-way range partials are built from one-way range partials of the constituent links
- *  \param observationModelList List of all observation models (must be n-way range) for which partials are to be created,
- *  with map key being the link ends
+ *  \param linkEnds List of all n-way link ends sets with observation models for which partials are to be created
  *  \param bodyMap List of all bodies, for creating n-way range partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
+ *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
+ *  index of link in n-way link ends, second vector is list of light-time corrections.
  *  \return Map of SingleLinkObservationPartialList, representing all necessary n-way range partials of a single link end,
  *  and NWayRangeScaling, object, used for scaling the position partial members of all NWayRangePartials in link end.
  */
@@ -163,7 +165,6 @@ createNWayRangePartials(
 {
     std::map< observation_models::LinkEnds,
             std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > partialMap;
-
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
     // Iterate over all sets of link ends, and  create associated n-way range partials
