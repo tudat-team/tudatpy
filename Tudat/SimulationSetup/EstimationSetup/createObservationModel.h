@@ -346,8 +346,8 @@ public:
      */
     NWayRangeObservationSettings(
             const std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings,
-            const boost::function< std::vector< double >( ) > integrationTimeFunction =
-            boost::function< std::vector< double >( ) >( ),
+            const boost::function< std::vector< double >( const double ) > integrationTimeFunction =
+            boost::function< std::vector< double >( const double  ) >( ),
             const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
         ObservationSettings( n_way_range, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
@@ -359,7 +359,7 @@ public:
     std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings_;
 
     //! Function that returns the integration time of observable as a function of time
-    boost::function< std::vector< double >( ) > integrationTimeFunction_;
+    boost::function< std::vector< double >( const double ) > integrationTimeFunction_;
 
 };
 

@@ -56,6 +56,18 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_N_way_observation_partials)
 
+
+std::vector< double > getRetransmissionDelays( const double evaluationTime, const int numberOfRetransmitters )
+{
+    std::vector< double > retransmissionDelays;
+
+        for( int i = 0; i < numberOfRetransmitters; i++ )
+        {
+            retransmissionDelays.push_back( evaluationTime * 5.0E-17 * static_cast< double >( i + 1 ) );
+        }
+    return retransmissionDelays;
+}
+
 //! Test partial derivatives of one-way range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testnWayRangePartials )
 {
@@ -114,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             boost::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, boost::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels ), bodyMap  );
+                            legObservationModels, boost::bind( &getRetransmissionDelays, _1, linkNumber + 1 ) ), bodyMap  );
 
             // Create parameter objects.
             boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -145,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             boost::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, boost::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels ), bodyMap  );
+                            legObservationModels, boost::bind( &getRetransmissionDelays, _1, linkNumber + 1 ) ), bodyMap  );
 
             // Create parameter objects.
             boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
