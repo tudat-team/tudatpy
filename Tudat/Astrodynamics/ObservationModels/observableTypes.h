@@ -63,6 +63,7 @@ int getObservableSize( const ObservableType observableType );
  * Function to get the indices in link end times/states for a given link end type and observable type
  * \param observableType Type of observable for which link end indices are to be returned
  * \param linkEndType Type of link end for which link end indices are to be returned
+ * \param numberOfLinkEnds Number of link ends in observable
  * \return Indices in link end times/states for given link end type and observable type
  */
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
