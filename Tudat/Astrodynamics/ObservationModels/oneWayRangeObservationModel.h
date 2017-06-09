@@ -120,6 +120,9 @@ public:
                     std::vector< double >& linkEndTimes,
                     std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
+        linkEndTimes.clear( );
+        linkEndStates.clear( );
+
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 

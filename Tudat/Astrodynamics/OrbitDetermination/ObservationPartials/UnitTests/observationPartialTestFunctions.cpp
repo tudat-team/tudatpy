@@ -323,7 +323,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             if( linkEndIterator->second.first == bodiesWithEstimatedState.at( i ) )
             {
                 currentPartialTimeIndices =
-                        getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                        getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
@@ -356,14 +356,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
                     {
                         currentPartialTimeIndices =
-                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                         addContribution = 1;
                     }
                 }
                 else
                 {
                     currentPartialTimeIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                     addContribution = 1;
                 }
                 if( addContribution )
@@ -399,14 +399,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
                     {
                         currentPartialTimeIndices =
-                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                         addContribution = 1;
                     }
                 }
                 else
                 {
                     currentPartialTimeIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                     addContribution = 1;
                 }
                 if( addContribution )

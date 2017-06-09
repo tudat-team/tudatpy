@@ -29,6 +29,7 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationManager.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationSimulator.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationBias.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/nWayRangeObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayRangeObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayDopplerObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayDifferencedRangeRateObservationModel.h"
@@ -73,4 +74,9 @@ if(USE_CSPICE)
     add_executable(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestSimulatedObservationNoise.cpp")
     setup_custom_test_program(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_ObservationNoiseSimulation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_NWayRangeObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestNWayRangeObservationModel.cpp")
+    setup_custom_test_program(test_NWayRangeObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_NWayRangeObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
