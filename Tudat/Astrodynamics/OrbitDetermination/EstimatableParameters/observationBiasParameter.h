@@ -129,7 +129,7 @@ public:
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_ ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( )  ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }
@@ -261,7 +261,7 @@ public:
     std::string getParameterDescription( )
     {
         std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "for observable: (" +
-                observation_models::getObservableName( observableType_ ) + ") and link ends: (" +
+                observation_models::getObservableName( observableType_, linkEnds_.size( ) ) + ") and link ends: (" +
                 observation_models::getLinkEndsString( linkEnds_ ) + ")";
         return parameterDescription;
     }

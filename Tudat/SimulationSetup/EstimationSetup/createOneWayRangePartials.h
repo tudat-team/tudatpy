@@ -99,10 +99,10 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
-//! Function to generate one-way range partials and associated scaler for single link end.
+//! Function to generate one-way range partials and associated scaler for single link ends.
 /*!
  *  Function to generate one-way range partials and associated scaler for all parameters that are to be estimated,
- *  for a single link ends.
+ *  for a single link ends set.
  *  The set of parameters and bodies that are to be estimated, as well as the set of link ends
  *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated

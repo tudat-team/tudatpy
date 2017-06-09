@@ -9,6 +9,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
@@ -18,6 +19,7 @@ namespace tudat
 namespace observation_models
 {
 
+//! Function to get a string identifier for a link end type
 std::string getLinkEndTypeString( const LinkEndType linkEndType )
 {
     std::string linkEndString = "";
@@ -26,8 +28,17 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     case transmitter:
         linkEndString = "transmitter";
         break;
-    case reflector:
-        linkEndString = "reflector";
+    case reflector1:
+        linkEndString = "reflector_1";
+        break;
+    case reflector2:
+        linkEndString = "reflector_2";
+        break;
+    case reflector3:
+        linkEndString = "reflector_3";
+        break;
+    case reflector4:
+        linkEndString = "reflector_4";
         break;
     case receiver:
         linkEndString = "receiver";
@@ -43,6 +54,7 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
     return linkEndString;
 }
 
+//! Function to get a string identifier for a set of link ends
 std::string getLinkEndsString( const LinkEnds linkEnds )
 {
     std::string linkEndsString = "";
@@ -65,6 +77,60 @@ std::string getLinkEndsString( const LinkEnds linkEnds )
         }
     }
     return linkEndsString;
+}
+
+//! Function to get the link end index (0=transmitter, numberOfLinkEnds-1=receiver) of a link end in n-way observable
+int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int numberOfLinkEnds )
+{
+    int linkEndIndex;
+    // If index is first or last, set 0 or numberOfLinkEnds - 1, respectively
+    if( linkEndType == transmitter )
+    {
+        linkEndIndex = 0;
+    }
+    else if( linkEndType == receiver )
+    {
+        linkEndIndex = numberOfLinkEnds - 1;
+    }
+    else
+    {
+        linkEndIndex = static_cast< int >( linkEndType ) - static_cast< int >( reflector1 ) + 1;
+        if( linkEndIndex > numberOfLinkEnds - 2 )
+        {
+            throw std::runtime_error( "Error when getting n-way link end index; value too large." );
+        }
+    }
+    return linkEndIndex;
+}
+
+//! Function to get the link end type enum of a link end in n-way observable from link index
+LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds )
+{
+    LinkEndType linkEndType;
+
+    // If index is first or last, set transmitter or receiver, respectively
+    if( linkEndIndex == 0 )
+    {
+        linkEndType = transmitter;
+    }
+    else if( linkEndIndex == numberOfLinkEnds - 1 )
+    {
+        linkEndType = receiver;
+    }
+    // Check feasibility of inner link end
+    else if( linkEndIndex >= numberOfLinkEnds )
+    {
+        throw std::runtime_error(
+                    "Error, found link end index " + boost::lexical_cast< std::string >( linkEndIndex ) +
+                    " when getting n-way link end index for " + boost::lexical_cast< std::string >(
+                   numberOfLinkEnds ) + " link end total." );
+    }
+    else
+    {
+        linkEndType = static_cast< LinkEndType >( static_cast< int >( reflector1 ) + ( linkEndIndex - 1 ) );
+    }
+
+    return linkEndType;
 }
 
 

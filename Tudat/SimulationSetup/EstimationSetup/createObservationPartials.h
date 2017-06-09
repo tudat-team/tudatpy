@@ -21,6 +21,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNWayRangePartials.h"
 
 namespace tudat
 {
@@ -44,6 +45,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
+    std::cout<<"Retrieving corrections"<<std::endl;
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
@@ -117,9 +119,19 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                             oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
                                                        getLightTimeCorrection( ) );
 
-//                singleObservableCorrectionList = (
-//                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
-//                            getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::n_way_range:
+            {
+                boost::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                        boost::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                        ( observationModelIterator->second );
+                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                         nWayRangeObservationModel->getLightTimeCalculators( );
+                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+                {
+                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+                }
                 break;
             }
             case observation_models::position_observable:
@@ -270,7 +282,11 @@ public:
                         utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
                         getLightTimeCorrectionsList( observationModelList ) );
             break;
-
+        case observation_models::n_way_range:
+            observationPartialList = createNWayRangePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
+            break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +

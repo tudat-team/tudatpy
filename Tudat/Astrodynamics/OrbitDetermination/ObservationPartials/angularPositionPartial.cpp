@@ -111,7 +111,7 @@ AngularPositionPartial::AngularPositionPartialReturnType AngularPositionPartial:
 {
     if( linkEndOfFixedTime != angularPositionScaler_->getCurrentLinkEndType( ) )
     {
-        throw std::runtime_error( "Error one-way range partial and scaling are inconsistent" );
+        throw std::runtime_error( "Error angular position partial and scaling are inconsistent" );
     }
 
     AngularPositionPartialReturnType returnPartial;
