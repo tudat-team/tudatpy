@@ -88,7 +88,6 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
     std::pair< std::string, std::string > earthStationStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
-
     createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( )<< 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
     createGroundStation( bodyMap.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( )<< 1.0, 0.1, -1.4 ).finished( ),
@@ -101,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     groundStations.push_back( earthStationStation2 );
     groundStations.push_back( mslStation );
 
-
+    // Define list of observation times for which to check model
     std::vector< double > observationTimes;
     observationTimes.push_back( 1.0E5 );
     observationTimes.push_back( 2.0E5 );
@@ -110,7 +109,9 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     // Define link ends for observations.
     for( unsigned int observationTimeNumber = 0; observationTimeNumber < observationTimes.size( ); observationTimeNumber++ )
     {
+        // Test 2-way model
         {
+            // Define link ends for 2-way model and constituent one-way models
             LinkEnds twoWayLinkEnds;
             twoWayLinkEnds[ transmitter ] = std::make_pair( "Earth" , "EarthStation"  );
             twoWayLinkEnds[ reflector1 ] = std::make_pair( "Mars" , "MarsStation"  );
@@ -131,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                                                        lightTimePerturbingBodies ) );
 
 
-            // Create observation settings
+            // Create observation settings for 2-way model and constituent one-way models
             boost::shared_ptr< ObservationSettings > uplinkObservableSettings = boost::make_shared< ObservationSettings >
                     ( one_way_range, lightTimeCorrectionSettings );
             boost::shared_ptr< ObservationSettings > downlinkObservableSettings = boost::make_shared< ObservationSettings >
@@ -142,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             boost::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = boost::make_shared< NWayRangeObservationSettings >
                     ( twoWayLinkSettings, boost::bind( &getRetransmissionDelays, _1, 1 ) );
 
-            // Create observation model.
+            // Create observation models
             boost::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
                         uplinkLinkEnds, uplinkObservableSettings, bodyMap );
@@ -153,6 +154,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                     ObservationModelCreator< 1, double, double >::createObservationModel(
                         twoWayLinkEnds, twoWayObservableSettings, bodyMap );
 
+            // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > uplinkLinkEndTimes;
             std::vector< Eigen::Vector6d > uplinkLinkEndStates;
 
@@ -162,21 +164,23 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             std::vector< double > twoWayLinkEndTimes;
             std::vector< Eigen::Vector6d > twoWayLinkEndStates;
 
-            double observationTime = observationTimes.at( observationTimeNumber );
-
-            double uplinkObservationTime, downlinkObservationTime;
-            LinkEndType uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
-
+            // Define variables for range measurements
             Eigen::VectorXd twoWayRange;
             Eigen::VectorXd uplinkRange;
             Eigen::VectorXd downlinkRange;
 
+            // Iterate over each 2-way link end as reference link end
+            double observationTime = observationTimes.at( observationTimeNumber );
+            double uplinkObservationTime, downlinkObservationTime;
+            LinkEndType uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
             for( LinkEnds::const_iterator linkEndIterator = twoWayLinkEnds.begin( ); linkEndIterator != twoWayLinkEnds.end( );
                  linkEndIterator++ )
             {
+                // Compute 2-way range
                 twoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
                             observationTime, linkEndIterator->first, twoWayLinkEndTimes, twoWayLinkEndStates );
 
+                // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
                 {
                     uplinkObservationTime = observationTime;
@@ -199,17 +203,20 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                     downlinkReferenceLinkEnd = receiver;
                 }
 
+                // Compute constituent one-way ranges
                 uplinkRange = uplinkObservationModel->computeObservationsWithLinkEndData(
                             uplinkObservationTime, uplinkReferenceLinkEnd, uplinkLinkEndTimes, uplinkLinkEndStates );
                 downlinkRange = downlinkObservationModel->computeObservationsWithLinkEndData(
                             downlinkObservationTime, downlinkReferenceLinkEnd, downlinkLinkEndTimes, downlinkLinkEndStates );
 
+                // Check validity of retransmission delay
                 std::vector< double > retransmissionDelays = getRetransmissionDelays(
                             observationTime, 1 );
                 BOOST_CHECK_SMALL(
                             std::fabs( twoWayLinkEndTimes.at( 2 ) - twoWayLinkEndTimes.at( 1 ) - retransmissionDelays.at( 0 ) ),
                             observationTime  * std::numeric_limits< double >::epsilon( )  );
 
+                // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( uplinkLinkEndTimes.at( 0 ), twoWayLinkEndTimes.at( 0 ),
                                             std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION( uplinkLinkEndTimes.at( 1 ), twoWayLinkEndTimes.at( 1 ),
@@ -220,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 BOOST_CHECK_CLOSE_FRACTION( downlinkLinkEndTimes.at( 1 ), twoWayLinkEndTimes.at( 3 ),
                                             std::numeric_limits< double >::epsilon( ) );
 
-
+                // Check if link end states are consistent
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( uplinkLinkEndStates.at( 0 ), twoWayLinkEndStates.at( 0 ),
                                                    std::numeric_limits< double >::epsilon( ) );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( uplinkLinkEndStates.at( 1 ), twoWayLinkEndStates.at( 1 ),
@@ -231,15 +238,17 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( downlinkLinkEndStates.at( 1 ), twoWayLinkEndStates.at( 3 ),
                                                    std::numeric_limits< double >::epsilon( ) );
 
-
+                // Check if range observations from 2-way and consituent one-ay are equal
                 BOOST_CHECK_CLOSE_FRACTION(
-                            ( uplinkRange + downlinkRange )( 0 ) + retransmissionDelays.at( 0 ) * physical_constants::SPEED_OF_LIGHT,
+                            ( uplinkRange + downlinkRange )( 0 ) + retransmissionDelays.at( 0 ) *
+                            physical_constants::SPEED_OF_LIGHT,
                             twoWayRange( 0 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
             }
         }
 
-        // Define link ends for observations.
+        // Test 4-way model
         {
+            // Define link ends for 4-way model and constituent one-way models
             LinkEnds fourWayLinkEnds;
             fourWayLinkEnds[ transmitter ] = std::make_pair( "Earth" , "EarthStation"  );
             fourWayLinkEnds[ reflector1 ] = std::make_pair( "Mars" , "MarsStation"  );
@@ -270,7 +279,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                                                        lightTimePerturbingBodies ) );
 
 
-            // Create observation settings
+            // Create observation settings for 4-way model and constituent one-way models
             boost::shared_ptr< ObservationSettings > firstlinkObservableSettings = boost::make_shared< ObservationSettings >
                     ( one_way_range, lightTimeCorrectionSettings );
             boost::shared_ptr< ObservationSettings > secondlinkObservableSettings = boost::make_shared< ObservationSettings >
@@ -285,12 +294,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourWayLinkSettings.push_back( secondlinkObservableSettings );
             fourWayLinkSettings.push_back( thirdlinkObservableSettings );
             fourWayLinkSettings.push_back( fourthlinkObservableSettings );
-
             boost::shared_ptr< NWayRangeObservationSettings > fourWayObservableSettings =
                     boost::make_shared< NWayRangeObservationSettings >(
                         fourWayLinkSettings, boost::bind( &getRetransmissionDelays, _1, 3 ) );
 
-            // Create observation model.
+            // Create observation models
             boost::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
                         firstlinkLinkEnds, firstlinkObservableSettings, bodyMap );
@@ -303,11 +311,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             boost::shared_ptr< ObservationModel< 1, double, double > > fourthlinkObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
                         fourthlinkLinkEnds, fourthlinkObservableSettings, bodyMap );
-
             boost::shared_ptr< ObservationModel< 1, double, double > > fourWayObservationModel =
                     ObservationModelCreator< 1, double, double >::createObservationModel(
                         fourWayLinkEnds, fourWayObservableSettings, bodyMap );
 
+            // Define link ends time and state vectors for  2-way model and constituent one-way models
             std::vector< double > firstlinkLinkEndTimes;
             std::vector< Eigen::Vector6d > firstlinkLinkEndStates;
 
@@ -320,15 +328,10 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             std::vector< double > fourthlinkLinkEndTimes;
             std::vector< Eigen::Vector6d > fourthlinkLinkEndStates;
 
-
             std::vector< double > fourWayLinkEndTimes;
             std::vector< Eigen::Vector6d > fourWayLinkEndStates;
 
-            double observationTime = observationTimes.at( observationTimeNumber );
-
-            double firstlinkObservationTime, secondlinkObservationTime, thirdlinkObservationTime, fourthlinkObservationTime;
-            LinkEndType sublinkReferenceLinkEnd = transmitter;
-
+            // Define variables for range measurements
             Eigen::VectorXd fourWayRange;
             Eigen::VectorXd firstlinkRange;
             Eigen::VectorXd secondlinkRange;
@@ -336,17 +339,24 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             Eigen::VectorXd fourthlinkRange;
 
 
+            // Iterate over each 4-way link end as reference link end
+            double observationTime = observationTimes.at( observationTimeNumber );
+            double firstlinkObservationTime, secondlinkObservationTime, thirdlinkObservationTime, fourthlinkObservationTime;
+            LinkEndType sublinkReferenceLinkEnd = transmitter;
             for( LinkEnds::const_iterator linkEndIterator = fourWayLinkEnds.begin( ); linkEndIterator != fourWayLinkEnds.end( );
                  linkEndIterator++ )
             {
+                // Compute 4-way range
                 fourWayRange = fourWayObservationModel->computeObservationsWithLinkEndData(
                             observationTime, linkEndIterator->first, fourWayLinkEndTimes, fourWayLinkEndStates );
 
+                // Set observation times of constituent one-way ranges
                 firstlinkObservationTime = fourWayLinkEndTimes.at( 0 );
                 secondlinkObservationTime = fourWayLinkEndTimes.at( 2 );
                 thirdlinkObservationTime = fourWayLinkEndTimes.at( 4 );
                 fourthlinkObservationTime = fourWayLinkEndTimes.at( 6 );
 
+                // Compute constituent one-way ranges
                 firstlinkRange = firstlinkObservationModel->computeObservationsWithLinkEndData(
                             firstlinkObservationTime, sublinkReferenceLinkEnd, firstlinkLinkEndTimes, firstlinkLinkEndStates );
                 secondlinkRange = secondlinkObservationModel->computeObservationsWithLinkEndData(
@@ -356,6 +366,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 fourthlinkRange = fourthlinkObservationModel->computeObservationsWithLinkEndData(
                             fourthlinkObservationTime, sublinkReferenceLinkEnd, fourthlinkLinkEndTimes, fourthlinkLinkEndStates );
 
+                // Check validity of retransmission delay
                 std::vector< double > retransmissionDelays = getRetransmissionDelays(
                             observationTime, 3 );
                 BOOST_CHECK_SMALL(
@@ -368,6 +379,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                             std::fabs( fourWayLinkEndTimes.at( 6 ) - fourWayLinkEndTimes.at( 5 ) - retransmissionDelays.at( 2 ) ),
                             observationTime  * std::numeric_limits< double >::epsilon( )  );
 
+                // Check if link end times are consistent
                 BOOST_CHECK_CLOSE_FRACTION( firstlinkLinkEndTimes.at( 0 ), fourWayLinkEndTimes.at( 0 ),
                                             std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION( firstlinkLinkEndTimes.at( 1 ), fourWayLinkEndTimes.at( 1 ),
@@ -389,6 +401,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 BOOST_CHECK_CLOSE_FRACTION( fourthlinkLinkEndTimes.at( 1 ), fourWayLinkEndTimes.at( 7 ),
                                             std::numeric_limits< double >::epsilon( ) );
 
+                // Check if link end states are consistent
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstlinkLinkEndStates.at( 0 ), fourWayLinkEndStates.at( 0 ),
                                                    std::numeric_limits< double >::epsilon( ) );
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstlinkLinkEndStates.at( 1 ), fourWayLinkEndStates.at( 1 ),
@@ -409,7 +422,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fourthlinkLinkEndStates.at( 1 ), fourWayLinkEndStates.at( 7 ),
                                                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-
+                // Check if range observations from 4-way and consituent one-ay are equal
                 BOOST_CHECK_CLOSE_FRACTION(
                             ( firstlinkRange + secondlinkRange + thirdlinkRange + fourthlinkRange )( 0 ) +
                               ( retransmissionDelays.at( 0 ) + retransmissionDelays.at( 1 ) + retransmissionDelays.at( 2 ) ) *

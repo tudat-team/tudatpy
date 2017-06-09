@@ -19,11 +19,13 @@ namespace tudat
 namespace observation_models
 {
 
-//! Class for simulating one-way range observables.
+//! Class for simulating n-way range observables.
 /*!
- *  Class for simulating one-way range, based on light-time and light-time corrections.
- *  The one-way range is defined as the light time multiplied by speed of light.
- *  The user may add observation biases to model system-dependent deviations between measured and true observation.
+ *  Class for simulating n-way range observations. It connects an arbitrary number of links by rane observables to obtain the
+ *  n-way range. In most practical cases (e.g. DSN radio ranging, SLR), n will be equal to 2. Note that here the number of 'ways'
+ *  represents the number of legs that the signal travels along. As a result, for both DSN 2-way and 3-way observables, n equals
+ *  2 in this model. The difference is that the first and last link end will be the same for the former case, and different for
+ *  the latter case. The retransmission of a signal at the intermediate link ends can be done with a (negative or positive) delay.
  */
 template< typename ObservationScalarType = double,
           typename TimeType = double >
@@ -36,8 +38,13 @@ public:
     //! Constructor.
     /*!
      *  Constructor,
-     *  \param lightTimeCalculator Object to compute the light-time (including any corrections w.r.t. Euclidean case)
-     *  \param observationBiasCalculator Object for calculating system-dependent errors in the
+     *  \param lightTimeCalculators List of objects to compute the light-times (including any corrections w.r.t. Euclidean case)
+     *  for each leg of the n-way range. First entry starts at transmitter; last entry is to receiver.
+     *  \param retransmissionDelays Function that returns the list of retransmission delays as a function of observation time.
+     *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
+     *  and the retransmission to teh subsequent link end. By default, this function is empty, in which case no retransmission
+     *  delays are used.
+     *  \param observationBiasCalculator Object for calculating (system-dependent) errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     NWayRangeObservationModel(
@@ -56,11 +63,13 @@ public:
     //! Destructor
     ~NWayRangeObservationModel( ){ }
 
-    //! Function to compute ideal one-way range observation at given time.
+    //! Function to compute ideal n-way range observation at given time.
     /*!
-     *  This function compute ideal the one-way observation at a given time. The time argument can be either the reception
-     *  or transmission time (defined by linkEndAssociatedWithTime input) Note that this observable does include e.g.
-     *  light-time corrections, which represent physically true corrections.
+     *  This function compute ideal the n-way observation at a given time. The time argument can be at any of the link ends
+     *  involved in the onbservation (including the intermediate link ends) by the linkEndAssociatedWithTime input).
+     *  In the case where the reference link end is an intermediate link end, the inpit time denotes the reception time
+     *  of the signal at this station (which need not be the same as its retransmission time).
+     *  Note that this observable does include e.g. light-time corrections, which represent physically true corrections.
      *  It does not include e.g. system-dependent measurement.
      *  \param time Time at which observation is to be simulated
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
@@ -75,12 +84,15 @@ public:
         return computeIdealObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
     }
 
-    //! Function to compute one-way range observable without any corrections.
+    //! Function to compute n-way range observable without any corrections.
     /*!
-     *  Function to compute one-way range  observable without any corrections, i.e. the true physical range as computed
-     *  from the defined link ends. Note that this observable does include light-time
-     *  corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement
-     *  errors, such as biases or clock errors.
+     *  Function to compute n-way range  observable without any corrections, i.e. the true physical range as computed
+     *  from the defined link ends. The time argument can be at any of the link ends
+     *  involved in the onbservation (including the intermediate link ends) by the linkEndAssociatedWithTime input).
+     *  In the case where the reference link end is an intermediate link end, the inpit time denotes the reception time
+     *  of the signal at this station (which need not be the same as its retransmission time).
+     *  Note that this observable does include light-time corrections, which represent physically true corrections. It does not
+     *  include e.g. system-dependent measurement errors, such as biases or clock errors.
      *  The times and states of the link ends are also returned in full precision (determined by class template
      *  arguments). These states and times are returned by reference.
      *  \param time Time at which observable is to be evaluated.
@@ -88,7 +100,7 @@ public:
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation.
      *  \param linkEndStates List of states at each link end during observation.
-     *  \return Ideal one-way range observable.
+     *  \return Ideal n-way range observable.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
@@ -174,24 +186,25 @@ public:
                         currentReceiverStateOutput, currentTransmitterStateOutput,
                         currentLinkEndStartTime, 0 );
 
-
+            // Add link-end times/states for current leg.
             linkEndStates[ 2 * currentUpIndex + 1 ] = currentReceiverStateOutput.template cast< double >( );
             linkEndStates[ 2 * currentUpIndex ] = currentTransmitterStateOutput.template cast< double >( );
-
             linkEndTimes[ 2 * currentUpIndex + 1 ] = currentLinkEndStartTime + currentLightTime;
             linkEndTimes[ 2 * currentUpIndex ] = currentLinkEndStartTime;
 
+            // If an additional leg is required, retrieve retransmission delay and update current time
+            currentLinkEndStartTime += currentLightTime;
             if( currentUpIndex < static_cast< int >( lightTimeCalculators_.size( ) ) - 1 )
             {
                 currentLightTime += currentRetransmissionDelays_.at( currentUpIndex );
             }
 
-            currentLinkEndStartTime += currentLightTime;
-
+            // Add computed light-time to total time and move to next leg
             totalLightTime += currentLightTime;
             currentUpIndex++;
         }
 
+        // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >(
                      ) <<totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
     }
@@ -203,15 +216,30 @@ public:
 
 private:
 
+    //! List of objects to compute the light-times for each leg of the n-way range.
+    /*!
+     *  List of objects to compute the light-times (including any corrections w.r.t. Euclidean case)  for each leg of the
+     *  n-way range.  First entry starts at transmitter; last entry is to receiver.
+     */
     std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
     lightTimeCalculators_;
 
+    //!  Function that returns the list of retransmission delays as a function of observation time.
+    /*!
+     *  Function that returns the list of retransmission delays as a function of observation time.
+     *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
+     *  and the retransmission to teh subsequent link end. By default, this function is empty, in which case no retransmission
+     *  delays are used.
+     */
     boost::function< std::vector< double >( const double ) > retransmissionDelays_;
 
+    //! List of retransmission delays, as computed by last call to computeIdealObservationsWithLinkEndData.
     std::vector< double > currentRetransmissionDelays_;
 
+    //! Number of links in n-way observation
     int numberOfLinks_;
 
+    //! Number of link ends in n-way observation (=number of links + 1)
     int numberOfLinkEnds_;
 
     //! Pre-declared vector of link end times, used for computeIdealObservations function

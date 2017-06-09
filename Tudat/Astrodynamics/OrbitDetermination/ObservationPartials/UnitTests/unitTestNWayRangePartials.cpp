@@ -78,14 +78,13 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
 
-
+    // Perform test for 2, 3 and 4-way
     for( unsigned int linkNumber = 0; linkNumber < 3; linkNumber++ )
     {
         // Set link ends for observation model
         LinkEnds linkEnds;
         linkEnds[ transmitter ] = groundStations[ 0 ];
         linkEnds[ reflector1 ] = groundStations[ 1 ];
-
         if( linkNumber > 0 )
         {
             linkEnds[ reflector2 ] = groundStations[ 0 ];
@@ -103,18 +102,16 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
         {
             linkEnds[ receiver ] = groundStations[ 1 ];
         }
+
         // Test partials with constant ephemerides (allows test of position partials)
         {
             // Create environment
             NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
-
-
-            // Generate one-way range model
+            // Generate n-way range model
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             std::vector< boost::shared_ptr< observation_models::ObservationSettings > > legObservationModels;
-
             for( unsigned int i = 0; i < linkNumber + 2; i ++ )
             {
                 legObservationModels.push_back(
@@ -132,6 +129,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                     createEstimatableParameters( bodyMap, 1.1E7 );
 
+            // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 1.0E-6, true, true, 1.0,
                         ( Eigen::Vector4d( )<<10.0, 1.0, 1.0, 10.0 ).finished( ) );
@@ -142,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Create environment
             NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-            // Generate one-way range model
+            // Generate n-way range model
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             std::vector< boost::shared_ptr< observation_models::ObservationSettings > > legObservationModels;
@@ -153,7 +151,6 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                                 one_way_range, boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ) );
             }
-
             boost::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, boost::make_shared< observation_models::NWayRangeObservationSettings >(
@@ -163,6 +160,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                     createEstimatableParameters( bodyMap, 1.1E7 );
 
+            // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 1.0E-6, false, true, 1.0,
                         ( Eigen::Vector4d( )<<10.0, 1.0, 1.0, 20.0 ).finished( ) );
