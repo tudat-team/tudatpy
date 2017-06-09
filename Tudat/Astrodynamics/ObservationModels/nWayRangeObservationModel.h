@@ -43,8 +43,8 @@ public:
     NWayRangeObservationModel(
             const std::vector< boost::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > > lightTimeCalculators,
-            const boost::function< std::vector< double >( ) > retransmissionDelays =
-            boost::function< std::vector< double >( ) >( ),
+            const boost::function< std::vector< double >( const double ) > retransmissionDelays =
+            boost::function< std::vector< double >( const double ) >( ),
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, observationBiasCalculator ),
         lightTimeCalculators_( lightTimeCalculators ), retransmissionDelays_( retransmissionDelays )
@@ -111,7 +111,7 @@ public:
         // Retrieve retransmission delays
         if( !retransmissionDelays_.empty( ) )
         {
-            currentRetransmissionDelays_ = retransmissionDelays_( );
+            currentRetransmissionDelays_ = retransmissionDelays_( time );
             if( currentRetransmissionDelays_.size( ) != static_cast< unsigned int >( numberOfLinkEnds_ - 2 ) )
             {
                 throw std::runtime_error( "Error when calculating n-way range, retransmission delay vector size is inconsistent" );
@@ -144,6 +144,7 @@ public:
             linkEndStates[ 2 * ( currentDownIndex - 1 ) ] = currentTransmitterStateOutput.template cast< double >( );
             linkEndTimes[ 2 * ( currentDownIndex - 1 ) + 1 ] = currentLinkEndStartTime;
             linkEndTimes[ 2 * ( currentDownIndex - 1 )] = currentLinkEndStartTime - currentLightTime;
+
 
             // If an additional leg is required, retrieve retransmission delay and update current time
             currentLinkEndStartTime -= currentLightTime;
@@ -205,7 +206,7 @@ private:
     std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
     lightTimeCalculators_;
 
-    boost::function< std::vector< double >( ) > retransmissionDelays_;
+    boost::function< std::vector< double >( const double ) > retransmissionDelays_;
 
     std::vector< double > currentRetransmissionDelays_;
 
