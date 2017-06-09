@@ -331,6 +331,7 @@ public:
 
 };
 
+
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
 class NWayRangeObservationSettings: public ObservationSettings
 {
@@ -339,19 +340,46 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
-     * (NULL if none)
+     * \param oneWayRangeObsevationSettings List of settings for one-way observables that make up n-way link (each must be for
+     * one_way_range_
+     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
+     * observation timew.
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
      */
     NWayRangeObservationSettings(
             const std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings,
-            const boost::function< std::vector< double >( const double ) > integrationTimeFunction =
+            const boost::function< std::vector< double >( const double ) > retransmissionTimesFunction =
             boost::function< std::vector< double >( const double  ) >( ),
             const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
         ObservationSettings( n_way_range, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
         oneWayRangeObsevationSettings_( oneWayRangeObsevationSettings ),
-        integrationTimeFunction_( integrationTimeFunction ){ }
+        retransmissionTimesFunction_( retransmissionTimesFunction ){ }
+
+    //! Constructor
+    /*!
+     * Constructor for same light-time corrections per link
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * (NULL if none)
+     * \param numberOfLinkEnds Number of link ends in observable (equal to n+1 for 'n'-way observable)
+     * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
+     * observation timew.
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
+     */
+    NWayRangeObservationSettings(
+            const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
+            const int numberOfLinkEnds,
+            const boost::function< std::vector< double >( const double ) > retransmissionTimesFunction =
+            boost::function< std::vector< double >( const double  ) >( ),
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( n_way_range, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+        retransmissionTimesFunction_( retransmissionTimesFunction )
+    {
+        for( int i = 0; i < numberOfLinkEnds - 1; i++ )
+        {
+            oneWayRangeObsevationSettings_.push_back( boost::make_shared< ObservationSettings >(
+                                                          one_way_range, lightTimeCorrections ) );
+        }
+    }
 
     //! Destructor
     ~NWayRangeObservationSettings( ){ }
@@ -359,7 +387,7 @@ public:
     std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings_;
 
     //! Function that returns the integration time of observable as a function of time
-    boost::function< std::vector< double >( const double ) > integrationTimeFunction_;
+    boost::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
 
 };
 
@@ -778,6 +806,7 @@ public:
                 throw std::runtime_error( "Error when making n way range model, input is inconsistent" );
             }
 
+            // Check link end consistency.
             for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
                  linkEndIterator++ )
             {
@@ -794,6 +823,7 @@ public:
                 }
             }
 
+            // Create observation bias object
             boost::shared_ptr< ObservationBias< 1 > > observationBias;
             if( observationSettings->biasSettings_ != NULL )
             {
@@ -802,14 +832,19 @@ public:
                             linkEnds, observationSettings->biasSettings_, bodyMap );
             }
 
+            // Define light-time calculator list
             std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
 
+            // Iterate over all link ends and create light-time calculators
             LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
             LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
             receiverIterator++;
-
             for( unsigned int i = 0; i < nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ); i++ )
             {
+                if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                {
+                    throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                }
                 lightTimeCalculators.push_back(
                             createLightTimeCalculator< ObservationScalarType, TimeType >(
                                 transmitterIterator->second, receiverIterator->second,
@@ -822,7 +857,7 @@ public:
             // Create observation model
             observationModel = boost::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        lightTimeCalculators, nWayRangeObservationSettings->integrationTimeFunction_,
+                        lightTimeCalculators, nWayRangeObservationSettings->retransmissionTimesFunction_,
                         observationBias );
 
             break;
