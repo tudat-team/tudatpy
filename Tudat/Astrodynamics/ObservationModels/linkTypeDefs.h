@@ -49,6 +49,8 @@ std::string getLinkEndsString( const LinkEnds linkEnds );
 
 int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int numberOfLinkEnds );
 
+LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds );
+
 } // namespace observation_models
 
 } // namespace tudat

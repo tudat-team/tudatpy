@@ -9,6 +9,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
@@ -97,6 +98,31 @@ int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int nu
     }
     return linkEndIndex;
 }
+
+LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds )
+{
+    LinkEndType linkEndType;
+    if( linkEndIndex == 0 )
+    {
+        linkEndType = transmitter;
+    }
+    else if( linkEndIndex == numberOfLinkEnds - 1 )
+    {
+        linkEndType = receiver;
+    }
+    else if( linkEndIndex >= numberOfLinkEnds )
+    {
+        std::cerr<<"Error, found link end index "<<linkEndIndex<<" when getting n-way link end index for "<<
+                   numberOfLinkEnds<<" link end total."<<std::endl;
+    }
+    else
+    {
+        linkEndType = static_cast< LinkEndType >( static_cast< int >( reflector1 ) + ( linkEndIndex - 1 ) );
+    }
+
+    return linkEndType;
+}
+
 
 } // namespace observation_models
 

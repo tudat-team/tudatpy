@@ -46,7 +46,7 @@ public:
             const boost::function< std::vector< double >( ) > retransmissionDelays =
             boost::function< std::vector< double >( ) >( ),
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, observationBiasCalculator ),
         lightTimeCalculators_( lightTimeCalculators ), retransmissionDelays_( retransmissionDelays )
     {
         numberOfLinks_ = lightTimeCalculators_.size( );
@@ -193,6 +193,11 @@ public:
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >(
                      ) <<totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
+    }
+
+    std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
+    {
+        return lightTimeCalculators_;
     }
 
 private:
