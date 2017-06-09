@@ -39,7 +39,7 @@ enum ObservableType
  * \param observableType Type of observable.
  * \return Name of observable
  */
-std::string getObservableName( const ObservableType observableType );
+std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds );
 
 //! Function to get the observable type.ssociated with the name (string) of observable.
 /*!

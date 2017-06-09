@@ -148,6 +148,7 @@ inline void testObservationPartials(
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
+        std::cout<<"============================ REFERENCE LINK END ============="<<linkEndIterator->first<<std::endl;
         // Evaluate nominal observation values
         std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
@@ -269,11 +270,6 @@ inline void testObservationPartials(
                         currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first;
 
                     }
-
-                    std::cout<<"Partial: "<<i<<" "<<fullEstimatableParameterSet->getEstimatedDoubleParameters( ).at( i )->
-                               getParameterName( ).first<<std::endl<<
-                    currentParameterPartial<<" "<<std::endl<<numericalPartialsWrtDoubleParameters[ i ]<<std::endl;
-
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
                 }
@@ -313,7 +309,6 @@ inline void testObservationPartials(
                         currentParameterPartial += analyticalObservationPartials[ i + startIndex ][ j ].first;
 
                     }
-
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
                 }

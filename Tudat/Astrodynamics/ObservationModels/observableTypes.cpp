@@ -22,7 +22,7 @@ namespace observation_models
 {
 
 //! Function to get the name (string) associated with a given observable type.
-std::string getObservableName( const ObservableType observableType )
+std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds )
 {
     std::string observableName;
     switch( observableType )
@@ -43,8 +43,35 @@ std::string getObservableName( const ObservableType observableType )
         observableName = "OneWayDifferencedRange";
         break;
     case n_way_range:
-        observableName = "N-WayRange";
+    {
+        std::string numberOfWays = "N";
+        switch( numberOfLinkEnds )
+        {
+        case 2:
+            numberOfWays = "One";
+            break;
+        case 3:
+            numberOfWays = "Two";
+            break;
+        case 4:
+            numberOfWays = "Three";
+            break;
+        case 5:
+            numberOfWays = "Four";
+            break;
+        case 6:
+            numberOfWays = "Five";
+            break;
+        case 7:
+            numberOfWays = "Six";
+            break;
+        default:
+            numberOfWays = "N";
+        }
+
+        observableName = numberOfWays + "WayRange";
         break;
+    }
     default:
         std::string errorMessage =
                 "Error, could not find observable type "+ boost::lexical_cast< std::string >( observableType ) +
