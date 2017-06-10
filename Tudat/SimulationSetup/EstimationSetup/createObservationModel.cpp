@@ -38,17 +38,20 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
     return sortedObservationSettingsMap;
 }
 
-
+//! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 ObservationViabilitySettingsList filterObservationViabilitySettings(
-        const ObservationViabilitySettingsList observationViabilitySettings,
-        const LinkEnds linkEnds )
+        const ObservationViabilitySettingsList& observationViabilitySettings,
+        const LinkEnds& linkEnds )
 {
     ObservationViabilitySettingsList filteredViabilitySettings;
 
+    // Iterate over all viability settings
     for( unsigned int i = 0; i < observationViabilitySettings.size( ); i++ )
     {
+        // Iterate over all link ends
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
+            // Check if present viabilitytt setting is relevant
             if( linkEndIterator->second == observationViabilitySettings.at( i )->associatedLinkEnd_ ||
                     ( ( observationViabilitySettings.at( i )->associatedLinkEnd_.second == "" ) &&
                       ( observationViabilitySettings.at( i )->associatedLinkEnd_.first == linkEndIterator->second.first ) ) )
@@ -62,6 +65,7 @@ ObservationViabilitySettingsList filterObservationViabilitySettings(
     return filteredViabilitySettings;
 }
 
+//! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
 std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         const LinkEnds& linkEnds, const ObservableType observableType,  const LinkEndId linkEndToCheck )
 {
@@ -82,7 +86,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         }
         else
         {
-            std::cerr<<"Warning, parsed irrelevant 1-way range viability indices"<<std::endl;
+            throw std::runtime_error( "Error, parsed irrelevant 1-way range viability indices" );
         }
         break;
     case one_way_doppler:
@@ -98,7 +102,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         }
         else
         {
-            std::cerr<<"Warning, parsed irrelevant 1-way range viability indices"<<std::endl;
+            throw std::runtime_error( "Error, parsed irrelevant 1-way doppler viability indices" );
         }
         break;
     case one_way_differenced_range:
@@ -116,7 +120,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         }
         else
         {
-            std::cerr<<"Warning, parsed irrelevant 1-way range rate viability indices"<<std::endl;
+            throw std::runtime_error( "Error, parsed irrelevant 1-way differenced range viability indices" );
         }
         break;
     case n_way_range:
@@ -132,18 +136,23 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
                 }
                 else if( matchingLinkEndIndices.at( i ) == static_cast< int >( linkEnds.size( ) )  - 1 )
                 {
-                    linkEndIndices.push_back( std::make_pair( 2 * ( linkEnds.size( ) - 1 ) - 1, 2 * ( linkEnds.size( ) - 1 ) - 2 ) );
+                    linkEndIndices.push_back( std::make_pair( 2 * ( linkEnds.size( ) - 1 ) - 1,
+                                                              2 * ( linkEnds.size( ) - 1 ) - 2 ) );
                 }
                 else
                 {
-                    linkEndIndices.push_back( std::make_pair( 2 * matchingLinkEndIndices.at( i ), 2 * matchingLinkEndIndices.at( i ) + 1 ) );
-                    linkEndIndices.push_back( std::make_pair( 2 * matchingLinkEndIndices.at( i ) - 1, 2 * matchingLinkEndIndices.at( i ) - 2 ) );
+                    linkEndIndices.push_back(
+                                std::make_pair( 2 * matchingLinkEndIndices.at( i ),
+                                                2 * matchingLinkEndIndices.at( i ) + 1 ) );
+                    linkEndIndices.push_back(
+                                std::make_pair( 2 * matchingLinkEndIndices.at( i ) - 1,
+                                                2 * matchingLinkEndIndices.at( i ) - 2 ) );
                 }
             }
         }
         else
         {
-            std::cerr<<"Warning, parsed irrelevant n-way range viability indices"<<std::endl;
+            throw std::runtime_error( "Error, parsed irrelevant n-way range viability indices" );
         }
         break;
     }
@@ -160,21 +169,23 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         }
         else
         {
-            std::cerr<<"Warning, parsed irrelevant angular position viability indices"<<std::endl;
+            throw std::runtime_error( "Error, parsed irrelevant angular position viability indices" );
         }
         break;
     case position_observable:
 
-        std::cerr<<"Warning, parsed irrelevant position observable viability indices"<<std::endl;
+        throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
     default:
-        std::cerr<<"Error, observable type "<<observableType<<" not recognized when making viability link ends"<<std::endl;
+        throw std::runtime_error( "Error, observable type " + boost::lexical_cast< std::string >(
+                                      observableType ) + " not recognized when making viability link ends" );
 
     }
 
     return linkEndIndices;
 }
 
+//! Function to create an object to check if a minimum elevation angle condition is met for an observation
 boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -183,9 +194,10 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
 {
     if( observationViabilitySettings->observationViabilityType_ != minimum_elevation_angle )
     {
-        std::cerr<<"Error when making minimum elevation angle calculator, inconsistent input"<<std::endl;
+        throw std::runtime_error( "Error when making minimum elevation angle calculator, inconsistent input" );
     }
 
+    // If specific link end is specified
     std::string groundStationName;
     if( observationViabilitySettings->associatedLinkEnd_.second != "" )
     {
@@ -193,27 +205,29 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
     }
     else
     {
-        for( LinkEnds::const_iterator it = linkEnds.begin( ); it != linkEnds.end( ); it++ )
-        {
-            if( it->second.first == observationViabilitySettings->associatedLinkEnd_.first )
-            {
-                groundStationName = it->second.second;
-                break;
-            }
-        }
+        throw std::runtime_error( "Error when making minimum elevation angle calculator, not referenced to ground station" );
     }
 
+    if( bodyMap.count( observationViabilitySettings->associatedLinkEnd_.first ) == 0 )
+    {
+        throw std::runtime_error( "Error when making minimum elevation angle calculator, body " +
+                                  observationViabilitySettings->associatedLinkEnd_.first + " not found." );
+    }
+
+    // Retrieve pointing angles calculator
     boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
             bodyMap.at( observationViabilitySettings->associatedLinkEnd_.first )->
             getGroundStation( groundStationName )->getPointingAnglesCalculator( );
 
+    // Create check object
     double minimumElevationAngle = observationViabilitySettings->doubleParameter_;
-
     return boost::make_shared< MinimumElevationAngleCalculator >(
-                getLinkEndIndicesForObservationViability( linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                getLinkEndIndicesForObservationViability(
+                    linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
                 minimumElevationAngle, pointingAngleCalculator );
 }
 
+//! Function to create an object to check if a body avoidance angle condition is met for an observation
 boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -222,21 +236,29 @@ boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalcul
 {
     if( observationViabilitySettings->observationViabilityType_ != body_avoidance_angle )
     {
-        std::cerr<<"Error when making body avoidance angle calculator, inconsistent input"<<std::endl;
+        throw std::runtime_error( "Error when making body avoidance angle calculator, inconsistent input" );
     }
 
+    if( bodyMap.count( observationViabilitySettings->stringParameter_ ) == 0 )
+    {
+        throw std::runtime_error( "Error when making body avoidance angle calculator, body " +
+                                  observationViabilitySettings->stringParameter_ + " not found." );
+    }
+
+    // Create state function of body to be avoided.
     boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
             boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
                          bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
 
+    // Create check object
     double bodyAvoidanceAngle = observationViabilitySettings->doubleParameter_;
-
     return boost::make_shared< BodyAvoidanceAngleCalculator >(
-                getLinkEndIndicesForObservationViability( linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                getLinkEndIndicesForObservationViability(
+                    linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
                 bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->stringParameter_ );
 }
 
-
+//! Function to create an object to check if a body occultation condition is met for an observation
 boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -245,22 +267,30 @@ boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
 {
     if( observationViabilitySettings->observationViabilityType_ != body_occultation )
     {
-        std::cerr<<"Error when making occultation calculator, inconsistent input"<<std::endl;
+        throw std::runtime_error( "Error when making occultation calculator, inconsistent input" );
     }
 
+    if( bodyMap.count( observationViabilitySettings->stringParameter_ ) == 0 )
+    {
+        throw std::runtime_error( "Error when making occultation calculator, body " +
+                                  observationViabilitySettings->stringParameter_ + " not found." );
+    }
+
+    // Create state function of occulting body.
     boost::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
             boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
                          bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
 
+    // Create check object
     double occultingBodyRadius =
             bodyMap.at( observationViabilitySettings->stringParameter_ )->getShapeModel( )->getAverageRadius( );
-
     return boost::make_shared< OccultationCalculator >(
-                getLinkEndIndicesForObservationViability( linkEnds, observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                getLinkEndIndicesForObservationViability(
+                    linkEnds, observationType, observationViabilitySettings->associatedLinkEnd_ ),
                 stateOfOccultingBody, occultingBodyRadius );
 }
 
-
+//! Function to create an list of obervation viability conditions for a single set of link ends
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -277,23 +307,49 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
         switch( relevantObservationViabilitySettings.at( i )->observationViabilityType_ )
         {
         case minimum_elevation_angle:
+        {
+            // Create list of ground stations for which elevation angle check is to be made.
+            std::vector< std::string > listOfGroundStations;
+            for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
+                 linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+            {
+                if( linkEndIterator->second.first == relevantObservationViabilitySettings.at( i )->associatedLinkEnd_.first )
+                {
+                    if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.second ) ==
+                            listOfGroundStations.end( ) )
+                    {
+                        listOfGroundStations.push_back( linkEndIterator->second.second );
+                    }
+                }
+            }
 
-            linkViabilityCalculators.push_back( createMinimumElevationAngleCalculator(
-                                                    bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            // Create elevation angle check separately for eah ground station: check requires different pointing angles calculator
+            for( unsigned int j = 0; j < listOfGroundStations.size( ); j++ )
+            {
+                relevantObservationViabilitySettings[ i ]->associatedLinkEnd_.second = listOfGroundStations.at( j );
+                linkViabilityCalculators.push_back(
+                            createMinimumElevationAngleCalculator(
+                                bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            }
             break;
+        }
         case body_avoidance_angle:
 
-            linkViabilityCalculators.push_back( createBodyAvoidanceAngleCalculator(
-                                                    bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            linkViabilityCalculators.push_back(
+                        createBodyAvoidanceAngleCalculator(
+                            bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
         case body_occultation:
 
-            linkViabilityCalculators.push_back( createOccultationCalculator(
-                                                    bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            linkViabilityCalculators.push_back(
+                        createOccultationCalculator(
+                            bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
         default:
-            std::cerr<<"Error when making observation viability calculator, type not recognized "<<
-                       relevantObservationViabilitySettings.at( i )->observationViabilityType_<<std::endl;
+            throw std::runtime_error(
+                        "Error when making observation viability calculator, type not recognized " +
+                        boost::lexical_cast< std::string >(
+                            relevantObservationViabilitySettings.at( i )->observationViabilityType_ ) );
         }
 
     }
@@ -301,6 +357,7 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
     return linkViabilityCalculators;
 }
 
+//! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
 std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >
 createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -320,6 +377,7 @@ createObservationViabilityCalculators(
     return viabilityCalculators;
 }
 
+//! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
 PerObservableObservationViabilityCalculatorList
 createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,

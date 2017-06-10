@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -411,10 +412,10 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     LinkEnds twoWayLinkEnds2;
     twoWayLinkEnds2[ transmitter ] = std::make_pair( "Earth", "EarthStation2" );
     twoWayLinkEnds2[ reflector1 ] = std::make_pair( "Mars", "MarsStation2" );
-    twoWayLinkEnds2[ receiver ] = std::make_pair( "Earth", "EarthStation2" );
+    twoWayLinkEnds2[ receiver ] = std::make_pair( "Earth", "EarthStation1" );
 
     LinkEnds twoWayLinkEnds3;
-    twoWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation1" );
+    twoWayLinkEnds3[ transmitter ] = std::make_pair( "Mars", "MarsStation2" );
     twoWayLinkEnds3[ reflector1 ] = std::make_pair( "Earth", "EarthStation2" );
     twoWayLinkEnds3[ receiver ] = std::make_pair( "Mars", "MarsStation1" );
     std::vector< LinkEnds > twoWayRangeLinkEnds;
@@ -629,27 +630,18 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                 std::pair< Eigen::VectorXd, std::vector< double > > constrainedSingleLinkObservations
                         = constrainedLinkIterator->second;
 
-                double constrainedTimeToPrint;
-                double constrainedObservationToPrint;
-
                 if( constrainedIndex >= static_cast< int >( constrainedSingleLinkObservations.second.size( ) ) )
                 {
                     currentObservationWasViable = false;
-                    //                    constrainedTimeToPrint = TUDAT_NAN;
-                    //                    constrainedObservationToPrint = TUDAT_NAN;
                 }
                 else if( unconstrainedSingleLinkObservations.second.at( unconstrainedIndex ) ==
                          constrainedSingleLinkObservations.second.at( constrainedIndex ) )
                 {
                     currentObservationWasViable = true;
-                    //                    constrainedTimeToPrint = constrainedSingleLinkObservations.second.at( constrainedIndex );
-                    //                    constrainedObservationToPrint = constrainedSingleLinkObservations.first( constrainedIndex );
                 }
                 else
                 {
                     currentObservationWasViable = false;
-                    //                    constrainedTimeToPrint = constrainedSingleLinkObservations.second.at( constrainedIndex );
-                    //                    constrainedObservationToPrint = constrainedSingleLinkObservations.first( constrainedIndex );
                 }
 
                 currentObservation = currentObservationSimulator->simulateObservation(
@@ -692,7 +684,6 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                             currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodyMap );
                 for( unsigned int l = 0; l < earthSunCosineAvoidanceAngles.size( ); l++ )
                 {
-                    //std::cout<<"Earth avoidance: "<<earthSunCosineAvoidanceAngles.at( l )<<std::endl;
                     if( earthSunCosineAvoidanceAngles.at( l ) > std::cos( earthSunAvoidanceAngle ) )
                     {
                         computedViability =  false;
@@ -704,7 +695,6 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                             currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodyMap );
                 for( unsigned int l = 0; l < marsSunCosineAvoidanceAngles.size( ); l++ )
                 {
-                    //std::cout<<"Mars avoidance: "<<marsSunCosineAvoidanceAngles.at( l )<<std::endl;
                     if( marsSunCosineAvoidanceAngles.at( l ) > std::cos( marsSunAvoidanceAngle ) )
                     {
                         computedViability =  false;
@@ -715,7 +705,6 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                             "Moon", linkEndStates, linkEndTimes, bodyMap );
                 for( unsigned int l = 0; l < moonLineOfSightDistances.size( ); l++ )
                 {
-                    //std::cout<<"Mars avoidance: "<<marsSunCosineAvoidanceAngles.at( l )<<std::endl;
                     if( moonLineOfSightDistances.at( l ) < moonRadius )
                     {
                         computedViability =  false;
