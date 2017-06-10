@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
 #include "Tudat/Astrodynamics/GroundStations/groundStationState.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -66,6 +67,100 @@ void GroundStationState::resetGroundStationPositionAtEpoch(
         geodeticPosition = Eigen::Vector3d::Constant( TUDAT_NAN );
     }
 
+    setTransformationAndUnitVectors( );
+
+}
+
+void GroundStationState::setTransformationAndUnitVectors( )
+{
+    Eigen::Matrix3d toPlanetFixedFrameMatrix =
+            Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                                 getLongitude( ), getLatitude( ) ) );
+
+    geocentricUnitVectors_.clear( );
+    geocentricUnitVectors_.resize( 3 );
+    geocentricUnitVectors_[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
+    geocentricUnitVectors_[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
+    geocentricUnitVectors_[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
+
+    bodyFixedToTopocentricFrameRotation_ = getRotationQuaternionFromBodyFixedToTopocentricFrame(
+                bodySurface_, getLatitude( ), getLongitude( ), cartesianPosition_  );
+}
+
+std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors( const double geocentricLatitude,
+                                                              const double geocentricLongitude )
+{
+    Eigen::Matrix3d toPlanetFixedFrameMatrix =
+            Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                                 geocentricLongitude, geocentricLatitude ) );
+
+    std::vector< Eigen::Vector3d > geocentricUnitVectors;
+    geocentricUnitVectors.reserve( 3 );
+    geocentricUnitVectors[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
+    geocentricUnitVectors[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
+    geocentricUnitVectors[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
+    return geocentricUnitVectors;
+}
+
+
+//! Function to calculate the rotation from a body-fixed to a topocentric frame.
+Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
+        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
+        const double geocentricLatitude,
+        const double geocentricLongitude,
+        const Eigen::Vector3d localPoint )
+{
+    // Declare unit vectors of topocentric frame, to be calculated.
+    std::vector< Eigen::Vector3d > topocentricUnitVectors;
+
+    bool isSurfaceModelRecognized = 1;
+
+    // Identify type of body shape model
+    if( boost::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( bodyShapeModel ) != NULL )
+    {
+        // For a sphere the topocentric and geocentric frames are equal.
+        topocentricUnitVectors = getGeocentricLocalUnitVectors(
+                    geocentricLatitude, geocentricLongitude );
+    }
+    else if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel ) != NULL )
+    {
+        boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSphericalShapeModel =
+                boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel );
+
+        // Calculate geodetic latitude.
+        double flattening = oblateSphericalShapeModel->getFlattening( );
+        double equatorialRadius = oblateSphericalShapeModel->getEquatorialRadius( );
+        double geodeticLatitude = coordinate_conversions::calculateGeodeticLatitude(
+                    localPoint, equatorialRadius, flattening, 1.0E-4 );
+
+        // Calculte unit vectors of topocentric frame.
+        topocentricUnitVectors = getGeocentricLocalUnitVectors( geodeticLatitude, geocentricLongitude );
+    }
+    else
+    {
+        isSurfaceModelRecognized = 0;
+        throw std::runtime_error( "Error when making transformation to topocentric frame, shape model not recognized" );
+    }
+
+    // Create rotation matrix
+
+    Eigen::Matrix3d bodyFixedToTopocentricFrame;
+
+    if( isSurfaceModelRecognized == 1 )
+    {
+        bodyFixedToTopocentricFrame.block( 0, 0, 1, 3 ) = topocentricUnitVectors[ 0 ].transpose( );
+        bodyFixedToTopocentricFrame.block( 1, 0, 1, 3 ) = topocentricUnitVectors[ 1 ].transpose( );
+        bodyFixedToTopocentricFrame.block( 2, 0, 1, 3 ) = topocentricUnitVectors[ 2 ].transpose( );
+    }
+    else
+    {
+        bodyFixedToTopocentricFrame = Eigen::Matrix3d::Identity( );
+    }
+
+
+
+    // Convert to quaternion and return.
+    return Eigen::Quaterniond( bodyFixedToTopocentricFrame );
 }
 
 }

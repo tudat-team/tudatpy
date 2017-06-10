@@ -133,6 +133,37 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
     return linkEndType;
 }
 
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+{
+    std::vector< LinkEndType >  matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId(
+                linkEndid, linkEnds );
+    return getNWayLinkEndIndicesFromLinkEndId( matchingLinkEndTypes, linkEnds );
+}
+
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEndType >& linkEndTypes, const LinkEnds& linkEnds )
+{
+    std::vector< int > linkEndIndices;
+    for( unsigned int i = 0; i < linkEndTypes.size( ); i++ )
+    {
+        linkEndIndices.push_back( getNWayLinkIndexFromLinkEndType( linkEndTypes.at( i ), linkEnds.size( ) ) );
+    }
+    return linkEndIndices;
+}
+
+std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
+{
+    std::vector< LinkEndType > matchingLinkEndTypes;
+
+    for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        if( linkEndIterator->second == linkEndid || ( ( linkEndIterator->second.first == linkEndid.first ) &&
+                                                                        linkEndid.second == "" ) )
+        {
+            matchingLinkEndTypes.push_back( linkEndIterator->first );
+        }
+    }
+    return matchingLinkEndTypes;
+}
 
 } // namespace observation_models
 

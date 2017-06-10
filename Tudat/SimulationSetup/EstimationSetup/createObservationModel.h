@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
+#include "Tudat/Astrodynamics/ObservationModels/observationViabilityCalculator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 
@@ -1139,6 +1140,42 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
 }
 
 
+typedef std::vector< boost::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
+
+ObservationViabilitySettingsList filterObservationViabilitySettings(
+        const ObservationViabilitySettingsList observationViabilitySettings,
+        const LinkEnds linkEnds );
+
+std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
+        const LinkEnds& linkEnds,
+        const ObservableType observableType,
+        const LinkEndId linkEndToCheck );
+
+boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+
+
+std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
+
+
+std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > createObservationViabilityCalculators(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< LinkEnds > linkEnds,
+        const ObservableType observationType,
+        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
+
+PerObservableObservationViabilityCalculatorList
+createObservationViabilityCalculators(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
+        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
 } // namespace observation_models
 

@@ -17,6 +17,7 @@
 
 
 #include "Tudat/Astrodynamics/GroundStations/groundStationState.h"
+#include "Tudat/Astrodynamics/GroundStations/pointingAnglesCalculator.h"
 
 namespace tudat
 {
@@ -36,8 +37,9 @@ public:
      * \param stationId Name of the ground station
      */
     GroundStation( const boost::shared_ptr< GroundStationState > stationState,
+                   const boost::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator,
                    const std::string& stationId ):
-        nominalStationState_( stationState ), stationId_( stationId ){ }
+        nominalStationState_( stationState ),  pointingAnglesCalculator_( pointingAnglesCalculator ), stationId_( stationId ){ }
 
 
     //! Function that returns (at reference epoch) the state of the ground station
@@ -75,14 +77,27 @@ public:
         return stationId_;
     }
 
+    boost::shared_ptr< PointingAnglesCalculator > getPointingAnglesCalculator( )
+    {
+        return pointingAnglesCalculator_;
+    }
+
 private:
 
     //! Object to define and compute the state of the ground station.
     boost::shared_ptr< GroundStationState > nominalStationState_;
 
+    boost::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
+
     //! Name of the ground station
     std::string stationId_;
 };
+
+
+bool isTargetInView( const double time,
+                     const Eigen::Vector3d targetRelativeState,
+                     const boost::shared_ptr< PointingAnglesCalculator > pointingAngleCalculator,
+                     const double minimumElevationAngle );
 
 
 } // namespace ground_stations
