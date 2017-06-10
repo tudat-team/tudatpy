@@ -16,6 +16,7 @@
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/observationViabilityCalculator.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
@@ -28,7 +29,7 @@ namespace observation_models
 //! Function to simulate an observable, checking whether it is viable according to settings passed to this function
 /*!
  *  Function to simulate an observable, checking whether it is viable according to settings passed to this function
- *  NOTE: Viability check is turned of at present, will be incorporated in subsequent pull request
+ *  (if viability calculators are passed to this function).
  *  \param observationTime Time at which observable is to be computed
  *  \param observationModel Model used to compute observable
  *  \param linkEndAssociatedWithTime Model Reference link end for observable
@@ -38,10 +39,12 @@ template< int ObservationSize = 1, typename ObservationScalarType = double, type
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > simulateObservationWithCheck(
         const TimeType& observationTime,
         const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const LinkEndType linkEndAssociatedWithTime )
+        const LinkEndType linkEndAssociatedWithTime,
+        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     // Initialize vector with reception times.
-    bool isObservationFeasible = 1;
+    bool observationFeasible = 1;
 
     std::vector< Eigen::Vector6d > vectorOfStates;
     std::vector< double > vectorOfTimes;
@@ -50,14 +53,16 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > sim
             observationModel->computeObservationsWithLinkEndData(
                 observationTime, linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates );
 
+    observationFeasible = isObservationViable( vectorOfStates, vectorOfTimes, linkViabilityCalculators );
+
     // Return pair of simulated ranges and reception times.
-    return std::make_pair( calculatedObservation, isObservationFeasible );
+    return std::make_pair( calculatedObservation, observationFeasible );
 }
 
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function
 /*!
  *  Function to simulate observables, checking whether they are viable according to settings passed to this function
- *  NOTE: Viability check is turned of at present, will be incorporated in subsequent pull request
+ *  (if viability calculators are passed to this function).
  *  \param observationTimes Times at which observables are to be computed
  *  \param observationModel Model used to compute observables
  *  \param linkEndAssociatedWithTime Model Reference link end for observables
@@ -68,7 +73,9 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vecto
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
         const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const LinkEndType linkEndAssociatedWithTime )
+        const LinkEndType linkEndAssociatedWithTime,
+        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
     std::pair< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, bool > simulatedObservation;
@@ -76,7 +83,7 @@ simulateObservationsWithCheck(
     for( unsigned int i = 0; i < observationTimes.size( ); i++ )
     {
         simulatedObservation = simulateObservationWithCheck< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes.at( i ), observationModel, linkEndAssociatedWithTime );
+                    observationTimes.at( i ), observationModel, linkEndAssociatedWithTime, linkViabilityCalculators );
 
         // Check if receiving station can view transmitting station.
         if( simulatedObservation.second )
@@ -94,7 +101,7 @@ simulateObservationsWithCheck(
 //! Function to simulate observables, checking whether they are viable according to settings passed to this function
 /*!
  *  Function to simulate observables, checking whether they are viable according to settings passed to this function
- *  NOTE: Viability check is turned of at present, will be incorporated in subsequent pull request
+ *  (if viability calculators are passed to this function).
  *  \param observationTimes Times at which observables are to be computed
  *  \param observationModel Model used to compute observables
  *  \param linkEndAssociatedWithTime Model Reference link end for observables
@@ -105,10 +112,12 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair<
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
         const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const LinkEndType linkEndAssociatedWithTime )
+        const LinkEndType linkEndAssociatedWithTime,
+        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
-            simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime );
+            simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators );
 
     return std::make_pair( simulatedObservations.first, std::make_pair( simulatedObservations.second, linkEndAssociatedWithTime ) );
 }
@@ -167,6 +176,13 @@ public:
                           const LinkEndType linkEndAssociatedWithTime,
                           const bool checkTimes = true ) = 0;
 
+    virtual Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > simulateObservation(
+            const TimeType observationTime,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
+
     //! Function (pure virtual)  to simulate observations between specified link ends.
     /*!
      *  Function (pure virtual)  to simulate observations between specified link ends. Users can specify whether to check for
@@ -183,19 +199,35 @@ public:
                                        const LinkEndType linkEndAssociatedWithTime,
                                        const bool checkTimes = true ) = 0;
 
+    void setViabilityCalculators( std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >
+                                  viabilityCalculators )
+    {
+        viabilityCalculators_ = viabilityCalculators;
+    }
+
+    std::vector< boost::shared_ptr< ObservationViabilityCalculator > > getLinkViabilityCalculators(
+            const LinkEnds& linkEnds )
+    {
+        if( viabilityCalculators_.count( linkEnds ) > 0 )
+        {
+            return viabilityCalculators_.at( linkEnds );
+        }
+        else
+        {
+            return std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( );
+        }
+    }
+
+
 protected:
 
     //! Type of observable for which this object computes observations
     ObservableType observableType_;
+
+    std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > viabilityCalculators_;
 };
 
 //! Objects used to simulate a set of observations of a given kind
-/*!
- *  Objects used to simulate a set of observations of a given kind.
- *  NOTE: In the current application, this class does not add much to the existing interfaces. It is included in
- *  anticipation of the inclusion of observation viability checking, measurement noise simulation, etc., which
- *  will be added in an upcoming pull request
- */
 template< int ObservationSize, typename ObservationScalarType = double, typename TimeType = double >
 class ObservationSimulator: public ObservationSimulatorBase< ObservationScalarType, TimeType >
 {
@@ -284,9 +316,31 @@ public:
 
         boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationModels_.at( linkEnds );
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
+        if( checkTimes == true && this->viabilityCalculators_.count( linkEnds ) > 0 )
+        {
+            currentLinkViabilityCalculators = this->viabilityCalculators_.at( linkEnds );
+        }
 
         return simulateObservationsWithCheck< ObservationSize, ObservationScalarType, TimeType >(
-                    observationTimes, selectedObservationModel, linkEndAssociatedWithTime );
+                    observationTimes, selectedObservationModel, linkEndAssociatedWithTime, currentLinkViabilityCalculators );
+    }
+
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > simulateObservation(
+            const TimeType observationTime,
+            const LinkEnds linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            std::vector< double >& linkEndTimes,
+            std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
+    {
+        if( observationModels_.count( linkEnds ) == 0 )
+        {
+            throw std::runtime_error(
+                        "Error when simulating observtion, could not find observation model for given linke ends" );
+        }
+
+        return  observationModels_.at( linkEnds )->computeObservationsWithLinkEndData(
+                    observationTime, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
     }
 
     //! Function to simulate observations between specified link ends.
@@ -307,6 +361,11 @@ public:
     {
         std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
                 simulateObservations( observationTimes, linkEnds, linkEndAssociatedWithTime, checkTimes );
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
+        if( checkTimes == true && this->viabilityCalculators_.count( linkEnds ) > 0 )
+        {
+            currentLinkViabilityCalculators = this->viabilityCalculators_.at( linkEnds );
+        }
 
         return std::make_pair( simulatedObservations.first, std::make_pair(
                                    simulatedObservations.second, linkEndAssociatedWithTime ) );

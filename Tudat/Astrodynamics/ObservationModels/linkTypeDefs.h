@@ -78,6 +78,13 @@ int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int nu
  */
 LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds );
 
+
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
+
+std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEndType >& linkEndTypes, const LinkEnds& linkEnds );
+
+std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
+
 } // namespace observation_models
 
 } // namespace tudat
