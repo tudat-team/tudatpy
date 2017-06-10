@@ -214,6 +214,28 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
                 minimumElevationAngle, pointingAngleCalculator );
 }
 
+boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+{
+    if( observationViabilitySettings->observationViabilityType_ != body_avoidance_angle )
+    {
+        std::cerr<<"Error when making body avoidance angle calculator, inconsistent input"<<std::endl;
+    }
+
+    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
+            boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                         bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
+
+    double bodyAvoidanceAngle = observationViabilitySettings->doubleParameter_;
+
+    return boost::make_shared< BodyAvoidanceAngleCalculator >(
+                getLinkEndIndicesForObservationViability( linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->stringParameter_ );
+}
+
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -234,10 +256,16 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
             linkViabilityCalculators.push_back( createMinimumElevationAngleCalculator(
                                                     bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
+        case body_avoidance_angle:
+
+            linkViabilityCalculators.push_back( createBodyAvoidanceAngleCalculator(
+                                                    bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            break;
         default:
             std::cerr<<"Error when making observation viability calculator, type not recognized "<<
                        relevantObservationViabilitySettings.at( i )->observationViabilityType_<<std::endl;
         }
+
     }
 
     return linkViabilityCalculators;

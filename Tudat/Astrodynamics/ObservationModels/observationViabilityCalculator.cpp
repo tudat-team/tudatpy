@@ -60,6 +60,38 @@ bool MinimumElevationAngleCalculator::isObservationViable(
     return isObservationPossible;
 }
 
+bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                        const std::vector< double >& linkEndTimes )
+{
+    bool isObservationPossible = 1;
+    Eigen::Vector3d positionOfBodyToAvoid;
+    double currentCosineOfAngle;
+
+    for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
+    {
+        positionOfBodyToAvoid = stateFunctionOfBodyToAvoid_(
+                    ( linkEndTimes.at( linkEndIndices_.at( i ).first ) + linkEndTimes.at( linkEndIndices_.at( i ).second ) ) / 2.0 )
+                .segment( 0, 3 );
+
+        currentCosineOfAngle = linear_algebra::computeCosineOfAngleBetweenVectors(
+                    positionOfBodyToAvoid - ( linkEndStates.at( linkEndIndices_.at( i ).first ) ).segment( 0, 3 ),
+                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) -
+                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ) );
+
+
+        if( currentCosineOfAngle > std::cos( bodyAvoidanceAngle_ ) )
+        {
+            isObservationPossible = 0;
+            break;
+        }
+
+        //std::cout<<"Computed avoidance "<<bodyToAvoid_<<": "<<currentCosineOfAngle<<" "<<isObservationPossible<<std::endl;
+
+        //std::cout<<"Angle: "<< 180.0 / mathematical_constants::PI * std::acos( currentCosineOfAngle )<<" "<<isObservationPossible<<std::endl;
+    }
+
+    return isObservationPossible;
+}
 
 
 
