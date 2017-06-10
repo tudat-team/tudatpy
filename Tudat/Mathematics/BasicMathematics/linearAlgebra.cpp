@@ -41,7 +41,6 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
 {
     if( !( vector0.size( ) == vector1.size( ) ) )
     {
-        std::cout<<vector0.size( )<<" "<<vector1.size( )<<std::endl;
         throw std::runtime_error( "Error when computing angle between vectors; size is incompatible" );
     }
 

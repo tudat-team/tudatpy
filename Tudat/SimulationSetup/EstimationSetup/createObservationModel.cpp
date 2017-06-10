@@ -236,6 +236,31 @@ boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalcul
                 bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->stringParameter_ );
 }
 
+
+boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+{
+    if( observationViabilitySettings->observationViabilityType_ != body_occultation )
+    {
+        std::cerr<<"Error when making occultation calculator, inconsistent input"<<std::endl;
+    }
+
+    boost::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
+            boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                         bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
+
+    double occultingBodyRadius =
+            bodyMap.at( observationViabilitySettings->stringParameter_ )->getShapeModel( )->getAverageRadius( );
+
+    return boost::make_shared< OccultationCalculator >(
+                getLinkEndIndicesForObservationViability( linkEnds, observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                stateOfOccultingBody, occultingBodyRadius );
+}
+
+
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
@@ -259,6 +284,11 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
         case body_avoidance_angle:
 
             linkViabilityCalculators.push_back( createBodyAvoidanceAngleCalculator(
+                                                    bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+            break;
+        case body_occultation:
+
+            linkViabilityCalculators.push_back( createOccultationCalculator(
                                                     bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
             break;
         default:

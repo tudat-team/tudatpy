@@ -303,8 +303,6 @@ std::vector< double > getBodyCosineAvoidanceAngles(
             }
             linkEndIndex++;
         }
-        std::cout<<"Tested n-way"<<std::endl;
-
         break;
     }
     default:
@@ -313,6 +311,28 @@ std::vector< double > getBodyCosineAvoidanceAngles(
     }
 
     return cosineAvoidanceAngles;
+}
+
+std::vector< double > getDistanceBetweenLineOfSightVectorAndPoint(
+        const std::string bodyToAnalyze,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const NamedBodyMap& bodyMap )
+{
+    std::vector< double > pointDistances;
+    for( unsigned int i = 0; i < linkEndStates.size( ); i += 2 )
+    {
+        Eigen::Vector3d linkEnd1Position = linkEndStates.at( i ).segment( 0, 3 );
+        Eigen::Vector3d linkEnd2Position = linkEndStates.at( i + 1 ).segment( 0, 3 );
+
+        Eigen::Vector3d pointPosition = bodyMap.at( bodyToAnalyze )->getStateInBaseFrameFromEphemeris< double, double >(
+                    ( linkEndTimes.at( i ) + linkEndTimes.at( i ) ) / 2.0 ).segment( 0, 3 );
+
+        pointDistances.push_back( ( ( linkEnd2Position - pointPosition ).cross( linkEnd1Position - pointPosition ) ).norm( ) /
+                                  ( linkEnd2Position - linkEnd1Position ).norm( ) );
+
+    }
+    return pointDistances;
 }
 
 BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
@@ -347,6 +367,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                     "ECLIPJ2000", "IAU_Mars", 0.0 ),
                 0.0, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+    double moonRadius = 1.0E9;
+    bodySettings[ "Moon" ]->shapeModelSettings = boost::make_shared< SphericalBodyShapeSettings >( moonRadius );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
@@ -408,7 +430,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     std::vector< double > unconstrainedObservationTimes;
     LinkEndType referenceLinkEnd = transmitter;
-    double initialTime = 0.0, finalTime = physical_constants::JULIAN_YEAR, timeStep = physical_constants::JULIAN_DAY / 4.0;
+    double initialTime = 0.0, finalTime = 10.0 * physical_constants::JULIAN_YEAR, timeStep = physical_constants::JULIAN_DAY * 2.5;
     double currentTime = initialTime;
     while( currentTime <= finalTime )
     {
@@ -474,6 +496,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
                                                 body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
                                                 marsSunAvoidanceAngle ) );
+    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+                                                body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
     PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
                 bodyMap, testLinkEndsList, observationViabilitySettings );
 
@@ -686,6 +710,18 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                         computedViability =  false;
                     }
                 }
+
+                std::vector< double > moonLineOfSightDistances = getDistanceBetweenLineOfSightVectorAndPoint(
+                            "Moon", linkEndStates, linkEndTimes, bodyMap );
+                for( unsigned int l = 0; l < moonLineOfSightDistances.size( ); l++ )
+                {
+                    //std::cout<<"Mars avoidance: "<<marsSunCosineAvoidanceAngles.at( l )<<std::endl;
+                    if( moonLineOfSightDistances.at( l ) < moonRadius )
+                    {
+                        computedViability =  false;
+                    }
+                }
+
 
 
                 BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
