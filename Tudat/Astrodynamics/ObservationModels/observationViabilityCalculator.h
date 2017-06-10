@@ -91,6 +91,7 @@ public:
         linkEndIndices_( linkEndIndices ), minimumElevationAngle_( minimumElevationAngle ),
         pointingAngleCalculator_( pointingAngleCalculator ){ }
 
+    ~MinimumElevationAngleCalculator( ){ }
 
     //! Function for determining whether the elevation angle at station is sufficient to allow observation.
     /*!
@@ -129,6 +130,35 @@ private:
     boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
 };
 
+class BodyAvoidanceAngleCalculator: public ObservationViabilityCalculator
+{
+public:
+
+    BodyAvoidanceAngleCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
+                                  const double bodyAvoidanceAngle,
+                                  const boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid,
+                                  const std::string bodyToAvoid ):
+        linkEndIndices_( linkEndIndices ),
+        bodyAvoidanceAngle_( bodyAvoidanceAngle ),
+        stateFunctionOfBodyToAvoid_( stateFunctionOfBodyToAvoid ),
+    bodyToAvoid_( bodyToAvoid ){ }
+
+    ~BodyAvoidanceAngleCalculator( ){ }
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                          const std::vector< double >& linkEndTimes );
+
+private:
+
+    std::vector< std::pair< int, int > > linkEndIndices_;
+
+    double bodyAvoidanceAngle_;
+
+    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid_;
+
+    std::string bodyToAvoid_;
+};
+
 
 //! Enum defining possible checks which can be performed for observation viability,
 /*!
@@ -138,6 +168,7 @@ private:
 enum ObservationViabilityType
 {
     minimum_elevation_angle, //properties: no string, double = elevation angle
+    body_avoidance_angle //properties: string = body to avoid, double = avoidance angle
 };
 
 struct ObservationViabilitySettings

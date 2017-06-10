@@ -168,6 +168,153 @@ std::vector< double > getBodyLinkElevationAngles(
     return elevationAngles;
 }
 
+std::vector< double > getBodyCosineAvoidanceAngles(
+        const LinkEnds linkEnds,
+        const ObservableType observableType,
+        const std::string referenceBody,
+        const std::string bodyToAvoid,
+        const std::vector< Eigen::Vector6d > linkEndStates,
+        const std::vector< double > linkEndTimes,
+        const NamedBodyMap& bodyMap )
+{
+    std::vector< double > cosineAvoidanceAngles;
+    switch( observableType )
+    {
+    case one_way_range:
+    {
+        if( linkEnds.at( transmitter ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
+        }
+        else if( linkEnds.at( receiver ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
+        }
+        break;
+    }
+    case one_way_doppler:
+    {
+        if( linkEnds.at( transmitter ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
+        }
+        else if( linkEnds.at( receiver ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
+        }
+        break;
+    }
+    case angular_position:
+    {
+        if( linkEnds.at( transmitter ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
+        }
+        else if( linkEnds.at( receiver ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
+        }
+        break;
+    }
+    case one_way_differenced_range:
+    {
+        if( linkEnds.at( transmitter ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                 ( ( linkEndStates.at( 1 ) - linkEndStates.at( 0 ) ).segment( 0, 3 ) ), (
+                                                     bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                         ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                     linkEndStates.at( 0 ).segment( 0, 3 ) ) ) );
+            cosineAvoidanceAngles.push_back(  linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                  ( ( linkEndStates.at( 3 ) - linkEndStates.at( 2 ) ).segment( 0, 3 ) ), (
+                                                      bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                          ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                      linkEndStates.at( 2 ).segment( 0, 3 ) ) ) );
+        }
+        else if( linkEnds.at( receiver ).first == referenceBody )
+        {
+            cosineAvoidanceAngles.push_back(  linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                  ( ( linkEndStates.at( 0 ) - linkEndStates.at( 1 ) ).segment( 0, 3 ) ), (
+                                                      bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                          ( linkEndTimes.at( 1 ) + linkEndTimes.at( 0 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                      linkEndStates.at( 1 ).segment( 0, 3 ) ) ) );
+            cosineAvoidanceAngles.push_back(  linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                  ( ( linkEndStates.at( 2 ) - linkEndStates.at( 3 ) ).segment( 0, 3 ) ), (
+                                                      bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                          ( linkEndTimes.at( 3 ) + linkEndTimes.at( 2 ) ) / 2.0 ).segment( 0, 3 ) -
+                                                      linkEndStates.at( 3 ).segment( 0, 3 ) ) ) );
+        }
+        break;
+    }
+    case n_way_range:
+    {
+        int linkEndIndex = 0;
+        for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
+             linkEndIterator++ )
+        {
+            if( linkEndIterator->second.first == referenceBody )
+            {
+                if( linkEndIndex != 0 )
+                {
+                    cosineAvoidanceAngles.push_back(  linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                          ( ( linkEndStates.at( 2 * ( linkEndIndex - 1 ) ) -
+                                                              linkEndStates.at( 2 * ( linkEndIndex - 1 ) + 1 ) ).segment( 0, 3 ) ), (
+                                                              bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                                  ( linkEndTimes.at( 2 * ( linkEndIndex - 1 ) + 1  ) +
+                                                                    linkEndTimes.at( 2 * ( linkEndIndex - 1 ) ) ) / 2.0 ).segment( 0, 3 ) -
+                                                              linkEndStates.at( 2 * ( linkEndIndex - 1 ) + 1 ).segment( 0, 3 ) ) ) );
+                }
+
+                if( linkEndIndex != static_cast< int >( linkEnds.size( ) ) - 1 )
+                {
+                    cosineAvoidanceAngles.push_back( linear_algebra::computeCosineOfAngleBetweenVectors(
+                                                         ( linkEndStates.at( 2 * linkEndIndex + 1 ) -
+                                                           linkEndStates.at( 2 * linkEndIndex ) ).segment( 0, 3 ), (
+                                                             bodyMap.at( bodyToAvoid )->getStateInBaseFrameFromEphemeris< double, double >(
+                                                                 ( linkEndTimes.at( 2 * linkEndIndex + 1  ) +
+                                                                   linkEndTimes.at( 2 * linkEndIndex  ) ) / 2.0 ).segment( 0, 3 ) -
+                                                             linkEndStates.at( 2 * linkEndIndex ).segment( 0, 3 ) ) ) );
+                }
+
+            }
+            linkEndIndex++;
+        }
+        std::cout<<"Tested n-way"<<std::endl;
+
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when testing avoidance angle viability, observable not recognized" );
+
+    }
+
+    return cosineAvoidanceAngles;
+}
+
 BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 {
     //Load spice kernels.
@@ -261,7 +408,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     std::vector< double > unconstrainedObservationTimes;
     LinkEndType referenceLinkEnd = transmitter;
-    double initialTime = 0.0, finalTime = 30 * physical_constants::JULIAN_DAY, timeStep = 1800.0;
+    double initialTime = 0.0, finalTime = physical_constants::JULIAN_YEAR, timeStep = physical_constants::JULIAN_DAY / 4.0;
     double currentTime = initialTime;
     while( currentTime <= finalTime )
     {
@@ -310,6 +457,10 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     double earthLimitAngle = 4.0 * M_PI / 180.0;
     double marsLimitAngle = 10.0 * M_PI / 180.0;
 
+    double earthSunAvoidanceAngle = 30.0 * M_PI / 180.0;
+    double marsSunAvoidanceAngle = 21.0 * M_PI / 180.0;
+
+
     std::vector< boost::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
     observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
@@ -317,6 +468,12 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
                                                 minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
                                                 marsLimitAngle ) );
+    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+                                                body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
+                                                earthSunAvoidanceAngle ) );
+    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+                                                body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
+                                                marsSunAvoidanceAngle ) );
     PerObservableObservationViabilityCalculatorList viabilityCalculators = createObservationViabilityCalculators(
                 bodyMap, testLinkEndsList, observationViabilitySettings );
 
@@ -389,6 +546,8 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     {
         int numberOfLinkEnds = testLinkEndsList.at( unconstrainedIterator->first ).size( );
         int currentObservableSize = getObservableSize( unconstrainedIterator->first );
+
+        std::cout<<"Obs: "<<unconstrainedIterator->first<<std::endl;
 
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIteratorFromObjects->second.size( ) );
@@ -504,6 +663,30 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                         computedViability =  false;
                     }
                 }
+
+                std::vector< double > earthSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
+                            currentLinkEnds, currentObservable, "Earth", "Sun", linkEndStates, linkEndTimes, bodyMap );
+                for( unsigned int l = 0; l < earthSunCosineAvoidanceAngles.size( ); l++ )
+                {
+                    //std::cout<<"Earth avoidance: "<<earthSunCosineAvoidanceAngles.at( l )<<std::endl;
+                    if( earthSunCosineAvoidanceAngles.at( l ) > std::cos( earthSunAvoidanceAngle ) )
+                    {
+                        computedViability =  false;
+                    }
+                }
+
+
+                std::vector< double > marsSunCosineAvoidanceAngles = getBodyCosineAvoidanceAngles(
+                            currentLinkEnds, currentObservable, "Mars", "Sun", linkEndStates, linkEndTimes, bodyMap );
+                for( unsigned int l = 0; l < marsSunCosineAvoidanceAngles.size( ); l++ )
+                {
+                    //std::cout<<"Mars avoidance: "<<marsSunCosineAvoidanceAngles.at( l )<<std::endl;
+                    if( marsSunCosineAvoidanceAngles.at( l ) > std::cos( marsSunAvoidanceAngle ) )
+                    {
+                        computedViability =  false;
+                    }
+                }
+
 
                 BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
                 BOOST_CHECK_EQUAL( computedViability, currentObservationWasViable );

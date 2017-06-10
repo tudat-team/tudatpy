@@ -1157,6 +1157,12 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
         const ObservableType observationType,
         const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
+boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+
 
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
