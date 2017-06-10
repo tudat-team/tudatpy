@@ -1086,7 +1086,8 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
     boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
     // Iterate over all observables
-    typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+    typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > >
+            SortedObservationSettingsMap;
     for( SortedObservationSettingsMap::const_iterator settingsIterator = observationSettingsMap.begin( );
          settingsIterator != observationSettingsMap.end( ); settingsIterator++ )
     {
@@ -1139,49 +1140,123 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
                 convertUnsortedToSortedObservationSettingsMap( observationSettingsMap ), bodyMap );
 }
 
-
-typedef std::vector< boost::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
-
+//! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
+/*!
+ * Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
+ * \param observationViabilitySettings Full, unfiltered, list of observation viability settings
+ * \param linkEnds Link ends for which the relevant observation vaibilityies are to be retrieved
+ * \return List of observationViabilitySettings that are relevant for linkEnds
+ */
 ObservationViabilitySettingsList filterObservationViabilitySettings(
-        const ObservationViabilitySettingsList observationViabilitySettings,
-        const LinkEnds linkEnds );
+        const ObservationViabilitySettingsList& observationViabilitySettings,
+        const LinkEnds& linkEnds );
 
+//! Function to retrieve the link end indices in link end states/times that are to be used in viability calculation
+/*!
+ * Function to retrieve the link end indices in link end states/times that are to be used in viability calculation.
+ * Return variable is a vector of pairs, where each the first entry denotes the index of the point at which the link is to be
+ * checkd. The second entry denotes the index for the opposite end of teh link.
+ * \param linkEnds Complete set of link ends for which check is to be performed
+ * \param observableType Observable type for which check is to be performed
+ * \param linkEndToCheck Link end at which check is to be performed
+ * \return Link end indices in link end states/times that are to be used in viability calculation
+ */
 std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         const LinkEnds& linkEnds,
         const ObservableType observableType,
         const LinkEndId linkEndToCheck );
 
+//! Function to create an object to check if a minimum elevation angle condition is met for an observation
+/*!
+ * Function to create an object to check if a minimum elevation angle condition is met for an observation
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
+ * (settings must be compatible with minimum elevation angle check).  Ground station must ve specified by
+ * associatedLinkEnd_.second in observationViabilitySettings.
+ * \return Object to check if a minimum elevation angle condition is met for an observation
+ */
 boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
+//! Function to create an object to check if a body avoidance angle condition is met for an observation
+/*!
+ * Function to create an object to check if a body avoidance angle condition is met for an observation
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
+ * (settings must be compatible with body avoidance angle check). If ground station is not specified (by
+ * associatedLinkEnd_.second in observationViabilitySettings), check is performed for all ground stations on (or c.o.m. of) body
+ * (defined by associatedLinkEnd_.first) automatically.
+ * \return Object to check if a body avoidance angle condition is met for an observation
+ */
 boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
+//! Function to create an object to check if a body occultation condition is met for an observation
+/*!
+ * Function to create an object to check if a body occultation condition is met for an observation
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
+ * (settings must be compatible with body occultation check).  If ground station is not specified (by
+ * associatedLinkEnd_.second in observationViabilitySettings), check is performed for all ground stations on (or c.o.m. of) body
+ * (defined by associatedLinkEnd_.first) automatically, or fo
+ * \return Object to check if a body occultation condition is met for an observation
+ */
 boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
+//! Function to create an list of obervation viability conditions for a single set of link ends
+/*!
+ * Function to create an list of obervation viability conditions for a single set of link ends
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEnds Link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
+ * \return List of obervation viability conditions for a single set of link ends
+ */
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
         const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
-
+//! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
+/*!
+ * Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEnds List of link ends for which viability check object is to be made
+ * \param observationType Type of observable for which viability check object is to be made
+ * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
+ * \return List of obervation viability conditions for a number of sets of link ends, for a single observable type
+ */
 std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< LinkEnds > linkEnds,
         const ObservableType observationType,
         const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings );
 
+//! Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
+/*!
+ * Function to create a list of obervation viability conditions for any number of sets of link ends and observable types
+ * \param bodyMap Map of body objects that constitutes the environment
+ * \param linkEndsPerObservable List of link ends, for each observable type, for which viability check object is to be made
+ * \param observationViabilitySettings List of viability settings from which viability check objects are to be created
+ * \return List of obervation viability conditions for any number of sets of link ends and observable types
+ */
 PerObservableObservationViabilityCalculatorList
 createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,

@@ -62,6 +62,8 @@ struct TabulatedObservationSimulationTimeSettings: public ObservationSimulationT
  *  Function to compute observations at times defined by settings object using a given observation model
  *  \param observationsToSimulate Object that computes/defines settings for observation times/reference link end
  *  \param observationModel Observation model that is to be used to compute observations
+ *  \param currentObservationViabilityCalculators List of observation viability calculators, which are used to reject simulated
+ *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Pair of observable values and observation time (with associated reference link end)
  */
 template< typename ObservationScalarType = double, typename TimeType = double,
@@ -70,7 +72,8 @@ std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,std::pair< 
 simulateSingleObservationSet(
         const boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > observationsToSimulate,
         const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentObservationViabilityCalculators )
+        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentObservationViabilityCalculators =
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     // Delcare return type.
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, LinkEndType > >
@@ -100,6 +103,8 @@ simulateSingleObservationSet(
  *  \param observationsToSimulate Object that computes/defines settings for observation times/reference link end
  *  \param observationSimulator Observation simulator for observable for which observations are to be calculated.
  *  \param linkEnds Link end set for which observations are to be calculated.
+ *  \param currentObservationViabilityCalculators List of observation viability calculators, which are used to reject simulated
+ *  observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle (default none).
  *  \return Pair of first: vector of observations; second: vector of times at which observations are taken
  *  (reference to link end defined in observationsToSimulate).
  */
@@ -109,7 +114,8 @@ simulateSingleObservationSet(
         const boost::shared_ptr< ObservationSimulationTimeSettings< TimeType > > observationsToSimulate,
         const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator,
         const LinkEnds& linkEnds,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentObservationViabilityCalculators)
+        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentObservationViabilityCalculators =
+        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     if( observationSimulator == NULL )
     {
@@ -197,6 +203,9 @@ simulateObservations(
  *  Iterates over all observables and link ends and simulates observations.
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -314,6 +323,9 @@ simulateObservations(
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \param noiseFunctions Double map with functions that return the observation noise as a function of observation time.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -416,6 +428,9 @@ Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \param noiseFunctions Double map with functions that return the observation noise as a function of observation time.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -458,6 +473,9 @@ simulateObservationsWithNoise(
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \param noiseFunctions Map with functions that return the observation noise as a function of observation time.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -509,6 +527,9 @@ simulateObservationsWithNoise(
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \param noiseFunctions Map with functions that return the observation noise as a function of observation time.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -545,6 +566,9 @@ simulateObservationsWithNoise(
  *  \param observationsToSimulate List of observation time settings per link end set per observable type.
  *  \param observationSimulators List of Observation simulators per link end set per observable type.
  *  \param noiseFunction Function that returns the observation noise as a function of observation time.
+ *  \param viabilityCalculatorList List (per observable type and per link ends) of observation viability calculators, which
+ *  are used to reject simulated observation if they dont fulfill a given (set of) conditions, e.g. minimum elevation angle
+ *  (default none).
  *  \return Simulated observatoon values and associated times for requested observable types and link end sets.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
