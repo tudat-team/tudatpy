@@ -159,6 +159,29 @@ private:
     std::string bodyToAvoid_;
 };
 
+class OccultationCalculator: public ObservationViabilityCalculator
+{
+public:
+
+    OccultationCalculator(
+            const std::vector< std::pair< int, int > > linkEndIndices,
+            const boost::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody,
+            const double radiusOfOccultingBody ):
+        linkEndIndices_( linkEndIndices ),
+        stateFunctionOfOccultingBody_( stateFunctionOfOccultingBody ),
+        radiusOfOccultingBody_( radiusOfOccultingBody ){ }
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                              const std::vector< double >& linkEndTimes );
+
+private:
+
+    std::vector< std::pair< int, int > > linkEndIndices_;
+
+    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody_;
+
+    double radiusOfOccultingBody_;
+};
 
 //! Enum defining possible checks which can be performed for observation viability,
 /*!
@@ -168,7 +191,8 @@ private:
 enum ObservationViabilityType
 {
     minimum_elevation_angle, //properties: no string, double = elevation angle
-    body_avoidance_angle //properties: string = body to avoid, double = avoidance angle
+    body_avoidance_angle, //properties: string = body to avoid, double = avoidance angle
+    body_occultation //string = occulting body, no double
 };
 
 struct ObservationViabilitySettings
@@ -176,8 +200,8 @@ struct ObservationViabilitySettings
 public:
     ObservationViabilitySettings( const ObservationViabilityType observationViabilityType,
                                   const std::pair< std::string, std::string > associatedLinkEnd,
-                                  const std::string stringParameter,
-                                  const double doubleParameter ):
+                                  const std::string stringParameter = "",
+                                  const double doubleParameter = TUDAT_NAN ):
         observationViabilityType_( observationViabilityType ), associatedLinkEnd_( associatedLinkEnd ),
         stringParameter_( stringParameter ), doubleParameter_( doubleParameter ){ }
 

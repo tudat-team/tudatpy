@@ -1163,6 +1163,11 @@ boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalcul
         const ObservableType observationType,
         const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
+boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const LinkEnds linkEnds,
+        const ObservableType observationType,
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
 
 std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,

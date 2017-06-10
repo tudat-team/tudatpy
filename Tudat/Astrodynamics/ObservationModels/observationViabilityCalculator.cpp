@@ -84,15 +84,36 @@ bool BodyAvoidanceAngleCalculator::isObservationViable( const std::vector< Eigen
             isObservationPossible = 0;
             break;
         }
-
-        //std::cout<<"Computed avoidance "<<bodyToAvoid_<<": "<<currentCosineOfAngle<<" "<<isObservationPossible<<std::endl;
-
-        //std::cout<<"Angle: "<< 180.0 / mathematical_constants::PI * std::acos( currentCosineOfAngle )<<" "<<isObservationPossible<<std::endl;
     }
 
     return isObservationPossible;
 }
 
+bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                 const std::vector< double >& linkEndTimes )
+{
+    bool isObservationPossible = 1;
+    Eigen::Vector3d positionOfOccultingBody;
+
+    for( unsigned int i = 0; i < linkEndIndices_.size( ); i++ )
+    {
+        positionOfOccultingBody = stateFunctionOfOccultingBody_(
+                    ( linkEndTimes.at( linkEndIndices_.at( i ).first ) + linkEndTimes.at( linkEndIndices_.at( i ).second ) ) / 2.0 )
+                .segment( 0, 3 );
+
+        if( mission_geometry::computeShadowFunction(
+                    linkEndStates.at( linkEndIndices_.at( i ).first ).segment( 0, 3 ), 0.0,
+                    positionOfOccultingBody,
+                    radiusOfOccultingBody_,
+                    linkEndStates.at( linkEndIndices_.at( i ).second ).segment( 0, 3 ) ) < 1.0E-10 )
+        {
+            isObservationPossible = 0;
+            break;
+        }
+    }
+
+    return isObservationPossible;
+}
 
 
 
