@@ -78,11 +78,31 @@ int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int nu
  */
 LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds );
 
-
+//! Function to get the list of indices in link-end list for n-way observables that match a given link end id.
+/*!
+ * Function to get the list of indices in link-end list for n-way observables that match a given link end id.
+ * \param linkEndid Link end id for which the link-end indices in linkEnds are to be determined
+ * \param linkEnds N-way link ends
+ * \return List of indices (transmitter = 0, receiver = linkEnds.size( ) - 1 ) at which linkEndid occurs in linkEnds.
+ */
 std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
 
+//! Function to get the list of indices in link-end list for n-way observables that match a list of link-end types.
+/*!
+ * Function to get the list of indices in link-end list for n-way observables that match a list of link-end types.
+ * \param linkEndTypes List of link end types for which the link-end indices in linkEnds are to be determined
+ * \param linkEnds N-way link ends
+ * \return List of indices (transmitter = 0, receiver = linkEnds.size( ) - 1 ) at which linkEndTypes occurs in linkEnds.
+ */
 std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEndType >& linkEndTypes, const LinkEnds& linkEnds );
 
+//! Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
+/*!
+ * Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
+ * \param linkEndid Link end id for which the link-end indices in linkEnds are to be determined
+ * \param linkEnds N-way link ends
+ * \return List of link end type at which linkEndid occurs in linkEnds.
+ */
 std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
 
 } // namespace observation_models

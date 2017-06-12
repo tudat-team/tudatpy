@@ -133,6 +133,7 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
     return linkEndType;
 }
 
+//! Function to get the list of indices in link-end list for n-way observables that matches a given link end id.
 std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType >  matchingLinkEndTypes = getNWayLinkIndicesFromLinkEndId(
@@ -140,6 +141,7 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndi
     return getNWayLinkEndIndicesFromLinkEndId( matchingLinkEndTypes, linkEnds );
 }
 
+//! Function to get the list of indices in link-end list for n-way observables that matches a list of link-end types.
 std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEndType >& linkEndTypes, const LinkEnds& linkEnds )
 {
     std::vector< int > linkEndIndices;
@@ -150,6 +152,7 @@ std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEn
     return linkEndIndices;
 }
 
+//! Function to get the list of link end types in link-end list for n-way observables that match a given link end id.
 std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds )
 {
     std::vector< LinkEndType > matchingLinkEndTypes;
