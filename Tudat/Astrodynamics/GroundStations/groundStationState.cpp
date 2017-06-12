@@ -24,6 +24,28 @@ namespace tudat
 namespace ground_stations
 {
 
+//! Function to generate unit vectors of topocentric frame.
+std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
+            const Eigen::Matrix3d& toPlanetFixedFrameMatrix )
+{
+    std::vector< Eigen::Vector3d > geocentricUnitVectors;
+    geocentricUnitVectors.reserve( 3 );
+    geocentricUnitVectors[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
+    geocentricUnitVectors[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
+    geocentricUnitVectors[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
+    return geocentricUnitVectors;
+}
+
+
+//! Function to generate unit vectors of topocentric frame.
+std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
+        const double latitude, const double longitude )
+{
+    return getGeocentricLocalUnitVectors(
+                Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                                 longitude, latitude ) ) );
+}
+
 //! Constructor
 GroundStationState::GroundStationState(
         const Eigen::Vector3d stationPosition,
@@ -71,37 +93,13 @@ void GroundStationState::resetGroundStationPositionAtEpoch(
 
 }
 
+//! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
 void GroundStationState::setTransformationAndUnitVectors( )
 {
-    Eigen::Matrix3d toPlanetFixedFrameMatrix =
-            Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-                                 getLongitude( ), getLatitude( ) ) );
-
-    geocentricUnitVectors_.clear( );
-    geocentricUnitVectors_.resize( 3 );
-    geocentricUnitVectors_[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
-    geocentricUnitVectors_[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
-    geocentricUnitVectors_[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
-
+    geocentricUnitVectors_ = getGeocentricLocalUnitVectors( getLongitude( ), getLatitude( ) );
     bodyFixedToTopocentricFrameRotation_ = getRotationQuaternionFromBodyFixedToTopocentricFrame(
                 bodySurface_, getLatitude( ), getLongitude( ), cartesianPosition_  );
 }
-
-std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors( const double geocentricLatitude,
-                                                              const double geocentricLongitude )
-{
-    Eigen::Matrix3d toPlanetFixedFrameMatrix =
-            Eigen::Matrix3d( reference_frames::getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-                                 geocentricLongitude, geocentricLatitude ) );
-
-    std::vector< Eigen::Vector3d > geocentricUnitVectors;
-    geocentricUnitVectors.reserve( 3 );
-    geocentricUnitVectors[ 0 ] = toPlanetFixedFrameMatrix.block( 0, 0, 3, 1 );
-    geocentricUnitVectors[ 1 ] = toPlanetFixedFrameMatrix.block( 0, 1, 3, 1 );
-    geocentricUnitVectors[ 2 ] = toPlanetFixedFrameMatrix.block( 0, 2, 3, 1 );
-    return geocentricUnitVectors;
-}
-
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
 Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
