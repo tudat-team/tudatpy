@@ -122,6 +122,20 @@ Eigen::Vector3d evaluateSecondBlockInStateVector(
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 );
 
+//! Function to calculate the jacobian of a normalized vector, from the jacobian of the unnormalized vector.
+/*!
+ *  Function to calculate the jacobian (partial matrix) of a normalized vector, from the jacobian
+ *  (partial matrix) of the unnormalized vector and the unnormalized vector itself, i.e. d/dp(x/|x|) from d/dp(x) and x, with p and x
+ *  3d vectors.
+ *  \param partialOfUnnormalizedVector The jacobian of the unnormalized vector
+ *  \param unnormalizedVector Unnormalized vector wrt which partialOfUnnormalizedVector is taken
+ *  \return The jacobian of the normalized vector.
+ */
+Eigen::Matrix3d calculatePartialOfNormalizedVector(
+        const Eigen::Matrix3d& partialOfUnnormalizedVector,
+        const Eigen::Vector3d& unnormalizedVector );
+
+
 
 
 

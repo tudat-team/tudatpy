@@ -900,6 +900,52 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
 }
 
 
+//! Function to create empirical acceleration model.
+boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Declare pointer to return object
+    boost::shared_ptr< EmpiricalAcceleration > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    boost::shared_ptr< EmpiricalAccelerationSettings > empiricalSettings =
+            boost::dynamic_pointer_cast< EmpiricalAccelerationSettings >(
+                accelerationSettings );
+    if( empiricalSettings == NULL )
+    {
+        std::cerr<<"Error, expected empirical acceleration settings when making acceleration model on "<<
+                   nameOfBodyUndergoingAcceleration<<" due to "<<nameOfBodyExertingAcceleration<<std::endl;
+    }
+    else
+    {
+        // Get pointer to gravity field of central body (for determining keplerian elememts)
+        boost::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
+
+        if( gravityField == NULL )
+        {
+            std::cerr<<"Error "<<nameOfBodyExertingAcceleration<<" does not have a gravity field "<<
+                       "when making empirical acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+        }
+        else
+        {
+            // Create acceleration model.
+            accelerationModel = boost::make_shared< EmpiricalAcceleration >(
+                        empiricalSettings->constantAcceleration_,
+                        empiricalSettings->sineAcceleration_,
+                        empiricalSettings->cosineAcceleration_,
+                        boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                        boost::bind( &GravityFieldModel::getGravitationalParameter, gravityField ),
+                        boost::bind( &Body::getState, bodyExertingAcceleration ) );
+        }
+    }
+
+    return accelerationModel;
+}
+
 //! Function to create a thrust acceleration model.
 boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(

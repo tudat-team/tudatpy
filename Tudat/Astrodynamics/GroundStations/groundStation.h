@@ -103,7 +103,7 @@ private:
 
 //! Function to check whether a target is visible from a ground station, based on minimum allowed elevation angle.
 /*!
- * \Function to check whether a target is visible from a ground station, based on minimum allowed elevation angle, and the
+ * Function to check whether a target is visible from a ground station, based on minimum allowed elevation angle, and the
  * vector from ground station to target expressed in inertial coordinates
  * \param time Time at which visibility is to be checked.
  * \param targetRelativeState Inertial state vector from ground station to target
