@@ -113,6 +113,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = relativistic_correction_acceleration;
     }
+    else if( boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != NULL )
+    {
+        accelerationType = empirical_acceleration;
+    }
     else
     {
         throw std::runtime_error(

@@ -107,6 +107,16 @@ double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > ve
     return getVectorNorm( vectorFunction( ) );
 }
 
+//! Function to calculate the jacobian of a normalized vector, from the partial of the unnormalized vector.
+Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& partialOfUnnormalizedVector,
+                                                    const Eigen::Vector3d& unnormalizedVector )
+{
+    double normOfVector = unnormalizedVector.norm( );
+
+    return ( Eigen::Matrix3d::Identity( ) / normOfVector - unnormalizedVector * unnormalizedVector.transpose( ) /
+             ( normOfVector * normOfVector * normOfVector ) ) * partialOfUnnormalizedVector;
+}
+
 
 } // namespace linear_algebra
 

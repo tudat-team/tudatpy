@@ -11,6 +11,7 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 #define TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -248,6 +249,46 @@ public:
     std::string frameOrientation_;
 
     bool isStateSet_;
+
+};
+
+class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    EmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ){ }
+
+    std::string centralBody_;
+
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+};
+
+class ArcWiseEmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    ArcWiseEmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
+
+    std::string centralBody_;
+
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+    std::vector< double > arcStartTimeList_;
+
 
 };
 
