@@ -14,7 +14,7 @@
 
 #include <boost/make_shared.hpp>
 
-#include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createDopplerPartials.h"
 
 namespace tudat
 {

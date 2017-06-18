@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/nWayRangePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/twoWayDopplerPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 namespace tudat
@@ -18,7 +18,7 @@ namespace observation_partials
 {
 
 //! Update the scaling object to the current times and states
-void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
+void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                const std::vector< double >& times,
                                const observation_models::LinkEndType fixedLinkEnd,
                                const Eigen::VectorXd currentObservation )
@@ -33,22 +33,17 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
     singleLinkTimes.resize( 2 );
 
     // Find index in link ends for fixed (reference) link ends
-    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType(
-                fixedLinkEnd, numberOfLinkEnds_ );
-
-    // Iterate over all constituent one-way range scalings
     observation_models::LinkEndType referenceLinkEnd;
-    for( constituentRangeScalingIterator_ = constituentRangeScalings_.begin( );
-         constituentRangeScalingIterator_ != constituentRangeScalings_.end( ); constituentRangeScalingIterator_++ )
-    {
-        // Set times, states and reference link end for current one-way range
-        currentIndex = constituentRangeScalingIterator_->first;
-        singleLinkEndStates[ 0 ] = linkEndStates.at( 2 * currentIndex );
-        singleLinkEndStates[ 1 ] = linkEndStates.at( 2 * currentIndex + 1 );
-        singleLinkTimes[ 0 ] = times.at( 2 * currentIndex );
-        singleLinkTimes[ 1 ] = times.at( 2 * currentIndex + 1 );
+    int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType(
+                fixedLinkEnd, 3 );
 
-        if( fixedLinkEndIndex <= constituentRangeScalingIterator_->first )
+    {
+        singleLinkEndStates[ 0 ] = linkEndStates.at( 0 );
+        singleLinkEndStates[ 1 ] = linkEndStates.at( 1 );
+        singleLinkTimes[ 0 ] = times.at( 0 );
+        singleLinkTimes[ 1 ] = times.at( 1 );
+
+        if( fixedLinkEndIndex == observation_models::transmitter )
         {
             referenceLinkEnd = observation_models::transmitter;
         }
@@ -58,9 +53,28 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
         }
 
         // Update current one-way range scaling
-        constituentRangeScalingIterator_->second->update(
-                    singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
+        uplinkDopplerScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
     }
+
+    {
+        singleLinkEndStates[ 0 ] = linkEndStates.at( 2 );
+        singleLinkEndStates[ 1 ] = linkEndStates.at( 3 );
+        singleLinkTimes[ 0 ] = times.at( 2 );
+        singleLinkTimes[ 1 ] = times.at( 3 );
+
+        if( fixedLinkEndIndex == observation_models::receiver )
+        {
+            referenceLinkEnd = observation_models::receiver;
+        }
+        else
+        {
+            referenceLinkEnd = observation_models::transmitter;
+        }
+
+        // Update current one-way range scaling
+        downlinkDopplerScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
+    }
+
 
     // Compute scaling factors by which one-way range partias are to be multiplied before being included in the n-way range
     // partial
@@ -76,13 +90,13 @@ void NWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStat
 }
 
 //! Function to calculate the observation partial(s) at required time and state
-NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
+TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const observation_models::LinkEndType linkEndOfFixedTime,
         const Eigen::Vector1d& currentObservation )
 {
-    NWayRangePartialReturnType completePartialSet;
+    TwoWayDopplerPartialReturnType completePartialSet;
     int referenceStartLinkEndIndex = getNWayLinkIndexFromLinkEndType( linkEndOfFixedTime, numberOfLinkEnds_ );
 
     // Define states, times and reference link ends to be used for constutuent one-way range partials
@@ -94,10 +108,10 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
 
     double currentPartialMultiplier = TUDAT_NAN;
 
-    for( rangePartialIterator_ = rangePartialList_.begin( ); rangePartialIterator_ != rangePartialList_.end( );
+    for( rangePartialIterator_ = dopplerPartialList_.begin( ); rangePartialIterator_ != dopplerPartialList_.end( );
          rangePartialIterator_++ )
     {
-        NWayRangePartialReturnType currentPartialSet;
+        TwoWayDopplerPartialReturnType currentPartialSet;
 
         // Set link end times and states for current one-way range
         subLinkStates[ 0 ] = states[ 2 * rangePartialIterator_->first ];
@@ -113,7 +127,7 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
 
             for( int i = rangePartialIterator_->first + 1; i < numberOfLinkEnds_ - 1; i++ )
             {
-                currentPartialMultiplier += nWayRangeScaler_->getProjectedRelativeVelocityRatio( i ) - 1.0;
+                currentPartialMultiplier += twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i ) - 1.0;
             }
         }
         else
@@ -121,7 +135,7 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
             subLinkReference = observation_models::receiver;
             for( int i = rangePartialIterator_->first; i > 0; i-- )
             {
-                currentPartialMultiplier += 1.0 / nWayRangeScaler_->getProjectedRelativeVelocityRatio( i - 1 ) - 1.0;
+                currentPartialMultiplier += 1.0 / twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i - 1 ) - 1.0;
             }
         }
 
@@ -131,7 +145,6 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
         {
-            std::cout<<currentPartialSet[ i ].first<<" "<<currentPartialSet[ i ].second<<" "<<currentPartialMultiplier<<std::endl;
             currentPartialSet[ i ].first *= currentPartialMultiplier;
         }
         completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
