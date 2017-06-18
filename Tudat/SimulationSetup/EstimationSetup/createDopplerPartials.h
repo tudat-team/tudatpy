@@ -25,9 +25,11 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayDopplerPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/twoWayDopplerPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Astrodynamics/ObservationModels/twoWayDopplerObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrectionPartials.h"
 
 namespace tudat
@@ -345,6 +347,195 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
     // Return complete set of link ends.
     return dopplerPartials;
 }
+
+
+
+
+//! Function to generate tow-way Doppler partials and associated scaler for single link ends.
+/*!
+ *  Function to generate tow-way Doppler partials and associated scaler for all parameters that are to be estimated,
+ *  for a single link ends set.
+ *  The set of parameters and bodies that are to be estimated, as well as the set of link ends
+ *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
+ *  The tow-way Doppler partials are built from one-way Doppler partials of the constituent links
+ *  \param twoWayDopplerLinkEnds Link ends (transmitter and receiever) for which tow-way Doppler partials are to be calculated
+ *  (i.e. for which tow-way Doppler observations are to be processed).
+ *  \param bodyMap List of all bodies, for creating tow-way Doppler partials.
+ *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
+ *  requested bodies)
+ *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
+ *  index of link in n-way link ends, second vector is list of light-time corrections.
+ *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
+ *  representing all  necessary two-way Doppler partials of a single link end, and TwoWayDopplerScaling, object, used for
+ *  scaling the position partial members of all TwoWayDopplerPartials in link end.
+ */
+template< typename ParameterType, typename TimeType >
+std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > createTwoWayDopplerPartials(
+        const observation_models::LinkEnds& twoWayDopplerLinkEnds,
+        const boost::shared_ptr< observation_models::TwoWayDopplerObservationModel< ParameterType, TimeType > >
+        twoWayObservationModel,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
+        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
+
+{
+    // Define return partial list
+    SingleLinkObservationPartialList twoWayDopplerPartialList;
+
+
+    // Define list of constituent one-way partials.
+    typedef std::map< int, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
+            OneWayDopplerPartialList;
+    OneWayDopplerPartialList constituentOneWayDopplerPartials;
+
+    int numberOfLinkEnds = 3;
+    observation_models::LinkEnds currentLinkEnds;
+
+    // Iterate over all links in the two-way Doppler observable
+    std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
+    for( int i = 0; i < numberOfLinkEnds - 1; i++ )
+    {
+        currentLightTimeCorrections.clear( );
+        if( lightTimeCorrections.size( ) > 0 )
+        {
+            currentLightTimeCorrections = lightTimeCorrections.at( i );
+        }
+
+        // Define links for current one-way Doppler link
+        currentLinkEnds.clear( );
+        currentLinkEnds[ observation_models::transmitter ] = twoWayDopplerLinkEnds.at(
+                    observation_models::getNWayLinkEnumFromIndex( i, 2 ) );
+        currentLinkEnds[ observation_models::receiver ] = twoWayDopplerLinkEnds.at(
+                    observation_models::getNWayLinkEnumFromIndex( i + 1, 2 ) );
+
+        boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > transmitterDopplerProperTimeInterface;
+        boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > receiverDopplerProperTimeInterface;
+        if( i == 0 )
+        {
+            transmitterDopplerProperTimeInterface =
+                    twoWayObservationModel->getUplinkDopplerCalculator( )->getTransmitterProperTimeRateCalculator( );
+            receiverDopplerProperTimeInterface =
+                    twoWayObservationModel->getUplinkDopplerCalculator( )->getReceiverProperTimeRateCalculator( );
+        }
+        else if( i == 1 )
+        {
+            transmitterDopplerProperTimeInterface =
+                    twoWayObservationModel->getDownlinkDopplerCalculator( )->getTransmitterProperTimeRateCalculator( );
+            receiverDopplerProperTimeInterface =
+                    twoWayObservationModel->getDownlinkDopplerCalculator( )->getReceiverProperTimeRateCalculator( );
+        }
+
+        // Create one-way Doppler partials for current link
+        constituentOneWayDopplerPartials[ i ] =
+                createOneWayDopplerPartials(
+                    currentLinkEnds, bodyMap, parametersToEstimate, transmitterDopplerProperTimeInterface,
+                    receiverDopplerProperTimeInterface, currentLightTimeCorrections );
+    }
+
+    // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
+    std::map< int, boost::shared_ptr< OneWayDopplerScaling > > twoWayDopplerScalers;
+    std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > > sortedTwoWayDopplerPartials;
+    std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier > parameterIdList;
+    for( OneWayDopplerPartialList::iterator oneWayPartialIterator = constituentOneWayDopplerPartials.begin( );
+         oneWayPartialIterator != constituentOneWayDopplerPartials.end( ); oneWayPartialIterator++ )
+    {
+        // Retrieve one-way Doppler paritals
+        twoWayDopplerScalers[ oneWayPartialIterator->first ] = boost::dynamic_pointer_cast< OneWayDopplerScaling >
+                ( oneWayPartialIterator->second.second );
+
+        // Iterate over all one-way Doppler partials of current link
+        for( SingleLinkObservationPartialList::iterator parameterIterator = oneWayPartialIterator->second.first.begin( );
+             parameterIterator != oneWayPartialIterator->second.first.end( ); parameterIterator++ )
+        {
+            sortedTwoWayDopplerPartials[ parameterIterator->first ][ oneWayPartialIterator->first ] = parameterIterator->second;
+            if( parameterIdList.count( parameterIterator->first ) == 0 )
+            {
+                parameterIdList[ parameterIterator->first ] = parameterIterator->second->getParameterIdentifier( );
+            }
+
+            else if( parameterIdList.at( parameterIterator->first ) != parameterIterator->second->getParameterIdentifier( ) )
+            {
+                throw std::runtime_error( "Error when making two way range partial, parameter indices are inconsistent" );
+            }
+        }
+    }
+
+    // Create two-way Doppler scaling object
+    boost::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler = boost::make_shared< TwoWayDopplerScaling >(
+                twoWayDopplerScalers );
+
+    // Create two-way Doppler partial object
+    for( std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
+         sortedTwoWayDopplerPartials.begin( ); sortedPartialIterator != sortedTwoWayDopplerPartials.end( ); sortedPartialIterator++ )
+    {
+        twoWayDopplerPartialList[ sortedPartialIterator->first ] = boost::make_shared< TwoWayDopplerPartial >(
+                    twoWayDopplerScaler, sortedPartialIterator->second, parameterIdList.at( sortedPartialIterator->first ),
+                    numberOfLinkEnds );
+    }
+
+    return std::make_pair( twoWayDopplerPartialList, twoWayDopplerScaler );
+}
+
+//! Function to generate two-way Doppler partials for all parameters that are to be estimated, for all sets of link ends.
+/*!
+ *  Function to generate two-way Doppler partials for all parameters that are to be estimated, for all sets of link ends.
+ *  The two-way Doppler partials are generated per set of link ends. The set of parameters and bodies that are to be
+ *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
+ *  that are to be used.
+ *  The two-way Doppler partials are built from one-way range partials of the constituent links
+ *  \param linkEnds List of all n-way link ends sets with observation models for which partials are to be created
+ *  \param bodyMap List of all bodies, for creating two-way Doppler partials.
+ *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
+ *  of requested bodies)
+ *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
+ *  index of link in n-way link ends, second vector is list of light-time corrections.
+ *  \return Map of SingleLinkObservationPartialList, representing all necessary two-way Doppler partials of a single link end,
+ *  and TwoWayDopplerScaling, object, used for scaling the position partial members of all TwoWayDopplerPartials in link end.
+ */
+template< typename ParameterType, typename TimeType >
+std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
+createTwoWayDopplerPartials(
+        const std::map< observation_models::LinkEnds,
+        boost::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > > observationModelList,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::map< observation_models::LinkEnds,
+        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
+        std::map< observation_models::LinkEnds,
+        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+{
+    std::map< observation_models::LinkEnds,
+            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > partialMap;
+    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+
+    // Iterate over all sets of link ends, and  create associated two-way Doppler partials
+    for( typename std::map< observation_models::LinkEnds,
+         boost::shared_ptr< observation_models::ObservationModel< 1, ParameterType, TimeType > > >::const_iterator modelIterator =
+         observationModelList.begin( ); modelIterator != observationModelList.end( ); modelIterator++ )
+    {
+        // Retrieve light-time corrections
+        if( lightTimeCorrections.count( modelIterator->first ) > 0 )
+        {
+            currentLightTimeCorrections = lightTimeCorrections.at( modelIterator->first );
+        }
+        else
+        {
+            currentLightTimeCorrections.clear( );
+        }
+
+        // Create two-way Doppler partials for current LinkEnds
+        partialMap[ modelIterator->first ] = createTwoWayDopplerPartials< ParameterType, TimeType >(
+                    modelIterator->first, boost::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel<
+                    ParameterType, TimeType > >( modelIterator->second ), bodyMap, parametersToEstimate,
+                    currentLightTimeCorrections );
+    }
+
+    return partialMap;
+}
+
+
+
 
 }
 

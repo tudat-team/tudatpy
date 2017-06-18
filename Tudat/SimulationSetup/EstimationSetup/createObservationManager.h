@@ -267,7 +267,17 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
+    case n_way_range:
+        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
     case one_way_doppler:
+        observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
+    case two_way_doppler:
         observationManager = createObservationManager< 1, ObservationScalarType, TimeType >(
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );
