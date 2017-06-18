@@ -22,6 +22,20 @@ namespace tudat
 namespace linear_algebra
 {
 
+
+Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion )
+{
+    Eigen::Vector4d vector;
+
+    vector( 0 ) = quaternion.w( );
+    vector( 1 ) = quaternion.x( );
+    vector( 2 ) = quaternion.y( );
+    vector( 3 ) = quaternion.z( );
+
+    return vector;
+}
+
+
 //! Function that returns that 'cross-product matrix'
 Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
 {

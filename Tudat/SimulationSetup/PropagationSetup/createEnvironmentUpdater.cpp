@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
 
 namespace tudat
@@ -123,6 +124,44 @@ void checkValidityOfRequiredEnvironmentUpdates(
         }
     }
 }
+
+
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap )
+{
+    using namespace basic_astrodynamics;
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleTorqueUpdateNeeds;
+
+    for( TorqueModelMap::const_iterator acceleratedBodyIterator = torqueModels.begin( );
+         acceleratedBodyIterator != torqueModels.end( ); acceleratedBodyIterator++ )
+    {
+        for( SingleBodyTorqueModelMap::const_iterator torqueModelIterator = acceleratedBodyIterator->second.begin( );
+             torqueModelIterator != acceleratedBodyIterator->second.end( ); torqueModelIterator++ )
+        {
+            singleTorqueUpdateNeeds.clear( );
+            for( unsigned int i = 0; i < torqueModelIterator->second.size( ); i++ )
+            {
+                AvailableTorque currentTorqueModelType =
+                        getTorqueModelType( torqueModelIterator->second.at( i ) );
+
+                switch( currentTorqueModelType )
+                {
+                default:
+                    std::cerr<<"Error, update information not found for torque model "<<currentTorqueModelType<<std::endl;
+                    break;
+                }
+            }
+
+            checkValidityOfRequiredEnvironmentUpdates( singleTorqueUpdateNeeds, bodyMap );
+            addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
+        }
+    }
+
+    return environmentModelsToUpdate;
+}
+
 
 //! Get list of required environment model update settings from translational acceleration models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >

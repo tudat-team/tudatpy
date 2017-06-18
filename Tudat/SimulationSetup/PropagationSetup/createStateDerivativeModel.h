@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -203,6 +204,17 @@ createTranslationalStateDerivativeModel(
     return stateDerivativeModel;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createRotationalStateDerivativeModel(
+        const boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
+{
+    return boost::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                rotationPropagatorSettings->torqueModelMap_, bodyMap, rotationPropagatorSettings->bodiesToIntegrate_ );
+}
+
+
+
 //! Function to create a mass state derivative model.
 /*!
  *  Function to create a mass state derivative model from propagation settings and environment.
@@ -257,6 +269,21 @@ createStateDerivativeModel(
         {
             stateDerivativeModel = createTranslationalStateDerivativeModel< StateScalarType, TimeType >(
                         translationPropagatorSettings, bodyMap, propagationStartTime );
+        }
+        break;
+    }
+    case rotational_state:
+    {
+        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings =
+                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( rotationPropagatorSettings == NULL )
+        {
+            std::cerr<<"Error, expected rotation state propagation settings when making state derivative model"<<std::endl;
+        }
+        else
+        {
+            stateDerivativeModel = createRotationalStateDerivativeModel< StateScalarType, TimeType >(
+                        rotationPropagatorSettings, bodyMap, propagationStartTime );
         }
         break;
     }

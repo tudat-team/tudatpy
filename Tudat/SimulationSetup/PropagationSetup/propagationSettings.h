@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
@@ -377,6 +378,42 @@ public:
     TranslationalPropagatorType propagator_;
 
 };
+
+template< typename StateScalarType = double >
+class RotationalStatePropagatorSettings: public SingleArcPropagatorSettings< StateScalarType >
+{
+public:
+
+    //! Constructor for user-defined central bodies
+    /*!
+     *  Constructor for user-defined central bodies.
+     *  \param numberOfBodies Central bodies to use for each of the numerically integrated bodies (in same order as bodiesToIntegrate_)
+     *  in DynamicsSimulator
+     *  \param propagator Type of propagator to use.
+     */
+    RotationalStatePropagatorSettings( const basic_astrodynamics::TorqueModelMap& torqueModelMap,
+                                       const std::vector< std::string >& bodiesToIntegrate,
+                                       const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                       const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                       const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                       const double printInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
+                                                        dependentVariablesToSave, printInterval ),
+        torqueModelMap_( torqueModelMap ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+
+    //! Virtual destructor
+    /*!
+     *  Virtual destructor
+     */
+    ~RotationalStatePropagatorSettings( ){ }
+
+    basic_astrodynamics::TorqueModelMap torqueModelMap_;
+
+    std::vector< std::string > bodiesToIntegrate_;
+
+};
+
 
 
 //! Class for defining settings for propagating the mass of a body
@@ -862,6 +899,21 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
         }
         integratedStateList[ transational_state ] = integratedBodies;
+
+        break;
+    }
+    case rotational_state:
+    {
+        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
+                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        std::vector< std::pair< std::string, std::string > > integratedBodies;
+        for( unsigned int i = 0; i < rotationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+        {
+            integratedBodies.push_back( std::make_pair( rotationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
+        }
+
+        integratedStateList[ rotational_state ] = integratedBodies;
 
         break;
     }
