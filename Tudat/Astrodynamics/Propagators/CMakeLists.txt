@@ -18,6 +18,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
 )
 
 # Add header files.
@@ -36,6 +37,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
 )
 
 # Add static libraries.
@@ -105,5 +107,9 @@ target_link_libraries(test_MultiArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boo
 add_executable(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestPropagationTerminationReason.cpp")
 setup_custom_test_program(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationReason ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestRotationalDynamicsPropagator.cpp")
+setup_custom_test_program(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_RotationalDynamicsPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )

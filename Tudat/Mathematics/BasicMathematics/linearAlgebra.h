@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
+#include <Eigen/Geometry>
 
 #include <Tudat/Basics/basicTypedefs.h>
 
@@ -26,6 +27,8 @@ namespace tudat
 
 namespace linear_algebra
 {
+
+Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
 //! Function that returns that 'cross-product matrix'
 /*!

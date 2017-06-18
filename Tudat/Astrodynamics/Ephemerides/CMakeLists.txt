@@ -23,6 +23,7 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.cpp"
 )
 
 # Set the header files.
@@ -43,6 +44,8 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/constantEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
 )
 
 # Add static libraries.

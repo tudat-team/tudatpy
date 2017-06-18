@@ -488,6 +488,23 @@ public:
         }
     }
 
+    void setCurrentRotationalStateToLocalFrame( const Eigen::Matrix< double, 7, 1 > currentRotationalStateFromLocalToGlobalFrame )
+    {
+        Eigen::Quaterniond currentRotationToGlobalFrame =
+                Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 1 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 2 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 3 ) );
+
+        currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
+        currentAngularVelocityVectorInGlobalFrame_ =
+                currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+
+        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
+        currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
+                    currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
+
+    }
 
     //! Get current rotation from body-fixed to inertial frame.
     /*!
@@ -921,6 +938,27 @@ public:
         return currentMass_;
     }
 
+    Eigen::Matrix3d getBodyInertiaTensor( )
+    {
+        return bodyInertiaTensor_;
+    }
+
+    double getMeanMomentOfInertia( )
+    {
+        return meanMomentOfInertia_;
+    }
+
+
+    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
+    {
+        bodyInertiaTensor_ = bodyInertiaTensor;
+    }
+
+    void setMeanMomentOfInertia( const double meanMomentOfInertia )
+    {
+        meanMomentOfInertia_ = meanMomentOfInertia;
+    }
+
     //! Function to add a ground station to the body
     /*!
      * Function to add a ground station to the body
@@ -988,6 +1026,12 @@ public:
 protected:
 
 private:
+
+
+    double meanMomentOfInertia_;
+
+    Eigen::Matrix3d bodyInertiaTensor_;
+
 
 
     //! Current state.
@@ -1068,6 +1112,17 @@ private:
 };
 
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+
+void updateBodyInertiaTensor(
+        const boost::shared_ptr< Body > body,
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        const double bodyMass,
+        const double referenceRadius  );
+
+void updateBodyInertiaTensor(
+        const boost::shared_ptr< Body > body,
+        const boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField );
 
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(
