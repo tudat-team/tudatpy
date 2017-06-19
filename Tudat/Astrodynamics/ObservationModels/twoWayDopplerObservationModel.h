@@ -114,7 +114,7 @@ public:
         {
         case receiver:
 
-            downlinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
+            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         time, receiver, downlinkLinkEndTimes, downlinkLinkEndStates );
             uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         downlinkLinkEndTimes.at( 0 ), receiver, uplinkLinkEndTimes, uplinkLinkEndStates );
@@ -124,14 +124,14 @@ public:
 
             uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         time, receiver, uplinkLinkEndTimes, uplinkLinkEndStates );
-            downlinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
+            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         time, transmitter, downlinkLinkEndTimes, downlinkLinkEndStates );
 
             break;
         case transmitter:
             uplinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         time, transmitter, uplinkLinkEndTimes, uplinkLinkEndStates );
-            downlinkDoppler = uplinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
+            downlinkDoppler = downlinkDopplerCalculator_->computeIdealObservationsWithLinkEndData(
                         uplinkLinkEndTimes.at( 1 ), transmitter, downlinkLinkEndTimes, downlinkLinkEndStates );
             break;
         default:

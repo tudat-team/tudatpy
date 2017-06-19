@@ -801,14 +801,6 @@ public:
                             linkEnds, observationSettings->biasSettings_,bodyMap );
             }
 
-                boost::shared_ptr< TwoWayDopperObservationSettings > twoWayDopplerSettings =
-                        boost::dynamic_pointer_cast< TwoWayDopperObservationSettings >( observationSettings );
-
-                if( twoWayDopplerSettings == NULL )
-                {
-                    throw std::runtime_error( "Error when making two-way Doppler model, data is inconsistent" );
-                }
-
                 // Create observation model
 
                 LinkEnds uplinkLinkEnds;
@@ -816,18 +808,38 @@ public:
                 uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
 
                 LinkEnds downlinkLinkEnds;
-                uplinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
-                uplinkLinkEnds[ receiver ] = linkEnds.at( receiver );
+                downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
+                downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
 
-                observationModel = boost::make_shared< TwoWayDopplerObservationModel<
-                        ObservationScalarType, TimeType > >(
-                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
-                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
-                            ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                downlinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
-                            observationBias );
+                boost::shared_ptr< TwoWayDopperObservationSettings > twoWayDopplerSettings =
+                        boost::dynamic_pointer_cast< TwoWayDopperObservationSettings >( observationSettings );
+
+                if( twoWayDopplerSettings == NULL )
+                {
+                    observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                            ObservationScalarType, TimeType > >(
+                                boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        uplinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                            one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                                boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        downlinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                            one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                                observationBias );
+                }
+                else
+                {
+                    observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                            ObservationScalarType, TimeType > >(
+                                boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                                boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                    ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        downlinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                                observationBias );
+                }
 
             break;
         }
