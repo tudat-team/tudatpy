@@ -21,99 +21,99 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Class for calculating rotational state of a body from a time-tabulated set of quaternions.
-/*!
- *  Class for calculating rotational state of a body from a time-tabulated set of quaternions. The class performs interpolation of the
- *  tabulated quaternions by using spherical linear interpolation (SLERP), which interpolates over the unit sphere linearly along a great
- *  circle arc, ensuring the norm condition of the rotation quaternion.
- */
-class SlerpTabulatedRotationalEphemeris : public RotationalEphemeris
-{
-public:
+////! Class for calculating rotational state of a body from a time-tabulated set of quaternions.
+///*!
+// *  Class for calculating rotational state of a body from a time-tabulated set of quaternions. The class performs interpolation of the
+// *  tabulated quaternions by using spherical linear interpolation (SLERP), which interpolates over the unit sphere linearly along a great
+// *  circle arc, ensuring the norm condition of the rotation quaternion.
+// */
+//class SlerpTabulatedRotationalEphemeris : public RotationalEphemeris
+//{
+//public:
 
-    //! Constructor taking quaternion map
-    /*!
-     *  Constructor taking quaternion map, with time values as key. The map is split into two vectors by the constructor to facilitate the
-     *  interpolation.
-     *  \param quaternionMap Map of quaternions, denoting the rotation from the local(target) to the inertial(original) frame, with keys
-     *  denoting the times of teh rotations.
-     *  \param originalFrameOrientation Base frame identifier.
-     *  \param targetFrameOrientation Target frame identifier.
-     */
-    SlerpTabulatedRotationalEphemeris( std::map< double, Eigen::Quaterniond >& quaternionMap,
-                                       const std::string& originalFrameOrientation = "ECLIPJ2000",
-                                       const std::string& targetFrameOrientation = "" );
+//    //! Constructor taking quaternion map
+//    /*!
+//     *  Constructor taking quaternion map, with time values as key. The map is split into two vectors by the constructor to facilitate the
+//     *  interpolation.
+//     *  \param quaternionMap Map of quaternions, denoting the rotation from the local(target) to the inertial(original) frame, with keys
+//     *  denoting the times of teh rotations.
+//     *  \param originalFrameOrientation Base frame identifier.
+//     *  \param targetFrameOrientation Target frame identifier.
+//     */
+//    SlerpTabulatedRotationalEphemeris( std::map< double, Eigen::Quaterniond >& quaternionMap,
+//                                       const std::string& originalFrameOrientation = "ECLIPJ2000",
+//                                       const std::string& targetFrameOrientation = "" );
 
-    SlerpTabulatedRotationalEphemeris( std::map< double, Eigen::Quaterniond >& quaternionMap,
-                                       std::map< double, Eigen::Matrix3d >& rotationDerivativeMap,
-                                       const std::string& originalFrameOrientation = "ECLIPJ2000",
-                                       const std::string& targetFrameOrientation = "" );
+//    SlerpTabulatedRotationalEphemeris( std::map< double, Eigen::Quaterniond >& quaternionMap,
+//                                       std::map< double, Eigen::Matrix3d >& rotationDerivativeMap,
+//                                       const std::string& originalFrameOrientation = "ECLIPJ2000",
+//                                       const std::string& targetFrameOrientation = "" );
 
-    ~SlerpTabulatedRotationalEphemeris( ){ }
+//    ~SlerpTabulatedRotationalEphemeris( ){ }
 
-    //! Function to reset the tabulated quaternion values.
-    /*!
-     *  Function to reset the tabulated quaternion value map, with time values as key. The map is split into two vectors by the constructor
-     *  to facilitate the interpolation.
-     *  \param quaternionMap Map of quaternions, denoting the rotation from the local(target) to the inertial(original) frame, with keys
-     *  denoting the times of teh rotations.
-     */
-    void reset( const std::map< double, Eigen::Quaterniond >& quaternionMap );
+//    //! Function to reset the tabulated quaternion values.
+//    /*!
+//     *  Function to reset the tabulated quaternion value map, with time values as key. The map is split into two vectors by the constructor
+//     *  to facilitate the interpolation.
+//     *  \param quaternionMap Map of quaternions, denoting the rotation from the local(target) to the inertial(original) frame, with keys
+//     *  denoting the times of teh rotations.
+//     */
+//    void reset( const std::map< double, Eigen::Quaterniond >& quaternionMap );
 
-    //! Function to calculate the rotation quaternion from target frame to original frame.
-    /*!
-     *  Function to calculate the rotation quaternion from target frame to original frame at specified time. Note that the input quaternions to
-     *  the constructor or the reset function tabulate the rotation calculated by this function, not the inverse getRotationToTargetFrame function.
-     *  \param ephemerisTime Time at which rotation is to be calculated.
-     *  \return Rotation from target (typically local) to original (typically global) frame at specified time.
-     */
-    Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime );
+//    //! Function to calculate the rotation quaternion from target frame to original frame.
+//    /*!
+//     *  Function to calculate the rotation quaternion from target frame to original frame at specified time. Note that the input quaternions to
+//     *  the constructor or the reset function tabulate the rotation calculated by this function, not the inverse getRotationToTargetFrame function.
+//     *  \param ephemerisTime Time at which rotation is to be calculated.
+//     *  \return Rotation from target (typically local) to original (typically global) frame at specified time.
+//     */
+//    Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime );
 
-    Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch )
-    {
-        return getRotationToBaseFrame( secondsSinceEpoch ).inverse( );
-    }
+//    Eigen::Quaterniond getRotationToTargetFrame(
+//            const double secondsSinceEpoch )
+//    {
+//        return getRotationToBaseFrame( secondsSinceEpoch ).inverse( );
+//    }
 
-    //! Function to calculate the time derivative of the rotation matrix from target frame to original frame at specified time.
-    /*!
-     *  Function to calculate the time derivative of the rotation matrix from target frame to original frame at specified time.
-     */
-    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
-    {
-        if( rotationMatrixDerivativeInterpolator_ == NULL )
-        {
-            std::cerr<<"Error, derivative of tabulated rotation not yet implemented"<<std::endl;
-            return Eigen::Matrix3d::Zero( );
-        }
-        else
-        {
-            return rotationMatrixDerivativeInterpolator_->interpolate( ephemerisTime );
-        }
-    }
+//    //! Function to calculate the time derivative of the rotation matrix from target frame to original frame at specified time.
+//    /*!
+//     *  Function to calculate the time derivative of the rotation matrix from target frame to original frame at specified time.
+//     */
+//    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
+//    {
+//        if( rotationMatrixDerivativeInterpolator_ == NULL )
+//        {
+//            std::cerr<<"Error, derivative of tabulated rotation not yet implemented"<<std::endl;
+//            return Eigen::Matrix3d::Zero( );
+//        }
+//        else
+//        {
+//            return rotationMatrixDerivativeInterpolator_->interpolate( ephemerisTime );
+//        }
+//    }
 
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )
-    {
-        return getDerivativeOfRotationToBaseFrame( ephemerisTime ).transpose( );
-    }
+//    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )
+//    {
+//        return getDerivativeOfRotationToBaseFrame( ephemerisTime ).transpose( );
+//    }
 
-    //! Get fraction in tabulated time interval for last call to class
-    /*!
-     *  Get fraction in tabulated time interval for last call to class
-     *  \return Fraction in tabulated time interval for last call to class
-     */
-    double getDifference( )
-    {
-        return quaternionInterpolator_->getPreviousDifference( );
-    }
+//    //! Get fraction in tabulated time interval for last call to class
+//    /*!
+//     *  Get fraction in tabulated time interval for last call to class
+//     *  \return Fraction in tabulated time interval for last call to class
+//     */
+//    double getDifference( )
+//    {
+//        return quaternionInterpolator_->getPreviousDifference( );
+//    }
 
-private:
+//private:
 
-    boost::shared_ptr< interpolators::SlerpInterpolator< double > > quaternionInterpolator_;
+//    boost::shared_ptr< interpolators::SlerpInterpolator< double > > quaternionInterpolator_;
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix3d > > rotationMatrixDerivativeInterpolator_;
+//    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix3d > > rotationMatrixDerivativeInterpolator_;
 
-};
+//};
 
 template< typename StateScalarType, typename TimeType >
 class TabulatedRotationalEphemeris : public RotationalEphemeris
@@ -164,7 +164,7 @@ public:
 
     Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime )
     {
-        return getRotationToBaseFrame( ephemerisTime ).inverse( );
+        return ( getRotationToBaseFrame( ephemerisTime ) ).inverse( );
     }
 
     Eigen::Vector3d getRotationalVelocityVectorInBaseFrame( const double ephemerisTime )
@@ -187,7 +187,7 @@ public:
 
         return getDerivativeOfRotationMatrixToFrame(
                     ( currentRotationToBaseFrame_.inverse( ) ).toRotationMatrix( ).template cast< double >( ),
-                     currentRotationalVelocityVectorInTargetFrame_.template cast< double >( ) );
+                     ( currentRotationToBaseFrame_ * currentRotationalVelocityVectorInTargetFrame_ ).template cast< double >( ) );
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
