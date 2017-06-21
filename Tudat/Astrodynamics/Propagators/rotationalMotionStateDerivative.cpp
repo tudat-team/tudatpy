@@ -18,7 +18,7 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
 
 Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& currentBodyFixedRotationRate )
 {
-    Eigen::Matrix4d conversionMatrix;
+    Eigen::Matrix4d conversionMatrix = Eigen::Matrix4d::Zero( );
     conversionMatrix( 1, 0 ) = currentBodyFixedRotationRate( 0 );
     conversionMatrix( 2, 0 ) = currentBodyFixedRotationRate( 1 );
     conversionMatrix( 3, 0 ) = currentBodyFixedRotationRate( 2 );
@@ -37,12 +37,21 @@ Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& curre
 
     conversionMatrix( 2, 3 ) = currentBodyFixedRotationRate( 0 );
 
+   // std::cout<<"Matrix: "<<conversionMatrix<<std::endl;
     return 0.5 * ( conversionMatrix );
 }
 
 
 Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQuaternion, const Eigen::Vector3d& currentBodyFixedRotationRate )
 {
+//    std::cout<<( getQuaterionToQuaternionRateMatrix( currentBodyFixedRotationRate ) * currentQuaternion ).transpose( )<<" "<<
+//               currentBodyFixedRotationRate.norm( )<<" "<<currentQuaternion.transpose( )<<" "<<currentBodyFixedRotationRate.transpose( )<<std::endl;
+
+//    std::cout<<"Rot: "<<currentBodyFixedRotationRate<<std::endl;
+//    std::cout<<"Quat: "<<currentQuaternion<<std::endl;
+//    std::cout<<"Der.: "<<getQuaterionToQuaternionRateMatrix( currentBodyFixedRotationRate ) * currentQuaternion<<std::endl;
+
+//    sleep( 10000.0 );
     return getQuaterionToQuaternionRateMatrix( currentBodyFixedRotationRate ) * currentQuaternion;
 }
 

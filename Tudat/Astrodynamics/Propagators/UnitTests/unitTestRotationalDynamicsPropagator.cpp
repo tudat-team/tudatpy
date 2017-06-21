@@ -11,6 +11,8 @@
 
 #include <Eigen/Geometry>
 
+#include "Tudat/Basics/testMacros.h"
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
@@ -55,11 +57,11 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ] = boost::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
-//    bodyMap[ "Mars" ]->setRotationalEphemeris( boost::make_shared< ephemerides::ConstantRotationalEphemeris >(
-//                                                   boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-//                                                   "ECLIPJ2000", "Mars_Fixed" ) );
-//    boost::dynamic_pointer_cast< simulation_setup::CelestialBody >( bodyMap[ "Mars" ] )->setGravityFieldModel(
-//                boost::make_shared< gravitation::GravityFieldModel >( spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
+    //    bodyMap[ "Mars" ]->setRotationalEphemeris( boost::make_shared< ephemerides::ConstantRotationalEphemeris >(
+    //                                                   boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+    //                                                   "ECLIPJ2000", "Mars_Fixed" ) );
+    //    boost::dynamic_pointer_cast< simulation_setup::CelestialBody >( bodyMap[ "Mars" ] )->setGravityFieldModel(
+    //                boost::make_shared< gravitation::GravityFieldModel >( spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
     bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
     Eigen::Vector6d phobosInitialStateInKeplerianElements;
     phobosInitialStateInKeplerianElements[ semiMajorAxisIndex ] = phobosSemiMajorAxis;
@@ -123,28 +125,28 @@ Eigen::Vector3d calculateEulerAngleRatesByNumericalDifference(
         const double evaluationTime,
         const double timeStep )
 {
-   Eigen::Matrix3d upPerturbedRotationMatrix = rotationalModel->getRotationToBaseFrame( evaluationTime + timeStep ).toRotationMatrix( );
-   Eigen::Vector3d upPerturbedEulerAngles = upPerturbedRotationMatrix.eulerAngles( 2, 0, 2 );
+    Eigen::Matrix3d upPerturbedRotationMatrix = rotationalModel->getRotationToBaseFrame( evaluationTime + timeStep ).toRotationMatrix( );
+    Eigen::Vector3d upPerturbedEulerAngles = upPerturbedRotationMatrix.eulerAngles( 2, 0, 2 );
 
-   Eigen::Matrix3d downPerturbedRotationMatrix = rotationalModel->getRotationToBaseFrame( evaluationTime - timeStep ).toRotationMatrix( );
-   Eigen::Vector3d downPerturbedEulerAngles = downPerturbedRotationMatrix.eulerAngles( 2, 0, 2 );
+    Eigen::Matrix3d downPerturbedRotationMatrix = rotationalModel->getRotationToBaseFrame( evaluationTime - timeStep ).toRotationMatrix( );
+    Eigen::Vector3d downPerturbedEulerAngles = downPerturbedRotationMatrix.eulerAngles( 2, 0, 2 );
 
-   Eigen::Vector3d angleRates = ( upPerturbedEulerAngles - downPerturbedEulerAngles ) / ( 2.0 * timeStep );
+    Eigen::Vector3d angleRates = ( upPerturbedEulerAngles - downPerturbedEulerAngles ) / ( 2.0 * timeStep );
 
-   // Check domain flip
-   if( std::fabs( upPerturbedEulerAngles( 2 ) - downPerturbedEulerAngles( 2 ) ) > 6.0 )
-   {
-       if( upPerturbedEulerAngles( 2 ) > downPerturbedEulerAngles( 2 ) )
-       {
-           angleRates( 2 ) = ( upPerturbedEulerAngles( 2 )  - 2.0 * mathematical_constants::PI - downPerturbedEulerAngles( 2 ) ) / ( 2.0 * timeStep );
-       }
-       else
-       {
-           angleRates( 2 ) = ( upPerturbedEulerAngles( 2 ) - ( downPerturbedEulerAngles( 2 ) - 2.0 * mathematical_constants::PI ) ) / ( 2.0 * timeStep );
+    // Check domain flip
+    if( std::fabs( upPerturbedEulerAngles( 2 ) - downPerturbedEulerAngles( 2 ) ) > 6.0 )
+    {
+        if( upPerturbedEulerAngles( 2 ) > downPerturbedEulerAngles( 2 ) )
+        {
+            angleRates( 2 ) = ( upPerturbedEulerAngles( 2 )  - 2.0 * mathematical_constants::PI - downPerturbedEulerAngles( 2 ) ) / ( 2.0 * timeStep );
+        }
+        else
+        {
+            angleRates( 2 ) = ( upPerturbedEulerAngles( 2 ) - ( downPerturbedEulerAngles( 2 ) - 2.0 * mathematical_constants::PI ) ) / ( 2.0 * timeStep );
 
-       }
-   }
-   return angleRates;
+        }
+    }
+    return angleRates;
 }
 
 BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
@@ -158,146 +160,235 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
-    double phobosSemiMajorAxis = 9376.0E3;
-
-    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3 );
-
-    double initialEphemerisTime = 1.0E7;
-    double finalEphemerisTime = initialEphemerisTime + 10.0 * 86400.0;
-
-    // Set accelerations between bodies that are to be taken into account.
-    SelectedTorqueMap torqueMap;
-    std::vector< std::string > bodiesToIntegrate;
-    bodiesToIntegrate.push_back( "Phobos" );
-
-    double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) /
-                                   std::pow( phobosSemiMajorAxis, 3.0 ) );
-
-    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
-    systemInitialState( 0 ) = 1.0;
-    systemInitialState( 6 ) = meanMotion;
-
-    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap );
-
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( rungeKuttaVariableStepSize,
-              initialEphemerisTime, 30.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78,
-              2.0, 30.0, 1.0E-13, 1.0E-13 );
-
-    boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< RotationalStatePropagatorSettings< double > >
-            ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
-                  finalEphemerisTime ) );
-
-    SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true );
-
-    boost::shared_ptr< RotationalEphemeris > phobosEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
-
-    double startTime = initialEphemerisTime;
-    double endTime = finalEphemerisTime - 3600.0;
-    double currentTime = startTime;
-
-    boost::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
-
-    Eigen::Vector3d currentRotationalVelocity;
-    Eigen::Matrix3d currentRotationMatrix;
-    Eigen::Matrix3d currentRotationMatrixDerivative, currentIndirectRotationMatrixDerivative;
-
-    std::cout<<"Propagated"<<std::endl;
-
-    double timeStep = ( endTime - startTime ) / 20.0;
-    while ( currentTime < endTime )
+    for( unsigned axisCase = 0; axisCase < 3; axisCase++ )
     {
-        double currentAngle = meanMotion * ( currentTime - initialEphemerisTime );
+        std::cout<<"Axis case: "<<axisCase<<std::endl;
+        double phobosSemiMajorAxis = 9376.0E3;
 
-        currentRotationMatrix = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 0, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 1, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 2 ), 1.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 1 ), 0.0 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 0, 0 ) - std::cos( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 1, 1 ) - std::cos( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 0, 1 ) - std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 1, 0 ) + std::sin( currentAngle ) ), 1.0E-10 );
+        NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3 );
 
-        currentRotationMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 0, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 1, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 2 ), 1.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrix( 2, 1 ), 0.0 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 0, 0 ) - std::cos( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 1, 1 ) - std::cos( currentAngle ) ), 1.0E-10);
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 1, 0 ) - std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrix( 0, 1 ) + std::sin( currentAngle ) ), 1.0E-10 );
+        double initialEphemerisTime = 1.0E7;
+        double finalEphemerisTime = initialEphemerisTime + 10.0 * 86400.0;
 
-        currentRotationMatrixDerivative = phobosRotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 0, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 1, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 1 ), 0.0 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 0, 0 ) / meanMotion + std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 1, 1 ) / meanMotion + std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 0, 1 ) / meanMotion - std::cos( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 1, 0 ) / meanMotion + std::cos( currentAngle ) ), 1.0E-10 );
+        // Set accelerations between bodies that are to be taken into account.
+        SelectedTorqueMap torqueMap;
+        std::vector< std::string > bodiesToIntegrate;
+        bodiesToIntegrate.push_back( "Phobos" );
 
-        currentRotationMatrixDerivative = phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 0, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 1, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 2 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationMatrixDerivative( 2, 1 ), 0.0 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 0, 0 ) / meanMotion + std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 1, 1 ) / meanMotion + std::sin( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 1, 0 ) / meanMotion - std::cos( currentAngle ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( 0, 1 ) / meanMotion + std::cos( currentAngle ) ), 1.0E-10 );
+        double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) /
+                                       std::pow( phobosSemiMajorAxis, 3.0 ) );
 
-        currentIndirectRotationMatrixDerivative = getDerivativeOfRotationMatrixToFrame(
-                    phobosRotationalEphemeris->getRotationToBaseFrame( currentTime ).toRotationMatrix( ),
-                    phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime ) );
+        Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+                reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                    0.2, 0.0 );
+        Eigen::Matrix3d initialRotationMatrixToBaseFrame = initialRotation.toRotationMatrix( );
+        Eigen::Matrix3d initialRotationMatrixToTargetFrame = initialRotationMatrixToBaseFrame.transpose( );
 
-        for( unsigned int i = 0; i < 3; i++ )
+        Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
+        systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                    initialRotation );
+        systemInitialState( 4 + axisCase ) = meanMotion;
+
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                    bodyMap, torqueMap );
+
+        boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
+                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                ( rungeKuttaVariableStepSize,
+                  initialEphemerisTime, 30.0,
+                  RungeKuttaCoefficients::rungeKuttaFehlberg78,
+                  2.0, 30.0, 1.0E-13, 1.0E-13 );
+
+        boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+                boost::make_shared< RotationalStatePropagatorSettings< double > >
+                ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
+                      finalEphemerisTime ) );
+
+        SingleArcDynamicsSimulator< double > dynamicsSimulator(
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true );
+
+        boost::shared_ptr< RotationalEphemeris > phobosEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
+
+        double startTime = initialEphemerisTime;
+        double endTime = finalEphemerisTime - 3600.0;
+        double currentTime = startTime;
+
+        boost::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
+
+        Eigen::Vector3d currentRotationalVelocityInTargetFrame, currentRotationalVelocityInBaseFrame;
+        Eigen::Vector3d expectedRotationalVelocityVectorInBaseFrame,
+                expectedRotationalVelocityVectorInTargetFrame = Eigen::Vector3d::Zero( );
+        expectedRotationalVelocityVectorInTargetFrame( axisCase ) = meanMotion;
+
+        Eigen::Matrix3d currentRotationMatrixToTargetFrame, currentRotationMatrixToBaseFrame;
+        Eigen::Matrix3d expectedRotationMatrixToTargetFrame, expectedRotationMatrixToBaseFrame;
+
+        Eigen::Matrix3d currentRotationMatrixDerivativeToTargetFrame, currentRotationMatrixDerivativeToBaseFrame, currentIndirectRotationMatrixDerivative;
+        Eigen::Matrix3d expectedRotationMatrixDerivativeToTargetFrame, expectedRotationMatrixDerivativeToBaseFrame;
+
+        Eigen::Matrix3d expectedRotationToTargetFrameFromInitialRotation, expectedRotationToBaseFrameFromInitialRotation;
+
+        double timeStep = 600.0;//( endTime - startTime ) / 20.0;
+        while ( currentTime < endTime )
         {
-            for( unsigned int j = 0; j < 3; j++ )
+            double currentAngle = meanMotion * ( currentTime - initialEphemerisTime );
+
+            Eigen::Vector3d rotationAxis;
+            if( axisCase == 0 )
             {
-                BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivative( i, j ) -
-                                              currentIndirectRotationMatrixDerivative( i, j ) ), 1.0E-18 );
+                rotationAxis = Eigen::Vector3d::UnitX( );
             }
+            else if( axisCase == 1 )
+            {
+                rotationAxis = Eigen::Vector3d::UnitY( );
+            }
+            else if( axisCase == 2 )
+            {
+                rotationAxis = Eigen::Vector3d::UnitZ( );
+            }
+
+            Eigen::Matrix3d baseRotationToTargetFrame =
+                    Eigen::AngleAxisd( -1.0 * currentAngle, rotationAxis ).toRotationMatrix( );
+
+            currentRotationMatrixToTargetFrame = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime );
+            expectedRotationToTargetFrameFromInitialRotation =
+                    baseRotationToTargetFrame * initialRotationMatrixToTargetFrame;
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( currentRotationMatrixToTargetFrame( i, j ) -
+                                           expectedRotationToTargetFrameFromInitialRotation( i, j ) ), 1.0E-10 );
+                }
+            }
+
+            currentRotationMatrixToBaseFrame = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime );
+            expectedRotationToBaseFrameFromInitialRotation =
+                    initialRotationMatrixToBaseFrame * baseRotationToTargetFrame.transpose( );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( currentRotationMatrixToBaseFrame( i, j ) -
+                                           expectedRotationToBaseFrameFromInitialRotation( i, j ) ), 1.0E-10 );
+                }
+            }
+
+
+            currentRotationMatrixDerivativeToTargetFrame = phobosRotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime );
+            Eigen::Matrix3d premultiplierMatrix;
+
+            if( axisCase == 0 )
+            {
+                premultiplierMatrix = reference_frames::X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER;
+            }
+            else if( axisCase == 1 )
+            {
+                premultiplierMatrix = reference_frames::Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER ;
+            }
+            else if( axisCase == 2 )
+            {
+                premultiplierMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER ;
+            }
+
+
+            expectedRotationMatrixDerivativeToTargetFrame =
+                     meanMotion * premultiplierMatrix * baseRotationToTargetFrame *
+                    initialRotationMatrixToTargetFrame;
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( currentRotationMatrixDerivativeToTargetFrame( i, j ) -
+                                           expectedRotationMatrixDerivativeToTargetFrame( i, j ) ), meanMotion * 1.0E-10 );
+                }
+            }
+
+            currentRotationMatrixDerivativeToBaseFrame = phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime );
+            expectedRotationMatrixDerivativeToBaseFrame = expectedRotationMatrixDerivativeToTargetFrame.transpose( );
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( currentRotationMatrixDerivativeToBaseFrame( i, j ) -
+                                           expectedRotationMatrixDerivativeToBaseFrame( i, j ) ), meanMotion * 1.0E-10 );
+                }
+            }
+
+            currentRotationalVelocityInTargetFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInTargetFrame( currentTime );
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInTargetFrame( 0 ) - expectedRotationalVelocityVectorInTargetFrame( 0 ) ),
+                               meanMotion * 1.0E-15 );
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInTargetFrame( 1 ) - expectedRotationalVelocityVectorInTargetFrame( 1 ) ),
+                               meanMotion * 1.0E-15 );
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInTargetFrame( 2 ) - expectedRotationalVelocityVectorInTargetFrame( 2 ) ),
+                               meanMotion * 1.0E-15 );
+
+
+            currentRotationalVelocityInBaseFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime );
+            expectedRotationalVelocityVectorInBaseFrame =
+                    currentRotationMatrixToBaseFrame * expectedRotationalVelocityVectorInTargetFrame;
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInBaseFrame( 0 ) - expectedRotationalVelocityVectorInBaseFrame( 0 ) ),
+                               meanMotion * 1.0E-15 );
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInBaseFrame( 1 ) - expectedRotationalVelocityVectorInBaseFrame( 1 ) ),
+                               meanMotion * 1.0E-15 );
+            BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInBaseFrame( 2 ) - expectedRotationalVelocityVectorInBaseFrame( 2 ) ),
+                               meanMotion * 1.0E-15 );
+
+            currentTime += timeStep;
         }
 
-        std::cout<<currentRotationMatrixDerivative<<std::endl<<currentIndirectRotationMatrixDerivative<<std::endl<<std::endl;
+        Eigen::Matrix3d numericalRotationMatrixDerivativeToBaseFrame, numericalRotationMatrixDerivativeToTargetFrame;
+        Eigen::Matrix3d upperturbedMatrix, downperturbedMatrix;
 
-        currentRotationalVelocity = phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 1 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 2 ), meanMotion );
+        double timePerturbation = 0.1;
+        currentTime = startTime + timeStep;
+        while ( currentTime < endTime )
+        {
+            currentRotationMatrixDerivativeToBaseFrame = phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime );
+            currentRotationMatrixDerivativeToTargetFrame = phobosRotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime );
 
-        currentRotationalVelocity = phobosRotationalEphemeris->getRotationalVelocityVectorInTargetFrame( currentTime );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 0 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 1 ), 0.0 );
-        BOOST_CHECK_EQUAL( currentRotationalVelocity( 2 ), meanMotion );
+            upperturbedMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime + timePerturbation ).toRotationMatrix( );
+            downperturbedMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime - timePerturbation ).toRotationMatrix( );
+            numericalRotationMatrixDerivativeToBaseFrame = ( upperturbedMatrix - downperturbedMatrix ) / ( 2.0 * timePerturbation );
 
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( numericalRotationMatrixDerivativeToBaseFrame( i, j ) -
+                                           currentRotationMatrixDerivativeToBaseFrame( i, j ) ), 1.0E-12 );
+                }
+            }
 
-        currentTime += timeStep;
+            upperturbedMatrix = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime + timePerturbation ).toRotationMatrix( );
+            downperturbedMatrix = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime - timePerturbation ).toRotationMatrix( );
+            numericalRotationMatrixDerivativeToTargetFrame = ( upperturbedMatrix - downperturbedMatrix ) / ( 2.0 * timePerturbation );
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                for( unsigned int j = 0; j < 3; j++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs( numericalRotationMatrixDerivativeToTargetFrame( i, j ) -
+                                           currentRotationMatrixDerivativeToTargetFrame( i, j ) ), 1.0E-12 );
+                }
+            }
+
+            currentTime += timeStep;
+
+        }
     }
 }
 
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 {
-//    Eigen::Matrix3d eulerAngleRotationMatrix =
-//            ( Eigen::AngleAxisd( 0.2, Eigen::Vector3d::UnitY( ) ) *
-//            Eigen::AngleAxisd( -0.4, Eigen::Vector3d::UnitX( ) ) *
-//            Eigen::AngleAxisd( 0.5, Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( );
-
-//    Eigen::Vector3d eulerAngles = eulerAngleRotationMatrix.eulerAngles( 1, 0, 2 );
-//    std::cout<<eulerAngles<<std::endl;
-//    sleep( 10000.0 );
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
@@ -323,12 +414,13 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
     std::cout<<"Mean motion: "<<meanMotion<<std::endl;
 
     Eigen::Quaterniond nominalInitialRotation = Eigen::Quaterniond( 1.0, 0.0, 0.0, 0.0 );
-    double initialObliquity = 10.0 * mathematical_constants::PI / 180.0;
+    double initialObliquity = 0.0 * mathematical_constants::PI / 180.0;
 
     Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
                 Eigen::AngleAxisd( -initialObliquity, Eigen::Vector3d::UnitX( ) ) * nominalInitialRotation );
-    systemInitialState( 4 ) = 0.1 * meanMotion;
+    double initialXAngularVelocity = 0.1 * meanMotion;
+    systemInitialState( 4 ) = initialXAngularVelocity;
     systemInitialState( 5 ) = 0.0 * meanMotion;
     systemInitialState( 6 ) = meanMotion;
 
@@ -340,7 +432,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
             ( rungeKuttaVariableStepSize,
               initialEphemerisTime, 60.0,
               RungeKuttaCoefficients::rungeKuttaFehlberg78,
-              30.0, 300.0, 1.0E-13, 1.0E-13 );
+              30.0, 300.0, 1.0E-14, 1.0E-14 );
 
     boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< RotationalStatePropagatorSettings< double > >
@@ -348,7 +440,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                   finalEphemerisTime ) );
 
     SingleArcDynamicsSimulator< double > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true );
+                bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
     boost::shared_ptr< RotationalEphemeris > phobosEphemeris = bodyMap.at( "Phobos" )->getRotationalEphemeris( );
 
@@ -358,39 +450,66 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
     boost::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
 
-    Eigen::Vector3d currentRotationalVelocity;
-    Eigen::Matrix3d currentRotationMatrix;
-    Eigen::Matrix3d currentRotationMatrixDerivative, currentIndirectRotationMatrixDerivative;
+    Eigen::Vector3d currentRotationalVelocityInBaseFrame, currentRotationalVelocityInTargetFrame, indirectRotationalVelocityInBaseFrame;
+    Eigen::Matrix3d currentRotationMatrixToBaseFrame, currentRotationMatrixToTargetFrame;
+    Eigen::Matrix3d currentRotationMatrixDerivativeToBaseFrame, currentRotationMatrixDerivativeToTargetFrame;
+    Eigen::Matrix3d numericalRotationMatrixDerivativeToBaseFrame, numericalRotationMatrixDerivativeToTargetFrame;
+
     Eigen::Vector3d eulerAngles, calculatedEulerAngleRates, expectedEulerAngleRates;
+    Eigen::Matrix3d upperturbedMatrix, downperturbedMatrix;
 
     double eulerFrequency = ( 0.5024 - 0.4265 ) / 0.4265 * meanMotion;
     double eulerPhase = 0.0;
     double timeStep = ( endTime - startTime ) / 20.0;
+
+    double timePerturbation = 0.1;
     while ( currentTime < endTime )
     {
         double currentAngle = meanMotion * ( currentTime - initialEphemerisTime );
 
-        currentRotationalVelocity = phobosRotationalEphemeris->getRotationalVelocityVectorInTargetFrame( currentTime );\
+        currentRotationalVelocityInTargetFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInTargetFrame( currentTime );
 
-        std::cout<<currentTime<<" "<<currentRotationalVelocity.transpose( )<<std::endl;
+        BOOST_CHECK_SMALL( currentRotationalVelocityInTargetFrame( 0 ) - initialXAngularVelocity * std::cos( eulerFrequency * ( currentTime - initialEphemerisTime ) ), 1.0E-15 );
+        BOOST_CHECK_SMALL( currentRotationalVelocityInTargetFrame( 1 ) - initialXAngularVelocity * std::sin( eulerFrequency * ( currentTime - initialEphemerisTime ) ), 1.0E-15 );
+        BOOST_CHECK_CLOSE_FRACTION( currentRotationalVelocityInTargetFrame( 2 ), meanMotion, 1.0E-15 );
 
-        BOOST_CHECK_SMALL( currentRotationalVelocity( 0 ) - 0.1 * meanMotion * std::cos( eulerFrequency * ( currentTime - initialEphemerisTime ) ), 1.0E-18 );
-        BOOST_CHECK_SMALL( currentRotationalVelocity( 1 ) - 0.1 * meanMotion * std::sin( eulerFrequency * ( currentTime - initialEphemerisTime ) ), 1.0E-18 );
-        BOOST_CHECK_CLOSE_FRACTION( currentRotationalVelocity( 2 ), meanMotion, std::numeric_limits< double >::epsilon( ) );
+        currentRotationMatrixDerivativeToBaseFrame = phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime );
+        currentRotationMatrixDerivativeToTargetFrame = phobosRotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime );
 
-//        currentRotationMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime );
-//        eulerAngles = currentRotationMatrix.eulerAngles( 2, 0, 2 );
+        upperturbedMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime + timePerturbation ).toRotationMatrix( );
+        downperturbedMatrix = phobosRotationalEphemeris->getRotationToBaseFrame( currentTime - timePerturbation ).toRotationMatrix( );
+        numericalRotationMatrixDerivativeToBaseFrame = ( upperturbedMatrix - downperturbedMatrix ) / ( 2.0 * timePerturbation );
 
-//        calculatedEulerAngleRates = calculateEulerAngleRatesFromEulerAngles(
-//                    eulerAngles, ( currentTime - initialEphemerisTime ), eulerFrequency, meanMotion, 0.1 * meanMotion, 0.0 );
-//        expectedEulerAngleRates = calculateEulerAngleRatesByNumericalDifference(
-//                    phobosRotationalEphemeris, currentTime, 0.5 );
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( numericalRotationMatrixDerivativeToBaseFrame( i, j ) -
+                                       currentRotationMatrixDerivativeToBaseFrame( i, j ) ), 1.0E-12 );
+            }
+        }
 
-//        BOOST_CHECK_SMALL( calculatedEulerAngleRates( 0 ) - expectedEulerAngleRates( 0 ), 1.0E-11 );
-//        std::cout<<calculatedEulerAngleRates.transpose( )<<" "<<calculatedEulerAngleRates.norm( )<<std::endl<<
-//                   expectedEulerAngleRates<<" "<<expectedEulerAngleRates.norm( )<<std::endl<<std::endl<<std::endl;
-//        BOOST_CHECK_SMALL( calculatedEulerAngleRates( 1 ) - expectedEulerAngleRates( 1 ), 1.0E-11 );
-//        BOOST_CHECK_SMALL( calculatedEulerAngleRates( 2 ) - expectedEulerAngleRates( 2 ), 1.0E-11 );
+        upperturbedMatrix = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime + timePerturbation ).toRotationMatrix( );
+        downperturbedMatrix = phobosRotationalEphemeris->getRotationToTargetFrame( currentTime - timePerturbation ).toRotationMatrix( );
+        numericalRotationMatrixDerivativeToTargetFrame = ( upperturbedMatrix - downperturbedMatrix ) / ( 2.0 * timePerturbation );
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( numericalRotationMatrixDerivativeToTargetFrame( i, j ) -
+                                       currentRotationMatrixDerivativeToTargetFrame( i, j ) ), 1.0E-12 );
+            }
+        }
+
+//        indirectRotationalVelocityInBaseFrame =
+//                getRotationalVelocityVectorInBaseFrameFromMatrices(
+//                    phobosRotationalEphemeris->getRotationToTargetFrame( currentTime ).toRotationMatrix( ),
+//                    phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
+
+//        currentRotationalVelocityInBaseFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime );
 
         currentTime += timeStep;
     }
