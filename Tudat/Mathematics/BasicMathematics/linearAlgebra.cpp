@@ -22,7 +22,7 @@ namespace tudat
 namespace linear_algebra
 {
 
-
+//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion )
 {
     Eigen::Vector4d vector;

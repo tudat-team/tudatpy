@@ -126,7 +126,9 @@ void checkValidityOfRequiredEnvironmentUpdates(
 }
 
 
-std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+//! Get list of required environment model update settings from torque models.
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;
@@ -134,9 +136,11 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleTorqueUpdateNeeds;
 
+    // Iterate over all bodies on which torques are being exerting
     for( TorqueModelMap::const_iterator acceleratedBodyIterator = torqueModels.begin( );
          acceleratedBodyIterator != torqueModels.end( ); acceleratedBodyIterator++ )
     {
+        // Iterate over all bodies exerting on current body
         for( SingleBodyTorqueModelMap::const_iterator torqueModelIterator = acceleratedBodyIterator->second.begin( );
              torqueModelIterator != acceleratedBodyIterator->second.end( ); torqueModelIterator++ )
         {

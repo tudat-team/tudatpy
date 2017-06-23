@@ -42,6 +42,7 @@ namespace simulation_setup
 class AccelerationSettings
 {
 public:
+
     //! Constructor, sets type of acceleration.
     /*!
      *  Constructor, sets type of acceleration.

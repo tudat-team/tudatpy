@@ -379,17 +379,24 @@ public:
 
 };
 
+//! Class for defining settings for propagating rotational dynamics.
 template< typename StateScalarType = double >
 class RotationalStatePropagatorSettings: public SingleArcPropagatorSettings< StateScalarType >
 {
 public:
 
-    //! Constructor for user-defined central bodies
+    //! Constructor
     /*!
-     *  Constructor for user-defined central bodies.
-     *  \param numberOfBodies Central bodies to use for each of the numerically integrated bodies (in same order as bodiesToIntegrate_)
-     *  in DynamicsSimulator
-     *  \param propagator Type of propagator to use.
+     * Constructor
+     * \param torqueModelMap List of torque models that are to be used in propagation
+     * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     *
      */
     RotationalStatePropagatorSettings( const basic_astrodynamics::TorqueModelMap& torqueModelMap,
                                        const std::vector< std::string >& bodiesToIntegrate,
@@ -402,14 +409,13 @@ public:
                                                         dependentVariablesToSave, printInterval ),
         torqueModelMap_( torqueModelMap ), bodiesToIntegrate_( bodiesToIntegrate ){ }
 
-    //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
+    //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
 
+    //! Tist of torque models that are to be used in propagation
     basic_astrodynamics::TorqueModelMap torqueModelMap_;
 
+    //! List of bodies that are to be propagated numerically.
     std::vector< std::string > bodiesToIntegrate_;
 
 };
