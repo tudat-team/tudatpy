@@ -76,36 +76,6 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 }
 
 
-
-void updateBodyInertiaTensor(
-        const boost::shared_ptr< Body > body,
-        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
-        const Eigen::MatrixXd& unnormalizedSineCoefficients,
-        const double bodyMass,
-        const double referenceRadius )
-{
-    std::cerr<<"Update turned off A "<<std::endl;
-
-//    body->setBodyInertiaTensor( getInertiaTensor(
-//            unnormalizedCosineCoefficients,
-//            unnormalizedSineCoefficients,
-//            bodyMass / ( bodyMass * referenceRadius * referenceRadius ),
-//            bodyMass, referenceRadius ) );
-
-}
-
-void updateBodyInertiaTensor(
-        const boost::shared_ptr< Body > body,
-        const boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField )
-
-{
-    std::cerr<<"Update turned off A "<<std::endl;
-
-//    updateBodyInertiaTensor( body, gravityField->getCosineCoefficients( 2, 2 ), gravityField->getSineCoefficients( 2, 2 ),
-//                             gravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
-//                             gravityField->getReferenceRadius( ) );
-}
-
 } // namespace simulation_setup
 
 } // namespace tudat

@@ -28,6 +28,12 @@ namespace tudat
 namespace linear_algebra
 {
 
+//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+/*!
+ * Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+ * \param quaternion Quaternion that is to be put into vector format.
+ * \return Vector format of input quaternion
+ */
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
 //! Function that returns that 'cross-product matrix'

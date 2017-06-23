@@ -488,6 +488,14 @@ public:
         }
     }
 
+    //! Function to set the full rotational state directly
+    /*!
+     * Function to set the full rotational state  directly (rotation from global to body-fixed frame
+     * rotation matrix derivative from global to body-fixed frame and angular velocity vector in the
+     * global frame) directly, by providing the current rotational state as input.
+     * \param currentRotationalStateFromLocalToGlobalFrame Quaternion from body-fixed to propagation frame
+     * (in vector form) and the body's angular velocity vector in body-fixed frame.
+     */
     void setCurrentRotationalStateToLocalFrame( const Eigen::Matrix< double, 7, 1 > currentRotationalStateFromLocalToGlobalFrame )
     {
         Eigen::Quaterniond currentRotationToGlobalFrame =
@@ -938,25 +946,24 @@ public:
         return currentMass_;
     }
 
+    //! Function to retrieve the body moment-of-inertia tensor.
+    /*!
+     * Function to retrieve the body moment-of-inertia tensor.
+     * \return  Body moment-of-inertia tensor.
+     */
     Eigen::Matrix3d getBodyInertiaTensor( )
     {
         return bodyInertiaTensor_;
     }
 
-    double getMeanMomentOfInertia( )
-    {
-        return meanMomentOfInertia_;
-    }
-
-
+    //! Function to (re)set the body moment-of-inertia tensor.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor.
+     * \param bodyInertiaTensor Body moment-of-inertia tensor.
+     */
     void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
     {
         bodyInertiaTensor_ = bodyInertiaTensor;
-    }
-
-    void setMeanMomentOfInertia( const double meanMomentOfInertia )
-    {
-        meanMomentOfInertia_ = meanMomentOfInertia;
     }
 
     //! Function to add a ground station to the body
@@ -1027,9 +1034,7 @@ protected:
 
 private:
 
-
-    double meanMomentOfInertia_;
-
+    //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
 
 
@@ -1112,17 +1117,6 @@ private:
 };
 
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
-
-void updateBodyInertiaTensor(
-        const boost::shared_ptr< Body > body,
-        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
-        const Eigen::MatrixXd& unnormalizedSineCoefficients,
-        const double bodyMass,
-        const double referenceRadius  );
-
-void updateBodyInertiaTensor(
-        const boost::shared_ptr< Body > body,
-        const boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityField );
 
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(

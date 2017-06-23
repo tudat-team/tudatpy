@@ -442,12 +442,36 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > convertNumericalSol
     return ephemerisTable;
 }
 
-
-
+//! Function to create an interpolator for the new translational state of a body.
+/*!
+ * Function to create an interpolator for the new translational state of a body.
+ * \param stateMap New state history, w.r.t. the required ephemeris origin.
+ * \return Lagrange interpolator (order 6) that produces the required continuous state.
+ */
 template< typename TimeType, typename StateScalarType >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > > createRotationalStateInterpolator(
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+createStateInterpolator(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
+
+//! Function to create an interpolator for the new rotational state of a body.
+/*!
+ * Function to create an interpolator for the new rotational state of a body.
+ * \param stateMap New rotational state history.
+ * \return Lagrange interpolator (order 6) that produces the required continuous rotational state.
+ */
+template< typename TimeType, typename StateScalarType >
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+createRotationalStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap );
 
+
+//! Function to reset the tabulated rotational ephemeris of a body
+/*!
+ * Function to reset the tabulated rotational ephemeris of a body
+ * \param bodyMap List of bodies used in simulations.
+ * \param bodiesToIntegrate List of names of bodies for which rotational state is numerically integrated
+ * \param equationsOfMotionNumericalSolution New rotational state history that is to be set
+ */
 template< typename TimeType, typename StateScalarType >
 void createAndSetInterpolatorsForRotationalEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -460,14 +484,23 @@ void createAndSetInterpolatorsForRotationalEphemerides(
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         // Create interpolator.
-        boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > > ephemerisInterpolator =
-                createRotationalStateInterpolator( convertNumericalSolutionToRotationalEphemerisInput( i, equationsOfMotionNumericalSolution ) );
+        boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+                ephemerisInterpolator = createRotationalStateInterpolator(
+                    convertNumericalSolutionToRotationalEphemerisInput( i, equationsOfMotionNumericalSolution ) );
 
         resetIntegratedRotationalEphemerisOfBody( bodyMap, ephemerisInterpolator, bodiesToIntegrate.at( i ) );
     }
 }
 
 
+//! Resets the rotational ephemerides of a set of bodies from the numerical integration results.
+/*!
+ * Resets the rotational ephemerides of a set of bodies from the numerical integration results, and
+ * performs associated computation for ephemeris-dependent environment variables.
+ * \param bodyMap List of bodies used in simulations.
+ * \param equationsOfMotionNumericalSolution Numerical solution of rotational equations of motion
+ * \param bodiesToIntegrate List of names of bodies which are numerically integrated
+ */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedRotationalEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -593,6 +626,7 @@ template< typename TimeType, typename StateScalarType >
 class TranslationalStateIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
+
     //! Constructor.
     /*!
      * Constructor.
@@ -675,20 +709,39 @@ private:
     integrationToEphemerisFrameFunctions_;
 };
 
+//! Class used for processing numerically integrated rotational states
+/*!
+ *  Class used for processing numerically integrated rotational states, updates rotational ephemeris object
+ *  of each integrated body.
+ */
 template< typename TimeType, typename StateScalarType >
 class RotationalStateIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
+
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param startIndex Index in the state vector where the rotational state starts.
+     * \param bodyMap List of bodies used in simulations.
+     * \param bodiesToIntegrate List of bodies for which the rotational state is numerically
+     * integrated. Order in this vector is the same as the order in state vector.
+     */
     RotationalStateIntegratedStateProcessor(
             const int startIndex,
             const simulation_setup::NamedBodyMap& bodyMap,
             const std::vector< std::string >& bodiesToIntegrate ):
         IntegratedStateProcessor< TimeType, StateScalarType >( rotational_state, std::make_pair( startIndex, 7 * bodiesToIntegrate.size( ) ) ),
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
-    {
+    { }
 
-    }
-
+    //! Function processing rotational state in the full numericalSolution
+    /*!
+     * Function that processes the entries of the rotational state in the full numericalSolution,
+     * extracts the states for each body, and updates the associated rotational ephemerides.
+     * \param numericalSolution Full numerical solution, in global representation (see
+     * convertToOutputSolution function in RotationalMotionStateDerivative class.
+     */
     void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
@@ -700,17 +753,21 @@ public:
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
             const std::vector< double >& arcStartTimes )
     {
-        std::cerr<<"Error, cannot yet set multi-arc rotational ephemeris"<<std::endl;
+        throw std::runtime_error( "Error, cannot yet set multi-arc rotational ephemeris" );
     }
 
 private:
+
+    //! List of bodies used in simulations.
     simulation_setup::NamedBodyMap bodyMap_;
 
+    //! List of bodies for which the rotational state is numerically integrated.
+    /*!
+     * List of bodies for which the rotational state is numerically integrated. Order in this
+     * vector is the same as the order in state vector.
+     */
     std::vector< std::string > bodiesToIntegrate_;
 
-    std::vector< std::string > ephemerisUpdateOrder_;
-
-    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > integrationToEphemerisFrameFunctions_;
 };
 
 //! Class used for processing numerically integrated masses of bodies.

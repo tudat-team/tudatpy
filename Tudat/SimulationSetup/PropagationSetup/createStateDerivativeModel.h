@@ -204,13 +204,29 @@ createTranslationalStateDerivativeModel(
     return stateDerivativeModel;
 }
 
+//! Function to create a rotational dynamics state derivative model.
+/*!
+ *  Function to create a rotational dynamics state derivative model from propagation settings and environment.
+ *  \param rotationPropagatorSettings Settings for the rotational dynamics model.
+ *  \param bodyMap List of body objects in the environment
+ *  \param startTime Propagation start time
+ *  \return Rotational dynamics state derivative model.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createRotationalStateDerivativeModel(
         const boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
 {
+    std::vector< boost::function< Eigen::Matrix3d( ) > > momentOfInertiaFunctions;
+    for( unsigned int i = 0; i < rotationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+    {
+        momentOfInertiaFunctions.push_back(
+                    boost::bind( &simulation_setup::Body::getBodyInertiaTensor,
+                                 bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
+    }
     return boost::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
-                rotationPropagatorSettings->torqueModelMap_, bodyMap, rotationPropagatorSettings->bodiesToIntegrate_ );
+                rotationPropagatorSettings->torqueModelMap_, rotationPropagatorSettings->bodiesToIntegrate_,
+                momentOfInertiaFunctions );
 }
 
 
@@ -278,7 +294,8 @@ createStateDerivativeModel(
                 boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( rotationPropagatorSettings == NULL )
         {
-            std::cerr<<"Error, expected rotation state propagation settings when making state derivative model"<<std::endl;
+            throw std::runtime_error(
+                        "Error, expected rotation state propagation settings when making state derivative model" );
         }
         else
         {
