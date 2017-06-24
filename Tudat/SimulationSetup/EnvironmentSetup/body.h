@@ -222,7 +222,8 @@ public:
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-          bodyMassFunction_( NULL )
+          bodyMassFunction_( NULL ),
+          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -503,6 +504,7 @@ public:
                                     currentRotationalStateFromLocalToGlobalFrame( 1 ),
                                     currentRotationalStateFromLocalToGlobalFrame( 2 ),
                                     currentRotationalStateFromLocalToGlobalFrame( 3 ) );
+        currentRotationToGlobalFrame.normalize( );
 
         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
         currentAngularVelocityVectorInGlobalFrame_ =
@@ -511,7 +513,6 @@ public:
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
         currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
                     currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
-
     }
 
     //! Get current rotation from body-fixed to inertial frame.
@@ -1034,11 +1035,6 @@ protected:
 
 private:
 
-    //! Body moment-of-inertia tensor.
-    Eigen::Matrix3d bodyInertiaTensor_;
-
-
-
     //! Current state.
     Eigen::Vector6d currentState_;
 
@@ -1070,6 +1066,10 @@ private:
 
     //! Function returning body mass as a function of time.
     boost::function< double( const double ) > bodyMassFunction_;
+
+
+    //! Body moment-of-inertia tensor.
+    Eigen::Matrix3d bodyInertiaTensor_;
 
 
     //! Ephemeris of body.

@@ -785,6 +785,13 @@ public:
                     bodyMap_, numericalSolution, bodiesToIntegrate_ );
     }
 
+    //! Function processing multi-arc rotational state, resetting bodies' ephemerides with new states
+    /*!
+     * Function processing multi-arc rotational state, resetting bodies' rotational ephemerides with new states in
+     * numericalSolution variable.
+     * \param numericalSolution Vector of numerical solutions (one vector per arc)
+     * \param arcStartTimes List of start times of the propagation arcs.
+     */
     void processIntegratedMultiArcStates(
             const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
             const std::vector< double >& arcStartTimes )
@@ -1075,8 +1082,8 @@ void resetIntegratedStates(
  * \param equationsOfMotionNumericalSolution Solution produced by the numerical integration, in the
  * 'conventional form'. One vector entry contains the data for one arc
  * \sa SingleStateTypeDerivative::convertToOutputSolution
- * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated
- * results into environment
+ * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated results into environment
+ * \param arcStartTimes List of start times of the propagation arcs.
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedMultiArcStatesWithEqualArcDynamics(

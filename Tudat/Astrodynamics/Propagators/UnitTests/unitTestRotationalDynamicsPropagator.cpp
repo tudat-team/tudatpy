@@ -32,6 +32,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
@@ -44,6 +45,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
@@ -59,6 +61,8 @@ using namespace tudat::simulation_setup;
 using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::propagators;
+using namespace tudat::coordinate_conversions;
+using namespace tudat::reference_frames;
 
 NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
                              const bool useSymmetricEquator = 0 )
@@ -68,12 +72,12 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
     bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
-//    Eigen::Vector6d phobosInitialStateInKeplerianElements;
-//    phobosInitialStateInKeplerianElements[ semiMajorAxisIndex ] = phobosSemiMajorAxis;
-//    phobosInitialStateInKeplerianElements[ eccentricityIndex ] = 0.015;
+    //    Eigen::Vector6d phobosInitialStateInKeplerianElements;
+    //    phobosInitialStateInKeplerianElements[ semiMajorAxisIndex ] = phobosSemiMajorAxis;
+    //    phobosInitialStateInKeplerianElements[ eccentricityIndex ] = 0.015;
 
-//    bodyMap[ "Phobos" ]->setEphemeris( boost::make_shared< ephemerides::KeplerEphemeris >(
-//                                           phobosInitialStateInKeplerianElements, 1.0E7, getBodyGravitationalParameter( "Mars" ) ) );
+    //    bodyMap[ "Phobos" ]->setEphemeris( boost::make_shared< ephemerides::KeplerEphemeris >(
+    //                                           phobosInitialStateInKeplerianElements, 1.0E7, getBodyGravitationalParameter( "Mars" ) ) );
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
     phobosInertiaTensor( 1, 1 ) = 0.4265;
@@ -186,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
         double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) / std::pow( phobosSemiMajorAxis, 3.0 ) );
 
         // Define initial rotational state
-        Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+        Eigen::Quaterniond initialRotation =
         reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
                     0.2, 0.7 );
         Eigen::Matrix3d initialRotationMatrixToBaseFrame = initialRotation.toRotationMatrix( );
@@ -200,6 +204,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
                     bodyMap, torqueMap );
 
+        // Define propagator settings.
+        boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+                boost::make_shared< RotationalStatePropagatorSettings< double > >
+                ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
+                      finalEphemerisTime ) );
+
         // Define integrator settings.
         boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                 boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
@@ -208,11 +218,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                   RungeKuttaCoefficients::rungeKuttaFehlberg78,
                   2.0, 30.0, 1.0E-13, 1.0E-13 );
 
-        // Define propagator settings.
-        boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< RotationalStatePropagatorSettings< double > >
-                ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
-                      finalEphemerisTime ) );
+
 
         // Propagate dynamics
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -502,8 +508,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
     Eigen::Matrix3d numericalRotationMatrixDerivativeToBaseFrame, numericalRotationMatrixDerivativeToTargetFrame;
     Eigen::Matrix3d upperturbedMatrix, downperturbedMatrix;
 
-//    Eigen::Vector3d eulerAngles, calculatedEulerAngleRates, expectedEulerAngleRates;
-//    double eulerPhase = 0.0;
+    //    Eigen::Vector3d eulerAngles, calculatedEulerAngleRates, expectedEulerAngleRates;
+    //    double eulerPhase = 0.0;
 
     // Compare expected and true rotational state for list of times
     double startTime = initialEphemerisTime + 3600.0;
@@ -594,6 +600,230 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
         }
 
         currentTime += timeStep;
+    }
+}
+
+//! Perform concurrent rotational and translational dynamics, with aerodynamic force and torque-free rotational motion, and
+//! check if aerodynamic angles and force coefficients are indeed taken from propagated rotation.
+BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
+{
+
+    // Load Spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 3100.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 1.0;
+
+    // Define simulation body settings.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
+                                    simulationEndEpoch + 10.0 * fixedStepSize );
+    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+
+    // Create Earth object
+    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
+
+    // Create vehicle aerodynamic coefficients
+    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+                unit_tests::getApolloCoefficientInterface( ) );
+    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+    Eigen::Matrix3d inertiaTensor = Eigen::Matrix3d::Zero( );
+    inertiaTensor( 0, 0 ) = 0.3615;
+    inertiaTensor( 1, 1 ) = 0.4265;
+    inertiaTensor( 2, 2 ) = 0.5024;
+
+    inertiaTensor *= (25.0 * 5.0E3 );
+    bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
+    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+
+    bodiesToPropagate.push_back( "Apollo" );
+    centralBodies.push_back( "Earth" );
+
+    // Create acceleration models
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Set spherical elements for Apollo.
+    Eigen::Vector6d apolloSphericalEntryState;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+            spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
+            -1.2 * mathematical_constants::PI / 180.0;
+    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
+
+    // Convert apollo state from spherical elements to Cartesian elements.
+    Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
+                apolloSphericalEntryState );
+
+    boost::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
+            bodyMap.at( "Earth" )->getRotationalEphemeris( );
+    systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
+
+    // Define list of dependent variables to save.
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::latitude_angle ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::longitude_angle ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::heading_angle ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::flight_path_angle ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_attack ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::angle_of_sideslip ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Apollo", reference_frames::bank_angle   ) );
+    dependentVariablesList.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+
+    // Create object with list of dependent variables
+    boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
+
+    // Define termination conditions
+    boost::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
+            boost::make_shared< SingleDependentVariableSaveSettings >(
+                altitude_dependent_variable, "Apollo", "Earth" );
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            //        boost::make_shared< PropagationTimeTerminationSettings >( 3.0 );
+            boost::make_shared< PropagationDependentVariableTerminationSettings >(
+                terminationDependentVariable, 25.0E3, true );
+
+
+    // Define initial rotational state
+    Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+    reference_frames::getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                0.2, 0.7 );
+    Eigen::Matrix3d initialRotationMatrixToBaseFrame = initialRotation.toRotationMatrix( );
+    Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
+    systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                initialRotation );
+    systemInitialRotationalState( 4 ) = 1.0E-4;
+
+    // Create torque models
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                bodyMap, SelectedTorqueMap( ) );
+
+    // Define propagator settings.
+    boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+            boost::make_shared< RotationalStatePropagatorSettings< double > >
+            ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings );
+
+    // Create propagation settings.
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              terminationSettings, cowell );
+
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+    propagatorSettingsList.push_back( translationalPropagatorSettings );
+    propagatorSettingsList.push_back( rotationalPropagatorSettings );
+
+    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
+                propagatorSettingsList, terminationSettings, dependentVariablesToSave );
+
+
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+
+    // Define test variables
+    double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
+            currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
+    Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation, currentLVLHToTrajectoryFrameRotation,
+            currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
+            currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
+    Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
+    boost::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
+
+    // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix
+    for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
+         variableIterator != dependentVariableHistory.end( ); variableIterator++ )
+    {
+        // Retrieve saved angles
+        currentLatitude = variableIterator->second( 0 );
+        currentLongitude = variableIterator->second( 1 );
+        currentHeadingAngle = variableIterator->second( 2 );
+        currentFlightPathAngle = variableIterator->second( 3 );
+        currentAngleOfAttack = variableIterator->second( 4 );
+        currentSideslipAngle = variableIterator->second( 5 );
+        currentBankAngle = variableIterator->second( 6 );
+
+        // Compute matrices from angles
+        currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
+        currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                    currentLongitude, currentLatitude );
+        currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+                    currentFlightPathAngle, currentHeadingAngle );
+        currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                    currentBankAngle );
+        currentAerodynamicToBodyFixesFrameRotation = getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+                    currentAngleOfAttack, currentSideslipAngle );
+
+        currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation * currentTrajectoryToAerodynamicFrameRotation *
+                currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation * currentInertialToBodyFixedFrameRotation;
+
+        // Compure expected rotation angle and rotation matrix
+        currentRotationAngle = systemInitialRotationalState( 4 ) * variableIterator->first;
+        expectedInertialToBodyFixedFrame =
+                Eigen::AngleAxisd( -1.0 * currentRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+
+        // Compare expected and actual rotation matrices
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( expectedInertialToBodyFixedFrame( i, j ) -
+                                       currentInertialToBodyFixedFrame( i, j ) ), 1.0E-13 );
+            }
+        }
     }
 }
 
