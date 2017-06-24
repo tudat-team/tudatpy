@@ -38,6 +38,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Base class for defining propagation settings, derived classes split into settings for single- and multi-arc dynamics
 template< typename StateScalarType = double >
 class PropagatorSettings
 {
@@ -110,10 +111,10 @@ protected:
     bool isMultiArc_;
 };
 
-//! Base class for defining setting of a propagator
+//! Base class for defining setting of a propagator for single-arc dynamics
 /*!
- *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
- *  own derived class (which may have multiple derived classes of its own).
+ *  Base class for defining setting of a propagator for single-arc dynamics. This class is non-functional, and each state type
+ *  requires its own derived class (which may have multiple derived classes of its own).
  */
 template< typename StateScalarType = double >
 class SingleArcPropagatorSettings: public PropagatorSettings< StateScalarType >
@@ -161,11 +162,16 @@ public:
     {
         return terminationSettings_;
     }
+
+    //! Function to reset settings for creating the object that checks whether the propagation is finished.
+    /*!
+     * Function to reset settings for creating the object that checks whether the propagation is finished.
+     * \param terminationSettings New settings for creating the object that checks whether the propagation is finished.
+     */
     void resetTerminationSettings( const boost::shared_ptr< PropagationTerminationSettings > terminationSettings )
     {
         terminationSettings_ = terminationSettings;
     }
-
 
     //! Function to retrieve settings for the dependent variables that are to be saved during propagation (default none).
     /*!
@@ -207,6 +213,14 @@ protected:
 };
 
 
+//! Function to get the total size of multi-arc initial state vector
+/*!
+ *  Function to get the total size of multi-arc initial state vector, e.g. the size of the single-arc initial states, concatenated
+ *  into a single vector
+ *  \param singleArcPropagatorSettings ist of single-arc propagation settings for which the concatenated initial state size is to
+ *  be determined.
+ *  \return Total size of multi-arc initial state vector
+ */
 template< typename StateScalarType = double >
 int getConcatenatedStateSize(
        const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
@@ -221,16 +235,25 @@ int getConcatenatedStateSize(
     return vectorSize;
 }
 
+//! Function to concatenate the initial states for a list of single-arc propagations into a single list
+/*!
+ *  Function to concatenate the initial states for a list of single-arc propagations into a single list
+ *  \param singleArcPropagatorSettings List of single-arc propagation settings for which the initial states are to be
+ *  concatenated into a single vector
+ *  \return Vector with concatenated initial states from singleArcPropagatorSettings.
+ */
 template< typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getConcatenatedInitialStates(
        const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
 {
+    // Define size of return vector
     int vectorSize = getConcatenatedStateSize( singleArcPropagatorSettings );
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( vectorSize );
+
+    // Retrieve single-arc initial states arc-by-arac
     int currentIndex = 0;
     int currentBlockSize = 0;
-
     for( unsigned int i = 0; i < singleArcPropagatorSettings.size( ); i++ )
     {
         currentBlockSize = singleArcPropagatorSettings.at( i )->getStateSize( );
@@ -241,10 +264,21 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getConcatenatedInitialStates
     return initialStates;
 }
 
+//! Class for defining setting of a propagator for multi-arc dynamics
+/*!
+ *  Base class for defining setting of a propagator for multi-arc dynamics. This class contains single-arc propagator settings
+ *  for each arc.
+ */
 template< typename StateScalarType = double >
 class MultiArcPropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
+
+    //!  Constructor
+    /*!
+     * Constructor
+     * \param singleArcSettings List of propagator settings for each arc in propagation.
+     */
     MultiArcPropagatorSettings(
             const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings ):
      PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true )
@@ -256,13 +290,24 @@ public:
         }
     }
 
+    //! Destructor
     virtual ~MultiArcPropagatorSettings( ){ }
 
+    //! Function get the list of propagator settings for each arc in propagation.
+    /*!
+     * Function get the list of propagator settings for each arc in propagation.
+     * \return List of propagator settings for each arc in propagation.
+     */
     std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > getSingleArcSettings( )
     {
         return singleArcSettings_;
     }
 
+    //! Function get the list of initial states for each arc in propagation.
+    /*!
+     * Function get the list of initial states for each arc in propagation.
+     * \return List of initial states for each arc in propagation.
+     */
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getInitialStateList( )
     {
         return initialStateList_;
@@ -271,8 +316,10 @@ public:
 
 protected:
 
+    //! List of propagator settings for each arc in propagation.
     std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > singleArcSettings_;
 
+    //! List of initial states for each arc in propagation.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
 
 };
