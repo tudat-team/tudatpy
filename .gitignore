@@ -56,6 +56,7 @@ lib/
 # Spice Kernel creation tools
 #
 Tudat/External/SpiceInterface/Kernels/KernelMerge/
+Tudat/External/SpiceInterface/Kernels/
 
 #
 # Editor related
