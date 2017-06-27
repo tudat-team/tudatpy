@@ -27,7 +27,9 @@ namespace basic_astrodynamics
  */
 enum AvailableTorque
 {
-    underfined_torque = -1
+    underfined_torque = -1,
+    second_order_gravitational_torque = 0,
+    aerodynamic_torque = 1
 };
 
 //! Function to identify the derived class type of a torque model.
@@ -40,6 +42,17 @@ enum AvailableTorque
 AvailableTorque getTorqueModelType(
         boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel );
 
+//! Function to get a string representing a 'named identification' of an torque type
+/*!
+ * Function to get a string representing a 'named identification' of an torque type
+ * \param torqueType Type of torque model.
+ * \return String with torque id.
+ */
+std::string getTorqueModelName( const AvailableTorque torqueType );
+
+std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
+        const std::vector< boost::shared_ptr< TorqueModel > >& fullList,
+        const AvailableTorque modelType );
 }
 
 }

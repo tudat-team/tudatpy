@@ -16,6 +16,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/torqueSettings.h"
+#include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
 
 namespace tudat
 {
@@ -24,6 +26,19 @@ namespace simulation_setup
 {
 
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
+
+
+boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
+        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque );
+
+boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
+        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::string& nameOfBodyUndergoingTorque,
+        const std::string& nameOfBodyExertingTorque );
 
 //! Function to create torque model object.
 /*!
