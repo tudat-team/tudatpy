@@ -12,6 +12,8 @@
 #include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
+#include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
 
 namespace tudat
 {
@@ -24,15 +26,56 @@ AvailableTorque getTorqueModelType(
         boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel )
 {
     AvailableTorque torqueType = underfined_torque;
-    if( false )
+    if( boost::dynamic_pointer_cast< gravitation::SecondDegreeGravitationalTorqueModel >( torqueModel ) != NULL )
     {
-
+        torqueType = second_order_gravitational_torque;
+    }
+    else if( boost::dynamic_pointer_cast< aerodynamics::AerodynamicTorque >( torqueModel ) != NULL )
+    {
+        torqueType = aerodynamic_torque;
     }
     else
     {
         std::cerr<<"Error, could not identify torque type"<<std::endl;
     }
     return torqueType;
+}
+
+std::string getTorqueModelName( const AvailableTorque torqueType )
+{
+
+    std::string torqueName;
+    switch( torqueType )
+    {
+    case second_order_gravitational_torque:
+        torqueName = "second-order gravitational torque ";
+        break;
+    case aerodynamic_torque:
+        torqueName = "aerodynamic torque ";
+        break;
+    default:
+        std::string errorMessage = "Error, torque type " +
+                boost::lexical_cast< std::string >( torqueType ) +
+                "not found when retrieving torque name ";
+        throw std::runtime_error( errorMessage );
+    }
+    return torqueName;
+}
+
+//! Function to get all torque models of a given type from a list of models
+std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
+        const std::vector< boost::shared_ptr< TorqueModel > >& fullList,
+        const AvailableTorque modelType )
+{
+    std::vector< boost::shared_ptr< TorqueModel > > torqueList;
+    for( unsigned int i = 0; i < fullList.size( ); i++ )
+    {
+        if( getTorqueModelType( fullList.at( i ) ) == modelType )
+        {
+            torqueList.push_back( fullList.at( i  ) );
+        }
+    }
+    return torqueList;
 }
 
 }

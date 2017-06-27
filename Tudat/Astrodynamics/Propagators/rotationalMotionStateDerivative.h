@@ -280,6 +280,47 @@ public:
         return 7 * bodiesToPropagate_.size( );
     }
 
+    Eigen::Vector3d getTotalTorqueForBody(
+            const std::string& bodyName )
+    {
+        // Check if body is propagated.
+        Eigen::Vector3d totalTorque = Eigen::Vector3d::Zero( );
+        if( std::find( bodiesToPropagate_.begin( ),
+                       bodiesToPropagate_.end( ),
+                       bodyName ) == bodiesToPropagate_.end( ) )
+        {
+            std::string errorMessage = "Error when getting total torque for body " + bodyName +
+                    ", no such torque is found";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( torqueModelsPerBody_.count( bodyName ) != 0 )
+            {
+                basic_astrodynamics::SingleBodyTorqueModelMap torquesOnBody =
+                        torqueModelsPerBody_.at( bodyName );
+
+                // Iterate over all torques acting on body
+                for( innerTorqueIterator  = torquesOnBody.begin( );
+                     innerTorqueIterator != torquesOnBody.end( );
+                     innerTorqueIterator++ )
+                {
+                    for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
+                    {
+                        // Calculate torque and add to state derivative.
+                        totalTorque += innerTorqueIterator->second[ j ]->getTorque( );
+                    }
+                }
+            }
+        }
+        return totalTorque;
+    }
+
+    basic_astrodynamics::TorqueModelMap getTorquesMap( )
+    {
+        return torqueModelsPerBody_;
+    }
+
 protected:
 
     //! Function to get the total torques acting on each body, expressed in the body-fixed frames

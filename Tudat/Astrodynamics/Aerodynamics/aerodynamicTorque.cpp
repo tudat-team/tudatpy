@@ -9,7 +9,7 @@
  *
  */
 
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicMoment.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
 
 namespace tudat
 {
@@ -24,6 +24,14 @@ Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const do
     return dynamicPressure * referenceArea * referenceLength * momentCoefficients;
 }
 
+//! Compute the aerodynamic moment in same reference frame as input coefficients.
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+                                          const Eigen::Vector3d& referenceLengths,
+                                          const Eigen::Vector3d& momentCoefficients )
+{
+    return dynamicPressure * referenceArea * referenceLengths.cwiseProduct( momentCoefficients );
+}
+
 //! Calculates the aerodynamic moment in same reference frame as input coefficients.
 Eigen::Vector3d computeAerodynamicMoment(
         const double dynamicPressure,
@@ -34,6 +42,7 @@ Eigen::Vector3d computeAerodynamicMoment(
                                      coefficientInterface->getReferenceLength( ),
                                      coefficientInterface->getCurrentMomentCoefficients( ) );
 }
+
 
 } // namespace aerodynamics
 } // namespace tudat

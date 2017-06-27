@@ -701,6 +701,7 @@ public:
             const std::map< TimeType,
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
+        std::cout<<"Translational: "<<this->startIndexAndSize_.first<<" "<<this->startIndexAndSize_.second<<std::endl;
         resetIntegratedEphemerides< TimeType, StateScalarType >(
                     bodyMap_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_,
                     integrationToEphemerisFrameFunctions_ );
@@ -781,6 +782,7 @@ public:
     void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
+        std::cout<<"Rotational: "<<this->startIndexAndSize_.first<<" "<<this->startIndexAndSize_.second<<std::endl;
         resetIntegratedRotationalEphemerides< TimeType, StateScalarType >(
                     bodyMap_, numericalSolution, bodiesToIntegrate_ );
     }
