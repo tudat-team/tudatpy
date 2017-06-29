@@ -646,7 +646,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     inertiaTensor( 1, 1 ) = 0.4265;
     inertiaTensor( 2, 2 ) = 0.5024;
 
-    inertiaTensor *= (25.0 * 5.0E3 );
+    inertiaTensor *= ( 0.1 * 25.0 * 5.0E3 );
     bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
 
     std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
@@ -669,228 +669,316 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
-    // Define propagator settings variables.
-    SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
-
-    // Define acceleration model settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationMap[  "Apollo" ] = accelerationsOfApollo;
-
-    bodiesToPropagate.push_back( "Apollo" );
-    centralBodies.push_back( "Earth" );
-
-    // Create acceleration models
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
-    // Set spherical elements for Apollo.
-    Eigen::Vector6d apolloSphericalEntryState;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
-            spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-            -1.2 * mathematical_constants::PI / 180.0;
-    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
-
-    // Convert apollo state from spherical elements to Cartesian elements.
-    Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
-                apolloSphericalEntryState );
-
-    boost::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
-            bodyMap.at( "Earth" )->getRotationalEphemeris( );
-    systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
-
-    // Define list of dependent variables to save.
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::latitude_angle ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::longitude_angle ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::heading_angle ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::flight_path_angle ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::angle_of_attack ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::angle_of_sideslip ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    "Apollo", reference_frames::bank_angle   ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
-                    aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< SingleTorqueDependentVariableSaveSettings >(
-                    aerodynamic_torque, "Apollo", "Earth" ) );
-    dependentVariablesList.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
-                    total_torque_dependent_variable, "Apollo" ) );
-
-    // Create object with list of dependent variables
-    boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-            boost::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
-
-    // Define termination conditions
-    boost::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
-            boost::make_shared< SingleDependentVariableSaveSettings >(
-                altitude_dependent_variable, "Apollo", "Earth" );
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            //        boost::make_shared< PropagationTimeTerminationSettings >( 3.0 );
-            boost::make_shared< PropagationDependentVariableTerminationSettings >(
-                terminationDependentVariable, 25.0E3, true );
-
-
-    // Define initial rotational state
-    Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-    Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
-    systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
-                initialRotation );
-    systemInitialRotationalState( 4 ) = 1.0E-4;
-
-    // Create torque models
-    SelectedTorqueMap selectedTorqueModelMap;
-    selectedTorqueModelMap[ "Apollo" ][ "Earth" ].push_back( boost::make_shared< TorqueSettings >( aerodynamic_torque ) );
-    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, selectedTorqueModelMap );
-
-    // Define propagator settings.
-    boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
-            boost::make_shared< RotationalStatePropagatorSettings< double > >
-            ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings );
-
-    // Create propagation settings.
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              terminationSettings, cowell );
-
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
-    propagatorSettingsList.push_back( translationalPropagatorSettings );
-    propagatorSettingsList.push_back( rotationalPropagatorSettings );
-
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsList, terminationSettings, dependentVariablesToSave );
-
-
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( rungeKuttaVariableStepSize, 0.0, 1.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 1.0, 1.0E-14, 1.0E-14 );
-
-
-
-    // Create simulation object and propagate dynamics.
-    SingleArcDynamicsSimulator< > dynamicsSimulator(
-                bodyMap, integratorSettings, propagatorSettings, true, false, true);
-    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-    std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-
-    // Define test variables
-    double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
-            currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
-    Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation, currentLVLHToTrajectoryFrameRotation,
-            currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
-            currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
-    Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
-    boost::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
-    boost::shared_ptr< RotationalEphemeris > apolloRotationModel = bodyMap.at( "Apollo" )->getRotationalEphemeris( );
-
-    std::map< double, Eigen::VectorXd > outputMap;
-    // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix
-    for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
-         variableIterator != dependentVariableHistory.end( ); variableIterator++ )
+    for( int simulationCase = 0; simulationCase < 2; simulationCase++ )
     {
-        // Retrieve saved angles
-        currentLatitude = variableIterator->second( 0 );
-        currentLongitude = variableIterator->second( 1 );
-        currentHeadingAngle = variableIterator->second( 2 );
-        currentFlightPathAngle = variableIterator->second( 3 );
-        currentAngleOfAttack = variableIterator->second( 4 );
-        currentSideslipAngle = variableIterator->second( 5 );
-        currentBankAngle = variableIterator->second( 6 );
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
 
-        // Compute matrices from angles
-        currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
-        currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-                    currentLongitude, currentLatitude );
-        currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
-                    currentFlightPathAngle, currentHeadingAngle );
-        currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
-                    currentBankAngle );
-        currentAerodynamicToBodyFixesFrameRotation = getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-                    currentAngleOfAttack, currentSideslipAngle );
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+        accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
+        accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+        accelerationMap[  "Apollo" ] = accelerationsOfApollo;
 
-        currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation * currentTrajectoryToAerodynamicFrameRotation *
-                currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation * currentInertialToBodyFixedFrameRotation;
+        bodiesToPropagate.push_back( "Apollo" );
+        centralBodies.push_back( "Earth" );
 
-        // Compure expected rotation angle and rotation matrix
-        currentRotationAngle = systemInitialRotationalState( 4 ) * variableIterator->first;
-        expectedInertialToBodyFixedFrame =
-                Eigen::AngleAxisd( -1.0 * currentRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+        // Create acceleration models
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+        // Set spherical elements for Apollo.
+        Eigen::Vector6d apolloSphericalEntryState;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+                spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
+                -1.2 * mathematical_constants::PI / 180.0;
+        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
 
-        Eigen::Matrix3d currentRotationFromApolloFixedToInertialFrame = apolloRotationModel->getRotationToBaseFrame(
-                    variableIterator->first ).toRotationMatrix( );
-        Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrame = currentRotationFromApolloFixedToInertialFrame.transpose( );
-        Eigen::Matrix3d apolloInertiaTensorInInertialFrame =
-                currentRotationFromApolloFixedToInertialFrame * inertiaTensor * currentRotationFromInertialToBodyFixedFrame;
-        Eigen::Vector3d apolloAngularVelocityVectorInInertialFrame =
-                apolloRotationModel->getRotationalVelocityVectorInBaseFrame( variableIterator->first );
-        Eigen::Vector3d apolloAngularVelocityVectorInTargetFrame =
-                apolloRotationModel->getRotationalVelocityVectorInTargetFrame( variableIterator->first );
+        // Convert apollo state from spherical elements to Cartesian elements.
+        Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
+                    apolloSphericalEntryState );
 
-        outputMap[ variableIterator->first ] = Eigen::VectorXd( 15 );
-        outputMap[ variableIterator->first ].segment( 0, 3 ) = ( currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 ) );
-        outputMap[ variableIterator->first ].segment( 3, 3 ) = ( apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame );
-        outputMap[ variableIterator->first ].segment( 6, 3 ) = ( variableIterator->second.segment( 10, 3 ) );
-        outputMap[ variableIterator->first ]( 9 ) = inertiaTensor( 0, 0 );
-        outputMap[ variableIterator->first ]( 10 ) = inertiaTensor( 1, 1 );
-        outputMap[ variableIterator->first ]( 11 ) = inertiaTensor( 2, 2 );
-        outputMap[ variableIterator->first ].segment( 12, 3 ) = ( apolloAngularVelocityVectorInTargetFrame );
+        boost::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
+                bodyMap.at( "Earth" )->getRotationalEphemeris( );
+        systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
-        std::cout<<apolloAngularVelocityVectorInTargetFrame.transpose( )<<std::endl;
-        std::cout<<propagationHistory.at( variableIterator->first ).transpose( )<<std::endl<<std::endl;
-
-
-//                std::cout<<variableIterator->first<<std::endl;
-//        std::cout<<( currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 ) ).transpose( )<<std::endl;
-//        std::cout<<( apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame ).transpose( )<<std::endl<<std::endl;
-
-        // Compare expected and actual rotation matrices
-        for( unsigned int i = 0; i < 3; i++ )
+        // Define list of dependent variables to save.
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::latitude_angle ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::longitude_angle ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::heading_angle ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::flight_path_angle ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::angle_of_attack ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::angle_of_sideslip ) );
+        dependentVariablesList.push_back(
+                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                        "Apollo", reference_frames::bank_angle   ) );
+        if( simulationCase == 1 )
         {
-            for( unsigned int j = 0; j < 3; j++ )
+            dependentVariablesList.push_back(
+                        boost::make_shared< SingleDependentVariableSaveSettings >(
+                            aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+            dependentVariablesList.push_back(
+                        boost::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                            aerodynamic_torque, "Apollo", "Earth" ) );
+            dependentVariablesList.push_back(
+                        boost::make_shared< SingleDependentVariableSaveSettings >(
+                            total_torque_dependent_variable, "Apollo" ) );
+        }
+
+        // Create object with list of dependent variables
+        boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                boost::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
+
+        // Define termination conditions
+        boost::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    altitude_dependent_variable, "Apollo", "Earth" );
+        boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
+                        boost::make_shared< PropagationTimeTerminationSettings >( 250.0 );
+                //boost::make_shared< PropagationDependentVariableTerminationSettings >(
+                //    terminationDependentVariable, 25.0E3, true );
+
+
+        // Define initial rotational state
+        Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+        Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
+        systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                    initialRotation );
+        systemInitialRotationalState( 4 ) = 1.0E-4;
+
+        // Create torque models
+        SelectedTorqueMap selectedTorqueModelMap;
+        if( simulationCase > 0 )
+        {
+            selectedTorqueModelMap[ "Apollo" ][ "Earth" ].push_back(
+                        boost::make_shared< TorqueSettings >( aerodynamic_torque ) );
+        }
+
+        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                    bodyMap, selectedTorqueModelMap );
+
+        // Define propagator settings.
+        boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+                boost::make_shared< RotationalStatePropagatorSettings< double > >
+                ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings );
+
+        // Create propagation settings.
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+                  terminationSettings, cowell );
+
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+        propagatorSettingsList.push_back( translationalPropagatorSettings );
+        propagatorSettingsList.push_back( rotationalPropagatorSettings );
+
+        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
+                    propagatorSettingsList, terminationSettings, dependentVariablesToSave );
+
+
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                ( rungeKuttaVariableStepSize, 0.0, 0.02,
+                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
+
+
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, propagatorSettings, true, false, true);
+        std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+        std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+        // Define test variables
+        double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
+                currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
+        Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation, currentLVLHToTrajectoryFrameRotation,
+                currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
+                currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
+        Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
+        boost::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
+        boost::shared_ptr< RotationalEphemeris > apolloRotationModel = bodyMap.at( "Apollo" )->getRotationalEphemeris( );
+
+        std::map< double, Eigen::VectorXd > outputMap;
+
+        std::map< double, Eigen::Vector3d > inertialTorqueMap;
+        std::map< double, Eigen::Vector3d > inertialAngularMomentumMap;
+
+        // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix
+        for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
+             variableIterator != dependentVariableHistory.end( ); variableIterator++ )
+        {
+            if( simulationCase == 0 )
             {
-                //                std::cout<<expectedInertialToBodyFixedFrame - currentInertialToBodyFixedFrame <<std::endl<<std::endl;
-                //                BOOST_CHECK_SMALL(
-                //                            std::fabs( expectedInertialToBodyFixedFrame( i, j ) -
-                //                                       currentInertialToBodyFixedFrame( i, j ) ), 1.0E-13 );
+                // Retrieve saved angles
+                currentLatitude = variableIterator->second( 0 );
+                currentLongitude = variableIterator->second( 1 );
+                currentHeadingAngle = variableIterator->second( 2 );
+                currentFlightPathAngle = variableIterator->second( 3 );
+                currentAngleOfAttack = variableIterator->second( 4 );
+                currentSideslipAngle = variableIterator->second( 5 );
+                currentBankAngle = variableIterator->second( 6 );
+
+                // Compute matrices from angles
+                currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
+                currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                            currentLongitude, currentLatitude );
+                currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+                            currentFlightPathAngle, currentHeadingAngle );
+                currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                            currentBankAngle );
+                currentAerodynamicToBodyFixesFrameRotation = getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+                            currentAngleOfAttack, currentSideslipAngle );
+
+                currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation * currentTrajectoryToAerodynamicFrameRotation *
+                        currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation * currentInertialToBodyFixedFrameRotation;
+
+                // Compure expected rotation angle and rotation matrix
+                currentRotationAngle = systemInitialRotationalState( 4 ) * variableIterator->first;
+                expectedInertialToBodyFixedFrame =
+                        Eigen::AngleAxisd( -1.0 * currentRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+
+
+
+
+                // Compare expected and actual rotation matrices
+                for( unsigned int i = 0; i < 3; i++ )
+                {
+                    for( unsigned int j = 0; j < 3; j++ )
+                    {
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( expectedInertialToBodyFixedFrame( i, j ) -
+                                               currentInertialToBodyFixedFrame( i, j ) ), 1.0E-13 );
+                    }
+                }
+            }
+            else if( simulationCase == 1 )
+            {
+                Eigen::Matrix3d currentRotationFromApolloFixedToInertialFrame = apolloRotationModel->getRotationToBaseFrame(
+                            variableIterator->first ).toRotationMatrix( );
+                Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrame = currentRotationFromApolloFixedToInertialFrame.transpose( );
+                Eigen::Matrix3d apolloInertiaTensorInInertialFrame =
+                        currentRotationFromApolloFixedToInertialFrame * inertiaTensor * currentRotationFromInertialToBodyFixedFrame;
+                Eigen::Vector3d apolloAngularVelocityVectorInInertialFrame =
+                        apolloRotationModel->getRotationalVelocityVectorInBaseFrame( variableIterator->first );
+
+                inertialTorqueMap[ variableIterator->first ] =
+                        currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 );
+                inertialAngularMomentumMap[ variableIterator->first ] =
+                        apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame;
+            }
+            //std::cout<<( currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 ) ).transpose( )<<std::endl;
+            //std::cout<<( apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame ).transpose( )<<std::endl<<std::endl;
+
+
+
+        }
+
+        std::map< double, Eigen::Vector3d > inertialAngularMomentumDerivativeMap;
+        std::map< double, Eigen::Vector3d > inertialAngularMomentumDerivativeErrorMap;
+
+        if( simulationCase == 1 )
+        {
+            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > angularMomentumInterpolator =
+                    boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Vector3d > >(
+                        inertialAngularMomentumMap, 6 );
+
+
+            typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+
+            // Create and set interpolator.
+            boost::function< Eigen::Vector3d( const double ) > angularMomentumFunction = boost::bind(
+                        static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+                        ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, _1 );
+
+            double timeStep = 0.001;
+            // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix
+            for( std::map< double, Eigen::Vector3d >::const_iterator variableIterator = ( inertialTorqueMap.begin( )++ );
+                 variableIterator != inertialTorqueMap.end( ); variableIterator++ )
+            {
+                if( variableIterator->first < ( --inertialTorqueMap.end( ) )->first - 10.0
+                        && variableIterator->first > inertialTorqueMap.begin( )->first + 10.0 )
+                {
+                    Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifference(
+                                angularMomentumFunction, variableIterator->first, timeStep, numerical_derivatives::order4 );
+                    inertialAngularMomentumDerivativeMap[ variableIterator->first ] = angularMomentumDerivative;
+                    //std::cout<<inertialTorqueMap.at( variableIterator->first ).transpose( )<<std::endl;
+                    //std::cout<<angularMomentumDerivative.transpose( ) - inertialTorqueMap.at( variableIterator->first ).transpose( )<<std::endl;
+
+                    inertialAngularMomentumDerivativeErrorMap[ variableIterator->first ] = inertialTorqueMap.at( variableIterator->first ) - angularMomentumDerivative;
+                    for( unsigned int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( inertialTorqueMap.at( variableIterator->first )( i ) -
+                                               angularMomentumDerivative( i ) ), 0.25 );
+                    }
+                }
             }
         }
+
+//            // Write Asterix propagation history to file.
+//            input_output::writeDataMapToTextFile( outputMap,
+//                                    "outputMap.dat",
+//                                    "/home/dominic/Downloads/",
+//                                    "",
+//                                    std::numeric_limits< double >::digits10,
+//                                    std::numeric_limits< double >::digits10,
+//                                    "," );
+
+//            input_output::writeDataMapToTextFile( inertialTorqueMap,
+//                                    "inertialTorqueMap.dat",
+//                                    "/home/dominic/Downloads/",
+//                                    "",
+//                                    std::numeric_limits< double >::digits10,
+//                                    std::numeric_limits< double >::digits10,
+//                                    "," );
+
+//            input_output::writeDataMapToTextFile( inertialAngularMomentumMap,
+//                                    "inertialAngularMomentumMap.dat",
+//                                    "/home/dominic/Downloads/",
+//                                    "",
+//                                    std::numeric_limits< double >::digits10,
+//                                    std::numeric_limits< double >::digits10,
+//                                    "," );
+
+//            input_output::writeDataMapToTextFile( inertialAngularMomentumDerivativeMap,
+//                                    "inertialAngularMomentumDerivativeMap.dat",
+//                                    "/home/dominic/Downloads/",
+//                                    "",
+//                                    std::numeric_limits< double >::digits10,
+//                                    std::numeric_limits< double >::digits10,
+//                                    "," );
+
+//            input_output::writeDataMapToTextFile( inertialAngularMomentumDerivativeErrorMap,
+//                                    "inertialAngularMomentumDerivativeErrorMap.dat",
+//                                    "/home/dominic/Downloads/",
+//                                    "",
+//                                    std::numeric_limits< double >::digits10,
+//                                    std::numeric_limits< double >::digits10,
+//                                    "," );
+
+
+
     }
-
-    // Write Asterix propagation history to file.
-    input_output::writeDataMapToTextFile( outputMap,
-                            "outputMap.dat",
-                            "/home/dominic/Downloads/",
-                            "",
-                            std::numeric_limits< double >::digits10,
-                            std::numeric_limits< double >::digits10,
-                            "," );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
