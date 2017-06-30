@@ -497,6 +497,7 @@ createRotationalStateInterpolator(
  * Function to reset the tabulated rotational ephemeris of a body
  * \param bodyMap List of bodies used in simulations.
  * \param bodiesToIntegrate List of names of bodies for which rotational state is numerically integrated
+ * \param startIndex Index in the state vector where the rotational state starts.
  * \param equationsOfMotionNumericalSolution New rotational state history that is to be set
  */
 template< typename TimeType, typename StateScalarType >
@@ -528,6 +529,8 @@ void createAndSetInterpolatorsForRotationalEphemerides(
  * \param bodyMap List of bodies used in simulations.
  * \param equationsOfMotionNumericalSolution Numerical solution of rotational equations of motion
  * \param bodiesToIntegrate List of names of bodies which are numerically integrated
+ * \param startIndexAndSize Pair with start index and total (contiguous) size of integrated states in entries of
+ * equationsOfMotionNumericalSolution
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedRotationalEphemerides(
@@ -704,7 +707,6 @@ public:
             const std::map< TimeType,
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
-        std::cout<<"Translational: "<<this->startIndexAndSize_.first<<" "<<this->startIndexAndSize_.second<<std::endl;
         resetIntegratedEphemerides< TimeType, StateScalarType >(
                     bodyMap_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_, ephemerisUpdateOrder_,
                     integrationToEphemerisFrameFunctions_ );
@@ -785,7 +787,6 @@ public:
     void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
-        std::cout<<"Rotational: "<<this->startIndexAndSize_.first<<" "<<this->startIndexAndSize_.second<<std::endl;
         resetIntegratedRotationalEphemerides< TimeType, StateScalarType >(
                     bodyMap_, numericalSolution, bodiesToIntegrate_, this->startIndexAndSize_ );
     }
