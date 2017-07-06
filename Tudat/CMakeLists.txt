@@ -164,6 +164,30 @@ endif()
 
 
 #
+# JSON
+#
+# Set whether to use the JSON library.
+option(USE_JSON "build Tudat with JSON enabled" ON)
+if(NOT USE_JSON)
+ message(STATUS "JSON disabled!")
+ add_definitions(-DUSE_JSON=0)
+else()
+ message(STATUS "JSON enabled!")
+ add_definitions(-DUSE_JSON=1)
+
+ # Find JSON library on local system.
+ find_package(nlohmann_json)
+
+ # Include JSON directories.
+ if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+   include_directories(SYSTEM AFTER "${JSON_INCLUDE_DIR}")
+ else( )
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${JSON_INCLUDE_DIR}\"")
+ endif( )
+endif()
+
+
+#
 # SOFA
 #
 # Set whether to use the SOFA library integration with Tudat or not. If it not supplied by the

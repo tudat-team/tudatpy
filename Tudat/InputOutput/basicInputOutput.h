@@ -67,14 +67,7 @@ static inline std::string getSpiceKernelPath( )
 #ifdef SPICE_KERNEL_CUSTOM_FOLDER
     return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
 #else
-    // Declare file path string assigned to filePath.
-    // __FILE__ only gives the absolute path in the header file!
-    std::string filePath_( __FILE__ );
-
-    // Strip filename from temporary string and return root-path string.
-    return ( filePath_.substr( 0, filePath_.length( ) -
-                               std::string( "InputOutput/basicInputOutput.h" ).length( ) ) +
-             "External/SpiceInterface/Kernels/" );
+    return getTudatRootPath( ) + "External/SpiceInterface/Kernels/";
 #endif
 }
 
