@@ -856,7 +856,6 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
         std::cout<<testPartialWrtEarthPosition<<std::endl<<std::endl<<
                    ( testPartialWrtEarthVelocity - partialWrtEarthVelocity).cwiseQuotient( partialWrtEarthVelocity )<<std::endl;
     }
-    sleep( 10000.0 );
     std::vector< double > arcStartTimes;
     arcStartTimes.push_back( 0.0 );
     arcStartTimes.push_back( 1.0E4 );
