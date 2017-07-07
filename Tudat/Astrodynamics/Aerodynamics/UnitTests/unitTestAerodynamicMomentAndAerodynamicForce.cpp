@@ -38,7 +38,6 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include <Tudat/External/SpiceInterface/spiceEphemeris.h>
@@ -228,7 +227,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     const double dynamicPressure = 123.6;
     const double referenceArea = 1.7;
     const double referenceLength = 2.6;
-    const double mass = 12.46;
 
     // Calculate expected moment.
     const Eigen::Vector3d expectedMoment = dynamicPressure * referenceArea *
@@ -259,38 +257,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
                                                            aerodynamicCoefficientInterface );
-
-        // Check if computed moment matches expected.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
-    }
-
-    // Test 3: test the rotational acceleration model implemented as free function with coefficient
-    //         interface argument, based on the force that can be derived from the computed
-    //         acceleration.
-    {
-        // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                createConstantCoefficientAerodynamicCoefficientInterface(
-                    Eigen::Vector3d::Zero( ), momentCoefficients,
-                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
-
-        // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
-        // primitive arguments.
-        Eigen::Vector3d moment = computeAerodynamicRotationalAcceleration(
-                    dynamicPressure, aerodynamicCoefficientInterface, mass ) * mass;
-
-        // Check if computed moment matches expected.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
-    }
-
-    // Test 4: test the rotational acceleration model implemented as free function with primitive
-    //         arguments, based on the force that can be derived from the computed acceleration.
-    {
-        // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
-        // primitive arguments.
-        Eigen::Vector3d moment = computeAerodynamicRotationalAcceleration(
-                    dynamicPressure, referenceArea, referenceLength,
-                    momentCoefficients, mass ) * mass;
 
         // Check if computed moment matches expected.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );

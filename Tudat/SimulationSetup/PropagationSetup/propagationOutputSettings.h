@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 
 namespace tudat
@@ -52,8 +53,14 @@ enum PropagationDependentVariables
     control_surface_deflection_dependent_variable = 23,
     total_mass_rate_dependent_variables = 24,
     lvlh_to_inertial_frame_rotation_dependent_variable = 25,
-    periapsis_altitude_dependent_variable = 26
+    periapsis_altitude_dependent_variable = 26,
+    total_torque_norm_dependent_variable = 27,
+    single_torque_norm_dependent_variable = 28,
+    total_torque_dependent_variable = 29,
+    single_torque_dependent_variable = 30,
 };
+
+
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
 /*!
@@ -98,7 +105,7 @@ public:
 /*!
  * Class to define settings for saving a single acceleration (norm or vector) during propagation. NOTE: This acceleration
  * is returned in the inertial frame!
- */\
+ */
 class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
@@ -124,6 +131,34 @@ public:
 
     //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
     basic_astrodynamics::AvailableAcceleration accelerationModeType_;
+
+};
+
+class SingleTorqueDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param torqueModeType Type of torque that is to be saved.
+     * \param bodyUndergoingTorque Name of body undergoing the torque.
+     * \param bodyExertingTorque Name of body exerting the torque.
+     * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+     */
+    SingleTorqueDependentVariableSaveSettings(
+            const basic_astrodynamics::AvailableTorque torqueModeType,
+            const std::string& bodyUndergoingTorque,
+            const std::string& bodyExertingTorque,
+            const bool useNorm = 0 ):
+        SingleDependentVariableSaveSettings(
+            ( useNorm == 1 ) ? ( single_torque_norm_dependent_variable ) : ( single_torque_dependent_variable ),
+            bodyUndergoingTorque, bodyExertingTorque ),
+        torqueModeType_( torqueModeType )
+    { }
+
+    //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+    basic_astrodynamics::AvailableTorque torqueModeType_;
 
 };
 

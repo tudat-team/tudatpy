@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 
@@ -315,9 +316,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         accelerationDependentVariableSettings->accelerationModeType_ ) )
             {
                 listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                    accelerationDependentVariableSettings->associatedBody_,
-                    accelerationDependentVariableSettings->secondaryBody_,
-                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                            accelerationDependentVariableSettings->associatedBody_,
+                            accelerationDependentVariableSettings->secondaryBody_,
+                            stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
                                 accelerationDependentVariableSettings->accelerationModeType_  ) );
             }
 
@@ -351,6 +352,60 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                              nBodyModel, bodyWithProperty );
         variableFunction = boost::bind( &linear_algebra::getVectorNormFromFunction, vectorFunction );
 
+        break;
+    }
+    case total_torque_norm_dependent_variable:
+    {
+
+        // Retrieve model responsible for computing accelerations of requested bodies.
+        boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =
+                getRotationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        boost::function< Eigen::Vector3d( ) > vectorFunction  =
+                boost::bind( &RotationalMotionStateDerivative< StateScalarType, TimeType >::getTotalTorqueForBody,
+                                        rotationalDynamicsModel, bodyWithProperty );
+        variableFunction = boost::bind( &linear_algebra::getVectorNormFromFunction, vectorFunction );
+
+        break;
+    }
+    case single_torque_norm_dependent_variable:
+    {
+        // Check input consistency.
+        boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
+                boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
+        if( torqueDependentVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_torque_norm_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve list of suitable torque models (size should be one to avoid ambiguities)
+            std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > >
+                    listOfSuitableTorqueModels = getTorqueBetweenBodies(
+                        torqueDependentVariableSettings->associatedBody_,
+                        torqueDependentVariableSettings->secondaryBody_,
+                        stateDerivativeModels, torqueDependentVariableSettings->torqueModeType_ );
+
+
+            if( listOfSuitableTorqueModels.size( ) != 1 )
+            {
+                std::string errorMessage = "Error when getting torque between bodies " +
+                        torqueDependentVariableSettings->associatedBody_ + " and " +
+                        torqueDependentVariableSettings->secondaryBody_ + " of type " +
+                        boost::lexical_cast< std::string >(
+                            torqueDependentVariableSettings->torqueModeType_ ) +
+                        ", no such torque found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                //boost::function< Eigen::Vector3d( ) > vectorFunction =
+                boost::function< Eigen::Vector3d( ) > vectorFunction =
+                        boost::bind( &basic_astrodynamics::TorqueModel::getTorque,
+                                                listOfSuitableTorqueModels.at( 0 ) );
+                variableFunction = boost::bind( &linear_algebra::getVectorNormFromFunction, vectorFunction );
+            }
+        }
         break;
     }
     case relative_body_aerodynamic_orientation_angle_variable:
@@ -632,9 +687,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->accelerationModeType_ ) )
             {
                 listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                    accelerationDependentVariableSettings->associatedBody_,
-                    accelerationDependentVariableSettings->secondaryBody_,
-                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                            accelerationDependentVariableSettings->associatedBody_,
+                            accelerationDependentVariableSettings->secondaryBody_,
+                            stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
                                 accelerationDependentVariableSettings->accelerationModeType_  ) );
             }
 
@@ -767,6 +822,59 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 
         break;
     }
+    case total_torque_dependent_variable:
+    {
+
+        // Retrieve model responsible for computing accelerations of requested bodies.
+        boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =
+                getRotationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        variableFunction = boost::bind( &RotationalMotionStateDerivative< StateScalarType, TimeType >::getTotalTorqueForBody,
+                                        rotationalDynamicsModel, bodyWithProperty );
+        parameterSize = 3;
+
+
+        break;
+    }
+    case single_torque_dependent_variable:
+    {
+        // Check input consistency.
+        boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
+                boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
+        if( torqueDependentVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_torque_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve list of suitable torque models (size should be one to avoid ambiguities)
+            std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > >
+                    listOfSuitableTorqueModels = getTorqueBetweenBodies(
+                        torqueDependentVariableSettings->associatedBody_,
+                        torqueDependentVariableSettings->secondaryBody_,
+                        stateDerivativeModels, torqueDependentVariableSettings->torqueModeType_ );
+
+
+            if( listOfSuitableTorqueModels.size( ) != 1 )
+            {
+                std::string errorMessage = "Error when getting torque between bodies " +
+                        torqueDependentVariableSettings->associatedBody_ + " and " +
+                        torqueDependentVariableSettings->secondaryBody_ + " of type " +
+                        boost::lexical_cast< std::string >(
+                            torqueDependentVariableSettings->torqueModeType_ ) +
+                        ", no such torque found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                //boost::function< Eigen::Vector3d( ) > vectorFunction =
+                variableFunction = boost::bind( &basic_astrodynamics::TorqueModel::getTorque,
+                                                listOfSuitableTorqueModels.at( 0 ) );
+                parameterSize = 3;
+            }
+        }
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
@@ -831,7 +939,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
             doubleVariableList.push_back( getDependentVariableId(
-                        dependentVariables.at( i ) ) );
+                                              dependentVariables.at( i ) ) );
         }
         // Create vector parameter
         else
@@ -840,7 +948,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
                                               dependentVariables.at( i ),
                                               bodyMap, stateDerivativeModels ) );
             vectorVariableList.push_back( std::make_pair( getDependentVariableId(
-                        dependentVariables.at( i ) ), vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second ) );
+                                                              dependentVariables.at( i ) ), vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second ) );
         }
     }
 

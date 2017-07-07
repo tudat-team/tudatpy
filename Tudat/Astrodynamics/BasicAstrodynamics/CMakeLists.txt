@@ -22,6 +22,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.cpp"
 )
 
 # Set the header files.
@@ -52,6 +53,8 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/empiricalAcceleration.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.h"
 )
 
 # Add static libraries.

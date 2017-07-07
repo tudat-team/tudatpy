@@ -178,6 +178,8 @@ public:
             currentMass_ = this->massFunction_( );
             currentAirspeed_ = this->airSpeedFunction_( );
             currentReferenceArea_ = this->referenceAreaFunction_( );
+
+            currentTime_ = currentTime;
         }
     }
 
