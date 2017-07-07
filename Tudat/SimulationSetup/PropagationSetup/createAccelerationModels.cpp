@@ -1107,6 +1107,14 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     nameOfBodyExertingAcceleration,
                     accelerationSettings, bodyMap );
         break;
+    case empirical_acceleration:
+        accelerationModelPointer = createEmpiricalAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
 
     default:
         throw std::runtime_error(
