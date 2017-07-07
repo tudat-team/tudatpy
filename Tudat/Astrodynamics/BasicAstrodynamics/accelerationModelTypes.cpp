@@ -52,6 +52,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         break;
     case relativistic_correction_acceleration:
         accelerationName  ="relativistic correction";
+        break;
+    case empirical_acceleration:
+        accelerationName  ="empirical correction";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 boost::lexical_cast< std::string >( accelerationType ) +
