@@ -157,7 +157,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         }
 
         currentBodyAngleTime_ = currentTime;
-
     }
     else if( !( currentBodyAngleTime_ == currentTime ) )
     {
@@ -480,9 +479,9 @@ void AerodynamicAnglesClosure::updateAngles( const double currentTime )
 {
     // Retrieve rotation matrix that is to be converted to orientation angles.
     currentRotationFromBodyToTrajectoryFrame_ =
-            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ) *
+            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ).toRotationMatrix( ) *
                 aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
-                    trajectory_frame, inertial_frame ) ).toRotationMatrix( ) ).transpose( );
+                    trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
 
     // Compute associated Euler angles and set as orientation angles.
     Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(

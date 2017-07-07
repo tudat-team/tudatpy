@@ -204,8 +204,7 @@ public:
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
 
-    //! Function to calculate the derivative of the rotation matrix from target frame to original
-    //! frame.
+    //! Function to calculate the derivative of the rotation matrix from target frame to original frame.
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time, to be implemented by derived class.
@@ -216,8 +215,7 @@ public:
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
-    //! Function to calculate the derivative of the rotation matrix from original frame to target
-    //! frame.
+    //! Function to calculate the derivative of the rotation matrix from original frame to target frame.
     /*!
      *  Function to calculate the derivative of the rotation matrix from original frame to target
      *  frame at specified time, to be implemented by derived class.
