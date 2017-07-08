@@ -49,6 +49,7 @@ void emptyTimeFunction( const double time );
  * \param startIndex Start index in the state vector from where the statePerturbation is to be added (i.e. 0 if
  * function is to compute partial w.r.t. position, 3 if w.r.t velocity).
  * \param updateFunction Function to update the required environment models following the change of the body state.
+ * \param evaluationTime Time at which partial is to be evaluated (default NaN).
  * \return Numerical partial of the acceleration w.r.t. position or velocity (depending on function input).
  */
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
@@ -57,7 +58,8 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
-        boost::function< void( ) > updateFunction = emptyFunction );
+        boost::function< void( ) > updateFunction = emptyFunction,
+        const double evaluationTime = TUDAT_NAN );
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
 /*!

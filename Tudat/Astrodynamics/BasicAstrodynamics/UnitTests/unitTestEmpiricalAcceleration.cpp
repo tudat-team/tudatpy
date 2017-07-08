@@ -53,7 +53,7 @@ using namespace propagators;
 
 BOOST_AUTO_TEST_SUITE( test_empirical_acceleration )
 
-
+//! Test if empirical accelerations are computed correctly in propagation.
 BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
 {
     //Load spice kernels.
@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
-
-    for( unsigned testCase = 0; testCase < 1; testCase++ )
+    // Test three different cases of empirical acceleration values
+    for( unsigned testCase = 0; testCase < 3; testCase++ )
     {
         // Set simulation end epoch.
         const double simulationEndEpoch = 2.0 * tudat::physical_constants::JULIAN_DAY;
@@ -98,8 +98,28 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
-        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
-                                                         Eigen::Vector3d::Zero( ), 1.0E-8 * Eigen::Vector3d::UnitX( ) ) );
+
+        // Define empirical acceleration values for current case
+        double empiricalAccelerationNorm = 1.0E-8;
+        if( testCase == 0 )
+        {
+            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ) ) );
+        }
+        else if( testCase == 1 )
+        {
+            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+                                                             Eigen::Vector3d::Zero( ),
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ),
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ) ) );
+        }
+        else if( testCase == 2 )
+        {
+            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ),
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ),
+                                                             empiricalAccelerationNorm * Eigen::Vector3d::UnitZ( ) ) );
+        }
         accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
@@ -125,17 +145,20 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
 
+        // Define dependent variable settings
         std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
                     boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         empirical_acceleration, "Asterix", "Earth", 0 ) );
 
+        // Define propagator settings
         TranslationalPropagatorType propagatorType = encke;
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType,
                   boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
+        // Define integrator settings
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                 boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
@@ -147,12 +170,87 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
+        // Compute multiplier used in tests
+        double testMultiplier = 1.0;
+        if( testCase == 2 )
+        {
+            testMultiplier = std::sqrt( 2.0 );
+        }
 
-        // Compare propagated orbit against numerical result.
+        Eigen::Vector3d vectorRInRswFrame;
+        Eigen::Vector3d vectorVInRswFrame;
+        Eigen::Vector3d vectorWInRswFrame;
+
+        // Compare computed and expected empirical acceleration and its properties
         for( std::map< double, Eigen::VectorXd >::const_iterator resultIterator = integrationResult.begin( );
              resultIterator != integrationResult.end( ); resultIterator++ )
         {
-            std::cout<<resultIterator->first<<" "<<dependentVariableResult.at( resultIterator->first ).transpose( )<<std::endl;
+            Eigen::Vector3d totalEmpiricalAcceleration =
+                    dependentVariableResult.at( resultIterator->first ).segment( 0, 3 );
+
+            // Check expected norm of empirical acceleration
+            BOOST_CHECK_CLOSE_FRACTION( totalEmpiricalAcceleration.norm( ), testMultiplier * empiricalAccelerationNorm,
+                                        8.0 * std::numeric_limits< double >::epsilon( ) );
+            Eigen::Matrix3d currentRotationMatrix =
+                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx( resultIterator->second );
+            Eigen::Vector3d totalEmpiricalAccelerationInRswFrame = currentRotationMatrix * totalEmpiricalAcceleration;
+
+            // Compute vector directions in RSW frame
+            vectorRInRswFrame = currentRotationMatrix * resultIterator->second.segment( 0, 3 );
+            vectorVInRswFrame = currentRotationMatrix * resultIterator->second.segment( 3, 3 );
+            vectorWInRswFrame = currentRotationMatrix * ( Eigen::Vector3d( resultIterator->second.segment( 0, 3 ) ).cross(
+                                                       Eigen::Vector3d( resultIterator->second.segment( 3, 3 ) ) ) );
+
+            // Check direction of vectors
+            BOOST_CHECK_EQUAL( vectorRInRswFrame( 0 ) > 0, true );
+            BOOST_CHECK_EQUAL( vectorVInRswFrame( 1 ) > 0, true );
+            BOOST_CHECK_EQUAL( vectorWInRswFrame( 2 ) > 0, true );
+
+            // Check direction of R vector in RSW frame
+            BOOST_CHECK_EQUAL( vectorRInRswFrame( 0 ) / ( 10.0 * std::numeric_limits< double >::epsilon( ) ) >
+                               std::fabs( vectorRInRswFrame( 1 ) ), true );
+            BOOST_CHECK_EQUAL( vectorRInRswFrame( 0 ) / ( 10.0 * std::numeric_limits< double >::epsilon( ) ) >
+                               std::fabs( vectorRInRswFrame( 2 ) ), true );
+
+            // Check direction of V vector in RSW frame
+            BOOST_CHECK_EQUAL( vectorVInRswFrame( 1 ) / 5.0 > std::fabs( vectorVInRswFrame( 0 ) ) , true );
+            BOOST_CHECK_EQUAL( vectorVInRswFrame( 1 ) / ( 10.0 * std::numeric_limits< double >::epsilon( ) ) >
+                               std::fabs( vectorVInRswFrame( 2 ) ), true );
+
+            // Check direction of W vector in RSW frame
+            BOOST_CHECK_EQUAL( vectorWInRswFrame( 2 ) / ( 10.0 * std::numeric_limits< double >::epsilon( ) ) >
+                               std::fabs( vectorWInRswFrame( 0 ) ), true );
+            BOOST_CHECK_EQUAL( vectorWInRswFrame( 2 ) / ( 10.0 * std::numeric_limits< double >::epsilon( ) ) >
+                               std::fabs( vectorWInRswFrame( 1 ) ), true );
+
+            // Compute expected empirical acceleration
+            Eigen::VectorXd currentKeplerianState = convertCartesianToKeplerianElements(
+                        Eigen::Vector6d( resultIterator->second ), earthGravitationalParameter );
+            Eigen::Vector3d expectedAccelerationInRswFrame;
+            if( testCase == 0 )
+            {
+                expectedAccelerationInRswFrame = empiricalAccelerationNorm * Eigen::Vector3d::UnitX( );
+            }
+            else if( testCase == 1 )
+            {
+                expectedAccelerationInRswFrame =
+                        empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ) * std::sin( currentKeplerianState( 5 ) ) +
+                        empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ) * std::cos( currentKeplerianState( 5 ) );
+            }
+            else if( testCase == 2 )
+            {
+                expectedAccelerationInRswFrame =
+                        empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ) +
+                        empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ) * std::sin( currentKeplerianState( 5 ) ) +
+                        empiricalAccelerationNorm * Eigen::Vector3d::UnitZ( ) * std::cos( currentKeplerianState( 5 ) );
+            }
+
+            // Compare expected and computed empirical acceleration
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( expectedAccelerationInRswFrame( i ) - totalEmpiricalAccelerationInRswFrame( i ) ),
+                    8.0 * std::numeric_limits< double >::epsilon( ) * empiricalAccelerationNorm );
+            }
         }
     }
 

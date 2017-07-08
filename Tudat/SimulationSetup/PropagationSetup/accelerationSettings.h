@@ -194,9 +194,18 @@ public:
     Eigen::Vector3d centralBodyAngularMomentum_;
 };
 
+//! Class to define settings for empirical accelerations
 class EmpiricalAccelerationSettings: public AccelerationSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param constantAcceleration Acceleration (in RSW frame) that is constant
+     * \param sineAcceleration Acceleration (in RSW frame) that scales with sine of true anomaly
+     * \param cosineAcceleration Acceleration (in RSW frame) that scales with cosine of true anomaly
+     */
     EmpiricalAccelerationSettings(
             const Eigen::Vector3d& constantAcceleration = Eigen::Vector3d::Zero( ),
             const Eigen::Vector3d& sineAcceleration = Eigen::Vector3d::Zero( ),
@@ -206,8 +215,13 @@ public:
         sineAcceleration_( sineAcceleration ),
         cosineAcceleration_( cosineAcceleration ){ }
 
+    //! Acceleration (in RSW frame) that is constant
     Eigen::Vector3d constantAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with sine of true anomaly
     Eigen::Vector3d sineAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with cosine of true anomaly
     Eigen::Vector3d cosineAcceleration_;
 };
 
