@@ -12,7 +12,6 @@
 
 #include <iostream>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 
 namespace tudat
@@ -122,79 +121,6 @@ Eigen::Vector3d calculateDeSitterCorrectionAcceleration(
                     largerBodyGravitationalParameter,
                     orbitedBodyStateWrtLargerBody.segment( 0, 3 ).norm( ) ),
                 ppnParameterGamma );
-}
-
-//! Update member variables used by the relativistic correction acceleration model.
-void RelativisticAccelerationCorrection::updateMembers( const double currentTime )
-{
-    if( !( this->currentTime_ == currentTime ) )
-    {
-        this->currentTime_ = currentTime;
-
-        // Update common variables
-        stateOfAcceleratedBodyWrtCentralBody_ = stateFunctionOfAcceleratedBody_( ) - stateFunctionOfCentralBody_( );
-        gravitationalParameterOfCentralBody_ = gravitationalParameterFunctionOfCentralBody_( );
-
-        ppnParameterGamma_ = ppnParameterGammaFunction_( );
-        ppnParameterBeta_ = ppnParameterBetaFunction_( );
-
-        commonCorrectionTerm_ = calculateRelativisticAccelerationCorrectionsCommonterm(
-                    gravitationalParameterOfCentralBody_,
-                    stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( ) );
-
-        currentAcceleration_.setZero( );
-
-        double relativeDistance = stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( );
-
-        // Compute Schwarzschild term (if requested)
-        if( calculateSchwarzschildCorrection_ )
-        {
-            currentAcceleration_ = calculateScharzschildGravitationalAccelerationCorrection(
-                        gravitationalParameterOfCentralBody_,
-                        stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ),
-                        stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
-                        relativeDistance, commonCorrectionTerm_, ppnParameterGamma_,
-                        ppnParameterBeta_ );
-        }
-
-        // Compute Lense-Thirring term (if requested)
-        if( calculateLenseThirringCorrection_ )
-        {
-            centalBodyAngularMomentum_ = centalBodyAngularMomentumFunction_( );
-            currentAcceleration_ +=  calculateLenseThirringCorrectionAcceleration(
-                        stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ),
-                        stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
-                        relativeDistance, commonCorrectionTerm_, centalBodyAngularMomentum_,
-                        ppnParameterGamma_ );
-
-        }
-
-        // Compute de Sitter term (if requested)
-        if( calculateDeSitterCorrection_ )
-        {
-            stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
-            gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
-
-            double primaryDistance = stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ).norm( );
-
-            stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
-            gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
-
-            double largerBodyCommonCorrectionTerm =  gravitationalParameterOfPrimaryBody_ / (
-                    primaryDistance * primaryDistance * primaryDistance *
-                        physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
-
-            currentAcceleration_ += calculateDeSitterCorrectionAcceleration(
-                        stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
-                        stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ),
-                        stateOfCentralBodyWrtPrimaryBody_.segment( 3, 3 ),
-                        largerBodyCommonCorrectionTerm,
-                        ppnParameterGamma_ );
-
-        }
-
-
-    }
 }
 
 }
