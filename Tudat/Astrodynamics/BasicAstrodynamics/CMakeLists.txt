@@ -52,6 +52,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/empiricalAcceleration.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.h"
 )
@@ -142,3 +143,6 @@ add_executable(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTROD
 setup_custom_test_program(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_UnifiedStateModelElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
+add_executable(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestEmpiricalAcceleration.cpp")
+setup_custom_test_program(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_EmpiricalAccelerations ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})

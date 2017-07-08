@@ -11,6 +11,7 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 #define TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -248,6 +249,70 @@ public:
     std::string frameOrientation_;
 
     bool isStateSet_;
+
+};
+
+//! Class to define settings for estimating time-independent empirical acceleration components
+class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     */
+    EmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //!  List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+};
+
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseEmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     * \param arcStartTimeList List of times at which empirical acceleration arcs are to start
+     */
+    ArcWiseEmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //! List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+    //! List of times at which empirical acceleration arcs are to start
+    std::vector< double > arcStartTimeList_;
+
 
 };
 

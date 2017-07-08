@@ -141,6 +141,9 @@ public:
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }
 
+    //! Destructor
+    ~AerodynamicAcceleration( ){ }
+
     //! Get acceleration.
     /*!
      * Returns the aerodynamic acceleration. All data required for the computation is taken

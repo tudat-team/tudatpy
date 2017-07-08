@@ -155,8 +155,8 @@ public:
      * \param calculateLenseThirringCorrection Boolean denoting wheter the Lense-Thirring term is used.
      * \param calculateDeSitterCorrection Boolean denoting wheter the de Sitter term is used.
      * \param primaryBody Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
-     * \param centralBodyAngularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this function
-     * is temporary: in the future this will be done consistently with rotation/gravity field.
+     * \param centralBodyAngularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this
+     * function is temporary: in the future this will be done consistently with rotation/gravity field.
      */
     RelativisticAccelerationCorrectionSettings(
             const bool calculateSchwarzschildCorrection = true,
@@ -192,6 +192,37 @@ public:
 
     //! Constant angular momentum of central body
     Eigen::Vector3d centralBodyAngularMomentum_;
+};
+
+//! Class to define settings for empirical accelerations
+class EmpiricalAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param constantAcceleration Acceleration (in RSW frame) that is constant
+     * \param sineAcceleration Acceleration (in RSW frame) that scales with sine of true anomaly
+     * \param cosineAcceleration Acceleration (in RSW frame) that scales with cosine of true anomaly
+     */
+    EmpiricalAccelerationSettings(
+            const Eigen::Vector3d& constantAcceleration = Eigen::Vector3d::Zero( ),
+            const Eigen::Vector3d& sineAcceleration = Eigen::Vector3d::Zero( ),
+            const Eigen::Vector3d& cosineAcceleration = Eigen::Vector3d::Zero( ) ):
+        AccelerationSettings( basic_astrodynamics::empirical_acceleration ),
+        constantAcceleration_( constantAcceleration ),
+        sineAcceleration_( sineAcceleration ),
+        cosineAcceleration_( cosineAcceleration ){ }
+
+    //! Acceleration (in RSW frame) that is constant
+    Eigen::Vector3d constantAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with sine of true anomaly
+    Eigen::Vector3d sineAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with cosine of true anomaly
+    Eigen::Vector3d cosineAcceleration_;
 };
 
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in

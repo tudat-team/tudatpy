@@ -24,6 +24,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/aerodynamicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/empiricalAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -308,6 +309,22 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                           boost::bind( &Body::setState, acceleratedBody.second, _1 ),
                           acceleratedBody.first, acceleratingBody.first );
             }
+        }
+        break;
+    }
+    case empirical_acceleration:
+    {
+        boost::shared_ptr< EmpiricalAcceleration > empiricalAcceleration =
+                boost::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
+        if( empiricalAcceleration == NULL )
+        {
+            std::cerr<<"Acceleration class type does not match acceleration type enum (rel. corr.) set when making acceleration partial"<<std::endl;
+
+        }
+        else
+        {
+            accelerationPartial = boost::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
+                                                                                      acceleratedBody.first, acceleratingBody.first );
         }
         break;
     }
