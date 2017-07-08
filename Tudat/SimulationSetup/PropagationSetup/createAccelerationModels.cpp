@@ -917,8 +917,8 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
                 accelerationSettings );
     if( empiricalSettings == NULL )
     {
-        std::cerr<<"Error, expected empirical acceleration settings when making acceleration model on "<<
-                   nameOfBodyUndergoingAcceleration<<" due to "<<nameOfBodyExertingAcceleration<<std::endl;
+        throw std::runtime_error( "Error, expected empirical acceleration settings when making acceleration model on " +
+                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
     }
     else
     {
@@ -927,8 +927,8 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
 
         if( gravityField == NULL )
         {
-            std::cerr<<"Error "<<nameOfBodyExertingAcceleration<<" does not have a gravity field "<<
-                       "when making empirical acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
+                       "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
         }
         else
         {
