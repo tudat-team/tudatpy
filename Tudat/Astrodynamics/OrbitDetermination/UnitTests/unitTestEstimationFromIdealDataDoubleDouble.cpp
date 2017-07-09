@@ -64,20 +64,20 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 5.0E-3 );
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 5.0E-7 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 18 ) ), 1.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 18 ) ), 2.0E-4 );
     }
 
     BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 5.0E-6 );
     BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 5.0E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 1.0E-11 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 1.0E-11 );
-    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 1.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 5.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 5.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 5.0E-11 );
 
     for( unsigned int i = 0; i < 6; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 11 ) ), 1.0E-12 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 11 ) ), 5.0E-12 );
     }
 
 }
