@@ -378,7 +378,7 @@ void resetMultiArcIntegratedEphemerides(
         if( currentBodyEphemeris == NULL )
         {
             throw std::runtime_error( "Error when resetting ephemeris of body " + bodiesToIntegrate.at( bodyIndex ) +
-                       ", original ephemeris is of incompatible type" );
+                                      ", original ephemeris is of incompatible type" );
         }
 
         std::vector< boost::shared_ptr< Ephemeris > > arcEphemerisList;
@@ -395,10 +395,11 @@ void resetMultiArcIntegratedEphemerides(
             }
 
             // Create interpolator.
-            boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > ephemerisInterpolator =
-                    createStateInterpolator( convertNumericalSolutionToEphemerisInput(
-                                                 bodyIndex, startIndexAndSize.first,
-                                                 equationsOfMotionNumericalSolution.at( j ), integrationToEphemerisFrameFunction ) );
+            boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+                    ephemerisInterpolator = createStateInterpolator(
+                        convertNumericalSolutionToEphemerisInput(
+                            bodyIndex, startIndexAndSize.first,
+                            equationsOfMotionNumericalSolution.at( j ), integrationToEphemerisFrameFunction ) );
 
             arcEphemerisList.push_back( boost::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                                             ephemerisInterpolator, currentBodyEphemeris->getReferenceFrameOrigin( ),
@@ -766,7 +767,8 @@ createIntegratedStateProcessors(
                     {
                         if( singleTypeIntegratedStateProcessors.begin( )->second.size( ) != 1 )
                         {
-                            throw std::runtime_error( "Error when making hybrid integrated result processors, multiple processors of single type found" );
+                            throw std::runtime_error(
+                                        "Error when making hybrid integrated result processors, multiple processors of single type found" );
                         }
                         else
                         {
@@ -781,7 +783,8 @@ createIntegratedStateProcessors(
             }
             else
             {
-                throw std::runtime_error( "Error when making integrated state processors, cannot handle hybrid propagator inside hybrid propagator" );
+                throw std::runtime_error(
+                            "Error when making integrated state processors, cannot handle hybrid propagator inside hybrid propagator" );
             }
 
         }
@@ -876,6 +879,7 @@ void resetIntegratedStates(
  * \sa SingleStateTypeDerivative::convertToOutputSolution
  * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated
  * results into environment
+ * \param arcStartTimes List of start times of the propagation arcs.
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedMultiArcStatesWithEqualArcDynamics(

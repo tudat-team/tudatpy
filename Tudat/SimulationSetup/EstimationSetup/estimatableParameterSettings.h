@@ -217,10 +217,22 @@ public:
 
 };
 
+//! Class to define settings for estimating an arcwise initial translational state.
 template< typename InitialStateParameterType >
 class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
+
+
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
@@ -230,6 +242,15 @@ public:
         arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
         isStateSet_( 1 ){ }
 
+    //! Constructor, without initial value of translational state.
+    /*!
+     * Constructor, without initial value of translational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
@@ -238,15 +259,19 @@ public:
         arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
         isStateSet_( 0 ){ }
 
-
+    //! Current value of initial arc states (concatenated in same order as arcs)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue_;
 
+    //! Start times for separate arcs
     std::vector< double > arcStartTimes_;
 
+    //! Body w.r.t. which the initial state is to be estimated.
     std::string centralBody_;
 
+    //!Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
 
+    //! Boolean to denote whether initial states are set, or if they need to be computed
     bool isStateSet_;
 
 };

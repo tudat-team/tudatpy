@@ -522,54 +522,6 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
              << stateDerivativeFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
 }
 
-
-//class RelativisticTimeStatePropagatorSettings: public PropagatorSettings< double >
-//{
-//public:
-//    RelativisticTimeStatePropagatorSettings(
-//            const std::pair< std::string, std::string > referencePointId,
-//            const RelativisticTimeStateDerivativeType relativisticStateDerivativeType,
-//            const boost::function< double( const double ) > timeVariableConversionFunction = &basic_astrodynamics::doDummyTimeConversion< double >,
-//            const double distanceScalingFactor = 1.0 ):
-//        PropagatorSettings< double >( proper_time, Eigen::Matrix< double, 1, 1 >::Zero( ) ),
-//        relativisticStateDerivativeType_( relativisticStateDerivativeType ), referencePointId_( referencePointId ),
-//        timeVariableConversionFunction_( timeVariableConversionFunction ), distanceScalingFactor_( distanceScalingFactor )
-//    { }
-
-//    virtual ~RelativisticTimeStatePropagatorSettings( ){ }
-
-//    RelativisticTimeStateDerivativeType getRelativisticStateDerivativeType( )
-//    {
-//        return relativisticStateDerivativeType_;
-//    }
-
-//    std::pair< std::string, std::string > getReferencePointId( )
-//    {
-//        return referencePointId_;
-//    }
-
-//    boost::function< double( const double ) > getTimeVariableConversionFunction( )
-//    {
-//        return timeVariableConversionFunction_;
-//    }
-
-//    double getDistanceScalingFactor( )
-//    {
-//        return distanceScalingFactor_;
-//    }
-
-//protected:
-//    RelativisticTimeStateDerivativeType relativisticStateDerivativeType_;
-
-//    std::pair< std::string, std::string > referencePointId_;
-
-//    boost::function< double( const double ) > timeVariableConversionFunction_;
-
-//    double distanceScalingFactor_;
-
-//};
-
-
 //! Class used to provide settings for a custom state derivative model
 /*!
  *  Class used to provide settings for a custom state derivative model. The custom state derivative function has to be
@@ -826,7 +778,6 @@ public:
 
 };
 
-template< typename StateScalarType >
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
 * Function to retrieve the list of integrated state types and reference ids. For translational and rotational dynamics,
@@ -835,6 +786,7 @@ template< typename StateScalarType >
 * \param propagatorSettings Settings that are to be used for the propagation.
 * \return List of integrated state types and reference ids
 */
+template< typename StateScalarType >
 std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList(
         const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings )
 {
