@@ -184,6 +184,9 @@ int getDependentVariableSize(
     case body_fixed_airspeed_based_velocity_variable:
         variableSize = 3;
         break;
+    case body_fixed_groundspeed_based_velocity_variable:
+        variableSize = 3;
+        break;
     case total_aerodynamic_g_load_variable:
         variableSize = 1;
         break;
@@ -207,6 +210,18 @@ int getDependentVariableSize(
         break;
     case periapsis_altitude_dependent_variable:
         variableSize = 1;
+        break;
+    case total_torque_dependent_variable:
+        variableSize = 3;
+        break;
+    case single_torque_dependent_variable:
+        variableSize = 3;
+        break;
+    case total_torque_norm_dependent_variable:
+        variableSize = 1;
+        break;
+    case single_torque_norm_dependent_variable:
+        variableSize = 3;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

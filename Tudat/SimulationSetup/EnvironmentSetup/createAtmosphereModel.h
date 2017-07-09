@@ -23,6 +23,99 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! List of wind models available in simulations
+/*!
+ *  List of wind models available in simulations. Wind models not defined by this
+ *  given enum cannot be used for automatic model setup.
+ */
+enum WindModelTypes
+{
+    custom_wind_model
+};
+
+//! Class for providing settings for wind model.
+/*!
+ *  Class for providing settings for automatic wind model creation. This class is a
+ *  functional (base) class for settings of wind models that require no information in
+ *  addition to their type. Wind model classes defining requiring additional information
+ *  must be created using an object derived from this class.
+ */
+class WindModelSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param windModelType Type of wind model that is to be created
+     */
+    WindModelSettings( const WindModelTypes windModelType ):
+        windModelType_( windModelType ){ }
+
+    //! Destructor
+    virtual ~WindModelSettings( ){ }
+
+    //! Function to retrieve type of wind model that is to be created
+    /*!
+     * Function to retrieve type of wind model that is to be created
+     * \return Type of wind model that is to be created
+     */
+    WindModelTypes getWindModelType( )
+    {
+        return windModelType_;
+    }
+
+protected:
+
+    //! Type of wind model that is to be created
+    WindModelTypes windModelType_;
+};
+
+//! Class to define settings for a custom, user-defined, wind model
+class CustomWindModelSettings: public WindModelSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param windFunction Function that returns wind vector as a function of altitude, longitude, latitude and time (in that
+     * order).
+     */
+    CustomWindModelSettings(
+            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
+        WindModelSettings( custom_wind_model ), windFunction_( windFunction ){ }
+
+    //! Destructor
+    ~CustomWindModelSettings( ){ }
+
+    //! Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
+    /*!
+     * Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
+     * \return Function that returns wind vector as a function of altitude, longitude, latitude and time
+     */
+    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
+    {
+        return windFunction_;
+    }
+
+    //! Function to reset function that returns wind vector as a function of altitude, longitude, latitude and time
+    /*!
+     * Function to reset function that returns wind vector as a function of altitude, longitude, latitude and time
+     * \param windFunction New function that returns wind vector as a function of altitude, longitude, latitude and time
+     */
+    void setWindFunction(
+            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
+    {
+        windFunction_ = windFunction;
+    }
+
+protected:
+
+    //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
+    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+};
+
 //! List of atmosphere models available in simulations
 /*!
  *  List of atmosphere models available in simulations. Atmosphere models not defined by this
@@ -65,10 +158,32 @@ public:
      */
     AtmosphereTypes getAtmosphereType( ){ return atmosphereType_; }
 
+    //! Function to return settings for the atmosphere's wind model.
+    /*!
+     *  Function to return settings for the atmosphere's wind model.
+     *  \return Settings for the atmosphere's wind model.
+     */
+    boost::shared_ptr< WindModelSettings > getWindSettings( )
+    {
+        return windSettings_;
+    }
+
+    //! Function to (re)set settings for the atmosphere's wind model.
+    /*!
+     *  Function to (re)set settings for the atmosphere's wind model.
+     *  \param windSettings Settings for the atmosphere's wind model.
+     */
+    void setWindSettings( const boost::shared_ptr< WindModelSettings > windSettings )
+    {
+        windSettings_ = windSettings;
+    }
 private:
 
     //!  Type of atmosphere model that is to be created.
     AtmosphereTypes atmosphereType_;
+
+    //! Settings for the atmosphere's wind model.
+    boost::shared_ptr< WindModelSettings > windSettings_;
 };
 
 //! AtmosphereSettings for defining an exponential atmosphere.
@@ -199,6 +314,18 @@ private:
      */
     std::string atmosphereFile_;
 };
+
+//! Function to create a wind model.
+/*!
+ *  Function to create a wind model based on model-specific settings for the wind model.
+ *  \param windSettings Settings for the wind model that is to be created, defined
+ *  a pointer to an object of class (derived from) WindModelSettings.
+ *  \param body Name of the body for which the wind model is to be created.
+ *  \return Wind model created according to settings in windSettings.
+ */
+boost::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const boost::shared_ptr< WindModelSettings > windSettings,
+        const std::string& body);
 
 //! Function to create an atmosphere model.
 /*!

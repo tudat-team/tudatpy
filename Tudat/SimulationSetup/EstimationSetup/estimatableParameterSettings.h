@@ -11,6 +11,7 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 #define TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -217,10 +218,22 @@ public:
 
 };
 
+//! Class to define settings for estimating an arcwise initial translational state.
 template< typename InitialStateParameterType >
 class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
+
+
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
@@ -230,6 +243,15 @@ public:
         arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
         isStateSet_( 1 ){ }
 
+    //! Constructor, without initial value of translational state.
+    /*!
+     * Constructor, without initial value of translational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
@@ -238,16 +260,84 @@ public:
         arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
         isStateSet_( 0 ){ }
 
-
+    //! Current value of initial arc states (concatenated in same order as arcs)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue_;
 
+    //! Start times for separate arcs
     std::vector< double > arcStartTimes_;
 
+    //! Body w.r.t. which the initial state is to be estimated.
     std::string centralBody_;
 
+    //!Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
 
+    //! Boolean to denote whether initial states are set, or if they need to be computed
     bool isStateSet_;
+
+};
+
+//! Class to define settings for estimating time-independent empirical acceleration components
+class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     */
+    EmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //!  List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+};
+
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseEmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     * \param arcStartTimeList List of times at which empirical acceleration arcs are to start
+     */
+    ArcWiseEmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //! List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+    //! List of times at which empirical acceleration arcs are to start
+    std::vector< double > arcStartTimeList_;
+
 
 };
 
