@@ -28,6 +28,33 @@ namespace tudat
 namespace simulation_setup
 {
 
+boost::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const boost::shared_ptr< WindModelSettings > windSettings,
+        const std::string& body )
+{
+    boost::shared_ptr< aerodynamics::WindModel > windModel;
+    switch( windSettings->getWindModelType( ) )
+    {
+    case custom_wind_model:
+    {
+        boost::shared_ptr< CustomWindModelSettings > customWindModelSettings =
+                boost::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
+        if( customWindModelSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
+        }
+        windModel = boost::make_shared< aerodynamics::CustomWindModel >(
+                    customWindModelSettings->getWindFunction( ) );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when making wind model for body " + body + ", input type not recognized" );
+    }
+
+    return windModel;
+
+}
+
 //! Function to create an atmosphere model.
 boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
@@ -111,9 +138,15 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 #endif
     default:
         throw std::runtime_error(
-                 "Error, did not recognize atmosphere model settings type " +
-                  boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
+                    "Error, did not recognize atmosphere model settings type " +
+                    boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
     }
+
+    if( atmosphereSettings->getWindSettings( ) != NULL )
+    {
+        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body ) );
+    }
+
     return atmosphereModel;
 }
 

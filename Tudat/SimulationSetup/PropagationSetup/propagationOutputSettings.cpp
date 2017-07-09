@@ -79,6 +79,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
         break;
+    case body_fixed_groundspeed_based_velocity_variable:
+        variableName = "Groundspeed-based velocity ";
+        break;
     case total_aerodynamic_g_load_variable:
         variableName = "Aerodynamic g-load ";
         break;

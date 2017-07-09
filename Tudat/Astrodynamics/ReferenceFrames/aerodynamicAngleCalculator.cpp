@@ -106,16 +106,29 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     // Get current body-fixed state.
     if( !( currentTime == currentTime_ ) )
     {
-        currentBodyFixedState_ = bodyFixedStateFunction_( );
+
+        currentBodyFixedGroundSpeedBasedState_ = bodyFixedStateFunction_( );
         currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
 
         Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical< double >(
-                    currentBodyFixedState_.segment( 0, 3 ) );
+                    currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) );
 
         // Calculate latitude and longitude.
         currentAerodynamicAngles_[ latitude_angle ] =
                 mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
         currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
+
+        Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
+        if( windModel_ != NULL )
+        {
+            localWindVelocity = windModel_->getCurrentWindVelocity(
+                        shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) ),
+                        currentAerodynamicAngles_[ longitude_angle ],
+                        currentAerodynamicAngles_[ latitude_angle ],
+                        currentTime );
+        }
+        currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) += localWindVelocity;
 
         // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
         if( calculateVerticalToAerodynamicFrame_ )
@@ -124,7 +137,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
                     getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
                         currentAerodynamicAngles_.at( longitude_angle ),
                         currentAerodynamicAngles_.at( latitude_angle ) ) *
-                    currentBodyFixedState_.segment( 3, 3 );
+                    currentBodyFixedAirspeedBasedState_.segment( 3, 3 );
 
             currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
             currentAerodynamicAngles_[ flight_path_angle ] =

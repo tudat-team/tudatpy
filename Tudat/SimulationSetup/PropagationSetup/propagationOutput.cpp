@@ -184,6 +184,9 @@ int getDependentVariableSize(
     case body_fixed_airspeed_based_velocity_variable:
         variableSize = 3;
         break;
+    case body_fixed_groundspeed_based_velocity_variable:
+        variableSize = 3;
+        break;
     case total_aerodynamic_g_load_variable:
         variableSize = 1;
         break;
