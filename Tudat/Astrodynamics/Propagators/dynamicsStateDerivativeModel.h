@@ -23,9 +23,11 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 
 namespace tudat
@@ -614,6 +616,56 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
     return listOfSuitableAccelerationModels;
 }
 
+template< typename TimeType = double, typename StateScalarType = double >
+std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetweenBodies(
+        const std::string bodyUndergoingTorque,
+        const std::string bodyExertingTorque,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        const basic_astrodynamics::AvailableTorque torqueModeType )
+
+{
+    std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > >
+            listOfSuitableTorqueModels;
+
+    // Retrieve torque models
+    if( stateDerivativeModels.count( propagators::rotational_state ) == 1 )
+    {
+        basic_astrodynamics::TorqueModelMap torqueModelList =
+                boost::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModels.at( propagators::rotational_state ).at( 0 ) )->getTorquesMap( );
+        if( torqueModelList.count( bodyUndergoingTorque ) == 0 )
+        {
+
+            std::string errorMessage = "Error when getting torque between bodies, no translational dynamics models acting on " +
+                    bodyUndergoingTorque + " are found";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve torques acting on bodyUndergoingTorque
+            if( torqueModelList.at( bodyUndergoingTorque ).count( bodyExertingTorque ) == 0 )
+            {
+                std::string errorMessage = "Error when getting torque between bodies, no translational dynamics models by " +
+                        bodyExertingTorque + " acting on " + bodyUndergoingTorque + " are found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                // Retrieve required torque.
+                listOfSuitableTorqueModels = basic_astrodynamics::getTorqueModelsOfType(
+                            torqueModelList.at( bodyUndergoingTorque ).at( bodyExertingTorque ), torqueModeType );
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting torque between bodies, no translational dynamics models found";
+        throw std::runtime_error( errorMessage );
+    }
+    return listOfSuitableTorqueModels;
+}
+
 //! Function to retrieve the state derivative models for translational dynamics of given body.
 /*!
  *  Function to retrieve the state derivative models for translational dynamics (object of derived class from
@@ -664,6 +716,53 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
     {
         std::string errorMessage = "Error when getting translational dynamics model for " +
                 bodyUndergoingAcceleration + " no translational dynamics models found";
+        throw std::runtime_error( errorMessage );
+    }
+    return modelForBody;
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > getRotationalStateDerivativeModelForBody(
+        const std::string bodyUndergoingTorque,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+
+{
+    bool modelFound = 0;
+    boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > modelForBody;
+
+    // Check if translational state derivative models exists
+    if( stateDerivativeModels.count( propagators::rotational_state ) > 0 )
+    {
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::rotational_state ).size( ); i++ )
+        {
+            boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =
+                    boost::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                        stateDerivativeModels.at( propagators::rotational_state ).at( i ) );
+            std::vector< std::string > propagatedBodies = rotationalDynamicsModel->getBodiesToBeIntegratedNumerically( );
+
+            // Check if bodyUndergoingTorque is propagated by bodyUndergoingTorque
+            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingTorque )
+                    != propagatedBodies.end( ) )
+            {
+                if( modelFound == true )
+                {
+                    std::string errorMessage = "Error when getting rotational dynamics model for " +
+                            bodyUndergoingTorque + ", multiple models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    modelForBody = rotationalDynamicsModel;
+                    modelFound = true;
+                }
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting translational dynamics model for " +
+                bodyUndergoingTorque + " no translational dynamics models found";
         throw std::runtime_error( errorMessage );
     }
     return modelForBody;

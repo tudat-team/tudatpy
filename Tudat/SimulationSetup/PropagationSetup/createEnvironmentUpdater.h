@@ -37,6 +37,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+//! Get list of required environment model update settings from torque models.
+/*!
+ * Get list of required environment model update settings from torque models.
+ * \param torqueModels List of torque models used in simulation.
+ * \param bodyMap List of body objects used in the simulations.
+ * \return List of required environment model update settings.
+ */
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap );
+
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
  * Get list of required environment model update settings from translational acceleration models.
@@ -123,6 +134,13 @@ std::map< propagators::EnvironmentModelsToUpdate,
                     boost::dynamic_pointer_cast<
                     TranslationalStatePropagatorSettings< StateScalarType > >(
                         propagatorSettings )->accelerationsMap_,
+                    bodyMap );
+        break;
+    }
+    case rotational_state:
+    {
+        environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->torqueModelMap_,
                     bodyMap );
         break;
     }

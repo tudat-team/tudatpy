@@ -16,6 +16,7 @@
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -184,6 +185,7 @@ public:
             boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
             boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
             const bool calculateSchwarzschildCorrection = true ):
+        AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
         stateFunctionOfCentralBody_( stateFunctionOfCentralBody ),
         stateFunctionOfPrimaryBody_( stateFunctionOfPrimaryBody ),
@@ -219,6 +221,7 @@ public:
             boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
             boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
             const bool calculateSchwarzschildCorrection = true ):
+        AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
         stateFunctionOfCentralBody_( stateFunctionOfCentralBody ),
         gravitationalParameterFunctionOfCentralBody_( gravitationalParameterFunctionOfCentralBody ),
@@ -246,6 +249,7 @@ public:
             boost::function< double( ) > gravitationalParameterFunctionOfCentralBody,
             boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
             boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ) ):
+        AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
         stateFunctionOfCentralBody_( stateFunctionOfCentralBody ),
         gravitationalParameterFunctionOfCentralBody_( gravitationalParameterFunctionOfCentralBody ),
@@ -277,7 +281,78 @@ public:
      * them to update the associated variables to their current state.
      * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( const double currentTime = TUDAT_NAN );
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            this->currentTime_ = currentTime;
+
+            // Update common variables
+            stateOfAcceleratedBodyWrtCentralBody_ = stateFunctionOfAcceleratedBody_( ) - stateFunctionOfCentralBody_( );
+            gravitationalParameterOfCentralBody_ = gravitationalParameterFunctionOfCentralBody_( );
+
+            ppnParameterGamma_ = ppnParameterGammaFunction_( );
+            ppnParameterBeta_ = ppnParameterBetaFunction_( );
+
+            commonCorrectionTerm_ = calculateRelativisticAccelerationCorrectionsCommonterm(
+                        gravitationalParameterOfCentralBody_,
+                        stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( ) );
+
+            currentAcceleration_.setZero( );
+
+            double relativeDistance = stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ).norm( );
+
+            // Compute Schwarzschild term (if requested)
+            if( calculateSchwarzschildCorrection_ )
+            {
+                currentAcceleration_ = calculateScharzschildGravitationalAccelerationCorrection(
+                            gravitationalParameterOfCentralBody_,
+                            stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ),
+                            stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
+                            relativeDistance, commonCorrectionTerm_, ppnParameterGamma_,
+                            ppnParameterBeta_ );
+            }
+
+            // Compute Lense-Thirring term (if requested)
+            if( calculateLenseThirringCorrection_ )
+            {
+                centalBodyAngularMomentum_ = centalBodyAngularMomentumFunction_( );
+                currentAcceleration_ +=  calculateLenseThirringCorrectionAcceleration(
+                            stateOfAcceleratedBodyWrtCentralBody_.segment( 0, 3 ),
+                            stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
+                            relativeDistance, commonCorrectionTerm_, centalBodyAngularMomentum_,
+                            ppnParameterGamma_ );
+
+            }
+
+            // Compute de Sitter term (if requested)
+            if( calculateDeSitterCorrection_ )
+            {
+                stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
+                gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
+
+                double primaryDistance = stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ).norm( );
+
+                stateOfCentralBodyWrtPrimaryBody_ = stateFunctionOfCentralBody_( ) - stateFunctionOfPrimaryBody_( );
+                gravitationalParameterOfPrimaryBody_ = gravitationalParameterFunctionOfPrimaryBody_( );
+
+                double largerBodyCommonCorrectionTerm =  gravitationalParameterOfPrimaryBody_ / (
+                        primaryDistance * primaryDistance * primaryDistance *
+                            physical_constants::SPEED_OF_LIGHT * physical_constants::SPEED_OF_LIGHT );
+
+                currentAcceleration_ += calculateDeSitterCorrectionAcceleration(
+                            stateOfAcceleratedBodyWrtCentralBody_.segment( 3, 3 ),
+                            stateOfCentralBodyWrtPrimaryBody_.segment( 0, 3 ),
+                            stateOfCentralBodyWrtPrimaryBody_.segment( 3, 3 ),
+                            largerBodyCommonCorrectionTerm,
+                            ppnParameterGamma_ );
+
+            }
+
+
+        }
+    }
+
 
     //! Function to return the current state of the body undergoing acceleration
     /*!

@@ -33,6 +33,7 @@ set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/secondDegreeGravitationalTorque.cpp"
 )
 
 # Set the header files.
@@ -57,6 +58,7 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.h"
   "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.h"
   "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/secondDegreeGravitationalTorque.h"
 )
 
 # Add static libraries.

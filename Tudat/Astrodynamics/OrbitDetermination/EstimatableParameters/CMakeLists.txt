@@ -29,6 +29,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/ppnParameters.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/groundStationPosition.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/equivalencePrincipleViolationParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/empiricalAccelerationCoefficients.h"
 )
 
 # Add static libraries.
