@@ -787,12 +787,31 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type current_airpeed_based_velocity_variable_variable";
+            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
             throw std::runtime_error( errorMessage );
         }
 
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        parameterSize = 3;
+        break;
+    }
+    case body_fixed_groundspeed_based_velocity_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_groundspeed_based_velocity_variable";
+            throw std::runtime_error( errorMessage );
+        }
+
+        if(  bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == NULL )
+        {
+            std::string errorMessage= "Error, no aerodynamic angle calculator when creating dependent variable function of type body_fixed_groundspeed_based_velocity_variable";
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentGroundspeedBasedBodyFixedVelocity,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
         parameterSize = 3;
         break;
     }

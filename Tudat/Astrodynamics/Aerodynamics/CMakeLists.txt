@@ -44,6 +44,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
   "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/windModel.h"
 )
 
 if(USE_NRLMSISE00)
@@ -96,6 +97,9 @@ add_executable(test_AerodynamicCoefficientsFromFile "${SRCROOT}${AERODYNAMICSDIR
 setup_custom_test_program(test_AerodynamicCoefficientsFromFile "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicCoefficientsFromFile ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_WindModel "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestWindModel.cpp")
+setup_custom_test_program(test_WindModel "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_WindModel ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")
     setup_custom_test_program(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}")

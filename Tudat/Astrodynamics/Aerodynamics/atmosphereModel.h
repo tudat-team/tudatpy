@@ -15,6 +15,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Astrodynamics/Aerodynamics/windModel.h"
 
 namespace tudat
 {
@@ -85,8 +86,19 @@ public:
     virtual double getSpeedOfSound( const double altitude, const double longitude,
                                     const double latitude, const double time ) = 0;
 
+    boost::shared_ptr< WindModel > getWindModel( )
+    {
+        return windModel_;
+    }
+
+    void setWindModel( const boost::shared_ptr< WindModel > windModel )
+    {
+        windModel_ = windModel;
+    }
+
 protected:
 
+    boost::shared_ptr< WindModel > windModel_;
 private:
 };
 

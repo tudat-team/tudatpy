@@ -23,6 +23,53 @@ namespace tudat
 namespace simulation_setup
 {
 
+enum WindModelTypes
+{
+    custom_wind_model
+};
+
+class WindModelSettings
+{
+public:
+    WindModelSettings( const WindModelTypes windModelType ):
+        windModelType_( windModelType ){ }
+
+    virtual ~WindModelSettings( ){ }
+
+    WindModelTypes getWindModelType( )
+    {
+        return windModelType_;
+    }
+
+protected:
+
+    WindModelTypes windModelType_;
+};
+
+class CustomWindModelSettings: public WindModelSettings
+{
+public:
+    CustomWindModelSettings(
+            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
+        WindModelSettings( custom_wind_model ), windFunction_( windFunction ){ }
+
+    ~CustomWindModelSettings( ){ }
+
+    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
+    {
+        return windFunction_;
+    }
+
+    void setWindFunction( const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
+    {
+        windFunction_ = windFunction;
+    }
+
+protected:
+
+    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+};
+
 //! List of atmosphere models available in simulations
 /*!
  *  List of atmosphere models available in simulations. Atmosphere models not defined by this
@@ -65,10 +112,21 @@ public:
      */
     AtmosphereTypes getAtmosphereType( ){ return atmosphereType_; }
 
+    boost::shared_ptr< WindModelSettings > getWindSettings( )
+    {
+        return windSettings_;
+    }
+
+    void setWindSettings( const boost::shared_ptr< WindModelSettings > windSettings )
+    {
+        windSettings_ = windSettings;
+    }
 private:
 
     //!  Type of atmosphere model that is to be created.
     AtmosphereTypes atmosphereType_;
+
+    boost::shared_ptr< WindModelSettings > windSettings_;
 };
 
 //! AtmosphereSettings for defining an exponential atmosphere.
@@ -199,6 +257,10 @@ private:
      */
     std::string atmosphereFile_;
 };
+
+boost::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const boost::shared_ptr< WindModelSettings > windSettings,
+        const std::string& body);
 
 //! Function to create an atmosphere model.
 /*!
