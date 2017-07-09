@@ -22,13 +22,30 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Base class for a wind model.
+/*!
+ *  Base class for a wind model.  The wind vector is defined as the local velocity of the atmosphere expressed in the
+ *  frame corotating with the body.
+ */
 class WindModel
 {
 public:
+
+    //! Constructor.
     WindModel( ){ }
 
+    //! Destructor.
     ~WindModel( ){ }
 
+    //! Function (pure virtual) to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+    /*!
+     * Function (pure virtual) to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     * \param currentAltitude Altitude at which wind vector is to be retrieved.
+     * \param currentLongitude Longitude at which wind vector is to be retrieved.
+     * \param currentLatitude Latitude at which wind vector is to be retrieved.
+     * \param currentTime Time at which wind vector is to be retrieved.
+     * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     */
     virtual Eigen::Vector3d getCurrentWindVelocity(
             const double currentAltitude ,
             const double currentLongitude ,
@@ -36,15 +53,33 @@ public:
             const double currentTime ) = 0;
 };
 
+//! Class for computing the wind velocity vector from a custom, user-defined function.
 class CustomWindModel: public WindModel
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param windFunction Function that returns wind vector as a function of altitude, longitude, latitude and time (in that
+     * order).
+     */
     CustomWindModel(
             const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
     windFunction_( windFunction ){ }
 
+    //! Destructor
     ~CustomWindModel( ){ }
 
+    //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+    /*!
+     * Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     * \param currentAltitude Altitude at which wind vector is to be retrieved.
+     * \param currentLongitude Longitude at which wind vector is to be retrieved.
+     * \param currentLatitude Latitude at which wind vector is to be retrieved.
+     * \param currentTime Time at which wind vector is to be retrieved.
+     * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     */
     Eigen::Vector3d getCurrentWindVelocity(
             const double currentAltitude ,
             const double currentLongitude ,
@@ -55,6 +90,8 @@ public:
     }
 
 private:
+
+    //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
     boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
 };
 

@@ -118,6 +118,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
                 mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
         currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
 
+        // Compute wind velocity vector
         Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
         if( windModel_ != NULL )
         {
@@ -127,6 +128,8 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
                         currentAerodynamicAngles_[ latitude_angle ],
                         currentTime );
         }
+
+        // Compute airspeed-based velocity vector
         currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
         currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) += localWindVelocity;
 
