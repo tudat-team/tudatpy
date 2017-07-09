@@ -86,11 +86,21 @@ public:
     virtual double getSpeedOfSound( const double altitude, const double longitude,
                                     const double latitude, const double time ) = 0;
 
+    //! Function to retrieve the model describing the wind velocity vector of the atmosphere
+    /*!
+     * Function to retrieve the model describing the wind velocity vector of the atmosphere
+     * \return Model describing the wind velocity vector of the atmosphere
+     */
     boost::shared_ptr< WindModel > getWindModel( )
     {
         return windModel_;
     }
 
+    //! Function to set the model describing the wind velocity vector of the atmosphere
+    /*!
+     * Function to set the model describing the wind velocity vector of the atmosphere
+     * \param windModel New model describing the wind velocity vector of the atmosphere
+     */
     void setWindModel( const boost::shared_ptr< WindModel > windModel )
     {
         windModel_ = windModel;
@@ -98,6 +108,7 @@ public:
 
 protected:
 
+    //! Model describing the wind velocity vector of the atmosphere
     boost::shared_ptr< WindModel > windModel_;
 private:
 };

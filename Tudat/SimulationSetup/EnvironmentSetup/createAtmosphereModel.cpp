@@ -28,15 +28,19 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create a wind model.
 boost::shared_ptr< aerodynamics::WindModel > createWindModel(
         const boost::shared_ptr< WindModelSettings > windSettings,
         const std::string& body )
 {
     boost::shared_ptr< aerodynamics::WindModel > windModel;
+
+    // Check wind model type and create requested model
     switch( windSettings->getWindModelType( ) )
     {
     case custom_wind_model:
     {
+        // Check input consistency
         boost::shared_ptr< CustomWindModelSettings > customWindModelSettings =
                 boost::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
         if( customWindModelSettings == NULL )
