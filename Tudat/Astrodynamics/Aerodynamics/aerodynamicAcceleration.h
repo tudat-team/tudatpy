@@ -141,6 +141,9 @@ public:
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }
 
+    //! Destructor
+    ~AerodynamicAcceleration( ){ }
+
     //! Get acceleration.
     /*!
      * Returns the aerodynamic acceleration. All data required for the computation is taken
@@ -175,6 +178,8 @@ public:
             currentMass_ = this->massFunction_( );
             currentAirspeed_ = this->airSpeedFunction_( );
             currentReferenceArea_ = this->referenceAreaFunction_( );
+
+            currentTime_ = currentTime;
         }
     }
 

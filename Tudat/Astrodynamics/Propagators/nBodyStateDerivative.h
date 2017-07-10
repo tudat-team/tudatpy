@@ -178,7 +178,7 @@ public:
 
     //! Function to update the state derivative model to the current time.
     /*!
-     * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the
+     * Function to update the state derivative model (i.e. acceleration models) to the
      * current time. Note that this function only updates the state derivative model itself, the
      * environment models must be updated before calling this function.
      * \param currentTime Time at which state derivative is to be calculated

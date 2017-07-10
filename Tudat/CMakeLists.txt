@@ -262,6 +262,7 @@ else()
  endif( )
 endif()
 
+option(COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." ON)
 
 # Create lists of static libraries for ease of use
 list(APPEND TUDAT_EXTERNAL_LIBRARIES "")

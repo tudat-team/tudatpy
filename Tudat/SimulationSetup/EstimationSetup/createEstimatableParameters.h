@@ -103,21 +103,23 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
             }
             break;
         case arc_wise_initial_body_state:
-            if( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
-                        parameterSettings ) == NULL )
+            if( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings<
+                    InitialStateParameterType > >( parameterSettings ) == NULL )
             {
                 throw std::runtime_error(
                             "Error when making body initial state parameter, settings type is incompatible" );
             }
             else
             {
-                boost::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > initialStateSettings =
-                        boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                boost::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings =  boost::dynamic_pointer_cast<
+                        ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                             parameterSettings );
 
                 if( initialStateSettings->isStateSet_ )
                 {
-                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
                                 initialStateSettings->parameterType_.second.first,
                                 initialStateSettings->arcStartTimes_,
                                 initialStateSettings->initialStateValue_,
@@ -126,10 +128,12 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                 }
                 else
                 {
-                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
                                 propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
-                                    initialStateSettings->parameterType_.second.first, initialStateSettings->centralBody_, bodyMap,
+                                    initialStateSettings->parameterType_.second.first,
+                                    initialStateSettings->centralBody_, bodyMap,
                                     initialStateSettings->arcStartTimes_ ),
                                 initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
                 }
