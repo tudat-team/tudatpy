@@ -42,7 +42,7 @@ public:
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
     std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
-    //! List of SingleObservablePodInputType per observation type
+        //! List of SingleObservablePodInputType per observation type
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     //! Constructor
@@ -312,4 +312,5 @@ struct PodOutput
 }
 
 }
+
 #endif // TUDAT_PODINPUTOUTPUTTYPES_H

@@ -610,7 +610,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 
     // Check results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 2.0E-5 );
+                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 2.5E-5 );
 
 }
 

@@ -25,6 +25,8 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
+#include "Tudat/Astrodynamics/Aerodynamics/windModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 
 
 namespace tudat
@@ -118,6 +120,20 @@ public:
         bankAngleFunction_( bankAngleFunction ),
         angleUpdateFunction_( angleUpdateFunction ),
         currentBodyAngleTime_( TUDAT_NAN ){ }
+
+    //! Function to set the atmospheric wind model
+    /*!
+     * Function to set the atmospheric wind model
+     * \param windModel Model that computes the atmospheric wind as a function of position and time
+     * \param shapeModel Shape model of central body, used in computation of altitude that is required for wind calculation
+     */
+    void setWindModel(
+            const boost::shared_ptr< aerodynamics::WindModel > windModel,
+            const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
+    {
+        windModel_ = windModel;
+        shapeModel_ = shapeModel;
+    }
 
     //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
     /*!
@@ -231,15 +247,36 @@ public:
         return centralBodyName_;
     }
 
-    //! Function to get the current body-fixed state of vehicle, as set by previous call to update( ).
+    //! Function to get the current airspeed-based body-fixed state of vehicle, as set by previous call to update( ).
     /*!
-     * Function to get the current body-fixed state of vehicle, as set by previous call to update( ).
-     * \return Current body-fixed state of vehicle, as set by previous call to update( ).
+     * Function to get the current airspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+     * \return Current airspeed-based body-fixed state of vehicle, as set by previous call to update( ).
      */
-    Eigen::Vector6d getCurrentBodyFixedState( )
+    Eigen::Vector6d getCurrentAirspeedBasedBodyFixedState( )
     {
-        return currentBodyFixedState_;
+        return currentBodyFixedAirspeedBasedState_;
     }
+
+    //! Function to get the current groundspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+    /*!
+     * Function to get the current groundspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+     * \return Current groundspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+     */
+    Eigen::Vector6d getCurrentGroundspeedBasedBodyFixedState( )
+    {
+        return currentBodyFixedGroundSpeedBasedState_;
+    }
+
+    //! Function to get the current groundspeed-based body-fixed velocity of vehicle, as set by previous call to update( ).
+    /*!
+     * Function to get the current groundspeed-based body-fixed velocity of vehicle, as set by previous call to update( ).
+     * \return Current groundspeed-based body-fixed velocity of vehicle, as set by previous call to update( ).
+     */
+    Eigen::Vector3d getCurrentGroundspeedBasedBodyFixedVelocity( )
+    {
+        return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
+    }
+
 
     //! Function to reset the value of the currentBodyAngleTime_ variable
     /*!
@@ -254,17 +291,26 @@ public:
 
 private:
 
+    //! Model that computes the atmospheric wind as a function of position and time
+    boost::shared_ptr< aerodynamics::WindModel > windModel_;
+
+    //! Shape model of central body, used in computation of altitude that is required for wind calculation
+    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+
     //! Map of current angles, as calculated by previous call to update( ) function.
     std::map< AerodynamicsReferenceFrameAngles, double > currentAerodynamicAngles_;
 
-    //! Map of current transformation quaternions, as calculated since previous call to update( )
-    //! function.
+    //! Map of current transformation quaternions, as calculated since previous call to update( ) function.
     std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
     Eigen::Quaterniond > currentRotationMatrices_;
 
-    //! Current body-fixed state of vehicle, as set by previous call to update( ).
-    Eigen::Vector6d currentBodyFixedState_;
+    //! Current airspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+    Eigen::Vector6d currentBodyFixedAirspeedBasedState_;
 
+    //! Current groundspeed-based body-fixed state of vehicle, as set by previous call to update( ).
+    Eigen::Vector6d currentBodyFixedGroundSpeedBasedState_;
+
+    //! Current rotation from central-body-corotating to inertial frame, as set by previous call to update( ).
     Eigen::Quaterniond currentRotationFromCorotatingToInertialFrame_;
 
     //! Vehicle state in a frame fixed w.r.t. the central body.

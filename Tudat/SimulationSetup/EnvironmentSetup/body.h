@@ -222,7 +222,8 @@ public:
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-          bodyMassFunction_( NULL )
+          bodyMassFunction_( NULL ),
+          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -488,6 +489,31 @@ public:
         }
     }
 
+    //! Function to set the full rotational state directly
+    /*!
+     * Function to set the full rotational state  directly (rotation from global to body-fixed frame
+     * rotation matrix derivative from global to body-fixed frame and angular velocity vector in the
+     * global frame) directly, by providing the current rotational state as input.
+     * \param currentRotationalStateFromLocalToGlobalFrame Quaternion from body-fixed to propagation frame
+     * (in vector form) and the body's angular velocity vector in body-fixed frame.
+     */
+    void setCurrentRotationalStateToLocalFrame( const Eigen::Matrix< double, 7, 1 > currentRotationalStateFromLocalToGlobalFrame )
+    {
+        Eigen::Quaterniond currentRotationToGlobalFrame =
+                Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 1 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 2 ),
+                                    currentRotationalStateFromLocalToGlobalFrame( 3 ) );
+        currentRotationToGlobalFrame.normalize( );
+
+        currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
+        currentAngularVelocityVectorInGlobalFrame_ =
+                currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+
+        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
+        currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
+                    currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
+    }
 
     //! Get current rotation from body-fixed to inertial frame.
     /*!
@@ -921,6 +947,26 @@ public:
         return currentMass_;
     }
 
+    //! Function to retrieve the body moment-of-inertia tensor.
+    /*!
+     * Function to retrieve the body moment-of-inertia tensor.
+     * \return  Body moment-of-inertia tensor.
+     */
+    Eigen::Matrix3d getBodyInertiaTensor( )
+    {
+        return bodyInertiaTensor_;
+    }
+
+    //! Function to (re)set the body moment-of-inertia tensor.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor.
+     * \param bodyInertiaTensor Body moment-of-inertia tensor.
+     */
+    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
+    {
+        bodyInertiaTensor_ = bodyInertiaTensor;
+    }
+
     //! Function to add a ground station to the body
     /*!
      * Function to add a ground station to the body
@@ -989,7 +1035,6 @@ protected:
 
 private:
 
-
     //! Current state.
     Eigen::Vector6d currentState_;
 
@@ -1021,6 +1066,10 @@ private:
 
     //! Function returning body mass as a function of time.
     boost::function< double( const double ) > bodyMassFunction_;
+
+
+    //! Body moment-of-inertia tensor.
+    Eigen::Matrix3d bodyInertiaTensor_;
 
 
     //! Ephemeris of body.

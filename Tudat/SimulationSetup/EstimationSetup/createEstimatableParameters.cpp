@@ -11,6 +11,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantDragCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/empiricalAccelerationCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/groundStationPosition.h"
@@ -409,6 +410,138 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                     vectorParameterToEstimate = boost::make_shared< GroundStationPosition  >(
                                 groundStationState, vectorParameterName->parameterType_.second.first,
                                 vectorParameterName->parameterType_.second.second );
+                }
+            }
+            break;
+        }
+        case empirical_acceleration_coefficients:
+        {
+            // Check input consistency
+            boost::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
+                    boost::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
+            if( empiricalAccelerationSettings == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                // Check if required acceleration model exists
+                if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " when making constant empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
+                             empiricalAccelerationSettings->centralBody_ ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " +
+                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " due to body " +  boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->centralBody_ ) +
+                            " when making constant empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Retrieve acceleration model.
+                    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration;
+                    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                            accelerationModelList =
+                            accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).at(
+                                empiricalAccelerationSettings->centralBody_ );
+                    for( unsigned int i = 0; i < accelerationModelList.size( ); i++ )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModelList[ i ] ) ==
+                                basic_astrodynamics::empirical_acceleration )
+                        {
+                            empiricalAcceleration = boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                        accelerationModelList[ i ] );
+                        }
+                    }
+
+                    if( empiricalAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making constant empirical acceleration coefficients parameter, could not find acceleration model" );
+                    }
+                    else
+                    {
+                        // Create empirical acceleration parameter
+                        vectorParameterToEstimate = boost::make_shared< EmpiricalAccelerationCoefficientsParameter >(
+                                    empiricalAcceleration, empiricalAccelerationSettings->parameterType_.second.first,
+                                    empiricalAccelerationSettings->componentsToEstimate_ );
+                    }
+                }
+            }
+            break;
+        }
+        case arc_wise_empirical_acceleration_coefficients:
+        {
+            // Check input consistency
+            boost::shared_ptr< ArcWiseEmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
+                    boost::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
+            if( empiricalAccelerationSettings == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                // Check if required acceleration model exists
+                if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " when making arcwise empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+
+                }
+                else if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
+                             empiricalAccelerationSettings->centralBody_ ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " +
+                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " due to body " +  boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->centralBody_ ) +
+                            " when making arcwise empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Retrieve acceleration model.
+                    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration;
+                    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList =
+                            accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).at(
+                                empiricalAccelerationSettings->centralBody_ );
+                    for( unsigned int i = 0; i < accelerationModelList.size( ); i++ )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModelList[ i ] ) ==
+                                basic_astrodynamics::empirical_acceleration )
+                        {
+                            empiricalAcceleration = boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                        accelerationModelList[ i ] );
+                        }
+                    }
+
+                    if( empiricalAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making constant empirical acceleration coefficients parameter, could not find acceleration model" );
+                    }
+                    else
+                    {
+                        // Create arcwise empirical acceleration parameter
+                        vectorParameterToEstimate = boost::make_shared< ArcWiseEmpiricalAccelerationCoefficientsParameter >(
+                                    empiricalAcceleration, empiricalAccelerationSettings->parameterType_.second.first,
+                                    empiricalAccelerationSettings->componentsToEstimate_, empiricalAccelerationSettings->arcStartTimeList_ );
+                    }
                 }
             }
             break;

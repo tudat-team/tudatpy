@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
+#include <Eigen/Geometry>
 
 #include <Tudat/Basics/basicTypedefs.h>
 
@@ -26,6 +27,14 @@ namespace tudat
 
 namespace linear_algebra
 {
+
+//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+/*!
+ * Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+ * \param quaternion Quaternion that is to be put into vector format.
+ * \return Vector format of input quaternion
+ */
+Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
 //! Function that returns that 'cross-product matrix'
 /*!
@@ -121,6 +130,20 @@ Eigen::Vector3d evaluateSecondBlockInStateVector(
 
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 );
+
+//! Function to calculate the jacobian of a normalized vector, from the jacobian of the unnormalized vector.
+/*!
+ *  Function to calculate the jacobian (partial matrix) of a normalized vector, from the jacobian
+ *  (partial matrix) of the unnormalized vector and the unnormalized vector itself, i.e. d/dp(x/|x|) from d/dp(x) and x, with p and x
+ *  3d vectors.
+ *  \param partialOfUnnormalizedVector The jacobian of the unnormalized vector
+ *  \param unnormalizedVector Unnormalized vector wrt which partialOfUnnormalizedVector is taken
+ *  \return The jacobian of the normalized vector.
+ */
+Eigen::Matrix3d calculatePartialOfNormalizedVector(
+        const Eigen::Matrix3d& partialOfUnnormalizedVector,
+        const Eigen::Vector3d& unnormalizedVector );
+
 
 
 

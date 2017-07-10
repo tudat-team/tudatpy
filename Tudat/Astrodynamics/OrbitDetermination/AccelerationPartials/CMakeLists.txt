@@ -18,6 +18,7 @@ set(ACCELERATION_PARTIALS_SOURCES
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicPartialFunctions.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.cpp"
 )
 
 # Set the header files.
@@ -32,6 +33,7 @@ set(ACCELERATION_PARTIALS_HEADERS
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicPartialFunctions.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.h"
 )
 
 # Add static libraries.
