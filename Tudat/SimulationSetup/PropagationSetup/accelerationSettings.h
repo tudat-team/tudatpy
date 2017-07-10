@@ -342,7 +342,7 @@ public:
         thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
                     boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
                     specificImpulseFunction, boost::lambda::constant( true ),
-                    Eigen::Vector3d::UnitX( ),
+                    boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
                     boost::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
     }
 
