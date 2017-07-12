@@ -16,6 +16,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
 # Add header files.
@@ -32,6 +33,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
 # Add static libraries.
@@ -89,4 +91,13 @@ add_executable(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/Un
 setup_custom_test_program(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationReason ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCR3BPPropagation.cpp")
+setup_custom_test_program(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_CR3BPPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
+
+add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
+setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_mission_segments tudat_root_finders tudat_propagators tudat_basic_astrodynamics tudat_input_output ${Boost_LIBRARIES})
+
