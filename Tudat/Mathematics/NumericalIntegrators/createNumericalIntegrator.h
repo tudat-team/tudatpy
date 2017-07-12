@@ -160,25 +160,25 @@ public:
     /*!
      *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
      */
-    const TimeType minimumStepSize_;
+    TimeType minimumStepSize_;
 
     //! Maximum step size for integration.
-    const TimeType maximumStepSize_;
+    TimeType maximumStepSize_;
 
     //! Relative error tolerance for step size control
-    const TimeType relativeErrorTolerance_;
+    TimeType relativeErrorTolerance_;
 
     //! Absolute error tolerance for step size control
-    const TimeType absoluteErrorTolerance_;
+    TimeType absoluteErrorTolerance_;
 
     //! Safety factor for step size control
-    const TimeType safetyFactorForNextStepSize_;
+    TimeType safetyFactorForNextStepSize_;
 
     //! Maximum increase factor in time step in subsequent iterations.
-    const TimeType maximumFactorIncreaseForNextStepSize_;
+    TimeType maximumFactorIncreaseForNextStepSize_;
 
     //! Maximum decrease factor in time step in subsequent iterations.
-    const TimeType minimumFactorDecreaseForNextStepSize_;
+    TimeType minimumFactorDecreaseForNextStepSize_;
 };
 
 //! Function to create a numerical integrator.

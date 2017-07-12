@@ -29,11 +29,9 @@
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 #ifdef USE_CSPICE
-#include "Tudat/External/SpiceInterface/spiceInterface.h"
-#endif
 
-#ifdef USE_JSON
-#include "Tudat/External/JsonInterface/jsonInterface.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+
 #endif
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
