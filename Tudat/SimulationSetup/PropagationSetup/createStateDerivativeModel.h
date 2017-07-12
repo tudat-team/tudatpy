@@ -331,11 +331,28 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
+//! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
+/*!
+ *  Function to create an integrator to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.
+ * \param integratorSettings Settings for the numerical integration
+ * \param massParameter Normalized mass parameter
+ * \param initialState Initial normalized state
+ * \return Integrator object for propagation of CR3BP with requested settings
+ */
 boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState );
 
+//! Function to propagate the dynamics (in normalized units) in CR3BP
+/*!
+ *  Function to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.
+ * \param integratorSettings Settings for the numerical integration
+ * \param massParameter Normalized mass parameter
+ * \param initialState Initial normalized state
+ * \param finalTime End time for the numerical integration
+ * \return Propagated state history of normalized dynamics in CR3BP.
+ */
 std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
