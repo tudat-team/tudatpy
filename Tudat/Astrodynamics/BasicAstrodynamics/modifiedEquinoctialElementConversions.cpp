@@ -92,7 +92,7 @@ Eigen::Vector6d convertKeplerianToModifiedEquinoctialElements(
                      << "Specified inclination: " << inclination << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
     //Else, nothing wrong and continue.
 

@@ -18,10 +18,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <boost/format.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/throw_exception.hpp>
-
 #include "Tudat/InputOutput/missileDatcomReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
@@ -76,14 +72,7 @@ void MissileDatcomReader::openFile( const std::string& fileNameAndPath )
     // opened.
     if ( !dataFile_ )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            boost::str( boost::format( "Data file '%s' could not be opened." )
-                                        % fileNameAndPath.c_str( ) ) ) )
-                    << boost::errinfo_file_name( fileNameAndPath.c_str( ) )
-                    << boost::errinfo_file_open_mode( "std::ios::binary" )
-                    << boost::errinfo_api_function( "std::ifstream::open" ) );
+        throw std::runtime_error(  "Data file could not be opened." + fileNameAndPath );
     }
 }
 

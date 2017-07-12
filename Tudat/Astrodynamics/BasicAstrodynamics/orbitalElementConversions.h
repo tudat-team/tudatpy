@@ -431,9 +431,7 @@ ScalarType convertTrueAnomalyToEllipticalEccentricAnomaly(
     if ( eccentricity >= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ||
          eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid when converting true to elliptical eccentric anomaly." );
     }
     else
     {
@@ -466,9 +464,7 @@ ScalarType convertTrueAnomalyToHyperbolicEccentricAnomaly( const ScalarType true
 {
     if ( eccentricity <= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid  when converting true to hyperbolic eccentric anomaly." );
     }
 
     else
@@ -517,9 +513,7 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly,
     // Check if eccentricity is invalid and throw an error if true.
     if ( eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid when converting true to eccentric anomaly." );
     }
 
     // Check if orbit is parabolic and throw an error if true.
@@ -527,10 +521,7 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly,
                          mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
               std::numeric_limits< ScalarType >::epsilon( ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Parabolic orbits have not yet been implemented." ) ) );
+        throw std::runtime_error( "Parabolic orbits have not yet been implemented when converting true to eccentric anomaly." );
     }
 
     // Check if orbit is elliptical and compute eccentric anomaly.
@@ -567,9 +558,7 @@ ScalarType convertEllipticalEccentricAnomalyToTrueAnomaly(
     if ( eccentricity >= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ||
          eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid when converting elliptical eccentric to true anomaly." );
     }
 
     else
@@ -609,9 +598,7 @@ ScalarType convertHyperbolicEccentricAnomalyToTrueAnomaly(
 {
     if ( eccentricity <= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+         throw std::runtime_error( "Eccentricity is invalid  when converting hyperbolic eccentric to true anomaly." );
     }
 
     else
@@ -661,9 +648,7 @@ ScalarType convertEccentricAnomalyToTrueAnomaly( const ScalarType eccentricAnoma
     // Check if eccentricity is invalid and throw an error if true.
     if ( eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid when converting eccentric to true anomaly." );
     }
 
     // Check if orbit is parabolic and throw an error if true.
@@ -671,10 +656,7 @@ ScalarType convertEccentricAnomalyToTrueAnomaly( const ScalarType eccentricAnoma
                          mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
               std::numeric_limits< ScalarType >::epsilon( ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Parabolic orbits have not yet been implemented." ) ) );
+        throw std::runtime_error( "Parabolic orbits have not yet been implemented when converting eccentric to true anomaly." );
     }
 
     // Check if orbit is elliptical and compute true anomaly.
@@ -753,9 +735,7 @@ ScalarType convertEccentricAnomalyToMeanAnomaly(
     // Check if eccentricity is invalid and throw an error if true.
     if ( eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid when converting eccentric to mean anomaly." );
     }
 
     // Check if orbit is parabolic and throw an error if true.
@@ -763,10 +743,8 @@ ScalarType convertEccentricAnomalyToMeanAnomaly(
                          mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ) <
               std::numeric_limits< ScalarType >::epsilon( ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Parabolic orbits have not yet been implemented." ) ) );
+        throw std::runtime_error(
+                            "Parabolic orbits have not yet been implemented when converting eccentric to mean anomaly." );
     }
 
     // Check if orbit is elliptical and compute true anomaly.
@@ -806,9 +784,7 @@ ScalarType convertElapsedTimeToEllipticalMeanAnomalyChange(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Semi-major axis is invalid." ) ) );
+       throw std::runtime_error( "Semi-major axis is invalid when converting elapsed time to mean anomlay change to." );
     }
 
     // Else return elliptical mean anomaly change.
@@ -838,9 +814,8 @@ ScalarType convertElapsedTimeToHyperbolicMeanAnomalyChange(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis > mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Semi-major axis is invalid." ) ) );
+        throw std::runtime_error(
+                    "Semi-major axis is invalid when converting elapsed time to hyperbolic mean anomlay change to." );
     }
 
     // Else return hyperbolic mean anomaly change.
@@ -910,9 +885,7 @@ ScalarType convertEllipticalMeanAnomalyChangeToElapsedTime(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Semi-major axis is invalid." ) ) );
+        throw std::runtime_error( "Semi-major axis is invalid when converting mean anomlay change to elapsed time."  );
     }
 
     // Else return elapsed time.
@@ -943,9 +916,7 @@ ScalarType convertHyperbolicMeanAnomalyChangeToElapsedTime(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis > mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Semi-major axis is invalid." ) ) );
+       throw std::runtime_error( "Semi-major axis is invalid when converting hyperbolic mean anomlay change to elapsed time." );
     }
 
     // Else return elapsed time.
@@ -1025,9 +996,7 @@ ScalarType convertSemiMajorAxisToEllipticalMeanMotion(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Semi-major axis is invalid." ) ) );
+        throw std::runtime_error( "Semi-major axis is invalid when converting semi major axis to elliptical mean motion." );
     }
 
     // Else compute and return elliptical mean motion.
