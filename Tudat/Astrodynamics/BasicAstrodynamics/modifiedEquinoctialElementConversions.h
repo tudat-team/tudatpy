@@ -34,8 +34,10 @@ namespace orbital_element_conversions
 
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
 /*!
- * Converts Keplerian to modified equinoctial elements using one of two sets of equations specified
- * by the user. If input exceeds allowable ranges, an error is thrown.
+ * Converts Keplerian to modified equinoctial elements using the prograde/retrograde equation
+ * determined by the values of the input Kepler elements. If input exceeds allowable ranges,
+ * an error is thrown. NOTE: This function automatically selects the boolean parameter that defines
+ * the location of the singularity, depending on whether the orbit is prograde or retrograde.
  * \param keplerianElements Vector containing Keplerian elements. Order of elements is important!
  *         keplerianElements( 0 ) = semi-major axis,                                            [m]
  *         keplerianElements( 1 ) = eccentricity,                                               [-]
@@ -320,7 +322,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
 //! Convert Cartesian to modified equinoctial orbital elements using implicit MEE equation set.
 /*!
  * Converts Cartesian to modified equinoctial elements using one of two sets of equations implicitly
- * determined from intermediate inclination.
+ * determined from intermediate inclination. NOTE: This function automatically selects the boolean parameter
+ * that defines the location of the singularity, depending on whether the orbit is prograde or retrograde.
  * \param cartesianElements Vector containing Cartesian elements. Order of elements is important!
  *         cartesianElements( 0 ) = x-position coordinate,                                      [m]
  *         cartesianElements( 1 ) = y-position coordinate,                                      [m]
