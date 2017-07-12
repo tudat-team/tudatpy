@@ -25,21 +25,20 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 
-#include "Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/Propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
+using namespace propagators;
+using namespace orbital_element_conversions;
+
 //! Test if state derivative for circular restricted three-body problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 {
-    namespace crtbp = gravitation::circular_restricted_three_body_problem;
-    using crtbp::StateDerivativeCircularRestrictedThreeBodyProblem;
-    using crtbp::xCartesianPositionIndex;
-    using crtbp::zCartesianPositionIndex;
-    using crtbp::yCartesianVelocityIndex;
 
     // Test 1: test state derivative at L1.
     {
