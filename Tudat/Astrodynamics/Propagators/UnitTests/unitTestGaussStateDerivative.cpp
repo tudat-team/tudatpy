@@ -207,10 +207,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
         for( unsigned int i = 0; i < enckeIntegrationResults.size( ); i++ )
         {
-            std::cout<<( enckeIterator->second - cowellIterator->second ).transpose( )<<std::endl;
-            std::cout<<( enckeIterator->second ).transpose( )<<std::endl;
-            std::cout<<( cowellIterator->second ).transpose( )<<std::endl<<std::endl;
-
             for( int j= 0; j< 3; j++ )
             {
                 BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.01 );

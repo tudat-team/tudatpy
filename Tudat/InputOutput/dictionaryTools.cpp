@@ -63,9 +63,7 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
         missingRequiredParametersMessage << "\"" << ( *lastIterator )->parameterName << "\".";
 
         // Thrown exception based on constructed error message.
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( missingRequiredParametersMessage.str( ) ) ) );
+        throw std::runtime_error( missingRequiredParametersMessage.str( ) );
     }
 }
 
@@ -90,8 +88,7 @@ DictionaryIterator findEntry( const DictionaryPointer dictionary,
 
     if ( iteratorDictionary == dictionary->end( ) )
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     return iteratorDictionary;

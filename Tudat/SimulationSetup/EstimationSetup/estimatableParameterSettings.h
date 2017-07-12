@@ -79,7 +79,8 @@ public:
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
-            std::cerr<<"Error when making spherical harmonic parameter settings, input parameter type is inconsistent."<<std::endl;
+            throw std::runtime_error(
+                        "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
     }
 
