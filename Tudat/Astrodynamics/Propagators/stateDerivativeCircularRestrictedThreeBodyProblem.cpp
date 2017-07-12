@@ -59,17 +59,17 @@ Eigen::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateD
 
     stateDerivative.segment( xCartesianPositionIndex, 3 ) = cartesianState.segment( xCartesianVelocityIndex, 3 );
 
-    stateDerivative( 0 ) = cartesianState( xCartesianPositionIndex )
+    stateDerivative( 3 ) = cartesianState( xCartesianPositionIndex )
             - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
             * ( cartesianState( xCartesianPositionIndex ) + massParameter )
             - ( massParameter / normDistanceToSecondaryBodyCubed )
             * ( cartesianState( xCartesianPositionIndex ) - ( 1.0 - massParameter ) )
             + 2.0 * cartesianState( yCartesianVelocityIndex );
-    stateDerivative( 1 ) = cartesianState( yCartesianPositionIndex )
+    stateDerivative( 4 ) = cartesianState( yCartesianPositionIndex )
             * ( 1.0 - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
                 - ( massParameter / normDistanceToSecondaryBodyCubed ) )
             - 2.0 * cartesianState( xCartesianVelocityIndex );
-    stateDerivative( 2 ) = -cartesianState( zCartesianPositionIndex )
+    stateDerivative( 5 ) = -cartesianState( zCartesianPositionIndex )
             * ( ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
                 + ( massParameter / normDistanceToSecondaryBodyCubed ) );
 
