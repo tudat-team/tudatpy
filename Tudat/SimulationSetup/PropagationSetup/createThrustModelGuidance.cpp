@@ -287,7 +287,7 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         }
         else
         {
-            thrustDirectionFunction = boost::lambda::constant( fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_ );
+            thrustDirectionFunction =  fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_;
         }
         break;
 
