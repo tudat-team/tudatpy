@@ -15,8 +15,9 @@ set(JSONINTERFACE_SOURCES
 
 # Set the header files.
 set(JSONINTERFACE_HEADERS
-    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.h"
     "${SRCROOT}${JSONINTERFACEDIR}/integratorSettings.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/utilities.h"
 )
 
 # Add static libraries.
