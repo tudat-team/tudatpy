@@ -15,10 +15,6 @@
 
 #include <iostream>
 
-#include <boost/exception/all.hpp>
-#include <boost/format.hpp>
-#include <boost/throw_exception.hpp>
-
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
@@ -166,14 +162,8 @@ void ApproximatePlanetPositionsBase::reloadData( )
     std::ifstream ephemerisFile_( filePath_.c_str( ) );
     if ( ephemerisFile_.fail( ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            boost::str( boost::format( "Data file '%s' could not be opened." )
-                                 % filePath_.c_str( ) ) ) )
-            << boost::errinfo_file_name( filePath_.c_str( ) )
-            << boost::errinfo_file_open_mode( "std::ios::binary" )
-            << boost::errinfo_api_function( "std::ifstream::open" ) );
+        throw std::runtime_error(
+                    "Data file could not be opened:" + filePath_ );
     }
 
     // Read the file into a container.
