@@ -13,11 +13,11 @@
 
 #include <boost/filesystem.hpp>
 
-#include "json/src/json.hpp"
-
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
+#include "jsonInterface.h"
 #include "utilities.h"
+
 #include "integratorSettings.h"
 
 
@@ -31,7 +31,7 @@ typedef boost::filesystem::path path;
 
 
 //! -DOC
-template< typename TimeType = double >
+template< typename TimeType = double, typename StateScalarType = double >
 class Simulation
 {
 private:
@@ -43,9 +43,9 @@ private:
 
 
 public:
-    //! Set with filenames of the Spice kernels located in "Tudat/External/SpiceInterface/Kernels/"
+    //! Vector with filenames of the Spice kernels located in "Tudat/External/SpiceInterface/Kernels/"
     //! to be used for the propagation.
-    std::set< std::string > spiceKernels;
+    std::vector< std::string > spiceKernels;
 
     //! Whether to preload the ephemeris of the celestial bodies for the simulation period,
     //! or to retrieve this directly from Spice during the propagation at each integration step.
@@ -66,17 +66,17 @@ public:
     //! Global frame orientation.
     std::string globalFrameOrientation;
 
-    //! Set with the names of all the bodies.
-    std::set< std::string > bodies;
+    //! Vector with the names of all the bodies.
+    std::vector< std::string > bodies;
 
-    //! Set with the names of the celestial bodies (handled by Spice).
-    std::set< std::string > celestialBodies;
+    //! Vector with the names of the celestial bodies (handled by Spice).
+    std::vector< std::string > celestialBodies;
 
-    //! Set with the names of the central bodies.
-    std::set< std::string > centralBodies;
+    //! SVectoret with the names of the central bodies.
+    std::vector< std::string > centralBodies;
 
-    //! Set with the names of the bodies to be propagated.
-    std::set< std::string > bodiesToPropagate;
+    //! Vector with the names of the bodies to be propagated.
+    std::vector< std::string > bodiesToPropagate;
 
     //! Body map.
     simulation_setup::NamedBodyMap bodyMap;
@@ -84,6 +84,11 @@ public:
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
 
+    //! Integrator settings.
+    boost::shared_ptr< propagators::TranslationalStatePropagatorSettings< TimeType > > propagatorSettings;
+
+    //! Dynamics simulator.
+    boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator;
 
     //! -DOC
     Simulation( std::string inputFile )
@@ -104,7 +109,7 @@ public:
         }
 
         // Determine the absolute path of the directory where the input file is located
-        path inputDirectory = boost::filesystem::canonical( inputFileWithExtension ).parent_path();
+        path inputDirectory = boost::filesystem::canonical( inputFileWithExtension ).parent_path( );
 
         // Determine the filename (without file extension) of the input file
         // path inputFilename = path( inputFile ).stem();
@@ -141,10 +146,10 @@ public:
     void resetGeneral( )
     {
         // Start and end epochs
-        startEpoch = getValue< TimeType >( settings, { "simulation", "startEpoch" } );
-        endEpoch = getValue< TimeType >( settings, { "simulation", "endEpoch" } );
+        startEpoch = getNumber< TimeType >( settings, { "simulation", "startEpoch" } );
+        endEpoch = getNumber< TimeType >( settings, { "simulation", "endEpoch" } );
 
-        // Global fram origin and orientation
+        // Global frame origin and orientation
         globalFrameOrigin = getValue< std::string >( settings, { "simulation", "globalFrameOrigin" } );
         globalFrameOrientation = getValue< std::string >( settings, { "simulation", "globalFrameOrientation" } );
     }
@@ -154,7 +159,7 @@ public:
     void resetSpice( )
     {
         // Spice
-        spiceKernels = getValue< std::set< std::string > >( settings, { "simulation", "spiceKernels" }, { } );
+        spiceKernels = getValue< std::vector< std::string > >( settings, { "simulation", "spiceKernels" }, { } );
         preloadSpiceData = getValue< bool >( settings, { "simulation", "preloadSpiceData" }, true );
 
         // Load requested Spice kernels.
@@ -174,7 +179,7 @@ public:
         bodies = { };
         for ( auto ent : getValue< std::map< std::string, json > >( settings, "bodies" ) )
         {
-            bodies.insert( ent.first );
+            bodies.push_back( ent.first );
         }
 
         // Bodies to propagate
@@ -182,17 +187,17 @@ public:
         bodiesToPropagate = { };
         for ( json propagator : propagators )
         {
-            std::set< std::string > bodies = getValue< std::set< std::string > >( propagator, "bodies" );
+            std::vector< std::string > bodies = getValue< std::vector< std::string > >( propagator, "bodies" );
             for ( std::string body : bodies )
             {
-                if ( bodies.count( body ) )
+                if ( contains( bodies, body ) )
                 {
-                    bodiesToPropagate.insert( body );
+                    bodiesToPropagate.push_back( body );
                 }
                 else
                 {
                     throw std::runtime_error( "Requested to propagate body named \"" + body +
-                                              "\", but no body with this name was found.");
+                                              "\", but no body with this name was found." );
                 }
             }
         }
@@ -200,14 +205,14 @@ public:
         // Celestial (and central) bodies
         celestialBodies = { };
         centralBodies = { };
-        for ( std::string bodyName : bodies )
+        for ( std::string body : bodies )
         {
-            if ( bodiesToPropagate.count( bodyName ) == 0 )
+            if ( ! contains( bodiesToPropagate, body ) )
             {
-                celestialBodies.insert( bodyName );
-                if ( getValue( settings, { "bodies", bodyName, "isCentralBody" }, false ) )
+                celestialBodies.push_back( body );
+                if ( getValue( settings, { "bodies", body, "isCentralBody" }, false ) )
                 {
-                    centralBodies.insert( bodyName );
+                    centralBodies.push_back( body );
                 }
             }
         }
@@ -216,15 +221,14 @@ public:
         std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
         if ( preloadSpiceData )
         {
-            bodySettings = getDefaultBodySettings( set2vector( celestialBodies ),
-                                                   startEpoch - 300.0, endEpoch + 300.0 );
+            bodySettings = getDefaultBodySettings( celestialBodies, startEpoch - 300.0, endEpoch + 300.0 );
         }
         else
         {
-            bodySettings = getDefaultBodySettings( set2vector( celestialBodies ) );
+            bodySettings = getDefaultBodySettings( celestialBodies );
         }
 
-        // Overwrite values that were not set to be default / were not omitted.
+        // Override values that were not set to be default / were not omitted.
         // ... such as µ
 
         // Set celestial bodies ephemeris and rotational models.
@@ -241,7 +245,7 @@ public:
         for ( std::string bodyName : bodiesToPropagate )
         {
             boost::shared_ptr< Body > body = boost::make_shared< Body >( );
-            body->setConstantBodyMass( getValue< double >( settings, { "bodies", bodyName, "mass" } ) );
+            body->setConstantBodyMass( getNumber< double >( settings, { "bodies", bodyName, "mass" } ) );
             bodyMap[ bodyName ] = body;
             // ...
         }
@@ -268,7 +272,7 @@ public:
     {
         // Integrator settings
         json jsonIntegratorSettings = getValue< json >( settings, { "integrator" } );
-        if ( getValuePointer< TimeType >( jsonIntegratorSettings, { "initialTime" } ) == NULL )
+        if ( getNumberPointer< TimeType >( settings, { "integrator", "initialTime" } ) == NULL )
         {
             jsonIntegratorSettings[ "initialTime" ] = startEpoch;
         }
@@ -276,22 +280,44 @@ public:
     }
 
 
-
-    //! DOC
+    //! -DOC
     void run( )
     {
+        using namespace propagators;
 
+        // Create simulation object
+        dynamicsSimulator = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodyMap, integratorSettings, propagatorSettings, false );
+
+        // FIXME: MultiArc
+
+        boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
+                = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    dynamicsSimulator );
+        if ( singleArcDynamicsSimulator != NULL )
+        {
+            singleArcDynamicsSimulator->integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
+            return;
+        }
+
+        boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > multiArcDynamicsSimulator
+                = boost::dynamic_pointer_cast< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    dynamicsSimulator );
+        if ( multiArcDynamicsSimulator != NULL )
+        {
+            throw std::runtime_error( "MultiArcDynamicsSimulator not supported by JSON interface." );
+        }
     }
 
 
-    //! DOC
+    //! -DOC
     void exportResults( )
     {
 
     }
 
 
-    //! DOC
+    //! -DOC
     json getOriginalSettings( )
     {
         return settings;
@@ -302,7 +328,7 @@ public:
 
 
 //! Function to create a `json` object from a `Simulation` object.
-//! Called automatically by `nlohmann::json` when writing `json( simulation )`.
+//! Called automatically by `nlohmann::json` when using a constructor such as `json( simulation )`.
 template< typename TimeType = double >
 void to_json( json& j, const Simulation< TimeType >& simulation ) {
     // Initialise
