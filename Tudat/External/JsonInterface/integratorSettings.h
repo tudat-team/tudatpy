@@ -11,67 +11,80 @@
 #ifndef TUDAT_JSONINTERFACE_INTEGRATORSETTINGS_H
 #define TUDAT_JSONINTERFACE_INTEGRATORSETTINGS_H
 
-#include "utilities.h"
+#include "jsonInterface.h"
 
 #include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
 
 namespace tudat
 {
 
+namespace numerical_integrators
+{
+
+//! Map of `AvailableIntegrators` supported by `json_interface`.
+std::map< std::string, AvailableIntegrators > availableIntegrators =
+{
+    { "rungeKutta4",                rungeKutta4 },
+    { "euler",                      euler },
+    { "rungeKuttaVariableStepSize", rungeKuttaVariableStepSize }
+};
+
+
+//! Map of `RungeKuttaCoefficients::CoefficientSets` supported by `json_interface`.
+std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKuttaCoefficientSets =
+{
+    { "rungeKuttaFehlberg45",      RungeKuttaCoefficients::rungeKuttaFehlberg45 },
+    { "rungeKuttaFehlberg56",      RungeKuttaCoefficients::rungeKuttaFehlberg56 },
+    { "rungeKuttaFehlberg78",      RungeKuttaCoefficients::rungeKuttaFehlberg78 },
+    { "rungeKutta87DormandPrince", RungeKuttaCoefficients::rungeKutta87DormandPrince }
+};
+
+
+//! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
+//! Called automatically by `nlohmann::json` when using a constructor such as `json( integratorSettings )`.
+template< typename TimeType = double >
+void to_json( json& j, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings ) {
+    using namespace json_interface;
+    // Initialise
+    j = json();
+
+    // Common keys
+    j[ "type" ] = stringFromEnum( integratorSettings->integratorType_, availableIntegrators );
+    j[ "initialTime" ] = integratorSettings->initialTime_;
+    j[ "initialTimeStep" ] = integratorSettings->initialTimeStep_;
+    j[ "saveFrequency" ] = integratorSettings->saveFrequency_;
+
+    // Integrator-specific keys
+    boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
+            boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
+    if ( rungeKuttaVariableStepSizeSettings != NULL )
+    {
+        j[ "rungeKuttaCoefficientSet" ] =
+                stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
+        j[ "minimumStepSize" ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
+        j[ "maximumStepSize" ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
+        j[ "relativeErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
+        j[ "absoluteErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
+        j[ "safetyFactorForNextStepSize" ] = rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
+        j[ "maximumFactorIncreaseForNextStepSize" ] =
+                rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
+        j[ "minimumFactorDecreaseForNextStepSize" ] =
+                rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
+    }
+}
+
+} // namespace numerical_integrators
+
+
 namespace json_interface
 {
 
-//! -DOC
-numerical_integrators::AvailableIntegrators getIntegratorType( const json &settings )
-{
-    using namespace numerical_integrators;
-    std::string stringValue = getValue< std::string >( settings, "type" );
-    if ( stringValue == "euler" )
-    {
-        return euler;
-    }
-    else if ( stringValue == "rungeKutta4" )
-    {
-        return rungeKutta4;
-    }
-    else if ( stringValue == "rungeKuttaVariableStepSize" )
-    {
-        return rungeKuttaVariableStepSize;
-    }
-    else
-    {
-        throw std::runtime_error( "Integrator type \"" + stringValue + "\" not supported." );
-    }
-}
-
-//! -DOC
-numerical_integrators::RungeKuttaCoefficients::CoefficientSets getRungeKuttaCoefficientSet( const json &settings )
-{
-    using namespace numerical_integrators;
-    std::string stringValue = getValue< std::string >( settings, "rungeKuttaCoefficientSet" );
-    if ( stringValue == "rungeKuttaFehlberg45" )
-    {
-        return RungeKuttaCoefficients::rungeKuttaFehlberg45;
-    }
-    else if ( stringValue == "rungeKuttaFehlberg56" )
-    {
-        return RungeKuttaCoefficients::rungeKuttaFehlberg56;
-    }
-    else if ( stringValue == "rungeKuttaFehlberg78" )
-    {
-        return RungeKuttaCoefficients::rungeKuttaFehlberg78;
-    }
-    else if ( stringValue == "rungeKutta87DormandPrince" )
-    {
-        return RungeKuttaCoefficients::rungeKutta87DormandPrince;
-    }
-    else
-    {
-        throw std::runtime_error( "Runge Kutta coefficient set \"" + stringValue + "\" not supported." );
-    }
-}
-
-//! -DOC
+//! Create a shared pointer to an `IntegratorSettings` object from a `json` object.
+/*!
+ * Create a shared pointer to an `IntegratorSettings` object from a `json` object.
+ * \param settings `json` object containing only the settings for one integrator.
+ * \return Shared pointer to an `IntegratorSettings` object.
+ */
 template< typename TimeType = double >
 boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > createIntegratorSettings(
         const json &settings )
@@ -79,9 +92,10 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
     using namespace numerical_integrators;
 
     // Read JSON settings shared by all supported integrators
-    const AvailableIntegrators integratorType = getIntegratorType( settings );
-    const TimeType initialTime = getValue< TimeType >( settings, "initialTime" );
-    const TimeType initialTimeStep = getValue< TimeType >( settings, "initialTimeStep" );
+    const AvailableIntegrators integratorType =
+            enumFromString( getValue< std::string >( settings, "type" ), availableIntegrators );
+    const TimeType initialTime = getNumber< TimeType >( settings, "initialTime" );
+    const TimeType initialTimeStep = getNumber< TimeType >( settings, "initialTimeStep" );
     boost::shared_ptr< int > saveFrequency = getValuePointer< int >( settings, "saveFrequency" );
 
     // Create IntegratorSettings pointer from JSON settings
@@ -101,9 +115,10 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
     else
     {
         // Read additional settings specific for this integrator
-        const RungeKuttaCoefficients::CoefficientSets coefficientSet = getRungeKuttaCoefficientSet( settings );
-        const TimeType minimumStepSize = getValue< TimeType >( settings, "minimumStepSize" );
-        const TimeType maximumStepSize = getValue< TimeType >( settings, "maximumStepSize" );
+        const RungeKuttaCoefficients::CoefficientSets coefficientSet = enumFromString(
+                    getValue< std::string >( settings, "rungeKuttaCoefficientSet" ), rungeKuttaCoefficientSets );
+        const TimeType minimumStepSize = getNumber< TimeType >( settings, "minimumStepSize" );
+        const TimeType maximumStepSize = getNumber< TimeType >( settings, "maximumStepSize" );
         boost::shared_ptr< TimeType > relativeErrorTolerance =
                 getValuePointer< TimeType >( settings, "relativeErrorTolerance" );
         boost::shared_ptr< TimeType > absoluteErrorTolerance =
@@ -154,42 +169,6 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
 }
 
 } // namespace json_interfaces
-
-
-namespace numerical_integrators
-{
-//! Function to create a `json` object from an `IntegrationSettings` pointer.
-//! Called automatically by `nlohmann::json` when writing `json( simulation )`.
-template< typename TimeType = double >
-void to_json( json& j,
-              const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings ) {
-    // Initialise
-    j = json();
-
-    // Common keys
-    j[ "type" ] = integratorSettings->integratorType_;
-    j[ "initialTime" ] = integratorSettings->initialTime_;
-    j[ "initialTimeStep" ] = integratorSettings->initialTimeStep_;
-    j[ "saveFrequency" ] = integratorSettings->saveFrequency_;
-
-    // Integrator-specific keys
-    boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
-            boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
-    if ( rungeKuttaVariableStepSizeSettings != NULL )
-    {
-        j[ "minimumStepSize" ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
-        j[ "maximumStepSize" ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
-        j[ "relativeErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
-        j[ "absoluteErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
-        j[ "safetyFactorForNextStepSize" ] = rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
-        j[ "maximumFactorIncreaseForNextStepSize" ] =
-                rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
-        j[ "minimumFactorDecreaseForNextStepSize" ] =
-                rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
-    }
-}
-
-} // namespace numerical_integrators
 
 
 } // namespace tudat
