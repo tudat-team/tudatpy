@@ -216,15 +216,19 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
                 observationSimulator, parametersToEstimate );
 
     // Create observation partials for all link ends/parameters
-    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator;
+    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator =
+            boost::make_shared< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > >( );
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >,
             boost::shared_ptr< ObservationPartial< ObservationSize > > >,
             boost::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
     if( parametersToEstimate != NULL )
     {
+        std::cout<<" Pre-create "<<std::endl;
         observationPartialsAndScaler =
                 observationPartialCreator->createObservationPartials(
                     observableType, observationSimulator->getObservationModels( ), bodyMap, parametersToEstimate );
+        std::cout<<" Post-create "<<std::endl;
+
     }
 
     // Split position partial scaling and observation partial objects.

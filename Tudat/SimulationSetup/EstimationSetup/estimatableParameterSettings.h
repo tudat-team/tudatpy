@@ -99,12 +99,9 @@ public:
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
-<<<<<<< HEAD
-            throw std::runtime_error ("Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
-=======
+
             throw std::runtime_error(
                         "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
->>>>>>> ExceptionHandling
         }
     }
 
@@ -115,7 +112,7 @@ public:
      * \param minimumOrder Minimum order of field that is to be estimated.
      * \param maximumDegree Maximum degree of field that is to be estimated.
      * \param maximumOrder Maximum order of field that is to be estimated.
-     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param associatedBody Body for which  coefficients are to be estimated.
      * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
      * of spherical_harmonics_sine_coefficient_block).
      */
