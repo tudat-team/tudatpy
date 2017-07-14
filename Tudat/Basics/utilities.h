@@ -354,6 +354,77 @@ T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputF
 }
 
 
+template< typename T >
+std::vector< int > getSortOrderOfVector( const std::vector< T > unsortedVector )
+{
+    return getSortOrderOfVectorAndSortedVector( unsortedVector ).first;
+}
+
+//! Function to create a vector from the values of a multimap
+/*!
+ *  Function to create a vector from the values of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
+ *  forward iterator. The multimap keys are not used for the return vector.
+ *  \param inputMap Original multimap from which the vector is to be created
+ *  \return Vector created from the multimap values
+ */
+template< typename VectorArgument, typename KeyType >
+std::vector< VectorArgument > createVectorFromMultiMapValues( const std::multimap< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< VectorArgument > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->second;
+        currentIndex++;
+    }
+
+    return outputVector;
+
+}
+
+//! Function to create a vector from the keys of a multimap
+/*!
+ *  Function to create a vector from the keys of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
+ *  forward iterator. The multimap values are not used for the return vector.
+ *  \param inputMap Original multimap from which the vector is to be created
+ *  \return Vector created from the multimap keys
+ */
+template< typename VectorArgument, typename KeyType >
+std::vector< KeyType > createVectorFromMultiMapKeys( const std::multimap< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< KeyType > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->first;
+        currentIndex++;
+    }
+
+    return outputVector;
+}
+
+template< typename T >
+std::pair< std::vector< int >, std::vector< T > > getSortOrderOfVectorAndSortedVector( const std::vector< T > unsortedVector )
+{
+    std::multimap< T, int > sortMap;
+    for( unsigned int i = 0; i < unsortedVector.size( ); i++ )
+    {
+        sortMap.insert( std::pair< T, int >( unsortedVector[ i ], i ) );
+    }
+
+    return std::make_pair( createVectorFromMultiMapValues( sortMap ), createVectorFromMultiMapKeys( sortMap ) );
+}
+
 } // namespace utilities
 
 } // namespace tudat

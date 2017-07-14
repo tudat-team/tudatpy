@@ -287,6 +287,21 @@ struct PodOutput
         return inverseUnnormalizedCovarianceMatrix;
     }
 
+    Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
+    {
+        return getUnnormalizedInverseCovarianceMatrix( ).inverse( );
+    }
+
+    Eigen::VectorXd getFormalErrorVector( )
+    {
+        return ( getUnnormalizedCovarianceMatrix( ).diagonal( ) ).cwiseSqrt( );
+    }
+
+    Eigen::MatrixXd getCorrelationMatrix( )
+    {
+        return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
+    }
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 

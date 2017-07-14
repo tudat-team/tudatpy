@@ -263,6 +263,7 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
+        std::cout<<" Creating partials "<<std::endl;
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 1 > > >,
                 boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
