@@ -223,12 +223,9 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
             boost::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
     if( parametersToEstimate != NULL )
     {
-        std::cout<<" Pre-create "<<std::endl;
         observationPartialsAndScaler =
                 observationPartialCreator->createObservationPartials(
                     observableType, observationSimulator->getObservationModels( ), bodyMap, parametersToEstimate );
-        std::cout<<" Post-create "<<std::endl;
-
     }
 
     // Split position partial scaling and observation partial objects.
