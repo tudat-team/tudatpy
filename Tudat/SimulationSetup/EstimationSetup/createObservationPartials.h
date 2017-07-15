@@ -45,7 +45,6 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
-    std::cout<<"Retrieving corrections"<<std::endl;
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
@@ -263,7 +262,6 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
-        std::cout<<" Creating partials "<<std::endl;
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 1 > > >,
                 boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
