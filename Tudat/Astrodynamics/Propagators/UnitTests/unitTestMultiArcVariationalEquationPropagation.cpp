@@ -182,6 +182,9 @@ executeMultiArcEarthMoonSimulation(
                                           ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ),
                                             arcEndTimes.at( i ), propagatorType ) );
     }
+   boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
+           boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                            propagatorSettingsList, true );
 
     // Define parameters.
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -215,17 +218,16 @@ executeMultiArcEarthMoonSimulation(
         // Create dynamics simulator
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
-                        propagatorSettingsList ), parametersToEstimate, arcStartTimes );
+                    bodyMap, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
         {
-            variationalEquations.integrateVariationalAndDynamicalEquations( systemInitialStates, 1 );
+            variationalEquations.integrateVariationalAndDynamicalEquations( multiArcPropagatorSettings->getInitialStateList( ), 1 );
         }
         else
         {
-            variationalEquations.integrateDynamicalEquationsOfMotionOnly( systemInitialStates );
+            variationalEquations.integrateDynamicalEquationsOfMotionOnly( multiArcPropagatorSettings->getInitialStateList( ) );
         }
 
 

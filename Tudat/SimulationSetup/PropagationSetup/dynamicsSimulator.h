@@ -759,7 +759,6 @@ public:
             // Create dynamics simulators
             for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
             {
-                std::cout<<"setting initial time: "<<integratorSettings<<std::endl;
                 integratorSettings->initialTime_ = arcStartTimes.at( i );
 
                 singleArcDynamicsSimulators_.push_back(
@@ -898,8 +897,8 @@ public:
         // Propagate dynamics for each arc
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
         {
-            std::cout<<i<<" ******************************Current arc start time: "<<
-                       singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl;
+            //std::cout<<i<<" ******************************Current arc start time: "<<
+             //          singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl;
             //std::cout<<i<<" Nan entries: "<<linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) )<<std::endl;
             if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
             {
@@ -913,17 +912,17 @@ public:
                             singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( ) );
                 //std::cout<<"New state: "<<singleArcDynamicsSimulators_.at( i )->getIntegratorSettings( )->initialTime_<<" "<<
                  //          currentArcInitialState.transpose( )<<std::endl;
-                std::cout<<"Prevous arc info: "<<i<<" "<<equationsOfMotionNumericalSolution_.at( i - 1 ).size( )<<"  "<<
-                           singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl<<
-                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->first<<" "<<
-                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->second.transpose( )<<" "<<std::endl<<
-                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->first<<" "<<
-                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->second.transpose( )<<" "<<std::endl<<std::endl;;
+//                std::cout<<"Prevous arc info: "<<i<<" "<<equationsOfMotionNumericalSolution_.at( i - 1 ).size( )<<"  "<<
+//                           singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl<<
+//                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->first<<" "<<
+//                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->second.transpose( )<<" "<<std::endl<<
+//                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->first<<" "<<
+//                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->second.transpose( )<<" "<<std::endl<<std::endl;;
                 updateInitialStates = true;
             }
 
-            std::cout<<" Current arc initial state: "<<i<<" "<<singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<" "<<
-                       currentArcInitialState.transpose( )<<std::endl<<std::endl<<std::endl;
+            //std::cout<<" Current arc initial state: "<<i<<" "<<singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<" "<<
+            //           currentArcInitialState.transpose( )<<std::endl<<std::endl<<std::endl;
 
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
             equationsOfMotionNumericalSolution_[ i ] =
