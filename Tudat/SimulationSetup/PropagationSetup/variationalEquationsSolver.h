@@ -20,6 +20,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/Propagators/stateTransitionMatrixInterface.h"
@@ -851,6 +852,9 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const std::vector< VectorType >& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
+        bool updateInitialStates = false;
+        std::vector< VectorType > arcInitialStates;
+
         // Retrieve single-arc dynamics simulator objects
         std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
                 dynamicsSimulator_->getSingleArcDynamicsSimulators( );
@@ -885,13 +889,27 @@ public:
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 1 );
 
+                VectorType currentArcInitialState;
+                if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
+                {
+                    currentArcInitialState = initialStateEstimate.at( i );
+                }
+                else
+                {
+                    currentArcInitialState = getArcInitialStateFromPreviousArcResult(
+                                equationsOfMotionNumericalSolutions.at( i - 1 ), arcStartTimes_.at( i ) );
+                    updateInitialStates = true;
+                }
+                arcInitialStates.push_back( currentArcInitialState );
+
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
-                         template updateStateDerivativeModelSettings( initialStateEstimate.at( i ) );
+                        template updateStateDerivativeModelSettings( currentArcInitialState );
 
                 // Create initial state for combined variational/equations of motion.
                 MatrixType initialVariationalState = this->createInitialConditions(
-                            initialStateEstimate.at( i ) );
+                            currentArcInitialState );
+
 
                 // Integrate variational and state equations.
                 std::map< TimeType, MatrixType > rawNumericalSolution;
@@ -925,19 +943,35 @@ public:
             // Process numerical solution of equations of motion
             dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution( equationsOfMotionNumericalSolutions );
             equationsOfMotionNumericalSolutions.clear( );
+
+            if( updateInitialStates )
+            {
+                propagatorSettings_->resetInitialStatesList( arcInitialStates );
+            }
         }
         else
         {
             // Integrate dynamics for each arc
             for( int i = 0; i < numberOfArcs_; i++ )
             {
+                if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
+                {
+                    throw std::runtime_error( "Error, arc information transferral not yet supported for separate dynamics and variational euations propagation" );
+                    updateInitialStates = true;
+                }
+                else
+                {
+                    arcInitialStates.push_back( initialStateEstimate.at( i ) );
+                }
+
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
-                         template updateStateDerivativeModelSettings( initialStateEstimate.at( i ) );
+                        template updateStateDerivativeModelSettings( arcInitialStates.at( i ) );
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 0 );
             }
-            dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
+
+            dynamicsSimulator_->integrateEquationsOfMotion( arcInitialStates );
             arcStartTimes_ = dynamicsSimulator_->getArcStartTimes( );
 
             std::map< TimeType, MatrixType > rawNumericalSolutions;
@@ -957,7 +991,8 @@ public:
                 // Integrate variational equations for current arc
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
-                            rawNumericalSolutions, initialVariationalState, singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
+                            rawNumericalSolutions, initialVariationalState,
+                            singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                          singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ), _1 ),
                             dummyDependentVariableHistorySolution );
@@ -970,6 +1005,11 @@ public:
                 rawNumericalSolutions.clear( );
             }
 
+        }
+
+        if( updateInitialStates )
+        {
+            propagatorSettings_->resetInitialStatesList( arcInitialStates );
         }
 
         // Reset solution for state transition and sensitivity matrices.
