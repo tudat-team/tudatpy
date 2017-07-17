@@ -756,10 +756,12 @@ public:
         {
             if( integrateDynamicalAndVariationalEquationsConcurrently )
             {
+                std::cout<<"Prop A"<<std::endl;
                 integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStateList( ) , 1 );
             }
             else
             {
+                std::cout<<"Prop B"<<std::endl;
                 integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStateList( ), 0 );
             }
         }
@@ -852,6 +854,8 @@ public:
     void integrateVariationalAndDynamicalEquations(
             const std::vector< VectorType >& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
+        std::cout<<"Propagating var. eq. "<<std::endl;
+
         bool updateInitialStates = false;
         std::vector< VectorType > arcInitialStates;
 
@@ -889,6 +893,8 @@ public:
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 1 );
 
+                std::cout<<"Current state: "<<i<<" "<<initialStateEstimate.at( i ).transpose( )<<std::endl;
+
                 VectorType currentArcInitialState;
                 if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
                 {
@@ -899,9 +905,11 @@ public:
                     currentArcInitialState = getArcInitialStateFromPreviousArcResult(
                                 equationsOfMotionNumericalSolutions.at( i - 1 ), arcStartTimes_.at( i ) );
                     updateInitialStates = true;
+                    std::cout<<"Retrieving state "<<arcStartTimes_.at( i )<<" "<<currentArcInitialState.transpose( )<<std::endl;
                 }
                 arcInitialStates.push_back( currentArcInitialState );
 
+                std::cout<<"Propagatint arc: "<<i<<std::endl;
                 // Update state derivative model to (possible) update in state.
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
                         template updateStateDerivativeModelSettings( currentArcInitialState );
