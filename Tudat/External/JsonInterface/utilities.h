@@ -14,6 +14,8 @@
 #include <vector>
 #include <set>
 
+#include <eigen/Eigen>
+
 namespace tudat
 {
 
@@ -29,11 +31,33 @@ std::vector< T > set2vector( std::set< T > set )
 }
 */
 
+//! Returns whether a value is NaN.
+template< typename T >
+bool isnan( const T& value )
+{
+    return value != value;
+}
+
 //! Returns whether a `vector` contains a `value`.
 template< typename T >
 bool contains( const std::vector< T >& vector, const T& value )
 {
     return std::find( vector.begin( ), vector.end( ), value ) != vector.end( );
+}
+
+//! Create an `Eigen::VectorX` from an `std::vector`.
+template< typename ScalarType, int rows >
+Eigen::Matrix< ScalarType, rows, 1 > eigenFromStd( std::vector< ScalarType > stdVector )
+{
+    return Eigen::Matrix< ScalarType, rows, 1 >( stdVector.data( ) );
+}
+
+//! Create an `std::vector` from an `Eigen::VectorX`.
+template< typename ScalarType >
+std::vector< ScalarType > stdFromEigen( Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > eigenVector )
+{
+    return std::vector< ScalarType >( eigenVector.data( ),
+                                      eigenVector.data( ) + eigenVector.rows( ) * eigenVector.cols( ) );
 }
 
 } // namespace json_interfaces

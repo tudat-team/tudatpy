@@ -10,7 +10,9 @@
 
 #Set the source files.
 set(JSONINTERFACE_SOURCES
-    "${SRCROOT}${JSONINTERFACEDIR}/void.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/body.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/aerodynamics.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/radiationPressure.cpp"
 )
 
 # Set the header files.
@@ -19,7 +21,10 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/units.h"
     "${SRCROOT}${JSONINTERFACEDIR}/utilities.h"
     "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/integratorSettings.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/body.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/aerodynamics.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/radiationPressure.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/integrator.h"
 )
 
 # Add static libraries.

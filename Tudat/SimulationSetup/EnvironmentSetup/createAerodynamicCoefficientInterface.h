@@ -96,6 +96,13 @@ public:
      */
     double getReferenceArea( ) { return referenceArea_; }
 
+    //! Set reference area.
+    /*!
+     * Sets reference area used to non-dimensionalize aerodynamic forces and moments.
+     * \param referenceArea Aerodynamic reference area.
+     */
+    void setReferenceArea( double referenceArea ) { referenceArea_ = referenceArea; }
+
     //! Get reference length.
     /*!
      * Returns reference length used to non-dimensionalize aerodynamic moments.
