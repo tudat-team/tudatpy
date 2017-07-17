@@ -17,6 +17,7 @@
 using json = nlohmann::json;
 
 #include "units.h"
+#include "utilities.h"
 
 namespace tudat
 {
@@ -230,7 +231,8 @@ boost::shared_ptr< NumberType > getNumberPointer( const json& jsonObject, const 
 
 //! -DOC
 template< typename EnumType >
-EnumType enumFromString( const std::string& stringValue, const std::map< std::string, EnumType >& possibleValues )
+EnumType enumFromString( const std::string& stringValue,
+                                       const std::map< std::string, EnumType >& possibleValues )
 {
     try
     {
@@ -245,7 +247,8 @@ EnumType enumFromString( const std::string& stringValue, const std::map< std::st
 
 //! -DOC
 template< typename EnumType >
-std::string stringFromEnum( const EnumType enumValue, const std::map< std::string, EnumType >& possibleValues )
+std::string stringFromEnum( const EnumType enumValue,
+                                          const std::map< std::string, EnumType >& possibleValues )
 {
     for ( auto ent : possibleValues )
     {

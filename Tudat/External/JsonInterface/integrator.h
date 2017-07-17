@@ -8,12 +8,12 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_JSONINTERFACE_INTEGRATORSETTINGS_H
-#define TUDAT_JSONINTERFACE_INTEGRATORSETTINGS_H
-
-#include "jsonInterface.h"
+#ifndef TUDAT_JSONINTERFACE_INTEGRATOR_H
+#define TUDAT_JSONINTERFACE_INTEGRATOR_H
 
 #include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
+
+#include "jsonInterface.h"
 
 namespace tudat
 {
@@ -22,7 +22,7 @@ namespace numerical_integrators
 {
 
 //! Map of `AvailableIntegrators` supported by `json_interface`.
-std::map< std::string, AvailableIntegrators > availableIntegrators =
+static std::map< std::string, AvailableIntegrators > availableIntegrators =
 {
     { "rungeKutta4",                rungeKutta4 },
     { "euler",                      euler },
@@ -31,7 +31,7 @@ std::map< std::string, AvailableIntegrators > availableIntegrators =
 
 
 //! Map of `RungeKuttaCoefficients::CoefficientSets` supported by `json_interface`.
-std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKuttaCoefficientSets =
+static std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKuttaCoefficientSets =
 {
     { "rungeKuttaFehlberg45",      RungeKuttaCoefficients::rungeKuttaFehlberg45 },
     { "rungeKuttaFehlberg56",      RungeKuttaCoefficients::rungeKuttaFehlberg56 },
@@ -43,8 +43,10 @@ std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKuttaCoeff
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as `json( integratorSettings )`.
 template< typename TimeType = double >
-void to_json( json& j, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings ) {
+void to_json( json& j, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+{
     using namespace json_interface;
+
     // Initialise
     j = json();
 
@@ -57,7 +59,7 @@ void to_json( json& j, const boost::shared_ptr< IntegratorSettings< TimeType > >
     // Integrator-specific keys
     boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
             boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
-    if ( rungeKuttaVariableStepSizeSettings != NULL )
+    if ( rungeKuttaVariableStepSizeSettings )
     {
         j[ "rungeKuttaCoefficientSet" ] =
                 stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
@@ -96,7 +98,7 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
             enumFromString( getValue< std::string >( settings, "type" ), availableIntegrators );
     const TimeType initialTime = getNumber< TimeType >( settings, "initialTime" );
     const TimeType initialTimeStep = getNumber< TimeType >( settings, "initialTimeStep" );
-    boost::shared_ptr< int > saveFrequency = getValuePointer< int >( settings, "saveFrequency" );
+    const boost::shared_ptr< int > saveFrequency = getValuePointer< int >( settings, "saveFrequency" );
 
     // Create IntegratorSettings pointer from JSON settings
     if ( integratorType == euler || integratorType == rungeKutta4 )
@@ -106,7 +108,7 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
                 boost::make_shared< IntegratorSettings< TimeType > >( integratorType, initialTime, initialTimeStep );
 
         // Update optional arguments if provided
-        if ( saveFrequency != NULL )
+        if ( saveFrequency )
         {
             integratorSettings->saveFrequency_ = *saveFrequency;
         }
@@ -119,15 +121,15 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
                     getValue< std::string >( settings, "rungeKuttaCoefficientSet" ), rungeKuttaCoefficientSets );
         const TimeType minimumStepSize = getNumber< TimeType >( settings, "minimumStepSize" );
         const TimeType maximumStepSize = getNumber< TimeType >( settings, "maximumStepSize" );
-        boost::shared_ptr< TimeType > relativeErrorTolerance =
+        const boost::shared_ptr< TimeType > relativeErrorTolerance =
                 getValuePointer< TimeType >( settings, "relativeErrorTolerance" );
-        boost::shared_ptr< TimeType > absoluteErrorTolerance =
+        const boost::shared_ptr< TimeType > absoluteErrorTolerance =
                 getValuePointer< TimeType >( settings, "absoluteErrorTolerance" );
-        boost::shared_ptr< TimeType > safetyFactorForNextStepSize =
+        const boost::shared_ptr< TimeType > safetyFactorForNextStepSize =
                 getValuePointer< TimeType >( settings, "safetyFactorForNextStepSize" );
-        boost::shared_ptr< TimeType > maximumFactorIncreaseForNextStepSize =
+        const boost::shared_ptr< TimeType > maximumFactorIncreaseForNextStepSize =
                 getValuePointer< TimeType >( settings, "maximumFactorIncreaseForNextStepSize" );
-        boost::shared_ptr< TimeType > minimumFactorDecreaseForNextStepSize =
+        const boost::shared_ptr< TimeType > minimumFactorDecreaseForNextStepSize =
                 getValuePointer< TimeType >( settings, "minimumFactorDecreaseForNextStepSize" );
 
         // Construct with mandatory arguments, and optional arguments as default
@@ -136,31 +138,31 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
                     integratorType, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize );
 
         // Update optional arguments if provided
-        if ( relativeErrorTolerance != NULL )
+        if ( relativeErrorTolerance )
         {
             integratorSettings->relativeErrorTolerance_ = *relativeErrorTolerance;
         }
-        if ( absoluteErrorTolerance != NULL )
+        if ( absoluteErrorTolerance )
         {
             integratorSettings->absoluteErrorTolerance_ = *absoluteErrorTolerance;
         }
-        if ( saveFrequency != NULL )
+        if ( saveFrequency )
         {
             integratorSettings->saveFrequency_ = *saveFrequency;
         }
-        if ( safetyFactorForNextStepSize != NULL )
+        if ( safetyFactorForNextStepSize )
         {
             integratorSettings->safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
         }
-        if ( safetyFactorForNextStepSize != NULL )
+        if ( safetyFactorForNextStepSize )
         {
             integratorSettings->safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
         }
-        if ( maximumFactorIncreaseForNextStepSize != NULL )
+        if ( maximumFactorIncreaseForNextStepSize )
         {
             integratorSettings->maximumFactorIncreaseForNextStepSize_ = *maximumFactorIncreaseForNextStepSize;
         }
-        if ( minimumFactorDecreaseForNextStepSize != NULL )
+        if ( minimumFactorDecreaseForNextStepSize )
         {
             integratorSettings->minimumFactorDecreaseForNextStepSize_ = *minimumFactorDecreaseForNextStepSize;
         }
@@ -173,4 +175,4 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
 
 } // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_INTEGRATORSETTINGS_H
+#endif // TUDAT_JSONINTERFACE_INTEGRATOR_H

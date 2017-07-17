@@ -27,7 +27,7 @@ namespace json_interface
 
 
 //! -DOC
-std::map< std::string, double > SIUnits =
+static std::map< std::string, double > SIUnits =
 {
     // Time [ s ]
     { "s", 1 },
@@ -58,7 +58,7 @@ void split( const std::string& string, char delimiter, T result ) {
 }
 
 //! -DOC
-std::vector< std::string > split( const std::string& string, char delimiter )
+static inline std::vector< std::string > split( const std::string& string, char delimiter )
 {
     std::vector< std::string > parts;
     split( string, delimiter, std::back_inserter( parts ) );
@@ -70,7 +70,9 @@ std::vector< std::string > split( const std::string& string, char delimiter )
 template< typename T >
 T convertToSecondsSinceJ2000( const std::string& date )
 {
-    return 0;
+    using namespace boost::posix_time;
+    time_duration duration = time_from_string( date ) - time_from_string( "2000-01-01 12:00:00" );
+    return duration.total_seconds( );
 }
 
 //! -DOC
@@ -87,9 +89,7 @@ T parseString( const std::string& text )
     // If `text` is a formatted date, then transform it to seconds since J2000
     try
     {
-        using namespace boost::posix_time;
-        time_duration duration = time_from_string( text ) - time_from_string( "2000-01-01 12:00:00" );
-        return duration.total_seconds( );
+        return convertToSecondsSinceJ2000< T >( text );
     }
     // Assume `text` has the structure "value unit", then convert it to SI units
     catch ( ... )

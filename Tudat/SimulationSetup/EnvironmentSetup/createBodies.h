@@ -63,10 +63,29 @@ struct BodySettings
     //! Settings for variations of the gravity field of the body.
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
+    //! Constant mass.
+    double constantMass = TUDAT_NAN;
+
+    /*
+    //! Initial state.
+    Eigen::Vector6d initialState = ( Eigen::Vector6d( ) <<
+                                     TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).done( );
+    */
+
 };
 
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
+
+//! Function to create a single Body object from BodySettings and add it to a NamedBodyMap.
+/*!
+ *  Function to create a single Body object from BodySettings and add it to a NamedBodyMap.
+ *  \param bodyMap Body map with the bodies created so far, and to which the new body will be added.
+ *  \param bodySettings Settings for the body that is to be created.
+ *  \return Body created according to settings in `bodySettings`.
+ */
+void addBody( NamedBodyMap& bodyMap, const std::string& bodyName,
+              const boost::shared_ptr< BodySettings >& bodySettings );
 
 //! Function to create a map of bodies objects.
 /*!

@@ -16,10 +16,9 @@
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
 #include "jsonInterface.h"
-#include "utilities.h"
 
-#include "integratorSettings.h"
-
+#include "integrator.h"
+#include "body.h"
 
 namespace tudat
 {
@@ -34,14 +33,6 @@ typedef boost::filesystem::path path;
 template< typename TimeType = double, typename StateScalarType = double >
 class Simulation
 {
-private:
-    //! Absolute path to the input file.
-    path inputPath;
-
-    //! JSON object with all the settings from the input file.
-    json settings;
-
-
 public:
     //! Vector with filenames of the Spice kernels located in "Tudat/External/SpiceInterface/Kernels/"
     //! to be used for the propagation.
@@ -53,6 +44,9 @@ public:
     //! * The simulation ends much earlier than the specified maximum simulation end epoch.
     //! * The integrator step-size is very large (in the order of several hours or days).
     bool preloadSpiceData;
+
+    //! Offset for the
+    std::pair< TimeType, TimeType > spiceIntervalOffsets;
 
     //! Initial epoch for the simulation.
     TimeType startEpoch;
@@ -81,6 +75,9 @@ public:
     //! Body map.
     simulation_setup::NamedBodyMap bodyMap;
 
+    //! Body settings.
+    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap;
+
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
 
@@ -91,7 +88,7 @@ public:
     boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator;
 
     //! -DOC
-    Simulation( std::string inputFile )
+    Simulation( const std::string& inputFile )
     {
         setInputFile( inputFile );
         reset( );
@@ -102,20 +99,19 @@ public:
     void setInputFile( std::string inputFile )
     {
         // Add .json extension if necessary
-        std::string inputFileWithExtension = inputFile;
-        if ( inputFileWithExtension.find(".json") == std::string::npos )
+        if ( inputFile.find(".json") == std::string::npos )
         {
-            inputFileWithExtension += ".json";
+            inputFile += ".json";
         }
 
         // Determine the absolute path of the directory where the input file is located
-        path inputDirectory = boost::filesystem::canonical( inputFileWithExtension ).parent_path( );
+        path inputDirectory = boost::filesystem::canonical( inputFile ).parent_path( );
 
         // Determine the filename (without file extension) of the input file
         // path inputFilename = path( inputFile ).stem();
 
         // Build absolute path
-        inputPath = inputDirectory / path( inputFileWithExtension ).filename();
+        inputPath = inputDirectory / path( inputFile ).filename();
 
         // Check that input file exists
         if ( ! boost::filesystem::exists( inputPath ) )
@@ -138,7 +134,7 @@ public:
         resetAccelerations( );
         resetPropagators( );
         resetIntegrator();
-        // resetOutput( );
+        resetOutput( );
     }
 
 
@@ -158,11 +154,15 @@ public:
     //! -DOC
     void resetSpice( )
     {
-        // Spice
         spiceKernels = getValue< std::vector< std::string > >( settings, { "simulation", "spiceKernels" }, { } );
         preloadSpiceData = getValue< bool >( settings, { "simulation", "preloadSpiceData" }, true );
+        spiceIntervalOffsets = preloadSpiceData ?
+                    std::make_pair( -300.0, 300.0 ) : std::make_pair( TUDAT_NAN, TUDAT_NAN );
 
-        // Load requested Spice kernels.
+        // Clear all loaded kernels
+        spice_interface::clearSpiceKernels( );
+
+        // Load requested Spice kernels
         for ( std::string kernelFile : spiceKernels )
         {
             spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + kernelFile );
@@ -176,7 +176,7 @@ public:
         using namespace simulation_setup;
 
         // All bodies
-        bodies = { };
+        bodies.clear( );
         for ( auto ent : getValue< std::map< std::string, json > >( settings, "bodies" ) )
         {
             bodies.push_back( ent.first );
@@ -184,72 +184,72 @@ public:
 
         // Bodies to propagate
         std::vector< json > propagators = getValue< std::vector< json > >( settings, "propagators" );
-        bodiesToPropagate = { };
+        bodiesToPropagate.clear( );
         for ( json propagator : propagators )
         {
-            std::vector< std::string > bodies = getValue< std::vector< std::string > >( propagator, "bodies" );
-            for ( std::string body : bodies )
+            std::vector< std::string > requestedBodies =
+                    getValue< std::vector< std::string > >( propagator, "bodiesToPropagate" );
+            for ( std::string bodyName : requestedBodies )
             {
-                if ( contains( bodies, body ) )
+                if ( contains( bodies, bodyName ) )
                 {
-                    bodiesToPropagate.push_back( body );
+                    bodiesToPropagate.push_back( bodyName );
                 }
                 else
                 {
-                    throw std::runtime_error( "Requested to propagate body named \"" + body +
+                    throw std::runtime_error( "Requested to propagate body named \"" + bodyName +
                                               "\", but no body with this name was found." );
                 }
             }
         }
 
         // Celestial (and central) bodies
-        celestialBodies = { };
-        centralBodies = { };
-        for ( std::string body : bodies )
+        celestialBodies.clear( );
+        centralBodies.clear( );
+        for ( std::string bodyName : bodies )
         {
-            if ( ! contains( bodiesToPropagate, body ) )
+            if ( ! contains( bodiesToPropagate, bodyName ) )
             {
-                celestialBodies.push_back( body );
-                if ( getValue( settings, { "bodies", body, "isCentralBody" }, false ) )
+                celestialBodies.push_back( bodyName );
+                if ( getValue( settings, { "bodies", bodyName, "isCentralBody" }, false ) )
                 {
-                    centralBodies.push_back( body );
+                    centralBodies.push_back( bodyName );
                 }
             }
         }
 
         // Get default settings for celestial bodies.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
-        if ( preloadSpiceData )
-        {
-            bodySettings = getDefaultBodySettings( celestialBodies, startEpoch - 300.0, endEpoch + 300.0 );
-        }
-        else
-        {
-            bodySettings = getDefaultBodySettings( celestialBodies );
-        }
-
-        // Override values that were not set to be default / were not omitted.
-        // ... such as µ
+        bodySettingsMap = getDefaultBodySettings(
+                    celestialBodies, startEpoch - spiceIntervalOffsets.first, endEpoch + spiceIntervalOffsets.second );
 
         // Set celestial bodies ephemeris and rotational models.
         for ( std::string celestialBody : celestialBodies )
         {
-            bodySettings[ celestialBody ]->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
-            bodySettings[ celestialBody ]->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
+            bodySettingsMap[ celestialBody ]->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
+            bodySettingsMap[ celestialBody ]->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
+        }
+
+        // Update celestial body settings from the JSON settings.
+        for ( std::string bodyName : celestialBodies )
+        {
+            updateBodySettings( bodySettingsMap, bodyName, getValue< json >( settings, { "bodies", bodyName } ) );
         }
 
         // Create celestial bodies.
-        bodyMap = simulation_setup::createBodies( bodySettings );
+        bodyMap = createBodies( bodySettingsMap );
 
-        // Create bodies to be propagated.
-        for ( std::string bodyName : bodiesToPropagate )
+        // Create rest of body settings (and corresponding bodies) once that celestial bodies have been created.
+        for ( std::string bodyName : bodies )
         {
-            boost::shared_ptr< Body > body = boost::make_shared< Body >( );
-            body->setConstantBodyMass( getNumber< double >( settings, { "bodies", bodyName, "mass" } ) );
-            bodyMap[ bodyName ] = body;
-            // ...
+            if ( ! contains( celestialBodies, bodyName) )
+            {
+                updateBodySettings( bodySettingsMap, bodyName, getValue< json >( settings, { "bodies", bodyName } ) );
+                addBody( bodyMap, bodyName, bodySettingsMap[ bodyName ] );
+            }
         }
 
+        // Finalize body creation.
+        setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
     }
 
 
@@ -281,6 +281,13 @@ public:
 
 
     //! -DOC
+    void resetOutput( )
+    {
+
+    }
+
+
+    //! -DOC
     void run( )
     {
         using namespace propagators;
@@ -294,7 +301,7 @@ public:
         boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
                 = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     dynamicsSimulator );
-        if ( singleArcDynamicsSimulator != NULL )
+        if ( singleArcDynamicsSimulator )
         {
             singleArcDynamicsSimulator->integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
             return;
@@ -303,7 +310,7 @@ public:
         boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > multiArcDynamicsSimulator
                 = boost::dynamic_pointer_cast< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
                     dynamicsSimulator );
-        if ( multiArcDynamicsSimulator != NULL )
+        if ( multiArcDynamicsSimulator )
         {
             throw std::runtime_error( "MultiArcDynamicsSimulator not supported by JSON interface." );
         }
@@ -324,24 +331,52 @@ public:
     }
 
 
+protected:
+
+
+
+private:
+    //! Absolute path to the input file.
+    path inputPath;
+
+    //! JSON object with all the settings from the input file.
+    json settings;
+
+
 };
 
 
 //! Function to create a `json` object from a `Simulation` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as `json( simulation )`.
 template< typename TimeType = double >
-void to_json( json& j, const Simulation< TimeType >& simulation ) {
+void to_json( json& jsonObject, const Simulation< TimeType >& simulation )
+{
     // Initialise
-    j = json();
+    jsonObject = json();
 
-    // Simulation
-    json jSimulation;
-    jSimulation[ "startEpoch" ] = simulation.startEpoch;
-    jSimulation[ "endEpoch" ] = simulation.endEpoch;
-    j[ "simulation" ] = jSimulation;
+    // Simulation (general settings)
+    json jsonSimulation;
+    jsonSimulation[ "startEpoch" ] = simulation.startEpoch;
+    jsonSimulation[ "endEpoch" ] = simulation.endEpoch;
+    jsonSimulation[ "globalFrameOrigin" ] = simulation.globalFrameOrigin;
+    jsonSimulation[ "globalFrameOrientation" ] = simulation.globalFrameOrientation;
+    jsonSimulation[ "spiceKernels" ] = simulation.spiceKernels;
+    jsonSimulation[ "preloadSpiceData" ] = simulation.preloadSpiceData;
+    jsonObject[ "simulation" ] = jsonSimulation;
+
+    // Bodies
+    json jsonBodies;
+    for ( auto entry : simulation.bodySettingsMap )
+    {
+        std::string bodyName = entry.first;
+        json jsonBodySettings( entry.second );
+        jsonBodySettings[ "isCentralBody" ] = contains( simulation.centralBodies, bodyName );
+        jsonBodies[ bodyName ] = jsonBodySettings;
+    }
+    jsonObject[ "bodies" ] = jsonBodies;
 
     // Integrator
-    j[ "integrator" ] = json( simulation.integratorSettings );
+    jsonObject[ "integrator" ] = json( simulation.integratorSettings );
 }
 
 
