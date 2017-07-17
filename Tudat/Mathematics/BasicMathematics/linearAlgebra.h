@@ -144,6 +144,23 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector(
         const Eigen::Matrix3d& partialOfUnnormalizedVector,
         const Eigen::Vector3d& unnormalizedVector );
 
+template< typename StateScalarType, int NumberOfRows, int NumberOfColumns >
+bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRows, NumberOfColumns > vectorToCheck )
+{
+    bool areNanEntriesPresent = false;
+    for( int i = 0; i < vectorToCheck.rows( ); i++ )
+    {
+        for( int j = 0; j < vectorToCheck.cols( ); j++ )
+        {
+            if( !( vectorToCheck( i, j ) == vectorToCheck( i, j ) ) )
+            {
+                areNanEntriesPresent = true;
+            }
+        }
+    }
+    return areNanEntriesPresent;
+}
+
 
 
 

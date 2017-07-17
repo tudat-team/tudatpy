@@ -58,9 +58,10 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         std::cout<<totalError.transpose( )<<std::endl;
     }
 
+    std::pair< boost::shared_ptr< simulation_setup::PodOutput< double > >,
+    boost::shared_ptr< simulation_setup::PodInput< double, double > > > podDataPair;
     Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >(
-                std::pair< boost::shared_ptr< simulation_setup::PodOutput< double > >,
-                boost::shared_ptr< simulation_setup::PodInput< double, double > > >( ) );
+                 podDataPair );
 
     for( unsigned int i = 0; i < 3; i++ )
     {
