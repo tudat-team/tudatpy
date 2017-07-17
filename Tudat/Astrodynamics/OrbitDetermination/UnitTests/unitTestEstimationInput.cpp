@@ -154,8 +154,6 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
         executeEarthOrbiterParameterEstimation< double, double >(
                     podData, 1.0E7, i, 0, false );
         manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
-
-        std::cout<<i<<std::endl<<manualCovarianes[ i ]<<std::endl<<std::endl;
     }
 
     std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceMatrixAsFunctionOfTime(
@@ -167,7 +165,6 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
     for( std::map< double, Eigen::MatrixXd >::const_iterator covarianceIterator = automaticCovariances.begin( );
          covarianceIterator != automaticCovariances.end( ); covarianceIterator++ )
     {
-        std::cout<<covarianceIterator->first<<std::endl<<covarianceIterator->second<<std::endl<<std::endl;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
         counter++;
     }
