@@ -78,8 +78,6 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartial
         const int maximumDegree,
         const int maximumOrder )
 {
-    //std::cout<<"Calculating partial w.r.t. complex Love number"<<std::endl;
-
     deformedBodyGravitationalParameter_ = deformedBodyGravitationalParameterFunction_( );
 
     // Set and calculate states and rotation needed for calculation of partial.
@@ -101,8 +99,6 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartial
         const int maximumDegree,
         const int maximumOrder )
 {
-    std::cout<<"Computing real single degree partial"<<std::endl;
-
     deformedBodyGravitationalParameter_ = deformedBodyGravitationalParameterFunction_( );
 
     // Set and calculate states and rotation needed for calculation of partial.
@@ -184,8 +180,6 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
         }
         case single_degree_variable_tidal_love_number:
         {
-            std::cout<<"Compted single degree partial"<<std::endl;
-
             // Cast parameter object to required type.
             boost::shared_ptr< SingleDegreeVariableTidalLoveNumber > coefficientsParameter =
                     boost::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumber >( parameter );
@@ -211,8 +205,6 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         }
                         else
                         {
-                            std::cout<<"Compted real single degree partial"<<std::endl;
-
                             // Calculate partial for real love number
                             parameterVectorPartialFunctions_[ std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     boost::bind( &TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers, this,
@@ -291,9 +283,6 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
                 {
                     setCurrentTidalBodyStates( degree, orders.at( m ), deformingBodyIndices.at( i ) );
                     // Calculate and add coefficients.
-
-                    std::cout<<"Calculating partial at D/O "<<i<<" "<<degree<<" "<<orders.at( m )<<" "<<iLongitude_<<std::endl;
-
                     unitLoveNumberCoefficientVariations = gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
                                 std::complex< double >( 1.0, 0.0 ), massRatio_,
                                 basic_mathematics::raiseToIntegerPower( radiusRatio_, degree + 1 ) ,

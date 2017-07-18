@@ -418,7 +418,6 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.resize( 1 );
 
-    std::cout<<"Calculating partial"<<std::endl;
     // Iterate over all required orders in current degree.
     for( unsigned int i = 0; i < orders.size( ); i++ )
     {
@@ -448,7 +447,6 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
         }
         else
         {
-            std::cout<<"Not summing orders "<<std::endl;
             calculateSphericalHarmonicGravityWrtCCoefficients(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
@@ -458,9 +456,6 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                     currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize );
 
-            std::cout<<"Not summing orders "<<std::endl<<partialMatrix<<std::endl<<std::endl<<
-                       coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize )<<std::endl<<std::endl;
-
             calculateSphericalHarmonicGravityWrtSCoefficients(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
@@ -469,8 +464,6 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
 
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                         currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize );
-            std::cout<<"Not summing orders "<<std::endl<<partialMatrix<<std::endl<<std::endl<<
-                       coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize )<<std::endl<<std::endl;
         }
     }
 }
