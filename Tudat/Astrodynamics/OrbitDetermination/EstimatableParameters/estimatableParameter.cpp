@@ -21,6 +21,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     std::string parameterDescription;
     switch( parameterType )
     {
+    case arc_wise_initial_body_state:
+        parameterDescription = "arc-wise translational state ";
+        break;
     case initial_body_state:
         parameterDescription = "translational state ";
         break;

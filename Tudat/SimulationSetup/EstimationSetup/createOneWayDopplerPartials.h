@@ -195,7 +195,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         std::string acceleratedBody;
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
         }
