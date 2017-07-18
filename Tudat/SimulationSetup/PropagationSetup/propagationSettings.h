@@ -317,6 +317,11 @@ public:
         return singleArcSettings_;
     }
 
+    int getNmberOfArcs( )
+    {
+        return singleArcSettings_.size( );
+     }
+
     //! Function get the list of initial states for each arc in propagation.
     /*!
      * Function get the list of initial states for each arc in propagation.

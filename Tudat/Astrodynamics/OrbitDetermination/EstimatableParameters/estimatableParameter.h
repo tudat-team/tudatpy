@@ -523,6 +523,32 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
 }
 
 template< typename InitialStateParameterType >
+std::map< std::string, boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
+getListOfBodiesWithTranslationalMultiArcStateToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::map< std::string, boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > > bodiesToEstimate;
+
+    // Retrieve initial dynamical parameters.
+    std::vector< boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+        {
+            bodiesToEstimate[ initialDynamicalParameters.at( i )->getParameterName( ).second.first ] =
+                    initialDynamicalParameters.at( i );
+        }
+    }
+
+    return bodiesToEstimate;
+}
+
+template< typename InitialStateParameterType >
 std::vector< std::string > getListOfBodiesToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {

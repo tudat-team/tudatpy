@@ -739,16 +739,16 @@ public:
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult )
     {
-        boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
+        multiArcPropagatorSettings_ =
                 boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiArcPropagatorSettings == NULL )
+        if( multiArcPropagatorSettings_ == NULL )
         {
             throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is not multi arc" );
         }
         else
         {
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > singleArcSettings =
-                    multiArcPropagatorSettings->getSingleArcSettings( );
+                    multiArcPropagatorSettings_->getSingleArcSettings( );
 
             arcStartTimes_.resize( arcStartTimes.size( ) );
 
@@ -773,7 +773,7 @@ public:
             // Integrate equations of motion if required.
             if( areEquationsOfMotionToBeIntegrated )
             {
-                integrateEquationsOfMotion( multiArcPropagatorSettings->getInitialStates( ) );
+                integrateEquationsOfMotion( multiArcPropagatorSettings_->getInitialStates( ) );
             }
         }
     }
@@ -801,16 +801,16 @@ public:
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult )
     {
-        boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
+        multiArcPropagatorSettings_ =
                 boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiArcPropagatorSettings == NULL )
+        if( multiArcPropagatorSettings_ == NULL )
         {
             throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is not multi arc" );
         }
         else
         {
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > singleArcSettings =
-                    multiArcPropagatorSettings->getSingleArcSettings( );
+                    multiArcPropagatorSettings_->getSingleArcSettings( );
 
             if( singleArcSettings.size( ) != integratorSettings.size( ) )
             {
@@ -834,7 +834,7 @@ public:
             // Integrate equations of motion if required.
             if( areEquationsOfMotionToBeIntegrated )
             {
-                integrateEquationsOfMotion( multiArcPropagatorSettings->getInitialStates( ) );
+                integrateEquationsOfMotion( multiArcPropagatorSettings_->getInitialStates( ) );
             }
         }
     }
@@ -891,44 +891,37 @@ public:
         }
 
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
-
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStateList;
         bool updateInitialStates = false;
 
         // Propagate dynamics for each arc
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
         {
-            //std::cout<<i<<" ******************************Current arc start time: "<<
-             //          singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl;
-            //std::cout<<i<<" Nan entries: "<<linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) )<<std::endl;
-            if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
+           if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
             {
                 currentArcInitialState = initialStatesList.at( i );
             }
             else
             {
-                //std::cout<<"Reset arc"<<std::endl;
                 currentArcInitialState = getArcInitialStateFromPreviousArcResult(
                             equationsOfMotionNumericalSolution_.at( i - 1 ),
                             singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( ) );
-                //std::cout<<"New state: "<<singleArcDynamicsSimulators_.at( i )->getIntegratorSettings( )->initialTime_<<" "<<
-                 //          currentArcInitialState.transpose( )<<std::endl;
-//                std::cout<<"Prevous arc info: "<<i<<" "<<equationsOfMotionNumericalSolution_.at( i - 1 ).size( )<<"  "<<
-//                           singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<std::endl<<
-//                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->first<<" "<<
-//                           equationsOfMotionNumericalSolution_.at( i - 1 ).begin( )->second.transpose( )<<" "<<std::endl<<
-//                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->first<<" "<<
-//                           equationsOfMotionNumericalSolution_.at( i - 1 ).rbegin( )->second.transpose( )<<" "<<std::endl<<std::endl;;
                 updateInitialStates = true;
             }
-
-            //std::cout<<" Current arc initial state: "<<i<<" "<<singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( )<<" "<<
-            //           currentArcInitialState.transpose( )<<std::endl<<std::endl<<std::endl;
+            arcInitialStateList.push_back( currentArcInitialState );
 
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
             equationsOfMotionNumericalSolution_[ i ] =
                     singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
             propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
+        }
+
+
+        if( updateInitialStates )
+        {
+            multiArcPropagatorSettings_->resetInitialStatesList(
+                        arcInitialStateList );
         }
 
         if( this->setIntegratedResult_ )
@@ -1049,6 +1042,8 @@ protected:
 
     //! Event that triggered the termination of the propagation
     std::vector< PropagationTerminationReason > propagationTerminationReasons_;
+
+    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
 
 
 };
