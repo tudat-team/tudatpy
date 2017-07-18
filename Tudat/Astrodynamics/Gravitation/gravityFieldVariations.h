@@ -381,6 +381,10 @@ public:
         return variationObjects_;
     }
 
+    boost::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation( const std::string& identifier );
+
+    std::vector< boost::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
+
 private:
 
     //! List of GravityFieldVariations objects denoting the complete set of variations to take

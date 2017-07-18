@@ -50,7 +50,9 @@ enum EstimatebleParametersEnum
     ground_station_position,
     equivalence_principle_lpi_violation_parameter,
     empirical_acceleration_coefficients,
-    arc_wise_empirical_acceleration_coefficients
+    arc_wise_empirical_acceleration_coefficients,
+    full_degree_tidal_love_number,
+    single_degree_variable_tidal_love_number
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -87,6 +89,8 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
  * \return True if parameter is a property of an observation link
  */
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
+
+bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;

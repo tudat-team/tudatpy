@@ -257,6 +257,73 @@ GravityFieldVariationsSet::getVariationFunctions( )
     return variationFunctions;
 }
 
+boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation( const std::string& identifier )
+{
+
+    boost::shared_ptr< GravityFieldVariations > gravityFieldVariation;
+
+    int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
+
+    if( ( numberOfBasicModels ) == 1 )
+    {
+        if( numberOfBasicModels == 1 )
+        {
+            gravityFieldVariation = variationObjects_.at(
+                        ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
+                                                                             basic_solid_body ) ) ) );
+        }
+    }
+    else if( numberOfBasicModels == 0 )
+    {
+        std::cerr<<"Error when getting direct tidal gravity field variation, no such model found"<<std::endl;
+    }
+    else
+    {
+        if( identifier == "" )
+        {
+            std::cerr<<"Error when getting direct tidal gravity field variation, found multiple models, but not id is provided"<<std::endl;
+        }
+        bool isVariationFound = 0;
+
+        for( unsigned int i = 0; i < variationType_.size( ); i++ )
+        {
+            if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( variationObjects_.at( i ) ) != NULL )
+            {
+                if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( variationObjects_.at( i ) )
+                        ->getConcatenatedDeformingBodies( ) == identifier )
+                {
+                    gravityFieldVariation = variationObjects_.at( i );
+                    isVariationFound = 1;
+                    break;
+                }
+            }
+        }
+
+        if( isVariationFound == 0 )
+        {
+            std::cerr<<"Error when getting direct tidal gravity field variation, found multiple models of correct type, but none coincide with "
+                     <<"id: "<<identifier<<"."<<std::endl;
+        }
+    }
+
+    return gravityFieldVariation;
+}
+
+std::vector< boost::shared_ptr< GravityFieldVariations > > GravityFieldVariationsSet::getDirectTidalGravityFieldVariations( )
+{
+    std::vector< boost::shared_ptr< GravityFieldVariations > > directTidalVariations;
+
+    for( unsigned int i = 0; i < variationType_.size( ); i++ )
+    {
+        if( variationType_[ i ] == basic_solid_body )
+        {
+            directTidalVariations.push_back( variationObjects_[ i ] );
+        }
+    }
+
+    return directTidalVariations;
+}
+
 } // namespace gravitation
 
 } // namespace tudat

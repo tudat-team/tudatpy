@@ -175,6 +175,26 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
 }
 
 
+bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case full_degree_tidal_love_number:
+        flag = true;
+        break;
+    case single_degree_variable_tidal_love_number:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
+
+
+
 
 }
 

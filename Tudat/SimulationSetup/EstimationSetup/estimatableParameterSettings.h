@@ -343,6 +343,46 @@ public:
 
 };
 
+
+class FullDegreeTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree = 2,
+                                                            const std::string& deformingBodies = "",
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ), deformingBodies_( deformingBodies ),
+        useComplexValue_( useComplexValue ){ }
+
+    int degree_;
+
+    std::string deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
+class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::string& deformingBodies = "",
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    int degree_;
+
+    const std::vector< int > orders_;
+
+    std::string deformingBodies_;
+
+    bool useComplexValue_;
+
+};
+
 } // namespace estimatable_parameters
 
 } // namespace tudat
