@@ -28,7 +28,8 @@ static std::map< std::string, AvailableIntegrators > availableIntegrators =
     { "euler",                      euler },
     { "rungeKuttaVariableStepSize", rungeKuttaVariableStepSize }
 };
-
+void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator );
+void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator );
 
 //! Map of `RungeKuttaCoefficients::CoefficientSets` supported by `json_interface`.
 static std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKuttaCoefficientSets =
@@ -38,39 +39,42 @@ static std::map< std::string, RungeKuttaCoefficients::CoefficientSets > rungeKut
     { "rungeKuttaFehlberg78",      RungeKuttaCoefficients::rungeKuttaFehlberg78 },
     { "rungeKutta87DormandPrince", RungeKuttaCoefficients::rungeKutta87DormandPrince }
 };
-
+void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet );
+void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet );
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as `json( integratorSettings )`.
 template< typename TimeType = double >
-void to_json( json& j, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace json_interface;
+    using Keys = Keys::Integrator;
 
     // Initialise
-    j = json();
+    jsonObject = json( );
 
     // Common keys
-    j[ "type" ] = stringFromEnum( integratorSettings->integratorType_, availableIntegrators );
-    j[ "initialTime" ] = integratorSettings->initialTime_;
-    j[ "initialTimeStep" ] = integratorSettings->initialTimeStep_;
-    j[ "saveFrequency" ] = integratorSettings->saveFrequency_;
+    jsonObject[ Keys::type ] = stringFromEnum( integratorSettings->integratorType_, availableIntegrators );
+    jsonObject[ Keys::initialTime ] = integratorSettings->initialTime_;
+    jsonObject[ Keys::initialTimeStep ] = integratorSettings->initialTimeStep_;
+    jsonObject[ Keys::saveFrequency ] = integratorSettings->saveFrequency_;
 
     // Integrator-specific keys
     boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
             boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
     if ( rungeKuttaVariableStepSizeSettings )
     {
-        j[ "rungeKuttaCoefficientSet" ] =
+        jsonObject[ Keys::rungeKuttaCoefficientSet ] =
                 stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
-        j[ "minimumStepSize" ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
-        j[ "maximumStepSize" ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
-        j[ "relativeErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
-        j[ "absoluteErrorTolerance" ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
-        j[ "safetyFactorForNextStepSize" ] = rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
-        j[ "maximumFactorIncreaseForNextStepSize" ] =
+        jsonObject[ Keys::minimumStepSize ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
+        jsonObject[ Keys::maximumStepSize ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
+        jsonObject[ Keys::relativeErrorTolerance ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
+        jsonObject[ Keys::absoluteErrorTolerance ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
+        jsonObject[ Keys::safetyFactorForNextStepSize ] =
+                rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
+        jsonObject[ Keys::maximumFactorIncreaseForNextStepSize ] =
                 rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
-        j[ "minimumFactorDecreaseForNextStepSize" ] =
+        jsonObject[ Keys::minimumFactorDecreaseForNextStepSize ] =
                 rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
     }
 }
@@ -92,85 +96,85 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
         const json &settings )
 {
     using namespace numerical_integrators;
+    using Keys = Keys::Integrator;
 
     // Read JSON settings shared by all supported integrators
-    const AvailableIntegrators integratorType =
-            enumFromString( getValue< std::string >( settings, "type" ), availableIntegrators );
-    const TimeType initialTime = getNumber< TimeType >( settings, "initialTime" );
-    const TimeType initialTimeStep = getNumber< TimeType >( settings, "initialTimeStep" );
-    const boost::shared_ptr< int > saveFrequency = getValuePointer< int >( settings, "saveFrequency" );
+    const auto integratorType = getValue< AvailableIntegrators >( settings, Keys::type );
+    const auto initialTime = getNumber< TimeType >( settings, Keys::initialTime );
+    const auto initialTimeStep = getNumber< TimeType >( settings, Keys::initialTimeStep );
+    const auto saveFrequency = getValuePointer< int >( settings, Keys::saveFrequency );
 
     // Create IntegratorSettings pointer from JSON settings
     if ( integratorType == euler || integratorType == rungeKutta4 )
     {
         // Construct with mandatory arguments, and optional arguments as default
-        boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-                boost::make_shared< IntegratorSettings< TimeType > >( integratorType, initialTime, initialTimeStep );
+        IntegratorSettings< TimeType > integratorSettings( integratorType, initialTime, initialTimeStep );
 
         // Update optional arguments if provided
         if ( saveFrequency )
         {
-            integratorSettings->saveFrequency_ = *saveFrequency;
+            integratorSettings.saveFrequency_ = *saveFrequency;
         }
-        return integratorSettings;
+
+        // Return shared pointer
+        return boost::make_shared< IntegratorSettings< TimeType > >( integratorSettings );
     }
     else
     {
         // Read additional settings specific for this integrator
-        const RungeKuttaCoefficients::CoefficientSets coefficientSet = enumFromString(
-                    getValue< std::string >( settings, "rungeKuttaCoefficientSet" ), rungeKuttaCoefficientSets );
-        const TimeType minimumStepSize = getNumber< TimeType >( settings, "minimumStepSize" );
-        const TimeType maximumStepSize = getNumber< TimeType >( settings, "maximumStepSize" );
-        const boost::shared_ptr< TimeType > relativeErrorTolerance =
-                getValuePointer< TimeType >( settings, "relativeErrorTolerance" );
-        const boost::shared_ptr< TimeType > absoluteErrorTolerance =
-                getValuePointer< TimeType >( settings, "absoluteErrorTolerance" );
-        const boost::shared_ptr< TimeType > safetyFactorForNextStepSize =
-                getValuePointer< TimeType >( settings, "safetyFactorForNextStepSize" );
-        const boost::shared_ptr< TimeType > maximumFactorIncreaseForNextStepSize =
-                getValuePointer< TimeType >( settings, "maximumFactorIncreaseForNextStepSize" );
-        const boost::shared_ptr< TimeType > minimumFactorDecreaseForNextStepSize =
-                getValuePointer< TimeType >( settings, "minimumFactorDecreaseForNextStepSize" );
+        const auto coefficientSet =
+                getValue< RungeKuttaCoefficients::CoefficientSets >( settings, Keys::rungeKuttaCoefficientSet );
+        const auto minimumStepSize = getNumber< TimeType >( settings, Keys::minimumStepSize );
+        const auto maximumStepSize = getNumber< TimeType >( settings, Keys::maximumStepSize );
+        const auto relativeErrorTolerance = getValuePointer< TimeType >( settings, Keys::relativeErrorTolerance );
+        const auto absoluteErrorTolerance = getValuePointer< TimeType >( settings, Keys::absoluteErrorTolerance );
+        const auto safetyFactorForNextStepSize =
+                getValuePointer< TimeType >( settings, Keys::safetyFactorForNextStepSize );
+        const auto maximumFactorIncreaseForNextStepSize =
+                getValuePointer< TimeType >( settings, Keys::maximumFactorIncreaseForNextStepSize );
+        const auto minimumFactorDecreaseForNextStepSize =
+                getValuePointer< TimeType >( settings, Keys::minimumFactorDecreaseForNextStepSize );
 
         // Construct with mandatory arguments, and optional arguments as default
-        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > integratorSettings =
-                boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
+        RungeKuttaVariableStepSizeSettings< TimeType > integratorSettings(
                     integratorType, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize );
 
         // Update optional arguments if provided
         if ( relativeErrorTolerance )
         {
-            integratorSettings->relativeErrorTolerance_ = *relativeErrorTolerance;
+            integratorSettings.relativeErrorTolerance_ = *relativeErrorTolerance;
         }
         if ( absoluteErrorTolerance )
         {
-            integratorSettings->absoluteErrorTolerance_ = *absoluteErrorTolerance;
+            integratorSettings.absoluteErrorTolerance_ = *absoluteErrorTolerance;
         }
         if ( saveFrequency )
         {
-            integratorSettings->saveFrequency_ = *saveFrequency;
+            integratorSettings.saveFrequency_ = *saveFrequency;
         }
         if ( safetyFactorForNextStepSize )
         {
-            integratorSettings->safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
+            integratorSettings.safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
         }
         if ( safetyFactorForNextStepSize )
         {
-            integratorSettings->safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
+            integratorSettings.safetyFactorForNextStepSize_ = *safetyFactorForNextStepSize;
         }
         if ( maximumFactorIncreaseForNextStepSize )
         {
-            integratorSettings->maximumFactorIncreaseForNextStepSize_ = *maximumFactorIncreaseForNextStepSize;
+            integratorSettings.maximumFactorIncreaseForNextStepSize_ = *maximumFactorIncreaseForNextStepSize;
         }
         if ( minimumFactorDecreaseForNextStepSize )
         {
-            integratorSettings->minimumFactorDecreaseForNextStepSize_ = *minimumFactorDecreaseForNextStepSize;
+            integratorSettings.minimumFactorDecreaseForNextStepSize_ = *minimumFactorDecreaseForNextStepSize;
         }
-        return integratorSettings;
+
+        // Return shared pointer
+        return boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
     }
 }
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 
 } // namespace tudat

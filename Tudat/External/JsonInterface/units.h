@@ -102,7 +102,7 @@ T parseString( const std::string& text )
 }
 
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 } // namespace tudat
 

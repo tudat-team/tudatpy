@@ -14,7 +14,7 @@
 #include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
 
-#include "jsonInterface.h"
+#include "Tudat/External/JsonInterface/jsonInterface.h"
 
 namespace tudat
 {
@@ -45,7 +45,7 @@ namespace json_interface
 void updateBodySettings( std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
                          const std::string& bodyName, const json &settings );
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 } // namespace tudat
 

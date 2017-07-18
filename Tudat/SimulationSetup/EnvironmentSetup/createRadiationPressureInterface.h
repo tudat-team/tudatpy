@@ -81,8 +81,6 @@ public:
      */
     std::vector< std::string > getOccultingBodies( ){ return occultingBodies_; }
 
-protected:
-
     //! Type of radiation pressure interface that is to be made.
     RadiationPressureType radiationPressureType_;
 
@@ -132,8 +130,6 @@ public:
      */
     double getRadiationPressureCoefficient( ){ return radiationPressureCoefficient_; }
 
-
-private:
 
     //! Surface area that undergoes radiation pressure.
     double area_;

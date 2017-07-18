@@ -13,7 +13,7 @@
 
 #include <Tudat/SimulationSetup/EnvironmentSetup/createAerodynamicCoefficientInterface.h>
 
-#include "jsonInterface.h"
+#include "Tudat/External/JsonInterface/jsonInterface.h"
 
 namespace tudat
 {
@@ -28,6 +28,8 @@ static std::map< std::string, AerodynamicCoefficientTypes > aerodynamicCoefficie
     { "hypersonicLocalInclincationCoefficients", hypersonic_local_inclincation_coefficients },
     { "tabulatedCoefficients",			         tabulated_coefficients }
 };
+void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCoefficientType );
+void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamicCoefficientType );
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as
@@ -51,7 +53,7 @@ namespace json_interface
 boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAerodynamicCoefficientSettings(
         const json& settings, const double& fallbackArea = TUDAT_NAN );
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 
 } // namespace tudat

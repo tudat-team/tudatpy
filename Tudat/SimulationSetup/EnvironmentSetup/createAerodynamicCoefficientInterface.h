@@ -96,13 +96,6 @@ public:
      */
     double getReferenceArea( ) { return referenceArea_; }
 
-    //! Set reference area.
-    /*!
-     * Sets reference area used to non-dimensionalize aerodynamic forces and moments.
-     * \param referenceArea Aerodynamic reference area.
-     */
-    void setReferenceArea( double referenceArea ) { referenceArea_ = referenceArea; }
-
     //! Get reference length.
     /*!
      * Returns reference length used to non-dimensionalize aerodynamic moments.
@@ -174,8 +167,6 @@ public:
     {
          controlSurfaceSettings_[ controlSurfaceName ] = controlSurfaceSetting;
     }
-
-private:
 
     //!  Type of atmosphere model that is to be created.
     AerodynamicCoefficientTypes aerodynamicCoefficientTypes_;
@@ -320,8 +311,6 @@ public:
     {
         return constantMomentCoefficient_;
     }
-
-private:
 
     //! Constant moment coefficients.
     Eigen::Vector3d constantForceCoefficient_;

@@ -17,18 +17,30 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Convert `RadiationPressureType` to `json`.
+void to_json( json& jsonObject, const RadiationPressureType& radiationPressureType )
+{
+    jsonObject = json( json_interface::stringFromEnum( radiationPressureType, radiationPressureTypes ) );
+}
+
+//! Convert `json` to `RadiationPressureType`.
+void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType )
+{
+    radiationPressureType = json_interface::enumFromString( jsonObject.get< std::string >( ), radiationPressureTypes );
+}
+
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
 void to_json( json& jsonObject,
               const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings )
 {
     using namespace json_interface;
+    using Keys = Keys::Body::RadiationPressure;
 
     // Initialise
     jsonObject = json( );
 
     // Get type
-    jsonObject[ "type" ] = stringFromEnum( radiationPressureInterfaceSettings->getRadiationPressureType( ),
-                                           radiationPressureTypes );
+    jsonObject[ Keys::type ] = radiationPressureInterfaceSettings->getRadiationPressureType( );
 
     /// CannonBallRadiationPressureInterfaceSettings
     boost::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
@@ -37,14 +49,14 @@ void to_json( json& jsonObject,
     if ( cannonBallRadiationPressureInterfaceSettings )
     {
         // Reference area
-        jsonObject[ "referenceArea" ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
+        jsonObject[ Keys::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
 
         // Radiation pressure coefficient
-        jsonObject[ "radiationPressureCoefficient" ] =
+        jsonObject[ Keys::radiationPressureCoefficient ] =
                 cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
 
         // Occulting bodies
-        jsonObject[ "ocultingBodies" ] =
+        jsonObject[ Keys::ocultingBodies ] =
                 cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
     }
 }
@@ -60,27 +72,34 @@ boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > create
         const json &settings, const std::string& sourceBodyName, const double& fallbackArea )
 {
     using namespace simulation_setup;
+    using Keys = Keys::Body::RadiationPressure;
 
     // Get radiation pressure coefficient type (cannonBall by default)
-    const RadiationPressureType radiationPressureType = enumFromString(
-                getValue< std::string >( settings, "type", "cannonBall" ), radiationPressureTypes );
+    const RadiationPressureType radiationPressureType = getValue( settings, Keys::type, cannon_ball );
 
     if ( radiationPressureType == cannon_ball )
     {
         // Get reference area (use fallback value if not NaN when referenceArea is not provided)
-        const double referenceArea = isnan( fallbackArea ) ? getValue< double >( settings, "referenceArea" )
-                                                           : getValue( settings, "referenceArea", fallbackArea );
+        const double referenceArea = isnan( fallbackArea ) ? getValue< double >( settings, Keys::referenceArea )
+                                                           : getValue( settings, Keys::referenceArea, fallbackArea );
 
         // Get radiation pressure coefficient
-        const double radiationPressureCoefficients = getValue< double >( settings, "radiationPressureCoefficient" );
+        const double radiationPressureCoefficient = getValue< double >( settings, Keys::radiationPressureCoefficient );
 
-        // Get list of occulting bodies (empty by default, i.e. ignore eclipses)
-        const std::vector< std::string > occultingBodies = getValue< std::vector< std::string > >(
-                    settings, "ocultingBodies", { } );
+        // Create settings
+        CannonBallRadiationPressureInterfaceSettings cannonBallRadiationPressureInterfaceSettings(
+                    sourceBodyName, referenceArea, radiationPressureCoefficient );
 
-        // Create and return settings
+        // Get list of occulting bodies
+        const auto occultingBodies = getValuePointer< std::vector< std::string > >( settings, Keys::ocultingBodies );
+        if ( occultingBodies )
+        {
+            cannonBallRadiationPressureInterfaceSettings.occultingBodies_ = *occultingBodies;
+        }
+
+        // Return shared pointer
         return boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    sourceBodyName, referenceArea, radiationPressureCoefficients, occultingBodies );
+                    cannonBallRadiationPressureInterfaceSettings );
     }
     else
     {
@@ -89,6 +108,6 @@ boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > create
     }
 }
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 } // namespace tudat
