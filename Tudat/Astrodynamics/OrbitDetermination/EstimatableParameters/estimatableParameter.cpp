@@ -129,6 +129,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case equivalence_principle_lpi_violation_parameter:
         isDoubleParameter = true;
         break;
+   case full_degree_tidal_love_number:
+        isDoubleParameter = false;
+        break;
+    case single_degree_variable_tidal_love_number:
+         isDoubleParameter = false;
+         break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );

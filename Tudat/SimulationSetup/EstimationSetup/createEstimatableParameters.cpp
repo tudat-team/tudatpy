@@ -297,6 +297,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
                 else
                 {
+                    std::cout<<"Setting functions "<<std::endl;
                     getCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
                                 timeDependentShField );
@@ -568,8 +569,15 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                                    vectorParameterName->parameterType_.second.first<<
                                    ", but body does not have a time dependent spherical harmonic gravity field."<<std::endl;
                     }
+                    else if( currentBody->getGravityFieldVariationSet( ) == NULL )
+                    {
+                        std::cerr<<"Error, requested tidal love number parameter of "<<
+                                   vectorParameterName->parameterType_.second.first<<
+                                   ", but body does not have gravity field variations"<<std::endl;
+                    }
                     else
                     {
+
 
                         boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
                                 boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
@@ -610,6 +618,12 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                         std::cerr<<"Error, requested variable tidal love number parameter of "<<
                                    vectorParameterName->parameterType_.second.first<<
                                    ", but body does not have a time dependent spherical harmonic gravity field."<<std::endl;
+                    }
+                    else if( currentBody->getGravityFieldVariationSet( ) == NULL )
+                    {
+                        std::cerr<<"Error, requested variable tidal love number parameter of "<<
+                                   vectorParameterName->parameterType_.second.first<<
+                                   ", but body does not have gravity field variations"<<std::endl;
                     }
                     else
                     {
