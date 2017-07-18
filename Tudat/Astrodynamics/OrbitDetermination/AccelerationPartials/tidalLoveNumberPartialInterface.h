@@ -239,7 +239,7 @@ public:
             }
             else
             {
-                std::cerr<<"Warning, vector partial should already be calculated"<<std::endl;
+                std::cerr<<"Warning, vector partial should already be calculated in Love number interface"<<std::endl;
                 currentVectorParameterPartials_[ std::make_pair( parameter, maximumDegreeAndOrder ) ] =
                         parameterVectorPartialFunctions_.at( std::make_pair( parameter, maximumDegreeAndOrder ) )( );
             }

@@ -259,19 +259,22 @@ GravityFieldVariationsSet::getVariationFunctions( )
 
 boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation( const std::string& identifier )
 {
-
+    std::cout<<"A "<<std::endl;
     boost::shared_ptr< GravityFieldVariations > gravityFieldVariation;
+    std::cout<<"A "<<std::endl;
 
     int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
 
+    std::cout<<numberOfBasicModels<<std::endl;
+
     if( ( numberOfBasicModels ) == 1 )
     {
-        if( numberOfBasicModels == 1 )
-        {
+        std::cout<<"B"<<std::endl;
             gravityFieldVariation = variationObjects_.at(
                         ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
                                                                              basic_solid_body ) ) ) );
-        }
+        std::cout<<"B"<<std::endl;
+
     }
     else if( numberOfBasicModels == 0 )
     {
@@ -279,6 +282,8 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
     }
     else
     {
+        std::cout<<"C"<<std::endl;
+
         if( identifier == "" )
         {
             std::cerr<<"Error when getting direct tidal gravity field variation, found multiple models, but not id is provided"<<std::endl;

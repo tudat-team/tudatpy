@@ -213,7 +213,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                     if( currentTidalPartialOutput.first > 0 )
                     {
                         boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                                boost::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial, tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
+                                boost::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
+                                             tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
                         partialFunction = boost::bind(
                                     &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
                                     parameter->getParameterSize( ), _1 );
@@ -337,6 +338,11 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
                 currentRotationToBodyFixedFrame_;
 
         currentTime_ = currentTime;
+
+        for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+        {
+            tidalLoveNumberPartialInterfaces_.at( i )->update( currentTime );
+        }
     }
 }
 
@@ -412,6 +418,7 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.resize( 1 );
 
+    std::cout<<"Calculating partial"<<std::endl;
     // Iterate over all required orders in current degree.
     for( unsigned int i = 0; i < orders.size( ); i++ )
     {
@@ -441,6 +448,7 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
         }
         else
         {
+            std::cout<<"Not summing orders "<<std::endl;
             calculateSphericalHarmonicGravityWrtCCoefficients(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
@@ -450,6 +458,9 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                     currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize );
 
+            std::cout<<"Not summing orders "<<std::endl<<partialMatrix<<std::endl<<std::endl<<
+                       coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize )<<std::endl<<std::endl;
+
             calculateSphericalHarmonicGravityWrtSCoefficients(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
@@ -457,7 +468,9 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
                             bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution );
 
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
-                        currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize );
+                        currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize );
+            std::cout<<"Not summing orders "<<std::endl<<partialMatrix<<std::endl<<std::endl<<
+                       coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize )<<std::endl<<std::endl;
         }
     }
 }

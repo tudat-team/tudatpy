@@ -214,6 +214,23 @@ public:
 
 protected:
 
+    void resetTimeOfMemberObjects( )
+    {
+        for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+        {
+            tidalLoveNumberPartialInterfaces_.at( i )->resetTime( currentTime_ );
+        }
+    }
+
+    void updateParameterPartialsOfMemberObjects( )
+    {
+        for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
+        {
+            tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
+        }
+    }
+
+
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
      *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
