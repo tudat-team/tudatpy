@@ -11,6 +11,7 @@
 
 #include "body.h"
 
+#include "atmosphere.h"
 #include "aerodynamics.h"
 #include "radiationPressure.h"
 
@@ -28,16 +29,22 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     // Initialise
     jsonObject = json( );
 
+    // Atmosphere
+    if ( bodySettings->atmosphereSettings )
+    {
+        jsonObject[ "atmosphere" ] = bodySettings->atmosphereSettings;
+    }
+
     // Aerodynamics
     if ( bodySettings->aerodynamicCoefficientSettings )
     {
-        jsonObject[ "aerodynamics" ] = json( bodySettings->aerodynamicCoefficientSettings );
+        jsonObject[ "aerodynamics" ] = bodySettings->aerodynamicCoefficientSettings;
     }
 
     // Radiation pressure
     if ( ! bodySettings->radiationPressureSettings.empty( ) )
     {
-        jsonObject[ "radiationPressure" ] = json( bodySettings->radiationPressureSettings );
+        jsonObject[ "radiationPressure" ] = bodySettings->radiationPressureSettings;
     }
 
     // Constant mass
@@ -72,6 +79,13 @@ void updateBodySettings( std::map< std::string, boost::shared_ptr< simulation_se
     // Fallback reference area
     const double fallbackArea = getNumber< double >( settings, "referenceArea", TUDAT_NAN );
 
+    /// Atmosphere
+    boost::shared_ptr< json > jsonAtmosphereSettings = getValuePointer< json >( settings, "atmosphere" );
+    if ( jsonAtmosphereSettings )
+    {
+        bodySettings->atmosphereSettings = createAtmosphereSettings( *jsonAtmosphereSettings );
+    }
+
     /// Aerodynamics
     boost::shared_ptr< json > jsonAerodynamicCoefficientSettings = getValuePointer< json >( settings, "aerodynamics" );
     if ( jsonAerodynamicCoefficientSettings )
@@ -104,6 +118,6 @@ void updateBodySettings( std::map< std::string, boost::shared_ptr< simulation_se
     }
 }
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 } // namespace tudat

@@ -13,7 +13,7 @@
 
 #include <Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h>
 
-#include "jsonInterface.h"
+#include "Tudat/External/JsonInterface/jsonInterface.h"
 
 namespace tudat
 {
@@ -26,6 +26,8 @@ static std::map< std::string, RadiationPressureType > radiationPressureTypes =
 {
     { "cannonBall", cannon_ball }
 };
+void to_json( json& jsonObject, const RadiationPressureType& radiationPressureType );
+void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType );
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as
@@ -50,7 +52,7 @@ namespace json_interface
 boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > createRadiationPressureInterfaceSettings(
     const json &settings, const std::string& sourceBodyName, const double& fallbackArea = TUDAT_NAN );
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 
 } // namespace tudat

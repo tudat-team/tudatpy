@@ -17,8 +17,8 @@
 
 #include "jsonInterface.h"
 
+#include "Body/body.h"
 #include "integrator.h"
-#include "body.h"
 
 namespace tudat
 {
@@ -65,9 +65,6 @@ public:
 
     //! Vector with the names of the celestial bodies (handled by Spice).
     std::vector< std::string > celestialBodies;
-
-    //! SVectoret with the names of the central bodies.
-    std::vector< std::string > centralBodies;
 
     //! Vector with the names of the bodies to be propagated.
     std::vector< std::string > bodiesToPropagate;
@@ -142,20 +139,20 @@ public:
     void resetGeneral( )
     {
         // Start and end epochs
-        startEpoch = getNumber< TimeType >( settings, { "simulation", "startEpoch" } );
-        endEpoch = getNumber< TimeType >( settings, { "simulation", "endEpoch" } );
+        startEpoch = getNumber< TimeType >( settings, KeyTrees::Simulation::startEpoch );
+        endEpoch = getNumber< TimeType >( settings, KeyTrees::Simulation::endEpoch );
 
         // Global frame origin and orientation
-        globalFrameOrigin = getValue< std::string >( settings, { "simulation", "globalFrameOrigin" } );
-        globalFrameOrientation = getValue< std::string >( settings, { "simulation", "globalFrameOrientation" } );
+        globalFrameOrigin = getValue< std::string >( settings, KeyTrees::Simulation::globalFrameOrigin );
+        globalFrameOrientation = getValue< std::string >( settings, KeyTrees::Simulation::globalFrameOrientation );
     }
 
 
     //! -DOC
     void resetSpice( )
     {
-        spiceKernels = getValue< std::vector< std::string > >( settings, { "simulation", "spiceKernels" }, { } );
-        preloadSpiceData = getValue< bool >( settings, { "simulation", "preloadSpiceData" }, true );
+        spiceKernels = getValue< std::vector< std::string > >( settings, KeyTrees::Simulation::spiceKernels, { } );
+        preloadSpiceData = getValue< bool >( settings, KeyTrees::Simulation::preloadSpiceData, true );
         spiceIntervalOffsets = preloadSpiceData ?
                     std::make_pair( -300.0, 300.0 ) : std::make_pair( TUDAT_NAN, TUDAT_NAN );
 
@@ -177,18 +174,18 @@ public:
 
         // All bodies
         bodies.clear( );
-        for ( auto ent : getValue< std::map< std::string, json > >( settings, "bodies" ) )
+        for ( auto ent : getValue< std::map< std::string, json > >( settings, Keys::bodies ) )
         {
             bodies.push_back( ent.first );
         }
 
         // Bodies to propagate
-        std::vector< json > propagators = getValue< std::vector< json > >( settings, "propagators" );
+        std::vector< json > propagators = getValue< std::vector< json > >( settings, Keys::propagators );
         bodiesToPropagate.clear( );
         for ( json propagator : propagators )
         {
             std::vector< std::string > requestedBodies =
-                    getValue< std::vector< std::string > >( propagator, "bodiesToPropagate" );
+                    getValue< std::vector< std::string > >( propagator, Keys::Propagator::bodiesToPropagate );
             for ( std::string bodyName : requestedBodies )
             {
                 if ( contains( bodies, bodyName ) )
@@ -203,18 +200,13 @@ public:
             }
         }
 
-        // Celestial (and central) bodies
+        // Celestial bodies
         celestialBodies.clear( );
-        centralBodies.clear( );
         for ( std::string bodyName : bodies )
         {
             if ( ! contains( bodiesToPropagate, bodyName ) )
             {
                 celestialBodies.push_back( bodyName );
-                if ( getValue( settings, { "bodies", bodyName, "isCentralBody" }, false ) )
-                {
-                    centralBodies.push_back( bodyName );
-                }
             }
         }
 
@@ -232,7 +224,7 @@ public:
         // Update celestial body settings from the JSON settings.
         for ( std::string bodyName : celestialBodies )
         {
-            updateBodySettings( bodySettingsMap, bodyName, getValue< json >( settings, { "bodies", bodyName } ) );
+            updateBodySettings( bodySettingsMap, bodyName, getValue< json >( settings, { Keys::bodies, bodyName } ) );
         }
 
         // Create celestial bodies.
@@ -243,7 +235,8 @@ public:
         {
             if ( ! contains( celestialBodies, bodyName) )
             {
-                updateBodySettings( bodySettingsMap, bodyName, getValue< json >( settings, { "bodies", bodyName } ) );
+                updateBodySettings(
+                            bodySettingsMap, bodyName, getValue< json >( settings, { Keys::bodies, bodyName } ) );
                 addBody( bodyMap, bodyName, bodySettingsMap[ bodyName ] );
             }
         }
@@ -271,10 +264,10 @@ public:
     void resetIntegrator( )
     {
         // Integrator settings
-        json jsonIntegratorSettings = getValue< json >( settings, { "integrator" } );
-        if ( getNumberPointer< TimeType >( settings, { "integrator", "initialTime" } ) == NULL )
+        json jsonIntegratorSettings = getValue< json >( settings, Keys::integrator );
+        if ( ! getNumberPointer< TimeType >( jsonIntegratorSettings, Keys::Integrator::initialTime ) )
         {
-            jsonIntegratorSettings[ "initialTime" ] = startEpoch;
+            jsonIntegratorSettings[ Keys::Integrator::initialTime ] = startEpoch;
         }
         integratorSettings = createIntegratorSettings< TimeType >( jsonIntegratorSettings );
     }
@@ -348,39 +341,36 @@ private:
 
 //! Function to create a `json` object from a `Simulation` object.
 //! Called automatically by `nlohmann::json` when using a constructor such as `json( simulation )`.
-template< typename TimeType = double >
-void to_json( json& jsonObject, const Simulation< TimeType >& simulation )
+template< typename TimeType = double, typename StateScalarType = double >
+void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {
     // Initialise
-    jsonObject = json();
+    jsonObject = json( );
 
     // Simulation (general settings)
     json jsonSimulation;
-    jsonSimulation[ "startEpoch" ] = simulation.startEpoch;
-    jsonSimulation[ "endEpoch" ] = simulation.endEpoch;
-    jsonSimulation[ "globalFrameOrigin" ] = simulation.globalFrameOrigin;
-    jsonSimulation[ "globalFrameOrientation" ] = simulation.globalFrameOrientation;
-    jsonSimulation[ "spiceKernels" ] = simulation.spiceKernels;
-    jsonSimulation[ "preloadSpiceData" ] = simulation.preloadSpiceData;
-    jsonObject[ "simulation" ] = jsonSimulation;
+    jsonSimulation[ Keys::Simulation::startEpoch ] = simulation.startEpoch;
+    jsonSimulation[ Keys::Simulation::endEpoch ] = simulation.endEpoch;
+    jsonSimulation[ Keys::Simulation::globalFrameOrigin ] = simulation.globalFrameOrigin;
+    jsonSimulation[ Keys::Simulation::globalFrameOrientation ] = simulation.globalFrameOrientation;
+    jsonSimulation[ Keys::Simulation::spiceKernels ] = simulation.spiceKernels;
+    jsonSimulation[ Keys::Simulation::preloadSpiceData ] = simulation.preloadSpiceData;
+    jsonObject[ Keys::simulation ] = jsonSimulation;
 
     // Bodies
     json jsonBodies;
     for ( auto entry : simulation.bodySettingsMap )
     {
-        std::string bodyName = entry.first;
-        json jsonBodySettings( entry.second );
-        jsonBodySettings[ "isCentralBody" ] = contains( simulation.centralBodies, bodyName );
-        jsonBodies[ bodyName ] = jsonBodySettings;
+        jsonBodies[ entry.first ] = entry.second;
     }
-    jsonObject[ "bodies" ] = jsonBodies;
+    jsonObject[ Keys::bodies ] = jsonBodies;
 
     // Integrator
-    jsonObject[ "integrator" ] = json( simulation.integratorSettings );
+    jsonObject[ Keys::integrator ] = simulation.integratorSettings;
 }
 
 
-} // namespace json_interfaces
+} // namespace json_interface
 
 } // namespace tudat
 

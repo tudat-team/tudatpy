@@ -54,8 +54,7 @@ struct BodySettings
     boost::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
     //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    std::map< std::string,
-              boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+    std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -65,13 +64,6 @@ struct BodySettings
 
     //! Constant mass.
     double constantMass = TUDAT_NAN;
-
-    /*
-    //! Initial state.
-    Eigen::Vector6d initialState = ( Eigen::Vector6d( ) <<
-                                     TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN ).done( );
-    */
-
 };
 
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
