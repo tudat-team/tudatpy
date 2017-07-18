@@ -177,7 +177,6 @@ public:
              parameterVectorPartialFunctionIterator_ != parameterVectorPartialFunctions_.end( );
              parameterVectorPartialFunctionIterator_++ )
         {
-            //std::cout<<"New vec. partial: "<<parameterVectorPartialFunctionIterator_->first->getParameterName( ).first<<std::endl;
             if( currentVectorParameterPartials_.count( parameterVectorPartialFunctionIterator_->first ) == 0 )
             {
                 currentVectorParameterPartials_[ parameterVectorPartialFunctionIterator_->first ] = parameterVectorPartialFunctionIterator_->second( );

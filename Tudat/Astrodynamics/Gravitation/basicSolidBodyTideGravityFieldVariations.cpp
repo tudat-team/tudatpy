@@ -61,9 +61,6 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
         const double amplitude, const std::complex< double > tideArgument,
         const int degree, const int order )
 {
-    std::cout<<"calculating correction "<<loveNumber<<" "<<degree<<" "<<order<<" "<<massRatio<<" "<<radiusRatioPowerN<<" "<<amplitude<<
-               " "<<tideArgument<<std::endl;
-
     // Calculate and return corrections.
     return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
             massRatio * radiusRatioPowerN *
@@ -112,9 +109,6 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
     {
         for( int m = 0; ( m <= maximumOrder && m <= n ); m++ )
         {
-
-            std::cout<<"Calculating correction from Matrices"<<n<<" "<<m<<" "<<massRatio<<" "<<referenceRadius<<"  "<<relativeBodyFixedPosition.transpose( )<<std::endl;
-
             // Calculate and set corrections at current degree and order.
             currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
                        loveNumbers.at( n - 2 ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
