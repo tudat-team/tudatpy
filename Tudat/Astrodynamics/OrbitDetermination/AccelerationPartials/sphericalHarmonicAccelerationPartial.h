@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 
 
@@ -56,7 +57,9 @@ public:
             const std::string& acceleratingBody,
             const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
-            observation_partials::RotationMatrixPartialNamedList( ) );
+            observation_partials::RotationMatrixPartialNamedList( ),
+            const std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces =
+            std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     //! Destructor
     ~SphericalHarmonicsGravityPartial( ){ }
@@ -253,6 +256,14 @@ protected:
             const estimatable_parameters::EstimatebleParametersEnum parameterType,
             const std::string& secondaryIdentifier );
 
+    void wrtTidalModelParameter(
+            const boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+            const int degree,
+            const std::vector< int >& orders,
+            const bool sumOrders,
+            const int parameterSize,
+            Eigen::MatrixXd& accelerationPartial );
+
 
     //! Function to return the gravitational parameter used for calculating the acceleration.
     boost::function< double( ) > gravitationalParameterFunction_;
@@ -367,6 +378,7 @@ protected:
      */
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartials_;
 
+    std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
     //! Boolean denoting whether the mutual attraction between the bodies is taken into account
     /*!
      *  Boolean denoting whether the mutual attraction between the bodies is taken into account, as is the case when

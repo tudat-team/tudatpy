@@ -18,6 +18,7 @@
 
 #include <boost/function.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -164,6 +165,28 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
 }
+
+//! Function to dynamic cast vector of shared pointers of one type to shared pointers of another type.
+/*!
+ *  Function to dynamic cast vector of shared pointers of one type (S) to shared pointers of another type (T). The dynamic cast must be permissible,
+ *  i.e. an S pointer must succesfully dynamic cast to a T pointer (T shoudl typically derive from S).
+ *  \param originalVector Vector of S shared pointers.
+ *  \return Dynamic casted vector of T shared pointers.
+ */
+template< typename S, typename T >
+std::vector< boost::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< boost::shared_ptr< S > >& originalVector )
+{
+    std::vector< boost::shared_ptr< T > > castVector;
+
+    // Iterate over all entries and perform dynamic cast for each entry.
+    for( unsigned int i = 0; i < originalVector.size( ); i++ )
+    {
+        castVector.push_back( boost::dynamic_pointer_cast< T >( originalVector.at( i ) ) );
+    }
+
+    return castVector;
+}
+
 
 template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns = 1 >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedEigenMatrixFromMapValues(
