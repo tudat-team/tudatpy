@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
@@ -258,7 +259,7 @@ GravityFieldVariationsSet::getVariationFunctions( )
 }
 
 boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation(
-        const std::vector< std::string >& identifiers )
+        const std::vector< std::string >& namesOfBodiesCausingDeformation )
 {
     boost::shared_ptr< GravityFieldVariations > gravityFieldVariation;
     int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
@@ -274,26 +275,10 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
         {
             throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model identified, but type does not match" );
         }
-        else if( identifiers.size( ) != 0 )
+        else if( namesOfBodiesCausingDeformation.size( ) != 0 )
         {
-            std::vector< std::string > currentDeformingBodies = tidalGravityFieldVariation->getDeformingBodies( );
-
-            bool doBodiesMatch = true;
-            if( currentDeformingBodies.size( ) != identifiers.size( ) )
-            {
-                doBodiesMatch = false;
-            }
-            else
-            {
-                for( unsigned int i = 0; i < identifiers.size( ); i++ )
-                {
-                    if( std::count( currentDeformingBodies.begin( ), currentDeformingBodies.end( ), identifiers.at( i ) ) != 1  )
-                    {
-                        doBodiesMatch = false;
-
-                    }
-                }
-            }
+            bool doBodiesMatch = utilities::doStlVectorContentsMatch(
+                        tidalGravityFieldVariation->getDeformingBodies( ), namesOfBodiesCausingDeformation );
 
             if( !doBodiesMatch )
             {
@@ -308,7 +293,7 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
     }
     else
     {
-        if( identifiers.size( ) == 0 )
+        if( namesOfBodiesCausingDeformation.size( ) == 0 )
         {
             throw std::runtime_error( "Error when getting direct tidal gravity field variation, found multiple models, but not id is provided" );
         }
@@ -316,27 +301,12 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
 
         for( unsigned int i = 0; i < variationType_.size( ); i++ )
         {
-            if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( variationObjects_.at( i ) ) != NULL )
+            if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                        variationObjects_.at( i ) ) != NULL )
             {
-                std::vector< std::string > currentDeformingBodies =
-                        boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                            variationObjects_.at( i ) )->getDeformingBodies( );
-
-                bool doBodiesMatch = true;
-                if( currentDeformingBodies.size( ) != identifiers.size( ) )
-                {
-                    doBodiesMatch = false;
-                }
-                else
-                {
-                    for( unsigned int i = 0; i < identifiers.size( ); i++ )
-                    {
-                        if( std::count( currentDeformingBodies.begin( ), currentDeformingBodies.end( ), identifiers.at( i ) ) != 1  )
-                        {
-                            doBodiesMatch = false;
-                        }
-                    }
-                }
+                bool doBodiesMatch = utilities::doStlVectorContentsMatch(
+                            boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                variationObjects_.at( i ) )->getDeformingBodies( ), namesOfBodiesCausingDeformation );
 
                 if( !doBodiesMatch )
                 {

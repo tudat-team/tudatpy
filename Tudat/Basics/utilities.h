@@ -448,6 +448,30 @@ std::pair< std::vector< int >, std::vector< T > > getSortOrderOfVectorAndSortedV
     return std::make_pair( createVectorFromMultiMapValues( sortMap ), createVectorFromMultiMapKeys( sortMap ) );
 }
 
+template< typename T >
+bool doStlVectorContentsMatch(
+        const std::vector< T >& vectorA, const std::vector< T >& vectorB )
+{
+    bool doVectorsMatch = true;
+    if( vectorA.size( ) != vectorB.size( ) )
+    {
+        doVectorsMatch = false;
+    }
+    else
+    {
+        for( unsigned int i = 0; i < vectorA.size( ); i++ )
+        {
+            if( std::count( vectorB.begin( ), vectorB.end( ), vectorA.at( i ) ) !=
+                    std::count( vectorA.begin( ), vectorA.end( ), vectorA.at( i ) ))
+            {
+                doVectorsMatch = false;
+            }
+        }
+    }
+
+    return doVectorsMatch;
+}
+
 } // namespace utilities
 
 } // namespace tudat
