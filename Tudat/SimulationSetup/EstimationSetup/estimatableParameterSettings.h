@@ -348,15 +348,29 @@ class FullDegreeTidalLoveNumberEstimatableParameterSettings: public EstimatableP
 {
 public:
     FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
-                                                            const int degree = 2,
-                                                            const std::string& deformingBodies = "",
+                                                            const int degree,
+                                                            const std::string deformingBody,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
+        useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree ,
+                                                            const std::vector< std::string >& deformingBodies,
                                                             const bool useComplexValue = 0 ):
         EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ), deformingBodies_( deformingBodies ),
         useComplexValue_( useComplexValue ){ }
 
+
     int degree_;
 
-    std::string deformingBodies_;
+    std::vector< std::string > deformingBodies_;
 
     bool useComplexValue_;
 
@@ -368,7 +382,21 @@ public:
     SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
                                                                       const int degree,
                                                                       const std::vector< int > orders,
-                                                                      const std::string& deformingBodies = "",
+                                                                      const std::string& deformingBody,
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::vector< std::string >& deformingBodies,
                                                                       const bool useComplexValue = 0 ):
         EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
         orders_( orders ), deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
@@ -377,7 +405,7 @@ public:
 
     const std::vector< int > orders_;
 
-    std::string deformingBodies_;
+    std::vector< std::string > deformingBodies_;
 
     bool useComplexValue_;
 

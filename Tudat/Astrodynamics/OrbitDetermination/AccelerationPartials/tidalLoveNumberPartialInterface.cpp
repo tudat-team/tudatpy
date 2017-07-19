@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
@@ -47,7 +57,7 @@ std::vector< int > TidalLoveNumberPartialInterface::getSelectedDeformingBodyIds(
     return selectedBodyIds;
 }
 
-std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >  TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientPartialMatrix(
+std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >  TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientPartialMatrix(
         const std::vector< Eigen::Vector2d >& coefficientPartialsPerOrder,
         const std::vector< int >& orders,
         const std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, Eigen::Matrix< double, 2, Eigen::Dynamic > >& coefficientPartialScalers )
@@ -56,7 +66,8 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >  TidalLoveNumberPartia
 
     if( coefficientPartialScalers.first.rows( ) !=  coefficientPartialScalers.second.rows( ) )
     {
-        std::cerr<<"Error when making sh acceleration partial from coefficient partial, scale matrices not of same size."<<std::endl;
+        throw std::runtime_error(
+                    "Error when making spherical harmonic coefficient partial from coefficient partial in TidalLoveNumberPartialInterface, scale matrices not of same size." );
     }
 
 
@@ -71,7 +82,7 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >  TidalLoveNumberPartia
 }
 
 //! Function to calculate the partial of sh acceleration wrt complex tidal love numbers.
-std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
+std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
         const int degree,
         const std::vector< int >& orders,
         const std::vector< int >& deformingBodyIndices,
@@ -87,12 +98,12 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartial
     std::vector< Eigen::Vector2d > realCoefficientPartials =
             calculateCoefficientPartialWrtRealTidalLoveNumber( degree, orders, deformingBodyIndices, maximumDegree, maximumOrder );
 
-    return calculateShericalHarmonicCoefficientPartialMatrix(
+    return calculateSphericalHarmonicCoefficientPartialMatrix(
                 realCoefficientPartials, orders, complexLoveNumberScaler_ );
 }
 
 //! Function to calculate the partial of sh acceleration wrt real tidal love numbers.
-std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
+std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
         const int degree,
         const std::vector< int >& orders,
         const std::vector< int >& deformingBodyIndices,
@@ -108,7 +119,7 @@ std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > TidalLoveNumberPartial
     std::vector< Eigen::Vector2d > realCoefficientPartials = calculateCoefficientPartialWrtRealTidalLoveNumber(
                 degree, orders, deformingBodyIndices, maximumDegree, maximumOrder );
 
-    return calculateShericalHarmonicCoefficientPartialMatrix(
+    return calculateSphericalHarmonicCoefficientPartialMatrix(
                 realCoefficientPartials, orders, realLoveNumberScaler_ );
 }
 
@@ -160,14 +171,14 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         {
                             // Calculate partials for complex love number
                             parameterVectorPartialFunctions_[ std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber, this,
+                                    boost::bind( &TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber, this,
                                                  coefficientsParameter->getDegree( ), selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
                         }
                         else
                         {
                             // Calculate partial for real love number
                             parameterVectorPartialFunctions_[ std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber, this,
+                                    boost::bind( &TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber, this,
                                                  coefficientsParameter->getDegree( ), selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
                         }
                     }
@@ -199,7 +210,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         {
                             // Calculate partials for complex love number
                             parameterVectorPartialFunctions_[ std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers, this,
+                                    boost::bind( &TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers, this,
                                                  coefficientsParameter->getDegree( ), coefficientsParameter->getOrders( ), selectedDeformingBodies,
                                                  maximumUsedDegree, maximumUsedOrder );
                         }
@@ -207,7 +218,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         {
                             // Calculate partial for real love number
                             parameterVectorPartialFunctions_[ std::make_pair( parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers, this,
+                                    boost::bind( &TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers, this,
                                                  coefficientsParameter->getDegree( ), coefficientsParameter->getOrders( ), selectedDeformingBodies,
                                                  maximumUsedDegree, maximumUsedOrder );
                         }

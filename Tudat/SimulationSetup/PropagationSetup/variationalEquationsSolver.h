@@ -351,7 +351,7 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
             for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
             {
                 if( std::fabs( arcStartTimes.at( i ) - parameterArcStartTimes.at( i ) ) >
-                        4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( )  )
+                        std::max( 4.0 * parameterArcStartTimes.at( i ) * std::numeric_limits< double >::epsilon( ), 1.0E-12 ) )
                 {
                     isInputConsistent = false;
                     throw std::runtime_error( "Error, arc time for " + parameterIterator->first + " is incompatible with estimation" );

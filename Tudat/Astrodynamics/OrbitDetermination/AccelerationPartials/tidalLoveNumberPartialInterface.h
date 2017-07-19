@@ -1,5 +1,15 @@
-#ifndef TIDALLOVENUMBERPARTIALINTERFACE_H
-#define TIDALLOVENUMBERPARTIALINTERFACE_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
+#define TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
 
 #include <boost/math/special_functions/factorials.hpp>
 
@@ -77,7 +87,7 @@ public:
 
     std::vector< int > getSelectedDeformingBodyIds( const std::vector< std::string >& selectedBodyNames );
 
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateShericalHarmonicCoefficientPartialMatrix(
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientPartialMatrix(
             const std::vector< Eigen::Vector2d >& coefficientPartialsPerOrder,
             const std::vector< int >& orders,
             const std::pair< Eigen::Matrix< double, 2, Eigen::Dynamic >, Eigen::Matrix< double, 2, Eigen::Dynamic > >& coefficientPartialScalers );
@@ -90,7 +100,7 @@ public:
      *  \param degree Degree of love numbers wrt which partials are to be taken
      *  \param orders SH orders in current degree at which the partials are to be taken.
      */
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
             const int degree,
             const std::vector< int >& orders,
             const std::vector< int >& deformingBodyIndices,
@@ -103,13 +113,13 @@ public:
      *  \param degree Degree of love numbers wrt which partials are to be taken
      *  \return Partial of sh acceleration wrt complex love number, two columns (first real, then complex part).
      */
-    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber(
+    std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber(
             const int degree,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder )
     {
-        return calculateShericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
+        return calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers(
                         degree, fullDegreeOrders[ degree - 2 ], deformingBodyIndices, maximumDegree, maximumOrder );
     }
 
@@ -121,7 +131,7 @@ public:
      *  \param degree Degree of love numbers wrt which partials are to be taken
      *  \param orders SH orders in current degree at which the partials are to be taken.
      */
-    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
+    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
             const int degree,
             const std::vector< int >& orders,
             const std::vector< int >& deformingBodyIndices,
@@ -134,13 +144,13 @@ public:
      *  \param degree Degree of love numbers wrt which partials are to be taken
      *  \return Partial of sh acceleration wrt real love number, two columns..
      */
-    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber(
+    virtual std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber(
             const int degree,
             const std::vector< int >& deformingBodyIndices,
             const int maximumDegree,
             const int maximumOrder )
     {
-        return calculateShericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
+        return calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
                     degree, fullDegreeOrders[ degree - 2 ], deformingBodyIndices, maximumDegree, maximumOrder );
     }
 
@@ -202,13 +212,15 @@ public:
         {
             if( parameterDoublePartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
-                std::cerr<<"Parameter of type "<<parameter->getParameterName( ).first<<", "<<
-                           parameter->getParameterName( ).second.first<<", "<<
-                           parameter->getParameterName( ).second.second<<" not found in list of existing partials"<<std::endl;
+                std::string errorMessage =
+                        "Parameter of type " + boost::lexical_cast< std::string>( parameter->getParameterName( ).first ) + ", " +
+                           parameter->getParameterName( ).second.first + ", " +
+                           parameter->getParameterName( ).second.second + " not found in list of existing partials";
+                throw std::runtime_error( errorMessage );
             }
             else
             {
-                std::cerr<<"Warning, double partial should already be calculated"<<std::endl;
+                std::cerr<<"Warning, double partial should already be calculatedz in Love number interface"<<std::endl;
                 currentDoubleParameterPartials_[ std::make_pair( parameter, maximumDegreeAndOrder ) ] =
                         parameterDoublePartialFunctions_.at( std::make_pair( parameter, maximumDegreeAndOrder ) )( );
             }
@@ -232,9 +244,11 @@ public:
         {
             if( parameterVectorPartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
-                std::cerr<<"Parameter of type "<<parameter->getParameterName( ).first<<", "<<
-                           parameter->getParameterName( ).second.first<<", "<<
-                           parameter->getParameterName( ).second.second<<" not found in list of existing partials"<<std::endl;
+                std::string errorMessage =
+                        "Parameter of type " + boost::lexical_cast< std::string>( parameter->getParameterName( ).first ) + ", " +
+                           parameter->getParameterName( ).second.first + ", " +
+                           parameter->getParameterName( ).second.second + " not found in list of existing partials";
+                throw std::runtime_error( errorMessage );
             }
             else
             {
@@ -338,7 +352,7 @@ protected:
      */
     std::vector< boost::function< double( ) > > deformingBodyGravitationalParameters_;
 
-    // Functions for retrieving states at current time of bodies causing deformation.
+    //! Functions for retrieving states at current time of bodies causing deformation.
     std::vector< boost::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions_;
 
     boost::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction_;
@@ -402,4 +416,4 @@ protected:
 }
 
 
-#endif // TIDALLOVENUMBERPARTIALINTERFACE_H
+#endif // TUDAT_TIDALLOVENUMBERPARTIALINTERFACE_H
