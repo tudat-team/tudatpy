@@ -115,27 +115,54 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
 
 #if USE_NRLMSISE00
-    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings =
-            boost::make_shared< AtmosphereSettings >( nrlmsise00 );
-    boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
-            createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
+    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
+    for( int atmosphereTest = 0; atmosphereTest < 2; atmosphereTest++ )
+    {
+        if( atmosphereTest == 0 )
+        {
+        nrlmsise00AtmosphereSettings =
+                boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+        }
+        else
+        {
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< NRLMSISE00AtmosphereSettings >(
+                        input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt" );
+        }
+        boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
+                createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
 
-    // Compute properties using NRLMSISE00
-    double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
-            basic_astrodynamics::JULIAN_DAY_ON_J2000;
-    nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
+        // Compute properties using NRLMSISE00
+        double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
+                basic_astrodynamics::JULIAN_DAY_ON_J2000;
+        nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
 
-    // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
-    aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
-                nrlmsiseAtmosphere )->getNRLMSISE00Input( );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
+        // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
+        aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+                    nrlmsiseAtmosphere )->getNRLMSISE00Input( );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
 
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+    }
 #endif
+}
+
+Eigen::Vector6d computeCustomState(
+        const double time, const double angularVelocity, const double radius, const double speed )
+{
+    Eigen::Vector6d currentState = Eigen::Vector6d::Zero( );
+    currentState( 0 ) = radius * cos( angularVelocity * time );
+    currentState( 1 ) = radius * sin( angularVelocity * time );
+
+    currentState( 3 ) = -speed * sin( angularVelocity * time );
+    currentState( 4 ) = speed * cos( angularVelocity * time );
+
+    return currentState;
+
 }
 
 #if USE_CSPICE
@@ -183,6 +210,35 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
                     ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create custom ephemeris
+        double angularVelocity = 2.0 * tudat::mathematical_constants::PI / ( 2.0 * 3600.0 );
+        double radius = 8000.0E3;
+        double speed = 5000.0;
+
+        boost::shared_ptr< EphemerisSettings > customEphemerisSettings =
+                boost::make_shared< CustomEphemerisSettings >(
+                    boost::bind( &computeCustomState, _1,  angularVelocity, radius, speed ),
+                    "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > customEphemeris =
+                createBodyEphemeris( customEphemerisSettings, "Satellite" );
+
+        double testTime = 4.0E8;
+
+        Eigen::Vector6d currentState = customEphemeris->getCartesianState(
+                    testTime );
+        Eigen::Vector6d currentTestState = computeCustomState(
+                    testTime, angularVelocity, radius, speed );
+
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 0 ), currentTestState( 0 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 1 ), currentTestState( 1 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 2 ),  2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 3 ), currentTestState( 3 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 4 ), currentTestState( 4 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 5 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+
     }
 
     {

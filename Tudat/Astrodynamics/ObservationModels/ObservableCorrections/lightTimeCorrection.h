@@ -12,6 +12,7 @@
 #define TUDAT_LIGHTTIMECORRECTION_H
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
 {
@@ -57,13 +58,46 @@ public:
      * \param receiverState State of receiver at reception time
      * \param transmissionTime Time of signal transmission
      * \param receptionTime Time of singal reception
-     * \return
+     * \return Light-time correction
      */
     virtual double calculateLightTimeCorrection(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime ) = 0;
+
+    virtual double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
+
+    virtual Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated ) = 0;
+
+    virtual double calculateLightTimeCorrectionDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        return calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                    transmitterState, receiverState, transmissionTime, receptionTime,
+                    fixedLinkEnd, linkEndAtWhichPartialIsEvaluated ) +
+                ( calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+                                    transmitterState, receiverState, transmissionTime, receptionTime,
+                                    linkEndAtWhichPartialIsEvaluated ) *
+                ( ( linkEndAtWhichPartialIsEvaluated == transmitter ) ?
+            ( transmitterState.segment( 3, 3 ) ) : ( receiverState.segment( 3, 3 ) ) ) )( 0 );
+    }
 
     //! Function to retrieve the type of light-time correction represented by instance of class.
     /*!

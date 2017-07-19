@@ -42,7 +42,7 @@ public:
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
     std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
-    //! List of SingleObservablePodInputType per observation type
+        //! List of SingleObservablePodInputType per observation type
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     //! Constructor
@@ -122,7 +122,7 @@ public:
         for( typename PodInputDataType::const_iterator observablesIterator = observationsAndTimes_.begin( );
              observablesIterator != observationsAndTimes_.end( ); observablesIterator++ )
         {
-            if( weightPerObservable.count( observablesIterator->first ) != NULL )
+            if( weightPerObservable.count( observablesIterator->first ) != 0 )
             {
                 for( typename SingleObservablePodInputType::const_iterator dataIterator =
                      observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
@@ -274,9 +274,9 @@ struct PodOutput
     {
         Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
 
-        for( unsigned int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
+        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
         {
-            for( unsigned int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
+            for( int j = 0; j < informationMatrixTransformationDiagonal_.rows( ); j++ )
             {
                 inverseUnnormalizedCovarianceMatrix( i, j ) *=
                         informationMatrixTransformationDiagonal_( i ) * informationMatrixTransformationDiagonal_( j );
@@ -312,4 +312,5 @@ struct PodOutput
 }
 
 }
+
 #endif // TUDAT_PODINPUTOUTPUTTYPES_H

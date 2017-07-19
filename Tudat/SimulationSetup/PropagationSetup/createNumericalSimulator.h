@@ -14,6 +14,7 @@
 
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createTorqueModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 
@@ -58,6 +59,18 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const std::vector< std::string >& propagatedBodies,
         const std::vector< std::string >& centralBodies );
 
+//! Function to create torque models from a map of bodies and torque model settings.
+/*!
+ *  Function to create torque models from a map of bodies and torque model settings.
+ *  The return type can be used to identify both the body undergoing and exerting torque.
+ *  \param bodyMap List of pointers to bodies required for the creation of the torque model
+ *  objects.
+ *  \param selectedTorquePerBody List identifying which bodies exert which type of
+ *  torque(s) on which bodies.
+ */
+basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedTorqueMap& selectedTorquePerBody );
 
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -74,6 +87,21 @@ boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, Tim
                 integratorSettings, propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
                 setIntegratedResult );
 }
+
+//template< typename StateScalarType = double, typename TimeType = double >
+//boost::shared_ptr< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > > createMultiArcDynamicsSimulator(
+//        const  simulation_setup::NamedBodyMap& bodyMap,
+//        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+//        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+//        const bool areEquationsOfMotionToBeIntegrated = true,
+//        const bool clearNumericalSolutions = true,
+//        const bool setIntegratedResult = true )
+//{
+//    return boost::make_shared< propagators::MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+//                bodyMap,
+//                integratorSettings, propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
+//                setIntegratedResult );
+//}
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
 boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >

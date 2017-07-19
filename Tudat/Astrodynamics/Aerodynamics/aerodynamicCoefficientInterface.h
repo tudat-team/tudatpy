@@ -81,6 +81,7 @@ public:
         areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )\
     {
         numberOfIndependentVariables_ = independentVariableNames.size( );
+        referenceLengths_ << referenceLength_, lateralReferenceLength_, referenceLength_;
     }
 
     //! Default destructor.
@@ -107,6 +108,7 @@ public:
      */
     double getLateralReferenceLength( ) { return lateralReferenceLength_; }
 
+    Eigen::Vector3d getReferenceLengths( ) { return referenceLengths_; }
     //! Get moment reference point.
     /*!
      * Returns the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
@@ -401,6 +403,8 @@ protected:
      * Lateral reference length with which aerodynamic moments are non-dimensionalized.
      */
     double lateralReferenceLength_;
+
+    Eigen::Vector3d referenceLengths_;
 
     //! Aerodynamic moment reference point.
     /*!

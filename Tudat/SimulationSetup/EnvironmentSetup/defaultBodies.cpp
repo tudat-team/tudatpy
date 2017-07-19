@@ -88,10 +88,10 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     else if( bodyName == "Moon" )
     {
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string earthGravityFieldFile =
+        std::string moonGravityFieldFile =
                 input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
         std::pair< double, double > referenceData =
-                readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients, 1, 0 );
+                readGravityFieldFile( moonGravityFieldFile, 50, 50, coefficients, 1, 0 );
         return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
                     referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
 

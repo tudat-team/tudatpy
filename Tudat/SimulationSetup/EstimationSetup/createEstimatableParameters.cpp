@@ -7,12 +7,20 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantDragCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/empiricalAccelerationCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/groundStationPosition.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat
@@ -48,7 +56,8 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         // Check if body associated with parameter exists.
         std::string currentBodyName = doubleParameterName->parameterType_.second.first;
         boost::shared_ptr< Body > currentBody;
-        if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
+
+        if( ( currentBodyName != "global_metric" ) && ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Error when creating parameters to estimate, body " +
                     boost::lexical_cast< std::string >( currentBodyName ) +
@@ -56,7 +65,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
                     boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
-        else if( currentBodyName != "" )
+        else if( ( currentBodyName != "" ) && ( currentBodyName != "global_metric" ) )
         {
             currentBody = bodyMap.at( currentBodyName );
         }
@@ -121,6 +130,46 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             }
             break;
         }
+        case constant_drag_coefficient:
+        {
+            if( currentBody->getAerodynamicCoefficientInterface( ) == NULL )
+            {
+                std::string errorMessage = "Error, body " +
+                        boost::lexical_cast< std::string >( currentBodyName ) +
+                        " has no coefficient interface, cannot estimate constant drag coefficient.";
+                throw std::runtime_error( errorMessage );
+            }
+            else if( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                         currentBody->getAerodynamicCoefficientInterface( ) ) == NULL )
+            {
+                std::string errorMessage = "Error, body " +
+                        boost::lexical_cast< std::string >( currentBodyName ) +
+                        " has no custom coefficient interface, cannot estimate constant drag coefficient.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = boost::make_shared< ConstantDragCoefficient >
+                        ( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                              currentBody->getAerodynamicCoefficientInterface( ) ), currentBodyName );
+            }
+            break;
+        }
+        case ppn_parameter_gamma:
+        {
+            doubleParameterToEstimate = boost::make_shared< PPNParameterGamma >( relativity::ppnParameterSet );
+            break;
+        }
+        case ppn_parameter_beta:
+        {
+            doubleParameterToEstimate = boost::make_shared< PPNParameterBeta >( relativity::ppnParameterSet );
+            break;
+        }
+        case equivalence_principle_lpi_violation_parameter:
+        {
+            doubleParameterToEstimate = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -166,6 +215,40 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
+        case constant_additive_observation_bias:
+        {
+            boost::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ConstantObservationBiasParameter >(
+                            boost::function< Eigen::VectorXd( ) >( ),
+                            boost::function< void( const Eigen::VectorXd& ) >( ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
+        case constant_relative_observation_bias:
+        {
+            boost::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ConstantRelativeObservationBiasParameter >(
+                            boost::function< Eigen::VectorXd( ) >( ),
+                            boost::function< void( const Eigen::VectorXd& ) >( ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
         case rotation_pole_position:
             if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )
             {
@@ -214,10 +297,10 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     getCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
-                                                                 timeDependentShField );
+                                timeDependentShField );
                     setCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
-                                                                 timeDependentShField, _1 );
+                                timeDependentShField, _1 );
                 }
 
                 // Create cosine coefficients estimation object.
@@ -274,10 +357,10 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     getSineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
-                                                               timeDependentShField );
+                                timeDependentShField );
                     setSineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
-                                                               timeDependentShField, _1 );
+                                timeDependentShField, _1 );
                 }
 
                 // Create sine coefficients estimation object.
@@ -295,6 +378,172 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
             }
 
+            break;
+        }
+        case ground_station_position:
+        {
+
+            if( currentBody->getGroundStationMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
+            {
+                std::string errorMessage =
+                        "Error, requested ground station position parameter of "
+                        + vectorParameterName->parameterType_.second.first + " "
+                        + vectorParameterName->parameterType_.second.second + " , but ground station was not found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                boost::shared_ptr< ground_stations::GroundStationState > groundStationState =
+                        currentBody->getGroundStation( vectorParameterName->parameterType_.second.second )->
+                        getNominalStationState( );
+                if( groundStationState == NULL )
+                {
+                    std::string errorMessage =
+                            "Error, requested ground station position parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " +
+                            vectorParameterName->parameterType_.second.second +
+                            "  but nominal ground station state is NULL";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = boost::make_shared< GroundStationPosition  >(
+                                groundStationState, vectorParameterName->parameterType_.second.first,
+                                vectorParameterName->parameterType_.second.second );
+                }
+            }
+            break;
+        }
+        case empirical_acceleration_coefficients:
+        {
+            // Check input consistency
+            boost::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
+                    boost::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
+            if( empiricalAccelerationSettings == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                // Check if required acceleration model exists
+                if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " when making constant empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
+                             empiricalAccelerationSettings->centralBody_ ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " +
+                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " due to body " +  boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->centralBody_ ) +
+                            " when making constant empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Retrieve acceleration model.
+                    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration;
+                    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                            accelerationModelList =
+                            accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).at(
+                                empiricalAccelerationSettings->centralBody_ );
+                    for( unsigned int i = 0; i < accelerationModelList.size( ); i++ )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModelList[ i ] ) ==
+                                basic_astrodynamics::empirical_acceleration )
+                        {
+                            empiricalAcceleration = boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                        accelerationModelList[ i ] );
+                        }
+                    }
+
+                    if( empiricalAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making constant empirical acceleration coefficients parameter, could not find acceleration model" );
+                    }
+                    else
+                    {
+                        // Create empirical acceleration parameter
+                        vectorParameterToEstimate = boost::make_shared< EmpiricalAccelerationCoefficientsParameter >(
+                                    empiricalAcceleration, empiricalAccelerationSettings->parameterType_.second.first,
+                                    empiricalAccelerationSettings->componentsToEstimate_ );
+                    }
+                }
+            }
+            break;
+        }
+        case arc_wise_empirical_acceleration_coefficients:
+        {
+            // Check input consistency
+            boost::shared_ptr< ArcWiseEmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
+                    boost::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
+            if( empiricalAccelerationSettings == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                // Check if required acceleration model exists
+                if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " when making arcwise empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+
+                }
+                else if( accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).count(
+                             empiricalAccelerationSettings->centralBody_ ) == 0 )
+                {
+                    std::string errorMessage =
+                            "Error, did not find accelerations on body " +
+                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
+                            " due to body " +  boost::lexical_cast< std::string >(
+                                empiricalAccelerationSettings->centralBody_ ) +
+                            " when making arcwise empirical acceleration coefficients parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Retrieve acceleration model.
+                    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration;
+                    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList =
+                            accelerationModelMap.at( empiricalAccelerationSettings->parameterType_.second.first ).at(
+                                empiricalAccelerationSettings->centralBody_ );
+                    for( unsigned int i = 0; i < accelerationModelList.size( ); i++ )
+                    {
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModelList[ i ] ) ==
+                                basic_astrodynamics::empirical_acceleration )
+                        {
+                            empiricalAcceleration = boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                        accelerationModelList[ i ] );
+                        }
+                    }
+
+                    if( empiricalAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    "Error when making constant empirical acceleration coefficients parameter, could not find acceleration model" );
+                    }
+                    else
+                    {
+                        // Create arcwise empirical acceleration parameter
+                        vectorParameterToEstimate = boost::make_shared< ArcWiseEmpiricalAccelerationCoefficientsParameter >(
+                                    empiricalAcceleration, empiricalAccelerationSettings->parameterType_.second.first,
+                                    empiricalAccelerationSettings->componentsToEstimate_, empiricalAccelerationSettings->arcStartTimeList_ );
+                    }
+                }
+            }
             break;
         }
         default:

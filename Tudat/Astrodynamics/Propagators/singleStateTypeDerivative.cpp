@@ -26,6 +26,9 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     case transational_state:
         singleStateSize = 6;
         break;
+    case rotational_state:
+        singleStateSize = 7;
+        break;
     case body_mass_state:
         singleStateSize = 1;
         break;

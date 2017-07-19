@@ -99,10 +99,10 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         lightTimeCorrectionPartialObjects =
         std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
-//! Function to generate one-way range partials and associated scaler for single link end.
+//! Function to generate one-way range partials and associated scaler for single link ends.
 /*!
  *  Function to generate one-way range partials and associated scaler for all parameters that are to be estimated,
- *  for a single link ends.
+ *  for a single link ends set.
  *  The set of parameters and bodies that are to be estimated, as well as the set of link ends
  *  (each of which must contain a transmitter and receiever linkEndType) that are to be used.
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
@@ -148,6 +148,10 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     {
         std::string acceleratedBody;
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+        {
+            acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
+        }
+        else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
         }
@@ -205,9 +209,19 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
         // Create position one-way range partial for current parameter
-        boost::shared_ptr< ObservationPartial< 1 > > currentRangePartial = createOneWayRangePartialWrtParameter(
+        boost::shared_ptr< ObservationPartial< 1 > > currentRangePartial;
+
+        if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentRangePartial = createOneWayRangePartialWrtParameter(
                     oneWayRangeLinkEnds, bodyMap, parameterIterator->second, oneWayRangeScaling,
                     lightTimeCorrectionPartialObjects );
+        }
+        else
+        {
+            currentRangePartial = createObservationPartialWrtLinkProperty< 1 >(
+                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second );
+        }
 
         // Check if partial is non-null (i.e. whether dependency exists between current range and current parameter)
         if( currentRangePartial != NULL )
@@ -267,12 +281,15 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
         if( lightTimeCorrections.count( linkEnds.at( i ) ) > 0 )
         {
-            if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) != 1 )
+            if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) > 1 )
             {
                 std::cerr<<"Error when making one way range partials, light time corrections for "<<
                            lightTimeCorrections.at( linkEnds.at( i ) ).size( )<<" links found"<<std::endl;
             }
-            singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
+            else if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) == 1 )
+            {
+                singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
+            }
         }
 
         // Create range partials for current link ends

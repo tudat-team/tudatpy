@@ -93,6 +93,19 @@ public:
     std::vector< std::pair< int, int > > getBlockIndices( ){ return blockIndices_; }
 
 
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription =
+                getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + "), ";
+        parameterDescription += "Minimum D/O: (" +
+                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).first ) + ", " +
+                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).second ) + "), ";
+
+        parameterDescription += "Maximum D/O: (" +
+                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
+                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
+        return parameterDescription;
+    }
 protected:
 
 private:

@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
+#include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
 namespace tudat
 {
@@ -22,9 +23,12 @@ void createGroundStation(
         const std::string groundStationName,
         const boost::shared_ptr< ground_stations::GroundStationState > groundStationState )
 {
-
+    boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            boost::make_shared< ground_stations::PointingAnglesCalculator >(
+                boost::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), _1 ),
+                boost::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, groundStationState, _1 ) );
     body->addGroundStation( groundStationName, boost::make_shared< ground_stations::GroundStation >(
-                                groundStationState, groundStationName ) );
+                                groundStationState, pointingAnglesCalculator, groundStationName ) );
 }
 
 //! Function to create a ground station and add it to a Body object

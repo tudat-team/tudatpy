@@ -28,6 +28,37 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create a wind model.
+boost::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const boost::shared_ptr< WindModelSettings > windSettings,
+        const std::string& body )
+{
+    boost::shared_ptr< aerodynamics::WindModel > windModel;
+
+    // Check wind model type and create requested model
+    switch( windSettings->getWindModelType( ) )
+    {
+    case custom_wind_model:
+    {
+        // Check input consistency
+        boost::shared_ptr< CustomWindModelSettings > customWindModelSettings =
+                boost::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
+        if( customWindModelSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
+        }
+        windModel = boost::make_shared< aerodynamics::CustomWindModel >(
+                    customWindModelSettings->getWindFunction( ) );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when making wind model for body " + body + ", input type not recognized" );
+    }
+
+    return windModel;
+
+}
+
 //! Function to create an atmosphere model.
 boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
@@ -85,8 +116,19 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 #if USE_NRLMSISE00
     case nrlmsise00:
     {
-        std::string folder = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/";
-        std::string spaceWeatherFilePath = folder + "sw19571001.txt";
+        std::string spaceWeatherFilePath;
+        boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
+                boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+        if( nrlmsise00AtmosphereSettings == NULL )
+        {
+            // Use default space weather file stored in tudatBundle.
+            spaceWeatherFilePath = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt";
+        }
+        else
+        {
+            // Use space weather file specified by user.
+            spaceWeatherFilePath = nrlmsise00AtmosphereSettings->getSpaceWeatherFile( );
+        }
 
         tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
                 tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;
@@ -100,9 +142,15 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 #endif
     default:
         throw std::runtime_error(
-                 "Error, did not recognize atmosphere model settings type " +
-                  boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
+                    "Error, did not recognize atmosphere model settings type " +
+                    boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
     }
+
+    if( atmosphereSettings->getWindSettings( ) != NULL )
+    {
+        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body ) );
+    }
+
     return atmosphereModel;
 }
 

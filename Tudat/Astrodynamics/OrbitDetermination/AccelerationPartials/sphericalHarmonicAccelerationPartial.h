@@ -182,11 +182,26 @@ public:
      *  which is zero otherwise.
      *  \return Partial wrt the gravitational parameter of the central body.
      */
-    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
+    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix, const int addPartial = 0 )
     {
         if( gravitationalParameterFunction_( ) != 0.0 )
         {
-            partialMatrix = accelerationFunction_( ) / gravitationalParameterFunction_( );
+            if( addPartial == 0 )
+            {
+                partialMatrix = accelerationFunction_( ) / gravitationalParameterFunction_( );
+            }
+            else if( addPartial == 1 )
+            {
+                partialMatrix += accelerationFunction_( ) / gravitationalParameterFunction_( );
+            }
+            else if( addPartial == -1 )
+            {
+                partialMatrix -= accelerationFunction_( ) / gravitationalParameterFunction_( );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when adding partial of spherical harmonic acceleration w.r.t mu, inout is inconsistent" );
+            }
         }
         else
         {
