@@ -113,7 +113,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                     boost::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< double >  >( parameter );
             if( tidalLoveNumber == NULL )
             {
-                std::cerr<<"Error when getting tidal Love number vector parameter, object is NULL"<<std::endl;
+                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is NULL" );;
             }
 
             int degree = tidalLoveNumber->getDegree( );
@@ -126,8 +126,9 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                             parameter, maximumDegree_, maximumOrder_ );
                 if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                 {
-                    std::cerr<<"Error A when getting tidal parameter partial, inconsistent output"<<
-                               numberOfRows<<" "<<currentTidalPartialOutput.first<<std::endl;
+                    throw std::runtime_error( "Error when getting double tidal parameter partial, inconsistent output" +
+                                              boost::lexical_cast< std::string >( numberOfRows ) + ", " +
+                                              boost::lexical_cast< std::string >( currentTidalPartialOutput.first ) );
                 }
                 else
                 {
@@ -193,7 +194,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                     boost::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd >  >( parameter );
             if( tidalLoveNumber == NULL )
             {
-                std::cerr<<"Error when getting tidal Love number vector parameter, object is NULL"<<std::endl;
+                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is NULL" );
             }
 
             int degree = tidalLoveNumber->getDegree( );
@@ -205,8 +206,9 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                 currentTidalPartialOutput = tidalLoveNumberPartialInterfaces_.at( i )->setParameterPartialFunction( parameter, maximumDegree_, maximumOrder_ );
                 if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                 {
-                    std::cerr<<"Error B when getting tidal parameter partial, inconsistent output "<<
-                               numberOfRows<<" "<<currentTidalPartialOutput.first<<std::endl;
+                    throw std::runtime_error( "Error when getting vector tidal parameter partial, inconsistent output" +
+                                              boost::lexical_cast< std::string >( numberOfRows ) + ", " +
+                                              boost::lexical_cast< std::string >( currentTidalPartialOutput.first ) );
                 }
                 else
                 {
