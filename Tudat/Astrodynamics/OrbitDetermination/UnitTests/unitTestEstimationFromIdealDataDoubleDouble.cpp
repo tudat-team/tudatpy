@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int simulationType = 0; simulationType < 4; simulationType++ )
+    for( int simulationType = 0; simulationType < 5; simulationType++ )
     {
 
         std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
 
-        totalError = executeParameterEstimation< double, double >( simulationType ).second;
+        totalError = executePlanetaryParameterEstimation< double, double >( simulationType ).second;
 
         // Adjust tolerance based on simulation settings
         double toleranceMultiplier = 20.0;
@@ -57,6 +57,29 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
         std::cout<<totalError.transpose( )<<std::endl;
     }
+
+    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 5.0E-7 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 18 ) ), 2.0E-4 );
+    }
+
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 7 ) ), 5.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 8 ) ), 5.0E-6 );
+
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 9 ) ), 5.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 10 ) ), 5.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( estimationError( 11 ) ), 5.0E-11 );
+
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 11 ) ), 5.0E-12 );
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

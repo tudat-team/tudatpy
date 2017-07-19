@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                 earthGravitationalParameter );
 
 
-    boost::shared_ptr< PropagatorSettings< double > > translationalPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
@@ -286,14 +286,14 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                 boost::lambda::constant( -0.01 ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
                 boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
                 boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create custom state derivative model settings
     double initialCustomState = 500.0;
-    boost::shared_ptr< PropagatorSettings< double > > customPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > customPropagatorSettings =
             boost::make_shared< CustomStatePropagatorSettings< double > >(
                 boost::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
                 boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     // Create total propagator settings, depending on current case.
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
 
-    std::vector< boost::shared_ptr< PropagatorSettings< double > > >  propagatorSettingsList;
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
     propagatorSettingsList.push_back( massPropagatorSettings );
     propagatorSettingsList.push_back( customPropagatorSettings );

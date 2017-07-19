@@ -23,7 +23,13 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationRate.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantDragCoefficient.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationalOrientation.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/observationBiasParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/ppnParameters.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/groundStationPosition.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/equivalencePrincipleViolationParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/empiricalAccelerationCoefficients.h"
 )
 
 # Add static libraries.

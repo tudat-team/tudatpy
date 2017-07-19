@@ -44,28 +44,28 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
 
     // Run estimation with strong a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, inverseAPrioriCovariance );
 
     // Run estimation with effectively zero covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, 1.0E-64 * inverseAPrioriCovariance );
 
     // Run estimation with moderate a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation,  moderateInverseAPriopriCovariance );
 
     // Run estimation without a priori covariance
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation );
 
     // Run estimation without a priori covariance and increased weights
     double constantWeight = 100.0;
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
-            executeParameterEstimation< double, double >(
+            executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, Eigen::MatrixXd::Zero( 7, 7 ), constantWeight);
 
     // Retrieve estimation errors and a priori covariances
@@ -104,10 +104,11 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
         BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( i + 3 ) ), 1.0E-7 );
     }
 
-    BOOST_CHECK_SMALL( std::fabs( weakConstraintError( 6 ) ), 200.0 );
-    BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 200.0 );
+    BOOST_CHECK_SMALL( std::fabs( weakConstraintError( 6 ) ), 500.0 );
+    BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 500.0 );
     BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( 6 ) ), 500.0 );
 
+    std::cout<<weakConstraintError( 6 )<<" "<<weakConstraintError( 6 )<<" "<< noConstraintWeakWeightError( 6 )<<std::endl;
     for( unsigned int i = 0; i < 7; i++ )
     {
         // Check if moderately constrained solution has intermediate accuracy

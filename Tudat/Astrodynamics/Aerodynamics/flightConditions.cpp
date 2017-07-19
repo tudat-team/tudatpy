@@ -49,7 +49,7 @@ FlightConditions::FlightConditions(
 
     // Link body-state function.
     bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
-                &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
+                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
 
     // Check if atmosphere requires latitude and longitude update.
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
@@ -104,7 +104,7 @@ void FlightConditions::updateConditions( const double currentTime )
         }
 
         // Calculate state of vehicle in global frame and corotating frame.
-        currentBodyCenteredPseudoBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
+        currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
 
         updateAerodynamicCoefficientInput( );
 

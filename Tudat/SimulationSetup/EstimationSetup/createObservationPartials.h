@@ -20,6 +20,8 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNWayRangePartials.h"
 
 namespace tudat
 {
@@ -32,7 +34,6 @@ typedef std::map< observation_models::LinkEnds,
 std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >
 PerLinkEndPerLightTimeSolutionCorrections;
 
-
 //! Function to retrieve a list of light-time corrections per link end from a list of observation models.
 /*!
  *  Function to retrieve a list of light-time corrections per link end from a list of observation models.
@@ -44,6 +45,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
+    std::cout<<"Retrieving corrections"<<std::endl;
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
@@ -65,28 +67,30 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         }
         else
         {
+            std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
+
             // Check type of observable
             switch( observableType )
             {
-            case observation_models::oneWayRange:
+            case observation_models::one_way_range:
             {
                 boost::shared_ptr< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
                         boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
-            case observation_models::oneWayDoppler:
+            case observation_models::one_way_doppler:
             {
                 boost::shared_ptr< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
                         boost::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
@@ -97,8 +101,37 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                currentLightTimeCorrections.push_back(
+                singleObservableCorrectionList = (
                             angularPositionModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::one_way_differenced_range:
+            {
+                boost::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                        < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
+                        boost::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            oneWayDifferencedRangeObservationModel->getArcStartLightTimeCalculator( )->
+                                                       getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            oneWayDifferencedRangeObservationModel->getArcEndLightTimeCalculator( )->
+                                                       getLightTimeCorrection( ) );
+
+                break;
+            }
+            case observation_models::n_way_range:
+            {
+                boost::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                        boost::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                        ( observationModelIterator->second );
+                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                         nWayRangeObservationModel->getLightTimeCalculators( );
+                for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
+                {
+                    currentLightTimeCorrections.push_back( lightTimeCalculatorList.at( i )->getLightTimeCorrection( ) );
+                }
                 break;
             }
             case observation_models::position_observable:
@@ -112,20 +145,40 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 throw std::runtime_error( errorMessage );
             }
 
-            // Add light-time correctionsfor current link ends
-            lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+            if( singleObservableCorrectionList.size( ) > 0 )
+            {
+                currentLightTimeCorrections.push_back( singleObservableCorrectionList );
+            }
+
+            // Add light-time correctionsfor current link ends.
+            if( currentLightTimeCorrections.size( ) > 0 )
+            {
+                lightTimeCorrectionsList[ observationModelIterator->first ] = currentLightTimeCorrections;
+            }
         }
 
     }
     return lightTimeCorrectionsList;
 }
 
+//! Function to split observation partials and scaling object (produced by observationPartialsAndScaler function) into separate
+//! containers
+/*!
+ *  Function to split observation partials and scaling object (produced by observationPartialsAndScaler function) into separate
+ *  containers
+ *  \param observationPartialsAndScalers Combined list of observation partials and scaling objects
+ *  \param observationPartials List of observation partials, per link ends, and per parameter indices (returned by reference)
+ *  \param observationPartialScalers List of position partial scaling objects, per link ends (returned by reference)
+ */
 template< int ObservationSize >
 void splitObservationPartialsAndScalers(
-        const std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
+        const std::map< observation_models::LinkEnds,
+        std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
         boost::shared_ptr< PositionPartialScaling > > >& observationPartialsAndScalers,
-        std::map< observation_models::LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
-        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >& observationPartialScalers )
+        std::map< observation_models::LinkEnds, std::map< std::pair< int, int >,
+        boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
+        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+        observationPartialScalers )
 {
     observationPartials.clear( );
     observationPartialScalers.clear( );
@@ -148,7 +201,7 @@ void splitObservationPartialsAndScalers(
  *  interface. This class has template specializations for each value of ObservationSize, and contains a single
  *  createObservationModel function that performs the required operation.
  */
-template< int ObservationSize, typename ParameterType >
+template< int ObservationSize, typename ObservationScalarType, typename TimeType >
 class ObservationPartialCreator
 {
 public:
@@ -157,11 +210,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -173,16 +224,17 @@ public:
     boost::shared_ptr< ObservationPartial< ObservationSize > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) );
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate );
 };
 
 //! Interface class for creating observation partials for observables of size 1.
-template< typename ParameterType >
-class ObservationPartialCreator< 1, ParameterType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationPartialCreator< 1, ObservationScalarType, TimeType >
 {
 public:
 
@@ -190,11 +242,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -206,26 +256,37 @@ public:
     boost::shared_ptr< ObservationPartial< 1 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 1 > > >,
                 boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
         switch( observableType )
         {
-        case observation_models::oneWayRange:
-            observationPartialList = createOneWayRangePartials< ParameterType >(
-                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+        case observation_models::one_way_range:
+            observationPartialList = createOneWayRangePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
             break;
-        case observation_models::oneWayDoppler:
-            observationPartialList = createOneWayDopplerPartials< ParameterType >(
-                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+        case observation_models::one_way_doppler:
+            observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
+                        observationModelList, bodyMap, parametersToEstimate );
             break;
-
+        case observation_models::one_way_differenced_range:
+            observationPartialList = createDifferencedOneWayRangeRatePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
+            break;
+        case observation_models::n_way_range:
+            observationPartialList = createNWayRangePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
+            break;
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
@@ -238,8 +299,8 @@ public:
 };
 
 //! Interface class for creating observation partials for observables of size 2.
-template< typename ParameterType >
-class ObservationPartialCreator< 2, ParameterType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationPartialCreator< 2, ObservationScalarType, TimeType >
 {
 public:
 
@@ -247,11 +308,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -263,11 +322,11 @@ public:
     boost::shared_ptr< ObservationPartial< 2 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 2 > > >,
@@ -276,8 +335,9 @@ public:
         switch( observableType )
         {
         case observation_models::angular_position:
-            observationPartialList = createAngularPositionPartials< ParameterType >(
-                        linkEnds, bodyMap, parametersToEstimate, lightTimeCorrections );
+            observationPartialList = createAngularPositionPartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
             break;
         default:
             std::string errorMessage =
@@ -291,8 +351,8 @@ public:
 };
 
 //! Interface class for creating observation partials for observables of size 3.
-template< typename ParameterType >
-class ObservationPartialCreator< 3, ParameterType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationPartialCreator< 3, ObservationScalarType, TimeType >
 {
 public:
 
@@ -300,11 +360,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -316,11 +374,12 @@ public:
     boost::shared_ptr< ObservationPartial< 3 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 3 > > >,
@@ -329,8 +388,8 @@ public:
         switch( observableType )
         {
         case observation_models::position_observable:
-            observationPartialList = createPositionObservablePartials< ParameterType >(
-                        linkEnds, bodyMap, parametersToEstimate );
+            observationPartialList = createPositionObservablePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
             break;
         default:
             std::string errorMessage =
@@ -343,8 +402,8 @@ public:
 };
 
 //! Interface class for creating observation partials for observables of size 3.
-template< typename ParameterType >
-class ObservationPartialCreator< 6, ParameterType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationPartialCreator< 6, ObservationScalarType, TimeType >
 {
 public:
 
@@ -352,11 +411,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -368,11 +425,12 @@ public:
     boost::shared_ptr< ObservationPartial< 6 > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< 6 > > >,
@@ -392,8 +450,8 @@ public:
 };
 
 //! Interface class for creating observation partials for observables of dynamic sizwe.
-template< typename ParameterType >
-class ObservationPartialCreator< Eigen::Dynamic, ParameterType >
+template< typename ObservationScalarType, typename TimeType >
+class ObservationPartialCreator< Eigen::Dynamic, ObservationScalarType, TimeType >
 {
 public:
 
@@ -401,11 +459,9 @@ public:
     /*!
      * Function to create a list of observation partial objects, and associated scaling objects
      * \param observableType Type of observable for which partials are to be created
-     * \param linkEnds List of link ends of observable which partials are to be created
+     * \param observationModelList List of observation models, with the link ends of map key, for which partials are to be created
      * \param bodyMap Map of body objects that comprises the environment
      * \param parametersToEstimate Parameters for which partial derivatives are to be computed
-     * \param lightTimeCorrections List of light-time corrections (per link ends set) for that are used in computation of
-     * the observables
      * \return Map with list of observation partials. Key is associated link ends. Value is a list of observation partial
      * objects, one for each parameter w.r.t. which the observation partial is non-zero (in general). The format is a pair
      * with:
@@ -417,11 +473,12 @@ public:
     boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
     boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
-            const std::vector< observation_models::LinkEnds >& linkEnds,
+            const std::map< observation_models::LinkEnds,
+            boost::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
+            observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrections =
-            PerLinkEndPerLightTimeSolutionCorrections( ) )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
                 boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
@@ -433,11 +490,13 @@ public:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
                     boost::lexical_cast< std::string >( observableType ) + " of size dynamic ";
-            throw std::runtime_error( errorMessage );        }
+            throw std::runtime_error( errorMessage );
+        }
         return observationPartialList;
     }
 
 };
+
 
 }
 

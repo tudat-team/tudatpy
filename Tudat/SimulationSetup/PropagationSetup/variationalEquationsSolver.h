@@ -54,28 +54,17 @@ public:
      *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and
      *  equations of motion.
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
-     *  \param integratorSettings Settings for numerical integrator of combined propagation of variational equations
-     *  and equations of motion.
-     *  \param propagatorSettings Settings for propagation of equations of motion.
      *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
      *  settings and values.
-     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
-     *  equations.
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      */
     VariationalEquationsSolver(
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings=
-            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = 1 ):
         parametersToEstimate_( parametersToEstimate ),
         bodyMap_( bodyMap ),
-        propagatorSettings_( propagatorSettings ), integratorSettings_( integratorSettings ),
-        variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings ),
         stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
         parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ),
         clearNumericalSolution_( clearNumericalSolution )
@@ -102,7 +91,7 @@ public:
      *  \param initialStateEstimate Initial state of the equations of motion that is to be used.
      */
     virtual void integrateDynamicalEquationsOfMotionOnly(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStateEstimate ) = 0;
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate ) = 0;
 
 
     //! Function to get the list of objects representing the parameters that are to be integrated.
@@ -124,29 +113,8 @@ public:
      *  \param areVariationalEquationsToBeIntegrated Boolean defining whether the variational equations are to be
      *  reintegrated with the new parameter values.
      */
-    void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
-                                 const bool areVariationalEquationsToBeIntegrated = true )
-
-    {
-        // Reset values of parameters.
-        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
-        propagatorSettings_->resetInitialStates(
-                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
-
-        dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
-                    propagatorSettings_->getInitialStates( ) );
-
-        // Check if re-integration of variational equations is requested
-        if( areVariationalEquationsToBeIntegrated )
-        {
-            // Integrate variational and state equations.
-            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
-        }
-        else
-        {
-            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
-        }
-    }
+    virtual void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
+                                         const bool areVariationalEquationsToBeIntegrated = true ) = 0;
 
     //! Function to get the state transition matric interface object.
     /*!
@@ -210,15 +178,6 @@ protected:
     //! Map of bodies (with names) of all bodies in integration.
     simulation_setup::NamedBodyMap bodyMap_;
 
-    //! Settings for propagation of equations of motion.
-    boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
-
-    //! Settings for numerical integrator of combined propagation of variational equations and equations of motion.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
-
-    //! Settings for numerical integrator when integrating only variational equations.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings_;
-
     //! Size (rows and columns are equal) of state transition matrix.
     int stateTransitionMatrixSize_;
 
@@ -233,16 +192,7 @@ protected:
     bool clearNumericalSolution_;
 
     //! Object used for interpolating numerical results of state transition and sensitivity matrix.
-    boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;  
-
-    //! Object used to compute the full state derivative in equations of motion and variational equations.
-    /*!
-     *  Object used to compute the full state derivative in equations of motion and variational equations,
-     *  including relevant updates of environment from current state and time. Object may be used for
-     *  either full or separate propagation of equations.
-     */
-    boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
-
+    boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;
 };
 
 //! Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution.
@@ -322,13 +272,13 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
  */
 template< typename StateScalarType = double, typename TimeType = double >
 bool checkPropagatorSettingsAndParameterEstimationConsistency(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate )
 {
     bool isInputConsistent = 1;
 
     // Check type of dynamics
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case transational_state:
     {
@@ -366,7 +316,7 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
     }
     default:
         std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
-                boost::lexical_cast< std::string >( propagatorSettings->stateType_ );
+                boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) );
         throw std::runtime_error( errorMessage );
     }
     return isInputConsistent;
@@ -392,12 +342,8 @@ public:
     //! Base class using statements
     using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::dynamicsStateDerivative_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::propagatorSettings_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::integratorSettings_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
-    using VariationalEquationsSolver< StateScalarType, TimeType >::variationalOnlyIntegratorSettings_;
     using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
 
     //! Constructor
@@ -430,12 +376,19 @@ public:
             const bool clearNumericalSolution = 1,
             const bool integrateEquationsOnCreation = 1 ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
-            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
-            variationalOnlyIntegratorSettings, clearNumericalSolution )
+            bodyMap, parametersToEstimate, clearNumericalSolution ),
+        integratorSettings_( integratorSettings ),
+        propagatorSettings_( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >(propagatorSettings ) ),
+        variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings )
     {
+        if( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType >  >( propagatorSettings ) == NULL )
+        {
+            throw std::runtime_error( "Error in variational equations solver, input must be single-arc" );
+        }
+
         // Check input consistency
         if( !checkPropagatorSettingsAndParameterEstimationConsistency< StateScalarType, TimeType >(
-                    propagatorSettings, parametersToEstimate ) )
+                    propagatorSettings_, parametersToEstimate ) )
         {
             throw std::runtime_error(
                         "Error when making single arc variational equations solver, estimated and propagated bodies are inconsistent" );
@@ -444,7 +397,7 @@ public:
         {
             // Create simulation object for dynamics only.
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution, true );
+                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
 
             // Create state derivative partials
@@ -468,11 +421,11 @@ public:
             {
                 if( integrateDynamicalAndVariationalEquationsConcurrently )
                 {
-                    integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 1 );
+                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
                 }
                 else
                 {
-                    integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 0 );
+                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 0 );
                 }
             }
         }
@@ -484,12 +437,12 @@ public:
     //! Function to integrate equations of motion only.
     /*!
      *  Function to integrate equations of motion only (in single arc).  If dynamical
-     *  solution is to be processed, the environment is also updtaed to teh new solution.
+     *  solution is to be processed, the environment is also updated to the new solution.
      *  \param initialStateEstimate Initial state of the equations of motion that is to be used (in same order as in
      *  parametersToEstimate_)
      */
     void integrateDynamicalEquationsOfMotionOnly(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStateEstimate )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate )
     {
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
         dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
@@ -499,7 +452,7 @@ public:
     /*!
      *  Function to integrate variational equations and equations of motion (in single arc). At the end of this function,
      *  the stateTransitionInterface_ is reset with the new state transition and sensitivity matrices. If dynamical
-     *  solution is to be processed, the environment is also updtaed to the new solution.
+     *  solution is to be processed, the environment is also updated to the new solution.
      *  \param initialStateEstimate Initial state of the equations of motion that is to be used (in same order as in
      *  parametersToEstimate_).
      *  \param integrateEquationsConcurrently Variable determining whether the equations of motion are to be
@@ -525,6 +478,7 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
+
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
@@ -600,6 +554,38 @@ public:
         return dynamicsSimulator_;
     }
 
+    //! Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations.
+    /*!
+     *  Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations
+     *  using the new physical parameters/body initial states.
+     *  \param newParameterEstimate New estimate of parameters that are to be estimated, in same order as defined
+     *  in parametersToEstimate_ member.
+     *  \param areVariationalEquationsToBeIntegrated Boolean defining whether the variational equations are to be
+     *  reintegrated with the new parameter values.
+     */
+    void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
+                                 const bool areVariationalEquationsToBeIntegrated = true )
+    {
+        // Reset values of parameters.
+        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        propagatorSettings_->resetInitialStates(
+                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+
+        dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
+                    propagatorSettings_->getInitialStates( ) );
+
+        // Check if re-integration of variational equations is requested
+        if( areVariationalEquationsToBeIntegrated )
+        {
+            // Integrate variational and state equations.
+            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+        }
+        else
+        {
+            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+        }
+    }
+
 protected:
 
 private:
@@ -653,6 +639,462 @@ private:
      *  state transition matrix Phi (first vector entry) and sensitivity matrix S (second vector entry)
      */
     std::vector< std::map< double, Eigen::MatrixXd > > variationalEquationsSolution_;
+
+
+    //! Settings for numerical integrator of combined propagation of variational equations and equations of motion.
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+
+    //! Settings for propagation of equations of motion.
+    boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings_;
+
+    //! Settings for numerical integrator when integrating only variational equations.
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings_;
+
+    //! Object used to compute the full state derivative in equations of motion and variational equations.
+    /*!
+     *  Object used to compute the full state derivative in equations of motion and variational equations,
+     *  including relevant updates of environment from current state and time. Object may be used for
+     *  either full or separate propagation of equations.
+     */
+    boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class MultiArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
+{
+public:
+
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > MatrixType;
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
+
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
+
+    //! Constructor
+    /*!
+     *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
+     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
+     *  \param arcStartTimes Start times for separate arcs
+     *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
+     *  equations are to be propagated concurrently (if true) or sequentially (of false)
+     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
+     *  equations.
+     *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
+     *  (default true) after propagation and resetting of state transition interface.
+     *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
+     *  end of this contructor.
+     */
+    MultiArcVariationalEquationsSolver(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const std::vector< double > arcStartTimes,
+            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings =
+            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+            const bool clearNumericalSolution = true,
+            const bool integrateEquationsOnCreation = false ):
+        VariationalEquationsSolver< StateScalarType, TimeType >(
+            bodyMap, parametersToEstimate, clearNumericalSolution ),
+        propagatorSettings_( boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) )
+    {
+        if(  boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
+        {
+            throw std::runtime_error( "Error when making multi-arc variational equartions solver, input is single-arc" );
+        }
+
+        parameterVectorSize_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
+        stateTransitionMatrixSize_ -= ( parametersToEstimate->getParameterSetSize( ) -
+                                        estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate ) );
+
+        dynamicsSimulator_ =  boost::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodyMap, integratorSettings, propagatorSettings, arcStartTimes,
+                    false, clearNumericalSolution, true );
+
+
+        std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
+                dynamicsSimulator_->getSingleArcDynamicsSimulators( );
+
+        if( arcStartTimes.size( ) != singleArcDynamicsSimulators.size( ) )
+        {
+            throw std::runtime_error( "Error when making multi-arc variational equartions solver, input is inconsistent" );
+        }
+
+        for( unsigned int i = 0; i < singleArcDynamicsSimulators.size( ); i++ )
+        {
+            dynamicsStateDerivatives_.push_back( singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ) );
+            // Create variational equations objects.
+            std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials =
+                    simulation_setup::createStateDerivativePartials< StateScalarType, TimeType >(
+                        dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
+            boost::shared_ptr< VariationalEquations > variationalEquationsObject_ =
+                    boost::make_shared< VariationalEquations >(
+                        stateDerivativePartials, parametersToEstimate_, dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ) );
+
+            dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
+            arcStartTimes_.push_back( arcStartTimes.at( i ) );
+        }
+
+        numberOfArcs_ = dynamicsStateDerivatives_.size( );
+        // Resize solution of variational equations to 2 (state transition and sensitivity matrices)
+        variationalEquationsSolution_.resize( numberOfArcs_ );
+        for( int i = 0; i < numberOfArcs_; i++ )
+        {
+            variationalEquationsSolution_[ i ].resize( 2 );
+        }
+
+        // Integrate variational equations from initial state estimate.
+        if( integrateEquationsOnCreation )
+        {
+            if( integrateDynamicalAndVariationalEquationsConcurrently )
+            {
+                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStateList( ) , 1 );
+            }
+            else
+            {
+                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStateList( ), 0 );
+            }
+        }
+    }
+
+    //! Destructor
+    /*!
+     *  Destructor
+     */
+    ~MultiArcVariationalEquationsSolver( ){ }
+
+    //! Function to integrate equations of motion only.
+    /*!
+     *  Function to integrate equations of motion only (for all arcs).  If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param initialStateEstimate Initial state of the equations of motion that is to be used (in same order as in
+     *  parametersToEstimate_), concatenated for all arcs.
+     */
+    void integrateDynamicalEquationsOfMotionOnly(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate )
+    {
+        for( int i = 0; i < numberOfArcs_; i++ )
+        {
+            dynamicsStateDerivatives_.at( i )->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
+        }
+
+        dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
+    }
+
+    //! Function to integrate equations of motion only.
+    /*!
+     *  Function to integrate equations of motion only (for all arcs).  If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param initialStateEstimate Initial state of the equations of motion that is to be used, as a list with separate entries
+     *  for each arc.
+     */
+    void integrateDynamicalEquationsOfMotionOnly(
+            const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& initialStateEstimate )
+    {
+        for( int i = 0; i < numberOfArcs_; i++ )
+        {
+            dynamicsStateDerivatives_.at( i )->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
+        }
+
+        dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
+    }
+
+    //! Function to integrate variational equations and equations of motion.
+    /*!
+     *  Function to integrate variational equations and equations of motion, for all arcs. At the end of this function,
+     *  the stateTransitionInterface_ is reset with the new state transition and sensitivity matrices. If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param concatenatedInitialStates Initial state of the equations of motion that is to be used (in same order as in
+     *  parametersToEstimate_), concatenated for all arcs.
+     *  \param integrateEquationsConcurrently Variable determining whether the equations of motion are to be
+     *  propagated concurrently with variational equations of motion (if true), or before variational equations (if false).
+     */
+    void integrateVariationalAndDynamicalEquations(
+            const VectorType& concatenatedInitialStates, const bool integrateEquationsConcurrently )
+    {
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitInitialState;
+
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < dynamicsSimulator_->getSingleArcDynamicsSimulators( ).size( ); i++ )
+        {
+            int currentSize = dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getPropagatorSettings( )->getStateSize( );
+
+            splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
+            currentIndex += currentSize;
+        }
+
+        if( currentIndex != concatenatedInitialStates.rows( ) )
+        {
+            throw std::runtime_error( "Error when doing multi-arc variational equation integration, input state vector size is incompatible with settings" );
+        }
+
+        integrateVariationalAndDynamicalEquations( splitInitialState, integrateEquationsConcurrently );
+    }
+
+    //! Function to integrate variational equations and equations of motion.
+    /*!
+     *  Function to integrate variational equations and equations of motion, for all arcs. At the end of this function,
+     *  the stateTransitionInterface_ is reset with the new state transition and sensitivity matrices. If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param initialStateEstimate Initial state of the equations of motion that is to be used, in a list with initial
+     *  state for each arc stored separately.
+     *  \param integrateEquationsConcurrently Variable determining whether the equations of motion are to be
+     *  propagated concurrently with variational equations of motion (if true), or before variational equations (if false).
+     */
+    void integrateVariationalAndDynamicalEquations(
+            const std::vector< VectorType >& initialStateEstimate, const bool integrateEquationsConcurrently )
+    {
+        // Retrieve single-arc dynamics simulator objects
+        std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators =
+                dynamicsSimulator_->getSingleArcDynamicsSimulators( );
+
+        // Clear solution maps for variational equations
+        for( int i = 0; i < numberOfArcs_; i++ )
+        {
+            variationalEquationsSolution_[ i ][ 0 ].clear( );
+            variationalEquationsSolution_[ i ][ 1 ].clear( );
+        }
+
+        // Propagate variational equations and equations of motion concurrently
+        if( integrateEquationsConcurrently )
+        {
+            // Allocate maps that stored numerical solution for equations of motion
+            std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+                    equationsOfMotionNumericalSolutions;
+            std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
+                    dependentVariableHistorySolutions;
+            equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
+            dependentVariableHistorySolutions.resize( numberOfArcs_ );
+
+            // Integrate equations for all arcs.
+            for( int i = 0; i < numberOfArcs_; i++ )
+            {
+                // Retrieve integrator settings, and ensure correct initial time.
+                boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
+                        singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
+                integratorSettings->initialTime_ = arcStartTimes_.at( i );
+
+                // Set state derivative model to propagate both variational equations and equations of motion
+                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
+                            std::vector< IntegratedStateType >( ), 1, 1 );
+
+                // Update state derivative model to (possible) update in state.
+                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
+                         template updateStateDerivativeModelSettings( initialStateEstimate.at( i ) );
+
+                // Create initial state for combined variational/equations of motion.
+                MatrixType initialVariationalState = this->createInitialConditions(
+                            initialStateEstimate.at( i ) );
+
+                // Integrate variational and state equations.
+                std::map< TimeType, MatrixType > rawNumericalSolution;
+                EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+                            singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
+                            rawNumericalSolution,
+                            initialVariationalState, integratorSettings,
+                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
+                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ), _1 ),
+                            dependentVariableHistorySolutions.at( i ) );
+
+                // Extract solution of equations of motion.
+                utilities::createVectorBlockMatrixHistory(
+                            rawNumericalSolution, equationsOfMotionNumericalSolutions[ i ],
+                            std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
+
+
+                // Transform equations of motion solution to output formulation
+                equationsOfMotionNumericalSolutions[ i ] = convertNumericalStateSolutionsToOutputSolutions(
+                            equationsOfMotionNumericalSolutions[ i ], dynamicsStateDerivatives_.at( i ) );
+                arcStartTimes_[ i ] = equationsOfMotionNumericalSolutions[ i ].begin( )->first;
+
+                // Save state transition and sensitivity matrix solutions for current arc.
+                setVariationalEquationsSolution(
+                            rawNumericalSolution, variationalEquationsSolution_[ i ],
+                            std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
+                            stateTransitionMatrixSize_, parameterVectorSize_ );
+
+            }
+
+            // Process numerical solution of equations of motion
+            dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution( equationsOfMotionNumericalSolutions );
+            equationsOfMotionNumericalSolutions.clear( );
+        }
+        else
+        {
+            // Integrate dynamics for each arc
+            for( int i = 0; i < numberOfArcs_; i++ )
+            {
+                // Update state derivative model to (possible) update in state.
+                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->
+                         template updateStateDerivativeModelSettings( initialStateEstimate.at( i ) );
+                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
+                            std::vector< IntegratedStateType >( ), 1, 0 );
+            }
+            dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
+            arcStartTimes_ = dynamicsSimulator_->getArcStartTimes( );
+
+            std::map< TimeType, MatrixType > rawNumericalSolutions;
+            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
+
+            // Integrate variational equarions for each arc
+            for( int i = 0; i < numberOfArcs_; i++ )
+            {
+                // Propagate only variational equations
+                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
+                            boost::assign::list_of( transational_state ), 0, 1 );
+
+                // Get initial state for variational equations (single arc)
+                MatrixType initialVariationalState = this->createInitialVariationalEquationsSolution( ).
+                        template cast< StateScalarType >( );
+
+                // Integrate variational equations for current arc
+                EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
+                            singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
+                            rawNumericalSolutions, initialVariationalState, singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
+                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
+                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ), _1 ),
+                            dummyDependentVariableHistorySolution );
+
+                // Save state transition and sensitivity matrix solutions for current arc.
+                setVariationalEquationsSolution(
+                            rawNumericalSolutions, variationalEquationsSolution_[ i ],
+                            std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
+                            stateTransitionMatrixSize_, parameterVectorSize_ );
+                rawNumericalSolutions.clear( );
+            }
+
+        }
+
+        // Reset solution for state transition and sensitivity matrices.
+        resetVariationalEquationsInterpolators( );
+
+    }
+
+    //! Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations.
+    /*!
+     *  Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations
+     *  using the new physical parameters/body initial states.
+     *  \param newParameterEstimate New estimate of parameters that are to be estimated, in same order as defined
+     *  in parametersToEstimate_ member.
+     *  \param areVariationalEquationsToBeIntegrated Boolean defining whether the variational equations are to be
+     *  reintegrated with the new parameter values.
+     */
+    void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
+                                 const bool areVariationalEquationsToBeIntegrated = true )
+    {
+        // Reset values of parameters.
+        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        propagatorSettings_->resetInitialStates(
+                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+
+
+        // Check if re-integration of variational equations is requested
+        if( areVariationalEquationsToBeIntegrated )
+        {
+
+            // Integrate variational and state equations.
+            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+        }
+        else
+        {
+            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+        }
+    }
+
+    //! Function to return the numerical solution history of integrated variational equations, per arc.
+    /*!
+     *  Function to return the numerical solution history of integrated variational equations, per arc.
+     *  Each vector entry contains the results of a single arc, stored in a vector of maps. Inner vector has size two: first entry
+     *  is state transition matrix history, second is sensitivity matrix history, both stored as maps. Key of map denotes time,
+     *  values are matrices.
+     *  \return Numerical solution history of integrated variational equations, per arc.
+     */
+    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > getNumericalVariationalEquationsSolution( )
+    {
+        return variationalEquationsSolution_;
+    }
+
+protected:
+
+private:
+
+    //! Reset solutions of variational equations.
+    /*!
+     *  Reset solutions of variational equations (stateTransitionMatrixInterpolator_ and sensitivityMatrixInterpolator_) for each
+     *  arc,*  i.e. use numerical integration results to create new look-up tables and interpolators of state transition and
+     *  sensitivity matrices.
+     */
+    void resetVariationalEquationsInterpolators( )
+    {
+        using namespace interpolators;
+
+        // Allocate interpolator vectors
+        std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+                stateTransitionMatrixInterpolators;
+        std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+                sensitivityMatrixInterpolators;
+        stateTransitionMatrixInterpolators.resize( variationalEquationsSolution_.size( ) );
+        sensitivityMatrixInterpolators.resize( variationalEquationsSolution_.size( ) );
+
+        // Create interpolators.
+        for( unsigned int i = 0; i < variationalEquationsSolution_.size( ); i++ )
+        {
+            createStateTransitionAndSensitivityMatrixInterpolator(
+                        stateTransitionMatrixInterpolators[ i ],
+                        sensitivityMatrixInterpolators[ i ],
+                        variationalEquationsSolution_[ i ],
+                        this->clearNumericalSolution_ );
+        }
+
+        // Create stare transition matrix interface if needed, reset otherwise.
+        if( stateTransitionInterface_ == NULL )
+        {
+            stateTransitionInterface_ = boost::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
+                        arcStartTimes_,
+                        propagatorSettings_->getSingleArcSettings( ).at( 0 )->getStateSize( ),
+                        parametersToEstimate_->getParameterSetSize( ) );
+        }
+        else
+        {
+            boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        stateTransitionInterface_ )->updateMatrixInterpolators(
+                        stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
+                        arcStartTimes_ );
+        }
+    }
+
+    //! Object to propagate the dynamics for all arcs.
+    boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
+
+    //! Numerical solution history of integrated variational equations, per arc.
+    /*!
+     *  Numerical solution history of integrated variational equations, per arc.
+     *  Each vector entry contains the results of a single arc, stored in a vector of maps. Inner vector has size two: first entry
+     *  is state transition matrix history, second is sensitivity matrix history, both stored as maps. Key of map denotes time,
+     *  values are matrices.
+     */
+    std::vector< std::vector< std::map< double, Eigen::MatrixXd > > > variationalEquationsSolution_;
+
+    //! List of start times of each arc. NOTE: This list is updated after every propagation.
+    std::vector< double > arcStartTimes_;
+
+
+    //! Settings for propagation of equations of motion.
+    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings_;
+
+    //! State derivative models for each arc (retrieved from dynamicsSimulator_).
+    std::vector< boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > dynamicsStateDerivatives_;
+
+    //! Number of arcs over which propagation is to be performed.
+    int numberOfArcs_;
 
 };
 

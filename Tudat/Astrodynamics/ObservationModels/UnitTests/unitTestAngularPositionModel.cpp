@@ -76,17 +76,24 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
-    // Create observation model.
-    boost::shared_ptr< ObservationBias< 2 > > observationBias =
-            boost::make_shared< ConstantObservationBias< 2 > >(
-                ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ) );
+    // Create light-time correction settings
     std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );
+
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( angular_position, lightTimeCorrectionSettings,
+              boost::make_shared< ConstantObservationBiasSettings >(
+                  ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ) ) );
+
+    // Create observation model.
     boost::shared_ptr< ObservationModel< 2, double, double > > observationModel =
            ObservationModelCreator< 2, double, double >::createObservationModel(
-                angular_position, linkEnds, bodyMap, lightTimeCorrectionSettings, observationBias );
+                linkEnds, observableSettings, bodyMap );
+    boost::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
+
 
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;

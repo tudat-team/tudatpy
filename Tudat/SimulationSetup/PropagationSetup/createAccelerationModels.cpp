@@ -20,6 +20,8 @@
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
@@ -768,6 +770,182 @@ createCannonballRadiationPressureAcceleratioModel(
 
 }
 
+//! Function to create an orbiter relativistic correction acceleration model
+boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap )
+{
+    using namespace relativity;
+
+    // Declare pointer to return object
+    boost::shared_ptr< RelativisticAccelerationCorrection > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    boost::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationSettings =
+            boost::dynamic_pointer_cast< RelativisticAccelerationCorrectionSettings >(
+                accelerationSettings );
+    if( relativisticAccelerationSettings == NULL )
+    {
+        throw std::runtime_error( "Error, expected relativistic acceleration settings when making acceleration model on " +
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+
+        // Retrieve function pointers for properties of bodies exerting/undergoing acceleration.
+        boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingAcceleration =
+                boost::bind( &Body::getState, bodyExertingAcceleration );
+        boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingAcceleration =
+                boost::bind( &Body::getState, bodyUndergoingAcceleration );
+
+        boost::function< double( ) > centralBodyGravitationalParameterFunction;
+        boost::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
+        if( gravityField == NULL )
+        {
+            throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
+                                      "when making relativistic acceleration on" + nameOfBodyUndergoingAcceleration );
+        }
+        else
+        {
+            centralBodyGravitationalParameterFunction =
+                    boost::bind( &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
+        }
+
+        // Create acceleration model if only schwarzschild term is to be used.
+        if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == false &&
+                relativisticAccelerationSettings->calculateDeSitterCorrection_ == false )
+        {
+            boost::function< double( ) > ppnGammaFunction = boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
+            boost::function< double( ) > ppnBetaFunction = boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
+
+            // Create acceleration model.
+            accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
+                    ( stateFunctionOfBodyUndergoingAcceleration,
+                      stateFunctionOfBodyExertingAcceleration,
+                      centralBodyGravitationalParameterFunction,
+                      ppnGammaFunction, ppnBetaFunction );
+
+        }
+        else
+        {
+
+            // Retrieve parameters of primary body if de Sitter term is to be used.
+            boost::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody;
+            boost::function< double( ) > primaryBodyGravitationalParameterFunction;
+            if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
+            {
+                if(  bodyMap.count( relativisticAccelerationSettings->primaryBody_ ) == 0 )
+                {
+                    throw std::runtime_error( "Error, no primary body " + relativisticAccelerationSettings->primaryBody_ +
+                                              " found when making de Sitter acceleration correction" );
+                }
+                stateFunctionOfPrimaryBody =
+                        boost::bind( &Body::getState, bodyMap.at( relativisticAccelerationSettings->primaryBody_ ) );
+
+                if(  bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) == NULL )
+                {
+                    throw std::runtime_error( "Error, primary body " + relativisticAccelerationSettings->primaryBody_ +
+                                              " has no gravity field when making de Sitter acceleration correction" );
+                }
+
+                primaryBodyGravitationalParameterFunction =
+                        boost::bind( &GravityFieldModel::getGravitationalParameter,
+                                     bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) );
+
+
+            }
+
+            // Retrieve angular momentum vector if Lense-Thirring
+            boost::function< Eigen::Vector3d( ) > angularMomentumFunction;
+            if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true  )
+            {
+                angularMomentumFunction = boost::lambda::constant(
+                            relativisticAccelerationSettings->centralBodyAngularMomentum_ );
+            }
+
+            if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
+            {
+                // Create acceleration model with Lense-Thirring and de Sitter terms.
+                accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
+                        ( stateFunctionOfBodyUndergoingAcceleration,
+                          stateFunctionOfBodyExertingAcceleration,
+                          stateFunctionOfPrimaryBody,
+                          centralBodyGravitationalParameterFunction,
+                          primaryBodyGravitationalParameterFunction,
+                          relativisticAccelerationSettings->primaryBody_,
+                          angularMomentumFunction,
+                          boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                          boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
+                          relativisticAccelerationSettings->calculateSchwarzschildCorrection_ );
+            }
+            else
+            {
+                // Create acceleration model with Lense-Thirring and term.
+                accelerationModel = boost::make_shared< RelativisticAccelerationCorrection >
+                        ( stateFunctionOfBodyUndergoingAcceleration,
+                          stateFunctionOfBodyExertingAcceleration,
+                          centralBodyGravitationalParameterFunction,
+                          angularMomentumFunction,
+                          boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet ),
+                          boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet ),
+                          relativisticAccelerationSettings->calculateSchwarzschildCorrection_ );
+            }
+        }
+    }
+    return accelerationModel;
+}
+
+
+//! Function to create empirical acceleration model.
+boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Declare pointer to return object
+    boost::shared_ptr< EmpiricalAcceleration > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    boost::shared_ptr< EmpiricalAccelerationSettings > empiricalSettings =
+            boost::dynamic_pointer_cast< EmpiricalAccelerationSettings >(
+                accelerationSettings );
+    if( empiricalSettings == NULL )
+    {
+        throw std::runtime_error( "Error, expected empirical acceleration settings when making acceleration model on " +
+                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        // Get pointer to gravity field of central body (for determining keplerian elememts)
+        boost::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
+
+        if( gravityField == NULL )
+        {
+             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
+                       "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
+        }
+        else
+        {
+            // Create acceleration model.
+            accelerationModel = boost::make_shared< EmpiricalAcceleration >(
+                        empiricalSettings->constantAcceleration_,
+                        empiricalSettings->sineAcceleration_,
+                        empiricalSettings->cosineAcceleration_,
+                        boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                        boost::bind( &GravityFieldModel::getGravitationalParameter, gravityField ),
+                        boost::bind( &Body::getState, bodyExertingAcceleration ) );
+        }
+    }
+
+    return accelerationModel;
+}
+
 //! Function to create a thrust acceleration model.
 boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
@@ -921,6 +1099,23 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     accelerationSettings, bodyMap,
                     nameOfBodyUndergoingAcceleration );
         break;
+    case relativistic_correction_acceleration:
+        accelerationModelPointer = createRelativisticCorrectionAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings, bodyMap );
+        break;
+    case empirical_acceleration:
+        accelerationModelPointer = createEmpiricalAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
+
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +

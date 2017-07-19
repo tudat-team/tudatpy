@@ -135,16 +135,16 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
                     createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 1 ),
                                          bodyMap, accelerationModelMap ) );
 
-        boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 boost::make_shared< MassPropagatorSettings< double > >(
                     boost::assign::list_of( "Vehicle" ), massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
@@ -351,16 +351,16 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         double totalSpecificImpulse = totalThrust / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * totalMassRate );
 
-        boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 boost::make_shared< MassPropagatorSettings< double > >(
                     boost::assign::list_of( "Vehicle" ), massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
@@ -1486,11 +1486,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                     boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >(
                         simulationEndEpoch ),
@@ -1725,11 +1725,11 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
                 ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                 boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
-    std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >(
                     simulationEndEpoch ),

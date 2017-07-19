@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodyMap, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
-            boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     boost::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
                             "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodyMap, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
-            boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     boost::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
                             "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
                         bodyMap, accelerationSettingsMap, centralBodies );
 
             // Create environment update settings.
-            boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                     boost::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
                             "Moon", centralBodies[ "Moon" ], bodyMap, initialTime ), finalTime );
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                     bodyMap, accelerationSettingsMap, centralBodies );
 
         // Create environment update settings.
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
                         "Vehicle", centralBodies[ "Vehicle" ], bodyMap, initialTime ), finalTime );
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                     boost::lambda::constant( angleOfSideslip ),
                     boost::lambda::constant( bankAngle ) );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >(
                     centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
                         "Vehicle", centralBodies[ "Vehicle" ], bodyMap, initialTime ), finalTime );

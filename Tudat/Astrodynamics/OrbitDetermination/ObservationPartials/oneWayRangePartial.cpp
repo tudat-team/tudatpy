@@ -20,7 +20,8 @@ namespace observation_partials
 //! Update the scaling object to the current times and states
 void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                  const std::vector< double >& times,
-                                 const observation_models::LinkEndType fixedLinkEnd )
+                                 const observation_models::LinkEndType fixedLinkEnd,
+                                 const Eigen::VectorXd currentObservation )
 {
     // Compute Euclidean distance vector
     Eigen::Vector3d rangeVector = linkEndStates[ 1 ].segment( 0, 3 ) - linkEndStates[ 0 ].segment( 0, 3 );
@@ -50,10 +51,12 @@ void OneWayRangeScaling::update( const std::vector< Eigen::Vector6d >& linkEndSt
 OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePartial(
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const observation_models::LinkEndType linkEndOfFixedTime )
+        const observation_models::LinkEndType linkEndOfFixedTime,
+        const Eigen::Vector1d& currentObservation )
 {
     if( linkEndOfFixedTime != oneWayRangeScaler_->getCurrentLinkEndType( ) )
     {
+        std::cout<<linkEndOfFixedTime<<" "<<oneWayRangeScaler_->getCurrentLinkEndType( )<<std::endl;
         throw std::runtime_error( "Error one-way range partial and scaling are inconsistent" );
     }
 

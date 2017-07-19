@@ -30,7 +30,6 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
         const boost::shared_ptr< PositionPartialScaling > oneWayDopplerScaler,
-        const bool createPositionPartial,
         const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects  )
 {
@@ -41,7 +40,7 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
 
     // Create position partials of link ends for current body position
     std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
-            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodyMap, bodyToEstimate, createPositionPartial );
+            createCartesianStatePartialsWrtBodyState( oneWayDopplerLinkEnds, bodyMap, bodyToEstimate );
 
     // Create one-doppler partials if any position partials are created (i.e. if any dependency exists).
     boost::shared_ptr< OneWayDopplerPartial > oneWayDopplerPartial;
@@ -58,9 +57,36 @@ boost::shared_ptr< OneWayDopplerPartial > createOneWayDopplerPartialWrtBodyState
     return oneWayDopplerPartial;
 }
 
+//! Function to create an object that computes the scaling of the state partials to obtain proper time rate partials
+boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProperTimePartials(
+        const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > dopplerProperTimeInterface,
+        const observation_models::LinkEnds oneWayDopplerLinkEnds,
+        const observation_models::LinkEndType linkEndAtWhichPartialIsComputed )
+{
+    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling >  properTimeRateDopplerPartial = NULL;
+    if( dopplerProperTimeInterface == NULL )
+    {
+        properTimeRateDopplerPartial = NULL;
+    }
+    else if( boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                 dopplerProperTimeInterface ) != NULL )
+    {
+        bool computeStatePartials = ( oneWayDopplerLinkEnds.at( linkEndAtWhichPartialIsComputed ).first !=
+                boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                    dopplerProperTimeInterface )->getCentralBody( ) );
+        properTimeRateDopplerPartial = boost::make_shared< OneWayDopplerDirectFirstOrderProperTimeComponentScaling >(
+                    boost::dynamic_pointer_cast< observation_models::DirectFirstOrderDopplerProperTimeRateInterface >(
+                        dopplerProperTimeInterface ), linkEndAtWhichPartialIsComputed, computeStatePartials );
+    }
+    else
+    {
+        std::cerr<<"Warning, proper time contribution to Doppler observable not incorporated into Doppler partial "<<std::endl;
+        properTimeRateDopplerPartial = NULL;
+    }
+    return properTimeRateDopplerPartial;
 
 }
 
 }
 
-
+}

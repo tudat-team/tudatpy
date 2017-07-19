@@ -102,6 +102,43 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                             initialStateSettings->frameOrientation_ );
             }
             break;
+        case arc_wise_initial_body_state:
+            if( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings<
+                    InitialStateParameterType > >( parameterSettings ) == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when making body initial state parameter, settings type is incompatible" );
+            }
+            else
+            {
+                boost::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings =  boost::dynamic_pointer_cast<
+                        ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings );
+
+                if( initialStateSettings->isStateSet_ )
+                {
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
+                                initialStateSettings->parameterType_.second.first,
+                                initialStateSettings->arcStartTimes_,
+                                initialStateSettings->initialStateValue_,
+                                initialStateSettings->centralBody_,
+                                initialStateSettings->frameOrientation_ );
+                }
+                else
+                {
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
+                                propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
+                                    initialStateSettings->parameterType_.second.first,
+                                    initialStateSettings->centralBody_, bodyMap,
+                                    initialStateSettings->arcStartTimes_ ),
+                                initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
+                }
+            }
+            break;
         default:
             std::string errorMessage = "Error, could not create parameter for initial state of type " +
                     boost::lexical_cast< std::string >( parameterSettings->parameterType_.first );

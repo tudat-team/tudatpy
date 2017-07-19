@@ -93,6 +93,19 @@ S sumFunctionReturn( const boost::function< S( ) > function1, const boost::funct
     return function1( ) + function2( );
 }
 
+//! Function to subtract the return values of two boost function with empty input argument list.
+/*!
+ * Function to subtract the return values of two boost function with empty input argument list.
+ * \param function1 First function to be subtracted from.
+ * \param function2 Second function to be subtracted.
+ * \return Return values of function1 - return value of function2
+ */
+template< typename S >
+S subtractFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+{
+    return function1( ) - function2( );
+}
+
 //! Function to create a vector block history from full matrix history.
 /*!
  *  Function to create a vector matrix block history from full matrix history.
@@ -321,6 +334,24 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
         const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
 
+
+template< typename S, typename T >
+std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )
+{
+    std::vector< S > outputVector;
+
+    for( unsigned int i = 0; i < inputVector.size( ); i++ )
+    {
+        outputVector.push_back( inputVector.at( i ).first );
+    }
+    return outputVector;
+}
+
+template< typename T, typename S >
+T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputFreeFunction, const S dummyInput )
+{
+    return inputFreeFunction( );
+}
 
 
 } // namespace utilities

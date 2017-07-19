@@ -32,7 +32,6 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/throw_exception.hpp>
 
 #include <Eigen/Core>
 
@@ -90,9 +89,7 @@ std::vector< std::string > readLinesFromFile(
 
     else
     {
-        boost::throw_exception( std::runtime_error( boost::str(
-                boost::format( "Data file '%s' could not be opened." )
-                                                        % dataFileAbsolutePath.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + dataFileAbsolutePath );
     }
 
     // Trim all stray whitespaces.

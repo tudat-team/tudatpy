@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
     // Create explicit position partial objects.
     boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverPosition =
-            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, "Earth", true ).begin( )->second;
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, "Earth" ).begin( )->second;
 
     // Create explicit parameter partial objects.
     boost::shared_ptr< CartesianStatePartial > partialObjectWrtReceiverRotationRate =

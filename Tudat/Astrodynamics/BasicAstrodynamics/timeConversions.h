@@ -174,6 +174,7 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
             mathematical_constants::getFloatingInteger< TimeScalarType >( 24 * 60 ) +
             calendarSeconds / mathematical_constants::getFloatingInteger< TimeScalarType >( 24 * 3600 );
 
+
     // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight instead of noon..
     return julianDay + dayFraction - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 );
 }
@@ -417,6 +418,7 @@ TimeType convertTTtoTAI( const TimeType ttTime )
     return ttTime - getTTMinusTai< TimeType >( );
 }
 
+
 //! Perform apprixmate conversion of TT to TDB
 /*!
  * Perform apprixmate conversion of TT to TDB, in which only the once-per-orbit sinusoidal effect of O(e) is taken into
@@ -425,6 +427,7 @@ TimeType convertTTtoTAI( const TimeType ttTime )
  * \return TDB in seconds since J2000
  */
 double approximateConvertTTtoTDB( const double ttSecondsSinceJ2000);
+
 
 
 } // namespace basic_astrodynamics
