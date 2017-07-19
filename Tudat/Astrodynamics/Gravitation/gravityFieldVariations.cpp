@@ -257,26 +257,60 @@ GravityFieldVariationsSet::getVariationFunctions( )
     return variationFunctions;
 }
 
-boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation( const std::string& identifier )
+boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation(
+        const std::vector< std::string >& identifiers )
 {
     boost::shared_ptr< GravityFieldVariations > gravityFieldVariation;
     int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
 
     if( ( numberOfBasicModels ) == 1 )
     {
-            gravityFieldVariation = variationObjects_.at(
-                        ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
-                                                                             basic_solid_body ) ) ) );
+        gravityFieldVariation = variationObjects_.at(
+                    ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
+                                                                         basic_solid_body ) ) ) );
+        boost::shared_ptr< BasicSolidBodyTideGravityFieldVariations > tidalGravityFieldVariation =
+                boost::dynamic_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( gravityFieldVariation );
+        if( tidalGravityFieldVariation == NULL )
+        {
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model identified, but type does not match" );
+        }
+        else if( identifiers.size( ) != 0 )
+        {
+            std::vector< std::string > currentDeformingBodies = tidalGravityFieldVariation->getDeformingBodies( );
+
+            bool doBodiesMatch = true;
+            if( currentDeformingBodies.size( ) != identifiers.size( ) )
+            {
+                doBodiesMatch = false;
+            }
+            else
+            {
+                for( unsigned int i = 0; i < identifiers.size( ); i++ )
+                {
+                    if( std::count( currentDeformingBodies.begin( ), currentDeformingBodies.end( ), identifiers.at( i ) ) != 1  )
+                    {
+                        doBodiesMatch = false;
+
+                    }
+                }
+            }
+
+            if( !doBodiesMatch )
+            {
+                throw std::runtime_error(
+                            "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
+            }
+        }
     }
     else if( numberOfBasicModels == 0 )
     {
-        std::cerr<<"Error when getting direct tidal gravity field variation, no such model found"<<std::endl;
+        throw std::runtime_error( "Error when getting direct tidal gravity field variation, no such model found" );
     }
     else
     {
-        if( identifier == "" )
+        if( identifiers.size( ) == 0 )
         {
-            std::cerr<<"Error when getting direct tidal gravity field variation, found multiple models, but not id is provided"<<std::endl;
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, found multiple models, but not id is provided" );
         }
         bool isVariationFound = 0;
 
@@ -284,20 +318,43 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
         {
             if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( variationObjects_.at( i ) ) != NULL )
             {
-                if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >( variationObjects_.at( i ) )
-                        ->getConcatenatedDeformingBodies( ) == identifier )
+                std::vector< std::string > currentDeformingBodies =
+                        boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                            variationObjects_.at( i ) )->getDeformingBodies( );
+
+                bool doBodiesMatch = true;
+                if( currentDeformingBodies.size( ) != identifiers.size( ) )
+                {
+                    doBodiesMatch = false;
+                }
+                else
+                {
+                    for( unsigned int i = 0; i < identifiers.size( ); i++ )
+                    {
+                        if( std::count( currentDeformingBodies.begin( ), currentDeformingBodies.end( ), identifiers.at( i ) ) != 1  )
+                        {
+                            doBodiesMatch = false;
+                        }
+                    }
+                }
+
+                if( !doBodiesMatch )
+                {
+                    throw std::runtime_error(
+                                "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
+                }
+
+                if( doBodiesMatch )
                 {
                     gravityFieldVariation = variationObjects_.at( i );
                     isVariationFound = 1;
-                    break;
                 }
             }
         }
 
         if( isVariationFound == 0 )
         {
-            std::cerr<<"Error when getting direct tidal gravity field variation, found multiple models of correct type, but none coincide with "
-                     <<"id: "<<identifier<<"."<<std::endl;
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, found multiple models of correct type, but none coincide with ids in list" );
         }
     }
 

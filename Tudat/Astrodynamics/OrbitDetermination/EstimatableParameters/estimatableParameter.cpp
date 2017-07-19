@@ -57,6 +57,21 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case ground_station_position:
         parameterDescription = "ground station position ";
         break;
+    case equivalence_principle_lpi_violation_parameter:
+        parameterDescription = " equivalence principle violation parameter ";
+        break;
+    case empirical_acceleration_coefficients:
+        parameterDescription = " empirical acceleration coefficients ";
+        break;
+    case arc_wise_empirical_acceleration_coefficients:
+        parameterDescription = " arc-wise empirical acceleration coefficients ";
+        break;
+    case full_degree_tidal_love_number:
+        parameterDescription = " tidal Love number at full degree ";
+        break;
+    case single_degree_variable_tidal_love_number:
+        parameterDescription = " tidal Love number at separate orders of single degree ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 boost::lexical_cast< std::string >( parameterType );
