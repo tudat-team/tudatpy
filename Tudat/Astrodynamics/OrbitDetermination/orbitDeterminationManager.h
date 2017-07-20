@@ -458,7 +458,8 @@ public:
             const bool reintegrateEquationsOnFirstIteration = 1,
             const bool reintegrateVariationalEquations = 1,
             const bool saveInformationmatrix = 1,
-            const bool printOutput = 1 )
+            const bool printOutput = 1,
+            const bool saveResidualsFromFirstIteration = 0  )
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -476,6 +477,8 @@ public:
         Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Zero( totalNumberOfObservations, parameterVectorSize );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Zero( totalNumberOfObservations );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Zero( parameterVectorSize, parameterVectorSize );
+
+        Eigen::VectorXd firstIterationResiduals = Eigen::VectorXd::Zero( 0 );
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -535,9 +538,14 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
+            if( numberOfIterations == 0 && saveResidualsFromFirstIteration )
+            {
+                firstIterationResiduals = residualsAndPartials.first;
+            }
 
-            input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
-            input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
+
+            //input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
+            //input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;
@@ -588,7 +596,7 @@ public:
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual );
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, firstIterationResiduals );
     }
 
     //! Function to reset the current parameter estimate.

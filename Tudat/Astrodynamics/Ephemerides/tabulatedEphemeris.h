@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 
 namespace tudat
@@ -134,6 +135,41 @@ public:
         return interpolator_;
     }
 
+    std::pair< double, double > getSafeInterpolationInterval( )
+    {
+        std::pair< double, double > safeInterpolationInterval;
+        if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                    interpolator_ ) == NULL &&
+                boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                    interpolator_ ) == NULL )
+        {
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 );
+        }
+        else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                     interpolator_ ) != NULL )
+        {
+            int numberOfNodes =
+                    boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                        interpolator_ )->getNumberOfStages( );
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+         }
+        else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                     interpolator_ ) != NULL )
+        {
+            int numberOfNodes =
+                    boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                        interpolator_ )->getNumberOfStages( );
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+         }
+        return safeInterpolationInterval;
+    }
+
 
 private:
 
@@ -153,6 +189,8 @@ private:
  *  \return True if ephemeris is a tabulated ephemeris
  */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
+
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shared_ptr< Ephemeris > ephemeris );
 
 //! Function to create an empty (dummy) tabulated ephemeris
 /*!

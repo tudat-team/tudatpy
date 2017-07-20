@@ -165,6 +165,34 @@ bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris )
     return objectIsTabulated;
 }
 
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shared_ptr< Ephemeris > ephemeris )
+{
+    std::pair< double, double > safeInterval = std::make_pair( TUDAT_NAN, TUDAT_NAN );
+    if( !isTabulatedEphemeris( ephemeris ) )
+    {
+        throw std::runtime_error( "Error wgen getting tabulated ephemeris safe interval, input is not a tabulated ephemeris" );
+    }
+    else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != NULL )
+    {
+        safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+                    ephemeris )->getSafeInterpolationInterval( );
+    }
+    else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != NULL )
+    {
+        safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+                    ephemeris )->getSafeInterpolationInterval( );
+    }
+    else if ( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != NULL )
+    {
+        safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                    ephemeris )->getSafeInterpolationInterval( );
+    }
+    else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != NULL )
+     {
+        safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
+                    ephemeris )->getSafeInterpolationInterval( );
+    }
+}
 
 
 } // namespace ephemerides

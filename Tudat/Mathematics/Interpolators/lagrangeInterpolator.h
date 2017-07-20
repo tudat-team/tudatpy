@@ -313,6 +313,11 @@ public:
         return interpolatedValue;
     }
 
+    int getNumberOfStages( )
+    {
+        return numberOfStages_;
+    }
+
 
 protected:
 

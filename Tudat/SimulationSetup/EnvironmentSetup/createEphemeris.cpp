@@ -46,7 +46,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         std::map< double, boost::shared_ptr< Ephemeris > > singleArcEphemerides;
         ephemerisSettings->resetMakeMultiArcEphemeris( false );
 
-        singleArcEphemerides[ -std::numeric_limits< double >::min( ) ] = createBodyEphemeris(
+        singleArcEphemerides[ -std::numeric_limits< double >::lowest( ) ] = createBodyEphemeris(
                     ephemerisSettings, bodyName );
 
         ephemeris = boost::make_shared< MultiArcEphemeris >(
@@ -284,6 +284,27 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     return ephemeris;
 
 }
+
+std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
+{
+    std::pair< double, double > safeInterval = std::make_pair(
+                std::numeric_limits< double >::lowest( ),  std::numeric_limits< double >::max( ) );
+    if( isTabulatedEphemeris( ephemerisModel ) )
+    {
+        safeInterval = getTabulatedEphemerisSafeInterval( ephemerisModel );
+    }
+    else if( boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != NULL )
+    {
+        boost::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel  =
+                boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel );
+        safeInterval.first = getSafeInterpolationInterval( multiArcEphemerisModel->getSingleArcEphemerides( ).at( 0 ) ).first;
+        safeInterval.second = getSafeInterpolationInterval(
+                    multiArcEphemerisModel->getSingleArcEphemerides( ).at(
+                        multiArcEphemerisModel->getSingleArcEphemerides( ).size( ) - 1 ) ).second;
+    }
+    return safeInterval;
+}
+
 
 } // namespace simulation_setup
 
