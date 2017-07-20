@@ -62,8 +62,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
                      << "Specified time-of-flight: " << timeOfFlight << " days." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     // Compute normalizing values.

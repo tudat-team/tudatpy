@@ -234,9 +234,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
         for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
         {
-            // std::cout<<gaussIterator->first<<" "<<( gaussIterator->second - cowellIterator->second ).transpose( )<<std::endl;
-            //        std::cout<<gaussIterator->first<<" "<<currentKeplerianStateDifference.transpose( )<<std::endl;
-            //        std::cout<<cowellIterator->first<<" "<<( cowellIterator->second ).transpose( )<<std::endl<<std::endl;
 
             for( int j= 0; j< 3; j++ )
             {
