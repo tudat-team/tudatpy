@@ -262,13 +262,17 @@ struct PodOutput
                const Eigen::VectorXd& weightsMatrixDiagonal,
                const Eigen::VectorXd& informationMatrixTransformationDiagonal,
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
-               const double residualStandardDeviation ):
+               const double residualStandardDeviation,
+               const Eigen::VectorXd& firstIterationResiduals =
+            Eigen::VectorXd::Zero( 0 ) ):
 
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
-        residualStandardDeviation_( residualStandardDeviation ){ }
+        residualStandardDeviation_( residualStandardDeviation ),
+        firstIterationResiduals_( firstIterationResiduals )
+    { }
 
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
@@ -307,6 +311,8 @@ struct PodOutput
 
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
+
+    Eigen::VectorXd firstIterationResiduals_;
 };
 
 }

@@ -676,6 +676,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
+std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 } // namespace simulation_setup
 
