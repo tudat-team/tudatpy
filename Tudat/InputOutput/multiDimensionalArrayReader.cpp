@@ -132,9 +132,7 @@ void readCoefficientsFile(
     // Check if file opened correctly.
     if ( stream.fail( ) )
     {
-        boost::throw_exception( std::runtime_error( boost::str(
-                                                        boost::format( "Data file '%s' could not be opened." ) %
-                                                        fileName.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + fileName );
     }
 
     // Initialize boolean that gets set to true once the file header is passed.
@@ -262,10 +260,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
     // Check if file opened correctly.
     if ( stream.fail( ) )
     {
-        boost::throw_exception(
-                    std::runtime_error( boost::str(
-                                            boost::format( "Data file '%s' could not be opened." ) %
-                                            fileName.c_str( ) ) ) );
+       throw std::runtime_error( "Data file could not be opened: " + fileName );
     }
 
     std::string line;

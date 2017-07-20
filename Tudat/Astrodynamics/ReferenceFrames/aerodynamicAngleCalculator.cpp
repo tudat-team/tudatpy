@@ -196,7 +196,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
     if( !calculateVerticalToAerodynamicFrame_ &&
             ( originalFrame > vertical_frame || targetFrame > vertical_frame ) )
     {
-        throw( "Error in AerodynamicAngleCalculator, instance ends at vertical frame" );
+        throw std::runtime_error( "Error in AerodynamicAngleCalculator, instance ends at vertical frame" );
     }
 
     // Set current frame pair.
@@ -394,7 +394,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cout << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
+            std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }
