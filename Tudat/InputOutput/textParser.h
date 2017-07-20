@@ -101,7 +101,8 @@ protected:
      */
     virtual void parseLine( std::string& line )
     {
-        throw std::runtime_error( "Function parseLine must be overriden to be used" );
+        boost::throw_exception( boost::enable_error_info( std::runtime_error
+                                                         ( "Must be overriden to be used" ) ) );
     }
 
     //! Parse the given stream content and append the resulting data lines to parsedData.
@@ -114,8 +115,8 @@ protected:
      */
     virtual void parseStream( std::istream& stream )
     {
-        throw std::runtime_error( "Function parseStream must be overriden to be used" );
-
+        boost::throw_exception( boost::enable_error_info( std::runtime_error
+                                                         ( "Must be overriden to be used" ) ) );
     }
 
 private:

@@ -49,8 +49,8 @@ KeplerEphemeris::KeplerEphemeris(
     }
     else
     {
-        throw std::runtime_error(
-            "Error, Kepler ephemeris cannot handle parabolic orbit" );
+        boost::throw_exception( std::runtime_error( boost::str( boost::format(
+            "Error, Kepler ephemeris cannot handle parabolic orbit" ) ) ) );
     }
 
     // Convert initial true anomaly to mean anomaly.

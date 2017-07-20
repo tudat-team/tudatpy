@@ -133,9 +133,11 @@ DataType extractParameterValue( const DataLineIterator& firstDataLine,
         // in the input stream.
         if ( ( *dictionaryEntry )->isRequired )
         {
-           throw std::runtime_error(
-                                "Required parameter " + ( *dictionaryEntry )->parameterName
-                                + " not found in input stream! "  );
+            boost::throw_exception(
+                        boost::enable_error_info(
+                            std::runtime_error(
+                                "Required parameter \"" + ( *dictionaryEntry )->parameterName
+                                + "\" not found in input stream! " ) ) );
         }
 
         // Else, return the default value specified.

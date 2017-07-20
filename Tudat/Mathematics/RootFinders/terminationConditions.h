@@ -52,7 +52,7 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
         std::string errorMessage
                 = "Root-finder did not converge within maximum number of iterations!";
 
-        throw std::runtime_error( errorMessage );
+        boost::throw_exception( boost::enable_error_info( std::runtime_error( errorMessage  ) ) );
     }
 
     // Else, simply return whether maximum number of iterations have been exceeded.

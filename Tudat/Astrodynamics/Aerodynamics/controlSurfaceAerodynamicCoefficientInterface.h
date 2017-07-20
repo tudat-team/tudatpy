@@ -67,7 +67,7 @@ public:
         {
             std::string errorMessage = "Warnining when making control surface deflection interface, " + boost::lexical_cast< std::string >(
                         numberOfControlSurfaceDeflections ) + " deflection independent variables found, must be 1 per object ";
-            throw std::runtime_error( errorMessage );
+            std::cerr<<errorMessage<<std::endl;
         }
 
         numberOfIndependentVariables_ = independentVariableNames_.size( );

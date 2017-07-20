@@ -157,8 +157,10 @@ public:
         // (requirement).
         if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
         {
-            throw std::runtime_error(
-                        "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign." );
+            boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                                                                  boost::str( boost::format(
+                                                                                  "The Bisection algorithm requires that the values at the upper "
+                                                                                  "and lower bounds have a different sign." ) ) ) ) );
         }
 
         // Loop counter.
@@ -170,8 +172,10 @@ public:
             // Sanity check.
             if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
             {
-                throw std::runtime_error(
-                            "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign, error during iteration." );
+                boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                                                                      boost::str( boost::format(
+                                                                                      "The Bisection algorithm requires that the values at the upper "
+                                                                                      "and lower bounds have a different sign, error during iteration." ) ) ) ) );
             }
             // Save old values.
             previousRootValue = rootValue;

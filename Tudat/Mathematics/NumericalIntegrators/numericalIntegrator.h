@@ -34,7 +34,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType >
+           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
 public:

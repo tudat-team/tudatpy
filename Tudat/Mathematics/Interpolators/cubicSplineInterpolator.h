@@ -136,8 +136,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
         {
-            throw std::runtime_error(
-               "The vectors used in the cubic spline interpolator initialization are empty." );
+            boost::throw_exception( boost::enable_error_info( std::runtime_error(
+               "The vectors used in the cubic spline interpolator initialization are empty." ) ) );
         }
 
         // Set dependent and independent variable values.
@@ -181,8 +181,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
         {
-            throw std::runtime_error(
-               "The map used in the cubic spline interpolator initialization are empty." );
+            boost::throw_exception( boost::enable_error_info( std::runtime_error(
+               "The vectors used in the cubic spline interpolator initialization are empty." ) ) );
         }
 
         // Set data vector member variables from map.

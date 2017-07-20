@@ -284,6 +284,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                 bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
+        std::cout<<"Propagated"<<std::endl;
+
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
         {

@@ -40,15 +40,21 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
     // Check consistency of input.
     if ( correctForLightTimeAbberation == 0 && convergeLighTimeAbberation == 1 )
     {
-        throw std::runtime_error(
-                    "Error, requested multiple iterations for light time correction, but not light time correction itself." );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error(
+                            "Warning, requested multiple iterations for light time correction, "
+                            "but not light time correction itself." ) ) );
     }
 
     if ( correctForLightTimeAbberation == 0 && correctForStellarAbberation ==  1 )
     {
 
-        throw std::runtime_error(
-                    "Error, requested stellar aberration, but not light-time correction, this is not supprted by spice." );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error
+                        ( "Warning, requested stellar aberration, but not light-time correction, "
+                          "this is not supprted by spice." ) ) );
     }
 
     // Set aberration corrections variable.

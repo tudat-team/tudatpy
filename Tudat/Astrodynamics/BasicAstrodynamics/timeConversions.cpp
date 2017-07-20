@@ -169,8 +169,7 @@ int getDaysInMonth( const int month,
     // Check input consistency
     if( month < 1 || month > 12 )
     {
-        throw std::runtime_error( "Error, month number " + boost::lexical_cast< std::string >( month ) +
-                                  " does not exist, value must be gretaer than 0 and smaller than 13" );
+        std::cerr<<"Month number "<<month<<" does not exist, value must be gretaer than 0 and smaller than 13"<<std::endl;
     }
     else
     {
@@ -230,8 +229,7 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
             currentMonth++;
             if( currentMonth > 12 )
             {
-                throw std::runtime_error(
-                            "Error when converting year and days in year to date, month number has exceeded 12" );
+                std::cerr<<"Error when converting year and days in year to date, month number has exceeded 12"<<std::endl;
             }
         }
         else
@@ -245,8 +243,7 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
 
     if( date.day_of_year( ) != daysInYear + 1 )
     {
-        throw std::runtime_error(
-                    "Error when converting year and days in year to date, inconsistent output" );
+        std::cerr<<"Error when converting year and days in year to date, inconsistent output"<<std::endl;
     }
 
     return date;
