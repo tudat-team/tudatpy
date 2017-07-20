@@ -26,7 +26,8 @@ namespace json_interface
 {
 
 
-//! -DOC
+//! Equivalent SI value of units supported by json_interface.
+//! IMPORTANT: keys are all defined in lowercase here, but user can also use uppercase in input files.
 static std::map< std::string, double > SIUnits =
 {
     // Time [ s ]
@@ -71,7 +72,32 @@ template< typename T >
 T convertToSecondsSinceJ2000( const std::string& date )
 {
     using namespace boost::posix_time;
-    time_duration duration = time_from_string( date ) - time_from_string( "2000-01-01 12:00:00" );
+    ptime pt;
+    try
+    {
+        pt = time_from_string( date );
+    }
+    catch ( ... )
+    {
+        try
+        {
+            pt = from_iso_string( date );
+        }
+        catch ( ... )
+        {
+            try
+            {
+                pt = from_iso_extended_string( date );
+            }
+            catch ( ... )
+            {
+                std::cerr << "Unrecognized date format. Supported formats: \"1992-02-14 07:40:00\", \"19920214T0730\"."
+                          << std::endl;
+                throw;
+            }
+        }
+    }
+    time_duration duration = pt - time_from_string( "2000-01-01 12:00:00" );
     return duration.total_seconds( );
 }
 
@@ -79,26 +105,29 @@ T convertToSecondsSinceJ2000( const std::string& date )
 template< typename T >
 T convertToSIUnits( T number, const std::string& units )
 {
-    return number * static_cast< T >( SIUnits.at( units ) );
+    std::string lowercaseUnits = boost::algorithm::to_lower_copy( units );
+    if ( SIUnits.count( lowercaseUnits ) == 0 )
+    {
+        std::cerr << "Unrecognized units \"" << units << "\"." << std::endl;
+        std::cerr << "Supported units:";
+        for ( auto entry : SIUnits )
+        {
+            std::cerr << " " << entry.first;
+        }
+        std::cerr << "." << std::endl;
+        throw;
+    }
+    return number * static_cast< T >( SIUnits.at( lowercaseUnits ) );
 }
 
 //! -DOC
 template< typename T >
-T parseString( const std::string& text )
+T parseMagnitudeWithUnits( const std::string& text )
 {
-    // If `text` is a formatted date, then transform it to seconds since J2000
-    try
-    {
-        return convertToSecondsSinceJ2000< T >( text );
-    }
-    // Assume `text` has the structure "value unit", then convert it to SI units
-    catch ( ... )
-    {
-        std::vector< std::string > parts = split( text, ' ' );
-        T number = boost::lexical_cast< T >( parts.at( 0 ) );
-        std::string originalUnits = parts.at( 1 );
-        return convertToSIUnits< T >( number, originalUnits );
-    }
+    std::vector< std::string > parts = split( text, ' ' );
+    T number = boost::lexical_cast< T >( parts.at( 0 ) );
+    std::string originalUnits = parts.at( 1 );
+    return convertToSIUnits< T >( number, originalUnits );
 }
 
 

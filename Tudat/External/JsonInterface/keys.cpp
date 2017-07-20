@@ -9,7 +9,7 @@
  *
  */
 
-#include "jsonInterface.h"
+#include "keys.h"
 
 namespace tudat
 {
@@ -21,7 +21,6 @@ namespace json_interface
 
 /// Simulation
 const std::string Keys::simulation = "simulation";
-
 const std::string Keys::Simulation::startEpoch = "startEpoch";
 const std::string Keys::Simulation::endEpoch = "endEpoch";
 const std::string Keys::Simulation::globalFrameOrigin = "globalFrameOrigin";
@@ -33,9 +32,12 @@ const std::string Keys::Simulation::preloadSpiceData = "preloadSpiceData";
 /// Body
 const std::string Keys::bodies = "bodies";
 
+const std::string Keys::Body::useDefaultSettings = "useDefaultSettings";
+const std::string Keys::Body::mass = "mass";
+const std::string Keys::Body::referenceArea = "referenceArea";
+
 ////// Body::Aerodynamics
 const std::string Keys::Body::aerodynamics = "aerodynamics";
-
 const std::string Keys::Body::Aerodynamics::type = "type";
 const std::string Keys::Body::Aerodynamics::referenceArea = "referenceArea";
 const std::string Keys::Body::Aerodynamics::dragCoefficient = "dragCoefficient";
@@ -46,7 +48,6 @@ const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirecti
 
 ////// Body::Atmosphere
 const std::string Keys::Body::atmosphere = "atmosphere";
-
 const std::string Keys::Body::Atmosphere::type = "type";
 const std::string Keys::Body::Atmosphere::densityScaleHeight = "densityScaleHeight";
 const std::string Keys::Body::Atmosphere::constantTemperature = "constantTemperature";
@@ -55,9 +56,33 @@ const std::string Keys::Body::Atmosphere::specificGasConstant = "specificGasCons
 const std::string Keys::Body::Atmosphere::atmosphereFile = "atmosphereFile";
 const std::string Keys::Body::Atmosphere::spaceWeatherFile = "spaceWeatherFile";
 
+////// Body::Ephemeris
+const std::string Keys::Body::ephemeris = "ephemeris";
+const std::string Keys::Body::Ephemeris::type = "type";
+const std::string Keys::Body::Ephemeris::frameOrigin = "frameOrigin";
+const std::string Keys::Body::Ephemeris::frameOrientation = "frameOrientation";
+const std::string Keys::Body::Ephemeris::makeMultiArc = "makeMultiArc";
+const std::string Keys::Body::Ephemeris::correctForStellarAbberation = "correctForStellarAbberation";
+const std::string Keys::Body::Ephemeris::correctForLightTimeAbberation = "correctForLightTimeAbberation";
+const std::string Keys::Body::Ephemeris::convergeLighTimeAbberation = "convergeLighTimeAbberation";
+const std::string Keys::Body::Ephemeris::initialTime = "initialTime";
+const std::string Keys::Body::Ephemeris::finalTime = "finalTime";
+const std::string Keys::Body::Ephemeris::timeStep = "timeStep";
+const std::string Keys::Body::Ephemeris::interpolator = "interpolator";
+const std::string Keys::Body::Ephemeris::useLongDoubleStates = "useLongDoubleStates";
+const std::string Keys::Body::Ephemeris::bodyIdentifier = "bodyIdentifier";
+const std::string Keys::Body::Ephemeris::useCircularCoplanarApproximation = "useCircularCoplanarApproximation";
+const std::string Keys::Body::Ephemeris::constantState = "constantState";
+// const std::string Keys::Body::Ephemeris::customStateFunction = "customStateFunction";
+const std::string Keys::Body::Ephemeris::initialStateInKeplerianElements = "initialStateInKeplerianElements";
+const std::string Keys::Body::Ephemeris::epochOfInitialState = "epochOfInitialState";
+const std::string Keys::Body::Ephemeris::centralBodyGravitationalParameter = "centralBodyGravitationalParameter";
+const std::string Keys::Body::Ephemeris::rootFinderAbsoluteTolerance = "rootFinderAbsoluteTolerance";
+const std::string Keys::Body::Ephemeris::rootFinderMaximumNumberOfIterations = "rootFinderMaximumNumberOfIterations";
+const std::string Keys::Body::Ephemeris::bodyStateHistory = "bodyStateHistory";
+
 ////// Body::RadiationPressure
 const std::string Keys::Body::radiationPressure = "radiationPressure";
-
 const std::string Keys::Body::RadiationPressure::type = "type";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
 const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
@@ -66,7 +91,6 @@ const std::string Keys::Body::RadiationPressure::ocultingBodies = "ocultingBodie
 
 /// Propagator
 const std::string Keys::propagators = "propagators";
-
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
 const std::string Keys::Propagator::type = "type";
 const std::string Keys::Propagator::centralBodies = "centralBodies";
@@ -85,7 +109,6 @@ const std::string Keys::Propagator::accelerations = "accelerations";
 
 /// Integrator
 const std::string Keys::integrator = "integrator";
-
 const std::string Keys::Integrator::type = "type";
 const std::string Keys::Integrator::initialTime = "initialTime";
 const std::string Keys::Integrator::initialTimeStep = "initialTimeStep";

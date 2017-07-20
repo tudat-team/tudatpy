@@ -48,16 +48,12 @@ void to_json( json& jsonObject,
                 radiationPressureInterfaceSettings );
     if ( cannonBallRadiationPressureInterfaceSettings )
     {
-        // Reference area
         jsonObject[ Keys::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
-
-        // Radiation pressure coefficient
         jsonObject[ Keys::radiationPressureCoefficient ] =
                 cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
-
-        // Occulting bodies
         jsonObject[ Keys::ocultingBodies ] =
                 cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
+        return;
     }
 }
 
@@ -69,40 +65,41 @@ namespace json_interface
 
 //! Create a shared pointer to a `RadiationPressureInterfaceSettings` object from a `json` object.
 boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > createRadiationPressureInterfaceSettings(
-        const json &settings, const std::string& sourceBodyName, const double& fallbackArea )
+        const json& settings, const std::string& sourceBodyName, const KeyTree& keyTree, const double& fallbackArea )
 {
     using namespace simulation_setup;
     using Keys = Keys::Body::RadiationPressure;
 
     // Get radiation pressure coefficient type (cannonBall by default)
-    const RadiationPressureType radiationPressureType = getValue( settings, Keys::type, cannon_ball );
+    const RadiationPressureType radiationPressureType =
+            getValue( settings, keyTree + sourceBodyName + Keys::type, cannon_ball );
 
-    if ( radiationPressureType == cannon_ball )
+    switch ( radiationPressureType )
     {
-        // Get reference area (use fallback value if not NaN when referenceArea is not provided)
-        const double referenceArea = isnan( fallbackArea ) ? getValue< double >( settings, Keys::referenceArea )
-                                                           : getValue( settings, Keys::referenceArea, fallbackArea );
+    case cannon_ball:
+    {
+        // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
+        const double referenceArea =
+                getNumeric( settings, keyTree + sourceBodyName + Keys::referenceArea, fallbackArea );
 
         // Get radiation pressure coefficient
-        const double radiationPressureCoefficient = getValue< double >( settings, Keys::radiationPressureCoefficient );
+        const double radiationPressureCoefficient =
+                getValue< double >( settings, keyTree + sourceBodyName + Keys::radiationPressureCoefficient );
 
         // Create settings
         CannonBallRadiationPressureInterfaceSettings cannonBallRadiationPressureInterfaceSettings(
                     sourceBodyName, referenceArea, radiationPressureCoefficient );
 
-        // Get list of occulting bodies
-        const auto occultingBodies = getValuePointer< std::vector< std::string > >( settings, Keys::ocultingBodies );
-        if ( occultingBodies )
-        {
-            cannonBallRadiationPressureInterfaceSettings.occultingBodies_ = *occultingBodies;
-        }
+        // Get list of occulting bodies (use default if not provided)
+        cannonBallRadiationPressureInterfaceSettings.occultingBodies_ =
+                getValue( settings, keyTree + sourceBodyName + Keys::ocultingBodies,
+                          cannonBallRadiationPressureInterfaceSettings.occultingBodies_ );
 
         // Return shared pointer
         return boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     cannonBallRadiationPressureInterfaceSettings );
     }
-    else
-    {
+    default:
         throw std::runtime_error( stringFromEnum( radiationPressureType, radiationPressureTypes )
                                   + " not supported by json_interface." );
     }

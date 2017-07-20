@@ -12,6 +12,7 @@
 #include "body.h"
 
 #include "atmosphere.h"
+#include "ephemeris.h"
 #include "aerodynamics.h"
 #include "radiationPressure.h"
 
@@ -25,6 +26,7 @@ namespace simulation_setup
 void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings )
 {
     using namespace json_interface;
+    using Keys = Keys::Body;
 
     // Initialise
     jsonObject = json( );
@@ -32,26 +34,32 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     // Atmosphere
     if ( bodySettings->atmosphereSettings )
     {
-        jsonObject[ "atmosphere" ] = bodySettings->atmosphereSettings;
+        jsonObject[ Keys::atmosphere ] = bodySettings->atmosphereSettings;
+    }
+
+    // Ephemeris
+    if ( bodySettings->ephemerisSettings )
+    {
+        jsonObject[ Keys::ephemeris ] = bodySettings->ephemerisSettings;
     }
 
     // Aerodynamics
     if ( bodySettings->aerodynamicCoefficientSettings )
     {
-        jsonObject[ "aerodynamics" ] = bodySettings->aerodynamicCoefficientSettings;
+        jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
     }
 
     // Radiation pressure
     if ( ! bodySettings->radiationPressureSettings.empty( ) )
     {
-        jsonObject[ "radiationPressure" ] = bodySettings->radiationPressureSettings;
+        jsonObject[ Keys::radiationPressure ] = bodySettings->radiationPressureSettings;
     }
 
     // Constant mass
     const double constantMass = bodySettings->constantMass;
-    if ( constantMass == constantMass )
+    if ( ! isnan( constantMass ) )
     {
-        jsonObject[ "mass" ] = constantMass;
+        jsonObject[ Keys::mass ] = constantMass;
     }
 }
 
@@ -61,57 +69,61 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
 namespace json_interface
 {
 
-//! Update a `BodySettings` object with the settings from a `json` object.
-void updateBodySettings( std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
-                         const std::string& bodyName, const json &settings )
+//! Create a `BodySettings` object with the settings from a `json` object.
+boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& settings, const KeyTree& keyTree )
 {
     using namespace simulation_setup;
+    boost::shared_ptr< BodySettings > bodySettings = boost::make_shared< BodySettings >( );
+    updateBodySettings( bodySettings, settings, keyTree );
+    return bodySettings;
+}
 
-    // Create empty body settings if necessary
-    if ( bodySettingsMap.count( bodyName ) == 0 )
-    {
-        bodySettingsMap[ bodyName ] = boost::make_shared< simulation_setup::BodySettings >( );
-    }
-
-    // Get reference to the body settings object to be updated
-    boost::shared_ptr< simulation_setup::BodySettings > bodySettings = bodySettingsMap[ bodyName ];
+//! Update a `BodySettings` object with the settings from a `json` object.
+void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings,
+                         const json& settings, const KeyTree& keyTree )
+{
+    using namespace simulation_setup;
+    using Keys = Keys::Body;
 
     // Fallback reference area
-    const double fallbackArea = getNumber< double >( settings, "referenceArea", TUDAT_NAN );
+    const double fallbackArea = getNumeric< double >( settings, keyTree + Keys::referenceArea, TUDAT_NAN, true );
 
     /// Atmosphere
-    boost::shared_ptr< json > jsonAtmosphereSettings = getValuePointer< json >( settings, "atmosphere" );
-    if ( jsonAtmosphereSettings )
+    if ( getValuePointer< json >( settings, keyTree + Keys::atmosphere ) )
     {
-        bodySettings->atmosphereSettings = createAtmosphereSettings( *jsonAtmosphereSettings );
+        bodySettings->atmosphereSettings = createAtmosphereSettings( settings, keyTree + Keys::atmosphere );
+    }
+
+    /// Ephemeris
+    if ( getValuePointer< json >( settings, keyTree + Keys::ephemeris ) )
+    {
+        bodySettings->ephemerisSettings = createEphemerisSettings( settings, keyTree + Keys::ephemeris );
     }
 
     /// Aerodynamics
-    boost::shared_ptr< json > jsonAerodynamicCoefficientSettings = getValuePointer< json >( settings, "aerodynamics" );
-    if ( jsonAerodynamicCoefficientSettings )
+    if ( getValuePointer< json >( settings, keyTree + Keys::aerodynamics ) )
     {
         bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
-                    *jsonAerodynamicCoefficientSettings, fallbackArea );
+                    settings, keyTree + Keys::aerodynamics, fallbackArea );
     }
 
     /// Radiation pressure
     boost::shared_ptr< std::map< std::string, json > > jsonRadiationPressureInterfaces =
-            getValuePointer< std::map< std::string, json > >( settings, "radiationPressure" );
-    std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+            getValuePointer< std::map< std::string, json > >( settings, keyTree + Keys::radiationPressure );
     if ( jsonRadiationPressureInterfaces )
     {
+        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
         for ( auto entry : *jsonRadiationPressureInterfaces )
         {
-            std::string radiatingBody = entry.first;
-            json jsonRadiationPressureInterfaceSettings = entry.second;
+            const std::string radiatingBody = entry.first;
             radiationPressureSettings[ radiatingBody ] = createRadiationPressureInterfaceSettings(
-                        jsonRadiationPressureInterfaceSettings, radiatingBody, fallbackArea );
+                        settings, radiatingBody, keyTree + Keys::radiationPressure, fallbackArea );
         }
         bodySettings->radiationPressureSettings = radiationPressureSettings;
     }
 
     /// Constant mass
-    const boost::shared_ptr< double > mass = getNumberPointer< double >( settings, "mass" );
+    const boost::shared_ptr< double > mass = getNumericPointer< double >( settings, keyTree + Keys::mass );
     if ( mass )
     {
         bodySettings->constantMass = *mass ;

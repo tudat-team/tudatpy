@@ -99,7 +99,7 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
-    double getMakeMultiArcEphemeris( )
+    bool getMakeMultiArcEphemeris( )
     {
         return makeMultiArcEphemeris_;
     }
