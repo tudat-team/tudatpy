@@ -69,7 +69,7 @@ double ZeroRevolutionLambertTargeterIzzo::getTransverseVelocityAtDeparture( )
 
     // Compute tangential unit vector.
     Eigen::Vector3d tangentialUnitVectorAtDeparture =
-            angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
+                angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
 
     // Compute tangential velocity at departure.
     return cartesianVelocityAtDeparture.dot( tangentialUnitVectorAtDeparture );
@@ -158,9 +158,12 @@ void ZeroRevolutionLambertTargeterIzzo::sanityCheckTimeOfFlight( )
     if ( timeOfFlight < 0 )
     {
         // Throw exception.
-        throw std::runtime_error(
-                    "Time-of-flight specified in Lambert problem must be strictly positive. Specified time-of-flight in days." +
-                                         boost::lexical_cast< std::string >( timeOfFlight ) );
+        BOOST_THROW_EXCEPTION( std::runtime_error( 
+            ( boost::format(
+                "Time-of-flight specified in Lambert problem must be strictly positive.\n"
+                "Specified time-of-flight: %f days."
+            ) % timeOfFlight ).str( )
+        ) );
     }
     // Else, do nothing and continue.
 }
@@ -172,9 +175,12 @@ void ZeroRevolutionLambertTargeterIzzo::sanityCheckGravitationalParameter( )
     if ( gravitationalParameter < 0 )
     {
         // Throw exception.
-        throw std::runtime_error(
-                    "Gravitational parameter specified in Lambert problem must be strictly positive. Specified gravitational parameter: "+
-                    boost::lexical_cast< std::string >( gravitationalParameter ) );
+        BOOST_THROW_EXCEPTION( std::runtime_error( 
+            ( boost::format(
+                "Gravitational parameter specified in Lambert problem must be strictly positive.\n"
+                "Specified gravitational parameter: %f m^3/s^2."
+            ) % gravitationalParameter ).str( )
+        ) );
     }
     // Else, do nothing and continue.
 }
@@ -186,7 +192,7 @@ void ZeroRevolutionLambertTargeterIzzo::transformDimensions( )
     // Compute normalizing values.
     const double distanceNormalizingValue = cartesianPositionAtDeparture.norm( );
     velocityNormalizingValue = std::sqrt( gravitationalParameter /
-                                          distanceNormalizingValue );
+                                                       distanceNormalizingValue );
     const double timeNormalizingValue = distanceNormalizingValue / velocityNormalizingValue;
 
     // Compute transfer geometry parameters in adimensional units.
@@ -204,8 +210,8 @@ void ZeroRevolutionLambertTargeterIzzo::transformDimensions( )
 
     // Chord.
     normalizedChord = std::sqrt( 1.0 + normalizedRadiusAtArrival
-                                 * ( normalizedRadiusAtArrival
-                                     - 2.0 * cosineOfTransferAngle ) );
+                                        * ( normalizedRadiusAtArrival
+                                            - 2.0 * cosineOfTransferAngle ) );
 
     // Semi-perimeter.
     normalizedSemiPerimeter = ( 1.0 + normalizedRadiusAtArrival + normalizedChord ) / 2.0;
@@ -344,7 +350,7 @@ double ZeroRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
 
         // Compute corresponding y-value.
         yNew = std::log( computeTimeOfFlight( std::exp( xNew ) - 1.0 ) )
-                - logarithmOfTheSpecifiedTimeOfFlight;
+               - logarithmOfTheSpecifiedTimeOfFlight;
 
         // Update abcissae and ordinates.
         x1 = x2;
@@ -359,9 +365,12 @@ double ZeroRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     // Verify that root-finder has converged.
     if ( iterator == maximumNumberOfIterations )
     {
-        throw std::runtime_error(
-                    "Multi-Revolution Lambert targeter failed to converge to a solution. Reached the maximum number of iterations: " +
-                    boost::lexical_cast< std::string >( maximumNumberOfIterations ) );
+        BOOST_THROW_EXCEPTION( basic_mathematics::ConvergenceException( 
+            ( boost::format(
+                "Multi-Revolution Lambert targeter failed to converge to a solution.\n"
+                "Reached the maximum number of iterations: %d"
+            ) % maximumNumberOfIterations).str( )
+        ) );
     }
 
     // Recovering x parameter and returning it.
@@ -376,7 +385,7 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
     // Then it is possible to retrieve a sensible value from the x-parameter computed)
     // Determine semi-major axis of the conic.
     const double semiMajorAxis = normalizedMinimumEnergySemiMajorAxis
-            / ( 1.0 - xParameter * xParameter );
+                                    / ( 1.0 - xParameter * xParameter );
 
     // Declare variables.
     double etaParameter, etaParameterSquared, psiParameter;
@@ -389,8 +398,8 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
 
         // Beta parameter in Lagrange's equation (no explanation available).
         double betaParameter = 2.0 * std::asin( std::sqrt( ( normalizedSemiPerimeter
-                                                             - normalizedChord )
-                                                           / ( 2.0 * semiMajorAxis ) ) );
+                                                                - normalizedChord )
+                                                            / ( 2.0 * semiMajorAxis ) ) );
 
         if ( isLongway )
         {
@@ -415,7 +424,7 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
         // Beta parameter in Lagrange's equation (no explanation available).
         double betaParameter = 2.0 * boost::math::asinh (
                     std::sqrt( ( normalizedSemiPerimeter - normalizedChord )
-                               / ( -2.0 * semiMajorAxis ) ) );
+                                / ( -2.0 * semiMajorAxis ) ) );
 
         if ( isLongway )
         {
@@ -433,8 +442,8 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
 
     // Determine semi-latus rectum, p.
     const double semiLatusRectum = ( normalizedRadiusAtArrival
-                                     / ( normalizedMinimumEnergySemiMajorAxis
-                                         * etaParameterSquared ) )
+                                        / ( normalizedMinimumEnergySemiMajorAxis
+                                            * etaParameterSquared ) )
             * std::sin( transferAngle / 2.0 )
             * std::sin( transferAngle / 2.0 );
 
@@ -450,9 +459,9 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
     const double transverseVelocityAtArrival = transverseVelocityAtDeparture
             / normalizedRadiusAtArrival;
     const double radialVelocityAtArrival = ( transverseVelocityAtDeparture
-                                             - transverseVelocityAtArrival )
-            / std::tan( transferAngle / 2.0 )
-            - radialVelocityAtDeparture;
+                                                - transverseVelocityAtArrival )
+                                            / std::tan( transferAngle / 2.0 )
+                                            - radialVelocityAtDeparture;
 
     // Determining inertial vectors
     // Determine radial unit vectors.
@@ -481,13 +490,13 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
             radialUnitVectorAtArrival.cross( angularMomentumUnitVector );
 
     // Reconstruct non-dimensional velocity vectors.
-    cartesianVelocityAtDeparture <<
-                                    radialVelocityAtDeparture * radialUnitVectorAtDeparture
-                                    - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture;
+    cartesianVelocityAtDeparture << 
+        radialVelocityAtDeparture * radialUnitVectorAtDeparture
+        - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture;
 
-    cartesianVelocityAtArrival <<
-                                  radialVelocityAtArrival * radialUnitVectorAtArrival
-                                  - transverseVelocityAtArrival * transverseUnitVectorAtArrival;
+    cartesianVelocityAtArrival << 
+        radialVelocityAtArrival * radialUnitVectorAtArrival
+        - transverseVelocityAtArrival * transverseUnitVectorAtArrival;
 
     // Return to dimensions of initial problem definition.
     cartesianVelocityAtDeparture *= velocityNormalizingValue;

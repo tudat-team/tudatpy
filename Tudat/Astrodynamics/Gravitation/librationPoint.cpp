@@ -118,8 +118,10 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
     default:
 
-        throw std::runtime_error(
-                            "The Lagrange libration point requested does not exist." );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error(
+                            "The Lagrange libration point requested does not exist." ) ) );
     };
 }
 

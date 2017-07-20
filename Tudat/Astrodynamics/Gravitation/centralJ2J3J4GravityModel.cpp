@@ -80,8 +80,10 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
     // vector is 3 at max), else throw an error.
     if ( zonalCoefficientsOfGravityField.size( ) > 3 )
     {
-        throw std::runtime_error(
-                            "Currently, accelerations can only be computed up to J4."  );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error(
+                            "Currently, accelerations can only be computed up to J4." ) ) );
     }
 
     // Check if position of body subject to acceleration falls within the effective radius of
@@ -89,8 +91,11 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
     if ( ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( )
          < equatorialRadiusOfBodyExertingAcceleration )
     {
-        throw std::runtime_error(
-                            "Position of body subject to acceleration is within effective radius." );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error(
+                            "Position of body subject to acceleration is within effective radius."
+                            ) ) );
     }
 
     // Set gravitational acceleration sum equal to central term contribution.
@@ -142,8 +147,10 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
 
         default:
 
-            throw std::runtime_error(
-                                "Degree must be 2, 3, or 4 in current implementation." );
+            boost::throw_exception(
+                        boost::enable_error_info(
+                            std::runtime_error(
+                                "Degree must be 2, 3, or 4 in current implementation." ) ) );
         };
     }
 

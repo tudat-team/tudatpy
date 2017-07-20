@@ -17,11 +17,14 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h"
+
 namespace tudat
 {
 namespace gravitation
 {
-
+namespace circular_restricted_three_body_problem
+{
 
 //! Compute Jacobi energy.
 /*!
@@ -42,6 +45,7 @@ namespace gravitation
 double computeJacobiEnergy( const double massParameter,
                             const Eigen::VectorXd& stateInNormalizedUnits );
 
+} // namespace circular_restricted_three_body_problem
 } // namespace gravitation
 } // namespace tudat
 

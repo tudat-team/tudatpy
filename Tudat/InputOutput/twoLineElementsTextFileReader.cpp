@@ -38,6 +38,9 @@
 #include <utility>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+#include <boost/exception/all.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
@@ -77,8 +80,14 @@ void TwoLineElementsTextFileReader::openFile( )
     // opened.
     if ( !dataFile_ )
     {
-       throw std::runtime_error(
-                    "Data file could not be opened: " + absoluteFilePath_ );
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error(
+                            boost::str( boost::format( "Data file '%s' could not be opened." )
+                                 % absoluteFilePath_.c_str( ) ) ) )
+            << boost::errinfo_file_name( absoluteFilePath_.c_str( ) )
+            << boost::errinfo_file_open_mode( "std::ios::binary" )
+            << boost::errinfo_api_function( "std::ifstream::open" ) );
     }
 }
 

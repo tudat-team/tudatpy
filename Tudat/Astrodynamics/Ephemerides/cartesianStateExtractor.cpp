@@ -47,7 +47,9 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     else
     {
-        throw std::runtime_error( "No Cartesian x coordinate entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                 std::runtime_error(
+                                        "No Cartesian x coordinate entry found." ) ) );
     }
 
     // Find and set Cartesian y coordinate.
@@ -61,7 +63,8 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     else
     {
-        throw std::runtime_error( "No Cartesian y coordinate entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                 std::runtime_error( "No Cartesian y coordinate entry found." ) ) );
     }
 
     // Find and set Cartesian z coordinate.
@@ -75,7 +78,9 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     else
     {
-        throw std::runtime_error( "No Cartesian z coordinate entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                 std::runtime_error(
+                                        "No Cartesian z coordinate entry found." ) ) );
     }
 
     // Find and set Cartesian x velocity.
@@ -88,7 +93,9 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
     }
     else
     {
-        throw std::runtime_error( "No Cartesian x velocity entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                   std::runtime_error(
+                                        "No Cartesian x velocity entry found." ) ) );
     }
 
     // Find and set Cartesian y velocity.
@@ -102,7 +109,9 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     else
     {
-        throw std::runtime_error( "No Cartesian y velocity entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                   std::runtime_error(
+                                        "No Cartesian y velocity entry found." ) ) );
     }
 
     // Find and set Cartesian z velocity.
@@ -116,7 +125,9 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     else
     {
-        throw std::runtime_error( "No Cartesian z velocity entry found." );
+        boost::throw_exception( boost::enable_error_info(
+                                   std::runtime_error(
+                                        "No Cartesian z velocity entry found." ) ) );
     }
 
     return cartesianElements;
