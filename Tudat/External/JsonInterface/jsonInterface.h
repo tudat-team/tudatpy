@@ -19,6 +19,10 @@
 #include "json/src/json.hpp"
 using json = nlohmann::json;
 
+#include <Tudat/InputOutput/basicInputOutput.h>
+
+#include "keys.h"
+#include "path.h"
 #include "units.h"
 #include "utilities.h"
 
@@ -27,159 +31,6 @@ namespace tudat
 
 namespace json_interface
 {
-
-//! Keys recognised by json_interface.
-struct Keys
-{
-    static const std::string simulation;
-    struct Simulation
-    {
-        static const std::string startEpoch;
-        static const std::string endEpoch;
-        static const std::string globalFrameOrigin;
-        static const std::string globalFrameOrientation;
-        static const std::string spiceKernels;
-        static const std::string preloadSpiceData;
-    };
-
-    static const std::string bodies;
-    struct Body
-    {
-        static const std::string aerodynamics;
-        struct Aerodynamics
-        {
-            static const std::string type;
-            static const std::string referenceArea;
-            static const std::string dragCoefficient;
-            static const std::string forceCoefficients;
-            static const std::string momentCoefficients;
-            static const std::string areCoefficientsInAerodynamicFrame;
-            static const std::string areCoefficientsInNegativeAxisDirection;
-        };
-
-        static const std::string atmosphere;
-        struct Atmosphere
-        {
-            static const std::string type;
-            static const std::string densityScaleHeight;
-            static const std::string constantTemperature;
-            static const std::string densityAtZeroAltitude;
-            static const std::string specificGasConstant;
-            static const std::string atmosphereFile;
-            static const std::string spaceWeatherFile;
-        };
-
-        static const std::string radiationPressure;
-        struct RadiationPressure
-        {
-            static const std::string type;
-            static const std::string referenceArea;
-            static const std::string radiationPressureCoefficient;
-            static const std::string ocultingBodies;
-        };
-    };
-
-    static const std::string propagators;
-    struct Propagator
-    {
-        static const std::string integratedStateType;
-        static const std::string type;
-        static const std::string centralBodies;
-        static const std::string bodiesToPropagate;
-        static const std::string initialStates;
-        static const std::string initialStateTypes;
-
-        static const std::string termination;
-        struct Termination
-        {
-
-        };
-
-        static const std::string accelerations;
-        struct Acceleration
-        {
-
-        };
-    };
-
-    static const std::string integrator;
-    struct Integrator
-    {
-        static const std::string type;
-        static const std::string initialTime;
-        static const std::string initialTimeStep;
-        static const std::string saveFrequency;
-        static const std::string rungeKuttaCoefficientSet;
-        static const std::string minimumStepSize;
-        static const std::string maximumStepSize;
-        static const std::string relativeErrorTolerance;
-        static const std::string absoluteErrorTolerance;
-        static const std::string safetyFactorForNextStepSize;
-        static const std::string maximumFactorIncreaseForNextStepSize;
-        static const std::string minimumFactorDecreaseForNextStepSize;
-    };
-
-    static const std::string output;
-};
-
-// FIXME: what about arrays?
-//! Class for specifying a key tree (key.subkey.subsubkey ...) used to access data from `json` objects.
-class KeyTree : public std::vector< std::string >
-{
-public:
-    //! Inherit constructors.
-    using vector< std::string >::vector;
-
-    //! Constructor with a single string key.
-    /*!
-     * Constructor with a single string key.
-     * \param key The key to be accessed.
-     */
-    KeyTree( const std::string& key ) : KeyTree( std::vector< std::string >( { key } ) ) { }
-
-    //! Constructor with a single char key.
-    /*!
-     * Constructor with a single char key.
-     * \param key The key to be accessed.
-     */
-    //! Constructor with a single char key.
-    KeyTree( const char* key ) : KeyTree( std::string( key ) ) { }
-};
-
-//! String representation for `KeyTree`, as key.subkey.subsubkey ...
-inline std::ostream& operator<< ( std::ostream & stringRepresentation, KeyTree const & keyTree ) {
-    for ( unsigned int i = 0; i < keyTree.size(); ++i )
-    {
-        stringRepresentation << keyTree.at( i );
-        if ( i < keyTree.size() - 1 )
-        {
-            stringRepresentation << ".";
-        }
-    }
-    return stringRepresentation;
-}
-
-//! Key trees recognised by `json_interface`.
-struct KeyTrees
-{
-    struct Simulation
-    {
-        static const KeyTree startEpoch;
-        static const KeyTree endEpoch;
-        static const KeyTree globalFrameOrigin;
-        static const KeyTree globalFrameOrientation;
-        static const KeyTree spiceKernels;
-        static const KeyTree preloadSpiceData;
-    };
-
-    /*
-    struct Integrator
-    {
-        static const KeyTree initialTime;
-    };
-    */
-};
-
 
 //! -DOC
 class JSONError : public std::runtime_error
@@ -190,15 +41,15 @@ private:
 public:
     //! Constructor.
     JSONError( const std::string& errorMessage, const KeyTree& keyTree )
-        : runtime_error( errorMessage.c_str() ), keyTree( keyTree ) { }
+        : runtime_error( errorMessage.c_str( ) ), keyTree( keyTree ) { }
 
     //! Error message.
-    virtual const char* what() const throw()
+    virtual const char* what( ) const throw( )
     {
         std::ostringstream stream;
-        stream << runtime_error::what() << ": " << keyTree;
-        std::cerr << stream.str().c_str() << std::endl;  // FIXME
-        return stream.str().c_str();
+        stream << runtime_error::what( ) << ": " << keyTree;
+        std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
+        return stream.str( ).c_str( );
     }
 };
 
@@ -220,6 +71,15 @@ public:
     //! Constructor.
     IllegalValueError( const KeyTree& keyTree, const json& value )
         : JSONError( "Illegal value for key", keyTree ), value( value ) { }
+
+    //! Error message.
+    virtual const char* what( ) const throw( )
+    {
+        std::ostringstream stream;
+        stream << JSONError::what( ) << " = " << value;
+        // std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
+        return stream.str( ).c_str( );
+    }
 };
 
 
@@ -256,7 +116,7 @@ ValueType getValue( json jsonObject, const KeyTree& keyTree )
     }
     catch ( ... )
     {
-        // Could not convert to the requested type nor parse the string as a number
+        // Could not convert to the requested type
         throw IllegalValueError( keyTree, jsonObject );
     }
 }
@@ -264,7 +124,7 @@ ValueType getValue( json jsonObject, const KeyTree& keyTree )
 
 //! -DOC
 template< typename NumberType >
-NumberType getNumber( json jsonObject, const KeyTree& keyTree )
+NumberType getNumeric( json jsonObject, const KeyTree& keyTree )
 {
     try
     {
@@ -276,11 +136,36 @@ NumberType getNumber( json jsonObject, const KeyTree& keyTree )
         try
         {
             // Convert to string (with units) and then parse the number and convert to SI
-            return parseString< NumberType >( error.value.get< std::string >( ) );
+            return parseMagnitudeWithUnits< NumberType >( error.value.get< std::string >( ) );
         }
         catch ( ... )
         {
             // Could not convert to the requested type nor parse the string as a number
+            throw IllegalValueError( keyTree, error.value );
+        }
+    }
+}
+
+
+//! -DOC
+template< typename NumberType >
+NumberType getEpoch( json jsonObject, const KeyTree& keyTree )
+{
+    try
+    {
+        return getValue< NumberType >( jsonObject, keyTree );
+    }
+    catch ( const IllegalValueError& error )
+    {
+        // Could not convert to the requested type
+        try
+        {
+            // Convert to string and then parse as a formatted date
+            return convertToSecondsSinceJ2000< NumberType >( error.value.get< std::string >( ) );
+        }
+        catch ( ... )
+        {
+            // Could not convert to the requested type nor parse the string as a date
             throw IllegalValueError( keyTree, error.value );
         }
     }
@@ -304,15 +189,46 @@ ValueType getValue( const json& jsonObject, const KeyTree& keyTree, const ValueT
 
 //! -DOC
 template< typename NumberType >
-NumberType getNumber( const json& jsonObject, const KeyTree& keyTree, const NumberType& optionalValue )
+NumberType getNumeric( const json& jsonObject, const KeyTree& keyTree,
+                      const NumberType& optionalValue, bool allowNaN = false )
 {
     try
     {
-        return getNumber< NumberType >( jsonObject, keyTree );
+        return getNumeric< NumberType >( jsonObject, keyTree );
     }
     catch ( const UndefinedKeyError& error )
     {
-        return optionalValue;
+        if ( ! allowNaN && isnan( optionalValue ) )
+        {
+            throw error;
+        }
+        else
+        {
+            return optionalValue;
+        }
+    }
+}
+
+
+//! -DOC
+template< typename NumberType >
+NumberType getEpoch( const json& jsonObject, const KeyTree& keyTree,
+                      const NumberType& optionalValue, bool allowNaN = false )
+{
+    try
+    {
+        return getEpoch< NumberType >( jsonObject, keyTree );
+    }
+    catch ( const UndefinedKeyError& error )
+    {
+        if ( ! allowNaN && isnan( optionalValue ) )
+        {
+            throw error;
+        }
+        else
+        {
+            return optionalValue;
+        }
     }
 }
 
@@ -334,11 +250,26 @@ boost::shared_ptr< ValueType > getValuePointer( const json& jsonObject, const Ke
 
 //! -DOC
 template< typename NumberType >
-boost::shared_ptr< NumberType > getNumberPointer( const json& jsonObject, const KeyTree& keyTree )
+boost::shared_ptr< NumberType > getNumericPointer( const json& jsonObject, const KeyTree& keyTree )
 {
     try
     {
-        return boost::make_shared< NumberType >( getNumber< NumberType >( jsonObject, keyTree ) );
+        return boost::make_shared< NumberType >( getNumeric< NumberType >( jsonObject, keyTree ) );
+    }
+    catch ( const UndefinedKeyError& error )
+    {
+        return NULL;
+    }
+}
+
+
+//! -DOC
+template< typename NumberType >
+boost::shared_ptr< NumberType > getEpochPointer( const json& jsonObject, const KeyTree& keyTree )
+{
+    try
+    {
+        return boost::make_shared< NumberType >( getEpoch< NumberType >( jsonObject, keyTree ) );
     }
     catch ( const UndefinedKeyError& error )
     {
@@ -378,7 +309,6 @@ std::string stringFromEnum( const EnumType enumValue, const std::map< std::strin
     throw;
 }
 
-
 } // namespace json_interface
 
 } // namespace tudat
@@ -409,33 +339,55 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
     }
     catch ( ... )
     {
-        try
+        // Get as std::vector and then convert to Eigen column-vector
+        if ( cols == 1 )
         {
-            // Get as std::vector and then convert to Eigen column-vector
-            if ( cols == 1 )
-            {
-                matrix.col( 0 ) = tudat::json_interface::eigenVectorFromStdVector< ScalarType, rows >(
-                            jsonObject.get< std::vector< ScalarType > >( ) );
-            }
-            // Get as std::vector and then convert to Eigen row-vector
-            else if ( rows == 1 )
-            {
-                matrix.row( 0 ) = tudat::json_interface::eigenRowVectorFromStdVector< ScalarType, cols >(
-                            jsonObject.get< std::vector< ScalarType > >( ) );
-            }
-            else
-            {
-                throw;
-            }
+            matrix.col( 0 ) = tudat::json_interface::eigenVectorFromStdVector< ScalarType, rows >(
+                        jsonObject.get< std::vector< ScalarType > >( ) );
         }
-        catch ( ... )
+        // Get as std::vector and then convert to Eigen row-vector
+        else if ( rows == 1 )
         {
-            throw std::runtime_error( "Could not convert JSON array (of arrays) to Eigen vector (matrix)." );
+            matrix.row( 0 ) = tudat::json_interface::eigenRowVectorFromStdVector< ScalarType, cols >(
+                        jsonObject.get< std::vector< ScalarType > >( ) );
+        }
+        else
+        {
+            std::cerr << "Could not convert JSON array (of arrays) to Eigen vector/matrix." << std::endl;
+            throw;
         }
     }
 }
 
 }  // namespace Eigen
 
+
+namespace std
+{
+
+//! Create a `json` object from a `std::map` with arbitrary key type.
+//! Called automatically by `nlohmann::json` when using `jsonObject = json( map )`.
+template< typename KeyType, typename ValueType >
+void to_json( json& jsonObject, const std::map< KeyType, ValueType >& map )
+{
+    for ( auto entry : map )
+    {
+        jsonObject[ boost::lexical_cast< std::string >( entry.first ) ] = entry.second;
+    }
+}
+
+//! Create a std::map with arbitrary key type from a `json` object.
+//! Called automatically by `nlohmann::json` when using `map = jsonObject.get< std::map< KeyType, ValueType > >( )`.
+template< typename KeyType, typename ValueType >
+void from_json( const json& jsonObject, std::map< KeyType, ValueType >& map )
+{
+    json j = jsonObject;
+    for ( json::iterator it = j.begin( ); it != j.end( ); ++it )
+    {
+        map[ boost::lexical_cast< KeyType >( it.key( ) ) ] = it.value( ).get< ValueType >( );
+    }
+}
+
+}  // namespace std
 
 #endif // TUDAT_JSONINTERFACE_VALUES_H

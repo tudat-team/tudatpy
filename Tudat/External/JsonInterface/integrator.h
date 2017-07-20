@@ -28,7 +28,11 @@ static std::map< std::string, AvailableIntegrators > availableIntegrators =
     { "euler",                      euler },
     { "rungeKuttaVariableStepSize", rungeKuttaVariableStepSize }
 };
+
+//! Convert `AvailableIntegrators` to `json`.
 void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator );
+
+//! Convert `json` to `AvailableIntegrators`.
 void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator );
 
 //! Map of `RungeKuttaCoefficients::CoefficientSets` supported by `json_interface`.
@@ -76,6 +80,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
                 rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
         jsonObject[ Keys::minimumFactorDecreaseForNextStepSize ] =
                 rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
+        return;
     }
 }
 
@@ -88,24 +93,30 @@ namespace json_interface
 //! Create a shared pointer to an `IntegratorSettings` object from a `json` object.
 /*!
  * Create a shared pointer to an `IntegratorSettings` object from a `json` object.
- * \param settings `json` object containing only the settings for one integrator.
+ * \param settings `json` object containing the settings for one integrator.
+ * \param keyTree Key tree at which the object containing the integrator settings can be accessed.
+ * Empty if `settings` contains ONLY the integrator settings.
+ * \param fallbakInitialTime Initial time to be used if not defined in `settings`.
  * \return Shared pointer to an `IntegratorSettings` object.
  */
 template< typename TimeType = double >
 boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > createIntegratorSettings(
-        const json &settings )
+        const json& settings, const KeyTree& keyTree = { }, const TimeType fallbakInitialTime = TUDAT_NAN )
 {
     using namespace numerical_integrators;
     using Keys = Keys::Integrator;
 
     // Read JSON settings shared by all supported integrators
-    const auto integratorType = getValue< AvailableIntegrators >( settings, Keys::type );
-    const auto initialTime = getNumber< TimeType >( settings, Keys::initialTime );
-    const auto initialTimeStep = getNumber< TimeType >( settings, Keys::initialTimeStep );
-    const auto saveFrequency = getValuePointer< int >( settings, Keys::saveFrequency );
+    const auto integratorType = getValue< AvailableIntegrators >( settings, keyTree + Keys::type );
+    const auto initialTime = getNumeric( settings, keyTree + Keys::initialTime, fallbakInitialTime );
+    const auto initialTimeStep = getNumeric< TimeType >( settings, keyTree + Keys::initialTimeStep );
+    const auto saveFrequency = getValuePointer< int >( settings, keyTree + Keys::saveFrequency );
 
     // Create IntegratorSettings pointer from JSON settings
-    if ( integratorType == euler || integratorType == rungeKutta4 )
+    switch ( integratorType )
+    {
+    case euler:
+    case rungeKutta4:
     {
         // Construct with mandatory arguments, and optional arguments as default
         IntegratorSettings< TimeType > integratorSettings( integratorType, initialTime, initialTimeStep );
@@ -119,21 +130,23 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
         // Return shared pointer
         return boost::make_shared< IntegratorSettings< TimeType > >( integratorSettings );
     }
-    else
+    case rungeKuttaVariableStepSize:
     {
         // Read additional settings specific for this integrator
-        const auto coefficientSet =
-                getValue< RungeKuttaCoefficients::CoefficientSets >( settings, Keys::rungeKuttaCoefficientSet );
-        const auto minimumStepSize = getNumber< TimeType >( settings, Keys::minimumStepSize );
-        const auto maximumStepSize = getNumber< TimeType >( settings, Keys::maximumStepSize );
-        const auto relativeErrorTolerance = getValuePointer< TimeType >( settings, Keys::relativeErrorTolerance );
-        const auto absoluteErrorTolerance = getValuePointer< TimeType >( settings, Keys::absoluteErrorTolerance );
-        const auto safetyFactorForNextStepSize =
-                getValuePointer< TimeType >( settings, Keys::safetyFactorForNextStepSize );
-        const auto maximumFactorIncreaseForNextStepSize =
-                getValuePointer< TimeType >( settings, Keys::maximumFactorIncreaseForNextStepSize );
-        const auto minimumFactorDecreaseForNextStepSize =
-                getValuePointer< TimeType >( settings, Keys::minimumFactorDecreaseForNextStepSize );
+        const auto coefficientSet = getValue< RungeKuttaCoefficients::CoefficientSets >(
+                    settings, keyTree + Keys::rungeKuttaCoefficientSet );
+        const auto minimumStepSize = getNumeric< TimeType >( settings, keyTree + Keys::minimumStepSize );
+        const auto maximumStepSize = getNumeric< TimeType >( settings, keyTree + Keys::maximumStepSize );
+        const auto relativeErrorTolerance = getValuePointer< TimeType >(
+                    settings, keyTree + Keys::relativeErrorTolerance );
+        const auto absoluteErrorTolerance = getValuePointer< TimeType >(
+                    settings, keyTree + Keys::absoluteErrorTolerance );
+        const auto safetyFactorForNextStepSize = getValuePointer< TimeType >(
+                    settings, keyTree + Keys::safetyFactorForNextStepSize );
+        const auto maximumFactorIncreaseForNextStepSize = getValuePointer< TimeType >(
+                    settings, keyTree + Keys::maximumFactorIncreaseForNextStepSize );
+        const auto minimumFactorDecreaseForNextStepSize = getValuePointer< TimeType >(
+                    settings, keyTree + Keys::minimumFactorDecreaseForNextStepSize );
 
         // Construct with mandatory arguments, and optional arguments as default
         RungeKuttaVariableStepSizeSettings< TimeType > integratorSettings(
@@ -171,6 +184,10 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
 
         // Return shared pointer
         return boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
+    }
+    default:
+        throw std::runtime_error( stringFromEnum( integratorType, availableIntegrators )
+                                  + " not supported by json_interface." );
     }
 }
 

@@ -274,6 +274,10 @@ if(USE_CSPICE)
  list(APPEND TUDAT_EXTERNAL_LIBRARIES tudat_spice_interface cspice)
 endif()
 
+if(USE_JSON)
+  list(APPEND TUDAT_APPLICATION_EXTERNAL_LIBRARIES tudat_json_interface nlohmann_json)
+endif()
+
 if(USE_NRLMSISE00)
  list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
 endif()

@@ -11,10 +11,6 @@
 
 #include "atmosphere.h"
 
-#include <regex>
-
-#include <boost/filesystem.hpp>
-
 namespace tudat
 {
 
@@ -54,6 +50,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
         jsonObject[ Keys::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
         jsonObject[ Keys::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
         jsonObject[ Keys::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
+        return;
     }
 
     /// TabulatedAtmosphereSettings
@@ -61,8 +58,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
             boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
     if ( tabulatedAtmosphereSettings )
     {
-        jsonObject[ Keys::atmosphereFile ] =
-                boost::filesystem::canonical( tabulatedAtmosphereSettings->getAtmosphereFile( ) ).string( );
+        jsonObject[ Keys::atmosphereFile ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+        return;
     }
 
     /// NRLMSISE00AtmosphereSettings
@@ -70,8 +67,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
             boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
     if ( nrlmsise00AtmosphereSettings )
     {
-        jsonObject[ Keys::spaceWeatherFile ] =
-                boost::filesystem::canonical( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) ).string( );
+        jsonObject[ Keys::spaceWeatherFile ] = path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
+        return;
     }
 }
 
@@ -82,41 +79,39 @@ namespace json_interface
 {
 
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettings( const json &settings )
+boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettings(
+        const json& settings, const KeyTree& keyTree )
 {
     using namespace simulation_setup;
     using Keys = Keys::Body::Atmosphere;
 
     // Get atmosphere model type
-    const AtmosphereTypes atmosphereType = getValue< AtmosphereTypes >( settings, Keys::type );
+    const AtmosphereTypes atmosphereType = getValue< AtmosphereTypes >( settings, keyTree + Keys::type );
 
-    if ( atmosphereType == exponential_atmosphere )
-    {
+    switch ( atmosphereType ) {
+    case exponential_atmosphere:
         return boost::make_shared< ExponentialAtmosphereSettings >(
-                    getValue< double >( settings, Keys::densityScaleHeight ),
-                    getValue< double >( settings, Keys::constantTemperature ),
-                    getValue< double >( settings, Keys::densityAtZeroAltitude ),
-                    getValue< double >( settings, Keys::specificGasConstant ) );
-    }
-    else if ( atmosphereType == tabulated_atmosphere )
-    {
+                    getValue< double >( settings, keyTree + Keys::densityScaleHeight ),
+                    getValue< double >( settings, keyTree + Keys::constantTemperature ),
+                    getValue< double >( settings, keyTree + Keys::densityAtZeroAltitude ),
+                    getValue< double >( settings, keyTree + Keys::specificGasConstant ) );
+    case tabulated_atmosphere:
         return boost::make_shared< TabulatedAtmosphereSettings >(
-                    getValue< std::string >( settings, Keys::atmosphereFile ) );
-    }
-    else if ( atmosphereType == nrlmsise00 )
+                    getValue< path >( settings, keyTree + Keys::atmosphereFile ).string( ) );
+    case nrlmsise00:
     {
-        const auto spaceWeatherFile = getValuePointer< std::string >( settings, Keys::spaceWeatherFile );
+        const boost::shared_ptr< path > spaceWeatherFile =
+                getValuePointer< path >( settings, keyTree + Keys::spaceWeatherFile );
         if ( spaceWeatherFile )
         {
-            return boost::make_shared< NRLMSISE00AtmosphereSettings >( *spaceWeatherFile );
+            return boost::make_shared< NRLMSISE00AtmosphereSettings >( spaceWeatherFile->string( ) );
         }
         else
         {
             return boost::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
     }
-    else
-    {
+    default:
         throw std::runtime_error( stringFromEnum( atmosphereType, atmosphereTypes )
                                   + " not supported by json_interface." );
     }

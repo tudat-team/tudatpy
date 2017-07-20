@@ -11,8 +11,9 @@
 #ifndef TUDAT_JSONINTERFACE_UTILITIES_H
 #define TUDAT_JSONINTERFACE_UTILITIES_H
 
-#include <vector>
+#include <map>
 #include <set>
+#include <vector>
 
 #include <eigen/Eigen>
 
@@ -45,6 +46,32 @@ bool contains( const std::vector< T >& vector, const T& value )
     return std::find( vector.begin( ), vector.end( ), value ) != vector.end( );
 }
 
+/*
+//! Get a vector containing the keys of a map.
+template< typename KeyType, typename ValueType >
+std::vector< KeyType > getKeys( const std::map< KeyType, ValueType >& map )
+{
+    std::vector< KeyType > keys;
+    for ( auto entry : map )
+    {
+        keys.push_back( entry.first );
+    }
+    return keys;
+}
+
+//! Get a vector containing the values of a map.
+template< typename KeyType, typename ValueType >
+std::vector< ValueType > getValues( const std::map< KeyType, ValueType >& map )
+{
+    std::vector< ValueType > values;
+    for ( auto entry : map )
+    {
+        values.push_back( entry.second );
+    }
+    return values;
+}
+*/
+
 
 /// EIGEN <- STD
 
@@ -52,6 +79,12 @@ bool contains( const std::vector< T >& vector, const T& value )
 template< typename ScalarType, int rows >
 Eigen::Matrix< ScalarType, rows, 1 > eigenVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
+    if ( stdVector.size( ) != rows )
+    {
+        std::cerr << "Expected vector with " << rows << " rows, got "
+                  << stdVector.size( ) << " rows instead." << std::endl;
+        throw;
+    }
     return Eigen::Matrix< ScalarType, rows, 1 >( stdVector.data( ) );
 }
 
@@ -59,6 +92,12 @@ Eigen::Matrix< ScalarType, rows, 1 > eigenVectorFromStdVector( const std::vector
 template< typename ScalarType, int cols >
 Eigen::Matrix< ScalarType, 1, cols > eigenRowVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
+    if ( stdVector.size( ) != cols )
+    {
+        std::cerr << "Expected vector with " << cols << " columns, got "
+                  << stdVector.size( ) << " columns instead." << std::endl;
+        throw;
+    }
     return Eigen::Matrix< ScalarType, 1, cols >( stdVector.data( ) );
 }
 
@@ -67,6 +106,12 @@ template< typename ScalarType, int rows, int cols >
 Eigen::Matrix< ScalarType, rows, cols > eigenMatrixFromStdVectorOfVectors(
         const std::vector< std::vector< ScalarType > >& vectorOfVectors )
 {
+    if ( vectorOfVectors.size( ) != rows )
+    {
+        std::cerr << "Expected matrix with " << rows << " rows, got "
+                  << vectorOfVectors.size( ) << " rows instead." << std::endl;
+        throw;
+    }
     Eigen::Matrix< ScalarType, rows, cols > matrix;
     for ( unsigned int r = 0; r < rows; ++r )
     {

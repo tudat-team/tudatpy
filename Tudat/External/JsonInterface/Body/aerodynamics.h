@@ -28,7 +28,11 @@ static std::map< std::string, AerodynamicCoefficientTypes > aerodynamicCoefficie
     { "hypersonicLocalInclincationCoefficients", hypersonic_local_inclincation_coefficients },
     { "tabulatedCoefficients",			         tabulated_coefficients }
 };
+
+//! Convert `AerodynamicCoefficientTypes` to `json`.
 void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCoefficientType );
+
+//! Convert `json` to `AerodynamicCoefficientTypes`.
 void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamicCoefficientType );
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
@@ -46,12 +50,14 @@ namespace json_interface
 //! Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
 /*!
  * Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
- * \param settings `json` object containing only the settings for one aerodynamic coefficients settings.
+ * \param settings `json` object containing the settings for one aerodynamic model.
+ * \param keyTree Key tree at which the object containing the aerodynamic coefficients settings can be accessed.
+ * Empty if `settings` contains ONLY the aerodynamic coefficients settings.
  * \param fallbackArea Fallback reference area to be used when no reference area is speciefied in `settings`.
  * \return Shared pointer to an `AerodynamicCoefficientSettings` object.
  */
 boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAerodynamicCoefficientSettings(
-        const json& settings, const double& fallbackArea = TUDAT_NAN );
+        const json& settings, const KeyTree& keyTree = { }, const double& fallbackArea = TUDAT_NAN );
 
 } // namespace json_interface
 

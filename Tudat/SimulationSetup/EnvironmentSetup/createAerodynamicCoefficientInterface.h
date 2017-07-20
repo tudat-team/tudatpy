@@ -168,6 +168,8 @@ public:
          controlSurfaceSettings_[ controlSurfaceName ] = controlSurfaceSetting;
     }
 
+private:
+
     //!  Type of atmosphere model that is to be created.
     AerodynamicCoefficientTypes aerodynamicCoefficientTypes_;
 
@@ -311,6 +313,8 @@ public:
     {
         return constantMomentCoefficient_;
     }
+
+private:
 
     //! Constant moment coefficients.
     Eigen::Vector3d constantForceCoefficient_;

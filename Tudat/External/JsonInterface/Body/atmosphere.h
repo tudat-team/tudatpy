@@ -28,7 +28,11 @@ static std::map< std::string, AtmosphereTypes > atmosphereTypes =
     { "tabulated",   tabulated_atmosphere },
     { "nrlmsise00",  nrlmsise00 }
 };
+
+//! Convert `AtmosphereTypes` to `json`.
 void to_json( json& jsonObject, const AtmosphereTypes& atmosphereType );
+
+//! Convert `json` to `AtmosphereTypes`.
 void from_json( const json& jsonObject, AtmosphereTypes& atmosphereType );
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
@@ -44,10 +48,13 @@ namespace json_interface
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
 /*!
  * Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
- * \param settings `json` object containing only the settings for one atmosphere model.
+ * \param settings `json` object containing the settings for one atmosphere model.
+ * \param keyTree Key tree at which the object containing the atmosphere settings can be accessed.
+ * Empty if `settings` contains ONLY the atmosphere settings.
  * \return Shared pointer to a `AtmosphereSettings` object.
  */
-boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettings( const json &settings );
+boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettings(
+        const json& settings, const KeyTree& keyTree = { } );
 
 } // namespace json_interface
 

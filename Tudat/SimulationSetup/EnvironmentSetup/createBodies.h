@@ -38,6 +38,9 @@ namespace simulation_setup
  */
 struct BodySettings
 {
+    //! Constant mass.
+    double constantMass = TUDAT_NAN;
+
     //! Settings for the atmosphere model that the body is to contain.
     boost::shared_ptr< AtmosphereSettings > atmosphereSettings;
 
@@ -54,30 +57,18 @@ struct BodySettings
     boost::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
     //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+    std::map< std::string,
+              boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
     //! Settings for variations of the gravity field of the body.
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
-
-    //! Constant mass.
-    double constantMass = TUDAT_NAN;
 };
 
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
-
-//! Function to create a single Body object from BodySettings and add it to a NamedBodyMap.
-/*!
- *  Function to create a single Body object from BodySettings and add it to a NamedBodyMap.
- *  \param bodyMap Body map with the bodies created so far, and to which the new body will be added.
- *  \param bodySettings Settings for the body that is to be created.
- *  \return Body created according to settings in `bodySettings`.
- */
-void addBody( NamedBodyMap& bodyMap, const std::string& bodyName,
-              const boost::shared_ptr< BodySettings >& bodySettings );
 
 //! Function to create a map of bodies objects.
 /*!
