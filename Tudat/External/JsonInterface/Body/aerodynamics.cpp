@@ -53,12 +53,14 @@ void to_json( json& jsonObject,
             boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicCoefficientSettings );
     if ( constantAerodynamicCoefficientSettings )
     {
-        jsonObject[ Keys::forceCoefficients ] = constantAerodynamicCoefficientSettings->constantForceCoefficient_;
-        jsonObject[ Keys::momentCoefficients ] = constantAerodynamicCoefficientSettings->constantMomentCoefficient_;
+        jsonObject[ Keys::forceCoefficients ] =
+                constantAerodynamicCoefficientSettings->getConstantForceCoefficient( );
+        // FIXME: jsonObject[ Keys::momentCoefficients ] =
+        //         constantAerodynamicCoefficientSettings->getConstantMomentCoefficient( );
         jsonObject[ Keys::areCoefficientsInAerodynamicFrame ] =
-                constantAerodynamicCoefficientSettings->areCoefficientsInAerodynamicFrame_;
+                constantAerodynamicCoefficientSettings->getAreCoefficientsInAerodynamicFrame( );
         jsonObject[ Keys::areCoefficientsInNegativeAxisDirection ] =
-                constantAerodynamicCoefficientSettings->areCoefficientsInNegativeAxisDirection_;
+                constantAerodynamicCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( );
         return;
     }
 
@@ -95,6 +97,9 @@ boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAero
     {
     case constant_aerodynamic_coefficients:
     {
+        // Create settings (with default arguments)
+        ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, Eigen::Vector3d( ) );
+
         // Read forceCoefficients. If not defined, use [ dragCoefficient, 0, 0 ].
         Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
         const auto forceCoefficientsPointer =
@@ -108,38 +113,20 @@ boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAero
             forceCoefficients( 0 ) = getNumeric< double >( settings, keyTree + Keys::dragCoefficient );
         }
 
-        // Create settings (with default arguments)
-        ConstantAerodynamicCoefficientSettings constantAerodynamicCoefficientSettings(
-                    referenceArea, forceCoefficients );
-
-        // Moment coefficients
-        const auto momentCoefficients =
-                getValuePointer< Eigen::Vector3d >( settings, keyTree + Keys::momentCoefficients );
-        if ( momentCoefficients )
-        {
-            constantAerodynamicCoefficientSettings.constantMomentCoefficient_ = *momentCoefficients ;
-        }
-
-        // areCoefficientsInAerodynamicFrame
-        const auto areCoefficientsInAerodynamicFrame =
-                getValuePointer< bool >( settings, keyTree + Keys::areCoefficientsInAerodynamicFrame );
-        if ( areCoefficientsInAerodynamicFrame )
-        {
-            constantAerodynamicCoefficientSettings.areCoefficientsInAerodynamicFrame_ =
-                    *areCoefficientsInAerodynamicFrame;
-        }
-
-        // areCoefficientsInNegativeAxisDirection
-        const auto areCoefficientsInNegativeAxisDirection =
-                getValuePointer< bool >( settings, keyTree + Keys::areCoefficientsInNegativeAxisDirection );
-        if ( areCoefficientsInNegativeAxisDirection )
-        {
-            constantAerodynamicCoefficientSettings.areCoefficientsInNegativeAxisDirection_ =
-                    *areCoefficientsInNegativeAxisDirection;
-        }
+        // Optional parameters
+        // FIXME: const Eigen::Vector3d momentCoefficients =
+        //        getValue( settings, keyTree + Keys::momentCoefficients, defaults.getConstantMomentCoefficient( ) );
+        const bool areCoefficientsInAerodynamicFrame =
+                getValue( settings, keyTree + Keys::areCoefficientsInAerodynamicFrame,
+                          defaults.getAreCoefficientsInAerodynamicFrame( ) );
+        const bool areCoefficientsInNegativeAxisDirection =
+                getValue( settings, keyTree + Keys::areCoefficientsInNegativeAxisDirection,
+                          defaults.getAreCoefficientsInNegativeAxisDirection( ) );
 
         // Return shared pointer
-        return boost::make_shared< ConstantAerodynamicCoefficientSettings >( constantAerodynamicCoefficientSettings );
+        return boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea, forceCoefficients,
+                                                                             areCoefficientsInAerodynamicFrame,
+                                                                             areCoefficientsInNegativeAxisDirection );
     }
     default:
         throw std::runtime_error( stringFromEnum( aerodynamicCoefficientType, aerodynamicCoefficientTypes )

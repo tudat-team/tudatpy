@@ -77,24 +77,15 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 {
     if( bodyName == "Earth" )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string earthGravityFieldFile =
-                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat";
-        readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients );
-
-        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    0.3986004418E15, 6378137.0, coefficients.first, coefficients.second, "IAU_Earth" );
+        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
+                    input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat",
+                    "IAU_Earth", 50, 50, -1, -1, 0.3986004418E15, 6378137.0 );
     }
     else if( bodyName == "Moon" )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string moonGravityFieldFile =
-                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
-        std::pair< double, double > referenceData =
-                readGravityFieldFile( moonGravityFieldFile, 50, 50, coefficients, 1, 0 );
-        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
-
+        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
+                    input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab",
+                    "IAU_Moon", 50, 50, 1, 0 );
     }
     else
     {

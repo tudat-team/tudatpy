@@ -78,6 +78,9 @@ boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > create
     {
     case cannon_ball:
     {
+        // Create settings (with default arguments)
+        CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
+
         // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
         const double referenceArea =
                 getNumeric( settings, keyTree + sourceBodyName + Keys::referenceArea, fallbackArea );
@@ -86,18 +89,13 @@ boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > create
         const double radiationPressureCoefficient =
                 getValue< double >( settings, keyTree + sourceBodyName + Keys::radiationPressureCoefficient );
 
-        // Create settings
-        CannonBallRadiationPressureInterfaceSettings cannonBallRadiationPressureInterfaceSettings(
-                    sourceBodyName, referenceArea, radiationPressureCoefficient );
-
-        // Get list of occulting bodies (use default if not provided)
-        cannonBallRadiationPressureInterfaceSettings.occultingBodies_ =
-                getValue( settings, keyTree + sourceBodyName + Keys::ocultingBodies,
-                          cannonBallRadiationPressureInterfaceSettings.occultingBodies_ );
+        // Optional parameters
+        const std::vector< std::string > occultingBodies =
+                getValue( settings, keyTree + sourceBodyName + Keys::ocultingBodies, defaults.getOccultingBodies( ) );
 
         // Return shared pointer
         return boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    cannonBallRadiationPressureInterfaceSettings );
+                    sourceBodyName, referenceArea, radiationPressureCoefficient, occultingBodies );
     }
     default:
         throw std::runtime_error( stringFromEnum( radiationPressureType, radiationPressureTypes )

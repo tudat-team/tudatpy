@@ -16,6 +16,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Body/atmosphere.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/ephemeris.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/aerodynamics.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/gravityField.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/radiationPressure.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/integrator.cpp"
 )
@@ -32,6 +33,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Body/atmosphere.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/ephemeris.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/aerodynamics.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/gravityField.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/radiationPressure.h"
     "${SRCROOT}${JSONINTERFACEDIR}/integrator.h"
 )

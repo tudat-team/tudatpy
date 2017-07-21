@@ -17,12 +17,37 @@
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/triAxialEllipsoidGravity.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
 
 namespace simulation_setup
 {
+
+//! Constructor.
+SphericalHarmonicsFileGravityFieldSettings::SphericalHarmonicsFileGravityFieldSettings(
+        const std::string& fileName, const std::string& associatedReferenceFrame,
+        const int maximumDegree, const int maximumOrder,
+        const int gravitationalParameterIndex, const int referenceRadiusIndex,
+        const double gravitationalParameter, const double referenceRadius ) :
+    SphericalHarmonicsGravityFieldSettings( gravitationalParameter, referenceRadius, Eigen::MatrixXd( ),
+                                            Eigen::MatrixXd( ), associatedReferenceFrame ),
+    fileName( fileName ),
+    maximumDegree( maximumDegree ),
+    maximumOrder( maximumOrder ),
+    gravitationalParameterIndex( gravitationalParameterIndex ),
+    referenceRadiusIndex( referenceRadiusIndex )
+{
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+    std::pair< double, double > referenceData =
+            readGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients,
+                                  gravitationalParameterIndex, referenceRadiusIndex );
+    gravitationalParameter_ = gravitationalParameterIndex >= 0 ? referenceData.first : gravitationalParameter;
+    referenceRadius_ = referenceRadiusIndex >= 0 ? referenceData.second : referenceRadius;
+    cosineCoefficients_ = coefficients.first;
+    sineCoefficients_ = coefficients.second;
+}
 
 //! Function to read a gravity field file
 std::pair< double, double  > readGravityFieldFile(
