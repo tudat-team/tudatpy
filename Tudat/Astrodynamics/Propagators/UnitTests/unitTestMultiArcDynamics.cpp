@@ -22,8 +22,7 @@ namespace tudat
 namespace unit_tests
 {
 
-////Using declarations.
-
+//! Using declarations.
 using namespace tudat;
 using namespace interpolators;
 using namespace numerical_integrators;
@@ -130,6 +129,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                           systemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
         }
 
+        // For case 0: test multi-arc estimation with same integration settings for each arc
         if( testCase == 0 )
         {
             boost::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -139,6 +139,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                         bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ), integrationArcStarts );
         }
+        // For case 1: test multi-arc estimation with different integration settings object for each arc
         else if( testCase == 1 )
         {
             std::vector< boost::shared_ptr< IntegratorSettings< > > > integratorSettingsList;
@@ -151,6 +152,8 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                         bodyMap, integratorSettingsList, boost::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ) );
         }
+        // For case 0: test multi-arc estimation with same integration settings for each arc, and arc initial state interpolated
+        // from previous state
         else  if( testCase == 2 )
         {
             boost::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -190,6 +193,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                 testEndTime = integrationArcStarts.at( i + 1 ) - timeBuffer;
             }
 
+            // Check if output corresponds to expected analytical solution
             if( testCase < 2 || i == 0 )
             {
                 double currentTestTime = testStartTime;
@@ -208,6 +212,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                     currentTestTime += testTimeStep;
                 }
             }
+            // Check if arc information is properly passed to next arc
             else
             {
                 double currentTestTime = testStartTime;

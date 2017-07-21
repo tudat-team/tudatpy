@@ -144,15 +144,21 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector(
         const Eigen::Matrix3d& partialOfUnnormalizedVector,
         const Eigen::Vector3d& unnormalizedVector );
 
+//! Function to check whether an Eigen Matrix has any NaN entries
+/*!
+ *  Function to check whether an Eigen Matrix has any NaN entries
+ *  \param matrixToCheck Eigen Matrix to check for any NaN entries
+ *  \return True if matrix has NaN entries, false otherwise
+ */
 template< typename StateScalarType, int NumberOfRows, int NumberOfColumns >
-bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRows, NumberOfColumns > vectorToCheck )
+bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRows, NumberOfColumns > matrixToCheck )
 {
     bool areNanEntriesPresent = false;
-    for( int i = 0; i < vectorToCheck.rows( ); i++ )
+    for( int i = 0; i < matrixToCheck.rows( ); i++ )
     {
-        for( int j = 0; j < vectorToCheck.cols( ); j++ )
+        for( int j = 0; j < matrixToCheck.cols( ); j++ )
         {
-            if( !( vectorToCheck( i, j ) == vectorToCheck( i, j ) ) )
+            if( !( matrixToCheck( i, j ) == matrixToCheck( i, j ) ) )
             {
                 areNanEntriesPresent = true;
             }

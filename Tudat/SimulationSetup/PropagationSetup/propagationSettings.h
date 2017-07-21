@@ -278,16 +278,19 @@ public:
     /*!
      * Constructor
      * \param singleArcSettings List of propagator settings for each arc in propagation.
+     * \param transferInitialStateInformationPerArc Boolean denoting whether the initial state of arc N+1 is to be taken from
+     * arc N (for N>0)
      */
     MultiArcPropagatorSettings(
             const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings,
-            const bool transferInitialStateInformationperArc = 0 ):
+            const bool transferInitialStateInformationPerArc = 0 ):
         PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true )
     {
         singleArcSettings_ = singleArcSettings;
         for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
         {
-            if( transferInitialStateInformationperArc )
+            // If information is to be transferred between arcs, set arc N>0 initial state as NaN
+            if( transferInitialStateInformationPerArc )
             {
                 if( i != 0 )
                 {
@@ -298,7 +301,7 @@ public:
             }
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
         }
-        if( transferInitialStateInformationperArc )
+        if( transferInitialStateInformationPerArc )
         {
             this->initialStates_ = getConcatenatedInitialStates( singleArcSettings );
         }
@@ -317,6 +320,11 @@ public:
         return singleArcSettings_;
     }
 
+    //! Function to retrieve the number of arcs
+    /*!
+     * Function to retrieve the number of arcs
+     * \return Number of arcs
+     */
     int getNmberOfArcs( )
     {
         return singleArcSettings_.size( );
@@ -332,6 +340,11 @@ public:
         return initialStateList_;
     }
 
+    //! Function to reset the initial state used as input for numerical integration
+    /*!
+     * Function to reset the initial state used as input for numerical integration
+     * \param initialBodyStates New initial state used as input for numerical integration
+     */
     void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
         if( this->stateSize_ != this->initialStates_.rows( ) )
@@ -351,6 +364,11 @@ public:
 
     }
 
+    //! Function to reset the initial state used as input for numerical integration as a vector of Eigen Vectors
+    /*!
+     * Function to reset the initial state used as input for numerical integration as a vector of Eigen Vectors
+     * \param initialStateList New initial states used as input for numerical integration
+     */
     void resetInitialStatesList( const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& initialStateList )
     {
         if( initialStateList_.size( ) != initialStateList.size( ) )

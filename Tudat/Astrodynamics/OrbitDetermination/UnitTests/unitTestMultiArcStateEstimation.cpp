@@ -265,6 +265,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
+    // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >(
