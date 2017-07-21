@@ -193,7 +193,6 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
 
 } // namespace json_interface
 
-
 } // namespace tudat
 
 #endif // TUDAT_JSONINTERFACE_INTEGRATOR_H

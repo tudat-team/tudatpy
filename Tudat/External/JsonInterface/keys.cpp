@@ -81,6 +81,20 @@ const std::string Keys::Body::Ephemeris::rootFinderAbsoluteTolerance = "rootFind
 const std::string Keys::Body::Ephemeris::rootFinderMaximumNumberOfIterations = "rootFinderMaximumNumberOfIterations";
 const std::string Keys::Body::Ephemeris::bodyStateHistory = "bodyStateHistory";
 
+////// Body::GravityField
+const std::string Keys::Body::gravityField = "gravityField";
+const std::string Keys::Body::GravityField::type = "type";
+const std::string Keys::Body::GravityField::gravitationalParameter = "gravitationalParameter";
+const std::string Keys::Body::GravityField::referenceRadius = "referenceRadius";
+const std::string Keys::Body::GravityField::cosineCoefficients = "cosineCoefficients";
+const std::string Keys::Body::GravityField::sineCoefficients = "sineCoefficients";
+const std::string Keys::Body::GravityField::associatedReferenceFrame = "associatedReferenceFrame";
+const std::string Keys::Body::GravityField::sphericalHarmonicsFile = "sphericalHarmonicsFile";
+const std::string Keys::Body::GravityField::maximumDegree = "maximumDegree";
+const std::string Keys::Body::GravityField::maximumOrder = "maximumOrder";
+const std::string Keys::Body::GravityField::gravitationalParameterIndex = "gravitationalParameterIndex";
+const std::string Keys::Body::GravityField::referenceRadiusIndex = "referenceRadiusIndex";
+
 ////// Body::RadiationPressure
 const std::string Keys::Body::radiationPressure = "radiationPressure";
 const std::string Keys::Body::RadiationPressure::type = "type";

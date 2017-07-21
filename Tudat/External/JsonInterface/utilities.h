@@ -76,68 +76,36 @@ std::vector< ValueType > getValues( const std::map< KeyType, ValueType >& map )
 /// EIGEN <- STD
 
 //! Create an Eigen column-vector from a `std::vector`.
-template< typename ScalarType, int rows >
-Eigen::Matrix< ScalarType, rows, 1 > eigenVectorFromStdVector( const std::vector< ScalarType >& stdVector )
+template< typename ScalarType >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > eigenVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
-    if ( stdVector.size( ) != rows )
-    {
-        std::cerr << "Expected vector with " << rows << " rows, got "
-                  << stdVector.size( ) << " rows instead." << std::endl;
-        throw;
-    }
-    return Eigen::Matrix< ScalarType, rows, 1 >( stdVector.data( ) );
+    return Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 >::Map( &stdVector[ 0 ], stdVector.size( ) );
 }
 
 //! Create an Eigen row-vector from a `std::vector`.
-template< typename ScalarType, int cols >
-Eigen::Matrix< ScalarType, 1, cols > eigenRowVectorFromStdVector( const std::vector< ScalarType >& stdVector )
+template< typename ScalarType >
+Eigen::Matrix< ScalarType, 1, Eigen::Dynamic > eigenRowVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
-    if ( stdVector.size( ) != cols )
-    {
-        std::cerr << "Expected vector with " << cols << " columns, got "
-                  << stdVector.size( ) << " columns instead." << std::endl;
-        throw;
-    }
-    return Eigen::Matrix< ScalarType, 1, cols >( stdVector.data( ) );
+    return eigenVectorFromStdVector< ScalarType >( stdVector ).transpose( );
 }
 
 //! Create an Eigen matrix from a `std::vector` of `std::vector`s.
-template< typename ScalarType, int rows, int cols >
-Eigen::Matrix< ScalarType, rows, cols > eigenMatrixFromStdVectorOfVectors(
+template< typename ScalarType >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > eigenMatrixFromStdVectorOfVectors(
         const std::vector< std::vector< ScalarType > >& vectorOfVectors )
 {
-    if ( vectorOfVectors.size( ) != rows )
-    {
-        std::cerr << "Expected matrix with " << rows << " rows, got "
-                  << vectorOfVectors.size( ) << " rows instead." << std::endl;
-        throw;
-    }
-    Eigen::Matrix< ScalarType, rows, cols > matrix;
+    const unsigned int rows = vectorOfVectors.size( );
+    const unsigned int cols = vectorOfVectors.at( 0 ).size( );
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > matrix( rows, cols );
     for ( unsigned int r = 0; r < rows; ++r )
     {
-        matrix.row( r ) = eigenRowVectorFromStdVector< ScalarType, cols >( vectorOfVectors.at( r ) );
+        matrix.row( r ) = eigenRowVectorFromStdVector< ScalarType >( vectorOfVectors.at( r ) );
     }
     return matrix;
 }
 
 
 /// STD <- EIGEN
-
-/*
-//! Create a `std::vector` from an Eigen column-vector.
-template< typename ScalarType, int rows >
-std::vector< ScalarType > stdVectorFromEigenColumnVector( const Eigen::Matrix< ScalarType, rows, 1 >& columnVector )
-{
-    return std::vector< ScalarType >( columnVector.data( ), columnVector.data( ) + columnVector.cols( ) );
-}
-
-//! Create a `std::vector` from an Eigen row-vector.
-template< typename ScalarType, int cols >
-std::vector< ScalarType > stdVectorFromEigenRowVector( const Eigen::Matrix< ScalarType, 1, cols >& rowVector )
-{
-    return std::vector< ScalarType >( rowVector.data( ), rowVector.data( ) + rowVector.rows( ) );
-}
-*/
 
 //! Create a `std::vector` from an Eigen matrix.
 template< typename ScalarType, int rows, int cols >
@@ -153,7 +121,7 @@ std::vector< std::vector< ScalarType > > stdVectorOfVectorsFromEigenMatrix(
         const Eigen::Matrix< ScalarType, rows, cols >& matrix )
 {
     std::vector< std::vector< ScalarType > > vectorOfVectors;
-    for ( unsigned int r = 0; r < rows; ++r )
+    for ( unsigned int r = 0; r < matrix.rows( ); ++r )
     {
         vectorOfVectors.push_back(
                     stdVectorFromEigenMatrix( Eigen::Matrix< ScalarType, 1, cols >( matrix.row( r ) ) ) );

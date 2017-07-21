@@ -92,6 +92,22 @@ struct Keys
             static const std::string bodyStateHistory;
         };
 
+        static const std::string gravityField;
+        struct GravityField
+        {
+            static const std::string type;
+            static const std::string gravitationalParameter;
+            static const std::string referenceRadius;
+            static const std::string cosineCoefficients;
+            static const std::string sineCoefficients;
+            static const std::string associatedReferenceFrame;
+            static const std::string sphericalHarmonicsFile;
+            static const std::string maximumDegree;
+            static const std::string maximumOrder;
+            static const std::string gravitationalParameterIndex;
+            static const std::string referenceRadiusIndex;
+        };
+
         static const std::string radiationPressure;
         struct RadiationPressure
         {

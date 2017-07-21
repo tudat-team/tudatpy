@@ -13,8 +13,9 @@
 
 #include "atmosphere.h"
 #include "ephemeris.h"
-#include "aerodynamics.h"
+#include "gravityField.h"
 #include "radiationPressure.h"
+#include "aerodynamics.h"
 
 namespace tudat
 {
@@ -31,6 +32,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     // Initialise
     jsonObject = json( );
 
+    // Constant mass
+    const double constantMass = bodySettings->constantMass;
+    if ( ! isnan( constantMass ) )
+    {
+        jsonObject[ Keys::mass ] = constantMass;
+    }
+
     // Atmosphere
     if ( bodySettings->atmosphereSettings )
     {
@@ -43,10 +51,10 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
         jsonObject[ Keys::ephemeris ] = bodySettings->ephemerisSettings;
     }
 
-    // Aerodynamics
-    if ( bodySettings->aerodynamicCoefficientSettings )
+    // Gravity field
+    if ( bodySettings->gravityFieldSettings )
     {
-        jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
+        jsonObject[ Keys::gravityField ] = bodySettings->gravityFieldSettings;
     }
 
     // Radiation pressure
@@ -55,11 +63,10 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
         jsonObject[ Keys::radiationPressure ] = bodySettings->radiationPressureSettings;
     }
 
-    // Constant mass
-    const double constantMass = bodySettings->constantMass;
-    if ( ! isnan( constantMass ) )
+    // Aerodynamics
+    if ( bodySettings->aerodynamicCoefficientSettings )
     {
-        jsonObject[ Keys::mass ] = constantMass;
+        jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
     }
 }
 
@@ -88,6 +95,13 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     // Fallback reference area
     const double fallbackArea = getNumeric< double >( settings, keyTree + Keys::referenceArea, TUDAT_NAN, true );
 
+    /// Constant mass
+    const boost::shared_ptr< double > mass = getNumericPointer< double >( settings, keyTree + Keys::mass );
+    if ( mass )
+    {
+        bodySettings->constantMass = *mass ;
+    }
+
     /// Atmosphere
     if ( getValuePointer< json >( settings, keyTree + Keys::atmosphere ) )
     {
@@ -100,11 +114,10 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
         bodySettings->ephemerisSettings = createEphemerisSettings( settings, keyTree + Keys::ephemeris );
     }
 
-    /// Aerodynamics
-    if ( getValuePointer< json >( settings, keyTree + Keys::aerodynamics ) )
+    /// Gravity field
+    if ( getValuePointer< json >( settings, keyTree + Keys::gravityField ) )
     {
-        bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
-                    settings, keyTree + Keys::aerodynamics, fallbackArea );
+        bodySettings->gravityFieldSettings = createGravityFieldSettings( settings, keyTree + Keys::gravityField );
     }
 
     /// Radiation pressure
@@ -122,11 +135,11 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
         bodySettings->radiationPressureSettings = radiationPressureSettings;
     }
 
-    /// Constant mass
-    const boost::shared_ptr< double > mass = getNumericPointer< double >( settings, keyTree + Keys::mass );
-    if ( mass )
+    /// Aerodynamics
+    if ( getValuePointer< json >( settings, keyTree + Keys::aerodynamics ) )
     {
-        bodySettings->constantMass = *mass ;
+        bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
+                    settings, keyTree + Keys::aerodynamics, fallbackArea );
     }
 }
 

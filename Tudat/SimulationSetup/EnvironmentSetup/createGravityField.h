@@ -182,7 +182,7 @@ public:
         createTimeDependentField_ = createTimeDependentField;
     }
 
-private:
+protected:
 
 
     //! Gravitational parameter for gravity field that is to be created.
@@ -201,6 +201,54 @@ private:
     std::string associatedReferenceFrame_;
 
     bool createTimeDependentField_;
+
+};
+
+
+//! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
+//! field representation to be loaded from file.
+class SphericalHarmonicsFileGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param fileName Name of PDS gravity field file to be loaded.
+     * \param associatedReferenceFrame Identifier for body-fixed reference frame to which the coefficients are referred.
+     * \param maximumDegree Maximum degree of gravity field to be loaded.
+     * \param maximumOrder Maximum order of gravity field to be loaded.
+     * \param gravitationalParameterIndex Index at which the gravitational parameter can be found in the header
+     * (first line of the file). Set to -1 if the file has no header.
+     * \param referenceRadiusIndex Index at which the reference radius can be found in the header
+     * (first line of the file). Set to -1 if the file has no header.
+     * \param gravitationalParameter Gravitational parameter of gravity field to be used if file has no header.
+     * \param referenceRadius Reference radius of gravity field to be used if file has no header.
+     */
+    SphericalHarmonicsFileGravityFieldSettings( const std::string& fileName,
+                                                const std::string& associatedReferenceFrame,
+                                                const int maximumDegree,
+                                                const int maximumOrder,
+                                                const int gravitationalParameterIndex,
+                                                const int referenceRadiusIndex,
+                                                const double gravitationalParameter = TUDAT_NAN,
+                                                const double referenceRadius = TUDAT_NAN );
+
+    //! Name of loaded PDS gravity field file.
+    std::string fileName;
+
+    //! Maximum loaded degree from file.
+    int maximumDegree;
+
+    //! Maximum loaded order from file.
+    int maximumOrder;
+
+    //! Index at which the gravitational parameter can be found in the first line of the file.
+    //! -1 if this information is not available in the file.
+    int gravitationalParameterIndex;
+
+    //! Index at which the reference radius can be found in the first line of the file.
+    //! -1 if this information is not available in the file.
+    int referenceRadiusIndex;
 
 };
 
