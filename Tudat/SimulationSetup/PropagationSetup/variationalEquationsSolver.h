@@ -270,6 +270,7 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
  *  \param propagatorSettings Settings for propagation of equations of motion.
  *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
  *  settings and values.
+ *  \return True if settings are consistent
  */
 template< typename StateScalarType = double, typename TimeType = double >
 bool checkPropagatorSettingsAndParameterEstimationConsistency(
@@ -323,6 +324,16 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
     return isInputConsistent;
 }
 
+//! Function to check the consistency between multi-arc propagation settings of equations of motion, and estimated parameters.
+/*!
+ *  Function to check the consistency between multi-arc propagation settings of equations of motion, and estimated parameters.
+ *  In particular, it is presently required that the set of propagated states is equal to the set of estimated states.
+ *  \param propagatorSettings Settings for propagation of equations of motion.
+ *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current
+ *  settings and values.
+ *  \param arcStartTimes Times at which the dynamics arcs start
+ *  \return True if settings are consistent
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
         const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings,
@@ -331,16 +342,23 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
 {
     bool isInputConsistent = 1;
 
-    typedef std::map< std::string, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
-            ArcWiseParameterList;
+    // Get list of objets and associated bodies to estimate initial arc-wise translational states
+    typedef std::map< std::string, boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > ArcWiseParameterList;
     ArcWiseParameterList estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalMultiArcStateToEstimate(
                 parametersToEstimate );
 
+    // Iterate over all parameters and check consistency
     for( typename ArcWiseParameterList::const_iterator parameterIterator = estimatedBodies.begin( ); parameterIterator !=
          estimatedBodies.end( ); parameterIterator++ )
     {
-        std::vector< double > parameterArcStartTimes = boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
+        // Get arc start times of current parameter
+        std::vector< double > parameterArcStartTimes =
+                boost::dynamic_pointer_cast< estimatable_parameters::
+                ArcWiseInitialTranslationalStateParameter< StateScalarType > >(
                     parameterIterator->second )->getArcStartTimes( );
+
+        // Check if arc times are (almost) exactly the same
         if( arcStartTimes.size( ) != parameterArcStartTimes.size( ) )
         {
             isInputConsistent = false;
@@ -362,6 +380,7 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
 
     std::map< IntegratedStateType, std::vector< std::string > > propagatedStateTypes;
 
+    // Iterate over each arc in propagator settings and check consistency
     for( int arc = 0; arc < propagatorSettings->getNmberOfArcs( ); arc++ )
     {
         // Check type of dynamics
@@ -375,7 +394,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
 
             // Retrieve estimated and propagated translational states, and check equality.
             std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
-
             if( arc == 0 )
             {
                 propagatedStateTypes[ transational_state ] = propagatedBodies;
@@ -782,20 +800,29 @@ private:
     boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
 
+//! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
+/*!
+ *  Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
+ *  \param parametersToEstimate Full set of estimated parameters to which teh initial states are to be transferred
+ *  \param propagatorSettings Multi-arc propagator settings from which the initial states are to be taken
+ */
 template< typename StateScalarType = double >
-void setPropagatorSettingsStatesInEstimatedDynamicalParameters(
+void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >  parametersToEstimate,
             const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings )
 {
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > StateType;
     typedef std::map< std::string, boost::shared_ptr< estimatable_parameters::EstimatableParameter< StateType > > >
             ArcWiseParameterList;
+
+    // Get list of estimated bodies
     ArcWiseParameterList estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalMultiArcStateToEstimate(
                 parametersToEstimate );
     std::vector< std::string > bodiesWithPropagatedTranslationalState =
             utilities::createVectorFromMapKeys( estimatedBodies );
-    std::map< std::string, StateType > arcInitialTranslationalStates;
 
+    // Iterate over each arc and set initial state.
+    std::map< std::string, StateType > arcInitialTranslationalStates;
     for( int arc = 0; arc < propagatorSettings->getNmberOfArcs( ); arc++ )
     {
         // Check type of dynamics
@@ -806,6 +833,8 @@ void setPropagatorSettingsStatesInEstimatedDynamicalParameters(
             boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagatorSettings =
                     boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                         propagatorSettings->getSingleArcSettings( ).at( arc ) );
+
+            // Iterate over bodies and set initial state
             for( unsigned int i = 0; i < translationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
             {
                 if( arc == 0 )
@@ -825,6 +854,7 @@ void setPropagatorSettingsStatesInEstimatedDynamicalParameters(
         }
     }
 
+    // Set information in estimation objects
     for( unsigned int i = 0; i < bodiesWithPropagatedTranslationalState.size( ); i++ )
     {
         estimatedBodies.at( bodiesWithPropagatedTranslationalState.at( i ) )->setParameterValue(
@@ -1064,6 +1094,9 @@ public:
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
                             std::vector< IntegratedStateType >( ), 1, 1 );
 
+
+                // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
+                // previous arc
                 VectorType currentArcInitialState;
                 if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
                 {
@@ -1122,7 +1155,7 @@ public:
             if( updateInitialStates )
             {
                 propagatorSettings_->resetInitialStatesList( arcInitialStates );
-                setPropagatorSettingsStatesInEstimatedDynamicalParameters(
+                setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
                             parametersToEstimate_, propagatorSettings_ );
             }
         }
@@ -1131,6 +1164,8 @@ public:
             // Integrate dynamics for each arc
             for( int i = 0; i < numberOfArcs_; i++ )
             {
+                // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from
+                // previous arc
                 if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
                 {
                     throw std::runtime_error( "Error, arc information transferral not yet supported for separate dynamics and variational euations propagation" );
@@ -1187,7 +1222,7 @@ public:
         if( updateInitialStates )
         {
             propagatorSettings_->resetInitialStatesList( arcInitialStates );
-            setPropagatorSettingsStatesInEstimatedDynamicalParameters(
+            setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
                         parametersToEstimate_, propagatorSettings_ );
         }
 
