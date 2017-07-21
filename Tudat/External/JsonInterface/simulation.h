@@ -95,33 +95,8 @@ public:
     //! -DOC
     void setInputFile( const std::string& inputFile )
     {
-        try
-        {
-            // Get absolute path to input file
-            inputFilePath = boost::filesystem::canonical( inputFile );
-        }
-        catch ( ... )
-        {
-            try
-            {
-                // Add .json extension if necessary
-                if ( inputFile.find( ".json" ) == std::string::npos )
-                {
-                    inputFilePath = boost::filesystem::canonical( inputFile + ".json" );
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            catch ( ... )
-            {
-                throw std::runtime_error( "The requested input file does not exist." );
-            }
-        }
-
-        // Read and parse input file
-        settings = json::parse( std::ifstream( inputFilePath.string( ) ) );
+        inputFilePath = pathForJSONFile( inputFile );
+        settings = parseModularJSONFile( inputFilePath );
     }
 
 

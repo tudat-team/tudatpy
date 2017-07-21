@@ -14,6 +14,8 @@
 #include "atmosphere.h"
 #include "ephemeris.h"
 #include "gravityField.h"
+#include "rotationModel.h"
+#include "shapeModel.h"
 #include "radiationPressure.h"
 #include "aerodynamics.h"
 
@@ -57,6 +59,18 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
         jsonObject[ Keys::gravityField ] = bodySettings->gravityFieldSettings;
     }
 
+    // Rotation model
+    if ( bodySettings->rotationModelSettings )
+    {
+        jsonObject[ Keys::rotationModel ] = bodySettings->rotationModelSettings;
+    }
+
+    // Shape model
+    if ( bodySettings->shapeModelSettings )
+    {
+        jsonObject[ Keys::shapeModel ] = bodySettings->shapeModelSettings;
+    }
+
     // Radiation pressure
     if ( ! bodySettings->radiationPressureSettings.empty( ) )
     {
@@ -95,32 +109,44 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     // Fallback reference area
     const double fallbackArea = getNumeric< double >( settings, keyTree + Keys::referenceArea, TUDAT_NAN, true );
 
-    /// Constant mass
+    // Constant mass
     const boost::shared_ptr< double > mass = getNumericPointer< double >( settings, keyTree + Keys::mass );
     if ( mass )
     {
         bodySettings->constantMass = *mass ;
     }
 
-    /// Atmosphere
+    // Atmosphere
     if ( getValuePointer< json >( settings, keyTree + Keys::atmosphere ) )
     {
         bodySettings->atmosphereSettings = createAtmosphereSettings( settings, keyTree + Keys::atmosphere );
     }
 
-    /// Ephemeris
+    // Ephemeris
     if ( getValuePointer< json >( settings, keyTree + Keys::ephemeris ) )
     {
         bodySettings->ephemerisSettings = createEphemerisSettings( settings, keyTree + Keys::ephemeris );
     }
 
-    /// Gravity field
+    // Gravity field
     if ( getValuePointer< json >( settings, keyTree + Keys::gravityField ) )
     {
         bodySettings->gravityFieldSettings = createGravityFieldSettings( settings, keyTree + Keys::gravityField );
     }
 
-    /// Radiation pressure
+    // Rotation model
+    if ( getValuePointer< json >( settings, keyTree + Keys::rotationModel ) )
+    {
+        bodySettings->rotationModelSettings = createRotationModelSettings( settings, keyTree + Keys::rotationModel );
+    }
+
+    // Shape model
+    if ( getValuePointer< json >( settings, keyTree + Keys::shapeModel ) )
+    {
+        bodySettings->shapeModelSettings = createShapeModelSettings( settings, keyTree + Keys::shapeModel );
+    }
+
+    // Radiation pressure
     boost::shared_ptr< std::map< std::string, json > > jsonRadiationPressureInterfaces =
             getValuePointer< std::map< std::string, json > >( settings, keyTree + Keys::radiationPressure );
     if ( jsonRadiationPressureInterfaces )
@@ -135,7 +161,7 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
         bodySettings->radiationPressureSettings = radiationPressureSettings;
     }
 
-    /// Aerodynamics
+    // Aerodynamics
     if ( getValuePointer< json >( settings, keyTree + Keys::aerodynamics ) )
     {
         bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(

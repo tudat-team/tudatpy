@@ -61,7 +61,7 @@ struct Keys
             static const std::string constantTemperature;
             static const std::string densityAtZeroAltitude;
             static const std::string specificGasConstant;
-            static const std::string atmosphereFile;
+            static const std::string file;
             static const std::string spaceWeatherFile;
         };
 
@@ -101,11 +101,31 @@ struct Keys
             static const std::string cosineCoefficients;
             static const std::string sineCoefficients;
             static const std::string associatedReferenceFrame;
-            static const std::string sphericalHarmonicsFile;
+            static const std::string file;
             static const std::string maximumDegree;
             static const std::string maximumOrder;
             static const std::string gravitationalParameterIndex;
             static const std::string referenceRadiusIndex;
+        };
+
+        static const std::string rotationModel;
+        struct RotationModel
+        {
+            static const std::string type;
+            static const std::string originalFrame;
+            static const std::string targetFrame;
+            static const std::string initialOrientation;
+            static const std::string initialTime;
+            static const std::string rotationRate;
+        };
+
+        static const std::string shapeModel;
+        struct ShapeModel
+        {
+            static const std::string type;
+            static const std::string radius;
+            static const std::string equatorialRadius;
+            static const std::string flattening;
         };
 
         static const std::string radiationPressure;

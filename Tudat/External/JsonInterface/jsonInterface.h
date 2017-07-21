@@ -33,6 +33,16 @@ namespace json_interface
 {
 
 //! -DOC
+path pathForJSONFile( const std::string& file );
+
+//! -DOC
+path pathForJSONFile( const std::string& file, const path& basePath );
+
+//! -DOC
+json parseModularJSONFile(const path& inputFilePath );
+
+
+//! -DOC
 class JSONError : public std::runtime_error
 {
 private:
@@ -190,7 +200,7 @@ ValueType getValue( const json& jsonObject, const KeyTree& keyTree, const ValueT
 //! -DOC
 template< typename NumberType >
 NumberType getNumeric( const json& jsonObject, const KeyTree& keyTree,
-                      const NumberType& optionalValue, bool allowNaN = false )
+                       const NumberType& optionalValue, bool allowNaN = false )
 {
     try
     {
@@ -213,7 +223,7 @@ NumberType getNumeric( const json& jsonObject, const KeyTree& keyTree,
 //! -DOC
 template< typename NumberType >
 NumberType getEpoch( const json& jsonObject, const KeyTree& keyTree,
-                      const NumberType& optionalValue, bool allowNaN = false )
+                     const NumberType& optionalValue, bool allowNaN = false )
 {
     try
     {
@@ -318,15 +328,15 @@ namespace Eigen
 {
 
 //! Create a `json` object from an `Eigen::Matrix`.
-//! Called automatically by `nlohmann::json` when using `jsonObject = json( matrix )`.
+//! Called automatically by `nlohmann::json` when using `jsonObject = matrix`.
 template< typename ScalarType, int rows, int cols >
 void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 {
     // Convert to std::vector of std::vector's and use that to initialise json object
-    jsonObject = json( tudat::json_interface::stdVectorOfVectorsFromEigenMatrix( matrix ) );
+    jsonObject = tudat::json_interface::stdVectorOfVectorsFromEigenMatrix( matrix );
 }
 
-//! Create an Eigen matrix from a `json` object.
+//! Create `Eigen::Matrix` from a `json` object.
 //! Called automatically by `nlohmann::json` when using `matrix = jsonObject.get< Eigen::Matrix >( )`.
 template< typename ScalarType, int rows, int cols >
 void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix )
@@ -386,6 +396,25 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
         std::cerr << "." << std::endl;
         throw;
     }
+}
+
+
+//! Create a `json` object from an `Eigen::Quaternion`.
+//! Called automatically by `nlohmann::json` when using `jsonObject = quaternion`.
+template< typename ScalarType >
+void to_json( json& jsonObject, const Quaternion< ScalarType >& quaternion )
+{
+    // Get rotation matrix from quaternion and use that to initialise json object
+    jsonObject = quaternion.toRotationMatrix( );
+}
+
+//! Create `Eigen::Quaternion` from a `json` object.
+//! Called automatically by `nlohmann::json` when using `quaternion = jsonObject.get< Eigen::Quaternion >( )`.
+template< typename ScalarType >
+void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
+{
+    // Get rotation matrix from json object and use that to initialise json object
+    quaternion = jsonObject.get< Eigen::Matrix< ScalarType, 3, 3 > >( );
 }
 
 }  // namespace Eigen

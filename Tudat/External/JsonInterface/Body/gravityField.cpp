@@ -70,7 +70,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
                     sphericalHarmonicsGravityFieldSettings );
         if ( sphericalHarmonicsFileGravityFieldSettings )
         {
-            jsonObject[ Keys::sphericalHarmonicsFile ] = path( sphericalHarmonicsFileGravityFieldSettings->fileName );
+            jsonObject[ Keys::file ] = path( sphericalHarmonicsFileGravityFieldSettings->fileName );
             jsonObject[ Keys::maximumDegree ] = sphericalHarmonicsFileGravityFieldSettings->maximumDegree;
             jsonObject[ Keys::maximumOrder ] = sphericalHarmonicsFileGravityFieldSettings->maximumOrder;
 
@@ -136,7 +136,7 @@ boost::shared_ptr< simulation_setup::GravityFieldSettings > createGravityFieldSe
         return boost::make_shared< GravityFieldSettings >( central_spice );
     case spherical_harmonic:
     {
-        const auto file = getValuePointer< path >( settings, keyTree + Keys::sphericalHarmonicsFile );
+        const auto file = getValuePointer< path >( settings, keyTree + Keys::file );
         if ( file )  /// SphericalHarmonicsFileGravityFieldSettings
         {
             const int muIndex = getNumeric( settings, keyTree + Keys::gravitationalParameterIndex, -1 );

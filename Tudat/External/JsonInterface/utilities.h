@@ -99,6 +99,11 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > eigenMatrixFromStdVe
     Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > matrix( rows, cols );
     for ( unsigned int r = 0; r < rows; ++r )
     {
+        if ( vectorOfVectors.at( r ).size( ) != cols )
+        {
+            std::cerr << "Unconsistent matrix size." << std::endl;
+            throw;
+        }
         matrix.row( r ) = eigenRowVectorFromStdVector< ScalarType >( vectorOfVectors.at( r ) );
     }
     return matrix;

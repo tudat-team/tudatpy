@@ -53,7 +53,7 @@ const std::string Keys::Body::Atmosphere::densityScaleHeight = "densityScaleHeig
 const std::string Keys::Body::Atmosphere::constantTemperature = "constantTemperature";
 const std::string Keys::Body::Atmosphere::densityAtZeroAltitude = "densityAtZeroAltitude";
 const std::string Keys::Body::Atmosphere::specificGasConstant = "specificGasConstant";
-const std::string Keys::Body::Atmosphere::atmosphereFile = "atmosphereFile";
+const std::string Keys::Body::Atmosphere::file = "file";
 const std::string Keys::Body::Atmosphere::spaceWeatherFile = "spaceWeatherFile";
 
 ////// Body::Ephemeris
@@ -89,7 +89,7 @@ const std::string Keys::Body::GravityField::referenceRadius = "referenceRadius";
 const std::string Keys::Body::GravityField::cosineCoefficients = "cosineCoefficients";
 const std::string Keys::Body::GravityField::sineCoefficients = "sineCoefficients";
 const std::string Keys::Body::GravityField::associatedReferenceFrame = "associatedReferenceFrame";
-const std::string Keys::Body::GravityField::sphericalHarmonicsFile = "sphericalHarmonicsFile";
+const std::string Keys::Body::GravityField::file = "file";
 const std::string Keys::Body::GravityField::maximumDegree = "maximumDegree";
 const std::string Keys::Body::GravityField::maximumOrder = "maximumOrder";
 const std::string Keys::Body::GravityField::gravitationalParameterIndex = "gravitationalParameterIndex";
@@ -101,6 +101,22 @@ const std::string Keys::Body::RadiationPressure::type = "type";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
 const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
 const std::string Keys::Body::RadiationPressure::ocultingBodies = "ocultingBodies";
+
+////// Body::RotationModel
+const std::string Keys::Body::rotationModel = "rotationModel";
+const std::string Keys::Body::RotationModel::type = "type";
+const std::string Keys::Body::RotationModel::originalFrame = "originalFrame";
+const std::string Keys::Body::RotationModel::targetFrame = "targetFrame";
+const std::string Keys::Body::RotationModel::initialOrientation = "initialOrientation";
+const std::string Keys::Body::RotationModel::initialTime = "initialTime";
+const std::string Keys::Body::RotationModel::rotationRate = "rotationRate";
+
+////// Body::ShapeModel
+const std::string Keys::Body::shapeModel = "shapeModel";
+const std::string Keys::Body::ShapeModel::type = "type";
+const std::string Keys::Body::ShapeModel::radius = "radius";
+const std::string Keys::Body::ShapeModel::equatorialRadius = "equatorialRadius";
+const std::string Keys::Body::ShapeModel::flattening = "flattening";
 
 
 /// Propagator
