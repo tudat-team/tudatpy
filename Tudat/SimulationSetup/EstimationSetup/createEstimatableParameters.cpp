@@ -297,7 +297,6 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
                 else
                 {
-                    std::cout<<"Setting functions "<<std::endl;
                     getCosineCoefficientsFunction = boost::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
                                 timeDependentShField );
@@ -551,6 +550,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         }
         case full_degree_tidal_love_number:
         {
+            // Check input consistency
             boost::shared_ptr< FullDegreeTidalLoveNumberEstimatableParameterSettings > tidalLoveNumberSettings =
                     boost::dynamic_pointer_cast< FullDegreeTidalLoveNumberEstimatableParameterSettings >( vectorParameterName );
             if( tidalLoveNumberSettings == NULL )
@@ -559,43 +559,43 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             else
             {
+                // Check consistency of body gravity field
+                boost::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+                boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                        boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( gravityField );
+                if( timeDepGravityField == NULL )
                 {
-                    boost::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
-                    boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
-                            boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( gravityField );
-                    if( timeDepGravityField == NULL )
+                    throw std::runtime_error(
+                                "Error, requested tidal love number parameter of " +
+                                vectorParameterName->parameterType_.second.first +
+                                ", but body does not have a time dependent spherical harmonic gravity field." );
+                }
+                else if( currentBody->getGravityFieldVariationSet( ) == NULL )
+                {
+                    throw std::runtime_error( "Error, requested tidal love number parameter of " +
+                                              vectorParameterName->parameterType_.second.first +
+                                              ", but body does not have gravity field variations" );
+                }
+                else
+                {
+
+                    // Get associated gravity field variation
+                    boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                            boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
+                                    tidalLoveNumberSettings->deformingBodies_ ) );
+
+                    // Create parameter object
+                    if( gravityFieldVariation != NULL )
                     {
-                        throw std::runtime_error(
-                                    "Error, requested tidal love number parameter of " +
-                                    vectorParameterName->parameterType_.second.first +
-                                    ", but body does not have a time dependent spherical harmonic gravity field." );
-                    }
-                    else if( currentBody->getGravityFieldVariationSet( ) == NULL )
-                    {
-                        throw std::runtime_error( "Error, requested tidal love number parameter of " +
-                                                  vectorParameterName->parameterType_.second.first +
-                                                  ", but body does not have gravity field variations" );
+                        vectorParameterToEstimate = boost::make_shared< FullDegreeTidalLoveNumber >(
+                                    gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
+                                    tidalLoveNumberSettings->useComplexValue_ );
                     }
                     else
                     {
-
-
-                        boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                    currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                        tidalLoveNumberSettings->deformingBodies_ ) );
-
-                        if( gravityFieldVariation != NULL )
-                        {
-                            vectorParameterToEstimate = boost::make_shared< FullDegreeTidalLoveNumber >(
-                                        gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
-                                        tidalLoveNumberSettings->useComplexValue_ );
-                        }
-                        else
-                        {
-                            throw std::runtime_error(
-                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for tidal love number" );
-                        }
+                        throw std::runtime_error(
+                                    "Error, expected BasicSolidBodyTideGravityFieldVariations for tidal love number" );
                     }
                 }
             }
@@ -603,6 +603,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         }
         case single_degree_variable_tidal_love_number:
         {
+            // Check input consistency
             boost::shared_ptr< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings > tidalLoveNumberSettings =
                     boost::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >( vectorParameterName );
             if( tidalLoveNumberSettings == NULL )
@@ -611,41 +612,42 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             else
             {
+                // Check consistency of body gravity field
+                boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
+                        boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
+                            currentBody->getGravityFieldModel( ) );
+                if( timeDepGravityField == NULL )
                 {
-                    boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDepGravityField =
-                            boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                                currentBody->getGravityFieldModel( ) );
-                    if( timeDepGravityField == NULL )
+                    throw std::runtime_error(
+                                "Error, requested variable tidal love number parameter of " +
+                                vectorParameterName->parameterType_.second.first +
+                                ", but body does not have a time dependent spherical harmonic gravity field." );
+                }
+                else if( currentBody->getGravityFieldVariationSet( ) == NULL )
+                {
+                    throw std::runtime_error( "Error, requested variable tidal love number parameter of " +
+                                              vectorParameterName->parameterType_.second.first +
+                                              ", but body does not have gravity field variations" );
+                }
+                else
+                {
+                    // Get associated gravity field variation
+                    boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
+                            boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
+                                    tidalLoveNumberSettings->deformingBodies_ ) );
+
+                    // Create parameter object
+                    if( gravityFieldVariation != NULL )
                     {
-                        throw std::runtime_error(
-                                    "Error, requested variable tidal love number parameter of " +
-                                   vectorParameterName->parameterType_.second.first +
-                                   ", but body does not have a time dependent spherical harmonic gravity field." );
-                    }
-                    else if( currentBody->getGravityFieldVariationSet( ) == NULL )
-                    {
-                        throw std::runtime_error( "Error, requested variable tidal love number parameter of " +
-                                   vectorParameterName->parameterType_.second.first +
-                                   ", but body does not have gravity field variations" );
+                        vectorParameterToEstimate = boost::make_shared< SingleDegreeVariableTidalLoveNumber >(
+                                    gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
+                                    tidalLoveNumberSettings->orders_, tidalLoveNumberSettings->useComplexValue_ );
                     }
                     else
                     {
-                        boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariation =
-                                boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
-                                    currentBody->getGravityFieldVariationSet( )->getDirectTidalGravityFieldVariation(
-                                        tidalLoveNumberSettings->deformingBodies_ ) );
-
-                        if( gravityFieldVariation != NULL )
-                        {
-                            vectorParameterToEstimate = boost::make_shared< SingleDegreeVariableTidalLoveNumber >(
-                                        gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
-                                        tidalLoveNumberSettings->orders_, tidalLoveNumberSettings->useComplexValue_ );
-                        }
-                        else
-                        {
-                            throw std::runtime_error(
-                                        "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
-                        }
+                        throw std::runtime_error(
+                                    "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
                     }
                 }
             }

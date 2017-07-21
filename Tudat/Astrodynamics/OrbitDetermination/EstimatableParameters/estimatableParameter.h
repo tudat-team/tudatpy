@@ -90,6 +90,12 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
  */
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
 
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+/*!
+ * Function to determine whether the given parameter influences a body's tidal gravity field variations.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter influences a body's tidal gravity field variations.
+ */
 bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.

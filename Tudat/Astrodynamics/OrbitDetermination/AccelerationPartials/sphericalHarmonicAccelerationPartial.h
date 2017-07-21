@@ -51,6 +51,8 @@ public:
      *  which the object being constructed is to calculate partials.
      *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
      *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
+     *  \param tidalLoveNumberPartialInterfaces List of objects to compute partials of tidal gravity field variations, one
+     *  per corresponding variation object in acceleratedBody.
      */
     SphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
@@ -58,7 +60,8 @@ public:
             const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
             observation_partials::RotationMatrixPartialNamedList( ),
-            const std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces =
+            const std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
+            tidalLoveNumberPartialInterfaces =
             std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     //! Destructor
@@ -214,6 +217,7 @@ public:
 
 protected:
 
+    //! Function to reset the relevant member objects to the current time.
     void resetTimeOfMemberObjects( )
     {
         for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
@@ -222,6 +226,7 @@ protected:
         }
     }
 
+    //! Function to update the parameter partials of the relevant member objects to the current time.
     void updateParameterPartialsOfMemberObjects( )
     {
         for( unsigned int i = 0; i < tidalLoveNumberPartialInterfaces_.size( ); i++ )
@@ -273,6 +278,23 @@ protected:
             const estimatable_parameters::EstimatebleParametersEnum parameterType,
             const std::string& secondaryIdentifier );
 
+    //! Function to calculate an acceleration partial wrt a tidal parameter.
+    /*!
+     *  Function to calculate an acceleration partial wrt a tidal parameter of the gravitu field of the body
+     *  exerting the acceleration.
+     *  \param coefficientPartialFunctions Function returning a list of partial derivatives of C,S spherical harmonic coefficients
+     *  with the degree and order determined by corresponding input arguments of this function. Degree is fixed, and this
+     *  vector order corresponds to order of 'orders' input parameter (one vector entry per order). Matrix rows denote
+     *  C and S coefficient, respectively. Columns denote entries of tidal property (e.g. first entry for real Love number
+     *  component, second for complex part)
+     * \param degree Degree of property (e.g. Love number) w.r.t. which partials are to be computed
+     * \param orders Orders of property (e.g. Love number) w.r.t. which partials are to be computed
+     * \param sumOrders True of the contributions of the various orders are to be summed (i.e. assumed to be constant for all
+     * orders at given degree), or if they are handled separately
+     * \param parameterSize Size of the parameter w.r.t. which the partials are to be computed
+     * \param accelerationPartial Matrix of partials of spherical harmonic acceleration wrt a tidal parameter
+     * (returned by reference)
+     */
     void wrtTidalModelParameter(
             const boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
             const int degree,
@@ -395,7 +417,13 @@ protected:
      */
     observation_partials::RotationMatrixPartialNamedList rotationMatrixPartials_;
 
+    //! List of objects to compute partials of tidal gravity field variations
+    /*!
+     * List of objects to compute partials of tidal gravity field variations, one per corresponding variation object in
+     * acceleratedBody.
+     */
     std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
+
     //! Boolean denoting whether the mutual attraction between the bodies is taken into account
     /*!
      *  Boolean denoting whether the mutual attraction between the bodies is taken into account, as is the case when
