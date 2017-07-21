@@ -59,9 +59,15 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     }
 
     std::pair< boost::shared_ptr< simulation_setup::PodOutput< double > >,
+<<<<<<< HEAD
     boost::shared_ptr< simulation_setup::PodInput< double, double > > > podDataOutput;
     Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >(
                  podDataOutput );
+=======
+    boost::shared_ptr< simulation_setup::PodInput< double, double > > > podDataPair;
+    Eigen::VectorXd estimationError = tudat::unit_tests::executeEarthOrbiterParameterEstimation< double, double >(
+                 podDataPair );
+>>>>>>> TidalLoveNumberEstimation
 
     for( unsigned int i = 0; i < 3; i++ )
     {

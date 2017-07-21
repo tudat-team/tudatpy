@@ -339,8 +339,11 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
                 {
                     for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
                     {
-                        throw std::runtime_error(
-                                    "Error when getting arc start times for parameters, arc times are inconsistent" );
+                        if( arcStartTimes.at( j ) != currentArcStartTimes.at( j ) )
+                        {
+                            throw std::runtime_error(
+                                        "Error when getting arc start times for parameters, arc times are inconsistent" );
+                        }
                     }
                 }
             }

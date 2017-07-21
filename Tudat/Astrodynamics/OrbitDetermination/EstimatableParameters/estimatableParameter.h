@@ -50,7 +50,9 @@ enum EstimatebleParametersEnum
     ground_station_position,
     equivalence_principle_lpi_violation_parameter,
     empirical_acceleration_coefficients,
-    arc_wise_empirical_acceleration_coefficients
+    arc_wise_empirical_acceleration_coefficients,
+    full_degree_tidal_love_number,
+    single_degree_variable_tidal_love_number
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
@@ -87,6 +89,14 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
  * \return True if parameter is a property of an observation link
  */
 bool isParameterObservationLinkProperty( const EstimatebleParametersEnum parameterType );
+
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+/*!
+ * Function to determine whether the given parameter influences a body's tidal gravity field variations.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter influences a body's tidal gravity field variations.
+ */
+bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType );
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
@@ -516,6 +526,32 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )
         {
             bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
+    }
+
+    return bodiesToEstimate;
+}
+
+template< typename InitialStateParameterType >
+std::map< std::string, boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
+getListOfBodiesWithTranslationalMultiArcStateToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::map< std::string, boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > > bodiesToEstimate;
+
+    // Retrieve initial dynamical parameters.
+    std::vector< boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
+        {
+            bodiesToEstimate[ initialDynamicalParameters.at( i )->getParameterName( ).second.first ] =
+                    initialDynamicalParameters.at( i );
         }
     }
 
