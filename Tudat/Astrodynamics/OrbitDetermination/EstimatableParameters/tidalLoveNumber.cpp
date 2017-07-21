@@ -16,10 +16,13 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Get value of Love number k_{n}
 Eigen::VectorXd FullDegreeTidalLoveNumber::getParameterValue( )
 {
+    // Retrieve complex Love numbers at required degree
     std::vector< std::complex< double > > fullLoveNumbers = gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
 
+    // Compute mean value across orders
     Eigen::VectorXd meanLoveNumber = Eigen::VectorXd::Zero( parameterSize_ );
     for( int i = 0; i <= degree_; i ++ )
     {
@@ -30,17 +33,19 @@ Eigen::VectorXd FullDegreeTidalLoveNumber::getParameterValue( )
         }
     }
 
+    // Return mean Love number across orders
     meanLoveNumber = meanLoveNumber / static_cast< double >( degree_ + 1 );
-
     return meanLoveNumber;
 }
 
-
+//! Reset value of Love number k_{n}
 void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValue )
 {
+    // Retrieve complex Love numbers at required degree
     std::vector< std::complex< double > > fullLoveNumbers;
     fullLoveNumbers.resize( degree_ + 1 );
 
+    // Set complex value of Love numbers
     double complexPart = 0.0;
     if( useComplexComponents_ )
     {
@@ -59,21 +64,24 @@ void FullDegreeTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValu
         complexPart = meanComplexNumber;
     }
 
+    // Modify required values of Love numbers
     std::complex< double > complexLoveNumber = std::complex< double >( parameterValue[ 0 ], complexPart );
-
     for( int i = 0; i <= degree_; i ++ )
     {
         fullLoveNumbers[ i ] = complexLoveNumber;
     }
 
+    // Reset Love numbers
     gravityFieldVariationModel_->resetLoveNumbersOfDegree( fullLoveNumbers, degree_ );
 }
 
-
+//! Get value of Love number k_{n,m}
 Eigen::VectorXd SingleDegreeVariableTidalLoveNumber::getParameterValue( )
 {
+    // Retrieve complex Love numbers at required degree
     std::vector< std::complex< double > > loveNumbers = gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
 
+    // Retrieve required values
     Eigen::VectorXd loveNumberVector = Eigen::VectorXd::Zero( parameterSize_ );
     for( unsigned int i = 0; i < orders_.size( ); i++ )
     {
@@ -91,12 +99,14 @@ Eigen::VectorXd SingleDegreeVariableTidalLoveNumber::getParameterValue( )
     return loveNumberVector;
 }
 
-
+//! Reset value of Love number k_{n,m}
 void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd parameterValue )
 {
+    // Retrieve current complex Love numbers at required degree
     std::vector< std::complex< double > > fullLoveNumbers =
             gravityFieldVariationModel_->getLoveNumbersOfDegree( degree_ );
 
+    // Modify required values
     for( unsigned int i = 0; i < orders_.size( ); i++ )
     {
         if( useComplexComponents_ )
@@ -110,6 +120,7 @@ void SingleDegreeVariableTidalLoveNumber::setParameterValue( Eigen::VectorXd par
         }
     }
 
+    // Reset values
     gravityFieldVariationModel_->resetLoveNumbersOfDegree( fullLoveNumbers, degree_ );
 }
 

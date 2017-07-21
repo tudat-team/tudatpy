@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 totalGradientCartesianPartial, numericalTotalSphericalGradient, 1.0E-6 );
 }
 
-
+//! Function to get tidal deformation model for Earth
 std::vector< boost::shared_ptr< GravityFieldVariationSettings > > getEarthGravityFieldVariationSettings( )
 {
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariations;
@@ -603,6 +603,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodyMap );
 
+    // Check if incompatible tidal parameters correctly throw an error
     {
         bool isExceptionCaught = false;
         std::vector< boost::shared_ptr< EstimatableParameterSettings > > wrongParameterNames;

@@ -195,7 +195,7 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     return flag;
 }
 
-
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
 bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
 {
     bool flag;
