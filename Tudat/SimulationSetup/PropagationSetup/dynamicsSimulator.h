@@ -524,6 +524,11 @@ public:
         return propagationTerminationReason_;
     }
 
+    //! Function to retrieve initial time of propagation
+    /*!
+     * Function to retrieve initial time of propagation
+     * \return Initial time of propagation
+     */
     double getInitialPropagationTime( )
     {
         return this->initialPropagationTime_;
@@ -623,6 +628,7 @@ protected:
     //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
 
+    //! Initial time of propagation
     double initialPropagationTime_;
 
     //! Event that triggered the termination of the propagation
@@ -649,6 +655,13 @@ std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > > getInitialSt
     return initialStatesList;
 }
 
+//! Function to get the initial state of a translational state arc from the previous state's numerical solution
+/*!
+ *  Function to get the initial state of a translational state arc from the previous state's numerical solution
+ *  \param previousArcDynamisSolution Numerical solution of previous arc
+ *  \param currentArcInitialTime Start time of current arc
+ *  \return Interpolated initial state of current arc
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPreviousArcResult(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& previousArcDynamisSolution,
@@ -656,10 +669,11 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
 {
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
     {
+        // Check if overlap exists
         if( previousArcDynamisSolution.rbegin( )->first < currentArcInitialTime )
         {
             throw std::runtime_error(
-                        "Error in variational equations solver when getting initial arc state from previous arc: no arc overlap" );
+                        "Error when getting initial arc state from previous arc: no arc overlap" );
         }
         else
         {
@@ -668,6 +682,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateInterpolationMap;
 
+            // Set sub-part of previous arc to interpolate for current arc
             for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::
                  const_reverse_iterator previousArcIterator = previousArcDynamisSolution.rbegin( );
                  previousArcIterator != previousArcDynamisSolution.rend( ); previousArcIterator++ )
@@ -690,6 +705,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
                 currentIndex++;
             }
 
+            // Interpolate to obtain initial state of current arc
             currentArcInitialState =
                     boost::make_shared< interpolators::LagrangeInterpolator<
                     TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, long double > >(
@@ -897,7 +913,9 @@ public:
         // Propagate dynamics for each arc
         for( unsigned int i = 0; i < singleArcDynamicsSimulators_.size( ); i++ )
         {
-           if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
+            // Get arc initial state. If initial state is NaN, this signals that the initial state is to be taken from previous
+            // arc
+            if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStatesList.at( i ) ) ) )
             {
                 currentArcInitialState = initialStatesList.at( i );
             }
@@ -906,6 +924,9 @@ public:
                 currentArcInitialState = getArcInitialStateFromPreviousArcResult(
                             equationsOfMotionNumericalSolution_.at( i - 1 ),
                             singleArcDynamicsSimulators_.at( i )->getInitialPropagationTime( ) );
+
+                // If arc initial state is taken from previous arc, this indicates that the initial states in propagator settings
+                // need to be updated.
                 updateInitialStates = true;
             }
             arcInitialStateList.push_back( currentArcInitialState );
@@ -1043,6 +1064,7 @@ protected:
     //! Event that triggered the termination of the propagation
     std::vector< PropagationTerminationReason > propagationTerminationReasons_;
 
+    //! Propagator settings used by this objec
     boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
 
 

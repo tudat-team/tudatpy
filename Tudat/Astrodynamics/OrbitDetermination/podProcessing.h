@@ -119,6 +119,7 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasure
  *  \param measurementData Set of all measurement data, ordered by observable type and link end set
  *  \param typeAndLinkSortedInformationMatrix information matrix, in original ordering (observable type and link ends)
  *  as produced by OrbitDeterminationManager.
+ *  \return Time-ordered information matrix and sorted vector of times
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationMatrix(
