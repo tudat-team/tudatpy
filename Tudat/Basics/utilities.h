@@ -353,7 +353,13 @@ T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputF
     return inputFreeFunction( );
 }
 
-
+//! Function to get the order in which the input vector would be sorted (in ascending order)
+/*!
+ *  Function to get the order in which the input vector would be sorted (in ascending order). Example: for inout vector
+ *  (5,2,6,7,4,0), output would be (5,1,4,0,2,3).
+ *  \param unsortedVector Vector of which the sort order is to be determined
+ *  \return Order in which the input vector would be sorted (in ascending order)
+ */
 template< typename T >
 std::vector< int > getSortOrderOfVector( const std::vector< T > unsortedVector )
 {
@@ -413,6 +419,13 @@ std::vector< KeyType > createVectorFromMultiMapKeys( const std::multimap< KeyTyp
     return outputVector;
 }
 
+//! Function to get sorted vector of an input vector, as well as the order in which this input has been be sorted (ascending)
+/*!
+ *  Function to get sorted vector of an input vector, as well as the order in which this input has been be sorted (ascending)).
+ *  Example: for inout vector (5,2,6,7,4,0), output would be [(5,1,4,0,2,3), (0,2,4,5,6,7)].
+ *  \param unsortedVector Vector that is to be sorted
+ *  \return Parit, with first: order in which the input vector is sorted (in ascending order), second: sorted input vector
+ */
 template< typename T >
 std::pair< std::vector< int >, std::vector< T > > getSortOrderOfVectorAndSortedVector( const std::vector< T > unsortedVector )
 {

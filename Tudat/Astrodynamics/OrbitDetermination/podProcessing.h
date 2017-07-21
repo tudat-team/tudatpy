@@ -119,6 +119,9 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedMeasure
  *  \param measurementData Set of all measurement data, ordered by observable type and link end set
  *  \param typeAndLinkSortedInformationMatrix information matrix, in original ordering (observable type and link ends)
  *  as produced by OrbitDeterminationManager.
+ *  \param timeOrder Order in which the observation time vector was sorted to obtain the time-sorted information matrix (returned
+ *  by reference_
+ *  \return Information matrix, ordered by associated observation time
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationMatrix(
@@ -143,7 +146,8 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
 
     // Create information matrix with entries in order of time.
     int numberOfColumns = typeAndLinkSortedInformationMatrix.cols( );
-    Eigen::MatrixXd sortedMatrix = Eigen::MatrixXd::Zero( typeAndLinkSortedInformationMatrix.rows( ), typeAndLinkSortedInformationMatrix.cols( ) );
+    Eigen::MatrixXd sortedMatrix = Eigen::MatrixXd::Zero( typeAndLinkSortedInformationMatrix.rows( ),
+                                                          typeAndLinkSortedInformationMatrix.cols( ) );
     for( unsigned int i = 0; i < timeVectorSortOrder.size( ); i++ )
     {
         sortedMatrix.block( i, 0, 1, numberOfColumns ) =
@@ -229,8 +233,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
     unsigned int currentIndex;
     Eigen::MatrixXd currentInverseNormalizedCovarianceMatrix;
 
-    //std::cout<<"Getting in loop "<<std::endl<<"Normalization (loop): "<<normalizationFactors.transpose( )<<std::endl;
-
     // Loop over matrix at given time interval.
     while( currentTime < orderedTimeVector[ orderedTimeVector.size( ) - 1 ] )
     {
@@ -252,8 +254,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
             }
         }
 
-        //std::cout<<"Index: "<<currentIndex<<"  " <<orderedTimeVector.size( )<<"  "<< currentTime - 1E7<<" "<<orderedTimeVector.at( currentIndex ) - 1E7<<" "<<
-        //           orderedTimeVector.at( 0 ) - 1.0E7<<" "<<orderedTimeVector.at( orderedTimeVector.size( ) - 1 ) - 1.0E7<<std::endl;
         if( orderedTimeVector.size( ) <= currentIndex )
         {
             throw std::runtime_error( "Error when getting covariance as a function of time, output time not found" );
@@ -268,8 +268,6 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
                     currentInformationMatrix, timeOrderedDiagonalOfWeightMatrix.segment( 0, currentIndex + 1 ), normalizedInverseAPrioriCovariance );
         covarianceMatrixHistory[ orderedTimeVector.at( currentIndex ) ] = unnormalizationMatrix.inverse( ) *
                 currentInverseNormalizedCovarianceMatrix.inverse( ) * unnormalizationMatrix.inverse( );
-
-        //std::cout<<"Inverse normalized covariance (loop) "<<currentInverseNormalizedCovarianceMatrix<<std::endl;
     }
 
 
