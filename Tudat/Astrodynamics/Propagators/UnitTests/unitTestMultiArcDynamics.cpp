@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
 
 
-    for( unsigned testCase = 0; testCase < 2; testCase++ )
+    for( unsigned testCase = 0; testCase < 3; testCase++ )
     {
         std::vector< std::string > bodyNames;
         bodyNames.push_back( "Earth" );
@@ -151,6 +151,15 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                         bodyMap, integratorSettingsList, boost::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ) );
         }
+        else  if( testCase == 2 )
+        {
+            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    boost::make_shared< IntegratorSettings< > >
+                    ( rungeKutta4, initialEphemerisTime, 120.0 );
+            MultiArcDynamicsSimulator< > dynamicsSimulator(
+                        bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< double > >(
+                            arcPropagationSettingsList, true ), integrationArcStarts );
+        }
 
 
         boost::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
@@ -181,20 +190,41 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                 testEndTime = integrationArcStarts.at( i + 1 ) - timeBuffer;
             }
 
-            double currentTestTime = testStartTime;
-            while( currentTestTime < testEndTime )
+            if( testCase < 2 || i == 0 )
             {
-                stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
-                        ( orbital_element_conversions::convertKeplerianToCartesianElements(
-                              propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
-                                                    earthGravitationalParameter ), earthGravitationalParameter ) );
-                for( int i = 0; i < 3; i++ )
+                double currentTestTime = testStartTime;
+                while( currentTestTime < testEndTime )
                 {
-                    BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-4 );
-                    BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-10 );
+                    stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
+                            ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                                  propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
+                                                        earthGravitationalParameter ), earthGravitationalParameter ) );
+                    for( int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-4 );
+                        BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-10 );
 
+                    }
+                    currentTestTime += testTimeStep;
                 }
-                currentTestTime += testTimeStep;
+            }
+            else
+            {
+                double currentTestTime = testStartTime;
+                while( currentTestTime < testEndTime )
+                {
+                    stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
+                            ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                                  propagateKeplerOrbit( initialKeplerElements.at( 0 ), currentTestTime - integrationArcStarts.at( 0 ),
+                                                        earthGravitationalParameter ), earthGravitationalParameter ) );
+                    for( int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-3);
+                        BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-9 );
+
+                    }
+                    currentTestTime += testTimeStep;
+                }
             }
         }
     }

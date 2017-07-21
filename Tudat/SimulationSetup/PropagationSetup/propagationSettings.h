@@ -223,7 +223,7 @@ protected:
  */
 template< typename StateScalarType = double >
 int getConcatenatedStateSize(
-       const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
+        const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
 {
     int vectorSize = 0;
 
@@ -244,7 +244,7 @@ int getConcatenatedStateSize(
  */
 template< typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getConcatenatedInitialStates(
-       const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
+        const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcPropagatorSettings )
 {
     // Define size of return vector
     int vectorSize = getConcatenatedStateSize( singleArcPropagatorSettings );
@@ -280,13 +280,27 @@ public:
      * \param singleArcSettings List of propagator settings for each arc in propagation.
      */
     MultiArcPropagatorSettings(
-            const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings ):
-     PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true )
+            const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >& singleArcSettings,
+            const bool transferInitialStateInformationperArc = 0 ):
+        PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), true )
     {
         singleArcSettings_ = singleArcSettings;
         for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
         {
+            if( transferInitialStateInformationperArc )
+            {
+                if( i != 0 )
+                {
+                    singleArcSettings_.at( i )->resetInitialStates(
+                                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Constant(
+                                    singleArcSettings_.at( i )->getStateSize( ), TUDAT_NAN ) );
+                }
+            }
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
+        }
+        if( transferInitialStateInformationperArc )
+        {
+            this->initialStates_ = getConcatenatedInitialStates( singleArcSettings );
         }
     }
 
@@ -303,6 +317,11 @@ public:
         return singleArcSettings_;
     }
 
+    int getNmberOfArcs( )
+    {
+        return singleArcSettings_.size( );
+     }
+
     //! Function get the list of initial states for each arc in propagation.
     /*!
      * Function get the list of initial states for each arc in propagation.
@@ -313,6 +332,43 @@ public:
         return initialStateList_;
     }
 
+    void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
+    {
+        if( this->stateSize_ != this->initialStates_.rows( ) )
+        {
+            std::cerr<<"Warning when resetting multi-arc initial states, size is incomparible with original size."<<std::endl;
+        }
+
+        this->initialStates_ = initialBodyStates;
+
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            initialStateList_[ i ] = this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getStateSize( ) );
+            singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
+            currentIndex += singleArcSettings_.at( i )->getStateSize( );
+        }
+
+    }
+
+    void resetInitialStatesList( const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& initialStateList )
+    {
+        if( initialStateList_.size( ) != initialStateList.size( ) )
+        {
+            std::cerr<<"Warning when resetting multi-arc initial state list, size is incomparible with original size."<<std::endl;
+        }
+
+        initialStateList_ = initialStateList;
+
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getStateSize( ) ) =  initialStateList_[ i ];
+            singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
+            currentIndex += singleArcSettings_.at( i )->getStateSize( );
+        }
+
+    }
 
 protected:
 
