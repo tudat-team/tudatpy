@@ -522,8 +522,15 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     return bodiesToEstimate;
 }
 
+//! Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
+/*!
+ * Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
+ * \param estimatableParameters Full set of estimated parameters
+ * \return List of parameters (with body names as keys) used for the multi-arc estimation of initial translational state
+ */
 template< typename InitialStateParameterType >
-std::map< std::string, boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
+std::map< std::string, boost::shared_ptr< EstimatableParameter<
+Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
 getListOfBodiesWithTranslationalMultiArcStateToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
@@ -548,6 +555,12 @@ getListOfBodiesWithTranslationalMultiArcStateToEstimate(
     return bodiesToEstimate;
 }
 
+//! Function to retrieve the list of bodies for which an initial dynamical state is to be estimated
+/*!
+ * Function to retrieve the list of bodies for which an initial dynamical state is to be estimated
+ * \param estimatableParameters Full set of estimated parameters
+ * \return List of bodies for which an initial dynamical state is estimated.
+ */
 template< typename InitialStateParameterType >
 std::vector< std::string > getListOfBodiesToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
