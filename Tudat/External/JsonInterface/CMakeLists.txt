@@ -10,6 +10,7 @@
 
 #Set the source files.
 set(JSONINTERFACE_SOURCES
+    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/keys.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/path.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/body.cpp"
@@ -17,6 +18,8 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Body/ephemeris.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/aerodynamics.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/gravityField.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/rotationModel.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/shapeModel.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/radiationPressure.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/integrator.cpp"
 )
@@ -34,6 +37,8 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Body/ephemeris.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/aerodynamics.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/gravityField.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/rotationModel.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Body/shapeModel.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Body/radiationPressure.h"
     "${SRCROOT}${JSONINTERFACEDIR}/integrator.h"
 )

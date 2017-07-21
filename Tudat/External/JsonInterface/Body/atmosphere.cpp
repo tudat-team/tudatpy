@@ -58,7 +58,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
             boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
     if ( tabulatedAtmosphereSettings )
     {
-        jsonObject[ Keys::atmosphereFile ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+        jsonObject[ Keys::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
         return;
     }
 
@@ -97,7 +97,7 @@ boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettin
                     getValue< double >( settings, keyTree + Keys::specificGasConstant ) );
     case tabulated_atmosphere:
         return boost::make_shared< TabulatedAtmosphereSettings >(
-                    getValue< path >( settings, keyTree + Keys::atmosphereFile ).string( ) );
+                    getValue< path >( settings, keyTree + Keys::file ).string( ) );
     case nrlmsise00:
     {
         const boost::shared_ptr< path > spaceWeatherFile =
