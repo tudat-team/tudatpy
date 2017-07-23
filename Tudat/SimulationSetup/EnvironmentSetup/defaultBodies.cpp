@@ -82,7 +82,7 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     else if( bodyName == "Moon" )
     {
         return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", "IAU_Moon", 50, 50, 1, 0 );
+                    input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", "IAU_Moon", 50, 50, 0, 1 );
     }
     else
     {

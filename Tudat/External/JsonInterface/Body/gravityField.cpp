@@ -74,24 +74,19 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
             jsonObject[ Keys::maximumDegree ] = sphericalHarmonicsFileGravityFieldSettings->maximumDegree;
             jsonObject[ Keys::maximumOrder ] = sphericalHarmonicsFileGravityFieldSettings->maximumOrder;
 
-            const int gmParameterIndex =
-                    sphericalHarmonicsFileGravityFieldSettings->gravitationalParameterIndex;
-            if ( gmParameterIndex >= 0 )
-            {
-                jsonObject[ Keys::gravitationalParameterIndex ] = gmParameterIndex;
-            }
-            else
+            // Gravitational parameter (index)
+            const int gmIndex = sphericalHarmonicsFileGravityFieldSettings->gravitationalParameterIndex;
+            jsonObject[ Keys::gravitationalParameterIndex ] = gmIndex;
+            if ( ! ( gmIndex >= 0 ) )
             {
                 jsonObject[ Keys::gravitationalParameter ] =
                         sphericalHarmonicsFileGravityFieldSettings->getGravitationalParameter( );
             }
 
-            const int radiusIndex = sphericalHarmonicsFileGravityFieldSettings->referenceRadiusIndex;
-            if ( radiusIndex >= 0 )
-            {
-                jsonObject[ Keys::referenceRadiusIndex ] = radiusIndex;
-            }
-            else
+            // Reference radius parameter (index)
+            const int referenceRadiusIndex = sphericalHarmonicsFileGravityFieldSettings->referenceRadiusIndex;
+            jsonObject[ Keys::referenceRadiusIndex ] = referenceRadiusIndex;
+            if ( ! ( referenceRadiusIndex >= 0 ) )
             {
                 jsonObject[ Keys::referenceRadius ] =
                         sphericalHarmonicsFileGravityFieldSettings->getReferenceRadius( );
@@ -139,17 +134,17 @@ boost::shared_ptr< simulation_setup::GravityFieldSettings > createGravityFieldSe
         const auto file = getValuePointer< path >( settings, keyTree + Keys::file );
         if ( file )  /// SphericalHarmonicsFileGravityFieldSettings
         {
-            const int muIndex = getNumeric( settings, keyTree + Keys::gravitationalParameterIndex, -1 );
-            const int radiusIndex = getNumeric( settings, keyTree + Keys::referenceRadiusIndex, -1 );
+            const int gmIndex = getNumeric( settings, keyTree + Keys::gravitationalParameterIndex, 0 );
+            const int radiusIndex = getNumeric( settings, keyTree + Keys::referenceRadiusIndex, 1 );
             return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
                         file->string( ),
                         getValue< std::string >( settings, keyTree + Keys::associatedReferenceFrame ),
                         getNumeric< int >( settings, keyTree + Keys::maximumDegree ),
                         getNumeric< int >( settings, keyTree + Keys::maximumOrder ),
-                        muIndex,
+                        gmIndex,
                         radiusIndex,
                         getNumeric< double >( settings, keyTree + Keys::gravitationalParameter,
-                                              TUDAT_NAN, muIndex >= 0 ),
+                                              TUDAT_NAN, gmIndex >= 0 ),
                         getNumeric< double >( settings, keyTree + Keys::referenceRadius,
                                               TUDAT_NAN, radiusIndex >= 0 ) );
         }
