@@ -18,6 +18,7 @@
 #define TUDAT_BASIC_INPUT_OUTPUT_H
 
 #include <fstream>
+#include <iostream>
 #include <iomanip>
 #include <limits>
 #include <map>
@@ -144,6 +145,7 @@ void writeValueToStream( OutputStream& stream, const ValueType& value,
  * \param value Value to write to stream.
  * \param precision Precision to write the value with.
  * \param delimiter Delimiter to precede the value.
+ * \param endLineAfterRow Boolean to denote whether a new line is to be started after each row of the matrix
  */
 template< typename OutputStream, typename ScalarType,
           int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
@@ -161,10 +163,12 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                    << std::setprecision( precision ) << std::left
                    << std::setw( precision + 1 )
                    << value( i, j );
-            if( endLineAfterRow )
-            {
-                stream << std::endl;
-            }
+
+
+        }
+        if( endLineAfterRow )
+        {
+            stream << std::endl;
         }
     }
     stream << std::endl;
@@ -184,7 +188,6 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
  *          line.
  * \param precisionOfKeyType Number of significant digits of KeyType-data to output.
  * \param precisionOfValueType Number of significant digits of ValueType-data to output.
-
  * \param delimiter Delimiter character, to delimit data entries in file.
  */
 template< typename InputIterator >
@@ -333,6 +336,7 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
+
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
@@ -351,7 +355,7 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
     std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
 
     writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
-                        delimiter );
+                        delimiter, true );
 
     outputFile_.close( );
 }
