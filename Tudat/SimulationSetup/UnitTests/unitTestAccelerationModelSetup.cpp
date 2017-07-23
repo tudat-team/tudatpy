@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Set constant state for Earth and Vehicle
     Eigen::Vector6d dummyEarthState =
-            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0
+            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
               ).finished( );
     bodyMap[ "Earth" ]->setState( dummyEarthState );
     bodyMap[ "Vehicle" ]->setState(
