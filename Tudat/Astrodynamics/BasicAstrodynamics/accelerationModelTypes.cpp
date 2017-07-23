@@ -93,6 +93,16 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_central_gravity;
     }
+    else if( boost::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_spherical_harmonic_gravity;
+    }
+    else if( boost::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
     else if( boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                  accelerationModel ) != NULL  )
     {
