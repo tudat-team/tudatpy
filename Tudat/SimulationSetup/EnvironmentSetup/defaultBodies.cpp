@@ -33,8 +33,7 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     if( bodyName == "Earth" )
     {
         atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
-                    input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
-                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+                    input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     }
 
 
@@ -78,14 +77,12 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     if( bodyName == "Earth" )
     {
         return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat",
-                    "IAU_Earth", 50, 50, -1, -1, 0.3986004418E15, 6378137.0 );
+                    input_output::getGravityModelsPath( ) + "Earth/egm96.txt", "IAU_Earth", 50, 50, 0, 1 );
     }
     else if( bodyName == "Moon" )
     {
         return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab",
-                    "IAU_Moon", 50, 50, 1, 0 );
+                    input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", "IAU_Moon", 50, 50, 1, 0 );
     }
     else
     {
