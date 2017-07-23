@@ -75,7 +75,7 @@ boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
     std::pair< double, double > moonGravityFieldSettings = readGravityFieldFile(
-                input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", 50, 50, coefficients, 1, 0 );
+                input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", 50, 50, coefficients, 0, 1 );
 
     return boost::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( moonGravityFieldSettings.first, moonGravityFieldSettings.second,
