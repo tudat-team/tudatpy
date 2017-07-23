@@ -136,6 +136,20 @@ struct Keys
             static const std::string radiationPressureCoefficient;
             static const std::string ocultingBodies;
         };
+
+        static const std::string gravityFieldVariations;
+        struct GravityFieldVariation
+        {
+            static const std::string bodyDeformationType;
+            static const std::string interpolator;
+            static const std::string deformingBodies;
+            static const std::string loveNumbers;
+            static const std::string referenceRadius;
+            static const std::string cosineCoefficientCorrections;
+            static const std::string sineCoefficientCorrections;
+            static const std::string minimumDegree;
+            static const std::string minimumOrder;
+        };
     };
 
     static const std::string propagators;
@@ -178,6 +192,27 @@ struct Keys
         static const std::string minimumFactorDecreaseForNextStepSize;
     };
 
+    static const std::string interpolator;
+    struct Interpolator
+    {
+        static const std::string type;
+        static const std::string lookupScheme;
+        static const std::string useLongDoubleTimeStep;
+        static const std::string order;
+        static const std::string boundaryHandling;
+    };
+
+    /*
+    static const std::string modelInterpolation;
+    struct ModelInterpolation
+    {
+        static const std::string initialTime;
+        static const std::string finalTime;
+        static const std::string timeStep;
+        static const std::string interpolator;
+    };
+    */
+
     static const std::string output;
 };
 
@@ -212,6 +247,14 @@ public:
         {
             compoundKeyTree->push_back( subkey );
         }
+        return *compoundKeyTree;
+    }
+
+    //! -DOC
+    KeyTree& operator+ ( const unsigned int vectorIndex ) const
+    {
+        KeyTree* compoundKeyTree = new KeyTree( *this );
+        compoundKeyTree->push_back( std::to_string( vectorIndex ) );
         return *compoundKeyTree;
     }
 };

@@ -17,8 +17,8 @@
 
 #include "jsonInterface.h"
 
-#include "Body/body.h"
-#include "integrator.h"
+#include "Environment/body.h"
+#include "Mathematics/integrator.h"
 
 namespace tudat
 {
@@ -289,9 +289,6 @@ private:
 template< typename TimeType = double, typename StateScalarType = double >
 void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {
-    // Initialise
-    jsonObject = json( );
-
     // Simulation (general settings)
     json jsonSimulation;
     jsonSimulation[ Keys::Simulation::startEpoch ] = simulation.startEpoch;

@@ -20,7 +20,7 @@ namespace numerical_integrators
 //! Convert `AvailableIntegrators` to `json`.
 void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator )
 {
-    jsonObject = json( json_interface::stringFromEnum( availableIntegrator, availableIntegrators ) );
+    jsonObject = json_interface::stringFromEnum( availableIntegrator, availableIntegrators );
 }
 
 //! Convert `json` to `AvailableIntegrators`.
@@ -32,7 +32,7 @@ void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrato
 //! Convert `RungeKuttaCoefficients::CoefficientSets` to `json`.
 void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
 {
-    jsonObject = json( json_interface::stringFromEnum( rungeKuttaCoefficientSet, rungeKuttaCoefficientSets ) );
+    jsonObject = json_interface::stringFromEnum( rungeKuttaCoefficientSet, rungeKuttaCoefficientSets );
 }
 
 //! Convert `json` to `RungeKuttaCoefficients::CoefficientSets`.
