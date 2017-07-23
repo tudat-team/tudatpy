@@ -119,6 +119,19 @@ const std::string Keys::Body::ShapeModel::equatorialRadius = "equatorialRadius";
 const std::string Keys::Body::ShapeModel::flattening = "flattening";
 
 
+////// Body::GravityFieldVariation
+const std::string Keys::Body::gravityFieldVariations = "gravityFieldVariations";
+const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "bodyDeformationType";
+const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
+const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
+const std::string Keys::Body::GravityFieldVariation::loveNumbers = "loveNumbers";
+const std::string Keys::Body::GravityFieldVariation::referenceRadius = "referenceRadius";
+const std::string Keys::Body::GravityFieldVariation::cosineCoefficientCorrections = "cosineCoefficientCorrections";
+const std::string Keys::Body::GravityFieldVariation::sineCoefficientCorrections = "sineCoefficientCorrections";
+const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDegree";
+const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
+
+
 /// Propagator
 const std::string Keys::propagators = "propagators";
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
@@ -152,6 +165,23 @@ const std::string Keys::Integrator::safetyFactorForNextStepSize = "safetyFactorF
 const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize = "maximumFactorIncreaseForNextStepSize";
 const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "minimumFactorDecreaseForNextStepSize";
 
+
+/// Interpolator
+const std::string Keys::interpolator = "interpolator";
+const std::string Keys::Interpolator::type = "type";
+const std::string Keys::Interpolator::lookupScheme = "lookupScheme";
+const std::string Keys::Interpolator::useLongDoubleTimeStep = "useLongDoubleTimeStep";
+const std::string Keys::Interpolator::order = "order";
+const std::string Keys::Interpolator::boundaryHandling = "boundaryHandling";
+
+/*
+/// ModelInterpolation
+const std::string Keys::modelInterpolation = "modelInterpolation";
+const std::string Keys::ModelInterpolation::initialTime = "initialTime";
+const std::string Keys::ModelInterpolation::finalTime = "finalTime";
+const std::string Keys::ModelInterpolation::timeStep = "timeStep";
+const std::string Keys::ModelInterpolation::interpolator = "interpolator";
+*/
 
 /// Output
 const std::string Keys::output = "output";

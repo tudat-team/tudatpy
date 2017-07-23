@@ -18,6 +18,7 @@
 #include "shapeModel.h"
 #include "radiationPressure.h"
 #include "aerodynamics.h"
+#include "gravityFieldVariation.h"
 
 namespace tudat
 {
@@ -28,59 +29,65 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings )
 {
-    using namespace json_interface;
-    using Keys = Keys::Body;
-
-    // Initialise
-    jsonObject = json( );
-
-    // Constant mass
-    const double constantMass = bodySettings->constantMass;
-    if ( ! isnan( constantMass ) )
+    if ( bodySettings )
     {
-        jsonObject[ Keys::mass ] = constantMass;
-    }
+        using namespace json_interface;
+        using Keys = Keys::Body;
 
-    // Atmosphere
-    if ( bodySettings->atmosphereSettings )
-    {
-        jsonObject[ Keys::atmosphere ] = bodySettings->atmosphereSettings;
-    }
+        // Constant mass
+        const double constantMass = bodySettings->constantMass;
+        if ( ! isnan( constantMass ) )
+        {
+            jsonObject[ Keys::mass ] = constantMass;
+        }
 
-    // Ephemeris
-    if ( bodySettings->ephemerisSettings )
-    {
-        jsonObject[ Keys::ephemeris ] = bodySettings->ephemerisSettings;
-    }
+        // Atmosphere
+        if ( bodySettings->atmosphereSettings )
+        {
+            jsonObject[ Keys::atmosphere ] = bodySettings->atmosphereSettings;
+        }
 
-    // Gravity field
-    if ( bodySettings->gravityFieldSettings )
-    {
-        jsonObject[ Keys::gravityField ] = bodySettings->gravityFieldSettings;
-    }
+        // Ephemeris
+        if ( bodySettings->ephemerisSettings )
+        {
+            jsonObject[ Keys::ephemeris ] = bodySettings->ephemerisSettings;
+        }
 
-    // Rotation model
-    if ( bodySettings->rotationModelSettings )
-    {
-        jsonObject[ Keys::rotationModel ] = bodySettings->rotationModelSettings;
-    }
+        // Gravity field
+        if ( bodySettings->gravityFieldSettings )
+        {
+            jsonObject[ Keys::gravityField ] = bodySettings->gravityFieldSettings;
+        }
 
-    // Shape model
-    if ( bodySettings->shapeModelSettings )
-    {
-        jsonObject[ Keys::shapeModel ] = bodySettings->shapeModelSettings;
-    }
+        // Rotation model
+        if ( bodySettings->rotationModelSettings )
+        {
+            jsonObject[ Keys::rotationModel ] = bodySettings->rotationModelSettings;
+        }
 
-    // Radiation pressure
-    if ( ! bodySettings->radiationPressureSettings.empty( ) )
-    {
-        jsonObject[ Keys::radiationPressure ] = bodySettings->radiationPressureSettings;
-    }
+        // Shape model
+        if ( bodySettings->shapeModelSettings )
+        {
+            jsonObject[ Keys::shapeModel ] = bodySettings->shapeModelSettings;
+        }
 
-    // Aerodynamics
-    if ( bodySettings->aerodynamicCoefficientSettings )
-    {
-        jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
+        // Radiation pressure
+        if ( ! bodySettings->radiationPressureSettings.empty( ) )
+        {
+            jsonObject[ Keys::radiationPressure ] = bodySettings->radiationPressureSettings;
+        }
+
+        // Aerodynamics
+        if ( bodySettings->aerodynamicCoefficientSettings )
+        {
+            jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
+        }
+
+        // Gravity field variations
+        if ( ! bodySettings->gravityFieldVariationSettings.empty( ) )
+        {
+            jsonObject[ Keys::gravityFieldVariations ] = bodySettings->gravityFieldVariationSettings;
+        }
     }
 }
 
@@ -166,6 +173,20 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     {
         bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
                     settings, keyTree + Keys::aerodynamics, fallbackArea );
+    }
+
+    // Gravity field variations
+    boost::shared_ptr< std::vector< json > > jsonGravityFieldVariations =
+            getValuePointer< std::vector< json > >( settings, keyTree + Keys::gravityFieldVariations );
+    if ( jsonGravityFieldVariations )
+    {
+        std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
+        for ( unsigned int i = 0; i < jsonGravityFieldVariations->size( ); ++i )
+        {
+            gravityFieldVariationSettings.push_back(
+                        createGravityFieldVariationSettings( settings, keyTree + Keys::gravityFieldVariations + i ) );
+        }
+        bodySettings->gravityFieldVariationSettings = gravityFieldVariationSettings;
     }
 }
 

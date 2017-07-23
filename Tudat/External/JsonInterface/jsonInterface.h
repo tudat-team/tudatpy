@@ -111,7 +111,19 @@ ValueType getValue( json jsonObject, const KeyTree& keyTree )
         // Recursively update jsonObject for every key in keyTree
         for ( unsigned int i = 0; i < keyTree.size(); ++i )
         {
-            jsonObject = jsonObject.at( keyTree.at( i ) );
+            const std::string key = keyTree.at( i );
+            try
+            {
+                // Try to access element at key
+                jsonObject = jsonObject.at( key );
+            }
+            catch ( ... )
+            {
+                // Key may be convertible to int.
+                // Convert current jsonObject to vector< json > and try to access element at int( key )
+                std::vector< json > jsonVector = jsonObject;
+                jsonObject = jsonVector.at( std::stoi( key ) );
+            }
         }
     }
     catch ( ... )
@@ -423,27 +435,48 @@ void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
 namespace std
 {
 
+/// Support for maps with arbitrary key type
+
 //! Create a `json` object from a `std::map` with arbitrary key type.
-//! Called automatically by `nlohmann::json` when using `jsonObject = json( map )`.
+//! Called automatically by `nlohmann::json` when using `jsonObject = myMap`.
 template< typename KeyType, typename ValueType >
-void to_json( json& jsonObject, const std::map< KeyType, ValueType >& map )
+void to_json( json& jsonObject, const map< KeyType, ValueType >& myMap )
 {
-    for ( auto entry : map )
+    for ( auto entry : myMap )
     {
-        jsonObject[ boost::lexical_cast< std::string >( entry.first ) ] = entry.second;
+        jsonObject[ boost::lexical_cast< string >( entry.first ) ] = entry.second;
     }
 }
 
 //! Create a std::map with arbitrary key type from a `json` object.
-//! Called automatically by `nlohmann::json` when using `map = jsonObject.get< std::map< KeyType, ValueType > >( )`.
+//! Called automatically by `nlohmann::json` when using `myMap = jsonObject.get< std::map< KeyType, ValueType > >( )`.
 template< typename KeyType, typename ValueType >
-void from_json( const json& jsonObject, std::map< KeyType, ValueType >& map )
+void from_json( const json& jsonObject, map< KeyType, ValueType >& myMap )
 {
     json j = jsonObject;
     for ( json::iterator it = j.begin( ); it != j.end( ); ++it )
     {
-        map[ boost::lexical_cast< KeyType >( it.key( ) ) ] = it.value( ).get< ValueType >( );
+        myMap[ boost::lexical_cast< KeyType >( it.key( ) ) ] = it.value( ).get< ValueType >( );
     }
+}
+
+
+/// Support for complex numbers
+
+//! Create a `json` object from a `std::complex`.
+//! Called automatically by `nlohmann::json` when using `jsonObject = complexNumber`.
+template< typename T >
+void to_json( json& jsonObject, const complex< T >& complexNumber )
+{
+    jsonObject = boost::lexical_cast< string >( complexNumber );
+}
+
+//! Create a `std::complex` from a `json` object.
+//! Called automatically by `nlohmann::json` when using `complexNumber = jsonObject.get< std::complex< double > >( )`.
+template< typename T >
+void from_json( const json& jsonObject, complex< T >& complexNumber )
+{
+    complexNumber = boost::lexical_cast< complex< T > >( jsonObject.get< string >( ) );
 }
 
 }  // namespace std

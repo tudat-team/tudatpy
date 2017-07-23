@@ -20,7 +20,7 @@ namespace simulation_setup
 //! Convert `GravityFieldType`s to `json`.
 void to_json( json& jsonObject, const GravityFieldType& gravityFieldType )
 {
-    jsonObject = json( json_interface::stringFromEnum( gravityFieldType, gravityFieldTypes ) );
+    jsonObject = json_interface::stringFromEnum( gravityFieldType, gravityFieldTypes );
 }
 
 //! Convert `json` to `GravityFieldType`.
@@ -32,78 +32,78 @@ void from_json( const json& jsonObject, GravityFieldType& gravityFieldType )
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
 {
-    using namespace json_interface;
-    using Keys = Keys::Body::GravityField;
-
-    // Initialise
-    jsonObject = json( );
-
-    // Type
-    jsonObject[ Keys::type ] = gravityFieldSettings->getGravityFieldType( );
-
-    /// central_spice
-    if ( jsonObject[ Keys::type ] == central_spice )
+    if ( gravityFieldSettings )
     {
-        return;
-    }
+        using namespace json_interface;
+        using Keys = Keys::Body::GravityField;
 
-    /// CentralGravityFieldSettings
-    boost::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
-            boost::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
-    if ( centralGravityFieldSettings )
-    {
-        jsonObject[ Keys::gravitationalParameter ] = centralGravityFieldSettings->getGravitationalParameter( );
-        return;
-    }
+        // Type
+        jsonObject[ Keys::type ] = gravityFieldSettings->getGravityFieldType( );
 
-    /// SphericalHarmonicsGravityFieldSettings
-    boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsGravityFieldSettings =
-            boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-    if ( sphericalHarmonicsGravityFieldSettings )
-    {
-        jsonObject[ Keys::associatedReferenceFrame ] =
-                sphericalHarmonicsGravityFieldSettings->getAssociatedReferenceFrame( );
-
-        /// SphericalHarmonicsFileGravityFieldSettings
-        boost::shared_ptr< SphericalHarmonicsFileGravityFieldSettings > sphericalHarmonicsFileGravityFieldSettings =
-                boost::dynamic_pointer_cast< SphericalHarmonicsFileGravityFieldSettings >(
-                    sphericalHarmonicsGravityFieldSettings );
-        if ( sphericalHarmonicsFileGravityFieldSettings )
+        /// central_spice
+        if ( jsonObject[ Keys::type ] == central_spice )
         {
-            jsonObject[ Keys::file ] = path( sphericalHarmonicsFileGravityFieldSettings->fileName );
-            jsonObject[ Keys::maximumDegree ] = sphericalHarmonicsFileGravityFieldSettings->maximumDegree;
-            jsonObject[ Keys::maximumOrder ] = sphericalHarmonicsFileGravityFieldSettings->maximumOrder;
-
-            // Gravitational parameter (index)
-            const int gmIndex = sphericalHarmonicsFileGravityFieldSettings->gravitationalParameterIndex;
-            jsonObject[ Keys::gravitationalParameterIndex ] = gmIndex;
-            if ( ! ( gmIndex >= 0 ) )
-            {
-                jsonObject[ Keys::gravitationalParameter ] =
-                        sphericalHarmonicsFileGravityFieldSettings->getGravitationalParameter( );
-            }
-
-            // Reference radius parameter (index)
-            const int referenceRadiusIndex = sphericalHarmonicsFileGravityFieldSettings->referenceRadiusIndex;
-            jsonObject[ Keys::referenceRadiusIndex ] = referenceRadiusIndex;
-            if ( ! ( referenceRadiusIndex >= 0 ) )
-            {
-                jsonObject[ Keys::referenceRadius ] =
-                        sphericalHarmonicsFileGravityFieldSettings->getReferenceRadius( );
-            }
-
             return;
         }
 
-        jsonObject[ Keys::gravitationalParameter ] =
-                sphericalHarmonicsGravityFieldSettings->getGravitationalParameter( );
-        jsonObject[ Keys::referenceRadius ] =
-                sphericalHarmonicsGravityFieldSettings->getReferenceRadius( );
-        jsonObject[ Keys::cosineCoefficients ] =
-                sphericalHarmonicsGravityFieldSettings->getCosineCoefficients( );
-        jsonObject[ Keys::sineCoefficients ] =
-                sphericalHarmonicsGravityFieldSettings->getSineCoefficients( );
-        return;
+        /// CentralGravityFieldSettings
+        boost::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
+                boost::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
+        if ( centralGravityFieldSettings )
+        {
+            jsonObject[ Keys::gravitationalParameter ] = centralGravityFieldSettings->getGravitationalParameter( );
+            return;
+        }
+
+        /// SphericalHarmonicsGravityFieldSettings
+        boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsGravityFieldSettings =
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
+        if ( sphericalHarmonicsGravityFieldSettings )
+        {
+            jsonObject[ Keys::associatedReferenceFrame ] =
+                    sphericalHarmonicsGravityFieldSettings->getAssociatedReferenceFrame( );
+
+            /// SphericalHarmonicsFileGravityFieldSettings
+            boost::shared_ptr< SphericalHarmonicsFileGravityFieldSettings > sphericalHarmonicsFileGravityFieldSettings =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsFileGravityFieldSettings >(
+                        sphericalHarmonicsGravityFieldSettings );
+            if ( sphericalHarmonicsFileGravityFieldSettings )
+            {
+                jsonObject[ Keys::file ] = path( sphericalHarmonicsFileGravityFieldSettings->fileName );
+                jsonObject[ Keys::maximumDegree ] = sphericalHarmonicsFileGravityFieldSettings->maximumDegree;
+                jsonObject[ Keys::maximumOrder ] = sphericalHarmonicsFileGravityFieldSettings->maximumOrder;
+
+                // Gravitational parameter (index)
+                const int gmIndex = sphericalHarmonicsFileGravityFieldSettings->gravitationalParameterIndex;
+                jsonObject[ Keys::gravitationalParameterIndex ] = gmIndex;
+                if ( ! ( gmIndex >= 0 ) )
+                {
+                    jsonObject[ Keys::gravitationalParameter ] =
+                            sphericalHarmonicsFileGravityFieldSettings->getGravitationalParameter( );
+                }
+
+                // Reference radius (index)
+                const int rIndex = sphericalHarmonicsFileGravityFieldSettings->referenceRadiusIndex;
+                jsonObject[ Keys::referenceRadiusIndex ] = rIndex;
+                if ( ! ( rIndex >= 0 ) )
+                {
+                    jsonObject[ Keys::referenceRadius ] =
+                            sphericalHarmonicsFileGravityFieldSettings->getReferenceRadius( );
+                }
+
+                return;
+            }
+
+            jsonObject[ Keys::gravitationalParameter ] =
+                    sphericalHarmonicsGravityFieldSettings->getGravitationalParameter( );
+            jsonObject[ Keys::referenceRadius ] =
+                    sphericalHarmonicsGravityFieldSettings->getReferenceRadius( );
+            jsonObject[ Keys::cosineCoefficients ] =
+                    sphericalHarmonicsGravityFieldSettings->getCosineCoefficients( );
+            jsonObject[ Keys::sineCoefficients ] =
+                    sphericalHarmonicsGravityFieldSettings->getSineCoefficients( );
+            return;
+        }
     }
 }
 
