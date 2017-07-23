@@ -71,6 +71,26 @@ static inline std::string getSpiceKernelPath( )
 #endif
 }
 
+//! Get atmosphere tables path.
+/*!
+ * Returns path in which atmosphere tables are located.
+ * \return Path containing atmosphere tables.
+ */
+static inline std::string getAtmosphereTablesPath( )
+{
+    return getTudatRootPath( ) + "External/AtmosphereTables/";
+}
+
+//! Get gravity models path.
+/*!
+ * Returns path in which gravity models are located.
+ * \return Path containing gravity models.
+ */
+static inline std::string getGravityModelsPath( )
+{
+    return getTudatRootPath( ) + "External/GravityModels/";
+}
+
 //! Print floating-point number in formatted scientific notation.
 /*!
  * Prints floating-point number in formatted scientific notation. The user can specify the
