@@ -336,7 +336,15 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
-
+//! Write Eigen matrix to text file.
+/*!
+ * Write Eigen matrix to text file.
+ * \param matrixToWrite Matrix that is to be written to a file
+ * \param outputFilename Output filename.
+ * \param precisionOfMatrixEntries Number of significant digits of Matrix output
+ * \param outputDirectory Output directory. It can be passed as a string as well. The directory be created if it does not exist.
+ * \param delimiter Delimiter character, to delimit data entries in file.
+ */
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
