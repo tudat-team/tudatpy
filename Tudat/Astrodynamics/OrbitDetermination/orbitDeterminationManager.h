@@ -535,9 +535,6 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
-
-            input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
-            input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;

@@ -53,7 +53,7 @@ static inline std::string getTudatRootPath( )
 
     // Strip filename from temporary string and return root-path string.
     return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "InputOutput/basicInputOutput.h" ).length( ) );
+                             std::string( "InputOutput/basicInputOutput.h" ).length( ) );
 #endif
 }
 
@@ -105,7 +105,7 @@ std::string printInFormattedScientificNotation(
  * \return Container of filenames in directory, stored as Boost path variables.
  */
 std::vector< boost::filesystem::path > listAllFilesInDirectory(
-    const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories = false );
+        const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!
@@ -150,7 +150,8 @@ template< typename OutputStream, typename ScalarType,
 void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                          NumberOfRows, NumberOfColumns, Options,
                          MaximumRows, MaximumCols >& value,
-                         const int precision, const std::string& delimiter )
+                         const int precision, const std::string& delimiter,
+                         const bool endLineAfterRow  = 0 )
 {
     for ( int i = 0; i < value.rows( ); i++ )
     {
@@ -160,6 +161,10 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                    << std::setprecision( precision ) << std::left
                    << std::setw( precision + 1 )
                    << value( i, j );
+            if( endLineAfterRow )
+            {
+                stream << std::endl;
+            }
         }
     }
     stream << std::endl;
@@ -328,9 +333,28 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
-void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
-                        std::string fileName,
-                        const int numberOfDigits = 16 );
+template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
+void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
+                        const std::string& outputFilename,
+                        const int precisionOfMatrixEntries = 16,
+                        const boost::filesystem::path& outputDirectory = getTudatRootPath( ),
+                        const std::string& delimiter = "\t" )
+{
+    // Check if output directory exists; create it if it doesn't.
+    if ( !boost::filesystem::exists( outputDirectory ) )
+    {
+        boost::filesystem::create_directories( outputDirectory );
+    }
+
+    // Open output file.
+    std::string outputDirectoryAndFilename = outputDirectory.string( ) + "/" + outputFilename;
+    std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
+
+    writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
+                        delimiter );
+
+    outputFile_.close( );
+}
 
 //! Typedef for double-KeyType, double-ValueType map.
 /*!
