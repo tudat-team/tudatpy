@@ -538,17 +538,11 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
-<<<<<<< HEAD
             if( numberOfIterations == 0 && saveResidualsFromFirstIteration )
             {
                 firstIterationResiduals = residualsAndPartials.first;
             }
 
-
-            //input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
-            //input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
-=======
->>>>>>> development
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;
@@ -557,15 +551,10 @@ public:
             {
                 std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
             }
+
             // Calculate mean residual for current iteration.
-            residualRms = 0.0;
-            double residualSum = 1.0;
-            for( int i = 0; i < residualsAndPartials.first.size( ); i++ )
-            {
-                residualRms += std::fabs( residualsAndPartials.first[ i ] );// * weightMatrix( i, i );
-                residualSum += 1.0; //weightMatrix( i, i );
-            }
-            residualRms = residualRms / ( residualSum );
+            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residualsAndPartials.first );
+
             rmsResidualHistory.push_back( residualRms );
             if( printOutput )
             {

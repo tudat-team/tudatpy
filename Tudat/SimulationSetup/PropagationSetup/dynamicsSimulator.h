@@ -546,8 +546,6 @@ protected:
      */
     void processNumericalEquationsOfMotionSolution( )
     {
-        std::cout<<"Final time: "<<std::setprecision( 16 )<<equationsOfMotionNumericalSolution_.rbegin( )->first<<std::endl;
-
         // Create and set interpolators for ephemerides
         resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
 

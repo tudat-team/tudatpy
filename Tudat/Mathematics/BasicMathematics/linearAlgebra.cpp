@@ -131,6 +131,18 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& parti
              ( normOfVector * normOfVector * normOfVector ) ) * partialOfUnnormalizedVector;
 }
 
+double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector )
+{
+    // Calculate mean residual for current iteration.
+    double vectorRms = 0.0;
+    for( int i = 0; i < inputVector.rows( ); i++ )
+    {
+        vectorRms += inputVector( i ) * inputVector( i );
+    }
+    vectorRms = std::sqrt( vectorRms ) / inputVector.rows( );
+    return vectorRms;
+}
+
 
 } // namespace linear_algebra
 

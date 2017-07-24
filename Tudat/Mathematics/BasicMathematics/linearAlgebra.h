@@ -167,8 +167,7 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
     return areNanEntriesPresent;
 }
 
-
-
+double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
 
 
 } // namespace linear_algebra
