@@ -350,10 +350,6 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     SingleArcDynamicsSimulator< > simulator( bodyMap, integratorSettings, propagatorSettings );
 
-    input_output::writeDataMapToTextFile( simulator.getEquationsOfMotionNumericalSolution( ),
-                                          "entryJ2SensitivityNominalTrajectory.dat" );
-
-
     std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
                 bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
