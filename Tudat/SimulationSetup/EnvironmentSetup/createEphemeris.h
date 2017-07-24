@@ -99,6 +99,11 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
+    //! Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
     double getMakeMultiArcEphemeris( )
     {
         return makeMultiArcEphemeris_;
@@ -118,6 +123,11 @@ public:
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
+    //! Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \param makeMultiArcEphemeris New boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
     void resetMakeMultiArcEphemeris( const bool makeMultiArcEphemeris )
     {
         makeMultiArcEphemeris_ = makeMultiArcEphemeris;
@@ -134,6 +144,12 @@ protected:
     //! Orientation of frame in which ephemeris data is defined.
     std::string frameOrientation_;
 
+    //! Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     *  Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If true, the createEphemeris
+     *  function creates a multi-arc ephemeris with a single arc spanning all time, created according to the contents of the
+     *  EphemerisSettings object.
+     */
     bool makeMultiArcEphemeris_;
 };
 
