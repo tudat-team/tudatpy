@@ -165,13 +165,18 @@ bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris )
     return objectIsTabulated;
 }
 
+//! Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated
 std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shared_ptr< Ephemeris > ephemeris )
 {
+    // Initialize return pair
     std::pair< double, double > safeInterval = std::make_pair( TUDAT_NAN, TUDAT_NAN );
+
+    // Check input consistency
     if( !isTabulatedEphemeris( ephemeris ) )
     {
         throw std::runtime_error( "Error wgen getting tabulated ephemeris safe interval, input is not a tabulated ephemeris" );
     }
+    // Identify type of tabulated ephemeris, and call associated safe interval function
     else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != NULL )
     {
         safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(

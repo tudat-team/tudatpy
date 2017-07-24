@@ -255,6 +255,7 @@ struct PodOutput
      * matrix were divided to normalize its entries.
      * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
+     * \param firstIterationResiduals Vector of observation residuals at first iteration
      */
     PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
@@ -348,6 +349,7 @@ struct PodOutput
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
 
+    //! Vector of observation residuals at first iteration
     Eigen::VectorXd firstIterationResiduals_;
 };
 
