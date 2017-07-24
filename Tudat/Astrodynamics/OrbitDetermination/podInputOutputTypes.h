@@ -274,8 +274,14 @@ struct PodOutput
         firstIterationResiduals_( firstIterationResiduals )
     { }
 
+    //! Function to retrieve the unnormalized inverse estimation covariance matrix
+    /*!
+     * Function to retrieve the unnormalized inverse estimation covariance matrix
+     * \return Isnverse estimation covariance matrix
+     */
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
+
         Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
@@ -289,6 +295,36 @@ struct PodOutput
         }
 
         return inverseUnnormalizedCovarianceMatrix;
+    }
+
+    //! Function to retrieve the unnormalized estimation covariance matrix
+    /*!
+     * Function to retrieve the unnormalized estimation covariance matrix
+     * \return Estimation covariance matrix
+     */
+    Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
+    {
+        return getUnnormalizedInverseCovarianceMatrix( ).inverse( );
+    }
+
+    //! Function to retrieve the unnormalized formal error vector of the estimation result.
+    /*!
+     * Function to retrieve the unnormalized formal error vector of the estimation result.
+     * \return Formal error vector of the estimation result.
+     */
+    Eigen::VectorXd getFormalErrorVector( )
+    {
+        return ( getUnnormalizedCovarianceMatrix( ).diagonal( ) ).cwiseSqrt( );
+    }
+
+    //! Function to retrieve the correlation matrix of the estimation result.
+    /*!
+     * Function to retrieve the correlation matrix of the estimation result.
+     * \return Correlation matrix of the estimation result.
+     */
+    Eigen::MatrixXd getCorrelationMatrix( )
+    {
+        return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
     //! Vector of estimated parameter values.
