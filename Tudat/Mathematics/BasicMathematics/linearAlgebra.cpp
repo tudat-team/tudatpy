@@ -140,7 +140,7 @@ double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector )
     {
         vectorRms += inputVector( i ) * inputVector( i );
     }
-    vectorRms = std::sqrt( vectorRms ) / inputVector.rows( );
+    vectorRms = std::sqrt( vectorRms / inputVector.rows( ) );
 
     return vectorRms;
 }
