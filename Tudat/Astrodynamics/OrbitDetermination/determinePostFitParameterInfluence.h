@@ -26,13 +26,14 @@ namespace simulation_setup
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
-        const NamedBodyMap& nominalEnvironment,
+        const NamedBodyMap& bodyMap,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
         const double simulatedObservationInterval,
         const std::vector< double > parameterPerturbations,
-        const std::vector< int > parameterIndices )
+        const std::vector< int > parameterIndices,
+        const int numberOfIterations = 2 )
 {
     using namespace observation_models;
     using namespace estimatable_parameters;
@@ -72,12 +73,12 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Create initial state estimation objects
     boost::shared_ptr< EstimatableParameterSet< StateScalarType > > initialStateParametersToEstimate =
-            createParametersToEstimate< StateScalarType >( initialStateParameterNames, nominalEnvironment );
+            createParametersToEstimate< StateScalarType >( initialStateParameterNames, bodyMap );
 
     // Create orbit determination object.
     OrbitDeterminationManager< StateScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< StateScalarType, TimeType >(
-                nominalEnvironment, initialStateParametersToEstimate, observationSettingsMap,
+                bodyMap, initialStateParametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
 
     // Retrieve nominal (e.g. pre-fit) body states
@@ -121,7 +122,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
     perturbedParameterSettingsList.push_back( perturbedParameterSettings );
     boost::shared_ptr< EstimatableParameterSet< StateScalarType > > perturbedParameters =
-            createParametersToEstimate< StateScalarType >( perturbedParameterSettingsList, nominalEnvironment );
+            createParametersToEstimate< StateScalarType >( perturbedParameterSettingsList, bodyMap );
 
     // Perturb parameters by required amount
     Eigen::VectorXd parameterVectorToPerturb = perturbedParameters->template getFullParameterValues< double >( );
@@ -141,7 +142,8 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Fit nominal dynamics to pertrubed dynamical model
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( 4 ), true, true, false, true, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ),
+                true, true, false, true, true );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );
@@ -155,7 +157,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
 template< typename TimeType, typename StateScalarType >
 void determinePostfitParameterInfluence(
-        const NamedBodyMap& nominalEnvironment,
+        const NamedBodyMap& bodyMap,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
@@ -163,7 +165,7 @@ void determinePostfitParameterInfluence(
 
 template< typename TimeType, typename StateScalarType >
 void determinePostfitParameterInfluence(
-        const NamedBodyMap& nominalEnvironment,
+        const NamedBodyMap& bodyMap,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,

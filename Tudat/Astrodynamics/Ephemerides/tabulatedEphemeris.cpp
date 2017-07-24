@@ -192,6 +192,7 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shar
         safeInterval = boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
                     ephemeris )->getSafeInterpolationInterval( );
     }
+    return safeInterval;
 }
 
 

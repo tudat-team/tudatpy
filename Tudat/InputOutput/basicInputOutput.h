@@ -245,9 +245,9 @@ void writeDataMapToTextFile(
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile(
         const std::map< KeyType, ValueType >& dataMap, const std::string& outputFilename,
-        const boost::filesystem::path& outputDirectory, const std::string& fileHeader,
-        const int precisionOfKeyType, const int precisionOfValueType,
-        const std::string& delimiter )
+        const boost::filesystem::path& outputDirectory, const std::string& fileHeader = "",
+        const int precisionOfKeyType = 16, const int precisionOfValueType = 16,
+        const std::string& delimiter = "\t" )
 {
     writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
                             outputFilename, outputDirectory, fileHeader,

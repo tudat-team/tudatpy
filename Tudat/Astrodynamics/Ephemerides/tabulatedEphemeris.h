@@ -153,6 +153,7 @@ public:
             int numberOfNodes =
                     boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
                         interpolator_ )->getNumberOfStages( );
+
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
             safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
                         interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
