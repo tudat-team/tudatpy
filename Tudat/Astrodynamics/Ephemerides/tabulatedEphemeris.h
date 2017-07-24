@@ -135,9 +135,17 @@ public:
         return interpolator_;
     }
 
+    //! Function that retrieves the time interval at which this ephemeris can be safely interrogated
+    /*!
+     * Function that retrieves the time interval at which this ephemeris can be safely interrogated. The interval
+     * on which the interpolator inside this object is valid is checked and returned
+     * \return The time interval at which the tabulated ephemeris can be safely interrogated
+     */
     std::pair< double, double > getSafeInterpolationInterval( )
     {
         std::pair< double, double > safeInterpolationInterval;
+
+        // Check interpolator type. If interpolator is not a Lagrange interpolator, return full domain
         if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
                     interpolator_ ) == NULL &&
                 boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
@@ -147,6 +155,7 @@ public:
             safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
                         interpolator_->getIndependentValues( ).size( ) - 1 );
         }
+        // If interpolator is a Lagrange interpolator, return full domain minus edges where interpolator has reduced accuracy
         else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
                      interpolator_ ) != NULL )
         {
@@ -191,6 +200,14 @@ private:
  */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
 
+//! Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated
+/*!
+ * Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated. The interval
+ * on which the interpolator inside this object is valid is checked and returned
+ * \param ephemerisModel Ephemeris model for which the interval is to be determined. AN exception is thrown if this is not
+ * a tabulated ephemeris
+ * \return The time interval at which the tabulated ephemeris can be safely interrogated
+ */
 std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shared_ptr< Ephemeris > ephemeris );
 
 //! Function to create an empty (dummy) tabulated ephemeris

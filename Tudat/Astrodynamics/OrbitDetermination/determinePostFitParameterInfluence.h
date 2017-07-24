@@ -24,6 +24,27 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function that determines how well the translational dynamics of N bodies can absorb  the influence of a change in an
+//! environmental parameter value
+/*!
+ *  Function that determines how well the translational dynamics of N bodies can absorb  the influence of a change in an
+ *  environmental parameter value. The methods outlined by e.g. Dirkx et al. (2016); Planetary and Space Science 134:82-95.
+ *  This function uses a nominal dynamical model to simulate ideal observations of a set of N bodies' 3-dimensional positions.
+ *  These observations are then used as input to an orbit determination routing in which a set of parameters have their values
+ *  adjusted w.r.t. the nominal case. In the orbit determination, only the initial states of the N bodies are estimated. As such,
+ *  this function provides the degree to which a change (e.g. uncertainty) in the environment can be mimicked by a change in the
+ *  bodies initial conditions.
+ *  \param bodyMap List of body objects that comprises the environment
+ *  \param integratorSettings Settings for numerical integrator.
+ *  \param propagatorSettings Settings for propagator.
+ *  \param perturbedParameterSettings Type of parameter that is to be adjusted in analysis.
+ *  \param simulatedObservationInterval Time interval between consecutive simulated 3-dimensional position observations
+ *  \param parameterPerturbations Perturbations in the parameter vector that are to be used
+ *  \param parameterIndices Indices in the vector of perturbed parameter at which to apply the perturbations in
+ *  parameterPerturbations, e.g. index parameterIndices( i ) of the parameter vector gets perturbation parameterPerturbations( i )
+ *  \param numberOfIterations Number of iterations to use in the orbit determination loop
+ *  \return Pair of estimation output (first) and adjustment to initial state vectors (second)
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > determinePostfitParameterInfluence(
         const NamedBodyMap& bodyMap,
@@ -155,22 +176,6 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
 }
 
-template< typename TimeType, typename StateScalarType >
-void determinePostfitParameterInfluence(
-        const NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
-        const Eigen::VectorXd parameterPerturbations );
-
-template< typename TimeType, typename StateScalarType >
-void determinePostfitParameterInfluence(
-        const NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > perturbedParameterSettings,
-        const double parameterPerturbation,
-        const int parameterIndex = 0 );
 }
 
 }

@@ -676,6 +676,14 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
+//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
+/*!
+ * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ * on which the interpolator inside this object is valid is checked and returned
+ * \param ephemerisModel Ephemeris model for which the interval is to be determined.
+ * \return The time interval at which the ephemeris can be safely interrogated
+ */
 std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 } // namespace simulation_setup

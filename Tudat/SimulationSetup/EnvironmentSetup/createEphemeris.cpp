@@ -285,14 +285,19 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 
 }
 
+//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
 std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
 {
+    // Make default output pair
     std::pair< double, double > safeInterval = std::make_pair(
                 std::numeric_limits< double >::lowest( ),  std::numeric_limits< double >::max( ) );
+
+    // Check if model is tabulated, and retrieve safe interval from model
     if( isTabulatedEphemeris( ephemerisModel ) )
     {
         safeInterval = getTabulatedEphemerisSafeInterval( ephemerisModel );
     }
+    // Check if model is multi-arc, and retrieve safe intervals from first and last arc.
     else if( boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != NULL )
     {
         boost::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel  =
