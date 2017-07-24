@@ -15,7 +15,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Basics/testMacros.h"
+
 #include "Tudat/Astrodynamics/OrbitDetermination/UnitTests/orbitDeterminationTestCases.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
 
 
 namespace tudat
@@ -136,6 +139,34 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
 
             }
         }
+    }
+}
+
+//! Test whether the covariance is correctly computed as a function of time
+BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
+{
+    std::pair< boost::shared_ptr< PodOutput< double > >, boost::shared_ptr< PodInput< double, double > > > podData;
+
+    // Simulate covariances directly by propagating to different final tomes
+    std::map< int, Eigen::MatrixXd > manualCovarianes;
+    for( unsigned int i = 1; i < 5; i++ )
+    {
+        executeEarthOrbiterParameterEstimation< double, double >(
+                    podData, 1.0E7, i, 0, false );
+        manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );
+    }
+
+    // Use final calculations to compute covariance as a function of time
+    std::map< double, Eigen::MatrixXd > automaticCovariances = simulation_setup::calculateCovarianceMatrixAsFunctionOfTime(
+                podData.second, podData.first, 86400.0 - 1.0 );
+
+    // Check consistency
+    int counter = 1;
+    for( std::map< double, Eigen::MatrixXd >::const_iterator covarianceIterator = automaticCovariances.begin( );
+         covarianceIterator != automaticCovariances.end( ); covarianceIterator++ )
+    {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( covarianceIterator->second, manualCovarianes.at( counter ), 1.0E-8 );
+        counter++;
     }
 }
 

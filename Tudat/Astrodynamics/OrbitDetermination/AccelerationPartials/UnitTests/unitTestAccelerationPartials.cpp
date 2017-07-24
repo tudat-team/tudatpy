@@ -358,11 +358,11 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
     thirdBodyGravitationPartial->wrtVelocityOfAdditionalBody( "Earth", partialWrtEarthVelocity.block( 0, 0, 3, 3 )  );
 
-    Eigen::Vector3d partialWrtSunGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
+    Eigen::MatrixXd partialWrtSunGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
                 gravitationalParameterParameter );
-    Eigen::Vector3d partialWrtMoonGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
+    Eigen::MatrixXd partialWrtMoonGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
                 moonGravitationalParameterParameter );
-    Eigen::Vector3d partialWrtEarthGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
+    Eigen::MatrixXd partialWrtEarthGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
                 earthGravitationalParameterParameter );
 
     // Declare numerical partials.

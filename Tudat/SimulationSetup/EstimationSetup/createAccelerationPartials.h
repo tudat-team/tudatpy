@@ -28,6 +28,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
 
 
 namespace tudat
@@ -35,6 +36,18 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+//! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
+/*!
+ * Function to create a list of objects that can be used to compute partials of tidal gravity field variations
+ * \param bodyMap List of all body objects
+ * \param acceleratingBodyName Name of body for which tidal gravity field variation objects are to be created
+ * \return List of tidal gravity field variation objects, one for each such field variation object of bodyacceleratingBodyName
+ */
+std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
+        const NamedBodyMap& bodyMap,
+        const std::string& acceleratingBodyName );
+
 
 //! Function to create a single acceleration partial derivative object.
 /*!
@@ -150,10 +163,19 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                         rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
                             parametersToEstimate, acceleratingBody.first, bodyMap );
 
+                // If body has gravity field variations, create partial objects
+                std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+                        currentBodyLoveNumberPartialInterfaces;
+                if( acceleratingBody.second->getGravityFieldVariationSet( ) != NULL )
+                {
+                    currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
+                                bodyMap, acceleratingBody.first );
+                }
+
                 // Create partial-calculating object.
                 accelerationPartial = boost::make_shared< SphericalHarmonicsGravityPartial >
                         ( acceleratedBody.first, acceleratingBody.first,
-                          sphericalHarmonicAcceleration, rotationMatrixPartials );
+                          sphericalHarmonicAcceleration, rotationMatrixPartials, currentBodyLoveNumberPartialInterfaces );
         }
         break;
     }

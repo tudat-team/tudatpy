@@ -32,6 +32,7 @@ set(ORBIT_DETERMINATION_HEADERS
   "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/orbitDeterminationManager.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.h"
+  "${SRCROOT}${ORBITDETERMINATIONDIR}/podProcessing.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/orbitDeterminationTestCases.h"
 )
 
