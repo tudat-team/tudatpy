@@ -449,7 +449,7 @@ public:
      *  when first calling this object (e.g. before 1st iteration of algorithm)
      *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
      *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
-     *  \param printOutput Boolean denoting whether the residuals from the 1st iteration are to be saved
+     *  \param saveResidualsFromFirstIteration Boolean denoting whether the residuals from the 1st iteration are to be saved
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(

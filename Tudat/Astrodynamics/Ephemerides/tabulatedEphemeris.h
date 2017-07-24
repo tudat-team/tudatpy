@@ -204,7 +204,7 @@ bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
 /*!
  * Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated. The interval
  * on which the interpolator inside this object is valid is checked and returned
- * \param ephemerisModel Ephemeris model for which the interval is to be determined. AN exception is thrown if this is not
+ * \param ephemeris Ephemeris model for which the interval is to be determined. AN exception is thrown if this is not
  * a tabulated ephemeris
  * \return The time interval at which the tabulated ephemeris can be safely interrogated
  */
