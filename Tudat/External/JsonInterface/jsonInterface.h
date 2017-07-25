@@ -11,8 +11,11 @@
 #ifndef TUDAT_JSONINTERFACE_H
 #define TUDAT_JSONINTERFACE_H
 
+#include <unordered_map>
 #include <set>
+#include <functional>
 
+#include <boost/core/demangle.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
@@ -33,10 +36,7 @@ namespace json_interface
 {
 
 //! -DOC
-path pathForJSONFile( const std::string& file );
-
-//! -DOC
-path pathForJSONFile( const std::string& file, const path& basePath );
+path pathForJSONFile( const std::string& file, const path& basePath = boost::filesystem::current_path( ) );
 
 //! -DOC
 json parseModularJSONFile(const path& inputFilePath );
@@ -271,6 +271,10 @@ boost::shared_ptr< ValueType > getValuePointer( const json& jsonObject, const Ke
 
 
 //! -DOC
+bool defined( const json& jsonObject, const KeyTree& keyTree );
+
+
+//! -DOC
 template< typename NumberType >
 boost::shared_ptr< NumberType > getNumericPointer( const json& jsonObject, const KeyTree& keyTree )
 {
@@ -311,7 +315,8 @@ EnumType enumFromString( const std::string& stringValue,
     }
     catch ( ... )
     {
-        std::cerr << "Unrecognized value (" + stringValue + ") for " << typeid( EnumType ).name( ) << std::endl;
+        std::cerr << "Unsupported string \"" << stringValue << "\" for enum " <<
+                     boost::core::demangled_name( typeid( EnumType ) ) << std::endl;
         throw;
     }
 }
@@ -327,8 +332,53 @@ std::string stringFromEnum( const EnumType enumValue, const std::map< std::strin
             return ent.first;
         }
     }
-    std::cerr << "Unrecognized name for " << typeid( EnumType ).name( ) << " = " << enumValue << std::endl;
+    std::cerr << "Unknown string representation for enum value "
+              << boost::core::demangled_name( typeid( EnumType ) ) << "::" << enumValue << std::endl;
     throw;
+}
+
+
+//! Support for single-body and body-to-body maps
+
+template < typename T >
+using SingleBodyMap = std::unordered_map< std::string, std::vector< boost::shared_ptr< T > > >;
+
+template < typename T >
+using BodyToBodyMap = std::unordered_map< std::string, SingleBodyMap< T > >;
+
+template < typename T >
+using NoPointerSingleBodyMap = std::unordered_map< std::string, std::vector< T > >;
+
+template < typename T >
+using NoPointerBodyToBodyMap = std::unordered_map< std::string, NoPointerSingleBodyMap< T > >;
+
+//! Get a `BodyToBodyMap` of `T` objects from a `json` object.
+template < typename T >
+BodyToBodyMap< T > getBodyToBodyMap(
+        const json& settings, const KeyTree& keyTree,
+        std::function< boost::shared_ptr< T >( const json&, const KeyTree& ) > createFunction )
+{
+    BodyToBodyMap< T > bodyToBodyMap;
+
+    NoPointerBodyToBodyMap< json > jsonBodyToBodyMap =
+            getValue< NoPointerBodyToBodyMap< json > >( settings, keyTree, { } );
+    for ( auto entry : jsonBodyToBodyMap )
+    {
+        const std::string bodyUndergoing = entry.first;
+        const NoPointerSingleBodyMap< json > jsonSingleBodyMap = entry.second;
+        for ( auto subentry : jsonSingleBodyMap )
+        {
+            const std::string bodyExerting = subentry.first;
+            const std::vector< json > jsonVector = subentry.second;
+            for ( unsigned int i = 0; i < jsonVector.size( ); ++i )
+            {
+                bodyToBodyMap[ bodyUndergoing ][ bodyExerting ].push_back(
+                            createFunction( settings, keyTree + bodyUndergoing + bodyExerting + i ) );
+            }
+        }
+    }
+
+    return bodyToBodyMap;
 }
 
 } // namespace json_interface

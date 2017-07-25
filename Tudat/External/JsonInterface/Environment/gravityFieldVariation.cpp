@@ -47,7 +47,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSe
 
         // Common parameters
         jsonObject[ Keys::bodyDeformationType ] = variationSettings->getBodyDeformationType( );
-        jsonObject[ Keys::interpolator ] = variationSettings->getInterpolatorSettings( );
+        jsonObject[ Keys::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
 
         /// BasicSolidBodyGravityFieldVariationSettings
         boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
@@ -110,10 +110,10 @@ boost::shared_ptr< simulation_setup::GravityFieldVariationSettings > createGravi
                     getValue< std::vector< std::vector< std::complex< double > > > >(
                         settings, keyTree + Keys::loveNumbers ),
                     getNumeric< double >( settings, keyTree + Keys::referenceRadius ),
-                    getValue( settings, keyTree + Keys::interpolator, defaults.getInterpolatorSettings( ) ) );
+                    createModelInterpolationSettings(
+                        settings, keyTree + Keys::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
     }
     case tabulated_variation:
-    {
         return boost::make_shared< TabulatedGravityFieldVariationSettings >(
                     getValue< std::map< double, Eigen::MatrixXd > >(
                         settings, keyTree + Keys::cosineCoefficientCorrections ),
@@ -121,8 +121,8 @@ boost::shared_ptr< simulation_setup::GravityFieldVariationSettings > createGravi
                         settings, keyTree + Keys::sineCoefficientCorrections ),
                     getNumeric< int >( settings, keyTree + Keys::minimumDegree ),
                     getNumeric< int >( settings, keyTree + Keys::minimumOrder ),
-                    getValue< boost::shared_ptr< InterpolatorSettings > >( settings, keyTree + Keys::interpolator ) );
-    }
+                    createModelInterpolationSettings(
+                        settings, keyTree + Keys::modelInterpolation )->interpolatorSettings_ );
     default:
         throw std::runtime_error( stringFromEnum( bodyDeformationType, bodyDeformationTypes )
                                   + " not supported by json_interface." );

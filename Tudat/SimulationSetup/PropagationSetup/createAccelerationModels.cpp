@@ -1144,7 +1144,7 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
 
         // Retrieve list of required acceleration model types and bodies exerting accelerationd on
         // current body.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
+        std::unordered_map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
                 accelerationsForBody = bodyIterator->second;
 
         // Retrieve indices of all acceleration anf thrust models.
@@ -1155,7 +1155,7 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
                 currentBodyAccelerations;
         int counter = 0;
         // Iterate over all bodies exerting an acceleration
-        for( std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >::
+        for( std::unordered_map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >::
              iterator body2Iterator = accelerationsForBody.begin( );
              body2Iterator != accelerationsForBody.end( ); body2Iterator++ )
         {

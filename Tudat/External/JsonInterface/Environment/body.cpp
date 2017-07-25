@@ -124,42 +124,40 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     }
 
     // Atmosphere
-    if ( getValuePointer< json >( settings, keyTree + Keys::atmosphere ) )
+    if ( defined( settings, keyTree + Keys::atmosphere ) )
     {
         bodySettings->atmosphereSettings = createAtmosphereSettings( settings, keyTree + Keys::atmosphere );
     }
 
     // Ephemeris
-    if ( getValuePointer< json >( settings, keyTree + Keys::ephemeris ) )
+    if ( defined( settings, keyTree + Keys::ephemeris ) )
     {
         bodySettings->ephemerisSettings = createEphemerisSettings( settings, keyTree + Keys::ephemeris );
     }
 
     // Gravity field
-    if ( getValuePointer< json >( settings, keyTree + Keys::gravityField ) )
+    if ( defined( settings, keyTree + Keys::gravityField ) )
     {
         bodySettings->gravityFieldSettings = createGravityFieldSettings( settings, keyTree + Keys::gravityField );
     }
 
     // Rotation model
-    if ( getValuePointer< json >( settings, keyTree + Keys::rotationModel ) )
+    if ( defined( settings, keyTree + Keys::rotationModel ) )
     {
         bodySettings->rotationModelSettings = createRotationModelSettings( settings, keyTree + Keys::rotationModel );
     }
 
     // Shape model
-    if ( getValuePointer< json >( settings, keyTree + Keys::shapeModel ) )
+    if ( defined( settings, keyTree + Keys::shapeModel ) )
     {
         bodySettings->shapeModelSettings = createShapeModelSettings( settings, keyTree + Keys::shapeModel );
     }
 
     // Radiation pressure
-    boost::shared_ptr< std::map< std::string, json > > jsonRadiationPressureInterfaces =
-            getValuePointer< std::map< std::string, json > >( settings, keyTree + Keys::radiationPressure );
-    if ( jsonRadiationPressureInterfaces )
+    if ( defined( settings, keyTree + Keys::radiationPressure ) )
     {
         std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
-        for ( auto entry : *jsonRadiationPressureInterfaces )
+        for ( auto entry : getValue< std::map< std::string, json > >( settings, keyTree + Keys::radiationPressure ) )
         {
             const std::string radiatingBody = entry.first;
             radiationPressureSettings[ radiatingBody ] = createRadiationPressureInterfaceSettings(
@@ -169,19 +167,18 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     }
 
     // Aerodynamics
-    if ( getValuePointer< json >( settings, keyTree + Keys::aerodynamics ) )
+    if ( defined( settings, keyTree + Keys::aerodynamics ) )
     {
         bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
                     settings, keyTree + Keys::aerodynamics, fallbackArea );
     }
 
     // Gravity field variations
-    boost::shared_ptr< std::vector< json > > jsonGravityFieldVariations =
-            getValuePointer< std::vector< json > >( settings, keyTree + Keys::gravityFieldVariations );
-    if ( jsonGravityFieldVariations )
+    if ( defined( settings, keyTree + Keys::gravityFieldVariations ) )
     {
         std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
-        for ( unsigned int i = 0; i < jsonGravityFieldVariations->size( ); ++i )
+        for ( unsigned int i = 0;
+              i < getValue< std::vector< json > >( settings, keyTree + Keys::gravityFieldVariations ).size( ); ++i )
         {
             gravityFieldVariationSettings.push_back(
                         createGravityFieldVariationSettings( settings, keyTree + Keys::gravityFieldVariations + i ) );

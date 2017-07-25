@@ -37,16 +37,19 @@ namespace basic_astrodynamics
 /*!
  *  List of accelerations available in simulations. Acceleration models not defined by this
  *  given enum cannot be used for automatic acceleration model setup.
+ *
  */
 enum AvailableAcceleration
 {
     undefined_acceleration,
-    central_gravity,
+    point_mass_gravity,
+    central_gravity = point_mass_gravity,  // deprecated
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
-    third_body_central_gravity,
+    third_body_point_mass_gravity,
+    third_body_central_gravity = third_body_point_mass_gravity,  // deprecated
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
     thrust_acceleration,

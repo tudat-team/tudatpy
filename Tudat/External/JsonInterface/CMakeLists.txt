@@ -22,6 +22,8 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/shapeModel.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.cpp"
 )
@@ -43,6 +45,8 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/shapeModel.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.h"
 )
