@@ -11,10 +11,10 @@
 #ifndef TUDAT_JSONINTERFACE_BODY_H
 #define TUDAT_JSONINTERFACE_BODY_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
 
-#include "Tudat/External/JsonInterface/jsonInterface.h"
+#include "Tudat/External/JsonInterface/Support/valueAccess.h"
+#include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 namespace tudat
 {

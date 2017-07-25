@@ -13,7 +13,8 @@
 
 #include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
 
-#include "Tudat/External/JsonInterface/jsonInterface.h"
+#include "Tudat/External/JsonInterface/Support/valueAccess.h"
+#include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 namespace tudat
 {

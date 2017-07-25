@@ -10,9 +10,10 @@
 
 #Set the source files.
 set(JSONINTERFACE_SOURCES
-    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp"
-    "${SRCROOT}${JSONINTERFACEDIR}/keys.cpp"
-    "${SRCROOT}${JSONINTERFACEDIR}/path.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/path.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/valueAccess.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/body.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/atmosphere.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/ephemeris.cpp"
@@ -30,12 +31,14 @@ set(JSONINTERFACE_SOURCES
 
 # Set the header files.
 set(JSONINTERFACE_HEADERS
-    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/keys.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/path.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/units.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/utilities.h"
     "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/path.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/units.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/utilities.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/valueAccess.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/valueConversions.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/body.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/atmosphere.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/ephemeris.h"

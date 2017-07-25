@@ -11,11 +11,11 @@
 #ifndef TUDAT_JSONINTERFACE_SIMULATION_H
 #define TUDAT_JSONINTERFACE_SIMULATION_H
 
-#include <boost/filesystem.hpp>
-
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
-#include "jsonInterface.h"
+#include "Support/modular.h"
+#include "Support/valueAccess.h"
+#include "Support/valueConversions.h"
 
 #include "Environment/body.h"
 #include "Propagation/acceleration.h"
@@ -121,8 +121,10 @@ public:
     //! -DOC
     void setInputFile( const std::string& inputFile )
     {
-        inputFilePath = pathForJSONFile( inputFile );
-        settings = parseModularJSONFile( inputFilePath );
+        inputFilePath = getPathForJSONFile( inputFile );
+        settings = getParsedModularJSON( inputFilePath );
+        // std::cout << settings.dump( 2 ) << std::endl;
+        // throw;
     }
 
 

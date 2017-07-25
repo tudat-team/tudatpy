@@ -11,10 +11,10 @@
 #ifndef TUDAT_JSONINTERFACE_INTERPOLATOR_H
 #define TUDAT_JSONINTERFACE_INTERPOLATOR_H
 
-#include <Tudat/Mathematics/Interpolators/createInterpolator.h>
 #include <Tudat/SimulationSetup/EnvironmentSetup/createGravityFieldVariations.h>
 
-#include "Tudat/External/JsonInterface/jsonInterface.h"
+#include "Tudat/External/JsonInterface/Support/valueAccess.h"
+#include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 namespace tudat
 {

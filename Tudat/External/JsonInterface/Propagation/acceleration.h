@@ -13,7 +13,8 @@
 
 #include <Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h>
 
-#include "Tudat/External/JsonInterface/jsonInterface.h"
+#include "Tudat/External/JsonInterface/Support/valueAccess.h"
+#include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 namespace tudat
 {
@@ -45,7 +46,7 @@ static std::map< std::string, AvailableAcceleration > availableAccelerations =
     { "thirdBodyPointMassGravity",               third_body_point_mass_gravity },
     { "thirdBodySphericalHarmonicGravity",       third_body_spherical_harmonic_gravity },
     { "thirdBodyMutualSphericalHarmonicGravity", third_body_mutual_spherical_harmonic_gravity },
-    { "thrust",                                  thrust_acceleration },
+    // FIXME: { "thrust",                                  thrust_acceleration },
     { "relativisticCorrection",                  relativistic_correction_acceleration },
     { "empirical",                               empirical_acceleration }
 };
