@@ -39,18 +39,14 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_arc_dynamics )
 void resetMarsEphemeris(
         const NamedBodyMap& bodyMap, const double ephemerisStartTime, const double ephemerisEndTime )
 {
-    std::cout<<"ResetA"<<std::endl;
     boost::shared_ptr< Ephemeris > marsEphemeris =
             createBodyEphemeris( getDefaultEphemerisSettings( "Mars", ephemerisStartTime, ephemerisEndTime ), "Mars" );
-    std::cout<<"ResetB"<<std::endl;
+
     boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > defaultMarsStateInterpolator =
             boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
-    std::cout<<"ResetC"<<std::endl;
 
     boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
                 bodyMap.at( "Mars" )->getEphemeris( ) )->resetInterpolator( defaultMarsStateInterpolator );
-    std::cout<<"ResetD"<<std::endl;
-
 }
 
 

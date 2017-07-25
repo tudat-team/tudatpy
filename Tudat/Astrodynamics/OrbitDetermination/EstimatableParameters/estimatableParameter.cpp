@@ -214,6 +214,27 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+bool isDynamicalParameterSingleArc( const boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > parameterToCheck )
+{
+    bool flag = -1;
+    switch( parameterToCheck->getParameterName( ).first )
+    {
+    case arc_wise_initial_body_state:
+    {
+        flag = false;
+        break;
+    }
+    case initial_body_state:
+    {
+        flag = true;
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when checking single/multi-arc dynamical parameter, parameter not identified" );
+    }
+    return flag;
+
+}
 
 
 

@@ -1125,8 +1125,6 @@ public:
     {
         singleArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( 0, 0, singleArcDynamicsSize_, 1 ) );
-        std::cout<<"Single arc propagated"<<std::endl;
-
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
 

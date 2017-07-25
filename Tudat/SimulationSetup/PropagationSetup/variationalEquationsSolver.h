@@ -141,6 +141,12 @@ protected:
      */
     MatrixType createInitialConditions( const VectorType initialStateEstimate )
     {
+        if( stateTransitionMatrixSize_ != initialStateEstimate.rows( ) )
+        {
+            throw std::runtime_error( "Error when getting initial condition for variational equations, sizes are incompatible." );
+        }
+        std::cout<<"Creating "<<stateTransitionMatrixSize_<<" "<<parameterVectorSize_<<" "<<initialStateEstimate.rows( )<<std::endl;
+        std::cout<<initialStateEstimate.transpose( )<<std::endl;
         // Initialize initial conditions to zeros.
         MatrixType varSystemInitialState = MatrixType( stateTransitionMatrixSize_,
                                                        parameterVectorSize_ + 1 ).setZero( );
@@ -1349,6 +1355,172 @@ private:
 
     //! Number of arcs over which propagation is to be performed.
     int numberOfArcs_;
+
+};
+
+template< typename StateScalarType = double, typename TimeType = double >
+class HybridArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
+{
+public:
+
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > MatrixType;
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
+
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parametersToEstimate_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::bodyMap_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionMatrixSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::parameterVectorSize_;
+    using VariationalEquationsSolver< StateScalarType, TimeType >::stateTransitionInterface_;
+
+    //! Constructor
+    /*!
+     *  Constructor, sets up object for automatic evaluation and numerical integration of variational equations and equations of motion.
+     *  \param bodyMap Map of bodies (with names) of all bodies in integration.
+     *  \param integratorSettings Settings for numerical integrator.
+     *  \param propagatorSettings Settings for propagator.
+     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
+     *  \param arcStartTimes Start times for separate arcs
+     *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
+     *  equations are to be propagated concurrently (if true) or sequentially (of false)
+     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
+     *  equations.
+     *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
+     *  (default true) after propagation and resetting of state transition interface.
+     *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
+     *  end of this contructor.
+     */
+    HybridArcVariationalEquationsSolver(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+            const std::vector< double > arcStartTimes,
+            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
+            const bool clearNumericalSolution = true,
+            const bool integrateEquationsOnCreation = false ):
+        VariationalEquationsSolver< StateScalarType, TimeType >(
+            bodyMap, parametersToEstimate, clearNumericalSolution ),
+        propagatorSettings_( boost::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
+        integratorSettings_( integratorSettings )
+    {
+        if(  propagatorSettings_ == NULL )
+        {
+            throw std::runtime_error( "Error when making hybrid-arc variational equartions solver, input is not hybrid arc" );
+        }
+
+        initialTime_ = arcStartTimes.at( 0 );
+
+        singleArcDynamicsSize_ = propagatorSettings_->getSingleArcPropagatorSettings( )->getStateSize( );
+        multiArcDynamicsSize_ = propagatorSettings_->getMultiArcPropagatorSettings( )->getStateSize( );
+
+        singleArcParametersToEstimate_ = createEstimatableParameterSetArcSubSet( parametersToEstimate, true );
+        multiArcParametersToEstimate_ = createEstimatableParameterSetArcSubSet( parametersToEstimate, false );
+
+        singleArcSolver_ = boost::make_shared< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodyMap, integratorSettings, propagatorSettings_->getSingleArcPropagatorSettings( ),
+                    singleArcParametersToEstimate_, integrateDynamicalAndVariationalEquationsConcurrently,
+                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+                    false, false );
+        multiArcSolver_ = boost::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodyMap, integratorSettings, propagatorSettings_->getMultiArcPropagatorSettings( ),
+                    multiArcParametersToEstimate_, arcStartTimes, integrateDynamicalAndVariationalEquationsConcurrently,
+                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+                    false, false );
+
+
+        if( integrateEquationsOnCreation )
+        {
+            if( integrateDynamicalAndVariationalEquationsConcurrently )
+            {
+                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ) , 1 );
+            }
+            else
+            {
+                integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 0 );
+            }
+        }
+    }
+
+    ~HybridArcVariationalEquationsSolver( ){ }
+
+    void integrateVariationalAndDynamicalEquations(
+            const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
+    {
+        integratorSettings_->initialTime_ = initialTime_;
+
+        singleArcSolver_->integrateVariationalAndDynamicalEquations(
+                    initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
+                    integrateEquationsConcurrently );
+
+        integratorSettings_->initialTime_ = initialTime_;
+
+        multiArcSolver_->integrateVariationalAndDynamicalEquations(
+                    initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ),
+                    integrateEquationsConcurrently );
+
+        if( stateTransitionInterface_ == NULL )
+        {
+            if( boost::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        singleArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
+            {
+                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, single-arc input is NULL" );
+            }
+
+            if( boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        multiArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
+            {
+                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is NULL" );
+            }
+
+            stateTransitionInterface_ = boost::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        boost::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        singleArcSolver_->getStateTransitionMatrixInterface( ) ),
+                        boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        multiArcSolver_->getStateTransitionMatrixInterface( ) ) );
+        }
+    }
+
+
+    void integrateDynamicalEquationsOfMotionOnly(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate )
+    {
+        integratorSettings_->initialTime_ = initialTime_;
+
+        singleArcSolver_->integrateDynamicalEquationsOfMotionOnly(
+                    initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ) );
+
+        integratorSettings_->initialTime_ = initialTime_;
+
+        multiArcSolver_->integrateDynamicalEquationsOfMotionOnly(
+                    initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
+    }
+
+    void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
+                                         const bool areVariationalEquationsToBeIntegrated = true )
+    {
+
+    }
+
+protected:
+
+    boost::shared_ptr< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > singleArcSolver_;
+
+    boost::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > multiArcSolver_;
+
+    boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > propagatorSettings_;
+
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+
+    int singleArcDynamicsSize_;
+
+    int multiArcDynamicsSize_;
+
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > singleArcParametersToEstimate_ ;
+
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > multiArcParametersToEstimate_ ;
+
+    double initialTime_;
+
 
 };
 

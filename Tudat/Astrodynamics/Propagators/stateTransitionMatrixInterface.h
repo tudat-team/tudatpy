@@ -258,6 +258,13 @@ public:
 
     Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
 
+    std::pair< int, double >  getCurrentArc( const double evaluationTime );
+
+    int getNumberOfArcs( )
+    {
+        return arcStartTimes_.size( );
+    }
+
 private:
 
     std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > > stateTransitionMatrixInterpolators_;
@@ -272,38 +279,55 @@ private:
 
 };
 
-//class HybridArcCombinedStateTransitionAndSensitivityMatrixInterface: public CombinedStateTransitionAndSensitivityMatrixInterface
-//{
-//public:
-//    HybridArcCombinedStateTransitionAndSensitivityMatrixInterface(
-//            const boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface,
-//            const boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
-//        singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface ){ }
+class HybridArcCombinedStateTransitionAndSensitivityMatrixInterface: public CombinedStateTransitionAndSensitivityMatrixInterface
+{
+public:
+    HybridArcCombinedStateTransitionAndSensitivityMatrixInterface(
+            const boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface,
+            const boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
+        CombinedStateTransitionAndSensitivityMatrixInterface(
+            singleArcInterface->getStateTransitionMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( ),
+            singleArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getSensitivityMatrixSize( ) +
+            singleArcInterface->getStateTransitionMatrixSize( )  + multiArcInterface->getStateTransitionMatrixSize( )),
+        singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
+    {
+        if( multiArcInterface->getSensitivityMatrixSize( ) != singleArcInterface->getSensitivityMatrixSize( ) )
+        {
+            throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, input is inconsistent" );
+        }
 
-//    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
+        singleArcStateSize_ = singleArcInterface_->getStateTransitionMatrixSize( );
+        multiArcStateSize_ = multiArcInterface_->getStateTransitionMatrixSize( );
 
-//    int getFullParameterVectorSize( )
-//    {
-//        return singleArcInterface_->getFullParameterVectorSize( ) + multiArcInterface_->getFullParameterVectorSize( );
-//    }
-
-//    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
-
-//    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
-
-//private:
-
-//    boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface_;
-
-//    boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface_;
+        numberOfMultiArcs_ = multiArcInterface->getNumberOfArcs( );
 
 
-//    int singleArcStateSize_;
+    }
 
-//    int multiArcStateSize_;
+    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
 
-//    int numberOfMultiArcs_;
-//};
+    int getFullParameterVectorSize( )
+    {
+        return singleArcInterface_->getFullParameterVectorSize( ) + multiArcInterface_->getFullParameterVectorSize( );
+    }
+
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+private:
+
+    boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface_;
+
+    boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface_;
+
+
+    int singleArcStateSize_;
+
+    int multiArcStateSize_;
+
+    int numberOfMultiArcs_;
+};
 
 
 

@@ -42,6 +42,9 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
     }
 
+    std::cout<<"Getting single ST: "<<evaluationTime<<std::endl<<
+               combinedStateTransitionMatrix_<<std::endl;
+
     return combinedStateTransitionMatrix_;
 }
 
@@ -130,49 +133,80 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     return combinedStateTransitionMatrix;
 }
 
-//Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
-//        const double evaluationTime )
-//{
-//    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
-//                stateTransitionMatrixSize_, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_ + sensitivityMatrixSize_ );
+std::pair< int, double > MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getCurrentArc( const double evaluationTime )
+{
+    int currentArc =  lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
+    return std::make_pair( currentArc, arcStartTimes_.at( currentArc ) );
+}
 
-//    int currentArc = lookUpscheme_->findNearestLowerNeighbour( evaluationTime );
-//    double currentArcStartTime;
+Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
+        const double evaluationTime )
+{
+    std::cout<<"Getting st"<<std::endl;
 
-//    Eigen::MatrixXd singleArcStateTransitionSensitivity =
-//            singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
-//    Eigen::MatrixXd singleArcStateTransitionSensitivityAtArcStart =
-//            singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( currentArcStartTime );
-//    Eigen::MatrixXd multiArcStateTransitionSensitivity =
-//            multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
+                stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+    Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
 
-//    // Add single-arc bodies own dependencies
-//    combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
-//            singleArcStateTransitionSensitivity;
+    std::cout<<singleArcStateSize_<<" "<<multiArcStateSize_<<" "<<singleArcStateTransition.rows( )<<" "<<singleArcStateTransition.cols( )<<" "<<
+               multiArcStateTransition.rows( )<<" "<<multiArcStateTransition.cols( )<<std::endl;
 
-//    // Add multi-arc bodies own dependencies
-//    combinedStateTransitionMatrix.block(
-//                singleArcStateSize_, singleArcStateSize_ + currentArc * multiArcStateSize_, multiArcStateSize_, multiArcStateSize_ ) =
-//            multiArcStateTransitionSensitivity.block(
-//                singleArcStateSize_, singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ );
+    combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
+            singleArcStateTransition;
+    combinedStateTransitionMatrix.block( singleArcStateSize_, singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ ) =
+            multiArcStateTransition;
 
-//    // Add multi-arc bodies own dependencies
-//    combinedStateTransitionMatrix.block(
-//                singleArcStateSize_, 0, multiArcStateSize_, singleArcStateSize_ ) =
-//            multiArcStateTransitionSensitivity.block( singleArcStateSize_, 0, multiArcStateSize_, singleArcStateSize_ ) *
-//            singleArcStateTransitionSensitivityAtArcStart;
+    std::cout<<"Hybrid state transition: "<<evaluationTime<<std::endl<<singleArcStateTransition<<std::endl<<std::endl<<
+               combinedStateTransitionMatrix<<std::endl<<std::endl;
 
-//    // Add sensitivity matrix components
-//    combinedStateTransitionMatrix.block(
-//                0, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ ) =
-//          singleArcStateTransitionSensitivity.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
-//    combinedStateTransitionMatrix.block(
-//                singleArcStateSize_, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_, multiArcStateSize_, sensitivityMatrixSize_ ) =
-//          singleArcStateTransitionSensitivity.block(
-//                singleArcStateSize_, multiArcStateSize_, multiArcStateSize_, sensitivityMatrixSize_ );
 
-//    return combinedStateTransitionMatrix;
-//}
+    return combinedStateTransitionMatrix;
+
+}
+
+Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
+        const double evaluationTime )
+{
+    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
+                stateTransitionMatrixSize_, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_ + sensitivityMatrixSize_ );
+
+    std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
+
+    Eigen::MatrixXd singleArcStateTransitionSensitivity =
+            singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    Eigen::MatrixXd singleArcStateTransitionSensitivityAtArcStart =
+            singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( currentArc.second );
+    Eigen::MatrixXd multiArcStateTransitionSensitivity =
+            multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+
+    // Add single-arc bodies own dependencies
+    combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
+            singleArcStateTransitionSensitivity;
+
+    // Add multi-arc bodies own dependencies
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, singleArcStateSize_ + currentArc.first * multiArcStateSize_, multiArcStateSize_, multiArcStateSize_ ) =
+            multiArcStateTransitionSensitivity.block(
+                singleArcStateSize_, singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ );
+
+    // Add multi-arc bodies own dependencies
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, 0, multiArcStateSize_, singleArcStateSize_ ) =
+            multiArcStateTransitionSensitivity.block( singleArcStateSize_, 0, multiArcStateSize_, singleArcStateSize_ ) *
+            singleArcStateTransitionSensitivityAtArcStart;
+
+    // Add sensitivity matrix components
+    combinedStateTransitionMatrix.block(
+                0, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ ) =
+          singleArcStateTransitionSensitivity.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_, multiArcStateSize_, sensitivityMatrixSize_ ) =
+          singleArcStateTransitionSensitivity.block(
+                singleArcStateSize_, multiArcStateSize_, multiArcStateSize_, sensitivityMatrixSize_ );
+
+    return combinedStateTransitionMatrix;
+}
 
 }
 
