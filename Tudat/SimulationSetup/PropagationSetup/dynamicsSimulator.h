@@ -369,7 +369,6 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
-
         equationsOfMotionNumericalSolution_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
@@ -1066,7 +1065,107 @@ protected:
 
     //! Propagator settings used by this objec
     boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
+};
 
+template< typename StateScalarType = double, typename TimeType = double >
+class HybridArcDynamicsSimulator: public DynamicsSimulator< StateScalarType, TimeType >
+{
+public:
+
+    using DynamicsSimulator< StateScalarType, TimeType >::bodyMap_;
+    using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
+
+    HybridArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< double > arcStartTimes,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true,
+            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+        DynamicsSimulator< StateScalarType, TimeType >(
+            bodyMap, clearNumericalSolutions, setIntegratedResult ),
+        addSingleArcBodiesToMultiArcDynamics_( addSingleArcBodiesToMultiArcDynamics )
+    {
+        boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
+                boost::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getStateSize( );
+        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getStateSize( );
+
+        if( !addSingleArcBodiesToMultiArcDynamics )
+        {
+            if( !setIntegratedResult )
+            {
+                std::cerr<<"Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation will result will be set in environment for consistency with multi-arc "<<std::endl;
+            }
+            singleArcDynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, integratorSettings, hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
+                        false, false, true );
+            multiArcDynamicsSimulator_ = boost::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, integratorSettings, hybridPropagatorSettings->getMultiArcPropagatorSettings( ), arcStartTimes,
+                        false, false, setIntegratedResult );
+        }
+        else
+        {
+            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
+        }
+
+
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( hybridPropagatorSettings->getInitialStates( ) );
+        }
+    }
+
+    ~HybridArcDynamicsSimulator( ){ }
+
+    void integrateEquationsOfMotion(
+                const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
+    {
+        singleArcDynamicsSimulator_->integrateEquationsOfMotion(
+                    initialGlobalStates.block( 0, 0, singleArcDynamicsSize_, 1 ) );
+        std::cout<<"Single arc propagated"<<std::endl;
+
+        multiArcDynamicsSimulator_->integrateEquationsOfMotion(
+                    initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
+
+        if( this->setIntegratedResult_ )
+        {
+            processNumericalEquationsOfMotionSolution( );
+        }
+    }
+
+    void processNumericalEquationsOfMotionSolution( )
+    {
+        if( addSingleArcBodiesToMultiArcDynamics_ )
+        {
+            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
+        }
+    }
+
+
+    boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > getSingleArcDynamicsSimulator( )
+    {
+        return singleArcDynamicsSimulator_;
+    }
+
+    boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > getMultiArcDynamicsSimulator( )
+    {
+        return multiArcDynamicsSimulator_;
+    }
+
+protected:
+
+    boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator_;
+
+    boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > multiArcDynamicsSimulator_;
+
+    bool addSingleArcBodiesToMultiArcDynamics_;
+
+    int singleArcDynamicsSize_;
+
+    int multiArcDynamicsSize_;
 
 };
 
