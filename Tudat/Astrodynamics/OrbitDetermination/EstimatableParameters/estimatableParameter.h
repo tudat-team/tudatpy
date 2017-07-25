@@ -17,6 +17,7 @@
 #include <vector>
 #include <map>
 
+#include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/lexical_cast.hpp>
@@ -188,6 +189,9 @@ protected:
     EstimatebleParameterIdentifier parameterName_;
 };
 
+bool isDynamicalParameterSingleArc( const boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > parameterToCheck );
+
+
 //! Container class for all parameters that are to be estimated.
 /*!
  *  Container class for all parameters that are to be estimated. Class is templated with the scalar type used for the
@@ -218,6 +222,8 @@ public:
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
         initialDynamicalStateParameterSize_ = 0;
+        initialDynamicalSingleArcStateParameterSize_ = 0;
+        initialDynamicalMultiArcStateParameterSize_ = 0;
 
         // Iterate over all double parameters and add to parameter size.
         for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
@@ -225,8 +231,22 @@ public:
             initialStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
                                                          estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
-            estimatedParameterSetSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
+
+            if( isDynamicalParameterSingleArc( estimateInitialStateParameters_[ i ] ) )
+            {
+                initialDynamicalSingleArcStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
+                initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
+                estimateSingleArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
+            }
+            else
+            {
+                initialDynamicalMultiArcStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
+                initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
+                estimateMultiArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
+            }
             initialDynamicalStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
+
+            estimatedParameterSetSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
         }
 
         // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
@@ -277,6 +297,16 @@ public:
     int getInitialDynamicalStateParameterSize( )
     {
         return initialDynamicalStateParameterSize_;
+    }
+
+    int getInitialDynamicalSingleArcStateParameterSize( )
+    {
+        return initialDynamicalSingleArcStateParameterSize_;
+    }
+
+    int getInitialDynamicalMultiArcStateParameterSize( )
+    {
+        return initialDynamicalMultiArcStateParameterSize_;
     }
 
     //! Function that returns a vector containing all current parameter values
@@ -394,6 +424,16 @@ public:
         return initialStateParameters_;
     }
 
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialSingleArcStateParameters( )
+    {
+        return initialSingleArcStateParameters_;
+    }
+
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialMultiArcStateParameters( )
+    {
+        return initialMultiArcStateParameters_;
+    }
+
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
     {
         return estimatedDoubleParameters_;
@@ -416,6 +456,18 @@ public:
         return estimateInitialStateParameters_;
     }
 
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    getEstimatedSingleArcInitialStateParameters( )
+    {
+        return estimateSingleArcInitialStateParameters_;
+    }
+
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    getEstimatedMultiArcInitialStateParameters( )
+    {
+        return estimateMultiArcInitialStateParameters_;
+    }
+
     //! Function to retrieve list of start indices and sizes (map keys) of estimated parameters.
     /*!
      *  Function to retrieve list of start indices and sizes (map keys) of estimated parameters.
@@ -431,6 +483,10 @@ protected:
 
     //! Total size of all initial dynamical states that is to be estimated.
     int initialDynamicalStateParameterSize_;
+
+    int initialDynamicalSingleArcStateParameterSize_;
+
+    int initialDynamicalMultiArcStateParameterSize_;
 
     //! Total number of parameter values (including currently non yet implemented consider parameters).
     int totalParameterSetSize_;
@@ -455,6 +511,12 @@ protected:
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateInitialStateParameters_;
 
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    estimateSingleArcInitialStateParameters_;
+
+    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    estimateMultiArcInitialStateParameters_;
+
     //! Map of double parameters that are to be estimated, with start index in total parameter vector as key.
     std::map< int, boost::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
 
@@ -465,7 +527,35 @@ protected:
     std::map< int, boost::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
+    std::map< int, boost::shared_ptr<
+    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialSingleArcStateParameters_;
+
+    std::map< int, boost::shared_ptr<
+    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialMultiArcStateParameters_;
+
 };
+
+template< typename StateScalarType >
+boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > createEstimatableParameterSetArcSubSet(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
+        const bool getSingleArcParameters)
+{
+    if( getSingleArcParameters )
+    {
+        return boost::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
+                    parametersToEstimate->getEstimatedDoubleParameters( ),
+                    parametersToEstimate->getEstimatedVectorParameters( ),
+                    parametersToEstimate->getEstimatedSingleArcInitialStateParameters( ) );
+    }
+    else
+    {
+        return boost::make_shared< estimatable_parameters::EstimatableParameterSet< StateScalarType > >(
+                    parametersToEstimate->getEstimatedDoubleParameters( ),
+                    parametersToEstimate->getEstimatedVectorParameters( ),
+                    parametersToEstimate->getEstimatedMultiArcInitialStateParameters( )  );
+    }
+}
+
 
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(

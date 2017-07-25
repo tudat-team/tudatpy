@@ -77,6 +77,11 @@ add_executable(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}/Un
 setup_custom_test_program(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiArcVariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_HybridArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestHybridArcVariationalEquationPropagation.cpp")
+setup_custom_test_program(test_HybridArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_HybridArcVariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+
 
 add_executable(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}")
