@@ -272,6 +272,40 @@ private:
 
 };
 
+//class HybridArcCombinedStateTransitionAndSensitivityMatrixInterface: public CombinedStateTransitionAndSensitivityMatrixInterface
+//{
+//public:
+//    HybridArcCombinedStateTransitionAndSensitivityMatrixInterface(
+//            const boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface,
+//            const boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
+//        singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface ){ }
+
+//    ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
+
+//    int getFullParameterVectorSize( )
+//    {
+//        return singleArcInterface_->getFullParameterVectorSize( ) + multiArcInterface_->getFullParameterVectorSize( );
+//    }
+
+//    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+//    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+//private:
+
+//    boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface_;
+
+//    boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface_;
+
+
+//    int singleArcStateSize_;
+
+//    int multiArcStateSize_;
+
+//    int numberOfMultiArcs_;
+//};
+
+
 
 } // namespace propagators
 

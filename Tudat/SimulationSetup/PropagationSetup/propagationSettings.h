@@ -328,7 +328,7 @@ public:
     int getNmberOfArcs( )
     {
         return singleArcSettings_.size( );
-     }
+    }
 
     //! Function get the list of initial states for each arc in propagation.
     /*!
@@ -395,7 +395,68 @@ protected:
 
     //! List of initial states for each arc in propagation.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
+};
 
+template< typename StateScalarType = double >
+class HybridArcPropagatorSettings: public PropagatorSettings< StateScalarType >
+{
+public:
+    HybridArcPropagatorSettings(
+            const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings,
+            const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings ):
+        PropagatorSettings< StateScalarType >(
+            Eigen::VectorXd::Zero( 0 ), false ),
+        singleArcPropagatorSettings_( singleArcPropagatorSettings ),
+        multiArcPropagatorSettings_( multiArcPropagatorSettings )
+    {
+        this->initialStates_ =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >(
+                    singleArcPropagatorSettings->getStateSize( ) +
+                    multiArcPropagatorSettings->getStateSize( ) );
+
+        this->initialStates_.segment( 0, singleArcPropagatorSettings->getStateSize( ) ) =
+                singleArcPropagatorSettings->getInitialStates( );
+        this->initialStates_.segment( singleArcPropagatorSettings->getStateSize( ),
+                                      multiArcPropagatorSettings->getStateSize( ) ) =
+                multiArcPropagatorSettings_->getInitialStates( );
+
+        this->stateSize_ = this->initialStates_.rows( );
+
+        singleArcStateSize_ = singleArcPropagatorSettings_->getStateSize( );
+        multiArcStateSize_ = multiArcPropagatorSettings_->getStateSize( );
+    }
+
+    void resetInitialStates(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
+    {
+        this->initialStates_ = initialBodyStates;
+        this->stateSize_ = this->initialStates_.rows( );
+
+        singleArcPropagatorSettings_->resetInitialStates(
+                    this->initialStates_.segment( 0, singleArcStateSize_ ) );
+        multiArcPropagatorSettings_->resetInitialStates(
+                    this->initialStates_.segment( singleArcStateSize_, multiArcStateSize_ ) );
+    }
+
+    boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > getSingleArcPropagatorSettings( )
+    {
+        return singleArcPropagatorSettings_;
+    }
+
+    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getMultiArcPropagatorSettings( )
+    {
+        return multiArcPropagatorSettings_;
+    }
+
+protected:
+
+    boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings_;
+
+    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
+
+    int singleArcStateSize_;
+
+    int multiArcStateSize_;
 };
 
 //! Class for defining settings for propagating translational dynamics.

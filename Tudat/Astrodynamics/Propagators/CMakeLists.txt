@@ -106,6 +106,10 @@ add_executable(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unit
 setup_custom_test_program(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_HybridArcDynamics "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestHybridArcDynamics.cpp")
+setup_custom_test_program(test_HybridArcDynamics "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_HybridArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 add_executable(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestPropagationTerminationReason.cpp")
 setup_custom_test_program(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationReason ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
