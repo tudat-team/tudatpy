@@ -204,7 +204,8 @@ boost::shared_ptr< simulation_setup::EphemerisSettings > createEphemerisSettings
                     getNumeric< double >( settings, keyTree + Keys::timeStep ),
                     getValue( settings, keyTree + Keys::frameOrigin, defaults.getFrameOrigin( ) ),
                     getValue( settings, keyTree + Keys::frameOrientation, defaults.getFrameOrientation( ) ),
-                    getValue( settings, keyTree + Keys::interpolator, defaults.getInterpolatorSettings( ) ) );
+                    createInterpolatorSettings( settings, keyTree + Keys::interpolator,
+                                                defaults.getInterpolatorSettings( ) ) );
         interpolatedSpiceEphemerisSettings.setUseLongDoubleStates(
                     getValue( settings, keyTree + Keys::useLongDoubleStates, defaults.getUseLongDoubleStates( ) ) );
         return boost::make_shared< InterpolatedSpiceEphemerisSettings >( interpolatedSpiceEphemerisSettings );

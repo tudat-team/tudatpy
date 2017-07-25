@@ -108,6 +108,10 @@ public:
 
 };
 
+
+typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > > SelectedMassRateModelMap;
+
+
 //! Function to create a mass rate model
 /*!
  * Function to create a mass rate model, from specific settings and the full set of environment models.
@@ -134,10 +138,11 @@ boost::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate models that are to be used during numerical propagation (key is body id)..
  */
-std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
-        const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
+        const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
+
 
 } // namespace simulation_setup
 

@@ -141,7 +141,7 @@ struct Keys
         struct GravityFieldVariation
         {
             static const std::string bodyDeformationType;
-            static const std::string interpolator;
+            static const std::string modelInterpolation;
             static const std::string deformingBodies;
             static const std::string loveNumbers;
             static const std::string referenceRadius;
@@ -152,9 +152,68 @@ struct Keys
         };
     };
 
-    static const std::string propagators;
+
+    static const std::string accelerations;
+    struct Acceleration
+    {
+        static const std::string type;
+        static const std::string maximumDegree;
+        static const std::string maximumOrder;
+        static const std::string maximumDegreeOfBodyExertingAcceleration;
+        static const std::string maximumOrderOfBodyExertingAcceleration;
+        static const std::string maximumDegreeOfBodyUndergoingAcceleration;
+        static const std::string maximumOrderOfBodyUndergoingAcceleration;
+        static const std::string maximumDegreeOfCentralBody;
+        static const std::string maximumOrderOfCentralBody;
+        static const std::string calculateSchwarzschildCorrection;
+        static const std::string calculateLenseThirringCorrection;
+        static const std::string calculateDeSitterCorrection;
+        static const std::string primaryBody;
+        static const std::string centralBodyAngularMomentum;
+        static const std::string constantAcceleration;
+        static const std::string sineAcceleration;
+        static const std::string cosineAcceleration;
+        /*
+        static const std::string thrustDirectionGuidanceSettings;
+        struct ThrustDirectionGuidanceSettings
+        {
+
+        };
+
+        static const std::string thrustMagnitudeSettings;
+        struct ThrustMagnitudeSettings
+        {
+
+        };
+
+        static const std::string thrustFrame;
+        static const std::string centralBody;
+
+        static const std::string fullThrustInterpolationInterface;
+        struct FullThrustInterpolationInterface
+        {
+
+        };
+        */
+    };
+
+    static const std::string massRates;
+    struct MassRate
+    {
+
+    };
+
+    static const std::string torques;
+    struct Torque
+    {
+
+    };
+
+
+    static const std::string propagation;
     struct Propagator
     {
+        static const std::string propagators;
         static const std::string integratedStateType;
         static const std::string type;
         static const std::string centralBodies;
@@ -202,8 +261,6 @@ struct Keys
         static const std::string boundaryHandling;
     };
 
-    /*
-    static const std::string modelInterpolation;
     struct ModelInterpolation
     {
         static const std::string initialTime;
@@ -211,7 +268,6 @@ struct Keys
         static const std::string timeStep;
         static const std::string interpolator;
     };
-    */
 
     static const std::string output;
 };

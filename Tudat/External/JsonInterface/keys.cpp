@@ -122,7 +122,7 @@ const std::string Keys::Body::ShapeModel::flattening = "flattening";
 ////// Body::GravityFieldVariation
 const std::string Keys::Body::gravityFieldVariations = "gravityFieldVariations";
 const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "bodyDeformationType";
-const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
+const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
 const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
 const std::string Keys::Body::GravityFieldVariation::loveNumbers = "loveNumbers";
 const std::string Keys::Body::GravityFieldVariation::referenceRadius = "referenceRadius";
@@ -132,8 +132,39 @@ const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDeg
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 
 
+/// Acceleration
+const std::string Keys::accelerations = "accelerations";
+const std::string Keys::Acceleration::type = "type";
+const std::string Keys::Acceleration::maximumDegree = "maximumDegree";
+const std::string Keys::Acceleration::maximumOrder = "maximumOrder";
+const std::string Keys::Acceleration::maximumDegreeOfBodyExertingAcceleration = "maximumDegreeOfBodyExertingAcceleration";
+const std::string Keys::Acceleration::maximumOrderOfBodyExertingAcceleration = "maximumOrderOfBodyExertingAcceleration";
+const std::string Keys::Acceleration::maximumDegreeOfBodyUndergoingAcceleration = "maximumDegreeOfBodyUndergoingAcceleration";
+const std::string Keys::Acceleration::maximumOrderOfBodyUndergoingAcceleration = "maximumOrderOfBodyUndergoingAcceleration";
+const std::string Keys::Acceleration::maximumDegreeOfCentralBody = "maximumDegreeOfCentralBody";
+const std::string Keys::Acceleration::maximumOrderOfCentralBody = "maximumOrderOfCentralBody";
+const std::string Keys::Acceleration::calculateSchwarzschildCorrection = "calculateSchwarzschildCorrection";
+const std::string Keys::Acceleration::calculateLenseThirringCorrection = "calculateLenseThirringCorrection";
+const std::string Keys::Acceleration::calculateDeSitterCorrection = "calculateDeSitterCorrection";
+const std::string Keys::Acceleration::primaryBody = "primaryBody";
+const std::string Keys::Acceleration::centralBodyAngularMomentum = "centralBodyAngularMomentum";
+const std::string Keys::Acceleration::constantAcceleration = "constantAcceleration";
+const std::string Keys::Acceleration::sineAcceleration = "sineAcceleration";
+const std::string Keys::Acceleration::cosineAcceleration = "cosineAcceleration";
+
+
+/// Mass rate
+const std::string Keys::massRates = "massRates";
+
+
+/// Torque
+const std::string Keys::torques = "torques";
+
+
+
 /// Propagator
-const std::string Keys::propagators = "propagators";
+const std::string Keys::propagation = "propagation";
+const std::string Keys::Propagator::propagators = "propagators";
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
 const std::string Keys::Propagator::type = "type";
 const std::string Keys::Propagator::centralBodies = "centralBodies";
@@ -174,14 +205,11 @@ const std::string Keys::Interpolator::useLongDoubleTimeStep = "useLongDoubleTime
 const std::string Keys::Interpolator::order = "order";
 const std::string Keys::Interpolator::boundaryHandling = "boundaryHandling";
 
-/*
 /// ModelInterpolation
-const std::string Keys::modelInterpolation = "modelInterpolation";
 const std::string Keys::ModelInterpolation::initialTime = "initialTime";
 const std::string Keys::ModelInterpolation::finalTime = "finalTime";
 const std::string Keys::ModelInterpolation::timeStep = "timeStep";
 const std::string Keys::ModelInterpolation::interpolator = "interpolator";
-*/
 
 /// Output
 const std::string Keys::output = "output";

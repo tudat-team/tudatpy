@@ -84,11 +84,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >&
     }
 }
 
+/*
 //! Convert `json` to `InterpolatorSettings` shared pointer.
 void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     interpolatorSettings = json_interface::createInterpolatorSettings( jsonObject );
 }
+*/
 
 } // namespace interpolators
 
@@ -102,15 +104,23 @@ void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSetti
 {
     if ( modelInterpolationSettings )
     {
-        jsonObject = modelInterpolationSettings->interpolatorSettings_;
+        using namespace json_interface;
+        using Keys = Keys::ModelInterpolation;
+
+        jsonObject[ Keys::initialTime ] = modelInterpolationSettings->initialTime_;
+        jsonObject[ Keys::finalTime ] = modelInterpolationSettings->finalTime_;
+        jsonObject[ Keys::timeStep ] = modelInterpolationSettings->timeStep_;
+        jsonObject[ Keys::interpolator ] = modelInterpolationSettings->interpolatorSettings_;
     }
 }
 
+/*
 //! Convert `json` to `ModelInterpolationSettings` shared pointer.
 void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     modelInterpolationSettings = json_interface::createModelInterpolationSettings( jsonObject );
 }
+*/
 
 } // namespace simulation_setup
 
@@ -121,60 +131,77 @@ namespace json_interface
 
 //! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
 boost::shared_ptr< interpolators::InterpolatorSettings > createInterpolatorSettings(
-        const json& settings, const KeyTree& keyTree )
+        const json& settings, const KeyTree& keyTree,
+        const boost::shared_ptr< interpolators::InterpolatorSettings >& fallback )
 {
-    using namespace interpolators;
-    using Keys = Keys::Interpolator;
-
-    // Get interpolator type
-    const OneDimensionalInterpolatorTypes oneDimensionalInterpolatorType =
-            getValue< OneDimensionalInterpolatorTypes >( settings, keyTree + Keys::type );
-
-    switch ( oneDimensionalInterpolatorType ) {
-    case linear_interpolator:
-    case cubic_spline_interpolator:
-    case hermite_spline_interpolator:
-    case piecewise_constant_interpolator:
+    if ( ! defined( settings, keyTree ) )
     {
-        InterpolatorSettings defaults( linear_interpolator );
-        return boost::make_shared< InterpolatorSettings >(
-                    oneDimensionalInterpolatorType,
-                    getValue( settings, keyTree + Keys::lookupScheme, defaults.getSelectedLookupScheme( ) ),
-                    getValue( settings, keyTree + Keys::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ) );
+        return fallback;
     }
-    case lagrange_interpolator:
+    else
     {
-        LagrangeInterpolatorSettings defaults( 0 );
-        return boost::make_shared< LagrangeInterpolatorSettings >(
-                    getValue< double >( settings, keyTree + Keys::order ),
-                    getValue( settings, keyTree + Keys::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ),
-                    getValue( settings, keyTree + Keys::lookupScheme, defaults.getSelectedLookupScheme( ) ),
-                    getValue( settings, keyTree + Keys::boundaryHandling, defaults.getBoundaryHandling( ) ) );
-    }
-    default:
-        throw std::runtime_error( stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes )
-                                  + " not supported by json_interface." );
+        using namespace interpolators;
+        using Keys = Keys::Interpolator;
+
+        // Get interpolator type
+        const OneDimensionalInterpolatorTypes oneDimensionalInterpolatorType =
+                getValue< OneDimensionalInterpolatorTypes >( settings, keyTree + Keys::type );
+
+        switch ( oneDimensionalInterpolatorType ) {
+        case linear_interpolator:
+        case cubic_spline_interpolator:
+        case hermite_spline_interpolator:
+        case piecewise_constant_interpolator:
+        {
+            InterpolatorSettings defaults( linear_interpolator );
+            return boost::make_shared< InterpolatorSettings >(
+                        oneDimensionalInterpolatorType,
+                        getValue( settings, keyTree + Keys::lookupScheme,
+                                  defaults.getSelectedLookupScheme( ) ),
+                        getValue( settings, keyTree + Keys::useLongDoubleTimeStep,
+                                  defaults.getUseLongDoubleTimeStep( ) ) );
+        }
+        case lagrange_interpolator:
+        {
+            LagrangeInterpolatorSettings defaults( 0 );
+            return boost::make_shared< LagrangeInterpolatorSettings >(
+                        getValue< double >( settings, keyTree + Keys::order ),
+                        getValue( settings, keyTree + Keys::useLongDoubleTimeStep,
+                                  defaults.getUseLongDoubleTimeStep( ) ),
+                        getValue( settings, keyTree + Keys::lookupScheme,
+                                  defaults.getSelectedLookupScheme( ) ),
+                        getValue( settings, keyTree + Keys::boundaryHandling,
+                                  defaults.getBoundaryHandling( ) ) );
+        }
+        default:
+            throw std::runtime_error( stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes )
+                                      + " not supported by json_interface." );
+        }
     }
 }
 
 //! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
 boost::shared_ptr< simulation_setup::ModelInterpolationSettings > createModelInterpolationSettings(
-        const json& settings, const KeyTree& keyTree )
+        const json& settings, const KeyTree& keyTree,
+        const boost::shared_ptr< simulation_setup::ModelInterpolationSettings >& fallback )
 {
-    using namespace simulation_setup;
-    return boost::make_shared< ModelInterpolationSettings >(
-                TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, createInterpolatorSettings( settings, keyTree ) );
+    if ( ! defined( settings, keyTree ) )
+    {
+        return fallback;
+    }
+    else
+    {
+        using namespace simulation_setup;
+        using Keys = Keys::ModelInterpolation;
 
-    /*
-    using Keys = Keys::ModelInterpolation;
-
-    ModelInterpolationSettings defaults;
-    return boost::make_shared< ModelInterpolationSettings >(
-                getEpoch( settings, keyTree + Keys::initialTime, defaults.initialTime_ ),
-                getEpoch( settings, keyTree + Keys::finalTime, defaults.finalTime_ ),
-                getNumeric( settings, keyTree + Keys::timeStep, defaults.timeStep_ ),
-                getValue( settings, keyTree + Keys::interpolator, defaults.interpolatorSettings_ ) );
-    */
+        ModelInterpolationSettings defaults;
+        return boost::make_shared< ModelInterpolationSettings >(
+                    getEpoch( settings, keyTree + Keys::initialTime, defaults.initialTime_ ),
+                    getEpoch( settings, keyTree + Keys::finalTime, defaults.finalTime_ ),
+                    getNumeric( settings, keyTree + Keys::timeStep, defaults.timeStep_ ),
+                    createInterpolatorSettings( settings, keyTree + Keys::interpolator,
+                                                defaults.interpolatorSettings_ ) );
+    }
 }
 
 } // namespace json_interface

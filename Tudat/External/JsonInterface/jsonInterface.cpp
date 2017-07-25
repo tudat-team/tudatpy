@@ -18,12 +18,6 @@ namespace json_interface
 {
 
 //! -DOC
-path pathForJSONFile( const std::string& file )
-{
-    return pathForJSONFile( file, boost::filesystem::current_path( ) );
-}
-
-//! -DOC
 path pathForJSONFile( const std::string& file, const path& basePath )
 {
     try
@@ -93,6 +87,21 @@ json parseModularJSONFile( const path& filePath )
 
     return jsonObjectWithImportedFiles;
 }
+
+
+//! -DOC
+bool defined( const json& jsonObject, const KeyTree& keyTree )
+{
+    if ( getValuePointer< json >( jsonObject, keyTree ) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 
 }  // namespace json_interface
 

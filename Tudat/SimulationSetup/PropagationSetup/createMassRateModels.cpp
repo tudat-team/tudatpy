@@ -121,9 +121,9 @@ createMassRateModel(
 
 
 //! Function to create a list of mass rate models for a list of bodies.
-std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
-        const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
+        const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
     // Iterate over all bodies
