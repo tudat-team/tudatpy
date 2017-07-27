@@ -556,7 +556,6 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarT
     }
 }
 
-
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )

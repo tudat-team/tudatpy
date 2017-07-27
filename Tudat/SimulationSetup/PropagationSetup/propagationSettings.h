@@ -62,7 +62,7 @@ public:
      * Function to retrieve the initial state used as input for numerical integration
      * \return Initial state used as input for numerical integration
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
+    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
     {
         return initialStates_;
     }
@@ -299,6 +299,7 @@ public:
                                     singleArcSettings_.at( i )->getStateSize( ), TUDAT_NAN ) );
                 }
             }
+
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
         }
         if( transferInitialStateInformationPerArc )
@@ -385,7 +386,6 @@ public:
             singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
             currentIndex += singleArcSettings_.at( i )->getStateSize( );
         }
-
     }
 
 protected:
@@ -414,11 +414,7 @@ public:
                     singleArcPropagatorSettings->getStateSize( ) +
                     multiArcPropagatorSettings->getStateSize( ) );
 
-        this->initialStates_.segment( 0, singleArcPropagatorSettings->getStateSize( ) ) =
-                singleArcPropagatorSettings->getInitialStates( );
-        this->initialStates_.segment( singleArcPropagatorSettings->getStateSize( ),
-                                      multiArcPropagatorSettings->getStateSize( ) ) =
-                multiArcPropagatorSettings_->getInitialStates( );
+        setInitialStatesFromConstituents( );
 
         this->stateSize_ = this->initialStates_.rows( );
 
@@ -448,7 +444,18 @@ public:
         return multiArcPropagatorSettings_;
     }
 
+    void setInitialStatesFromConstituents( )
+    {
+        this->initialStates_.segment( 0, singleArcPropagatorSettings_->getStateSize( ) ) =
+                singleArcPropagatorSettings_->getInitialStates( );
+        this->initialStates_.segment(
+                    singleArcPropagatorSettings_->getStateSize( ), multiArcPropagatorSettings_->getStateSize( ) ) =
+                multiArcPropagatorSettings_->getInitialStates( );
+    }
+
 protected:
+
+
 
     boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings_;
 
@@ -770,6 +777,104 @@ public:
     int stateSize_;
 
 };
+
+
+template< typename StateScalarType = double >
+boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMultiPropagatorSettings(
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings,
+        const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > >  multiArcSettings,
+        const int numberofArcs )
+{
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > constituentSingleArcSettings;
+    switch( singleArcSettings->getStateType( ) )
+    {
+    case transational_state:
+    {
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcTranslationalSettings =
+                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( singleArcSettings );
+        if( singleArcTranslationalSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making multi-arc propagator settings from single arc. Translational input not consistent." );
+        }
+
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > firstArcTranslationalSettings =
+                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                    multiArcSettings->getSingleArcSettings( ).at( 0 ) );
+        if( firstArcTranslationalSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making multi-arc propagator settings from single arc. Multi-arc input not consistent with single-arc (translational)." );
+        }
+
+        std::vector< std::string > multiArcCentralBodies = firstArcTranslationalSettings->centralBodies_;
+        std::vector< std::string > fullCentralBodies = singleArcTranslationalSettings->centralBodies_;
+        fullCentralBodies.insert( fullCentralBodies.end( ), multiArcCentralBodies.begin( ), multiArcCentralBodies.end( ) );
+
+        basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = firstArcTranslationalSettings->accelerationsMap_;
+        basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->accelerationsMap_;
+        fullAccelerationsMap.insert( multiArcAccelerationsMap.begin( ), multiArcAccelerationsMap.end( ) );
+
+        std::vector< std::string > multiArcBodiesToIntegrate = firstArcTranslationalSettings->bodiesToIntegrate_;
+        std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
+        fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
+
+        int fullSingleArcSize = 6 * fullCentralBodies.size( );
+        int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialBodyStatesList;
+        for( int i = 0; i < numberofArcs; i++ )
+        {
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
+            if( i == 0 )
+            {
+                currentArcInitialStates.segment( 0, singleArcSize ) = singleArcTranslationalSettings->getInitialStates( );
+            }
+            else
+            {
+                currentArcInitialStates.segment( 0, singleArcSize ) =
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Constant( 6, TUDAT_NAN );
+            }
+            currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
+                    multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
+            initialBodyStatesList.push_back( currentArcInitialStates );
+        }
+
+        TranslationalPropagatorType propagatorToUse = firstArcTranslationalSettings->propagator_;
+
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > multiArcDependentVariablesToSave;
+        if( firstArcTranslationalSettings->getDependentVariablesToSave( ) != NULL )
+        {
+           multiArcDependentVariablesToSave  = firstArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+        }
+
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > fullDependentVariablesToSave;
+        if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != NULL )
+        {
+                fullDependentVariablesToSave = singleArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+        }
+        fullDependentVariablesToSave.insert(
+                    fullDependentVariablesToSave.end( ), multiArcDependentVariablesToSave.begin( ),
+                    multiArcDependentVariablesToSave.end( ) );
+
+        for( int i = 0; i < numberofArcs; i++ )
+        {
+            constituentSingleArcSettings.push_back(
+                        boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
+                            fullCentralBodies, fullAccelerationsMap, fullBodiesToIntegrate,
+                            initialBodyStatesList.at( i ),
+                            multiArcSettings->getSingleArcSettings( ).at( i )->getTerminationSettings( ), propagatorToUse,
+                            boost::make_shared< DependentVariableSaveSettings >( fullDependentVariablesToSave,
+                                true ),
+                            singleArcTranslationalSettings->getPrintInterval( ) ) );
+        }
+
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when making multi-arc propagator settings from single arc. Input not recognized." );
+    }
+
+    return boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >( constituentSingleArcSettings );
+}
 
 //! Function to retrieve the state size for a list of propagator settings.
 /*!

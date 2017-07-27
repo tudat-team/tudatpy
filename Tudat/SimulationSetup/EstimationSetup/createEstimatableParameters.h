@@ -240,6 +240,56 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
 }
 
 
+template< typename StateScalarType >
+boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+getAssociatedMultiArcParameter(
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > singleArcParameters,
+        const std::vector< double >& arcStartTimes )
+{
+    boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >  multiArcParameter;
+    switch( singleArcParameters->getParameterName( ).first )
+    {
+    case estimatable_parameters::initial_body_state:
+    {
+        boost::shared_ptr< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >
+                singleArcTranslationalStateParameter =
+                boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
+                    singleArcParameters );
+        if( singleArcTranslationalStateParameter == NULL )
+        {
+            throw std::runtime_error(
+                        "Error when getting multi-arc parameter from single-arc equivalent, single-arc translational state is inconsistent " );
+        }
+
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > multiArcInitialStates =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 6 * arcStartTimes.size( ) );
+
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > singleArcInitialState =
+                singleArcTranslationalStateParameter->getParameterValue( );
+
+        multiArcInitialStates.segment( 0, 6 ) = singleArcInitialState;
+
+        multiArcParameter = boost::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter<
+                StateScalarType > >(
+                    singleArcTranslationalStateParameter->getParameterName( ).second.first,
+                    arcStartTimes,
+                    multiArcInitialStates,
+                    singleArcTranslationalStateParameter->getCentralBody( ),
+                    singleArcTranslationalStateParameter->getFrameOrientation( ) );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting multi-arc parameter from single-arc equivalent, parameter type " +
+                                  boost::lexical_cast< std::string >( singleArcParameters->getParameterName( ).first ) +
+                                  " not recognized." );
+    }
+    return multiArcParameter;
+}
+
+
 } // namespace simulation_setup
 
 } // namespace tudat

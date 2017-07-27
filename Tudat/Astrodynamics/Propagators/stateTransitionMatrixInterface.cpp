@@ -42,9 +42,6 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
     }
 
-    std::cout<<"Getting single ST: "<<evaluationTime<<std::endl<<
-               combinedStateTransitionMatrix_<<std::endl;
-
     return combinedStateTransitionMatrix_;
 }
 
@@ -142,24 +139,35 @@ std::pair< int, double > MultiArcCombinedStateTransitionAndSensitivityMatrixInte
 Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
 {
-    std::cout<<"Getting st"<<std::endl;
-
+    std::cout<<"Retrieving "<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<std::endl;
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
     Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
-    Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
 
-    std::cout<<singleArcStateSize_<<" "<<multiArcStateSize_<<" "<<singleArcStateTransition.rows( )<<" "<<singleArcStateTransition.cols( )<<" "<<
-               multiArcStateTransition.rows( )<<" "<<multiArcStateTransition.cols( )<<std::endl;
+    std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
+
+    Eigen::MatrixXd singleArcStateAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
+                currentArc.second );
+    Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    std::cout<<"Retrieving single/multi "<<singleArcStateTransition.rows( )<<" "<<singleArcStateTransition.cols( )<<" "<<
+            multiArcStateTransition.rows( )<<" "<<multiArcStateTransition.cols( )<<std::endl;
 
     combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
             singleArcStateTransition;
-    combinedStateTransitionMatrix.block( singleArcStateSize_, singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ ) =
-            multiArcStateTransition;
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, singleArcStateSize_, multiArcStateSize_ - singleArcStateSize_,
+                multiArcStateSize_ - singleArcStateSize_ ) =
+            multiArcStateTransition.block(
+                singleArcStateSize_, singleArcStateSize_, multiArcStateSize_ - singleArcStateSize_,
+                multiArcStateSize_ - singleArcStateSize_ );
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, 0, multiArcStateSize_ - singleArcStateSize_,
+                singleArcStateSize_ ) =
+            multiArcStateTransition.block(
+                singleArcStateSize_, 0, multiArcStateSize_ - singleArcStateSize_,
+                singleArcStateSize_ ) * singleArcStateAtArcStart;
 
-    std::cout<<"Hybrid state transition: "<<evaluationTime<<std::endl<<singleArcStateTransition<<std::endl<<std::endl<<
-               combinedStateTransitionMatrix<<std::endl<<std::endl;
-
+    std::cout<<"Multi-arc ST: "<<multiArcStateTransition<<std::endl;
 
     return combinedStateTransitionMatrix;
 
