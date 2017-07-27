@@ -21,8 +21,7 @@ namespace estimatable_parameters
 
 //! Interface class for the estimation of an initial translational state.
 template< typename InitialStateParameterType = double >
-class InitialTranslationalStateParameter: public EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+class InitialTranslationalStateParameter: public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
 
@@ -82,6 +81,11 @@ public:
     std::string getCentralBody( )
     {
         return centralBody_;
+    }
+
+    std::string getFrameOrientation( )
+    {
+        return frameOrientation_;
     }
 
 private:

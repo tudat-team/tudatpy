@@ -286,9 +286,8 @@ public:
             const boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface,
             const boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
         CombinedStateTransitionAndSensitivityMatrixInterface(
-            singleArcInterface->getStateTransitionMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( ),
-            singleArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getSensitivityMatrixSize( ) +
-            singleArcInterface->getStateTransitionMatrixSize( )  + multiArcInterface->getStateTransitionMatrixSize( )),
+            multiArcInterface->getStateTransitionMatrixSize( ),
+            multiArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( )),
         singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
     {
         if( multiArcInterface->getSensitivityMatrixSize( ) != singleArcInterface->getSensitivityMatrixSize( ) )

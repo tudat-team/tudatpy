@@ -55,7 +55,7 @@ namespace propagators
 * \return Initial state vector (with 6 Cartesian elements per body, in order of bodiesToIntegrate vector).
 */
 template< typename TimeType = double, typename StateScalarType = double >
-Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodiesFromFrameManager(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& centralBodies,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -110,7 +110,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
         const TimeType initialTime )
 {
     // Create ReferenceFrameManager and call overloaded function.
-    return getInitialStatesOfBodies< TimeType, StateScalarType >(
+    return getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >(
                 bodiesToIntegrate, centralBodies, bodyMap, initialTime,
                 createFrameManager( bodyMap ) );
 }
@@ -425,10 +425,14 @@ public:
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
-            equationsOfMotionNumericalSolution )
+            equationsOfMotionNumericalSolution,
+            const bool processSolution = true )
     {
         equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
-        processNumericalEquationsOfMotionSolution( );
+        if( processSolution )
+        {
+            processNumericalEquationsOfMotionSolution( );
+        }
     }
 
     //! Function to get the settings for the numerical integrator.
@@ -971,7 +975,8 @@ public:
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
-            equationsOfMotionNumericalSolution )
+            equationsOfMotionNumericalSolution,
+            const bool processSolution = true )
     {
         // Set equationsOfMotionNumericalSolution_
         equationsOfMotionNumericalSolution_.resize( equationsOfMotionNumericalSolution.size( ) );
@@ -984,7 +989,10 @@ public:
         }
 
         // Reset environment with new states.
-        processNumericalEquationsOfMotionSolution( );
+        if( processSolution )
+        {
+            processNumericalEquationsOfMotionSolution( );
+        }
     }
 
     //! Function to get the list of DynamicsStateDerivativeModel objects used for each arc
