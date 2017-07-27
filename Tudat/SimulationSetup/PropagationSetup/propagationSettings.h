@@ -896,11 +896,11 @@ boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMu
                     multiArcDependentVariablesToSave.end( ) );
 
         // Create dependent variables object
-        boost::make_shared< DependentVariableSaveSettings > fullDependentVariablesObject;
+        boost::shared_ptr< DependentVariableSaveSettings > fullDependentVariablesObject;
         if( fullDependentVariablesToSave.size( ) > 0 )
         {
-            fullDependentVariablesObject = boost::make_shared< DependentVariabl;eSaveSettings >( fullDependentVariablesToSave,
-                                                                                                 true );
+            fullDependentVariablesObject = boost::make_shared< DependentVariableSaveSettings >(
+                        fullDependentVariablesToSave, true );
         }
 
         // Create list of single-arc settings
