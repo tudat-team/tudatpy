@@ -61,7 +61,7 @@ template< typename TimeType = double , typename StateScalarType  = double >
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeHybridArcMarsAndOrbiterSensitivitySimulation(
         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
-        const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ),
+        const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 2 ),
         const bool propagateVariationalEquations = 1,
         const double arcDuration = 0.5 * 86400.0,
         const double arcOverlap  = 5.0E3 )
@@ -229,13 +229,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     {
         parameterNames.push_back(
                     boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                       singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
+                        singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
         parameterNames.push_back(
                     boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                       multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
+                        multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
                         integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
-        //parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
-
+        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     }
 
     // Create parameters
@@ -246,8 +246,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
 
-    //parameterVector.block( parameterVector.rows( ) - 3, 0, 3, 1 ) += parameterPerturbation;
-    //parametersToEstimate->resetParameterValues( parameterVector );
+    parameterVector.block( parameterVector.rows( ) - 2, 0, 2, 1 ) += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( parameterVector );
 
     std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
@@ -278,10 +278,10 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
-//            if( centralBodyMap[ "Moon" ] == "Earth" )
-//            {
-//                testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-//            }
+            //            if( centralBodyMap[ "Moon" ] == "Earth" )
+            //            {
+            //                testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+            //            }
 
             testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Orbiter" ]->getStateInBaseFrameFromEphemeris( testEpoch ) -
                     testStates.block( 0, 0, 6, 1 );
@@ -322,22 +322,22 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
 
     // Define variables for numerical differentiation
     Eigen::Matrix< double, 12, 1>  perturbedState;
-    Eigen::Vector3d perturbedParameter;
+    Eigen::Vector2d perturbedParameter;
 
     Eigen::Matrix< double, 12, 1> statePerturbation;
-    Eigen::Vector3d parameterPerturbation;
+    Eigen::VectorXd parameterPerturbation;
 
 
     for( unsigned int i = 0; i < 1; i++ )
     {
         // Define parameter perturbation
-        parameterPerturbation  = ( Eigen::Vector3d( ) << 1.0E11, 1.0E11, 1.0E15 ).finished( );
+        parameterPerturbation  = ( Eigen::VectorXd( 2 ) << 1.0E20, 1.0E10 ).finished( );
 
         // Define state perturbation
         if( i == 0 )
         {
             statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
-                                  1.0E10, 1.0E10, 1.0E10, 1.5E4, 0.5E4, 0.5E4,
+                                  1.0E10, 1.0E10, 1.0E10, 5.0E4, 5.0E4, 10.0E4,
                                   10.0, 10.0, 10.0, 0.1, 0.1, 0.1 ).finished( );
         }
 
@@ -357,8 +357,9 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                 manualPartial.resize( stateTransitionAndSensitivityMatrixAtEpoch.size( ) );
                 for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
                 {
-                    manualPartial[ arc ] = Eigen::MatrixXd::Zero( 12, 15 );
+                    manualPartial[ arc ] = Eigen::MatrixXd::Zero( 12, 14 );
                 }
+
                 // Numerically compute state transition matrix
                 for( unsigned int j = 0; j < 12; j++ )
                 {
@@ -367,23 +368,23 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                     perturbedState.setZero( );
                     perturbedState( j ) += statePerturbation( j );
                     upPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                                perturbedState, Eigen::Vector3d::Zero( ), false ).second;
+                                perturbedState, Eigen::VectorXd::Zero( 2 ), false ).second;
 
                     perturbedState.setZero( );
                     perturbedState( j ) += 0.5 * statePerturbation( j );
                     upPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                                perturbedState, Eigen::Vector3d::Zero( ), false ).second;
+                                perturbedState, Eigen::VectorXd::Zero( 2 ), false ).second;
 
                     perturbedState.setZero( );
                     perturbedState( j ) -= 0.5 * statePerturbation( j );
                     downPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                                perturbedState, Eigen::Vector3d::Zero( ), false ).second;
+                                perturbedState, Eigen::VectorXd::Zero( 2 ), false ).second;
 
 
                     perturbedState.setZero( );
                     perturbedState( j ) -= statePerturbation( j );
                     downPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-                                perturbedState, Eigen::Vector3d::Zero( ), false ).second;
+                                perturbedState, Eigen::VectorXd::Zero( 2 ), false ).second;
 
                     for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
                     {
@@ -393,50 +394,96 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                     }
                 }
 
-                // Numerically compute sensitivity matrix
-//                for( unsigned int j = 0; j < 3; j ++ )
-//                {
-//                    std::vector< Eigen::VectorXd > upPerturbedState, downPerturbedState;
-//                    perturbedState.setZero( );
-//                    Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
-//                    perturbedParameter.setZero( );
-//                    perturbedParameter( j ) += parameterPerturbation( j );
-//                    upPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-//                                perturbedState ).second;
+                //Numerically compute sensitivity matrix
+                for( unsigned int j = 0; j < 2; j ++ )
+                {
+                    std::vector< Eigen::VectorXd > upPerturbedState, upPerturbedState2, downPerturbedState2, downPerturbedState;
+                    perturbedState.setZero( );
+                    Eigen::Vector2d upPerturbedParameter, downPerturbedParameter;
 
-//                    perturbedParameter.setZero( );
-//                    perturbedParameter( j ) -= parameterPerturbation( j );
-//                    downPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
-//                                perturbedState ).second;
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) += parameterPerturbation( j );
+                    upPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
+                                perturbedState, perturbedParameter, false ).second;
 
-//                    for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
-//                    {
-//                        manualPartial[ arc ].block( 0, j + 12, 12, 1 ) =
-//                                ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * parameterPerturbation( j ) );
-//                    }
-//                }
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) += 0.5 * parameterPerturbation( j );
+                    upPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
+                                perturbedState, perturbedParameter, false ).second;
+
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) -= 0.5 * parameterPerturbation( j );
+                    downPerturbedState2 = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
+                                perturbedState, perturbedParameter, false ).second;
+
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) -= parameterPerturbation( j );
+                    downPerturbedState = executeHybridArcMarsAndOrbiterSensitivitySimulation< double, double >(
+                                perturbedState, perturbedParameter, false ).second;
+
+                    for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
+                    {
+                        manualPartial[ arc ].block( 0, j + 12, 12, 1 ) =
+                                ( -upPerturbedState[ arc ] + 8.0 * upPerturbedState2[ arc ] - 8.0 * downPerturbedState2[ arc ] + downPerturbedState[ arc ] ) /
+                                ( 6.0 * parameterPerturbation( j ) );
+                    }
+                }
 
 
-                std::cout<<( manualPartial.at( 0 ).block( 0, 0, 12, 12 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 0 ) ).cwiseQuotient(
+                std::cout<<( manualPartial.at( 0 ).block( 0, 0, 12, 14 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 0 ) ).cwiseQuotient(
                                stateTransitionAndSensitivityMatrixAtEpoch.at( 0 ) )<<std::endl<<std::endl<<
+                           manualPartial.at( 0 ).block( 0, 0, 12, 14 )<<std::endl<<std::endl<<
                            stateTransitionAndSensitivityMatrixAtEpoch.at( 0 )<<std::endl<<std::endl<<std::endl<<std::endl;
 
 
-                std::cout<<( manualPartial.at( 1 ).block( 0, 0, 12, 12 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) ).cwiseQuotient(
+                std::cout<<( manualPartial.at( 1 ).block( 0, 0, 12, 14 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) ).cwiseQuotient(
                                stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) )<<std::endl<<std::endl<<
+                           manualPartial.at( 1 ).block( 0, 0, 12, 14 )<<std::endl<<std::endl<<
                            stateTransitionAndSensitivityMatrixAtEpoch.at( 1 )<<std::endl<<std::endl<<std::endl<<std::endl;
 
 
-                std::cout<<( manualPartial.at( 2 ).block( 0, 0, 12, 12 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 2 ) ).cwiseQuotient(
+                std::cout<<( manualPartial.at( 2 ).block( 0, 0, 12, 14 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( 2 ) ).cwiseQuotient(
                                stateTransitionAndSensitivityMatrixAtEpoch.at( 2 ) )<<std::endl<<std::endl<<
+                           manualPartial.at( 2 ).block( 0, 0, 12, 14 )<<std::endl<<std::endl<<
                            stateTransitionAndSensitivityMatrixAtEpoch.at( 2 )<<std::endl<<std::endl<<std::endl<<std::endl;
-                // Check results
-//                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
-//                {
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
-//                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
-//                }
+
+                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ),
+                                manualPartial.at( arc ).block( 0, 0, 6, 6 ), 1.0E-5 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 6, 6, 6 ),
+                                manualPartial.at( arc ).block( 6, 6, 6, 6 ), 1.0E-5 );
+
+                    double couplingTolerance;
+                    if( arc == 0 )
+                    {
+                        couplingTolerance = 5.0E-1;
+                    }
+                    else if( arc == 1 )
+                    {
+                        couplingTolerance = 5.0E-2;
+                    }
+                    else if( arc == 2 )
+                    {
+                        couplingTolerance = 5.0E-3;
+                    }
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 ),
+                                manualPartial.at( arc ).block( 6, 0, 6, 6 ), couplingTolerance );
+
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 6, 1 ),
+                                manualPartial.at( arc ).block( 0, 12, 6, 1 ), 1.0E-6 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 12, 6, 1 ),
+                                manualPartial.at( arc ).block( 6, 12, 6, 1 ), 5.0E-3 );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 13, 6, 1 ),
+                                manualPartial.at( arc ).block( 6, 13, 6, 1 ), 1.0E-6 );
+
+                }
 
             }
         }
