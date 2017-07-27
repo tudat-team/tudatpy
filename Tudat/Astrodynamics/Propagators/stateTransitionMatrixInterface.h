@@ -174,6 +174,7 @@ public:
     {
         return sensitivityMatrixInterpolator_;
     }
+
     //! Function to get the concatenated state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the concatenated state transition and sensitivity matrix at a given time.
@@ -279,9 +280,24 @@ private:
 
 };
 
+//! Interface object of interpolation of numerically propagated state transition and sensitivity matrices for a hybrid of
+//! single-and multi-arc estimation (single order is put first in concatenation)
+/*!
+ *  Interface object of interpolation of numerically propagated state transition and sensitivity matrices for a hybrid of
+ *  single-and multi-arc estimation (single order is put first in concatenation). The single- anf multi-arc given as input must
+ *  be consistent: the single arc bodies/states must also be included in the multi-arc model, in order to properly generate
+ *  the coupling terms between single and multi-arc states (see HybridArcVariationalEquationsSolver).
+ */
 class HybridArcCombinedStateTransitionAndSensitivityMatrixInterface: public CombinedStateTransitionAndSensitivityMatrixInterface
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param singleArcInterface Object to retrieve state transition/sensitivity matrices for single arc component
+     * \param multiArcInterface Object to retrieve state transition/sensitivity matrices for multi arc component
+     */
     HybridArcCombinedStateTransitionAndSensitivityMatrixInterface(
             const boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface,
             const boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface ):
@@ -290,6 +306,7 @@ public:
             multiArcInterface->getSensitivityMatrixSize( ) + multiArcInterface->getStateTransitionMatrixSize( )),
         singleArcInterface_( singleArcInterface ), multiArcInterface_( multiArcInterface )
     {
+        // Check input consistency
         if( multiArcInterface->getSensitivityMatrixSize( ) != singleArcInterface->getSensitivityMatrixSize( ) )
         {
             throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, input is inconsistent" );
@@ -297,34 +314,63 @@ public:
 
         singleArcStateSize_ = singleArcInterface_->getStateTransitionMatrixSize( );
         multiArcStateSize_ = multiArcInterface_->getStateTransitionMatrixSize( );
+        originalMultiArcStateSize_ = multiArcStateSize_ - singleArcStateSize_;
 
         numberOfMultiArcs_ = multiArcInterface->getNumberOfArcs( );
 
 
     }
 
+    //! Destructor
     ~HybridArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
 
+    //! Function to get the size of the total parameter vector.
+    /*!
+     * Function to get the size of the total parameter vector.
+     * \return Size of the total parameter vector.
+     */
     int getFullParameterVectorSize( )
     {
-        return singleArcInterface_->getFullParameterVectorSize( ) + multiArcInterface_->getFullParameterVectorSize( );
+        return sensitivityMatrixSize_ + singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_;
     }
 
+    //! Function to get the concatenated state transition and sensitivity matrix at a given time.
+    /*!
+     *  Function to get the concatenated state transition and sensitivity matrix at a given time. Only the state transition
+     *  matrix for the current are is included in the concatenation.
+     *  \param evaluationTime Time at which to evaluate matrix interpolators
+     *  \return Concatenated state transition and sensitivity matrices.
+     */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
 
+    //! Function to get the full concatenated state transition and sensitivity matrix at a given time.
+    /*!
+     *  Function to get the full concatenated state transition and sensitivity matrix at a given time. The state transition
+     *  matrix for each arc is included (which equals zero for each multi-arc initial state sensitivity outside of teh current
+     *  arc)
+     *  \param evaluationTime Time at which to evaluate matrix interpolators
+     *  \return Full concatenated state transition and sensitivity matrices.
+     */
     Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
 
 private:
 
+    //! Object to retrieve state transition/sensitivity matrices for single arc component
     boost::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface_;
 
+    //! Object to retrieve state transition/sensitivity matrices for multi arc component
     boost::shared_ptr< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface > multiArcInterface_;
 
-
+    //! Size of single-arc state
     int singleArcStateSize_;
 
+    //! Full state size of single arc in multi-arc model.
     int multiArcStateSize_;
 
+    //! Full state size of single arc in original multi-arc model (full multi-arc size minus single-arc size).
+    int originalMultiArcStateSize_;
+
+    //! Number of arcs in multi-arc model.
     int numberOfMultiArcs_;
 };
 

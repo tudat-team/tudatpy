@@ -1421,36 +1421,36 @@ public:
         arcStartTimes_( arcStartTimes )
     {
         // Cast propagator settings to correct type and check validity
-        boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
+        originalPopagatorSettings_ =
                 boost::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( hybridPropagatorSettings == NULL )
+        if( originalPopagatorSettings_ == NULL )
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input propagation settings are not hybrid arc" );
         }
 
         // Get input size of single-arc and input multi-arc
-        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getStateSize( );
-        originalMultiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getStateSize( );
-        originalMultiArcDynamicsSingleArcSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getStateSize( ) /
+        singleArcDynamicsSize_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getStateSize( );
+        originalMultiArcDynamicsSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getStateSize( );
+        originalMultiArcDynamicsSingleArcSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getStateSize( ) /
                 arcStartTimes.size( );
 
         // Create propagator settings with the single arc settings included (at the beginning) in each arc
         boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > extendedMultiArcSettings =
                 getExtendedMultiPropagatorSettings(
-                    hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
-                    hybridPropagatorSettings->getMultiArcPropagatorSettings( ),
+                    originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
+                    originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     arcStartTimes.size( ) );
         multiArcDynamicsSize_ = extendedMultiArcSettings->getStateSize( );
         multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getStateSize( ) / arcStartTimes_.size( );
         propagatorSettings_ = boost::make_shared< HybridArcPropagatorSettings< StateScalarType> >(
-                    hybridPropagatorSettings->getSingleArcPropagatorSettings( ), extendedMultiArcSettings );
+                    originalPopagatorSettings_->getSingleArcPropagatorSettings( ), extendedMultiArcSettings );
 
         // Update estimated parameter vector to extended multi-arc settings
         setExtendedMultiArcParameters( arcStartTimes );
 
         // Create multi-arc solver with original parameter set
         originalMultiArcSolver_ = boost::make_shared< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap, integratorSettings, hybridPropagatorSettings->getMultiArcPropagatorSettings( ),
+                    bodyMap, integratorSettings, originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     originalMultiArcParametersToEstimate_, arcStartTimes, integrateDynamicalAndVariationalEquationsConcurrently,
                     boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                     false, false, false );
@@ -1521,6 +1521,8 @@ public:
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
 
+        copyExtendedMultiArcInitialStatesToOriginalSettins( );
+
         // Extract multi-arc solution of dynamics, and remove the single arc bodies from the map.
         std::vector< std::map< TimeType, VectorType > > numericalMultiArcSolution  =
                 multiArcSolver_->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -1571,6 +1573,8 @@ public:
         integratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
         multiArcSolver_->integrateDynamicalEquationsOfMotionOnly(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ) );
+
+        copyExtendedMultiArcInitialStatesToOriginalSettins( );
 
         // Extract multi-arc solution of dynamics, and remove the single arc bodies from the map.
         std::vector< std::map< TimeType, VectorType > > numericalMultiArcSolution  =
@@ -1670,11 +1674,29 @@ protected:
         }
     }
 
+    void copyExtendedMultiArcInitialStatesToOriginalSettins( )
+    {
+        std::vector< VectorType > extendedMultiArcInitialStates =
+                propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
+        std::vector< VectorType > originalMultiArcInitialStates =
+                originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
+        for( unsigned int i = 0; i < extendedMultiArcInitialStates.size( ); i++ )
+        {
+            originalMultiArcInitialStates[ i ] = extendedMultiArcInitialStates.at( i ).segment(
+                        singleArcDynamicsSize_, originalMultiArcDynamicsSingleArcSize_ );
+        }
+
+        originalPopagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStatesList( originalMultiArcInitialStates );
+        originalPopagatorSettings_->setInitialStatesFromConstituents( );
+    }
+
     boost::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > originalMultiArcSolver_;
 
     boost::shared_ptr< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > singleArcSolver_;
 
     boost::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > multiArcSolver_;
+
+    boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > originalPopagatorSettings_;
 
     boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > propagatorSettings_;
 
