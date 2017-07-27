@@ -83,6 +83,11 @@ public:
         return centralBody_;
     }
 
+    //! Function to get the orientation of the frame in which the state is defined.
+    /*!
+     * Function to get the orientation of the frame in which the state is defined.
+     * \return Orientation of the frame in which the state is defined.
+     */
     std::string getFrameOrientation( )
     {
         return frameOrientation_;

@@ -189,8 +189,36 @@ protected:
     EstimatebleParameterIdentifier parameterName_;
 };
 
-bool isDynamicalParameterSingleArc( const boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > parameterToCheck );
+//! Function to determine if an initial state parameter is a single- or multi-arc parameter
+/*!
+ *  Function to determine if an initial state parameter is a single- or multi-arc parameter. Function throws an error, if
+ *  input is not an initial state parameter
+ *  \param parameterToCheck Parameter object for which the check is to be performed.
+ *  \return True of parameter is single-arc, false if multi-arc
+ */
+template< typename ParameterType >
+bool isDynamicalParameterSingleArc(
+        const boost::shared_ptr< EstimatableParameter< Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > parameterToCheck )
+{
+    bool flag = -1;
+    switch( parameterToCheck->getParameterName( ).first )
+    {
+    case arc_wise_initial_body_state:
+    {
+        flag = false;
+        break;
+    }
+    case initial_body_state:
+    {
+        flag = true;
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when checking single/multi-arc dynamical parameter, parameter not identified" );
+    }
+    return flag;
 
+}
 
 //! Container class for all parameters that are to be estimated.
 /*!
@@ -299,11 +327,21 @@ public:
         return initialDynamicalStateParameterSize_;
     }
 
+    //! Function to return the total number of single-arc initial state values that are estimated.
+    /*!
+     *  Function to return the total number of single-arc initial state values that are estimated.
+     *  \return Function to return the total number of initial state values that are estimated.
+     */
     int getInitialDynamicalSingleArcStateParameterSize( )
     {
         return initialDynamicalSingleArcStateParameterSize_;
     }
 
+    //! Function to return the total number of multi-arc initial state values that are estimated.
+    /*!
+     *  Function to return the total number of multi-arc initial state values that are estimated.
+     *  \return Function to return the total number of initial state values that are estimated.
+     */
     int getInitialDynamicalMultiArcStateParameterSize( )
     {
         return initialDynamicalMultiArcStateParameterSize_;
@@ -456,12 +494,24 @@ public:
         return estimateInitialStateParameters_;
     }
 
+    //! Function to get list of single-arc initial dynamical states that are to be estimated.
+    //!
+    /*!
+     *  Function to get list of single-arc initial dynamical states that are to be estimated.
+     *  \return List of initial dynamical states that are to be estimated.
+     */
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedSingleArcInitialStateParameters( )
     {
         return estimateSingleArcInitialStateParameters_;
     }
 
+    //! Function to get list of multi-arc initial dynamical states that are to be estimated.
+    //!
+    /*!
+     *  Function to get list of multi-arc initial dynamical states that are to be estimated.
+     *  \return List of initial dynamical states that are to be estimated.
+     */
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedMultiArcInitialStateParameters( )
     {
@@ -481,11 +531,13 @@ public:
 
 protected:
 
-    //! Total size of all initial dynamical states that is to be estimated.
+    //! Total size of all initial dynamical states that are to be estimated.
     int initialDynamicalStateParameterSize_;
 
+    //! Total size of all initial single-arc dynamical states that are to be estimated.
     int initialDynamicalSingleArcStateParameterSize_;
 
+    //! Total size of all initial multi-arc dynamical states that are to be estimated.
     int initialDynamicalMultiArcStateParameterSize_;
 
     //! Total number of parameter values (including currently non yet implemented consider parameters).
@@ -511,9 +563,11 @@ protected:
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateInitialStateParameters_;
 
+    //! List of initial single-arc dynamical states that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateSingleArcInitialStateParameters_;
 
+    //! List of initial multi-arc dynamical states that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateMultiArcInitialStateParameters_;
 

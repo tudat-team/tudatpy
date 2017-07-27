@@ -422,6 +422,7 @@ public:
      * Function to reset the environment from an externally generated state history, the order of the entries in the
      * state vectors are proscribed by propagatorSettings
      * \param equationsOfMotionNumericalSolution Externally generated state history.
+     * \param processSolution True if the new solution is to be immediately processed (default true).
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
@@ -972,6 +973,8 @@ public:
      *  provided by a variational equations solver.
      *  \param equationsOfMotionNumericalSolution Vector of state histories
      *  (externally provided equationsOfMotionNumericalSolution_)
+     *  \param processSolution True if the new solution is to be immediately processed (default true).
+     *
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&

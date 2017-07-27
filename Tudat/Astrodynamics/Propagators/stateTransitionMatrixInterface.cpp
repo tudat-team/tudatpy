@@ -139,21 +139,18 @@ std::pair< int, double > MultiArcCombinedStateTransitionAndSensitivityMatrixInte
 Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
 {
-    std::cout<<"Retrieving "<<stateTransitionMatrixSize_<<" "<<sensitivityMatrixSize_<<std::endl;
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
     Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
 
     std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
 
-    Eigen::MatrixXd singleArcStateAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
+    Eigen::MatrixXd singleArcStateTransitionAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
                 currentArc.second );
     Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
-    std::cout<<"Retrieving single/multi "<<singleArcStateTransition.rows( )<<" "<<singleArcStateTransition.cols( )<<" "<<
-            multiArcStateTransition.rows( )<<" "<<multiArcStateTransition.cols( )<<std::endl;
 
     combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
-            singleArcStateTransition;
+            singleArcStateTransition.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
     combinedStateTransitionMatrix.block(
                 singleArcStateSize_, singleArcStateSize_, multiArcStateSize_ - singleArcStateSize_,
                 multiArcStateSize_ - singleArcStateSize_ ) =
@@ -165,9 +162,14 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 singleArcStateSize_ ) =
             multiArcStateTransition.block(
                 singleArcStateSize_, 0, multiArcStateSize_ - singleArcStateSize_,
-                singleArcStateSize_ ) * singleArcStateAtArcStart;
-
-    std::cout<<"Multi-arc ST: "<<multiArcStateTransition<<std::endl;
+                singleArcStateSize_ ) * singleArcStateTransitionAtArcStart.block(
+                0, 0, singleArcStateSize_, singleArcStateSize_ );
+    combinedStateTransitionMatrix.block( 0, multiArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ ) =
+            singleArcStateTransition.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
+    combinedStateTransitionMatrix.block(
+                singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ - singleArcStateSize_, sensitivityMatrixSize_ ) =
+            multiArcStateTransition.block(
+                singleArcStateSize_, multiArcStateSize_, multiArcStateSize_ - singleArcStateSize_, sensitivityMatrixSize_ );
 
     return combinedStateTransitionMatrix;
 
