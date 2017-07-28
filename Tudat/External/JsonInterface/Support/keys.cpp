@@ -17,6 +17,19 @@ namespace tudat
 namespace json_interface
 {
 
+//! Special keys (used internally by json_interface, can't be used in JSON files).
+
+const std::string SpecialKeys::root = "~";
+const std::string SpecialKeys::up = "..";
+const std::string SpecialKeys::rootObject = "#root";
+const std::string SpecialKeys::keyPath = "#keypath";
+
+const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
+                                                      SpecialKeys::up,
+                                                      SpecialKeys::rootObject,
+                                                      SpecialKeys::keyPath };
+
+
 //! Keys recognised by json_interface.
 
 /// Simulation
@@ -217,20 +230,60 @@ const std::string Keys::output = "output";
 
 
 
-//! Key trees recognised by `json_interface`.
+//! Key paths recognised by `json_interface`.
 
 /// Simulation
-const KeyTree KeyTrees::Simulation::startEpoch = { Keys::simulation, Keys::Simulation::startEpoch };
-const KeyTree KeyTrees::Simulation::endEpoch = { Keys::simulation, Keys::Simulation::endEpoch };
-const KeyTree KeyTrees::Simulation::globalFrameOrigin = { Keys::simulation, Keys::Simulation::globalFrameOrigin };
-const KeyTree KeyTrees::Simulation::globalFrameOrientation = { Keys::simulation, Keys::Simulation::globalFrameOrientation };
-const KeyTree KeyTrees::Simulation::spiceKernels = { Keys::simulation, Keys::Simulation::spiceKernels };
-const KeyTree KeyTrees::Simulation::preloadSpiceData = { Keys::simulation, Keys::Simulation::preloadSpiceData };
+const KeyPath KeyPaths::Simulation::startEpoch = { Keys::simulation, Keys::Simulation::startEpoch };
+const KeyPath KeyPaths::Simulation::endEpoch = { Keys::simulation, Keys::Simulation::endEpoch };
+const KeyPath KeyPaths::Simulation::globalFrameOrigin = { Keys::simulation, Keys::Simulation::globalFrameOrigin };
+const KeyPath KeyPaths::Simulation::globalFrameOrientation = { Keys::simulation, Keys::Simulation::globalFrameOrientation };
+const KeyPath KeyPaths::Simulation::spiceKernels = { Keys::simulation, Keys::Simulation::spiceKernels };
+const KeyPath KeyPaths::Simulation::preloadSpiceData = { Keys::simulation, Keys::Simulation::preloadSpiceData };
 
 /*
 /// Integrator
-const KeyTree KeyTrees::Integrator::initialTime = { Keys::integrator, Keys::Integrator::initialTime };
+const KeyPath KeyPaths::Integrator::initialTime = { Keys::integrator, Keys::Integrator::initialTime };
 */
+
+
+
+//! -DOC
+KeyPath KeyPath::canonical( const KeyPath& basePath ) const
+{
+    // Compound key path
+    KeyPath compoundKeyPath;
+
+    // Check absolute paths
+    if ( this->isAbsolute( ) )
+    {
+        compoundKeyPath = *this;
+    }
+    else if ( basePath.isAbsolute( ) )
+    {
+        compoundKeyPath = basePath / *this;
+    }
+    else
+    {
+        throw std::runtime_error( "Could not determine canonical key path because the base path is not absolute." );
+    }
+
+    // Remove ..
+    KeyPath canonicalKeyPath;
+    for ( std::string key : compoundKeyPath )
+    {
+        if ( key == SpecialKeys::up )
+        {
+            canonicalKeyPath.pop_back( );
+        }
+        else
+        {
+            canonicalKeyPath.push_back( key );
+        }
+    }
+
+    return canonicalKeyPath;
+}
+
 
 } // namespace json_interface
 

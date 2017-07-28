@@ -68,13 +68,10 @@ void from_json( const json& jsonObject, LagrangeInterpolatorBoundaryHandling& la
 
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( interpolatorSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
 
-/*
-//! Convert `json` to `InterpolatorSettings` shared pointer.
+//! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
-*/
 
 } // namespace interpolators
 
@@ -83,48 +80,12 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( modelInterpolationSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
 
-/*
-//! Convert `json` to `ModelInterpolationSettings` shared pointer.
+//! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
-*/
 
 } // namespace simulation_setup
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one interpolator.
- * \param keyTree Key tree at which the object containing the interpolator settings can be accessed.
- * Empty if `settings` contains ONLY the interpolator settings.
- * \param fallback Object to be returned if the requested key does not exist.
- * \return Shared pointer to a `InterpolatorSettings` object.
- */
-boost::shared_ptr< interpolators::InterpolatorSettings > createInterpolatorSettings(
-        const json& settings, const KeyTree& keyTree = { },
-        const boost::shared_ptr< interpolators::InterpolatorSettings >& fallback = NULL );
-
-//! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one model interpolation.
- * \param keyTree Key tree at which the object containing the model interpolation settings can be accessed.
- * Empty if `settings` contains ONLY the model interpolation settings.
- * \param fallback Object to be returned if the requested key does not exist.
- * \return Shared pointer to a `ModelInterpolationSettings` object.
- */
-boost::shared_ptr< simulation_setup::ModelInterpolationSettings > createModelInterpolationSettings(
-        const json& settings, const KeyTree& keyTree = { },
-        const boost::shared_ptr< simulation_setup::ModelInterpolationSettings >& fallback = NULL );
-
-} // namespace json_interface
-
 
 } // namespace tudat
 

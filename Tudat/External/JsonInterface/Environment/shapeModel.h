@@ -37,27 +37,12 @@ void to_json( json& jsonObject, const BodyShapeTypes& bodyShapeTypes );
 void from_json( const json& jsonObject, BodyShapeTypes& bodyShapeTypes );
 
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( bodyShapeSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one shape model.
- * \param keyTree Key tree at which the object containing the shape model settings can be accessed.
- * Empty if `settings` contains ONLY the shape model settings.
- * \return Shared pointer to a `BodyShapeSettings` object.
- */
-boost::shared_ptr< simulation_setup::BodyShapeSettings > createShapeModelSettings(
-        const json& settings, const KeyTree& keyTree = { } );
+void from_json( const json& jsonObject, boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat
 

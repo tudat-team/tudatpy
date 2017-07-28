@@ -31,34 +31,32 @@ void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamic
 }
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as
-//! `json( aerodynamicCoefficientSettings )`.
 void to_json( json& jsonObject,
               const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )
 {
     if ( aerodynamicCoefficientSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body::Aerodynamics;
+        using K = Keys::Body::Aerodynamics;
 
         // Get type
-        jsonObject[ Keys::type ] = aerodynamicCoefficientSettings->getAerodynamicCoefficientType( );
+        jsonObject[ K::type ] = aerodynamicCoefficientSettings->getAerodynamicCoefficientType( );
 
         // Reference area
-        jsonObject[ Keys::referenceArea ] = aerodynamicCoefficientSettings->getReferenceArea( );
+        jsonObject[ K::referenceArea ] = aerodynamicCoefficientSettings->getReferenceArea( );
 
         /// ConstantAerodynamicCoefficientSettings
         boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings =
                 boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicCoefficientSettings );
         if ( constantAerodynamicCoefficientSettings )
         {
-            jsonObject[ Keys::forceCoefficients ] =
+            jsonObject[ K::forceCoefficients ] =
                     constantAerodynamicCoefficientSettings->getConstantForceCoefficient( );
-            // FIXME: jsonObject[ Keys::momentCoefficients ] =
+            // FIXME: jsonObject[ K::momentCoefficients ] =
             //         constantAerodynamicCoefficientSettings->getConstantMomentCoefficient( );
-            jsonObject[ Keys::areCoefficientsInAerodynamicFrame ] =
+            jsonObject[ K::areCoefficientsInAerodynamicFrame ] =
                     constantAerodynamicCoefficientSettings->getAreCoefficientsInAerodynamicFrame( );
-            jsonObject[ Keys::areCoefficientsInNegativeAxisDirection ] =
+            jsonObject[ K::areCoefficientsInNegativeAxisDirection ] =
                     constantAerodynamicCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( );
             return;
         }
@@ -67,31 +65,20 @@ void to_json( json& jsonObject,
     }
 }
 
-} // namespace simulation_setup
-
-
-namespace json_interface
+//! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
+void from_json( const json& jsonObject,
+                boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )
 {
-
-//! Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
-/*!
- * Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
- * \param settings `json` object containing only the settings for one aerodynamic coefficients settings.
- * \param fallbackArea Fallback reference area to be used when no reference area is speciefied in `settings`.
- * \return Shared pointer to an `AerodynamicCoefficientSettings` object.
- */
-boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAerodynamicCoefficientSettings(
-        const json& settings, const KeyTree& keyTree, const double& fallbackArea )
-{
-    using namespace simulation_setup;
-    using Keys = Keys::Body::Aerodynamics;
+    using namespace json_interface;
+    using K = Keys::Body::Aerodynamics;
 
     // Aerodynamic coefficient type (constant by default)
     const AerodynamicCoefficientTypes aerodynamicCoefficientType =
-            getValue( settings, keyTree + Keys::type, constant_aerodynamic_coefficients );
+            getValue( jsonObject, K::type, constant_aerodynamic_coefficients );
 
     // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
-    const double referenceArea = getNumeric( settings, keyTree + Keys::referenceArea, fallbackArea );
+    double fallbackReferenceArea = getNumeric< double >(
+                jsonObject, SpecialKeys::up / K::referenceArea, TUDAT_NAN, true );
 
     switch ( aerodynamicCoefficientType )
     {
@@ -103,24 +90,25 @@ boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAero
         // Read forceCoefficients. If not defined, use [ dragCoefficient, 0, 0 ].
         Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
         const auto forceCoefficientsPointer =
-                getValuePointer< Eigen::Vector3d >( settings, keyTree + Keys::forceCoefficients );
+                getValuePointer< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
         if ( forceCoefficientsPointer )
         {
             forceCoefficients = *forceCoefficientsPointer;
         }
         else
         {
-            forceCoefficients( 0 ) = getNumeric< double >( settings, keyTree + Keys::dragCoefficient );
+            forceCoefficients( 0 ) = getNumeric< double >( jsonObject, K::dragCoefficient );
         }
 
         // Return shared pointer
-        return boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    referenceArea,
+        aerodynamicCoefficientSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
                     forceCoefficients,
-                    getValue( settings, keyTree + Keys::areCoefficientsInAerodynamicFrame,
+                    getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
                               defaults.getAreCoefficientsInAerodynamicFrame( ) ),
-                    getValue( settings, keyTree + Keys::areCoefficientsInNegativeAxisDirection,
+                    getValue( jsonObject, K::areCoefficientsInNegativeAxisDirection,
                               defaults.getAreCoefficientsInNegativeAxisDirection( ) ) );
+        return;
     }
     default:
         throw std::runtime_error( stringFromEnum( aerodynamicCoefficientType, aerodynamicCoefficientTypes )
@@ -128,6 +116,6 @@ boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAero
     }
 }
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat

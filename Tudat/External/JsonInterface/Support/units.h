@@ -91,7 +91,7 @@ T convertToSecondsSinceJ2000( const std::string& date )
             }
             catch ( ... )
             {
-                std::cerr << "Unrecognized date format. Supported formats: \"1992-02-14 07:40:00\", \"19920214T0730\"."
+                std::cerr << "Unrecognized date format. Supported formats: \"1992-02-14 07:30:00\", \"19920214T0730\"."
                           << std::endl;
                 throw;
             }

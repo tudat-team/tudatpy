@@ -36,27 +36,12 @@ void to_json( json& jsonObject, const RotationModelType& rotationModelType );
 void from_json( const json& jsonObject, RotationModelType& rotationModelType );
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( rotationModelSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `RotationModelSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `RotationModelSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one rotational model.
- * \param keyTree Key tree at which the object containing the rotational model settings can be accessed.
- * Empty if `settings` contains ONLY the rotational model settings.
- * \return Shared pointer to a `RotationModelSettings` object.
- */
-boost::shared_ptr< simulation_setup::RotationModelSettings > createRotationModelSettings(
-        const json& settings, const KeyTree& keyTree = { } );
+void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat
 

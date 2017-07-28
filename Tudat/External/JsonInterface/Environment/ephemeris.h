@@ -67,28 +67,12 @@ void to_json( json& jsonObject, const EphemerisType& ephemerisType );
 void from_json( const json& jsonObject, EphemerisType& ephemerisType );
 
 //! Create a `json` object from a shared pointer to a `EphemerisSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( ephemerisSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `EphemerisSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `EphemerisSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one ephemeris model.
- * \param keyTree Key tree at which the object containing the ephemeris settings can be accessed.
- * Empty if `settings` contains ONLY the ephemeris settings.
- * \return Shared pointer to a `EphemerisSettings` object.
- */
-boost::shared_ptr< simulation_setup::EphemerisSettings > createEphemerisSettings(
-        const json& settings, const KeyTree& keyTree );
+void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
 
-} // namespace json_interface
-
+} // namespace simulation_setup
 
 } // namespace tudat
 

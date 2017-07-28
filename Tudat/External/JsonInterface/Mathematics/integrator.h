@@ -52,70 +52,58 @@ void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& r
 void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet );
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( integratorSettings )`.
 template< typename TimeType = double >
 void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     if ( integratorSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Integrator;
+        using K = Keys::Integrator;
 
         // Common keys
-        jsonObject[ Keys::type ] = stringFromEnum( integratorSettings->integratorType_, availableIntegrators );
-        jsonObject[ Keys::initialTime ] = integratorSettings->initialTime_;
-        jsonObject[ Keys::initialTimeStep ] = integratorSettings->initialTimeStep_;
-        jsonObject[ Keys::saveFrequency ] = integratorSettings->saveFrequency_;
+        jsonObject[ K::type ] = stringFromEnum( integratorSettings->integratorType_, availableIntegrators );
+        jsonObject[ K::initialTime ] = integratorSettings->initialTime_;
+        jsonObject[ K::initialTimeStep ] = integratorSettings->initialTimeStep_;
+        jsonObject[ K::saveFrequency ] = integratorSettings->saveFrequency_;
 
         // Integrator-specific keys
         boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
                 boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
         if ( rungeKuttaVariableStepSizeSettings )
         {
-            jsonObject[ Keys::rungeKuttaCoefficientSet ] =
+            jsonObject[ K::rungeKuttaCoefficientSet ] =
                     stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
-            jsonObject[ Keys::minimumStepSize ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
-            jsonObject[ Keys::maximumStepSize ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
-            jsonObject[ Keys::relativeErrorTolerance ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
-            jsonObject[ Keys::absoluteErrorTolerance ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
-            jsonObject[ Keys::safetyFactorForNextStepSize ] =
+            jsonObject[ K::minimumStepSize ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
+            jsonObject[ K::maximumStepSize ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
+            jsonObject[ K::relativeErrorTolerance ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
+            jsonObject[ K::absoluteErrorTolerance ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
+            jsonObject[ K::safetyFactorForNextStepSize ] =
                     rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
-            jsonObject[ Keys::maximumFactorIncreaseForNextStepSize ] =
+            jsonObject[ K::maximumFactorIncreaseForNextStepSize ] =
                     rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
-            jsonObject[ Keys::minimumFactorDecreaseForNextStepSize ] =
+            jsonObject[ K::minimumFactorDecreaseForNextStepSize ] =
                     rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
             return;
         }
     }
 }
 
-} // namespace numerical_integrators
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to an `IntegratorSettings` object from a `json` object.
-/*!
- * Create a shared pointer to an `IntegratorSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one integrator.
- * \param keyTree Key tree at which the object containing the integrator settings can be accessed.
- * Empty if `settings` contains ONLY the integrator settings.
- * \param fallbakInitialTime Initial time to be used if not defined in `settings`.
- * \return Shared pointer to an `IntegratorSettings` object.
- */
+//! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 template< typename TimeType = double >
-boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > createIntegratorSettings(
-        const json& settings, const KeyTree& keyTree = { }, const TimeType fallbakInitialTime = TUDAT_NAN )
+void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
-    using namespace numerical_integrators;
+    using namespace json_interface;
     using RungeKuttaCoefficientSet = RungeKuttaCoefficients::CoefficientSets;
-    using Keys = Keys::Integrator;
+    using K = Keys::Integrator;
+
+    // Fallback initial time (retrieved from simulation.startEpoch), to be used if not specified in integrator settings
+    const TimeType fallbackInitialTime = 0.0; /*getNumeric< TimeType >(
+                jsonObject, SpecialKeys::root / KeyPaths::Simulation::startEpoch, TUDAT_NAN, true );*/
 
     // Read JSON settings shared by all supported integrators
-    const auto integratorType = getValue< AvailableIntegrators >( settings, keyTree + Keys::type );
-    const auto initialTime = getNumeric( settings, keyTree + Keys::initialTime, fallbakInitialTime );
-    const auto initialTimeStep = getNumeric< TimeType >( settings, keyTree + Keys::initialTimeStep );
+    const AvailableIntegrators integratorType = getValue< AvailableIntegrators >( jsonObject, K::type );
+    const TimeType initialTime = getNumeric( jsonObject, K::initialTime, fallbackInitialTime );
+    const TimeType initialTimeStep = getNumeric< TimeType >( jsonObject, K::initialTimeStep );
 
     // Create IntegratorSettings pointer from JSON settings
     switch ( integratorType )
@@ -124,9 +112,10 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
     case rungeKutta4:
     {
         IntegratorSettings< TimeType > defaults( integratorType, 0.0, 0.0 );
-        return boost::make_shared< IntegratorSettings< TimeType > >(
+        integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >(
                     integratorType, initialTime, initialTimeStep,
-                    getNumeric( settings, keyTree + Keys::saveFrequency, defaults.saveFrequency_ ) );
+                    getNumeric( jsonObject, K::saveFrequency, defaults.saveFrequency_ ) );
+        return;
     }
     case rungeKuttaVariableStepSize:
     {
@@ -135,20 +124,21 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
 
         RungeKuttaVariableStepSizeSettings< TimeType > rkSettings(
                     integratorType, initialTime, initialTimeStep,
-                    getValue< RungeKuttaCoefficientSet >( settings, keyTree + Keys::rungeKuttaCoefficientSet ),
-                    getNumeric< TimeType >( settings, keyTree + Keys::minimumStepSize ),
-                    getNumeric< TimeType >( settings, keyTree + Keys::maximumStepSize ),
-                    getNumeric( settings, keyTree + Keys::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
-                    getNumeric( settings, keyTree + Keys::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
-                    getNumeric( settings, keyTree + Keys::saveFrequency, defaults.saveFrequency_ ),
-                    getNumeric( settings, keyTree + Keys::safetyFactorForNextStepSize,
+                    getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
+                    getNumeric< TimeType >( jsonObject, K::minimumStepSize ),
+                    getNumeric< TimeType >( jsonObject, K::maximumStepSize ),
+                    getNumeric( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
+                    getNumeric( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
+                    getNumeric( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                    getNumeric( jsonObject, K::safetyFactorForNextStepSize,
                                 defaults.safetyFactorForNextStepSize_ ),
-                    getNumeric( settings, keyTree + Keys::maximumFactorIncreaseForNextStepSize,
+                    getNumeric( jsonObject, K::maximumFactorIncreaseForNextStepSize,
                                 defaults.maximumFactorIncreaseForNextStepSize_ ),
-                    getNumeric( settings, keyTree + Keys::minimumFactorDecreaseForNextStepSize,
+                    getNumeric( jsonObject, K::minimumFactorDecreaseForNextStepSize,
                                 defaults.minimumFactorDecreaseForNextStepSize_ ) );
 
-        return boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >( rkSettings );
+        integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >( rkSettings );
+        return;
     }
     default:
         throw std::runtime_error( stringFromEnum( integratorType, availableIntegrators )
@@ -156,22 +146,7 @@ boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > creat
     }
 }
 
-} // namespace json_interface
-
-
-/*
-namespace numerical_integrators
-{
-
-//! Convert `json` to `IntegratorSettings` shared pointer.
-template< typename TimeType = double >
-void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
-{
-    integratorSettings = json_interface::createIntegratorSettings< TimeType >( jsonObject );
-}
-
 } // namespace numerical_integrators
-*/
 
 } // namespace tudat
 

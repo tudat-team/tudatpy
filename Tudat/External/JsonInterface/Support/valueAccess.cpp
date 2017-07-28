@@ -18,15 +18,41 @@ namespace json_interface
 {
 
 //! -DOC
-bool defined( const json& jsonObject, const KeyTree& keyTree )
+bool defined( const json& jsonObject, const KeyPath& keyPath )
 {
-    if ( getValuePointer< json >( jsonObject, keyTree ) )
+    if ( getValuePointer< json >( jsonObject, keyPath ) )
     {
-	return true;
+        return true;
     }
     else
     {
-	return false;
+        return false;
+    }
+}
+
+//! -DOC
+boost::shared_ptr< json > getRootObject( const json& jsonObject )
+{
+    return getValuePointer< json >( jsonObject, SpecialKeys::rootObject );
+}
+
+//! -DOC
+KeyPath getKeyPath( const json& jsonObject )
+{
+    return getValue< KeyPath >( jsonObject, SpecialKeys::keyPath, SpecialKeys::root );
+}
+
+//! -DOC
+std::string getParentKey( const json& jsonObject, const std::string& errorMessage )
+{
+    try
+    {
+        return getKeyPath( jsonObject ).back( );
+    }
+    catch ( ... )
+    {
+        std::cerr << errorMessage << std::endl;
+        throw;
     }
 }
 

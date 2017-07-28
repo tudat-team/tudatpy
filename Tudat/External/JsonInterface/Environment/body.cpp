@@ -32,61 +32,61 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     if ( bodySettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body;
+        using K = Keys::Body;
 
         // Constant mass
         const double constantMass = bodySettings->constantMass;
         if ( ! isnan( constantMass ) )
         {
-            jsonObject[ Keys::mass ] = constantMass;
+            jsonObject[ K::mass ] = constantMass;
         }
 
         // Atmosphere
         if ( bodySettings->atmosphereSettings )
         {
-            jsonObject[ Keys::atmosphere ] = bodySettings->atmosphereSettings;
+            jsonObject[ K::atmosphere ] = bodySettings->atmosphereSettings;
         }
 
         // Ephemeris
         if ( bodySettings->ephemerisSettings )
         {
-            jsonObject[ Keys::ephemeris ] = bodySettings->ephemerisSettings;
+            jsonObject[ K::ephemeris ] = bodySettings->ephemerisSettings;
         }
 
         // Gravity field
         if ( bodySettings->gravityFieldSettings )
         {
-            jsonObject[ Keys::gravityField ] = bodySettings->gravityFieldSettings;
+            jsonObject[ K::gravityField ] = bodySettings->gravityFieldSettings;
         }
 
         // Rotation model
         if ( bodySettings->rotationModelSettings )
         {
-            jsonObject[ Keys::rotationModel ] = bodySettings->rotationModelSettings;
+            jsonObject[ K::rotationModel ] = bodySettings->rotationModelSettings;
         }
 
         // Shape model
         if ( bodySettings->shapeModelSettings )
         {
-            jsonObject[ Keys::shapeModel ] = bodySettings->shapeModelSettings;
+            jsonObject[ K::shapeModel ] = bodySettings->shapeModelSettings;
         }
 
         // Radiation pressure
         if ( ! bodySettings->radiationPressureSettings.empty( ) )
         {
-            jsonObject[ Keys::radiationPressure ] = bodySettings->radiationPressureSettings;
+            jsonObject[ K::radiationPressure ] = bodySettings->radiationPressureSettings;
         }
 
         // Aerodynamics
         if ( bodySettings->aerodynamicCoefficientSettings )
         {
-            jsonObject[ Keys::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
+            jsonObject[ K::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
         }
 
         // Gravity field variations
         if ( ! bodySettings->gravityFieldVariationSettings.empty( ) )
         {
-            jsonObject[ Keys::gravityFieldVariations ] = bodySettings->gravityFieldVariationSettings;
+            jsonObject[ K::gravityFieldVariations ] = bodySettings->gravityFieldVariationSettings;
         }
     }
 }
@@ -98,93 +98,44 @@ namespace json_interface
 {
 
 //! Create a `BodySettings` object with the settings from a `json` object.
-boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& settings, const KeyTree& keyTree )
+boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& jsonObject )
 {
     using namespace simulation_setup;
     boost::shared_ptr< BodySettings > bodySettings = boost::make_shared< BodySettings >( );
-    updateBodySettings( bodySettings, settings, keyTree );
+    updateBodySettings( bodySettings, jsonObject );
     return bodySettings;
 }
 
 //! Update a `BodySettings` object with the settings from a `json` object.
-void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings,
-                         const json& settings, const KeyTree& keyTree )
+void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const json& jsonObject )
 {
     using namespace simulation_setup;
-    using Keys = Keys::Body;
+    using K = Keys::Body;
 
-    // Fallback reference area
-    const double fallbackArea = getNumeric< double >( settings, keyTree + Keys::referenceArea, TUDAT_NAN, true );
+    updateFromJSON( bodySettings->constantMass, jsonObject, K::mass, false );
+    updateFromJSON( bodySettings->atmosphereSettings, jsonObject, K::atmosphere, false  );
+    updateFromJSON( bodySettings->ephemerisSettings, jsonObject, K::ephemeris, false  );
+    updateFromJSON( bodySettings->gravityFieldSettings, jsonObject, K::gravityField, false  );
+    updateFromJSON( bodySettings->rotationModelSettings, jsonObject, K::rotationModel, false  );
+    updateFromJSON( bodySettings->shapeModelSettings, jsonObject, K::shapeModel, false  );
+    updateFromJSON( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure, false  );
+    updateFromJSON( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics, false  );
+    updateFromJSON( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariations, false  );
 
-    // Constant mass
-    const boost::shared_ptr< double > mass = getNumericPointer< double >( settings, keyTree + Keys::mass );
-    if ( mass )
-    {
-        bodySettings->constantMass = *mass ;
-    }
-
-    // Atmosphere
-    if ( defined( settings, keyTree + Keys::atmosphere ) )
-    {
-        bodySettings->atmosphereSettings = createAtmosphereSettings( settings, keyTree + Keys::atmosphere );
-    }
-
-    // Ephemeris
-    if ( defined( settings, keyTree + Keys::ephemeris ) )
-    {
-        bodySettings->ephemerisSettings = createEphemerisSettings( settings, keyTree + Keys::ephemeris );
-    }
-
-    // Gravity field
-    if ( defined( settings, keyTree + Keys::gravityField ) )
-    {
-        bodySettings->gravityFieldSettings = createGravityFieldSettings( settings, keyTree + Keys::gravityField );
-    }
-
-    // Rotation model
-    if ( defined( settings, keyTree + Keys::rotationModel ) )
-    {
-        bodySettings->rotationModelSettings = createRotationModelSettings( settings, keyTree + Keys::rotationModel );
-    }
-
-    // Shape model
-    if ( defined( settings, keyTree + Keys::shapeModel ) )
-    {
-        bodySettings->shapeModelSettings = createShapeModelSettings( settings, keyTree + Keys::shapeModel );
-    }
-
-    // Radiation pressure
-    if ( defined( settings, keyTree + Keys::radiationPressure ) )
-    {
-        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
-        for ( auto entry : getValue< std::map< std::string, json > >( settings, keyTree + Keys::radiationPressure ) )
-        {
-            const std::string radiatingBody = entry.first;
-            radiationPressureSettings[ radiatingBody ] = createRadiationPressureInterfaceSettings(
-                        settings, radiatingBody, keyTree + Keys::radiationPressure, fallbackArea );
-        }
-        bodySettings->radiationPressureSettings = radiationPressureSettings;
-    }
-
-    // Aerodynamics
-    if ( defined( settings, keyTree + Keys::aerodynamics ) )
-    {
-        bodySettings->aerodynamicCoefficientSettings = createAerodynamicCoefficientSettings(
-                    settings, keyTree + Keys::aerodynamics, fallbackArea );
-    }
-
+    /*
     // Gravity field variations
-    if ( defined( settings, keyTree + Keys::gravityFieldVariations ) )
+    if ( defined( jsonObject, K::gravityFieldVariations ) )
     {
         std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
         for ( unsigned int i = 0;
-              i < getValue< std::vector< json > >( settings, keyTree + Keys::gravityFieldVariations ).size( ); ++i )
+              i < getValue< std::vector< json > >( jsonObject, K::gravityFieldVariations ).size( ); ++i )
         {
             gravityFieldVariationSettings.push_back(
-                        createGravityFieldVariationSettings( settings, keyTree + Keys::gravityFieldVariations + i ) );
+                        createGravityFieldVariationSettings( jsonObject, K::gravityFieldVariations / i ) );
         }
         bodySettings->gravityFieldVariationSettings = gravityFieldVariationSettings;
     }
+    */
 }
 
 } // namespace json_interface

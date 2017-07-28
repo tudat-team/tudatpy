@@ -35,15 +35,15 @@ void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >
     if ( rotationModelSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body::RotationModel;
+        using K = Keys::Body::RotationModel;
 
         // Base class settings
-        jsonObject[ Keys::type ] = rotationModelSettings->getRotationType( );
-        jsonObject[ Keys::originalFrame ] = rotationModelSettings->getOriginalFrame( );
-        jsonObject[ Keys::targetFrame ] = rotationModelSettings->getTargetFrame( );
+        jsonObject[ K::type ] = rotationModelSettings->getRotationType( );
+        jsonObject[ K::originalFrame ] = rotationModelSettings->getOriginalFrame( );
+        jsonObject[ K::targetFrame ] = rotationModelSettings->getTargetFrame( );
 
         /// spice_rotation_model
-        if ( jsonObject[ Keys::type ] == spice_rotation_model )
+        if ( jsonObject[ K::type ] == spice_rotation_model )
         {
             return;
         }
@@ -53,47 +53,48 @@ void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >
                 boost::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
         if ( simpleRotationModelSettings )
         {
-            jsonObject[ Keys::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
-            jsonObject[ Keys::initialTime ] = simpleRotationModelSettings->getInitialTime( );
-            jsonObject[ Keys::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
+            jsonObject[ K::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
+            jsonObject[ K::initialTime ] = simpleRotationModelSettings->getInitialTime( );
+            jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
             return;
         }
     }
 }
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `RotationModelSettings` object from a `json` object.
-boost::shared_ptr< simulation_setup::RotationModelSettings > createRotationModelSettings(
-        const json& settings, const KeyTree& keyTree )
+void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
-    using namespace simulation_setup;
-    using Keys = Keys::Body::RotationModel;
+    using namespace json_interface;
+    using K = Keys::Body::RotationModel;
 
     // Base class settings
-    const RotationModelType rotationModelType = getValue< RotationModelType >( settings, keyTree + Keys::type );
-    const std::string originalFrame = getValue< std::string >( settings, keyTree + Keys::originalFrame );
-    const std::string targetFrame = getValue< std::string >( settings, keyTree + Keys::targetFrame );
+    const RotationModelType rotationModelType = getValue< RotationModelType >( jsonObject, K::type );
+    const std::string originalFrame = getValue< std::string >( jsonObject, K::originalFrame );
+    const std::string targetFrame = getValue< std::string >( jsonObject, K::targetFrame );
 
     switch ( rotationModelType ) {
     case simple_rotation_model:
-        return boost::make_shared< SimpleRotationModelSettings >(
-                    originalFrame, targetFrame,
-                    getValue< Eigen::Quaterniond >( settings, keyTree + Keys::initialOrientation ),
-                    getEpoch< double >( settings, keyTree + Keys::initialTime ),
-                    getNumeric< double >( settings, keyTree + Keys::rotationRate ) );
+    {
+        rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+                    originalFrame,
+                    targetFrame,
+                    getValue< Eigen::Quaterniond >( jsonObject, K::initialOrientation ),
+                    getEpoch< double >( jsonObject, K::initialTime ),
+                    getNumeric< double >( jsonObject, K::rotationRate ) );
+        return;
+    }
     case spice_rotation_model:
-        return boost::make_shared< RotationModelSettings >( rotationModelType, originalFrame, targetFrame );
+    {
+        rotationModelSettings = boost::make_shared< RotationModelSettings >(
+                    rotationModelType, originalFrame, targetFrame );
+        return;
+    }
     default:
         throw std::runtime_error( stringFromEnum( rotationModelType, rotationModelTypes )
                                   + " not supported by json_interface." );
     }
 }
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat

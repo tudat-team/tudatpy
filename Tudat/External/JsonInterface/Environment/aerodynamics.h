@@ -37,31 +37,14 @@ void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCo
 void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamicCoefficientType );
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as
-//! `json( aerodynamicCoefficientSettings )`.
 void to_json( json& jsonObject,
               const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings );
 
+//! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
+void from_json( const json& jsonObject,
+                boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings );
+
 } // namespace simulation_setup
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
-/*!
- * Create a shared pointer to an `AerodynamicCoefficientSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one aerodynamic model.
- * \param keyTree Key tree at which the object containing the aerodynamic coefficients settings can be accessed.
- * Empty if `settings` contains ONLY the aerodynamic coefficients settings.
- * \param fallbackArea Fallback reference area to be used when no reference area is speciefied in `settings`.
- * \return Shared pointer to an `AerodynamicCoefficientSettings` object.
- */
-boost::shared_ptr< simulation_setup::AerodynamicCoefficientSettings > createAerodynamicCoefficientSettings(
-        const json& settings, const KeyTree& keyTree = { }, const double& fallbackArea = TUDAT_NAN );
-
-} // namespace json_interface
-
 
 } // namespace tudat
 

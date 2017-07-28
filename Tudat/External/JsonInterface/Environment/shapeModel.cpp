@@ -35,13 +35,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bo
     if ( bodyShapeSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body::ShapeModel;
+        using K = Keys::Body::ShapeModel;
 
         // Base class settings
-        jsonObject[ Keys::type ] = bodyShapeSettings->getBodyShapeType( );
+        jsonObject[ K::type ] = bodyShapeSettings->getBodyShapeType( );
 
         /// spherical_spice
-        if ( jsonObject[ Keys::type ] == spherical_spice )
+        if ( jsonObject[ K::type ] == spherical_spice )
         {
             return;
         }
@@ -51,7 +51,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bo
                 boost::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
         if ( sphericalBodyShapeSettings )
         {
-            jsonObject[ Keys::radius ] = sphericalBodyShapeSettings->getRadius( );
+            jsonObject[ K::radius ] = sphericalBodyShapeSettings->getRadius( );
             return;
         }
 
@@ -60,45 +60,47 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bo
                 boost::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
         if ( oblateSphericalBodyShapeSettings )
         {
-            jsonObject[ Keys::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
-            jsonObject[ Keys::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
+            jsonObject[ K::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
+            jsonObject[ K::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
             return;
         }
     }
 }
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
-boost::shared_ptr< simulation_setup::BodyShapeSettings > createShapeModelSettings(
-        const json& settings, const KeyTree& keyTree )
+void from_json( const json& jsonObject, boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
 {
-    using namespace simulation_setup;
-    using Keys = Keys::Body::ShapeModel;
+    using namespace json_interface;
+    using K = Keys::Body::ShapeModel;
 
     // Base class settings
-    const BodyShapeTypes bodyShapeType = getValue< BodyShapeTypes >( settings, keyTree + Keys::type );
+    const BodyShapeTypes bodyShapeType = getValue< BodyShapeTypes >( jsonObject, K::type );
 
     switch ( bodyShapeType ) {
     case spherical:
-        return boost::make_shared< SphericalBodyShapeSettings >(
-                    getNumeric< double >( settings, keyTree + Keys::radius ) );
+    {
+        bodyShapeSettings = boost::make_shared< SphericalBodyShapeSettings >(
+                    getNumeric< double >( jsonObject, K::radius ) );
+        return;
+    }
     case spherical_spice:
-        return boost::make_shared< BodyShapeSettings >( bodyShapeType );
+    {
+        bodyShapeSettings = boost::make_shared< BodyShapeSettings >( bodyShapeType );
+        return;
+    }
     case oblate_spheroid:
-        return boost::make_shared< OblateSphericalBodyShapeSettings >(
-                    getNumeric< double >( settings, keyTree + Keys::equatorialRadius ),
-                    getNumeric< double >( settings, keyTree + Keys::flattening ) );
+    {
+        bodyShapeSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+                    getNumeric< double >( jsonObject, K::equatorialRadius ),
+                    getNumeric< double >( jsonObject, K::flattening ) );
+        return;
+    }
     default:
         throw std::runtime_error( stringFromEnum( bodyShapeType, bodyShapeTypes )
                                   + " not supported by json_interface." );
     }
 }
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat

@@ -41,32 +41,12 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `GravityFieldVariationSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( gravityFieldSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
-/*
-//! Convert `json` to `GravityFieldVariationSettings` shared pointer.
+//! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
-*/
 
 } // namespace simulation_setup
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one gravity field variation model.
- * \param keyTree Key tree at which the object containing the gravity field variation settings can be accessed.
- * Empty if `settings` contains ONLY the gravity field variation settings.
- * \return Shared pointer to a `GravityFieldVariationSettings` object.
- */
-boost::shared_ptr< simulation_setup::GravityFieldVariationSettings > createGravityFieldVariationSettings(
-        const json& settings, const KeyTree& keyTree = { } );
-
-} // namespace json_interface
 
 } // namespace tudat
 

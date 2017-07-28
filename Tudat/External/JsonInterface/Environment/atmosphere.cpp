@@ -35,20 +35,20 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
     if ( atmosphereSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body::Atmosphere;
+        using K = Keys::Body::Atmosphere;
 
         // Type
-        jsonObject[ Keys::type ] = atmosphereSettings->getAtmosphereType( );
+        jsonObject[ K::type ] = atmosphereSettings->getAtmosphereType( );
 
         /// ExponentialAtmosphereSettings
         boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
                 boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
         if ( exponentialAtmosphereSettings )
         {
-            jsonObject[ Keys::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
-            jsonObject[ Keys::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
-            jsonObject[ Keys::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
-            jsonObject[ Keys::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
+            jsonObject[ K::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
+            jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
+            jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
+            jsonObject[ K::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
             return;
         }
 
@@ -57,7 +57,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
                 boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         if ( tabulatedAtmosphereSettings )
         {
-            jsonObject[ Keys::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+            jsonObject[ K::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
             return;
         }
 
@@ -66,50 +66,50 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
                 boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
         if ( nrlmsise00AtmosphereSettings )
         {
-            jsonObject[ Keys::spaceWeatherFile ] = path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
+            jsonObject[ K::spaceWeatherFile ] = path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
             return;
         }
     }
 }
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettings(
-        const json& settings, const KeyTree& keyTree )
+void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
-    using namespace simulation_setup;
-    using Keys = Keys::Body::Atmosphere;
+    using namespace json_interface;
+    using K = Keys::Body::Atmosphere;
 
     // Get atmosphere model type
-    const AtmosphereTypes atmosphereType = getValue< AtmosphereTypes >( settings, keyTree + Keys::type );
+    const AtmosphereTypes atmosphereType = getValue< AtmosphereTypes >( jsonObject, K::type );
 
     switch ( atmosphereType ) {
     case exponential_atmosphere:
-        return boost::make_shared< ExponentialAtmosphereSettings >(
-                    getValue< double >( settings, keyTree + Keys::densityScaleHeight ),
-                    getValue< double >( settings, keyTree + Keys::constantTemperature ),
-                    getValue< double >( settings, keyTree + Keys::densityAtZeroAltitude ),
-                    getValue< double >( settings, keyTree + Keys::specificGasConstant ) );
+    {
+        atmosphereSettings = boost::make_shared< ExponentialAtmosphereSettings >(
+                    getValue< double >( jsonObject, K::densityScaleHeight ),
+                    getValue< double >( jsonObject, K::constantTemperature ),
+                    getValue< double >( jsonObject, K::densityAtZeroAltitude ),
+                    getValue< double >( jsonObject, K::specificGasConstant ) );
+        return;
+    }
     case tabulated_atmosphere:
-        return boost::make_shared< TabulatedAtmosphereSettings >(
-                    getValue< path >( settings, keyTree + Keys::file ).string( ) );
+    {
+        atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
+                    getValue< path >( jsonObject, K::file ).string( ) );
+        return;
+    }
     case nrlmsise00:
     {
         const boost::shared_ptr< path > spaceWeatherFile =
-                getValuePointer< path >( settings, keyTree + Keys::spaceWeatherFile );
+                getValuePointer< path >( jsonObject, K::spaceWeatherFile );
         if ( spaceWeatherFile )
         {
-            return boost::make_shared< NRLMSISE00AtmosphereSettings >( spaceWeatherFile->string( ) );
+            atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >( spaceWeatherFile->string( ) );
         }
         else
         {
-            return boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+            atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
+        return;
     }
     default:
         throw std::runtime_error( stringFromEnum( atmosphereType, atmosphereTypes )
@@ -117,6 +117,6 @@ boost::shared_ptr< simulation_setup::AtmosphereSettings > createAtmosphereSettin
     }
 }
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat
