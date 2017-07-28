@@ -22,11 +22,14 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `RadiationPressureType`s supported by `json_interface`.
-static std::map< std::string, RadiationPressureType > radiationPressureTypes =
+//! Map of `RadiationPressureType`s string representations.
+static std::map< RadiationPressureType, std::string > radiationPressureTypes =
 {
-    { "cannonBall", cannon_ball }
+    { cannon_ball, "cannonBall" }
 };
+
+//! `RadiationPressureType`s not supported by `json_interface`.
+static std::vector< RadiationPressureType > unsupportedRadiationPressureTypes = { };
 
 //! Convert `RadiationPressureType` to `json`.
 void to_json( json& jsonObject, const RadiationPressureType& radiationPressureType );

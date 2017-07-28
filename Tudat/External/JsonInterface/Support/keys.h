@@ -185,22 +185,31 @@ struct Keys
         static const std::string constantAcceleration;
         static const std::string sineAcceleration;
         static const std::string cosineAcceleration;
+
+        static const std::string direction;
+        struct ThrustDirection
+        {
+            static const std::string type;
+            static const std::string relativeBody;
+            static const std::string colinearWithVelocity;
+            static const std::string towardsRelativeBody;
+        };
+
+        static const std::string magnitude;
+        struct ThrustMagnitude
+        {
+            static const std::string type;
+            static const std::string originID;
+            static const std::string constantMagnitude;
+            static const std::string specificImpulse;
+            static const std::string bodyFixedDirection;
+            static const std::string useAllEngines;
+        };
+
+        // static const std::string thrustFrame;
+        // static const std::string centralBody;
+
         /*
-        static const std::string thrustDirectionGuidanceSettings;
-        struct ThrustDirectionGuidanceSettings
-        {
-
-        };
-
-        static const std::string thrustMagnitudeSettings;
-        struct ThrustMagnitudeSettings
-        {
-
-        };
-
-        static const std::string thrustFrame;
-        static const std::string centralBody;
-
         static const std::string fullThrustInterpolationInterface;
         struct FullThrustInterpolationInterface
         {
@@ -235,12 +244,6 @@ struct Keys
 
         static const std::string termination;
         struct Termination
-        {
-
-        };
-
-        static const std::string accelerations;
-        struct Acceleration
         {
 
         };

@@ -34,34 +34,39 @@ void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamic
 void to_json( json& jsonObject,
               const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )
 {
-    if ( aerodynamicCoefficientSettings )
+    if ( ! aerodynamicCoefficientSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body::Aerodynamics;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Body::Aerodynamics;
 
-        // Get type
-        jsonObject[ K::type ] = aerodynamicCoefficientSettings->getAerodynamicCoefficientType( );
+    const AerodynamicCoefficientTypes aerodynamicCoefficientType =
+            aerodynamicCoefficientSettings->getAerodynamicCoefficientType( );
+    jsonObject[ K::type ] = aerodynamicCoefficientType;
+    jsonObject[ K::referenceArea ] = aerodynamicCoefficientSettings->getReferenceArea( );
 
-        // Reference area
-        jsonObject[ K::referenceArea ] = aerodynamicCoefficientSettings->getReferenceArea( );
-
-        /// ConstantAerodynamicCoefficientSettings
+    switch ( aerodynamicCoefficientType ) {
+    case constant_aerodynamic_coefficients:
+    {
         boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings =
-                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicCoefficientSettings );
-        if ( constantAerodynamicCoefficientSettings )
-        {
-            jsonObject[ K::forceCoefficients ] =
-                    constantAerodynamicCoefficientSettings->getConstantForceCoefficient( );
-            // FIXME: jsonObject[ K::momentCoefficients ] =
-            //         constantAerodynamicCoefficientSettings->getConstantMomentCoefficient( );
-            jsonObject[ K::areCoefficientsInAerodynamicFrame ] =
-                    constantAerodynamicCoefficientSettings->getAreCoefficientsInAerodynamicFrame( );
-            jsonObject[ K::areCoefficientsInNegativeAxisDirection ] =
-                    constantAerodynamicCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( );
-            return;
-        }
-
+                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >(
+                    aerodynamicCoefficientSettings );
+        enforceNonNullPointer( constantAerodynamicCoefficientSettings );
+        jsonObject[ K::forceCoefficients ] =
+                constantAerodynamicCoefficientSettings->getConstantForceCoefficient( );
+        // FIXME: jsonObject[ K::momentCoefficients ] =
+        //         constantAerodynamicCoefficientSettings->getConstantMomentCoefficient( );
+        jsonObject[ K::areCoefficientsInAerodynamicFrame ] =
+                constantAerodynamicCoefficientSettings->getAreCoefficientsInAerodynamicFrame( );
+        jsonObject[ K::areCoefficientsInNegativeAxisDirection ] =
+                constantAerodynamicCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( );
+        return;
+    }
         // FIXME: derivered classes missing
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
+                                                         unsupportedAerodynamicCoefficientTypes );
     }
 }
 
@@ -89,15 +94,15 @@ void from_json( const json& jsonObject,
 
         // Read forceCoefficients. If not defined, use [ dragCoefficient, 0, 0 ].
         Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
-        const auto forceCoefficientsPointer =
-                getValuePointer< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
+        const boost::shared_ptr< Eigen::Vector3d > forceCoefficientsPointer =
+                getOptional< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
         if ( forceCoefficientsPointer )
         {
             forceCoefficients = *forceCoefficientsPointer;
         }
         else
         {
-            forceCoefficients( 0 ) = getNumeric< double >( jsonObject, K::dragCoefficient );
+            forceCoefficients( 0 ) = getValue< double >( jsonObject, K::dragCoefficient );
         }
 
         // Return shared pointer
@@ -111,8 +116,8 @@ void from_json( const json& jsonObject,
         return;
     }
     default:
-        throw std::runtime_error( stringFromEnum( aerodynamicCoefficientType, aerodynamicCoefficientTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
+                                            unsupportedAerodynamicCoefficientTypes );
     }
 }
 

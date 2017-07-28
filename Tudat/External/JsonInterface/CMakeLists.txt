@@ -24,6 +24,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/thrust.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.cpp"
@@ -31,7 +32,7 @@ set(JSONINTERFACE_SOURCES
 
 # Set the header files.
 set(JSONINTERFACE_HEADERS
-    "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/errorHandling.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/path.h"
@@ -49,9 +50,11 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/thrust.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
 )
 
 # Add static libraries.

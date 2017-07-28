@@ -22,16 +22,19 @@ namespace tudat
 namespace propagators
 {
 
-//! Map of `IntegratedStateType`s supported by `json_interface`.
-static std::map< std::string, IntegratedStateType > integratedStateTypes =
+//! Map of `IntegratedStateType`s string representations.
+static std::map< IntegratedStateType, std::string > integratedStateTypes =
 {
-    { "hybrid",               hybrid },
-    { "translational",	      translational_state },
-    { "rotational",           rotational_state },
-    { "bodyMass",             body_mass_state },
-    { "relativisticTimeRate", relativistic_time_rate },
-    { "custom",               custom_state }
+    { hybrid, "hybrid" },
+    { translational_state, "translational" },
+    { rotational_state, "rotational" },
+    { body_mass_state, "bodyMass" },
+    { relativistic_time_rate, "relativisticTimeRate" },
+    { custom_state, "custom" }
 };
+
+//! `IntegratedStateType`s not supported by `json_interface`.
+static std::vector< IntegratedStateType > unsupportedIntegratedStateTypes = { };
 
 //! Convert `IntegratedStateType` to `json`.
 void to_json( json& jsonObject, const IntegratedStateType& integratedStateType );

@@ -20,7 +20,7 @@ namespace json_interface
 //! -DOC
 bool defined( const json& jsonObject, const KeyPath& keyPath )
 {
-    if ( getValuePointer< json >( jsonObject, keyPath ) )
+    if ( getOptional< json >( jsonObject, keyPath ) )
     {
         return true;
     }
@@ -33,7 +33,7 @@ bool defined( const json& jsonObject, const KeyPath& keyPath )
 //! -DOC
 boost::shared_ptr< json > getRootObject( const json& jsonObject )
 {
-    return getValuePointer< json >( jsonObject, SpecialKeys::rootObject );
+    return getOptional< json >( jsonObject, SpecialKeys::rootObject );
 }
 
 //! -DOC

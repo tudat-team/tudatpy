@@ -22,12 +22,15 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `RotationModelType`s supported by `json_interface`.
-static std::map< std::string, RotationModelType > rotationModelTypes =
+//! Map of `RotationModelType`s string representations.
+static std::map< RotationModelType, std::string > rotationModelTypes =
 {
-    { "simple", simple_rotation_model },
-    { "spice",  spice_rotation_model }
+    { simple_rotation_model, "simple" },
+    { spice_rotation_model, "spice" }
 };
+
+//! `RotationModelType`s not supported by `json_interface`.
+static std::vector< RotationModelType > unsupportedRotationModelTypes = { };
 
 //! Convert `RotationModelType` to `json`.
 void to_json( json& jsonObject, const RotationModelType& rotationModelType );

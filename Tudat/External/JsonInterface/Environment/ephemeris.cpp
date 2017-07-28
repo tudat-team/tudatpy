@@ -52,100 +52,96 @@ void from_json( const json& jsonObject, EphemerisType& ephemerisType )
 //! Create a `json` object from a shared pointer to a `EphemerisSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ephemerisSettings )
 {
-    if ( ephemerisSettings )
+    if ( ! ephemerisSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body::Ephemeris;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Body::Ephemeris;
 
-        // Common keys
-        jsonObject[ K::type ] = ephemerisSettings->getEphemerisType( );
-        jsonObject[ K::frameOrigin ] = ephemerisSettings->getFrameOrigin( );
-        jsonObject[ K::frameOrientation ] = ephemerisSettings->getFrameOrientation( );
-        jsonObject[ K::makeMultiArc ] = ephemerisSettings->getMakeMultiArcEphemeris( );
+    // Common keys
+    const EphemerisType ephemerisType = ephemerisSettings->getEphemerisType( );
+    jsonObject[ K::type ] = ephemerisType;
+    jsonObject[ K::frameOrigin ] = ephemerisSettings->getFrameOrigin( );
+    jsonObject[ K::frameOrientation ] = ephemerisSettings->getFrameOrientation( );
+    jsonObject[ K::makeMultiArc ] = ephemerisSettings->getMakeMultiArcEphemeris( );
 
-        /// ApproximatePlanetPositionSettings
+    switch ( ephemerisType )
+    {
+    case approximate_planet_positions:
+    {
         boost::shared_ptr< ApproximatePlanetPositionSettings > approximatePlanetPositionSettings =
                 boost::dynamic_pointer_cast< ApproximatePlanetPositionSettings >( ephemerisSettings );
-        if ( approximatePlanetPositionSettings )
-        {
-            jsonObject[ K::bodyIdentifier ] = approximatePlanetPositionSettings->getBodyIdentifier( );
-            jsonObject[ K::useCircularCoplanarApproximation ] =
-                    approximatePlanetPositionSettings->getUseCircularCoplanarApproximation( );
-            return;
-        }
-
-        /// DirectSpiceEphemerisSettings
+        enforceNonNullPointer( approximatePlanetPositionSettings );
+        jsonObject[ K::bodyIdentifier ] = approximatePlanetPositionSettings->getBodyIdentifier( );
+        jsonObject[ K::useCircularCoplanarApproximation ] =
+                approximatePlanetPositionSettings->getUseCircularCoplanarApproximation( );
+        return;
+    }
+    case direct_spice_ephemeris:
+    case interpolated_spice:
+    {
         boost::shared_ptr< DirectSpiceEphemerisSettings > directSpiceEphemerisSettings =
                 boost::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
-        if ( directSpiceEphemerisSettings )
+        enforceNonNullPointer( directSpiceEphemerisSettings );
+        jsonObject[ K::correctForStellarAbberation ] =
+                directSpiceEphemerisSettings->getCorrectForStellarAbberation( );
+        jsonObject[ K::correctForLightTimeAbberation ] =
+                directSpiceEphemerisSettings->getCorrectForLightTimeAbberation( );
+        jsonObject[ K::convergeLighTimeAbberation ] =
+                directSpiceEphemerisSettings->getConvergeLighTimeAbberation( );
+
+        if ( ephemerisType == interpolated_spice )
         {
-            jsonObject[ K::correctForStellarAbberation ] =
-                    directSpiceEphemerisSettings->getCorrectForStellarAbberation( );
-            jsonObject[ K::correctForLightTimeAbberation ] =
-                    directSpiceEphemerisSettings->getCorrectForLightTimeAbberation( );
-            jsonObject[ K::convergeLighTimeAbberation ] =
-                    directSpiceEphemerisSettings->getConvergeLighTimeAbberation( );
-
-            /// InterpolatedSpiceEphemerisSettings
             boost::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedSpiceEphemerisSettings =
-                    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( directSpiceEphemerisSettings );
-            if ( interpolatedSpiceEphemerisSettings )
-            {
-                jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
-                jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
-                jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
-                jsonObject[ K::interpolator ] = interpolatedSpiceEphemerisSettings->getInterpolatorSettings( );
-                jsonObject[ K::useLongDoubleStates ] = interpolatedSpiceEphemerisSettings->getUseLongDoubleStates( );
-                return;
-            }
-
+                    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( ephemerisSettings );
+            enforceNonNullPointer( interpolatedSpiceEphemerisSettings );
+            jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
+            jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
+            jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
+            jsonObject[ K::interpolator ] = interpolatedSpiceEphemerisSettings->getInterpolatorSettings( );
+            jsonObject[ K::useLongDoubleStates ] = interpolatedSpiceEphemerisSettings->getUseLongDoubleStates( );
             return;
         }
 
-        /// TabulatedEphemerisSettings
+        return;
+    }
+    case tabulated_ephemeris:
+    {
         boost::shared_ptr< TabulatedEphemerisSettings > tabulatedEphemerisSettings =
                 boost::dynamic_pointer_cast< TabulatedEphemerisSettings >( ephemerisSettings );
-        if ( tabulatedEphemerisSettings )
-        {
-            jsonObject[ K::bodyStateHistory ] = tabulatedEphemerisSettings->getBodyStateHistory( );
-            jsonObject[ K::useLongDoubleStates ] = tabulatedEphemerisSettings->getUseLongDoubleStates( );
-            return;
-        }
-
-        /// ConstantEphemerisSettings
+        enforceNonNullPointer( tabulatedEphemerisSettings );
+        jsonObject[ K::bodyStateHistory ] = tabulatedEphemerisSettings->getBodyStateHistory( );
+        jsonObject[ K::useLongDoubleStates ] = tabulatedEphemerisSettings->getUseLongDoubleStates( );
+        return;
+    }
+    case constant_ephemeris:
+    {
         boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
                 boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
-        if ( constantEphemerisSettings )
-        {
-            jsonObject[ K::constantState ] = constantEphemerisSettings->getConstantState( );
-            return;
-        }
-
-        /// KeplerEphemerisSettings
+        enforceNonNullPointer( constantEphemerisSettings );
+        jsonObject[ K::constantState ] = constantEphemerisSettings->getConstantState( );
+        return;
+    }
+    case kepler_ephemeris:
+    {
         boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
                 boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
-        if ( keplerEphemerisSettings )
-        {
-            jsonObject[ K::initialStateInKeplerianElements ] =
-                    keplerEphemerisSettings->getInitialStateInKeplerianElements( );
-            jsonObject[ K::epochOfInitialState ] =
-                    keplerEphemerisSettings->getEpochOfInitialState( );
-            jsonObject[ K::centralBodyGravitationalParameter ] =
-                    keplerEphemerisSettings->getCentralBodyGravitationalParameter( );
-            jsonObject[ K::rootFinderAbsoluteTolerance ] =
-                    keplerEphemerisSettings->getRootFinderAbsoluteTolerance( );
-            jsonObject[ K::rootFinderMaximumNumberOfIterations ] =
-                    keplerEphemerisSettings->getRootFinderMaximumNumberOfIterations( );
-            return;
-        }
-
-        /// CustomEphemerisSettings
-        boost::shared_ptr< CustomEphemerisSettings > customEphemerisSettings =
-                boost::dynamic_pointer_cast< CustomEphemerisSettings >( ephemerisSettings );
-        if ( customEphemerisSettings )
-        {
-            throw std::runtime_error( "CustomEphemerisSettings not supported by json_interface." ); // FIXME
-        }
+        enforceNonNullPointer( keplerEphemerisSettings );
+        jsonObject[ K::initialStateInKeplerianElements ] =
+                keplerEphemerisSettings->getInitialStateInKeplerianElements( );
+        jsonObject[ K::epochOfInitialState ] =
+                keplerEphemerisSettings->getEpochOfInitialState( );
+        jsonObject[ K::centralBodyGravitationalParameter ] =
+                keplerEphemerisSettings->getCentralBodyGravitationalParameter( );
+        jsonObject[ K::rootFinderAbsoluteTolerance ] =
+                keplerEphemerisSettings->getRootFinderAbsoluteTolerance( );
+        jsonObject[ K::rootFinderMaximumNumberOfIterations ] =
+                keplerEphemerisSettings->getRootFinderMaximumNumberOfIterations( );
+        return;
+    }
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }
 }
 
@@ -243,8 +239,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     }
     */
     default:
-        throw std::runtime_error( stringFromEnum( ephemerisType, ephemerisTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }
 }
 

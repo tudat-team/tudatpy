@@ -22,19 +22,23 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Map of `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` supported by `json_interface`.
-static std::map< std::string, ApproximatePlanetPositionsBase::BodiesWithEphemerisData > bodiesWithEphemerisData =
+//! Map of `ApproximatePlanetPositionsBase::BodiesWithEphemerisData`s string representations.
+static std::map< ApproximatePlanetPositionsBase::BodiesWithEphemerisData, std::string >
+bodiesWithEphemerisData =
 {
-    { "mercury",             ApproximatePlanetPositionsBase::mercury },
-    { "venus",	             ApproximatePlanetPositionsBase::venus },
-    { "earthMoonBarycenter", ApproximatePlanetPositionsBase::earthMoonBarycenter },
-    { "mars",                ApproximatePlanetPositionsBase::mars },
-    { "jupiter",             ApproximatePlanetPositionsBase::jupiter },
-    { "saturn",              ApproximatePlanetPositionsBase::saturn },
-    { "uranus",              ApproximatePlanetPositionsBase::uranus },
-    { "neptune",             ApproximatePlanetPositionsBase::neptune },
-    { "pluto",               ApproximatePlanetPositionsBase::pluto }
+    { ApproximatePlanetPositionsBase::mercury, "mercury" },
+    { ApproximatePlanetPositionsBase::venus, "venus" },
+    { ApproximatePlanetPositionsBase::earthMoonBarycenter, "earthMoonBarycenter" },
+    { ApproximatePlanetPositionsBase::mars, "mars" },
+    { ApproximatePlanetPositionsBase::jupiter, "jupiter" },
+    { ApproximatePlanetPositionsBase::saturn, "saturn" },
+    { ApproximatePlanetPositionsBase::uranus, "uranus" },
+    { ApproximatePlanetPositionsBase::neptune, "neptune" },
+    { ApproximatePlanetPositionsBase::pluto, "pluto" }
 };
+
+//! `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` not supported by `json_interface`.
+static std::vector< ApproximatePlanetPositionsBase::BodiesWithEphemerisData > unsupportedBodiesWithEphemerisData = { };
 
 //! Convert `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` to `json`.
 void to_json( json& jsonObject, const ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData );
@@ -48,17 +52,20 @@ void from_json( const json& jsonObject, ApproximatePlanetPositionsBase::BodiesWi
 namespace simulation_setup
 {
 
-//! Map of `EphemerisType`s supported by `json_interface`.
-static std::map< std::string, EphemerisType > ephemerisTypes =
+//! Map of `EphemerisType`s string representations.
+static std::map< EphemerisType, std::string > ephemerisTypes =
 {
-    { "approximatePlanetPositions", approximate_planet_positions },
-    { "directSpice",                direct_spice_ephemeris },
-    { "tabulated",                  tabulated_ephemeris },
-    { "interpolatedSpice",		    interpolated_spice },
-    { "constant",                   constant_ephemeris },
-    { "kepler",                     kepler_ephemeris },
-    // FIXME { "custom",                     custom_ephemeris }
+    { approximate_planet_positions, "approximatePlanetPositions" },
+    { direct_spice_ephemeris, "directSpice" },
+    { tabulated_ephemeris, "tabulated" },
+    { interpolated_spice, "interpolatedSpice" },
+    { constant_ephemeris, "constant" },
+    { kepler_ephemeris, "kepler" },
+    { custom_ephemeris, "custom" }
 };
+
+//! `EphemerisType` not supported by `json_interface`.
+static std::vector< EphemerisType > unsupportedEphemerisTypes = { custom_ephemeris };
 
 //! Convert `EphemerisType` to `json`.
 void to_json( json& jsonObject, const EphemerisType& ephemerisType );

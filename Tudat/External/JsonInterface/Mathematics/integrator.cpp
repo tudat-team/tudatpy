@@ -20,13 +20,13 @@ namespace numerical_integrators
 //! Convert `AvailableIntegrators` to `json`.
 void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator )
 {
-    jsonObject = json_interface::stringFromEnum( availableIntegrator, availableIntegrators );
+    jsonObject = json_interface::stringFromEnum( availableIntegrator, integratorTypes );
 }
 
 //! Convert `json` to `AvailableIntegrators`.
 void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator )
 {
-    availableIntegrator = json_interface::enumFromString( jsonObject.get< std::string >( ), availableIntegrators );
+    availableIntegrator = json_interface::enumFromString( jsonObject.get< std::string >( ), integratorTypes );
 }
 
 //! Convert `RungeKuttaCoefficients::CoefficientSets` to `json`.

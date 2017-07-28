@@ -165,6 +165,22 @@ const std::string Keys::Acceleration::constantAcceleration = "constantAccelerati
 const std::string Keys::Acceleration::sineAcceleration = "sineAcceleration";
 const std::string Keys::Acceleration::cosineAcceleration = "cosineAcceleration";
 
+////// Acceleration::ThrustDirection
+const std::string Keys::Acceleration::direction = "direction";
+const std::string Keys::Acceleration::ThrustDirection::type = "type";
+const std::string Keys::Acceleration::ThrustDirection::relativeBody = "relativeBody";
+const std::string Keys::Acceleration::ThrustDirection::colinearWithVelocity = "colinearWithVelocity";
+const std::string Keys::Acceleration::ThrustDirection::towardsRelativeBody = "towardsRelativeBody";
+
+////// Acceleration::ThrustDirection
+const std::string Keys::Acceleration::magnitude = "magnitude";
+const std::string Keys::Acceleration::ThrustMagnitude::type = "type";
+const std::string Keys::Acceleration::ThrustMagnitude::originID = "originID";
+const std::string Keys::Acceleration::ThrustMagnitude::constantMagnitude = "constantMagnitude";
+const std::string Keys::Acceleration::ThrustMagnitude::specificImpulse = "specificImpulse";
+const std::string Keys::Acceleration::ThrustMagnitude::bodyFixedDirection = "bodyFixedDirection";
+const std::string Keys::Acceleration::ThrustMagnitude::useAllEngines = "useAllEngines";
+
 
 /// Mass rate
 const std::string Keys::massRates = "massRates";
@@ -187,10 +203,6 @@ const std::string Keys::Propagator::initialStateTypes = "initialStateTypes";
 
 ////// Propagator::Termination
 const std::string Keys::Propagator::termination = "termination";
-
-
-////// Propagator::Acceleration
-const std::string Keys::Propagator::accelerations = "accelerations";
 
 
 

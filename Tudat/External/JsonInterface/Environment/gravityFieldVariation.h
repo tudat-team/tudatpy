@@ -22,12 +22,15 @@ namespace tudat
 namespace gravitation
 {
 
-//! Map of `BodyDeformationTypes` supported by `json_interface`.
-static std::map< std::string, BodyDeformationTypes > bodyDeformationTypes =
+//! Map of `BodyDeformationTypes` string representations.
+static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes =
 {
-    { "basicSolidBody",     basic_solid_body },
-    { "tabulatedVariation", tabulated_variation }
+    { basic_solid_body, "basicSolidBody" },
+    { tabulated_variation, "tabulatedVariation" }
 };
+
+//! `BodyDeformationTypes` not supported by `json_interface`.
+static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes = { };
 
 //! Convert `BodyDeformationTypes` to `json`.
 void to_json( json& jsonObject, const BodyDeformationTypes& bodyDeformationType );

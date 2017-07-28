@@ -32,36 +32,40 @@ void from_json( const json& jsonObject, AtmosphereTypes& atmosphereType )
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
-    if ( atmosphereSettings )
+    if ( ! atmosphereSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body::Atmosphere;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Body::Atmosphere;
 
-        // Type
-        jsonObject[ K::type ] = atmosphereSettings->getAtmosphereType( );
+    const AtmosphereTypes atmosphereType = atmosphereSettings->getAtmosphereType( );
+    jsonObject[ K::type ] = atmosphereType;
 
-        /// ExponentialAtmosphereSettings
+    /// ExponentialAtmosphereSettings
+    switch ( atmosphereType )
+    {
+    case exponential_atmosphere:
+    {
         boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
                 boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
-        if ( exponentialAtmosphereSettings )
-        {
-            jsonObject[ K::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
-            jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
-            jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
-            jsonObject[ K::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
-            return;
-        }
-
-        /// TabulatedAtmosphereSettings
+        enforceNonNullPointer( exponentialAtmosphereSettings );
+        jsonObject[ K::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
+        jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
+        jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
+        jsonObject[ K::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
+        return;
+    }
+    case tabulated_atmosphere:
+    {
         boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
-        if ( tabulatedAtmosphereSettings )
-        {
-            jsonObject[ K::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
-            return;
-        }
-
-        /// NRLMSISE00AtmosphereSettings
+        enforceNonNullPointer( tabulatedAtmosphereSettings );
+        jsonObject[ K::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+        return;
+    }
+    case nrlmsise00:
+    {
         boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
                 boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
         if ( nrlmsise00AtmosphereSettings )
@@ -69,6 +73,11 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
             jsonObject[ K::spaceWeatherFile ] = path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
             return;
         }
+        // If not a NRLMSISE00AtmosphereSettings, it is a AtmosphereSettings with default space weather file.
+        return;
+    }
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
     }
 }
 
@@ -99,8 +108,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
     }
     case nrlmsise00:
     {
-        const boost::shared_ptr< path > spaceWeatherFile =
-                getValuePointer< path >( jsonObject, K::spaceWeatherFile );
+        const boost::shared_ptr< path > spaceWeatherFile = getOptional< path >( jsonObject, K::spaceWeatherFile );
         if ( spaceWeatherFile )
         {
             atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >( spaceWeatherFile->string( ) );
@@ -112,8 +120,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
         return;
     }
     default:
-        throw std::runtime_error( stringFromEnum( atmosphereType, atmosphereTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
     }
 }
 

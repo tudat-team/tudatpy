@@ -22,13 +22,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `AerodynamicCoefficientTypes` supported by `json_interface`.
-static std::map< std::string, AerodynamicCoefficientTypes > aerodynamicCoefficientTypes =
+//! Map of `AerodynamicCoefficientTypes` string representations.
+static std::map< AerodynamicCoefficientTypes, std::string > aerodynamicCoefficientTypes =
 {
-    { "constantAerodynamicCoefficients",	     constant_aerodynamic_coefficients },
-    { "hypersonicLocalInclincationCoefficients", hypersonic_local_inclincation_coefficients },
-    { "tabulatedCoefficients",			         tabulated_coefficients }
+    { constant_aerodynamic_coefficients, "constantAerodynamicCoefficients" },
+    { hypersonic_local_inclincation_coefficients, "hypersonicLocalInclincationCoefficients" },
+    { tabulated_coefficients, "tabulatedCoefficients" }
 };
+
+//! `AerodynamicCoefficientTypes` not supported by `json_interface`.
+static std::vector< AerodynamicCoefficientTypes > unsupportedAerodynamicCoefficientTypes = { };
 
 //! Convert `AerodynamicCoefficientTypes` to `json`.
 void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCoefficientType );

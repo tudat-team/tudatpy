@@ -34,13 +34,13 @@ void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDime
 //! Convert `AvailableLookupScheme` to `json`.
 void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
 {
-    jsonObject = json_interface::stringFromEnum( availableLookupScheme, availableLookupSchemes );
+    jsonObject = json_interface::stringFromEnum( availableLookupScheme, lookupSchemeTypes );
 }
 
 //! Convert `json` to `AvailableLookupScheme`.
 void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme )
 {
-    availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), availableLookupSchemes );
+    availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), lookupSchemeTypes );
 }
 
 
@@ -62,25 +62,37 @@ void from_json( const json& jsonObject, LagrangeInterpolatorBoundaryHandling& la
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
-    if ( interpolatorSettings )
+    if ( ! interpolatorSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Interpolator;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Interpolator;
 
-        // Common properties
-        jsonObject[ K::type ] = interpolatorSettings->getInterpolatorType( );
-        jsonObject[ K::lookupScheme ] = interpolatorSettings->getSelectedLookupScheme( );
-        jsonObject[ K::useLongDoubleTimeStep ] = interpolatorSettings->getUseLongDoubleTimeStep( );
+    OneDimensionalInterpolatorTypes interpolatorType  = interpolatorSettings->getInterpolatorType( );
+    jsonObject[ K::type ] = interpolatorType;
+    jsonObject[ K::lookupScheme ] = interpolatorSettings->getSelectedLookupScheme( );
+    jsonObject[ K::useLongDoubleTimeStep ] = interpolatorSettings->getUseLongDoubleTimeStep( );
 
-        /// LagrangeInterpolatorSettings
+    switch ( interpolatorType )
+    {
+    case linear_interpolator:
+    case cubic_spline_interpolator:
+    case hermite_spline_interpolator:
+    case piecewise_constant_interpolator:
+        return;
+    case lagrange_interpolator:
+    {
         boost::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
                 boost::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
-        if ( lagrangeInterpolatorSettings )
-        {
-            jsonObject[ K::order ] = lagrangeInterpolatorSettings->getInterpolatorOrder( );
-            jsonObject[ K::boundaryHandling ] = lagrangeInterpolatorSettings->getBoundaryHandling( );
-            return;
-        }
+        enforceNonNullPointer( lagrangeInterpolatorSettings );
+        jsonObject[ K::order ] = lagrangeInterpolatorSettings->getInterpolatorOrder( );
+        jsonObject[ K::boundaryHandling ] = lagrangeInterpolatorSettings->getBoundaryHandling( );
+        return;
+    }
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( interpolatorType, oneDimensionalInterpolatorTypes,
+                                                         unsupportedOneDimensionalInterpolatorTypes );
     }
 }
 
@@ -91,10 +103,10 @@ void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings 
     using K = Keys::Interpolator;
 
     // Get interpolator type
-    const OneDimensionalInterpolatorTypes oneDimensionalInterpolatorType =
+    const OneDimensionalInterpolatorTypes interpolatorType =
             getValue< OneDimensionalInterpolatorTypes >( jsonObject, K::type );
 
-    switch ( oneDimensionalInterpolatorType ) {
+    switch ( interpolatorType ) {
     case linear_interpolator:
     case cubic_spline_interpolator:
     case hermite_spline_interpolator:
@@ -102,7 +114,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings 
     {
         InterpolatorSettings defaults( linear_interpolator );
         interpolatorSettings = boost::make_shared< InterpolatorSettings >(
-                    oneDimensionalInterpolatorType,
+                    interpolatorType,
                     getValue( jsonObject, K::lookupScheme, defaults.getSelectedLookupScheme( ) ),
                     getValue( jsonObject, K::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ) );
         return;
@@ -118,8 +130,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings 
         return;
     }
     default:
-        throw std::runtime_error( stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( interpolatorType, oneDimensionalInterpolatorTypes,
+                                              unsupportedOneDimensionalInterpolatorTypes );
     }
 }
 
@@ -132,16 +144,17 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
-    if ( modelInterpolationSettings )
+    if ( ! modelInterpolationSettings )
     {
-        using namespace json_interface;
-        using K = Keys::ModelInterpolation;
-
-        jsonObject[ K::initialTime ] = modelInterpolationSettings->initialTime_;
-        jsonObject[ K::finalTime ] = modelInterpolationSettings->finalTime_;
-        jsonObject[ K::timeStep ] = modelInterpolationSettings->timeStep_;
-        jsonObject[ K::interpolator ] = modelInterpolationSettings->interpolatorSettings_;
+        return;
     }
+    using namespace json_interface;
+    using K = Keys::ModelInterpolation;
+
+    jsonObject[ K::initialTime ] = modelInterpolationSettings->initialTime_;
+    jsonObject[ K::finalTime ] = modelInterpolationSettings->finalTime_;
+    jsonObject[ K::timeStep ] = modelInterpolationSettings->timeStep_;
+    jsonObject[ K::interpolator ] = modelInterpolationSettings->interpolatorSettings_;
 }
 
 //! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.

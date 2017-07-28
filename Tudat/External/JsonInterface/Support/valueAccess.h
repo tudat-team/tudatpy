@@ -24,6 +24,7 @@ using json = nlohmann::json;
 
 #include <Tudat/InputOutput/basicInputOutput.h>
 
+#include "errorHandling.h"
 #include "keys.h"
 #include "units.h"
 #include "utilities.h"
@@ -33,63 +34,6 @@ namespace tudat
 
 namespace json_interface
 {
-
-//! -DOC
-class UnknownEnumError : public std::runtime_error
-{
-public:
-    UnknownEnumError( ) : runtime_error( "Unknown enum." ) { }
-};
-
-//! -DOC
-class JSONError : public std::runtime_error
-{
-public:
-    //! Constructor.
-    JSONError( const std::string& errorMessage, const KeyPath& keyPath )
-        : runtime_error( errorMessage.c_str( ) ), keyPath( keyPath ) { }
-
-    //! Error message.
-    virtual const char* what( ) const throw( )
-    {
-        std::ostringstream stream;
-        stream << runtime_error::what( ) << ": " << keyPath;
-        std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
-        return stream.str( ).c_str( );
-    }
-
-    const KeyPath keyPath;
-};
-
-//! -DOC
-class UndefinedKeyError : public JSONError
-{
-public:
-    //! Constructor.
-    UndefinedKeyError( const KeyPath& keyPath ) : JSONError( "Undefined key", keyPath ) { }
-};
-
-//! -DOC
-class IllegalValueError : public JSONError
-{
-public:
-    //! Associated (illegal) value.
-    json value;
-
-    //! Constructor.
-    IllegalValueError( const KeyPath& keyPath, const json& value )
-        : JSONError( "Illegal value for key", keyPath ), value( value ) { }
-
-    //! Error message.
-    virtual const char* what( ) const throw( )
-    {
-        std::ostringstream stream;
-        stream << JSONError::what( ) << " = " << value;
-        // std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
-        return stream.str( ).c_str( );
-    }
-};
-
 
 //! -DOC
 boost::shared_ptr< json > getRootObject( const json& jsonObject );
@@ -113,26 +57,27 @@ std::string getParentKey( const json& jsonObject,
  * \throw IllegalValueError If the provided value for the requested key is not of type `T`.
  */
 template< typename ValueType >
-ValueType getValue( json jsonObject, KeyPath keyPath )
+ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
 {
     boost::shared_ptr< json > rootObject;
-    json parentObject = jsonObject;
-
+    json currentObject = jsonObject;
+    KeyPath currentKeyPath = keyPath;
     KeyPath canonicalKeyPath = keyPath;
-    if ( ! contains( keyPath, SpecialKeys::keyPath ) )
+
+    if ( ! contains( currentKeyPath, SpecialKeys::keyPath ) )
     {
-        canonicalKeyPath = keyPath.canonical( getKeyPath( jsonObject ) );
-        if ( ! contains( keyPath, SpecialKeys::rootObject ) )
+        canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
+        if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
-            rootObject = getRootObject( jsonObject );
-            if ( keyPath.size( ) > 0 )
+            rootObject = getRootObject( currentObject );
+            if ( currentKeyPath.size( ) > 0 )
             {
-                if ( *keyPath.begin( ) == SpecialKeys::root || contains( keyPath, SpecialKeys::up ) )
+                if ( *currentKeyPath.begin( ) == SpecialKeys::root || contains( currentKeyPath, SpecialKeys::up ) )
                 {
                     // Path is absolute or contains ..
 
                     // Use absolute key path
-                    keyPath = canonicalKeyPath;
+                    currentKeyPath = canonicalKeyPath;
 
                     // Use jsonObject's root object instead
                     if ( ! rootObject )
@@ -141,32 +86,32 @@ ValueType getValue( json jsonObject, KeyPath keyPath )
                                   << "the JSON object does not contain a root object." << std::endl;
                         throw;
                     }
-                    jsonObject = *rootObject;
+                    currentObject = *rootObject;
                 }
             }
         }
     }
 
-    if ( keyPath.isAbsolute( ) )
+    if ( currentKeyPath.isAbsolute( ) )
     {
         // Remove "~"
-        keyPath.erase( keyPath.begin( ) );
+        currentKeyPath.erase( currentKeyPath.begin( ) );
     }
 
     try
     {
         // Recursively update jsonObject for every key in keyPath
-        for ( const std::string key : keyPath )
+        for ( const std::string key : currentKeyPath )
         {
             try
             {
                 // Try to access element at key
-                jsonObject = jsonObject.at( key );
+                currentObject = currentObject.at( key );
             }
             catch ( ... )
             {
                 // Key may be convertible to int.
-                jsonObject = jsonObject.at( std::stoi( key ) );
+                currentObject = currentObject.at( std::stoi( key ) );
             }
         }
     }
@@ -176,60 +121,77 @@ ValueType getValue( json jsonObject, KeyPath keyPath )
         throw UndefinedKeyError( canonicalKeyPath );
     }
 
-    if ( ! contains( keyPath, SpecialKeys::all ) )
+    if ( ! contains( currentKeyPath, SpecialKeys::all ) )
     {
         // If jsonObject is an array, convert to object
-        if ( jsonObject.is_array( ) )
+        if ( currentObject.is_array( ) )
         {
-            json jsonArray = jsonObject;
-            jsonObject = json( );
+            json jsonArray = currentObject;
+            currentObject = json( );
             for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
             {
-                jsonObject[ std::to_string( i ) ] = jsonArray.at( i );
+                currentObject[ std::to_string( i ) ] = jsonArray.at( i );
             }
         }
 
         // Define keys rootObject and keyPath of jsonObject to be returned
-        if ( jsonObject.is_object( ) )
+        if ( currentObject.is_object( ) )
         {
-            jsonObject[ SpecialKeys::rootObject ] = rootObject ? *rootObject : parentObject;
-            jsonObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
+            currentObject[ SpecialKeys::rootObject ] = rootObject ? *rootObject : jsonObject;
+            currentObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
         }
     }
 
     try
     {
         // Try to convert to the requested type
-        return jsonObject.get< ValueType >( );
+        return currentObject.get< ValueType >( );
     }
     catch ( const nlohmann::detail::type_error& )
     {
         // Could not convert to the requested type
-        throw IllegalValueError( canonicalKeyPath, jsonObject );
+        throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
     }
     catch ( const UnknownEnumError& )
     {
         // Could not convert string to enum
-        throw IllegalValueError( canonicalKeyPath, jsonObject );
+        throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
+    }
+    catch ( const UndefinedKeyError& error )
+    {
+        // Some of the keys that had to be defined for jsonObject are missing.
+        if ( currentObject.is_object( ) )
+        {
+            // If the provided jsonObject is an object, the user wants to know which key is missing.
+            // Thus, we re-throw the undefined key error.
+            throw error;
+        }
+        else
+        {
+            // If the provided jsonObject is not an object (e.g. is a number or a string)
+            // the user wants to know that an illegal value was provided for the expected object.
+            // Thus, we throw an illegal value error.
+            throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
+        }
     }
 }
 
 
 //! -DOC
 template< typename NumberType >
-NumberType getNumeric( json jsonObject, const KeyPath& keyPath )
+NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath )
 {
     try
     {
         return getValue< NumberType >( jsonObject, keyPath );
     }
-    catch ( const IllegalValueError& error )
+    catch ( const IllegalValueError< NumberType >& error )
     {
         // Could not convert to the requested type
         try
         {
             // Convert to string (with units) and then parse the number and convert to SI
-            return parseMagnitudeWithUnits< NumberType >( error.value.get< std::string >( ) );
+            return parseMagnitudeWithUnits< NumberType >( error.value.template get< std::string >( ) );
         }
         catch ( ... )
         {
@@ -242,19 +204,19 @@ NumberType getNumeric( json jsonObject, const KeyPath& keyPath )
 
 //! -DOC
 template< typename NumberType >
-NumberType getEpoch( json jsonObject, const KeyPath& keyPath )
+NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
 {
     try
     {
         return getValue< NumberType >( jsonObject, keyPath );
     }
-    catch ( const IllegalValueError& error )
+    catch ( const IllegalValueError< NumberType >& error )
     {
         // Could not convert to the requested type
         try
         {
             // Convert to string and then parse as a formatted date
-            return convertToSecondsSinceJ2000< NumberType >( error.value.get< std::string >( ) );
+            return convertToSecondsSinceJ2000< NumberType >( error.value.template get< std::string >( ) );
         }
         catch ( ... )
         {
@@ -262,6 +224,39 @@ NumberType getEpoch( json jsonObject, const KeyPath& keyPath )
             throw error;
         }
     }
+}
+
+
+//! -DOC
+template< typename ValueType >
+boost::shared_ptr< ValueType > getOptional(
+        const json& jsonObject, const KeyPath& keyPath,
+        const std::function< ValueType( const json&, const KeyPath& ) > getFunction = getValue< ValueType > )
+{
+    try
+    {
+        return boost::make_shared< ValueType >( getFunction( jsonObject, keyPath ) );
+    }
+    catch ( const UndefinedKeyError& error )
+    {
+        return NULL;
+    }
+}
+
+
+//! -DOC
+template< typename NumberType >
+boost::shared_ptr< NumberType > getOptionalNumeric( const json& jsonObject, const KeyPath& keyPath )
+{
+    return getOptional( jsonObject, keyPath, getNumeric< NumberType > );
+}
+
+
+//! -DOC
+template< typename NumberType >
+boost::shared_ptr< NumberType > getOptionalEpoch( const json& jsonObject, const KeyPath& keyPath )
+{
+    return getOptional( jsonObject, keyPath, getEpoch< NumberType > );
 }
 
 
@@ -328,51 +323,6 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
 
 //! -DOC
 template< typename ValueType >
-boost::shared_ptr< ValueType > getValuePointer( const json& jsonObject, const KeyPath& keyPath )
-{
-    try
-    {
-        return boost::make_shared< ValueType >( getValue< ValueType >( jsonObject, keyPath ) );
-    }
-    catch ( const UndefinedKeyError& error )
-    {
-        return NULL;
-    }
-}
-
-
-//! -DOC
-template< typename NumberType >
-boost::shared_ptr< NumberType > getNumericPointer( const json& jsonObject, const KeyPath& keyPath )
-{
-    try
-    {
-        return boost::make_shared< NumberType >( getNumeric< NumberType >( jsonObject, keyPath ) );
-    }
-    catch ( const UndefinedKeyError& error )
-    {
-        return NULL;
-    }
-}
-
-
-//! -DOC
-template< typename NumberType >
-boost::shared_ptr< NumberType > getEpochPointer( const json& jsonObject, const KeyPath& keyPath )
-{
-    try
-    {
-        return boost::make_shared< NumberType >( getEpoch< NumberType >( jsonObject, keyPath ) );
-    }
-    catch ( const UndefinedKeyError& error )
-    {
-        return NULL;
-    }
-}
-
-
-//! -DOC
-template< typename ValueType >
 void updateFromJSON( ValueType& value, const json& jsonObject, const KeyPath& keyPath, bool throwIfNotDefined = true )
 {
     try
@@ -390,40 +340,6 @@ void updateFromJSON( ValueType& value, const json& jsonObject, const KeyPath& ke
 
 ///! -DOC
 bool defined( const json& jsonObject, const KeyPath& keyPath );
-
-
-//! -DOC
-template< typename EnumType >
-EnumType enumFromString( const std::string& stringValue,
-                         const std::map< std::string, EnumType >& possibleValues )
-{
-    try
-    {
-        return possibleValues.at( stringValue );
-    }
-    catch ( ... )
-    {
-        std::cerr << "Unsupported string \"" << stringValue << "\" for enum " <<
-                     boost::core::demangled_name( typeid( EnumType ) ) << std::endl;
-        throw UnknownEnumError( );
-    }
-}
-
-//! -DOC
-template< typename EnumType >
-std::string stringFromEnum( const EnumType enumValue, const std::map< std::string, EnumType >& possibleValues )
-{
-    for ( auto ent : possibleValues )
-    {
-        if ( ent.second == enumValue )
-        {
-            return ent.first;
-        }
-    }
-    std::cerr << "Unknown string representation for enum value "
-              << boost::core::demangled_name( typeid( EnumType ) ) << "::" << enumValue << std::endl;
-    throw UnknownEnumError( );
-}
 
 
 //! Support for single-body and body-to-body maps
