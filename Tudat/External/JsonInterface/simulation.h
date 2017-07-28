@@ -223,9 +223,7 @@ public:
         // Finalize body creation.
         setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
 
-
-        // Determine propagated and central bodies
-
+        // Update propagator map
 
     }
 

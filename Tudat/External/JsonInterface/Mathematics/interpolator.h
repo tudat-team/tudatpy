@@ -22,15 +22,18 @@ namespace tudat
 namespace interpolators
 {
 
-//! Map of `OneDimensionalInterpolatorTypes` supported by `json_interface`.
-static std::map< std::string, OneDimensionalInterpolatorTypes > oneDimensionalInterpolatorTypes =
+//! Map of `OneDimensionalInterpolatorTypes` string representations.
+static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalInterpolatorTypes =
 {
-    { "linear",            linear_interpolator },
-    { "cubicSpline",       cubic_spline_interpolator },
-    { "lagrange",          lagrange_interpolator },
-    { "hermiteSpline",     hermite_spline_interpolator },
-    { "piecewiseConstant", piecewise_constant_interpolator }
+    { linear_interpolator, "linear" },
+    { cubic_spline_interpolator, "cubicSpline" },
+    { lagrange_interpolator, "lagrange" },
+    { hermite_spline_interpolator, "hermiteSpline" },
+    { piecewise_constant_interpolator, "piecewiseConstant" }
 };
+
+//! `OneDimensionalInterpolatorTypes` not supported by `json_interface`.
+static std::vector< OneDimensionalInterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
 
 //! Convert `OneDimensionalInterpolatorTypes` to `json`.
 void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType );
@@ -39,12 +42,15 @@ void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimens
 void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType );
 
 
-//! Map of `AvailableLookupScheme`s supported by `json_interface`.
-static std::map< std::string, AvailableLookupScheme > availableLookupSchemes =
+//! Map of `AvailableLookupScheme`s string representations.
+static std::map< AvailableLookupScheme, std::string > lookupSchemeTypes =
 {
-    { "huntingAlgorithm", huntingAlgorithm },
-    { "binarySearch",     binarySearch }
+    { huntingAlgorithm, "huntingAlgorithm" },
+    { binarySearch, "binarySearch" }
 };
+
+//! `AvailableLookupScheme`s not supported by `json_interface`.
+static std::vector< AvailableLookupScheme > unsupportedLookupSchemeTypes = { };
 
 //! Convert `AvailableLookupScheme` to `json`.
 void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme );
@@ -53,11 +59,11 @@ void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupSche
 void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme );
 
 
-//! Map of `LagrangeInterpolatorBoundaryHandling`s supported by `json_interface`.
-static std::map< std::string, LagrangeInterpolatorBoundaryHandling > lagrangeInterpolatorBoundaryHandlings =
+//! Map of `LagrangeInterpolatorBoundaryHandling`s string representations.
+static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInterpolatorBoundaryHandlings =
 {
-    { "cubicSplineBoundary", lagrange_cubic_spline_boundary_interpolation },
-    { "noBoundary",          lagrange_no_boundary_interpolation }
+    { lagrange_cubic_spline_boundary_interpolation, "cubicSplineBoundary" },
+    { lagrange_no_boundary_interpolation, "noBoundary" }
 };
 
 //! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.

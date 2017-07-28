@@ -22,13 +22,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `GravityFieldType`s supported by `json_interface`.
-static std::map< std::string, GravityFieldType > gravityFieldTypes =
+//! Map of `GravityFieldType`s string representations.
+static std::map< GravityFieldType, std::string > gravityFieldTypes =
 {
-    { "central",           central },
-    { "centralSpice",      central_spice },
-    { "sphericalHarmonic", spherical_harmonic }
+    { central, "central" },
+    { central_spice, "centralSpice" },
+    { spherical_harmonic, "sphericalHarmonic" }
 };
+
+//! `AtmosphereTypes` not supported by `json_interface`.
+static std::vector< GravityFieldType > unsupportedGravityFieldTypes = { };
 
 //! Convert `GravityFieldType` to `json`.
 void to_json( json& jsonObject, const GravityFieldType& gravityFieldType );

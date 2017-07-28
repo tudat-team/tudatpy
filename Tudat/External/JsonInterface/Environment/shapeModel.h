@@ -22,13 +22,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `BodyShapeTypes` supported by `json_interface`.
-static std::map< std::string, BodyShapeTypes > bodyShapeTypes =
+//! Map of `BodyShapeTypes` string representations.
+static std::map< BodyShapeTypes, std::string > bodyShapeTypes =
 {
-    { "spherical",      spherical },
-    { "sphericalSpice", spherical_spice },
-    { "oblateSpheroid", oblate_spheroid }
+    { spherical, "spherical" },
+    { spherical_spice, "sphericalSpice" },
+    { oblate_spheroid, "oblateSpheroid" }
 };
+
+//! `BodyShapeTypes` not supported by `json_interface`.
+static std::vector< BodyShapeTypes > unsupportedBodyShapeTypes = { };
 
 //! Convert `BodyShapeTypes` to `json`.
 void to_json( json& jsonObject, const BodyShapeTypes& bodyShapeTypes );

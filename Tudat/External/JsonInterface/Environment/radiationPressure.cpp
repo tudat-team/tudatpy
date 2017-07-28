@@ -33,27 +33,35 @@ void from_json( const json& jsonObject, RadiationPressureType& radiationPressure
 void to_json( json& jsonObject,
               const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings )
 {
-    if ( radiationPressureInterfaceSettings )
+    if ( ! radiationPressureInterfaceSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body::RadiationPressure;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Body::RadiationPressure;
 
-        // Get type
-        jsonObject[ K::type ] = radiationPressureInterfaceSettings->getRadiationPressureType( );
+    const RadiationPressureType radiationPressureType =
+            radiationPressureInterfaceSettings->getRadiationPressureType( );
+    jsonObject[ K::type ] = radiationPressureType;
 
-        /// CannonBallRadiationPressureInterfaceSettings
+    switch ( radiationPressureType )
+    {
+    case cannon_ball:
+    {
         boost::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
                 boost::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
                     radiationPressureInterfaceSettings );
-        if ( cannonBallRadiationPressureInterfaceSettings )
-        {
-            jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
-            jsonObject[ K::radiationPressureCoefficient ] =
-                    cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
-            jsonObject[ K::ocultingBodies ] =
-                    cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
-            return;
-        }
+        enforceNonNullPointer( cannonBallRadiationPressureInterfaceSettings );
+        jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
+        jsonObject[ K::radiationPressureCoefficient ] =
+                cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
+        jsonObject[ K::ocultingBodies ] =
+                cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
+        return;
+    }
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( radiationPressureType, radiationPressureTypes,
+                                                         unsupportedRadiationPressureTypes );
     }
 }
 
@@ -88,8 +96,8 @@ void from_json( const json& jsonObject,
         return;
     }
     default:
-        throw std::runtime_error( stringFromEnum( radiationPressureType, radiationPressureTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( radiationPressureType, radiationPressureTypes,
+                                              unsupportedRadiationPressureTypes );
     }
 }
 

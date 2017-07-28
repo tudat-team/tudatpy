@@ -37,7 +37,7 @@ enum ThrustDirectionGuidanceTypes
     custom_thrust_direction,
     custom_thrust_orientation
 
-};
+}; 
 
 //! Function to create a list of functions that (compute and) return independent variables for thrust
 /*!

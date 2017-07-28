@@ -22,13 +22,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Map of `AtmosphereTypes` supported by `json_interface`.
-static std::map< std::string, AtmosphereTypes > atmosphereTypes =
+//! Map of `AtmosphereTypes` string representations.
+static std::map< AtmosphereTypes, std::string > atmosphereTypes =
 {
-    { "exponential", exponential_atmosphere },
-    { "tabulated",   tabulated_atmosphere },
-    { "nrlmsise00",  nrlmsise00 }
+    { exponential_atmosphere, "exponential" },
+    { tabulated_atmosphere, "tabulated" },
+    { nrlmsise00, "nrlmsise00" }
 };
+
+//! `AtmosphereTypes` not supported by `json_interface`.
+static std::vector< AtmosphereTypes > unsupportedAtmosphereTypes = { };
 
 //! Convert `AtmosphereTypes` to `json`.
 void to_json( json& jsonObject, const AtmosphereTypes& atmosphereType );

@@ -29,65 +29,66 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings )
 {
-    if ( bodySettings )
+    if ( ! bodySettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body;
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Body;
 
-        // Constant mass
-        const double constantMass = bodySettings->constantMass;
-        if ( ! isnan( constantMass ) )
-        {
-            jsonObject[ K::mass ] = constantMass;
-        }
+    // Constant mass
+    const double constantMass = bodySettings->constantMass;
+    if ( ! isnan( constantMass ) )
+    {
+        jsonObject[ K::mass ] = constantMass;
+    }
 
-        // Atmosphere
-        if ( bodySettings->atmosphereSettings )
-        {
-            jsonObject[ K::atmosphere ] = bodySettings->atmosphereSettings;
-        }
+    // Atmosphere
+    if ( bodySettings->atmosphereSettings )
+    {
+        jsonObject[ K::atmosphere ] = bodySettings->atmosphereSettings;
+    }
 
-        // Ephemeris
-        if ( bodySettings->ephemerisSettings )
-        {
-            jsonObject[ K::ephemeris ] = bodySettings->ephemerisSettings;
-        }
+    // Ephemeris
+    if ( bodySettings->ephemerisSettings )
+    {
+        jsonObject[ K::ephemeris ] = bodySettings->ephemerisSettings;
+    }
 
-        // Gravity field
-        if ( bodySettings->gravityFieldSettings )
-        {
-            jsonObject[ K::gravityField ] = bodySettings->gravityFieldSettings;
-        }
+    // Gravity field
+    if ( bodySettings->gravityFieldSettings )
+    {
+        jsonObject[ K::gravityField ] = bodySettings->gravityFieldSettings;
+    }
 
-        // Rotation model
-        if ( bodySettings->rotationModelSettings )
-        {
-            jsonObject[ K::rotationModel ] = bodySettings->rotationModelSettings;
-        }
+    // Rotation model
+    if ( bodySettings->rotationModelSettings )
+    {
+        jsonObject[ K::rotationModel ] = bodySettings->rotationModelSettings;
+    }
 
-        // Shape model
-        if ( bodySettings->shapeModelSettings )
-        {
-            jsonObject[ K::shapeModel ] = bodySettings->shapeModelSettings;
-        }
+    // Shape model
+    if ( bodySettings->shapeModelSettings )
+    {
+        jsonObject[ K::shapeModel ] = bodySettings->shapeModelSettings;
+    }
 
-        // Radiation pressure
-        if ( ! bodySettings->radiationPressureSettings.empty( ) )
-        {
-            jsonObject[ K::radiationPressure ] = bodySettings->radiationPressureSettings;
-        }
+    // Radiation pressure
+    if ( ! bodySettings->radiationPressureSettings.empty( ) )
+    {
+        jsonObject[ K::radiationPressure ] = bodySettings->radiationPressureSettings;
+    }
 
-        // Aerodynamics
-        if ( bodySettings->aerodynamicCoefficientSettings )
-        {
-            jsonObject[ K::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
-        }
+    // Aerodynamics
+    if ( bodySettings->aerodynamicCoefficientSettings )
+    {
+        jsonObject[ K::aerodynamics ] = bodySettings->aerodynamicCoefficientSettings;
+    }
 
-        // Gravity field variations
-        if ( ! bodySettings->gravityFieldVariationSettings.empty( ) )
-        {
-            jsonObject[ K::gravityFieldVariations ] = bodySettings->gravityFieldVariationSettings;
-        }
+    // Gravity field variations
+    if ( ! bodySettings->gravityFieldVariationSettings.empty( ) )
+    {
+        jsonObject[ K::gravityFieldVariations ] = bodySettings->gravityFieldVariationSettings;
     }
 }
 

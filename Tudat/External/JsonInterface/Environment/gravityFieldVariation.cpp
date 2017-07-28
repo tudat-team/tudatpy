@@ -40,37 +40,44 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `GravityFieldVariationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSettings >& variationSettings )
 {
-    if ( variationSettings )
+    if ( ! variationSettings )
     {
-        using namespace json_interface;
-        using K = Keys::Body::GravityFieldVariation;
+        return;
+    }
+    using namespace gravitation;
+    using namespace json_interface;
+    using K = Keys::Body::GravityFieldVariation;
 
-        // Common parameters
-        jsonObject[ K::bodyDeformationType ] = variationSettings->getBodyDeformationType( );
-        jsonObject[ K::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
+    const BodyDeformationTypes bodyDeformationType = variationSettings->getBodyDeformationType( );
+    jsonObject[ K::bodyDeformationType ] = bodyDeformationType;
+    jsonObject[ K::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
 
-        /// BasicSolidBodyGravityFieldVariationSettings
+    switch ( bodyDeformationType )
+    {
+    case basic_solid_body:
+    {
         boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
                 boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationSettings );
-        if ( basicSolidBodySettings )
-        {
-            jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
-            jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
-            jsonObject[ K::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
-            return;
-        }
-
-        /// TabulatedGravityFieldVariationSettings
+        enforceNonNullPointer( basicSolidBodySettings );
+        jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
+        jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
+        jsonObject[ K::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
+        return;
+    }
+    case tabulated_variation:
+    {
         boost::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedSettings =
                 boost::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( variationSettings );
-        if ( tabulatedSettings )
-        {
-            jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
-            jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
-            jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
-            jsonObject[ K::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
-            return;
-        }
+        enforceNonNullPointer( tabulatedSettings );
+        jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
+        jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
+        jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
+        jsonObject[ K::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
+        return;
+    }
+    default:
+        jsonObject = handleUnimplementedEnumValueToJson( bodyDeformationType, bodyDeformationTypes,
+                                                         unsupportedBodyDeformationTypes );
     }
 }
 
@@ -101,14 +108,14 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariation
         variationSettings = boost::make_shared< TabulatedGravityFieldVariationSettings >(
                     getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::cosineCoefficientCorrections ),
                     getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::sineCoefficientCorrections ),
-                    getNumeric< int >( jsonObject, K::minimumDegree ),
-                    getNumeric< int >( jsonObject, K::minimumOrder ),
+                    getValue< int >( jsonObject, K::minimumDegree ),
+                    getValue< int >( jsonObject, K::minimumOrder ),
                     getValue< boost::shared_ptr< ModelInterpolationSettings > >(
                         jsonObject, K::modelInterpolation )->interpolatorSettings_ );
         return;
     default:
-        throw std::runtime_error( stringFromEnum( bodyDeformationType, bodyDeformationTypes )
-                                  + " not supported by json_interface." );
+        handleUnimplementedEnumValueFromJson( bodyDeformationType, bodyDeformationTypes,
+                                              unsupportedBodyDeformationTypes );
     }
 }
 
