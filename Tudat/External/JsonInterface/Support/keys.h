@@ -13,12 +13,24 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace tudat
 {
 
 namespace json_interface
 {
+
+//! Special keys (used internally by json_interface, can't be used in JSON files).
+struct SpecialKeys
+{
+    static const std::string root;
+    static const std::string up;
+    static const std::string rootObject;
+    static const std::string keyPath;
+
+    static const std::vector< std::string > all;
+};
 
 //! Keys recognised by json_interface.
 struct Keys
@@ -273,8 +285,8 @@ struct Keys
 };
 
 // FIXME: what about arrays?
-//! Class for specifying a key tree (key.subkey.subsubkey ...) used to access data from `json` objects.
-class KeyTree : public std::vector< std::string >
+//! Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json` objects.
+class KeyPath : public std::vector< std::string >
 {
 public:
     //! Inherit constructors.
@@ -285,7 +297,7 @@ public:
      * Constructor with a single string key.
      * \param key The key to be accessed.
      */
-    KeyTree( const std::string& key ) : KeyTree( std::vector< std::string >( { key } ) ) { }
+    KeyPath( const std::string& key ) : KeyPath( std::vector< std::string >( { key } ) ) { }
 
     //! Constructor with a single char key.
     /*!
@@ -293,59 +305,129 @@ public:
      * \param key The key to be accessed.
      */
     //! Constructor with a single char key.
-    KeyTree( const char* key ) : KeyTree( std::string( key ) ) { }
+    KeyPath( const char* key ) : KeyPath( std::string( key ) ) { }
 
+    //! Constructor with a single char key.
+    /*!
+     * Constructor with a single char key.
+     * \param key The key to be accessed.
+     */
+    //! Constructor with a single char key.
+    KeyPath( unsigned int vectorIndex ) : KeyPath( std::to_string( vectorIndex ) ) { }
+
+    /*
     //! -DOC
-    KeyTree& operator+ ( const KeyTree& subkeys ) const
+    KeyPath& operator+ ( const KeyPath& subkeys ) const
     {
-        KeyTree* compoundKeyTree = new KeyTree( *this );
+        KeyPath* compoundKeyPath = new KeyPath( *this );
         for ( std::string subkey : subkeys )
         {
-            compoundKeyTree->push_back( subkey );
+            compoundKeyPath->push_back( subkey );
         }
-        return *compoundKeyTree;
+        return *compoundKeyPath;
     }
 
     //! -DOC
-    KeyTree& operator+ ( const unsigned int vectorIndex ) const
+    KeyPath& operator+ ( const unsigned int vectorIndex ) const
     {
-        KeyTree* compoundKeyTree = new KeyTree( *this );
-        compoundKeyTree->push_back( std::to_string( vectorIndex ) );
-        return *compoundKeyTree;
+        KeyPath* compoundKeyPath = new KeyPath( *this );
+        compoundKeyPath->push_back( std::to_string( vectorIndex ) );
+        return *compoundKeyPath;
     }
+    */
+
+    //! -DOC
+    bool isAbsolute( ) const
+    {
+        if ( size( ) == 0 )
+        {
+            return false;
+        }
+        return *begin( ) == SpecialKeys::root;
+    }
+
+    //! -DOC
+    KeyPath canonical( const KeyPath& basePath = SpecialKeys::root ) const;
 };
 
-//! String representation for `KeyTree`, as key.subkey.subsubkey ...
-inline std::ostream& operator<< ( std::ostream & stringRepresentation, KeyTree const & keyTree )
+//! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
+inline std::ostream& operator<< ( std::ostream& stringRepresentation, KeyPath const& keyPath )
 {
-    for ( unsigned int i = 0; i < keyTree.size(); ++i )
+    for ( unsigned int i = 0; i < keyPath.size( ); ++i )
     {
-        stringRepresentation << keyTree.at( i );
-        if ( i < keyTree.size() - 1 )
+        if ( keyPath.at( i ) != SpecialKeys::root )
         {
-            stringRepresentation << ".";
+            stringRepresentation << keyPath.at( i );
+            if ( i < keyPath.size() - 1 )
+            {
+                stringRepresentation << ".";
+            }
         }
     }
     return stringRepresentation;
 }
 
-//! Key trees recognised by `json_interface`.
-struct KeyTrees
+inline KeyPath operator / ( KeyPath path1, const KeyPath& path2 )
+{
+    for ( std::string subkey : path2 )
+    {
+        path1.push_back( subkey );
+    }
+    return path1;
+}
+
+inline KeyPath operator / ( const KeyPath& path, const std::string& str )
+{
+    return path / KeyPath( str );
+}
+
+inline KeyPath operator / ( const std::string& str, const KeyPath& path )
+{
+    return KeyPath( str ) / path;
+}
+
+inline KeyPath operator / ( const std::string& str1, const std::string& str2 )
+{
+    return KeyPath( str1 ) / KeyPath( str2 );
+}
+
+inline KeyPath operator / ( const KeyPath& path, const unsigned int vectorIndex )
+{
+    return path / KeyPath( vectorIndex );
+}
+
+inline KeyPath operator / ( const unsigned int vectorIndex, const KeyPath& path )
+{
+    return KeyPath( vectorIndex ) / path;
+}
+
+inline KeyPath operator / ( const std::string& str, const unsigned int vectorIndex )
+{
+    return KeyPath( str ) / vectorIndex;
+}
+
+inline KeyPath operator / ( const unsigned int vectorIndex, const std::string& str )
+{
+    return vectorIndex / KeyPath( str );
+}
+
+//! Key paths recognised by `json_interface`.
+struct KeyPaths
 {
     struct Simulation
     {
-        static const KeyTree startEpoch;
-        static const KeyTree endEpoch;
-        static const KeyTree globalFrameOrigin;
-        static const KeyTree globalFrameOrientation;
-        static const KeyTree spiceKernels;
-        static const KeyTree preloadSpiceData;
+        static const KeyPath startEpoch;
+        static const KeyPath endEpoch;
+        static const KeyPath globalFrameOrigin;
+        static const KeyPath globalFrameOrientation;
+        static const KeyPath spiceKernels;
+        static const KeyPath preloadSpiceData;
     };
 
     /*
     struct Integrator
     {
-        static const KeyTree initialTime;
+        static const KeyPath initialTime;
     };
     */
 };

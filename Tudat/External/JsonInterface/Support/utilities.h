@@ -46,6 +46,20 @@ bool contains( const std::vector< T >& vector, const T& value )
     return std::find( vector.begin( ), vector.end( ), value ) != vector.end( );
 }
 
+//! Returns whether a `vector` contains any of `values`.
+template< typename T >
+bool contains( const std::vector< T >& vector, std::vector< T > values )
+{
+    for ( auto value : values )
+    {
+        if ( contains( vector, value ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /*
 //! Get a vector containing the keys of a map.
 template< typename KeyType, typename ValueType >

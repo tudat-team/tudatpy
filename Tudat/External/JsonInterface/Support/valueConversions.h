@@ -16,12 +16,145 @@ using json = nlohmann::json;
 
 #include "path.h"
 #include "utilities.h"
+#include "valueAccess.h"
+
+namespace tudat
+{
+
+namespace json_interface
+{
+
+//! Template used by to_json methods for std::unodered_map and std::map.
+//! Use of this function outside those methods is discouraged.
+template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+json jsonFromMap( const MapType< KeyType, ValueType >& map )
+{
+    json jsonObject;
+    for ( auto entry : map )
+    {
+        jsonObject[ boost::lexical_cast< std::string >( entry.first ) ] = entry.second;
+    }
+    return jsonObject;
+}
+
+//! Template used by from_json methods for std::unodered_map and std::map.
+//! Use of this function outside those methods is discouraged.
+template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+MapType< KeyType, ValueType > mapFromJson( const json& jsonObject )
+{
+    MapType< KeyType, ValueType > map;
+    json j = jsonObject;
+    for ( json::iterator it = j.begin( ); it != j.end( ); ++it )
+    {
+        const std::string key = it.key( );
+        if ( ! contains( SpecialKeys::all, key ) )
+        {
+            map[ boost::lexical_cast< KeyType >( key ) ] = getValue< ValueType >( j, key );
+        }
+    }
+    return map;
+}
+
+}  // namespace json_interface
+
+}  // namespace tudat
+
+
+namespace std
+{
+
+/// STD::UNORDERED_MAP
+
+//! Create a `json` object from a `std::unordered_map` with arbitrary key type.
+template< typename KeyType, typename ValueType >
+void to_json( json& jsonObject, const unordered_map< KeyType, ValueType >& unorderedMap )
+{
+    jsonObject = tudat::json_interface::jsonFromMap< unordered_map, KeyType, ValueType >( unorderedMap );
+}
+
+//! Create a `std::map` with arbitrary key type from a `json` object.
+template< typename KeyType, typename ValueType >
+void from_json( const json& jsonObject, unordered_map< KeyType, ValueType >& unorderedMap )
+{
+    unorderedMap = tudat::json_interface::mapFromJson< unordered_map, KeyType, ValueType >( jsonObject );
+}
+
+
+/// STD::MAP
+
+//! Create a `json` object from a `std::map` with arbitrary key type.
+template< typename KeyType, typename ValueType >
+void to_json( json& jsonObject, const map< KeyType, ValueType >& orderedMap )
+{
+    jsonObject = tudat::json_interface::jsonFromMap< map, KeyType, ValueType >( orderedMap );
+}
+
+//! Create a `std::map` with arbitrary key type from a `json` object.
+template< typename KeyType, typename ValueType >
+void from_json( const json& jsonObject, map< KeyType, ValueType >& orderedMap )
+{
+    orderedMap = tudat::json_interface::mapFromJson< map, KeyType, ValueType >( jsonObject );
+}
+
+
+/// STD::VECTOR
+
+//! Create a `std::vector` from a `json` object.
+template< typename ValueType >
+void from_json( const json& jsonObject, vector< ValueType >& myVector )
+{
+    using namespace tudat::json_interface;
+
+    if ( jsonObject.is_array( ) )
+    {
+        for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
+        {
+            myVector.push_back( getValue< ValueType >( jsonObject, i ) );
+        }
+        return;
+    }
+    else if ( jsonObject.is_object( ) )
+    {
+        // Convert to map, and use that to create the vector
+        const map< string, ValueType > auxiliaryMap = getValue< map< string, ValueType > >( jsonObject, { } );
+        for ( auto entry : auxiliaryMap )
+        {
+            if ( ! contains( SpecialKeys::all, entry.first ) )
+            {
+                myVector.push_back( entry.second );
+            }
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Could not convert json to std::vector because it is not an array or object." );
+    }
+}
+
+
+/// STD::COMPLEX
+
+//! Create a `json` object from a `std::complex`.
+template< typename T >
+void to_json( json& jsonObject, const complex< T >& complexNumber )
+{
+    jsonObject = boost::lexical_cast< string >( complexNumber );
+}
+
+//! Create a `std::complex` from a `json` object.
+template< typename T >
+void from_json( const json& jsonObject, complex< T >& complexNumber )
+{
+    complexNumber = boost::lexical_cast< complex< T > >( jsonObject.get< string >( ) );
+}
+
+}  // namespace std
+
 
 namespace Eigen
 {
 
 //! Create a `json` object from an `Eigen::Matrix`.
-//! Called automatically by `nlohmann::json` when using `jsonObject = matrix`.
 template< typename ScalarType, int rows, int cols >
 void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 {
@@ -30,7 +163,6 @@ void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 }
 
 //! Create `Eigen::Matrix` from a `json` object.
-//! Called automatically by `nlohmann::json` when using `matrix = jsonObject.get< Eigen::Matrix >( )`.
 template< typename ScalarType, int rows, int cols >
 void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix )
 {
@@ -93,7 +225,6 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
 
 
 //! Create a `json` object from an `Eigen::Quaternion`.
-//! Called automatically by `nlohmann::json` when using `jsonObject = quaternion`.
 template< typename ScalarType >
 void to_json( json& jsonObject, const Quaternion< ScalarType >& quaternion )
 {
@@ -102,7 +233,6 @@ void to_json( json& jsonObject, const Quaternion< ScalarType >& quaternion )
 }
 
 //! Create `Eigen::Quaternion` from a `json` object.
-//! Called automatically by `nlohmann::json` when using `quaternion = jsonObject.get< Eigen::Quaternion >( )`.
 template< typename ScalarType >
 void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
 {
@@ -111,55 +241,5 @@ void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
 }
 
 }  // namespace Eigen
-
-
-namespace std
-{
-
-/// Support for maps with arbitrary key type
-
-//! Create a `json` object from a `std::map` with arbitrary key type.
-//! Called automatically by `nlohmann::json` when using `jsonObject = myMap`.
-template< typename KeyType, typename ValueType >
-void to_json( json& jsonObject, const map< KeyType, ValueType >& myMap )
-{
-    for ( auto entry : myMap )
-    {
-        jsonObject[ boost::lexical_cast< string >( entry.first ) ] = entry.second;
-    }
-}
-
-//! Create a std::map with arbitrary key type from a `json` object.
-//! Called automatically by `nlohmann::json` when using `myMap = jsonObject.get< std::map< KeyType, ValueType > >( )`.
-template< typename KeyType, typename ValueType >
-void from_json( const json& jsonObject, map< KeyType, ValueType >& myMap )
-{
-    json j = jsonObject;
-    for ( json::iterator it = j.begin( ); it != j.end( ); ++it )
-    {
-        myMap[ boost::lexical_cast< KeyType >( it.key( ) ) ] = it.value( ).get< ValueType >( );
-    }
-}
-
-
-/// Support for complex numbers
-
-//! Create a `json` object from a `std::complex`.
-//! Called automatically by `nlohmann::json` when using `jsonObject = complexNumber`.
-template< typename T >
-void to_json( json& jsonObject, const complex< T >& complexNumber )
-{
-    jsonObject = boost::lexical_cast< string >( complexNumber );
-}
-
-//! Create a `std::complex` from a `json` object.
-//! Called automatically by `nlohmann::json` when using `complexNumber = jsonObject.get< std::complex< double > >( )`.
-template< typename T >
-void from_json( const json& jsonObject, complex< T >& complexNumber )
-{
-    complexNumber = boost::lexical_cast< complex< T > >( jsonObject.get< string >( ) );
-}
-
-}  // namespace std
 
 #endif // TUDAT_JSONINTERFACE_VALUECONVERSIONS_H

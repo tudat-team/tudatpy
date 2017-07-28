@@ -53,11 +53,9 @@ namespace filesystem
 {
 
 //! Create a `json` object from a `path`.
-//! Called automatically by `nlohmann::json` when using `j = p`.
 void to_json( json& j, const path& p );
 
 //! Create a path from a `json` object.
-//! Called automatically by `nlohmann::json` when using `p = j.get< path >( )`.
 void from_json( const json& j, path& p );
 
 }  // namespace filesystem

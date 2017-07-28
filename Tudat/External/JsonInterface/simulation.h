@@ -145,20 +145,20 @@ public:
     void resetGeneral( )
     {
         // Start and end epochs
-        startEpoch = getEpoch< TimeType >( settings, KeyTrees::Simulation::startEpoch );
-        endEpoch = getEpoch< TimeType >( settings, KeyTrees::Simulation::endEpoch );
+        startEpoch = getEpoch< TimeType >( settings, KeyPaths::Simulation::startEpoch );
+        endEpoch = getEpoch< TimeType >( settings, KeyPaths::Simulation::endEpoch );
 
         // Global frame origin and orientation
-        globalFrameOrigin = getValue< std::string >( settings, KeyTrees::Simulation::globalFrameOrigin );
-        globalFrameOrientation = getValue< std::string >( settings, KeyTrees::Simulation::globalFrameOrientation );
+        globalFrameOrigin = getValue< std::string >( settings, KeyPaths::Simulation::globalFrameOrigin );
+        globalFrameOrientation = getValue< std::string >( settings, KeyPaths::Simulation::globalFrameOrientation );
     }
 
 
     //! -DOC
     void resetSpice( )
     {
-        spiceKernels = getValue< std::vector< path > >( settings, KeyTrees::Simulation::spiceKernels, { } );
-        preloadSpiceData = getValue< bool >( settings, KeyTrees::Simulation::preloadSpiceData, true );
+        spiceKernels = getValue< std::vector< path > >( settings, KeyPaths::Simulation::spiceKernels, { } );
+        preloadSpiceData = getValue< bool >( settings, KeyPaths::Simulation::preloadSpiceData, true );
         spiceIntervalOffsets = preloadSpiceData ?
                     std::make_pair( -300.0, 300.0 ) : std::make_pair( TUDAT_NAN, TUDAT_NAN );
 
@@ -185,7 +185,7 @@ public:
         for ( auto entry : bodySettingsJSON )
         {
             const std::string bodyName = entry.first;
-            if ( getValue( settings, { Keys::bodies, bodyName, Keys::Body::useDefaultSettings }, false ) )
+            if ( getValue( settings, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
             {
                 defaultBodyNames.push_back( bodyName );
             }
@@ -200,19 +200,20 @@ public:
         for ( auto entry : bodySettingsJSON )
         {
             const std::string bodyName = entry.first;
+            const json jsonSettings = bodySettingsJSON[ bodyName ];
             if ( bodySettingsMap.count( bodyName ) )
             {
                 // Reset ephemeris and rotational models frames.
-                boost::shared_ptr< BodySettings > bodySettings = bodySettingsMap[ bodyName ];
+                boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];
                 bodySettings->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
                 bodySettings->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
                 // Update body settings from JSON.
-                updateBodySettings( bodySettings, settings, { Keys::bodies, bodyName } );
+                updateBodySettings( bodySettings, jsonSettings );
             }
             else
             {
                 // Create body settings from JSON.
-                bodySettingsMap[ bodyName ] = createBodySettings( settings, { Keys::bodies, bodyName } );
+                bodySettingsMap[ bodyName ] = createBodySettings( jsonSettings );
             }
         }
 
@@ -230,22 +231,24 @@ public:
 
     //! -DOC
     std::map< propagators::IntegratedStateType, std::vector< json > > getMapOfSingleArcPropagatorSettings(
-            const KeyTree& keyTree = Keys::propagation )
+            const KeyPath& keyPath = Keys::propagation )
     {
         using namespace propagators;
-        using Keys = Keys::Propagator;
+        using K = Keys::Propagator;
         std::map< IntegratedStateType, std::vector< json > > mapOfSingleArcPropagatorSettings;
 
         try
         {
+            std::cout << "SingleArc" << std::endl;
             // SingleArc
             const IntegratedStateType integratedStateType = getValue< IntegratedStateType >(
-                        settings, keyTree + Keys::integratedStateType );
+                        settings, keyPath / K::integratedStateType );
             if ( integratedStateType == hybrid )
             {
+                std::cout << "MultiType" << std::endl;
                 // MultiType
                 const std::map< std::string, json > typesMap =
-                        getValue< std::map< std::string, json > >( settings, keyTree + Keys::propagators );
+                        getValue< std::map< std::string, json > >( settings, K::propagators );
                 for ( auto entry : typesMap )
                 {
                     const IntegratedStateType subtype = enumFromString( entry.first, integratedStateTypes );
@@ -255,19 +258,21 @@ public:
             }
             else
             {
+                std::cout << "SingleType" << std::endl;
                 // SingleType
                 mapOfSingleArcPropagatorSettings =
-                { { integratedStateType, { getValue< json >( settings, keyTree ) } } };
+                { { integratedStateType, { getValue< json >( settings, keyPath ) } } };
             }
         }
         catch ( ... )
         {
+            std::cout << "MultiArc" << std::endl;
             // MultiArc
-            const std::vector< json > jsonVector = getValue< std::vector< json > >( settings, keyTree );
+            const std::vector< json > jsonVector = getValue< std::vector< json > >( settings, keyPath );
             for ( unsigned int i = 0; i < jsonVector.size( ); ++i )
             {
                 const std::map< IntegratedStateType, std::vector< json > > arcMap =
-                        getMapOfSingleArcPropagatorSettings( keyTree + i );
+                        getMapOfSingleArcPropagatorSettings( keyPath / i );
                 for ( auto entry : arcMap )
                 {
                     const IntegratedStateType integratedStateType = entry.first;
@@ -313,8 +318,7 @@ public:
         using namespace simulation_setup;
 
         // Translational
-        accelerationSettingsMap =
-                getBodyToBodyMap< AccelerationSettings >( settings, Keys::accelerations, createAccelerationSettings );
+        updateFromJSON( accelerationSettingsMap, settings, Keys::accelerations );
         std::pair< std::vector< std::string >, std::vector< std::string > > centralAndPropagatedBodies =
                 getCentralAndPropagatedBodies( translational_state );
         accelerationModelsMap = createAccelerationModelsMap( bodyMap, accelerationSettingsMap,
@@ -344,7 +348,7 @@ public:
     void resetIntegrator( )
     {
         // Integrator settings
-        integratorSettings = createIntegratorSettings< TimeType >( settings, Keys::integrator, startEpoch );
+        updateFromJSON( integratorSettings, settings, Keys::integrator );
     }
 
 
@@ -415,7 +419,6 @@ private:
 
 
 //! Function to create a `json` object from a `Simulation` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( simulation )`.
 template< typename TimeType = double, typename StateScalarType = double >
 void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {

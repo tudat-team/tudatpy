@@ -43,20 +43,20 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSe
     if ( variationSettings )
     {
         using namespace json_interface;
-        using Keys = Keys::Body::GravityFieldVariation;
+        using K = Keys::Body::GravityFieldVariation;
 
         // Common parameters
-        jsonObject[ Keys::bodyDeformationType ] = variationSettings->getBodyDeformationType( );
-        jsonObject[ Keys::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
+        jsonObject[ K::bodyDeformationType ] = variationSettings->getBodyDeformationType( );
+        jsonObject[ K::modelInterpolation ] = variationSettings->getInterpolatorSettings( );
 
         /// BasicSolidBodyGravityFieldVariationSettings
         boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
                 boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationSettings );
         if ( basicSolidBodySettings )
         {
-            jsonObject[ Keys::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
-            jsonObject[ Keys::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
-            jsonObject[ Keys::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
+            jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
+            jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
+            jsonObject[ K::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
             return;
         }
 
@@ -65,70 +65,53 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSe
                 boost::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( variationSettings );
         if ( tabulatedSettings )
         {
-            jsonObject[ Keys::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
-            jsonObject[ Keys::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
-            jsonObject[ Keys::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
-            jsonObject[ Keys::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
+            jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
+            jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
+            jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );
+            jsonObject[ K::minimumOrder ] = tabulatedSettings->getMinimumOrder( );
             return;
         }
     }
 }
 
-/*
-//! Convert `json` to `InterpolatorSettings` shared pointer.
-void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings )
-{
-    variationSettings = json_interface::createGravityFieldVariationSettings( jsonObject );
-}
-*/
-
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
-
 //! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
-boost::shared_ptr< simulation_setup::GravityFieldVariationSettings > createGravityFieldVariationSettings(
-        const json& settings, const KeyTree& keyTree )
+void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings )
 {
     using namespace gravitation;
     using namespace interpolators;
-    using namespace simulation_setup;
-    using Keys = Keys::Body::GravityFieldVariation;
+    using namespace json_interface;
+    using K = Keys::Body::GravityFieldVariation;
 
     // Body deformation type
     const BodyDeformationTypes bodyDeformationType =
-            getValue< BodyDeformationTypes >( settings, keyTree + Keys::bodyDeformationType );
+            getValue< BodyDeformationTypes >( jsonObject, K::bodyDeformationType );
 
     switch ( bodyDeformationType ) {
     case basic_solid_body:
     {
         BasicSolidBodyGravityFieldVariationSettings defaults( { }, { }, TUDAT_NAN );
-        return boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                    getValue< std::vector< std::string > >( settings, keyTree + Keys::deformingBodies ),
-                    getValue< std::vector< std::vector< std::complex< double > > > >(
-                        settings, keyTree + Keys::loveNumbers ),
-                    getNumeric< double >( settings, keyTree + Keys::referenceRadius ),
-                    createModelInterpolationSettings(
-                        settings, keyTree + Keys::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
+        variationSettings = boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
+                    getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
+                    getNumeric< double >( jsonObject, K::referenceRadius ),
+                    getValue< boost::shared_ptr< ModelInterpolationSettings > >( jsonObject, K::modelInterpolation ) );
+        return;
     }
     case tabulated_variation:
-        return boost::make_shared< TabulatedGravityFieldVariationSettings >(
-                    getValue< std::map< double, Eigen::MatrixXd > >(
-                        settings, keyTree + Keys::cosineCoefficientCorrections ),
-                    getValue< std::map< double, Eigen::MatrixXd > >(
-                        settings, keyTree + Keys::sineCoefficientCorrections ),
-                    getNumeric< int >( settings, keyTree + Keys::minimumDegree ),
-                    getNumeric< int >( settings, keyTree + Keys::minimumOrder ),
-                    createModelInterpolationSettings(
-                        settings, keyTree + Keys::modelInterpolation )->interpolatorSettings_ );
+        variationSettings = boost::make_shared< TabulatedGravityFieldVariationSettings >(
+                    getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::cosineCoefficientCorrections ),
+                    getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::sineCoefficientCorrections ),
+                    getNumeric< int >( jsonObject, K::minimumDegree ),
+                    getNumeric< int >( jsonObject, K::minimumOrder ),
+                    getValue< boost::shared_ptr< ModelInterpolationSettings > >(
+                        jsonObject, K::modelInterpolation )->interpolatorSettings_ );
+        return;
     default:
         throw std::runtime_error( stringFromEnum( bodyDeformationType, bodyDeformationTypes )
                                   + " not supported by json_interface." );
     }
 }
 
-} // namespace json_interface
+} // namespace simulation_setup
 
 } // namespace tudat

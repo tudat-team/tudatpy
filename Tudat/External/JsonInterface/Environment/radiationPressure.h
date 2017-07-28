@@ -35,33 +35,14 @@ void to_json( json& jsonObject, const RadiationPressureType& radiationPressureTy
 void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType );
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as
-//! `json( radiationPressureInterfaceSettings )`.
 void to_json( json& jsonObject,
               const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
 
+//! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
+void from_json( const json& jsonObject,
+                boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
+
 } // namespace simulation_setup
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to a `RadiationPressureInterfaceSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `RadiationPressureInterfaceSettings` object from a `json` object.
- * \param settings `json` object containing the settings for all radiation pressure interfaces of one body.
- * \param sourceBodyName The name of the radiating body for which the radiation pressure interface is to be created.
- * \param keyTree Key tree at which the object containing all the radiation pressure interface settings can be accessed.
- * Empty if `settings` contains ONLY the radiation pressure interface settings (for all radiating bodies).
- * \param fallbackArea Fallback reference area to be used when no reference area is speciefied in `settings`.
- * \return Shared pointer to a `RadiationPressureInterfaceSettings` object.
- */
-boost::shared_ptr< simulation_setup::RadiationPressureInterfaceSettings > createRadiationPressureInterfaceSettings(
-        const json& settings, const std::string& sourceBodyName,
-        const KeyTree& keyTree = { }, const double& fallbackArea = TUDAT_NAN );
-
-} // namespace json_interface
-
 
 } // namespace tudat
 

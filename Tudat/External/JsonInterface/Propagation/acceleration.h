@@ -64,31 +64,12 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
-//! Called automatically by `nlohmann::json` when using a constructor such as `json( accelerationSettings )`.
 void to_json( json& jsonObject, const boost::shared_ptr< AccelerationSettings >& accelerationSettings );
 
-//! Convert `json` to `AccelerationSettings`.
+//! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< AccelerationSettings >& accelerationSettings );
 
 } // namespace simulation_setup
-
-
-namespace json_interface
-{
-
-//! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-/*!
- * Create a shared pointer to a `AccelerationSettings` object from a `json` object.
- * \param settings `json` object containing the settings for one acceleration model.
- * \param keyTree Key tree at which the object containing the acceleration settings can be accessed.
- * Empty if `settings` contains ONLY the acceleration settings.
- * \return Shared pointer to a `AccelerationSettings` object.
- */
-boost::shared_ptr< simulation_setup::AccelerationSettings > createAccelerationSettings(
-        const json& settings, const KeyTree& keyTree = { } );
-
-} // namespace json_interface
-
 
 } // namespace tudat
 
