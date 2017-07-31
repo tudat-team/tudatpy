@@ -17,18 +17,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Convert `GravityFieldType`s to `json`.
-void to_json( json& jsonObject, const GravityFieldType& gravityFieldType )
-{
-    jsonObject = json_interface::stringFromEnum( gravityFieldType, gravityFieldTypes );
-}
-
-//! Convert `json` to `GravityFieldType`.
-void from_json( const json& jsonObject, GravityFieldType& gravityFieldType )
-{
-    gravityFieldType = json_interface::enumFromString( jsonObject.get< std::string >( ), gravityFieldTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
 {

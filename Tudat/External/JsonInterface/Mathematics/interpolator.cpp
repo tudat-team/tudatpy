@@ -17,48 +17,6 @@ namespace tudat
 namespace interpolators
 {
 
-//! Convert `OneDimensionalInterpolatorTypes` to `json`.
-void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
-{
-    jsonObject = json_interface::stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes );
-}
-
-//! Convert `json` to `OneDimensionalInterpolatorTypes`.
-void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
-{
-    oneDimensionalInterpolatorType =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), oneDimensionalInterpolatorTypes );
-}
-
-
-//! Convert `AvailableLookupScheme` to `json`.
-void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
-{
-    jsonObject = json_interface::stringFromEnum( availableLookupScheme, lookupSchemeTypes );
-}
-
-//! Convert `json` to `AvailableLookupScheme`.
-void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme )
-{
-    availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), lookupSchemeTypes );
-}
-
-
-//! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.
-void to_json( json& jsonObject, const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
-{
-    jsonObject = json_interface::stringFromEnum( lagrangeInterpolatorBoundaryHandling,
-                                                 lagrangeInterpolatorBoundaryHandlings );
-}
-
-//! Convert `json` to `AvailableLookupScheme`.
-void from_json( const json& jsonObject, LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
-{
-    lagrangeInterpolatorBoundaryHandling =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), lagrangeInterpolatorBoundaryHandlings );
-}
-
-
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {

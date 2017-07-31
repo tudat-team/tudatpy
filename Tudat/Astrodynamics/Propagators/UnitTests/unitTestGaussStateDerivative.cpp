@@ -86,19 +86,19 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+        SingleSelectedAccelerationMap accelerationsOfEarth;
         accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+        SingleSelectedAccelerationMap accelerationsOfMars;
         accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfMars[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfMars[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Mars" ] = accelerationsOfMars;
 
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVenus;
+        SingleSelectedAccelerationMap accelerationsOfVenus;
         accelerationsOfVenus[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfVenus[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfVenus[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::vector< std::string > centralBodies;
 
             // Define propagation settings.
-            std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+            SingleSelectedAccelerationMap accelerationsOfVehicle;
 
             // Use only central gravity for Earth
             if( simulationCase < 2 )

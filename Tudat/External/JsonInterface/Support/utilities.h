@@ -64,10 +64,29 @@ bool contains( const std::vector< T >& vector, std::vector< T > values )
     return false;
 }
 
-/*
-//! Get a vector containing the keys of a map.
-template< typename KeyType, typename ValueType >
-std::vector< KeyType > getKeys( const std::map< KeyType, ValueType >& map )
+
+//! Push back an element to a vector.
+template< typename T >
+void pushBackElements( std::vector< T >& vector, const T& element )
+{
+    vector.push_back( element );
+}
+
+//! Push back the elements of a vector to another vector.
+template< typename T >
+void pushBackElements( std::vector< T >& vector, const std::vector< T >& elements )
+{
+    for ( const T element : elements )
+    {
+        pushBackElements( vector, element );
+    }
+}
+
+
+
+//! Get a vector containing the keys of a map / unordered_map.
+template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 {
     std::vector< KeyType > keys;
     for ( auto entry : map )
@@ -77,18 +96,24 @@ std::vector< KeyType > getKeys( const std::map< KeyType, ValueType >& map )
     return keys;
 }
 
-//! Get a vector containing the values of a map.
-template< typename KeyType, typename ValueType >
-std::vector< ValueType > getValues( const std::map< KeyType, ValueType >& map )
+//! Get a vector containing the values of a map / unordered_map.
+template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map, bool flatten = false )
 {
     std::vector< ValueType > values;
     for ( auto entry : map )
     {
-        values.push_back( entry.second );
+        if ( flatten )
+        {
+            pushBackElements( values, entry.second );
+        }
+        else
+        {
+            values.push_back( entry.second );
+        }
     }
     return values;
 }
-*/
 
 
 /// EIGEN <- STD

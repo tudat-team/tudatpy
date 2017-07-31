@@ -18,9 +18,6 @@
 #include "Support/valueConversions.h"
 
 #include "Environment/body.h"
-#include "Propagation/acceleration.h"
-// #include "Propagation/massRate.h"
-// #include "Propagation/torque.h"
 #include "Propagation/propagator.h"
 #include "Mathematics/integrator.h"
 
@@ -82,25 +79,6 @@ public:
 
     ////// Integrated state settings / models
 
-    //! Acceleration settings map.
-    BodyToBodyMap< simulation_setup::AccelerationSettings > accelerationSettingsMap;
-
-    //! Aceeleration models map.
-    BodyToBodyMap< basic_astrodynamics::AccelerationModel3d > accelerationModelsMap;
-
-    //! Mass rate settings map.
-    BodyToBodyMap< simulation_setup::MassRateModelSettings > massRateSettingsMap;
-
-    //! Mass rate models map.
-    BodyToBodyMap< basic_astrodynamics::MassRateModel > massRateModelsMap;
-
-    //! Torque settings map.
-    BodyToBodyMap< simulation_setup::TorqueSettings > torqueSettingsMap;
-
-    //! Torque models map.
-    BodyToBodyMap< basic_astrodynamics::TorqueModel > torqueModelsMap;
-
-
     //! Propagation settings.
     boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings;
 
@@ -134,7 +112,6 @@ public:
         resetGeneral( );
         resetSpice( );
         resetBodies( );
-        resetIntegratedStateModels( );
         resetPropagators( );
         resetIntegrator();
         resetOutput( );
@@ -222,130 +199,20 @@ public:
 
         // Finalize body creation.
         setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
-
-        // Update propagator map
-
-    }
-
-    //! -DOC
-    std::map< propagators::IntegratedStateType, std::vector< json > > getMapOfSingleArcPropagatorSettings(
-            const KeyPath& keyPath = Keys::propagation )
-    {
-        using namespace propagators;
-        using K = Keys::Propagator;
-        std::map< IntegratedStateType, std::vector< json > > mapOfSingleArcPropagatorSettings;
-
-        try
-        {
-            std::cout << "SingleArc" << std::endl;
-            // SingleArc
-            const IntegratedStateType integratedStateType = getValue< IntegratedStateType >(
-                        settings, keyPath / K::integratedStateType );
-            if ( integratedStateType == hybrid )
-            {
-                std::cout << "MultiType" << std::endl;
-                // MultiType
-                const std::map< std::string, json > typesMap =
-                        getValue< std::map< std::string, json > >( settings, K::propagators );
-                for ( auto entry : typesMap )
-                {
-                    const IntegratedStateType subtype = enumFromString( entry.first, integratedStateTypes );
-                    const json jsonType = entry.second;
-                    mapOfSingleArcPropagatorSettings[ subtype ].push_back( jsonType );
-                }
-            }
-            else
-            {
-                std::cout << "SingleType" << std::endl;
-                // SingleType
-                mapOfSingleArcPropagatorSettings =
-                { { integratedStateType, { getValue< json >( settings, keyPath ) } } };
-            }
-        }
-        catch ( ... )
-        {
-            std::cout << "MultiArc" << std::endl;
-            // MultiArc
-            const std::vector< json > jsonVector = getValue< std::vector< json > >( settings, keyPath );
-            for ( unsigned int i = 0; i < jsonVector.size( ); ++i )
-            {
-                const std::map< IntegratedStateType, std::vector< json > > arcMap =
-                        getMapOfSingleArcPropagatorSettings( keyPath / i );
-                for ( auto entry : arcMap )
-                {
-                    const IntegratedStateType integratedStateType = entry.first;
-                    const std::vector< json > jsonArcs = entry.second;
-                    mapOfSingleArcPropagatorSettings[ integratedStateType ].push_back( jsonArcs );
-                }
-            }
-        }
-
-        return mapOfSingleArcPropagatorSettings;
-    }
-
-    //! -DOC
-    std::pair< std::vector< std::string >, std::vector< std::string > > getCentralAndPropagatedBodies(
-            const propagators::IntegratedStateType integratedStateType )
-    {
-        std::vector< std::string > centralBodies;
-        std::vector< std::string > bodiesToPropagate;
-
-        std::vector< json > jsonVector = getMapOfSingleArcPropagatorSettings( ).at( integratedStateType );
-        for ( auto jsonObject : jsonVector )
-        {
-            for ( auto bodyName : jsonObject[ Keys::Propagator::centralBodies ] )
-            {
-                centralBodies.push_back( bodyName );
-                // FIXME: added multiple times? Order?
-            }
-            for ( auto bodyName : jsonObject[ Keys::Propagator::bodiesToPropagate ] )
-            {
-                bodiesToPropagate.push_back( bodyName );
-                // FIXME: added multiple times? Order?
-            }
-        }
-
-        return std::make_pair( centralBodies, bodiesToPropagate );
-    }
-
-
-    //! -DOC
-    void resetIntegratedStateModels( )
-    {
-        using namespace propagators;
-        using namespace simulation_setup;
-
-        // Translational
-        updateFromJSON( accelerationSettingsMap, settings, Keys::accelerations );
-        std::pair< std::vector< std::string >, std::vector< std::string > > centralAndPropagatedBodies =
-                getCentralAndPropagatedBodies( translational_state );
-        accelerationModelsMap = createAccelerationModelsMap( bodyMap, accelerationSettingsMap,
-                                                             centralAndPropagatedBodies.second,
-                                                             centralAndPropagatedBodies.first );
-
-        /* FIXME
-        // Mass rate
-        massRateSettingsMap = getValue< SelectedMassRateModelMap >( settings, Keys::massRates, { } );
-        massRateModelsMap = createMassRateModelsMap( bodyMap, massRateSettingsMap, accelerationModelsMap );
-
-        // Torque
-        torqueSettingsMap = getValue< SelectedTorqueMap >( settings, Keys::torques, { } );
-        torqueModelsMap = createTorqueModelsMap( bodyMap, torqueSettingsMap );
-        */
     }
 
 
     //! -DOC
     void resetPropagators( )
     {
-        // propagationSettings = createPropagationSettings( settings, Keys::propagation, bodyMap );
+        updateFromJSON( propagationSettings, settings, Keys::propagation );
+        propagationSettings->createIntegratedStateModels( bodyMap );
     }
 
 
     //! -DOC
     void resetIntegrator( )
     {
-        // Integrator settings
         updateFromJSON( integratorSettings, settings, Keys::integrator );
     }
 
@@ -433,8 +300,8 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     // Bodies
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
 
-    // Accelerations
-    jsonObject[ Keys::accelerations ] = simulation.accelerationSettingsMap;
+    // Propagation
+    jsonObject[ Keys::propagation ] = simulation.propagationSettings;
 
     // Integrator
     jsonObject[ Keys::integrator ] = simulation.integratorSettings;

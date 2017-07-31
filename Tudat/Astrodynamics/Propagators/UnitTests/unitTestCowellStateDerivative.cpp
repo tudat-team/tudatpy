@@ -96,25 +96,25 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+    SingleSelectedAccelerationMap accelerationsOfEarth;
     accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
+    SingleSelectedAccelerationMap accelerationsOfSun;
     accelerationsOfSun[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfSun[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfSun[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Sun" ] = accelerationsOfSun;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    SingleSelectedAccelerationMap accelerationsOfMoon;
     accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+    SingleSelectedAccelerationMap accelerationsOfMars;
     accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMars[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMars[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
@@ -381,7 +381,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    SingleSelectedAccelerationMap accelerationsOfMoon;
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 

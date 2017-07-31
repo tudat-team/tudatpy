@@ -17,19 +17,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Convert `AerodynamicCoefficientTypes` to `json`.
-void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerodynamicCoefficientType )
-{
-    jsonObject = json_interface::stringFromEnum( aerodynamicCoefficientType, aerodynamicCoefficientTypes );
-}
-
-//! Convert `json` to `AerodynamicCoefficientTypes`.
-void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamicCoefficientType )
-{
-    aerodynamicCoefficientType = json_interface::enumFromString(
-                jsonObject.get< std::string >( ), aerodynamicCoefficientTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
 void to_json( json& jsonObject,
               const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )

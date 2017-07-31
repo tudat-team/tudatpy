@@ -165,88 +165,100 @@ struct Keys
     };
 
 
-    static const std::string accelerations;
-    struct Acceleration
-    {
-        static const std::string type;
-        static const std::string maximumDegree;
-        static const std::string maximumOrder;
-        static const std::string maximumDegreeOfBodyExertingAcceleration;
-        static const std::string maximumOrderOfBodyExertingAcceleration;
-        static const std::string maximumDegreeOfBodyUndergoingAcceleration;
-        static const std::string maximumOrderOfBodyUndergoingAcceleration;
-        static const std::string maximumDegreeOfCentralBody;
-        static const std::string maximumOrderOfCentralBody;
-        static const std::string calculateSchwarzschildCorrection;
-        static const std::string calculateLenseThirringCorrection;
-        static const std::string calculateDeSitterCorrection;
-        static const std::string primaryBody;
-        static const std::string centralBodyAngularMomentum;
-        static const std::string constantAcceleration;
-        static const std::string sineAcceleration;
-        static const std::string cosineAcceleration;
-
-        static const std::string direction;
-        struct ThrustDirection
-        {
-            static const std::string type;
-            static const std::string relativeBody;
-            static const std::string colinearWithVelocity;
-            static const std::string towardsRelativeBody;
-        };
-
-        static const std::string magnitude;
-        struct ThrustMagnitude
-        {
-            static const std::string type;
-            static const std::string originID;
-            static const std::string constantMagnitude;
-            static const std::string specificImpulse;
-            static const std::string bodyFixedDirection;
-            static const std::string useAllEngines;
-        };
-
-        // static const std::string thrustFrame;
-        // static const std::string centralBody;
-
-        /*
-        static const std::string fullThrustInterpolationInterface;
-        struct FullThrustInterpolationInterface
-        {
-
-        };
-        */
-    };
-
-    static const std::string massRates;
-    struct MassRate
-    {
-
-    };
-
-    static const std::string torques;
-    struct Torque
-    {
-
-    };
-
-
     static const std::string propagation;
     struct Propagator
     {
-        static const std::string propagators;
         static const std::string integratedStateType;
-        static const std::string type;
-        static const std::string centralBodies;
-        static const std::string bodiesToPropagate;
         static const std::string initialStates;
-        static const std::string initialStateTypes;
 
         static const std::string termination;
         struct Termination
         {
 
         };
+
+        static const std::string output;
+        struct Output
+        {
+
+        };
+
+        static const std::string printInterval;
+
+        // Hybrid
+        static const std::string propagators;
+
+        // Translational
+        static const std::string type;
+        static const std::string centralBodies;
+        static const std::string bodiesToPropagate;
+        // static const std::string initialStateTypes;
+
+        static const std::string accelerations;
+        struct Acceleration
+        {
+            static const std::string type;
+            static const std::string maximumDegree;
+            static const std::string maximumOrder;
+            static const std::string maximumDegreeOfBodyExertingAcceleration;
+            static const std::string maximumOrderOfBodyExertingAcceleration;
+            static const std::string maximumDegreeOfBodyUndergoingAcceleration;
+            static const std::string maximumOrderOfBodyUndergoingAcceleration;
+            static const std::string maximumDegreeOfCentralBody;
+            static const std::string maximumOrderOfCentralBody;
+            static const std::string calculateSchwarzschildCorrection;
+            static const std::string calculateLenseThirringCorrection;
+            static const std::string calculateDeSitterCorrection;
+            static const std::string primaryBody;
+            static const std::string centralBodyAngularMomentum;
+            static const std::string constantAcceleration;
+            static const std::string sineAcceleration;
+            static const std::string cosineAcceleration;
+
+            static const std::string direction;
+            struct ThrustDirection
+            {
+                static const std::string type;
+                static const std::string relativeBody;
+                static const std::string colinearWithVelocity;
+                static const std::string towardsRelativeBody;
+            };
+
+            static const std::string magnitude;
+            struct ThrustMagnitude
+            {
+                static const std::string type;
+                static const std::string originID;
+                static const std::string constantMagnitude;
+                static const std::string specificImpulse;
+                static const std::string bodyFixedDirection;
+                static const std::string useAllEngines;
+            };
+
+            // static const std::string thrustFrame;
+            // static const std::string centralBody;
+
+            /*
+            static const std::string fullThrustInterpolationInterface;
+            struct FullThrustInterpolationInterface
+            {
+
+            };
+            */
+        };
+
+        static const std::string massRates;
+        struct MassRate
+        {
+
+        };
+
+        static const std::string torques;
+        struct Torque
+        {
+
+        };
+
     };
 
     static const std::string integrator;

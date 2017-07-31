@@ -33,10 +33,16 @@ static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes =
 static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes = { };
 
 //! Convert `BodyDeformationTypes` to `json`.
-void to_json( json& jsonObject, const BodyDeformationTypes& bodyDeformationType );
+inline void to_json( json& jsonObject, const BodyDeformationTypes& bodyDeformationType )
+{
+    jsonObject = json_interface::stringFromEnum( bodyDeformationType, bodyDeformationTypes );
+}
 
 //! Convert `json` to `BodyDeformationTypes`.
-void from_json( const json& jsonObject, BodyDeformationTypes& bodyDeformationType );
+inline void from_json( const json& jsonObject, BodyDeformationTypes& bodyDeformationType )
+{
+    bodyDeformationType = json_interface::enumFromString( jsonObject.get< std::string >( ), bodyDeformationTypes );
+}
 
 } // namespace gravitation
 

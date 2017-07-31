@@ -15,24 +15,6 @@
 namespace tudat
 {
 
-namespace basic_astrodynamics
-{
-
-//! Convert `AvailableAcceleration` to `json`.
-void to_json( json& jsonObject, const AvailableAcceleration& availableAcceleration )
-{
-    jsonObject = json_interface::stringFromEnum( availableAcceleration, accelerationTypes );
-}
-
-//! Convert `json` to `AvailableAcceleration`.
-void from_json( const json& jsonObject, AvailableAcceleration& availableAcceleration )
-{
-    availableAcceleration = json_interface::enumFromString( jsonObject.get< std::string >( ), accelerationTypes );
-}
-
-} // namespace basic_astrodynamics
-
-
 namespace simulation_setup
 {
 
@@ -45,7 +27,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AccelerationSettings >&
     }
     using namespace basic_astrodynamics;
     using namespace json_interface;
-    using K = Keys::Acceleration;
+    using K = Keys::Propagator::Acceleration;
 
     const AvailableAcceleration accelerationType = accelerationSettings->accelerationType_;
     jsonObject[ K::type ] = accelerationType;
@@ -143,7 +125,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AccelerationSettings 
 {
     using namespace json_interface;
     using namespace basic_astrodynamics;
-    using K = Keys::Acceleration;
+    using K = Keys::Propagator::Acceleration;
 
     // Get acceleration type
     const AvailableAcceleration accelerationType = getValue< AvailableAcceleration >( jsonObject, K::type );

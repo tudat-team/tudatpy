@@ -176,6 +176,12 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
     }
 }
 
+//! -DOC
+template< typename ValueType >
+ValueType getAs( const json& jsonObject )
+{
+    return getValue< ValueType >( jsonObject, { } );
+}
 
 //! -DOC
 template< typename NumberType >

@@ -145,64 +145,73 @@ const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDeg
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 
 
-/// Acceleration
-const std::string Keys::accelerations = "accelerations";
-const std::string Keys::Acceleration::type = "type";
-const std::string Keys::Acceleration::maximumDegree = "maximumDegree";
-const std::string Keys::Acceleration::maximumOrder = "maximumOrder";
-const std::string Keys::Acceleration::maximumDegreeOfBodyExertingAcceleration = "maximumDegreeOfBodyExertingAcceleration";
-const std::string Keys::Acceleration::maximumOrderOfBodyExertingAcceleration = "maximumOrderOfBodyExertingAcceleration";
-const std::string Keys::Acceleration::maximumDegreeOfBodyUndergoingAcceleration = "maximumDegreeOfBodyUndergoingAcceleration";
-const std::string Keys::Acceleration::maximumOrderOfBodyUndergoingAcceleration = "maximumOrderOfBodyUndergoingAcceleration";
-const std::string Keys::Acceleration::maximumDegreeOfCentralBody = "maximumDegreeOfCentralBody";
-const std::string Keys::Acceleration::maximumOrderOfCentralBody = "maximumOrderOfCentralBody";
-const std::string Keys::Acceleration::calculateSchwarzschildCorrection = "calculateSchwarzschildCorrection";
-const std::string Keys::Acceleration::calculateLenseThirringCorrection = "calculateLenseThirringCorrection";
-const std::string Keys::Acceleration::calculateDeSitterCorrection = "calculateDeSitterCorrection";
-const std::string Keys::Acceleration::primaryBody = "primaryBody";
-const std::string Keys::Acceleration::centralBodyAngularMomentum = "centralBodyAngularMomentum";
-const std::string Keys::Acceleration::constantAcceleration = "constantAcceleration";
-const std::string Keys::Acceleration::sineAcceleration = "sineAcceleration";
-const std::string Keys::Acceleration::cosineAcceleration = "cosineAcceleration";
-
-////// Acceleration::ThrustDirection
-const std::string Keys::Acceleration::direction = "direction";
-const std::string Keys::Acceleration::ThrustDirection::type = "type";
-const std::string Keys::Acceleration::ThrustDirection::relativeBody = "relativeBody";
-const std::string Keys::Acceleration::ThrustDirection::colinearWithVelocity = "colinearWithVelocity";
-const std::string Keys::Acceleration::ThrustDirection::towardsRelativeBody = "towardsRelativeBody";
-
-////// Acceleration::ThrustDirection
-const std::string Keys::Acceleration::magnitude = "magnitude";
-const std::string Keys::Acceleration::ThrustMagnitude::type = "type";
-const std::string Keys::Acceleration::ThrustMagnitude::originID = "originID";
-const std::string Keys::Acceleration::ThrustMagnitude::constantMagnitude = "constantMagnitude";
-const std::string Keys::Acceleration::ThrustMagnitude::specificImpulse = "specificImpulse";
-const std::string Keys::Acceleration::ThrustMagnitude::bodyFixedDirection = "bodyFixedDirection";
-const std::string Keys::Acceleration::ThrustMagnitude::useAllEngines = "useAllEngines";
-
-
-/// Mass rate
-const std::string Keys::massRates = "massRates";
-
-
-/// Torque
-const std::string Keys::torques = "torques";
-
-
 
 /// Propagator
 const std::string Keys::propagation = "propagation";
-const std::string Keys::Propagator::propagators = "propagators";
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
-const std::string Keys::Propagator::type = "type";
-const std::string Keys::Propagator::centralBodies = "centralBodies";
-const std::string Keys::Propagator::bodiesToPropagate = "bodiesToPropagate";
 const std::string Keys::Propagator::initialStates = "initialStates";
-const std::string Keys::Propagator::initialStateTypes = "initialStateTypes";
 
 ////// Propagator::Termination
 const std::string Keys::Propagator::termination = "termination";
+
+////// Propagator::Save
+const std::string Keys::Propagator::output = "output";
+
+const std::string Keys::Propagator::printInterval = "printInterval";
+
+// Hybrid
+const std::string Keys::Propagator::propagators = "propagators";
+
+// Translational
+const std::string Keys::Propagator::type = "type";
+const std::string Keys::Propagator::centralBodies = "centralBodies";
+const std::string Keys::Propagator::bodiesToPropagate = "bodiesToPropagate";
+// const std::string Keys::Propagator::initialStateTypes = "initialStateTypes";
+
+////// Acceleration
+const std::string Keys::Propagator::accelerations = "accelerations";
+const std::string Keys::Propagator::Acceleration::type = "type";
+const std::string Keys::Propagator::Acceleration::maximumDegree = "maximumDegree";
+const std::string Keys::Propagator::Acceleration::maximumOrder = "maximumOrder";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyExertingAcceleration = "maximumDegreeOfBodyExertingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyExertingAcceleration = "maximumOrderOfBodyExertingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfBodyUndergoingAcceleration = "maximumDegreeOfBodyUndergoingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfBodyUndergoingAcceleration = "maximumOrderOfBodyUndergoingAcceleration";
+const std::string Keys::Propagator::Acceleration::maximumDegreeOfCentralBody = "maximumDegreeOfCentralBody";
+const std::string Keys::Propagator::Acceleration::maximumOrderOfCentralBody = "maximumOrderOfCentralBody";
+const std::string Keys::Propagator::Acceleration::calculateSchwarzschildCorrection = "calculateSchwarzschildCorrection";
+const std::string Keys::Propagator::Acceleration::calculateLenseThirringCorrection = "calculateLenseThirringCorrection";
+const std::string Keys::Propagator::Acceleration::calculateDeSitterCorrection = "calculateDeSitterCorrection";
+const std::string Keys::Propagator::Acceleration::primaryBody = "primaryBody";
+const std::string Keys::Propagator::Acceleration::centralBodyAngularMomentum = "centralBodyAngularMomentum";
+const std::string Keys::Propagator::Acceleration::constantAcceleration = "constantAcceleration";
+const std::string Keys::Propagator::Acceleration::sineAcceleration = "sineAcceleration";
+const std::string Keys::Propagator::Acceleration::cosineAcceleration = "cosineAcceleration";
+
+///////// Acceleration::ThrustDirection
+const std::string Keys::Propagator::Acceleration::direction = "direction";
+const std::string Keys::Propagator::Acceleration::ThrustDirection::type = "type";
+const std::string Keys::Propagator::Acceleration::ThrustDirection::relativeBody = "relativeBody";
+const std::string Keys::Propagator::Acceleration::ThrustDirection::colinearWithVelocity = "colinearWithVelocity";
+const std::string Keys::Propagator::Acceleration::ThrustDirection::towardsRelativeBody = "towardsRelativeBody";
+
+///////// Acceleration::ThrustDirection
+const std::string Keys::Propagator::Acceleration::magnitude = "magnitude";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::type = "type";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::originID = "originID";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::constantMagnitude = "constantMagnitude";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::specificImpulse = "specificImpulse";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::bodyFixedDirection = "bodyFixedDirection";
+const std::string Keys::Propagator::Acceleration::ThrustMagnitude::useAllEngines = "useAllEngines";
+
+
+////// Mass rate
+const std::string Keys::Propagator::massRates = "massRates";
+
+
+////// Torque
+const std::string Keys::Propagator::torques = "torques";
+
 
 
 

@@ -17,18 +17,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Convert `BodyShapeTypes`s to `json`.
-void to_json( json& jsonObject, const BodyShapeTypes& bodyShapeType )
-{
-    jsonObject = json_interface::stringFromEnum( bodyShapeType, bodyShapeTypes );
-}
-
-//! Convert `json` to `BodyShapeTypes`.
-void from_json( const json& jsonObject, BodyShapeTypes& bodyShapeType )
-{
-    bodyShapeType = json_interface::enumFromString( jsonObject.get< std::string >( ), bodyShapeTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
 {
