@@ -407,9 +407,12 @@ public:
 
 };
 
+typedef std::unordered_map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
+SingleSelectedAccelerationMap;
+
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
-typedef std::unordered_map< std::string, std::unordered_map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > >
+typedef std::unordered_map< std::string, SingleSelectedAccelerationMap >
 SelectedAccelerationMap;
 
 typedef std::map< std::string, std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > > >

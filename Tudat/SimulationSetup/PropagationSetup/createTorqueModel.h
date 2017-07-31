@@ -25,9 +25,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
-
-
 boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
@@ -58,8 +55,23 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
-}
 
-}
+//! Function to create torque models from a map of bodies and torque model settings.
+/*!
+ *  Function to create torque models from a map of bodies and torque model settings.
+ *  The return type can be used to identify both the body undergoing and exerting torque.
+ *  \param bodyMap List of pointers to bodies required for the creation of the torque model
+ *  objects.
+ *  \param selectedTorquePerBody List identifying which bodies exert which type of
+ *  torque(s) on which bodies.
+ */
+basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedTorqueMap& selectedTorquePerBody );
+
+
+}  // namespace simulation_setup
+
+}  // namespace tudat
 
 #endif // TUDAT_CREATETORQUEMODEL_H

@@ -60,7 +60,7 @@ path getPathForJSONFile( const std::string& file, const path& basePath )
     }
 }
 
-//! Parse a modular `json` object containing #import commands.
+//! Parse a modular `json` object containing "#import" commands.
 void parseModularJSON( json& jsonObject, const path& parentDirectoryPath )
 {
     for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )

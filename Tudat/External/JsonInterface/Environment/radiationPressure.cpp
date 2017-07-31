@@ -17,18 +17,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Convert `RadiationPressureType` to `json`.
-void to_json( json& jsonObject, const RadiationPressureType& radiationPressureType )
-{
-    jsonObject = json_interface::stringFromEnum( radiationPressureType, radiationPressureTypes );
-}
-
-//! Convert `json` to `RadiationPressureType`.
-void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType )
-{
-    radiationPressureType = json_interface::enumFromString( jsonObject.get< std::string >( ), radiationPressureTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
 void to_json( json& jsonObject,
               const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings )

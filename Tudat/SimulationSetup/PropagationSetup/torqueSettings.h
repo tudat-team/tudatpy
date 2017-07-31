@@ -50,6 +50,7 @@ public:
 
 };
 
+typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
 } // namespace simulation_setup
 

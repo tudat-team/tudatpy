@@ -36,10 +36,17 @@ static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalIn
 static std::vector< OneDimensionalInterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
 
 //! Convert `OneDimensionalInterpolatorTypes` to `json`.
-void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType );
+inline void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+{
+    jsonObject = json_interface::stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes );
+}
 
 //! Convert `json` to `OneDimensionalInterpolatorTypes`.
-void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType );
+inline void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+{
+    oneDimensionalInterpolatorType =
+            json_interface::enumFromString( jsonObject.get< std::string >( ), oneDimensionalInterpolatorTypes );
+}
 
 
 //! Map of `AvailableLookupScheme`s string representations.
@@ -53,10 +60,16 @@ static std::map< AvailableLookupScheme, std::string > lookupSchemeTypes =
 static std::vector< AvailableLookupScheme > unsupportedLookupSchemeTypes = { };
 
 //! Convert `AvailableLookupScheme` to `json`.
-void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme );
+inline void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
+{
+    jsonObject = json_interface::stringFromEnum( availableLookupScheme, lookupSchemeTypes );
+}
 
 //! Convert `json` to `AvailableLookupScheme`.
-void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme );
+inline void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme )
+{
+    availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), lookupSchemeTypes );
+}
 
 
 //! Map of `LagrangeInterpolatorBoundaryHandling`s string representations.
@@ -67,10 +80,20 @@ static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInt
 };
 
 //! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.
-void to_json( json& jsonObject, const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling );
+inline void to_json( json& jsonObject,
+                     const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
+{
+    jsonObject = json_interface::stringFromEnum( lagrangeInterpolatorBoundaryHandling,
+                                                 lagrangeInterpolatorBoundaryHandlings );
+}
 
 //! Convert `json` to `LagrangeInterpolatorBoundaryHandling`.
-void from_json( const json& jsonObject, LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling );
+inline void from_json( const json& jsonObject,
+                       LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
+{
+    lagrangeInterpolatorBoundaryHandling =
+            json_interface::enumFromString( jsonObject.get< std::string >( ), lagrangeInterpolatorBoundaryHandlings );
+}
 
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.

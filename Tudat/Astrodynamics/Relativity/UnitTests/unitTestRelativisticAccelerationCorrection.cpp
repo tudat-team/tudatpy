@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         centralBodies.push_back( "Earth" );
 
         // Define propagation settings.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        SingleSelectedAccelerationMap accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
         if( testCase == 1 )

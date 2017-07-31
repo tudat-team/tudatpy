@@ -17,18 +17,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Convert `AtmosphereTypes` to `json`.
-void to_json( json& jsonObject, const AtmosphereTypes& atmosphereType )
-{
-    jsonObject = json_interface::stringFromEnum( atmosphereType, atmosphereTypes );
-}
-
-//! Convert `json` to `AtmosphereTypes`.
-void from_json( const json& jsonObject, AtmosphereTypes& atmosphereType )
-{
-    atmosphereType = json_interface::enumFromString( jsonObject.get< std::string >( ), atmosphereTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {

@@ -168,7 +168,49 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 }
 
 
+//! Function to create torque models from a map of bodies and torque model settings.
+basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedTorqueMap& selectedTorquePerBody )
+{
+    basic_astrodynamics::TorqueModelMap torqueModelMap;
+
+    for( SelectedTorqueMap::const_iterator acceleratedBodyIterator = selectedTorquePerBody.begin( );
+         acceleratedBodyIterator != selectedTorquePerBody.end( ); acceleratedBodyIterator++ )
+    {
+        if( bodyMap.count( acceleratedBodyIterator->first ) == 0 )
+        {
+            throw std::runtime_error(
+                        "Error, could not find body " + acceleratedBodyIterator->first + " when making torque model map." );
+        }
+        else
+        {
+            for( std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > >::const_iterator
+                 acceleratingBodyIterator = acceleratedBodyIterator->second.begin( );
+                 acceleratingBodyIterator != acceleratedBodyIterator->second.end( ); acceleratingBodyIterator++ )
+            {
+                if( bodyMap.count( acceleratingBodyIterator->first ) == 0 )
+                {
+                    throw std::runtime_error(
+                                "Error, could not find body " + acceleratingBodyIterator->first + " when making torque model map." );
+                }
+                for( unsigned int i = 0; i < acceleratingBodyIterator->second.size( ); i++ )
+                {
+                    torqueModelMap[ acceleratedBodyIterator->first ][ acceleratingBodyIterator->first ].push_back(
+                                createTorqueModel(
+                                bodyMap.at( acceleratedBodyIterator->first ), bodyMap.at( acceleratingBodyIterator->first ),
+                                acceleratingBodyIterator->second.at( i ),
+                                acceleratedBodyIterator->first, acceleratingBodyIterator->first ) );
+                }
+            }
+        }
+    }
+
+    return torqueModelMap;
 }
 
-}
+
+}  // namespace simulation_setup
+
+}  // namespace tudat
 

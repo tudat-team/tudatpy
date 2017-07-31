@@ -275,13 +275,13 @@ public:
 
         errorMessage =
                 "The value \"" + stringValue + "\" for " + typeName +
-                "\" is marked as supported by `json_interface`, but no implementation was found.\n"
+                " is marked as supported by `json_interface`, but no implementation was found.\n"
                 "This is an internal bug of Tudat. Please, report it by using this link: ";
 
         const std::string title = "Missing implementation for \"" + stringValue + "\" in json_interface";
         const std::string body =
                 "The value \"" + stringValue + "\" for `" + typeName +
-                "\"` is marked as supported by `json_interface`, but no implementation was found.\n";
+                "` is marked as supported by `json_interface`, but no implementation was found.\n";
 
         setIssue( title, body );
     }

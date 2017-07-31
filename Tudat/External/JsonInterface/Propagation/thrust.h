@@ -40,10 +40,16 @@ static std::vector< ThrustDirectionGuidanceTypes > unsupportedThrustDirectionTyp
 };
 
 //! Convert `ThrustDirectionGuidanceTypes` to `json`.
-void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& directionType );
+inline void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& directionType )
+{
+    jsonObject = json_interface::stringFromEnum( directionType, thrustDirectionTypes );
+}
 
 //! Convert `json` to `AvailableAcceleration`.
-void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& directionType );
+inline void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& directionType )
+{
+    directionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
+}
 
 //! Create a `json` object from a shared pointer to a `ThrustDirectionGuidanceSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
@@ -71,10 +77,16 @@ static std::vector< ThrustMagnitudeTypes > unsupportedThrustMagnitudeTypes =
 };
 
 //! Convert `ThrustMagnitudeTypes` to `json`.
-void to_json( json& jsonObject, const ThrustMagnitudeTypes& magnitudeType );
+inline void to_json( json& jsonObject, const ThrustMagnitudeTypes& magnitudeType )
+{
+    jsonObject = json_interface::stringFromEnum( magnitudeType, thrustMagnitudeTypes );
+}
 
 //! Convert `json` to `AvailableAcceleration`.
-void from_json( const json& jsonObject, ThrustMagnitudeTypes& magnitudeType );
+inline void from_json( const json& jsonObject, ThrustMagnitudeTypes& magnitudeType )
+{
+    magnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );
+}
 
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings );

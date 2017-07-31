@@ -33,10 +33,16 @@ static std::map< RotationModelType, std::string > rotationModelTypes =
 static std::vector< RotationModelType > unsupportedRotationModelTypes = { };
 
 //! Convert `RotationModelType` to `json`.
-void to_json( json& jsonObject, const RotationModelType& rotationModelType );
+inline void to_json( json& jsonObject, const RotationModelType& rotationModelType )
+{
+    jsonObject = json_interface::stringFromEnum( rotationModelType, rotationModelTypes );
+}
 
 //! Convert `json` to `RotationModelType`.
-void from_json( const json& jsonObject, RotationModelType& rotationModelType );
+inline void from_json( const json& jsonObject, RotationModelType& rotationModelType )
+{
+    rotationModelType = json_interface::enumFromString( jsonObject.get< std::string >( ), rotationModelTypes );
+}
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings );

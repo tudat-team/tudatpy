@@ -19,18 +19,6 @@ namespace simulation_setup
 
 /// DIRECTION
 
-//! Convert `ThrustDirectionGuidanceTypes` to `json`.
-void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& directionType )
-{
-    jsonObject = json_interface::stringFromEnum( directionType, thrustDirectionTypes );
-}
-
-//! Convert `json` to `ThrustDirectionGuidanceTypes`.
-void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& directionType )
-{
-    directionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
@@ -39,7 +27,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
         return;
     }
     using namespace json_interface;
-    using K = Keys::Acceleration::ThrustDirection;
+    using K = Keys::Propagator::Acceleration::ThrustDirection;
 
     const ThrustDirectionGuidanceTypes directionType = directionSettings->thrustDirectionType_;
     jsonObject[ K::type ] = directionType;
@@ -69,7 +57,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
     using namespace json_interface;
-    using K = Keys::Acceleration::ThrustDirection;
+    using K = Keys::Propagator::Acceleration::ThrustDirection;
 
     const ThrustDirectionGuidanceTypes directionType = getValue< ThrustDirectionGuidanceTypes >( jsonObject, K::type );
     const std::string relativeBody = getValue< std::string >( jsonObject, K::relativeBody );
@@ -96,18 +84,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidan
 
 /// MAGNITUDE
 
-//! Convert `ThrustMagnitudeTypes` to `json`.
-void to_json( json& jsonObject, const ThrustMagnitudeTypes& magnitudeType )
-{
-    jsonObject = json_interface::stringFromEnum( magnitudeType, thrustMagnitudeTypes );
-}
-
-//! Convert `json` to `ThrustMagnitudeTypes`.
-void from_json( const json& jsonObject, ThrustMagnitudeTypes& magnitudeType )
-{
-    magnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );
-}
-
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
 {
@@ -116,7 +92,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
         return;
     }
     using namespace json_interface;
-    using K = Keys::Acceleration::ThrustMagnitude;
+    using K = Keys::Propagator::Acceleration::ThrustMagnitude;
 
     const ThrustMagnitudeTypes magnitudeType = magnitudeSettings->thrustMagnitudeGuidanceType_;
     jsonObject[ K::type ] = magnitudeType;
@@ -151,7 +127,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
 {
     using namespace json_interface;
-    using K = Keys::Acceleration::ThrustMagnitude;
+    using K = Keys::Propagator::Acceleration::ThrustMagnitude;
 
     const ThrustMagnitudeTypes magnitudeType = getValue< ThrustMagnitudeTypes >( jsonObject, K::type );
 

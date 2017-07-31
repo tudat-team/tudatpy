@@ -166,35 +166,27 @@ void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 template< typename ScalarType, int rows, int cols >
 void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix )
 {
-    int providedRows, providedCols;
     bool transposed = false;
     // Get as std::vector of std::vector's and then convert to Eigen matrix
+    std::vector< std::vector< ScalarType > > vectorOfVectors;
     try
     {
-        const std::vector< std::vector< ScalarType > > vectorOfVectors =
-                jsonObject.get< std::vector< std::vector< ScalarType > > >( );
-        matrix = tudat::json_interface::eigenMatrixFromStdVectorOfVectors< ScalarType >( vectorOfVectors );
-        providedRows = vectorOfVectors.size( );
-        providedCols = vectorOfVectors.at( 0 ).size( );
+        vectorOfVectors = jsonObject.get< std::vector< std::vector< ScalarType > > >( );
     }
     catch ( ... )
     {
         const std::vector< ScalarType > vector = jsonObject.get< std::vector< ScalarType > >( );
-        // Get as std::vector and then convert to Eigen column-vector
         if ( cols == 1 )
         {
-            matrix.col( 0 ) = tudat::json_interface::eigenVectorFromStdVector< ScalarType >( vector );
-            providedRows = vector.size( );
-            providedCols = 1;
+            for ( const ScalarType element : vector )
+            {
+                vectorOfVectors.push_back( { element } );
+            }
             transposed = true;
         }
-        // Get as std::vector and then convert to Eigen row-vector
         else if ( rows == 1 )
         {
-            matrix.row( 0 ) = tudat::json_interface::eigenRowVectorFromStdVector< ScalarType >( vector );
-            providedRows = 1;
-            providedCols = vector.size( );
-            transposed = false;
+            vectorOfVectors = { vector };
         }
         else
         {
@@ -202,6 +194,10 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
             throw;
         }
     }
+    matrix = tudat::json_interface::eigenMatrixFromStdVectorOfVectors< ScalarType >( vectorOfVectors );
+    const int providedRows = vectorOfVectors.size( );
+    const int providedCols = vectorOfVectors.at( 0 ).size( );
+
     if ( ( rows >= 0 && providedRows != rows ) || ( cols >= 0 && providedCols != cols ) )
     {
         std::cerr << "Expected matrix of size " << rows << "x" << cols;

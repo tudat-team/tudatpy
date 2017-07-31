@@ -34,10 +34,16 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 static std::vector< AvailableIntegrators > unsupportedIntegratorTypes = { };
 
 //! Convert `AvailableIntegrators` to `json`.
-void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator );
+inline void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator )
+{
+    jsonObject = json_interface::stringFromEnum( availableIntegrator, integratorTypes );
+}
 
 //! Convert `json` to `AvailableIntegrators`.
-void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator );
+inline void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator )
+{
+    availableIntegrator = json_interface::enumFromString( jsonObject.get< std::string >( ), integratorTypes );
+}
 
 
 //! Map of `RungeKuttaCoefficients::CoefficientSets` string representations.
@@ -53,10 +59,17 @@ static std::map< RungeKuttaCoefficients::CoefficientSets, std::string > rungeKut
 static std::vector< RungeKuttaCoefficients::CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
 
 //! Convert `RungeKuttaCoefficients::CoefficientSets` to `json`.
-void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet );
+inline void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+{
+    jsonObject = json_interface::stringFromEnum( rungeKuttaCoefficientSet, rungeKuttaCoefficientSets );
+}
 
 //! Convert `json` to `RungeKuttaCoefficients::CoefficientSets`.
-void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet );
+inline void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+{
+    rungeKuttaCoefficientSet =
+            json_interface::enumFromString( jsonObject.get< std::string >( ), rungeKuttaCoefficientSets );
+}
 
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.

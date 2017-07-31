@@ -41,10 +41,18 @@ bodiesWithEphemerisData =
 static std::vector< ApproximatePlanetPositionsBase::BodiesWithEphemerisData > unsupportedBodiesWithEphemerisData = { };
 
 //! Convert `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` to `json`.
-void to_json( json& jsonObject, const ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData );
+inline void to_json( json& jsonObject,
+                     const ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
+{
+    jsonObject = json_interface::stringFromEnum( bodyWithEphemerisData, bodiesWithEphemerisData );
+}
 
 //! Convert `json` to `ApproximatePlanetPositionsBase::BodiesWithEphemerisData`.
-void from_json( const json& jsonObject, ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData );
+inline void from_json( const json& jsonObject,
+                       ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
+{
+    bodyWithEphemerisData = json_interface::enumFromString( jsonObject.get< std::string >( ), bodiesWithEphemerisData );
+}
 
 } // namespace ephemerides
 
@@ -68,10 +76,16 @@ static std::map< EphemerisType, std::string > ephemerisTypes =
 static std::vector< EphemerisType > unsupportedEphemerisTypes = { custom_ephemeris };
 
 //! Convert `EphemerisType` to `json`.
-void to_json( json& jsonObject, const EphemerisType& ephemerisType );
+inline void to_json( json& jsonObject, const EphemerisType& ephemerisType )
+{
+    jsonObject = json_interface::stringFromEnum( ephemerisType, ephemerisTypes );
+}
 
 //! Convert `json` to `EphemerisType`.
-void from_json( const json& jsonObject, EphemerisType& ephemerisType );
+inline void from_json( const json& jsonObject, EphemerisType& ephemerisType )
+{
+    ephemerisType = json_interface::enumFromString( jsonObject.get< std::string >( ), ephemerisTypes );
+}
 
 //! Create a `json` object from a shared pointer to a `EphemerisSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
