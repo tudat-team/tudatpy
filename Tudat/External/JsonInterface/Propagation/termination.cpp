@@ -10,6 +10,7 @@
  */
 
 #include "termination.h"
+#include "output.h"
 
 namespace tudat
 {
@@ -36,7 +37,36 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     using namespace json_interface;
     using K = Keys::Propagator::Termination;
 
-
+    std::vector< json > conditions;
+    if ( defined( jsonObject, K::conditions ) )  // hybrid
+    {
+        PropagationHybridTerminationSettings defaults( { } );
+        terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
+                    getValue< std::vector< boost::shared_ptr< PropagationTerminationSettings > > >(
+                        jsonObject, K::conditions ),
+                    getValue( jsonObject, K::stopIfSingleConditionMet, defaults.fulFillSingleCondition_ ) );
+        return;
+    }
+    else
+    {
+        const json variable = getValue< json >( jsonObject, K::variable );
+        if ( variable.is_string( ) )  // time
+        {
+            if ( variable.get< std::string >( ) == "time" )
+            {
+                terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
+                            getEpoch( jsonObject, K::limitValue, getEpoch< double >(
+                                          jsonObject, SpecialKeys::root / KeyPaths::Simulation::endEpoch ) ) );
+                return;
+            }
+        }
+        // dependent variable
+        terminationSettings = boost::make_shared< PropagationDependentVariableTerminationSettings >(
+                    getAs< boost::shared_ptr< SingleDependentVariableSaveSettings > >( variable ),
+                    getNumeric< double >( jsonObject, K::limitValue ),
+                    getValue< bool >( jsonObject, K::useAsLowerLimit ) );
+        return;
+    }
 }
 
 } // namespace propagators

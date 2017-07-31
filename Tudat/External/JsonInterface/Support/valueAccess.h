@@ -292,7 +292,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        if ( ! allowNaN && isnan( optionalValue ) )
+        if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
         }
@@ -315,7 +315,7 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        if ( ! allowNaN && isnan( optionalValue ) )
+        if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
         }
@@ -344,8 +344,28 @@ void updateFromJSON( ValueType& value, const json& jsonObject, const KeyPath& ke
     }
 }
 
-///! -DOC
+//! -DOC
 bool defined( const json& jsonObject, const KeyPath& keyPath );
+
+//! -DOC
+template< typename EquatableType >
+void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableType& value )
+{
+    if ( ! isNaN( value ) )
+    {
+        jsonObject[ key ] = value;
+    }
+}
+
+//! -DOC
+template< typename ContainerType >
+void assignIfNotEmpty( json& jsonObject, const std::string& key, const ContainerType& value )
+{
+    if ( value.size( ) > 0 )
+    {
+        jsonObject[ key ] = value;
+    }
+}
 
 
 //! Support for single-body and body-to-body maps

@@ -38,7 +38,7 @@ std::vector< T > set2vector( std::set< T > set )
 
 //! Returns whether a value is NaN.
 template< typename T >
-bool isnan( const T& value )
+bool isNaN( const T& value )
 {
     return value != value;
 }
@@ -64,7 +64,7 @@ bool contains( const std::vector< T >& vector, std::vector< T > values )
     return false;
 }
 
-
+/*
 //! Push back an element to a vector.
 template< typename T >
 void pushBackElements( std::vector< T >& vector, const T& element )
@@ -81,7 +81,7 @@ void pushBackElements( std::vector< T >& vector, const std::vector< T >& element
         pushBackElements( vector, element );
     }
 }
-
+*/
 
 
 //! Get a vector containing the keys of a map / unordered_map.
@@ -98,18 +98,26 @@ std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 
 //! Get a vector containing the values of a map / unordered_map.
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
-std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map, bool flatten = false )
+std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map )
 {
     std::vector< ValueType > values;
     for ( auto entry : map )
     {
-        if ( flatten )
+        values.push_back( entry.second );
+    }
+    return values;
+}
+
+//! Get a vector containing the values of a map / unordered_map.
+template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vector< ValueType > >& map )
+{
+    std::vector< ValueType > values;
+    for ( auto entry : map )
+    {
+        for ( const ValueType value : entry.second )
         {
-            pushBackElements( values, entry.second );
-        }
-        else
-        {
-            values.push_back( entry.second );
+            values.push_back( value );
         }
     }
     return values;

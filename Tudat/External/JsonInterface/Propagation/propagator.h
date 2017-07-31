@@ -159,7 +159,7 @@ void to_json( json& jsonObject,
     jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
     jsonObject[ K::termination ] = singleArcPropagatorSettings->getTerminationSettings( );
     jsonObject[ K::output ] = singleArcPropagatorSettings->getDependentVariablesToSave( );
-    jsonObject[ K::printInterval ] = singleArcPropagatorSettings->getPrintInterval( );
+    assignIfNotNaN( jsonObject, K::printInterval, singleArcPropagatorSettings->getPrintInterval( ) );
 
     switch ( integratedStateType )
     {
@@ -169,9 +169,9 @@ void to_json( json& jsonObject,
                 boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >(
                     singleArcPropagatorSettings );
         enforceNonNullPointer( multiTypePropagatorSettings );
-        jsonObject[ K::propagators ] = getMapValues< std::map, IntegratedStateType,
-                std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
-                    multiTypePropagatorSettings->propagatorSettingsMap_, true );
+        jsonObject[ K::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
+                boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
+                    multiTypePropagatorSettings->propagatorSettingsMap_ );
         return;
     }
     case translational_state:

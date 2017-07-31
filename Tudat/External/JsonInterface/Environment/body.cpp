@@ -37,11 +37,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     using K = Keys::Body;
 
     // Constant mass
-    const double constantMass = bodySettings->constantMass;
-    if ( ! isnan( constantMass ) )
-    {
-        jsonObject[ K::mass ] = constantMass;
-    }
+    assignIfNotNaN( jsonObject, K::mass, bodySettings->constantMass );
 
     // Atmosphere
     if ( bodySettings->atmosphereSettings )

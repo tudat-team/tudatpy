@@ -27,6 +27,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/output.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/thrust.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/torque.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.cpp"
 )
 
@@ -52,8 +53,10 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/termination.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/output.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/referenceFrames.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/thrust.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Propagation/torque.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"

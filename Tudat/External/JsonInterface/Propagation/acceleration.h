@@ -55,15 +55,15 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes =
 static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { };
 
 //! Convert `AvailableAcceleration` to `json`.
-inline void to_json( json& jsonObject, const AvailableAcceleration& availableAcceleration )
+inline void to_json( json& jsonObject, const AvailableAcceleration& accelerationType )
 {
-    jsonObject = json_interface::stringFromEnum( availableAcceleration, accelerationTypes );
+    jsonObject = json_interface::stringFromEnum( accelerationType, accelerationTypes );
 }
 
 //! Convert `json` to `AvailableAcceleration`.
-inline void from_json( const json& jsonObject, AvailableAcceleration& availableAcceleration )
+inline void from_json( const json& jsonObject, AvailableAcceleration& accelerationType )
 {
-    availableAcceleration = json_interface::enumFromString( jsonObject.get< std::string >( ), accelerationTypes );
+    accelerationType = json_interface::enumFromString( jsonObject.get< std::string >( ), accelerationTypes );
 }
 
 } // namespace basic_astrodynamics
