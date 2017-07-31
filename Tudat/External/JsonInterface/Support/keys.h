@@ -174,13 +174,37 @@ struct Keys
         static const std::string termination;
         struct Termination
         {
-
+            static const std::string conditions;
+            static const std::string stopIfSingleConditionMet;
+            static const std::string variable;
+            static const std::string limitValue;
+            static const std::string useAsLowerLimit;
         };
 
         static const std::string output;
         struct Output
         {
+            static const std::string variables;
+            static const std::string printVariableTypes;
+            static const std::string onlyLastStep;
+            static const std::string saveFrequency;
+            static const std::string numericalPrecision;
+        };
 
+        struct DependentVariable
+        {
+            static const std::string type;
+            static const std::string associatedBody;
+            static const std::string secondaryBody;
+            static const std::string accelerationType;
+            static const std::string bodyUndergoingAcceleration;
+            static const std::string bodyExertingAcceleration;
+            static const std::string torqueType;
+            static const std::string bodyUndergoingTorque;
+            static const std::string bodyExertingTorque;
+            static const std::string baseFrame;
+            static const std::string targetFrame;
+            static const std::string angle;
         };
 
         static const std::string printInterval;
@@ -250,13 +274,13 @@ struct Keys
         static const std::string massRates;
         struct MassRate
         {
-
+            // static const std::string type;
         };
 
         static const std::string torques;
         struct Torque
         {
-
+            static const std::string type;
         };
 
     };

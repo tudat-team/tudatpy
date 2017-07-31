@@ -45,7 +45,7 @@ inline void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& direc
     jsonObject = json_interface::stringFromEnum( directionType, thrustDirectionTypes );
 }
 
-//! Convert `json` to `AvailableAcceleration`.
+//! Convert `json` to `ThrustDirectionGuidanceTypes`.
 inline void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& directionType )
 {
     directionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
@@ -82,7 +82,7 @@ inline void to_json( json& jsonObject, const ThrustMagnitudeTypes& magnitudeType
     jsonObject = json_interface::stringFromEnum( magnitudeType, thrustMagnitudeTypes );
 }
 
-//! Convert `json` to `AvailableAcceleration`.
+//! Convert `json` to `ThrustMagnitudeTypes`.
 inline void from_json( const json& jsonObject, ThrustMagnitudeTypes& magnitudeType )
 {
     magnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );

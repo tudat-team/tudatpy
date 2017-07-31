@@ -24,10 +24,7 @@ bool defined( const json& jsonObject, const KeyPath& keyPath )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 //! -DOC

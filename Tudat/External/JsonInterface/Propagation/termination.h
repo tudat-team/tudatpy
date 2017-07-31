@@ -22,6 +22,7 @@ namespace tudat
 namespace propagators
 {
 
+/*
 //! Map of `PropagationTerminationTypes`s string representations.
 static std::map< PropagationTerminationTypes, std::string > terminationTypes =
 {
@@ -42,6 +43,7 @@ inline void from_json( const json& jsonObject, PropagationTerminationTypes& term
 {
     terminationType = json_interface::enumFromString( jsonObject.get< std::string >( ), terminationTypes );
 }
+*/
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );

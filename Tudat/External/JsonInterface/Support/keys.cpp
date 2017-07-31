@@ -153,9 +153,34 @@ const std::string Keys::Propagator::initialStates = "initialStates";
 
 ////// Propagator::Termination
 const std::string Keys::Propagator::termination = "termination";
+const std::string Keys::Propagator::Termination::conditions = "conditions";
+const std::string Keys::Propagator::Termination::stopIfSingleConditionMet = "stopIfSingleConditionMet";
+const std::string Keys::Propagator::Termination::variable = "variable";
+const std::string Keys::Propagator::Termination::limitValue = "limitValue";
+const std::string Keys::Propagator::Termination::useAsLowerLimit = "useAsLowerLimit";
 
-////// Propagator::Save
+////// Propagator::Output
 const std::string Keys::Propagator::output = "output";
+const std::string Keys::Propagator::Output::variables = "variables";
+const std::string Keys::Propagator::Output::printVariableTypes = "printVariableTypes";
+const std::string Keys::Propagator::Output::onlyLastStep = "onlyLastStep";
+const std::string Keys::Propagator::Output::saveFrequency = "saveFrequency";
+const std::string Keys::Propagator::Output::numericalPrecision = "numericalPrecision";
+
+////// Propagator:::DependentVariable
+const std::string Keys::Propagator::DependentVariable::type = "type";
+const std::string Keys::Propagator::DependentVariable::associatedBody = "associatedBody";
+const std::string Keys::Propagator::DependentVariable::secondaryBody = "secondaryBody";
+const std::string Keys::Propagator::DependentVariable::accelerationType = "accelerationType";
+const std::string Keys::Propagator::DependentVariable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
+const std::string Keys::Propagator::DependentVariable::bodyExertingAcceleration = "bodyExertingAcceleration";
+const std::string Keys::Propagator::DependentVariable::torqueType = "torqueType";
+const std::string Keys::Propagator::DependentVariable::bodyUndergoingTorque = "bodyUndergoingTorque";
+const std::string Keys::Propagator::DependentVariable::bodyExertingTorque = "bodyExertingTorque";
+const std::string Keys::Propagator::DependentVariable::baseFrame = "baseFrame";
+const std::string Keys::Propagator::DependentVariable::targetFrame = "targetFrame";
+const std::string Keys::Propagator::DependentVariable::angle = "angle";
+
 
 const std::string Keys::Propagator::printInterval = "printInterval";
 
@@ -211,6 +236,7 @@ const std::string Keys::Propagator::massRates = "massRates";
 
 ////// Torque
 const std::string Keys::Propagator::torques = "torques";
+const std::string Keys::Propagator::Torque::type = "type";
 
 
 
