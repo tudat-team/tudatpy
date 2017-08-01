@@ -32,14 +32,21 @@ const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
 
 //! Keys recognised by json_interface.
 
-/// Simulation
-const std::string Keys::simulation = "simulation";
-const std::string Keys::Simulation::startEpoch = "startEpoch";
-const std::string Keys::Simulation::endEpoch = "endEpoch";
-const std::string Keys::Simulation::globalFrameOrigin = "globalFrameOrigin";
-const std::string Keys::Simulation::globalFrameOrientation = "globalFrameOrientation";
-const std::string Keys::Simulation::spiceKernels = "spiceKernels";
-const std::string Keys::Simulation::preloadSpiceData = "preloadSpiceData";
+const std::string Keys::simulationType = "simulationType";
+const std::string Keys::startEpoch = "startEpoch";
+const std::string Keys::endEpoch = "endEpoch";
+const std::string Keys::globalFrameOrigin = "globalFrameOrigin";
+const std::string Keys::globalFrameOrientation = "globalFrameOrientation";
+
+
+/// Spice
+const std::string Keys::spice = "spice";
+const std::string Keys::Spice::kernels = "kernels";
+const std::string Keys::Spice::preloadKernels = "preloadKernels";
+const std::string Keys::Spice::preloadOffsets = "preloadOffsets";
+const std::string Keys::Spice::preloadOffset = "preloadOffset";
+const std::string Keys::Spice::startPreloadOffset = "startPreloadOffset";
+const std::string Keys::Spice::endPreloadOffset = "endPreloadOffset";
 
 
 /// Body
@@ -273,25 +280,6 @@ const std::string Keys::ModelInterpolation::interpolator = "interpolator";
 
 /// Output
 const std::string Keys::output = "output";
-
-
-
-
-//! Key paths recognised by `json_interface`.
-
-/// Simulation
-const KeyPath KeyPaths::Simulation::startEpoch = { Keys::simulation, Keys::Simulation::startEpoch };
-const KeyPath KeyPaths::Simulation::endEpoch = { Keys::simulation, Keys::Simulation::endEpoch };
-const KeyPath KeyPaths::Simulation::globalFrameOrigin = { Keys::simulation, Keys::Simulation::globalFrameOrigin };
-const KeyPath KeyPaths::Simulation::globalFrameOrientation = { Keys::simulation, Keys::Simulation::globalFrameOrientation };
-const KeyPath KeyPaths::Simulation::spiceKernels = { Keys::simulation, Keys::Simulation::spiceKernels };
-const KeyPath KeyPaths::Simulation::preloadSpiceData = { Keys::simulation, Keys::Simulation::preloadSpiceData };
-
-/*
-/// Integrator
-const KeyPath KeyPaths::Integrator::initialTime = { Keys::integrator, Keys::Integrator::initialTime };
-*/
-
 
 
 //! -DOC

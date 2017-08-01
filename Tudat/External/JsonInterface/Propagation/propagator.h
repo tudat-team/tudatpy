@@ -157,7 +157,7 @@ void to_json( json& jsonObject,
     jsonObject[ K::integratedStateType ] = integratedStateType;
     jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
     jsonObject[ K::termination ] = singleArcPropagatorSettings->getTerminationSettings( );
-    jsonObject[ K::output ] = singleArcPropagatorSettings->getDependentVariablesToSave( );
+    assignIfNotNull( jsonObject, K::output, singleArcPropagatorSettings->getDependentVariablesToSave( ) );
     assignIfNotNaN( jsonObject, K::printInterval, singleArcPropagatorSettings->getPrintInterval( ) );
 
     switch ( integratedStateType )
@@ -208,7 +208,7 @@ void from_json( const json& jsonObject,
     const boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
             getValue< boost::shared_ptr< PropagationTerminationSettings > >(
                 jsonObject, K::termination, boost::make_shared< PropagationTimeTerminationSettings >(
-                    getEpoch< double >( jsonObject, SpecialKeys::root / KeyPaths::Simulation::endEpoch ) ) );
+                    getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) ) );
 
     switch ( integratedStateType )
     {

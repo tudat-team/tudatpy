@@ -366,6 +366,16 @@ void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableTy
 }
 
 //! -DOC
+template< typename T >
+void assignIfNotNull( json& jsonObject, const std::string& key, const boost::shared_ptr< T >& object )
+{
+    if ( object )
+    {
+        jsonObject[ key ] = object;
+    }
+}
+
+//! -DOC
 template< typename ContainerType >
 void assignIfNotEmpty( json& jsonObject, const std::string& key, const ContainerType& value )
 {

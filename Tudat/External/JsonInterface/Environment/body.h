@@ -25,6 +25,11 @@ namespace simulation_setup
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings );
 
+/*
+//! Create a shared pointer to a `BodySettings` object from a `json` object.
+void from_json( const json& jsonObject, boost::shared_ptr< BodySettings >& bodySettings );
+*/
+
 } // namespace simulation_setup
 
 
