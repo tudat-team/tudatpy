@@ -43,13 +43,12 @@ template< template < typename ... > class MapType, typename KeyType, typename Va
 MapType< KeyType, ValueType > mapFromJson( const json& jsonObject )
 {
     MapType< KeyType, ValueType > map;
-    json j = jsonObject;
-    for ( json::iterator it = j.begin( ); it != j.end( ); ++it )
+    for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
     {
         const std::string key = it.key( );
         if ( ! contains( SpecialKeys::all, key ) )
         {
-            map[ boost::lexical_cast< KeyType >( key ) ] = getValue< ValueType >( j, key );
+            map[ boost::lexical_cast< KeyType >( key ) ] = getValue< ValueType >( jsonObject, key );
         }
     }
     return map;

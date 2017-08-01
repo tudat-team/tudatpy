@@ -132,8 +132,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagatorSettings< S
     }
     else  // assume is_object -> SingleArc
     {
-        propagatorSettings =
-                getAs< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >( jsonObject );
+        propagatorSettings = getAs< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >( jsonObject );
     }
 }
 

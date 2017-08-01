@@ -10,7 +10,8 @@
  */
 
 #include "termination.h"
-#include "output.h"
+
+#include "dependentVariable.h"
 
 namespace tudat
 {
@@ -37,7 +38,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     using namespace json_interface;
     using K = Keys::Propagator::Termination;
 
-    std::vector< json > conditions;
     if ( defined( jsonObject, K::conditions ) )  // hybrid
     {
         PropagationHybridTerminationSettings defaults( { } );
@@ -50,9 +50,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     else
     {
         const json variable = getValue< json >( jsonObject, K::variable );
-        if ( variable.is_string( ) )  // time
+        if ( variable.is_string( ) )
         {
-            if ( variable.get< std::string >( ) == "time" )
+            if ( variable.get< std::string >( ) == "time" )  // time
             {
                 terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
                             getEpoch( jsonObject, K::limitValue, getEpoch< double >(

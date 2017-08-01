@@ -193,7 +193,7 @@ struct Keys
 
         struct DependentVariable
         {
-            static const std::string type;
+            static const std::string name;
             static const std::string associatedBody;
             static const std::string secondaryBody;
             static const std::string accelerationType;

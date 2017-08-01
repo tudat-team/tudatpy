@@ -157,23 +157,26 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         // Could not convert string to enum
         throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
     }
+    /*
     catch ( const UndefinedKeyError& error )
     {
-        // Some of the keys that had to be defined for jsonObject are missing.
+        error.rethrowIfNotTriggeredByMissingValueAt( currentKeyPath );
+        // Some of the keys that had to be defined for currentObject are missing.
         if ( currentObject.is_object( ) )
         {
-            // If the provided jsonObject is an object, the user wants to know which key is missing.
+            // If currentObject is an object, the user wants to know which key is missing.
             // Thus, we re-throw the undefined key error.
             throw error;
         }
         else
         {
-            // If the provided jsonObject is not an object (e.g. is a number or a string)
+            // If currentObject is not an object (e.g. is a number or a string)
             // the user wants to know that an illegal value was provided for the expected object.
             // Thus, we throw an illegal value error.
             throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
         }
     }
+    */
 }
 
 //! -DOC
@@ -182,6 +185,7 @@ ValueType getAs( const json& jsonObject )
 {
     return getValue< ValueType >( jsonObject, { } );
 }
+
 
 //! -DOC
 template< typename NumberType >
@@ -245,6 +249,7 @@ boost::shared_ptr< ValueType > getOptional(
     }
     catch ( const UndefinedKeyError& error )
     {
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
         return NULL;
     }
 }
@@ -276,6 +281,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
     }
     catch ( const UndefinedKeyError& error )
     {
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
         return optionalValue;
     }
 }
@@ -292,6 +298,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
         if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
@@ -315,6 +322,7 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
         if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
@@ -337,7 +345,7 @@ void updateFromJSON( ValueType& value, const json& jsonObject, const KeyPath& ke
     }
     catch ( const UndefinedKeyError& error )
     {
-        if ( throwIfNotDefined || ( error.keyPath.back( ) != keyPath.back( ) ) )
+        if ( throwIfNotDefined || ! error.wasTriggeredByMissingValueAt( keyPath ) )
         {
             throw error;
         }
