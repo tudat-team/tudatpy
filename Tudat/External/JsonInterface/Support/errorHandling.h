@@ -57,7 +57,23 @@ class UndefinedKeyError : public ValueAccessError
 public:
     //! Constructor.
     UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
+
+    //! -DOC
+    bool wasTriggeredByMissingValueAt( const KeyPath& keyPath ) const
+    {
+        return this->keyPath.back( ) == keyPath.back( );
+    }
+
+    //! -DOC
+    void rethrowIfNotTriggeredByMissingValueAt( const KeyPath& keyPath ) const
+    {
+        if ( ! wasTriggeredByMissingValueAt( keyPath ) )
+        {
+            throw *this;
+        }
+    }
 };
+
 
 //! -DOC
 template< typename ExpectedValueType >

@@ -168,7 +168,7 @@ const std::string Keys::Propagator::Output::saveFrequency = "saveFrequency";
 const std::string Keys::Propagator::Output::numericalPrecision = "numericalPrecision";
 
 ////// Propagator:::DependentVariable
-const std::string Keys::Propagator::DependentVariable::type = "type";
+const std::string Keys::Propagator::DependentVariable::name = "name";
 const std::string Keys::Propagator::DependentVariable::associatedBody = "associatedBody";
 const std::string Keys::Propagator::DependentVariable::secondaryBody = "secondaryBody";
 const std::string Keys::Propagator::DependentVariable::accelerationType = "accelerationType";
