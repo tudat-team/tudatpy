@@ -129,7 +129,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
 
     // Fallback initial time (retrieved from simulation.startEpoch), to be used if not specified in integrator settings
     const TimeType fallbackInitialTime = 0.0; /*getNumeric< TimeType >(
-                jsonObject, SpecialKeys::root / KeyPaths::Simulation::startEpoch, TUDAT_NAN, true );*/
+                jsonObject, SpecialKeys::root / Keys::startEpoch, TUDAT_NAN, true );*/
 
     // Read JSON settings shared by all supported integrators
     const AvailableIntegrators integratorType = getValue< AvailableIntegrators >( jsonObject, K::type );

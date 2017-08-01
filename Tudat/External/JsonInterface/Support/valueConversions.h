@@ -115,7 +115,7 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
     else if ( jsonObject.is_object( ) )
     {
         // Convert to map, and use that to create the vector
-        const map< string, ValueType > auxiliaryMap = getValue< map< string, ValueType > >( jsonObject, { } );
+        const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
         for ( auto entry : auxiliaryMap )
         {
             if ( ! contains( SpecialKeys::all, entry.first ) )
@@ -128,6 +128,18 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
     {
         throw std::runtime_error( "Could not convert json to std::vector because it is not an array or object." );
     }
+}
+
+
+/// STD::PAIR
+
+//! Create a `std::pair` from a `json` object.
+template< typename V, typename W >
+void from_json( const json& jsonObject, pair< V, W >& myPair )
+{
+    using namespace tudat::json_interface;
+    myPair.first = getValue< V >( jsonObject, "0" );
+    myPair.second = getValue< W >( jsonObject, "1" );
 }
 
 

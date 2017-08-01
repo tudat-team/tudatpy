@@ -35,15 +35,21 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-    static const std::string simulation;
-    struct Simulation
+    static const std::string simulationType;
+    static const std::string startEpoch;
+    static const std::string endEpoch;
+    static const std::string globalFrameOrigin;
+    static const std::string globalFrameOrientation;
+
+    static const std::string spice;
+    struct Spice
     {
-        static const std::string startEpoch;
-        static const std::string endEpoch;
-        static const std::string globalFrameOrigin;
-        static const std::string globalFrameOrientation;
-        static const std::string spiceKernels;
-        static const std::string preloadSpiceData;
+        static const std::string kernels;
+        static const std::string preloadKernels;
+        static const std::string preloadOffsets;
+        static const std::string preloadOffset;
+        static const std::string startPreloadOffset;
+        static const std::string endPreloadOffset;
     };
 
     static const std::string bodies;
@@ -346,10 +352,10 @@ public:
     //! Constructor with a single char key.
     KeyPath( const char* key ) : KeyPath( std::string( key ) ) { }
 
-    //! Constructor with a single char key.
+    //! Constructor with an element index.
     /*!
-     * Constructor with a single char key.
-     * \param key The key to be accessed.
+     * Constructor with an element index.
+     * \param key The index of the element to be accessed.
      */
     //! Constructor with a single char key.
     KeyPath( unsigned int vectorIndex ) : KeyPath( std::to_string( vectorIndex ) ) { }
@@ -449,27 +455,6 @@ inline KeyPath operator / ( const unsigned int vectorIndex, const std::string& s
 {
     return vectorIndex / KeyPath( str );
 }
-
-//! Key paths recognised by `json_interface`.
-struct KeyPaths
-{
-    struct Simulation
-    {
-        static const KeyPath startEpoch;
-        static const KeyPath endEpoch;
-        static const KeyPath globalFrameOrigin;
-        static const KeyPath globalFrameOrientation;
-        static const KeyPath spiceKernels;
-        static const KeyPath preloadSpiceData;
-    };
-
-    /*
-    struct Integrator
-    {
-        static const KeyPath initialTime;
-    };
-    */
-};
 
 } // namespace json_interface
 
