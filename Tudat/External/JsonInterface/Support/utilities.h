@@ -52,7 +52,7 @@ bool contains( const std::vector< T >& vector, const T& value )
 
 //! Returns whether a `vector` contains any of `values`.
 template< typename T >
-bool contains( const std::vector< T >& vector, std::vector< T > values )
+bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 {
     for ( auto value : values )
     {
@@ -62,6 +62,20 @@ bool contains( const std::vector< T >& vector, std::vector< T > values )
         }
     }
     return false;
+}
+
+//! Returns whether a `vector` contains all of `values`.
+template< typename T >
+bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
+{
+    for ( auto value : values )
+    {
+        if ( ! contains( vector, value ) )
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 /*

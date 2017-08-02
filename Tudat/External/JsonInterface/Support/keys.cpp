@@ -22,11 +22,13 @@ namespace json_interface
 const std::string SpecialKeys::root = "~";
 const std::string SpecialKeys::up = "..";
 const std::string SpecialKeys::rootObject = "#root";
+const std::string SpecialKeys::accessHistory = "#history";
 const std::string SpecialKeys::keyPath = "#keypath";
 
 const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
                                                       SpecialKeys::up,
                                                       SpecialKeys::rootObject,
+                                                      SpecialKeys::accessHistory,
                                                       SpecialKeys::keyPath };
 
 
@@ -278,8 +280,10 @@ const std::string Keys::ModelInterpolation::finalTime = "finalTime";
 const std::string Keys::ModelInterpolation::timeStep = "timeStep";
 const std::string Keys::ModelInterpolation::interpolator = "interpolator";
 
-/// Output
-const std::string Keys::output = "output";
+/// Validation
+const std::string Keys::validation = "validation";
+const std::string Keys::Validation::usingDefaultValueForMissingKey = "usingDefaultValueForMissingKey";
+const std::string Keys::Validation::unusedKey = "unusedKey";
 
 
 //! -DOC

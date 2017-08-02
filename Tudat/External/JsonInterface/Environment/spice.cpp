@@ -71,7 +71,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
     {
         spiceSettings = boost::make_shared< SpiceSettings >(
                     getValue< std::vector< path > >( jsonObject, K::kernels ) );
-        updateFromJSON( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels, false );
+        updateFromJSONIfDefined( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels );
         if ( spiceSettings->preloadKernels_ )
         {
             std::pair< double, double > preloadOffsets =

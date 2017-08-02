@@ -30,6 +30,14 @@ namespace tudat
 namespace json_interface
 {
 
+//! Possible responses to a exception during JSON validation.
+enum ExceptionResponseType
+{
+    continueSilently,
+    printWarning,
+    throwError
+};
+
 //! -DOC
 class ValueAccessError : public std::runtime_error
 {
