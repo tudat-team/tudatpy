@@ -74,15 +74,15 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     using namespace simulation_setup;
     using K = Keys::Body;
 
-    updateFromJSON( bodySettings->constantMass, jsonObject, K::mass, false );
-    updateFromJSON( bodySettings->atmosphereSettings, jsonObject, K::atmosphere, false  );
-    updateFromJSON( bodySettings->ephemerisSettings, jsonObject, K::ephemeris, false  );
-    updateFromJSON( bodySettings->gravityFieldSettings, jsonObject, K::gravityField, false  );
-    updateFromJSON( bodySettings->rotationModelSettings, jsonObject, K::rotationModel, false  );
-    updateFromJSON( bodySettings->shapeModelSettings, jsonObject, K::shapeModel, false  );
-    updateFromJSON( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure, false  );
-    updateFromJSON( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics, false  );
-    updateFromJSON( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariations, false  );
+    updateFromJSONIfDefined( bodySettings->constantMass, jsonObject, K::mass );
+    updateFromJSONIfDefined( bodySettings->atmosphereSettings, jsonObject, K::atmosphere );
+    updateFromJSONIfDefined( bodySettings->ephemerisSettings, jsonObject, K::ephemeris );
+    updateFromJSONIfDefined( bodySettings->gravityFieldSettings, jsonObject, K::gravityField );
+    updateFromJSONIfDefined( bodySettings->rotationModelSettings, jsonObject, K::rotationModel );
+    updateFromJSONIfDefined( bodySettings->shapeModelSettings, jsonObject, K::shapeModel );
+    updateFromJSONIfDefined( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure );
+    updateFromJSONIfDefined( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics );
+    updateFromJSONIfDefined( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariations );
 }
 
 } // namespace json_interface

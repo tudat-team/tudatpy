@@ -21,6 +21,7 @@
 #include "Environment/body.h"
 #include "Propagation/propagator.h"
 #include "Mathematics/integrator.h"
+#include "Support/validation.h"
 
 namespace tudat
 {
@@ -81,11 +82,11 @@ public:
     }
 
     //! -DOC
-    void run( )
+    virtual void run( )
     {
         using namespace propagators;
 
-        sync( );
+        // FIXME: ? sync( );
 
         // Create simulation object
         dynamicsSimulator = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
@@ -112,7 +113,7 @@ public:
     }
 
     //! -DOC
-    void exportResults( )
+    virtual void exportResults( )
     {
 
     }
@@ -120,10 +121,25 @@ public:
     //! -DOC
     json getAsJSON( )
     {
-        sync( );
+        // sync( );
+        updateJSONObjectFromSettings( );
         return jsonObject;
     }
 
+    //! -DOC
+    void exportAsJSON( const path& exportPath, const unsigned int tabSize = 2 )
+    {
+        std::ofstream outputFile( exportPath.string( ) );
+        outputFile << getAsJSON( ).dump( tabSize );
+        outputFile.close( );
+    }
+
+    //! -DOC
+    void exportAsJSON( const unsigned int tabSize = 2 )
+    {
+        std::string filename = inputFilePath.stem( ).string( ) + ".populated" + inputFilePath.extension( ).string( );
+        exportAsJSON( inputFilePath.parent_path( ) / filename, tabSize );
+    }
 
     //! -DOC
     json getOriginalJSONObject( )
@@ -158,17 +174,14 @@ public:
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
 
+    //! Validation settings.
+    boost::shared_ptr< ValidationSettings > validationSettings;
 
-private:
 
-    //! Update the JSON object with all the data from the current settings (objests).
-    void updateJSONObjectFromSettings( )
-    {
-        jsonObject = *this;
-    }
+protected:
 
-    //! Update all the settings (objects) from the JSON object.
-    void updateSettingsFromJSONObject( )
+    //! -DOC
+    virtual void resetGeneral( )
     {
         // Start and end epochs
         startEpoch = getEpoch< TimeType >( jsonObject, Keys::startEpoch );
@@ -177,35 +190,25 @@ private:
         // Global frame origin and orientation
         globalFrameOrigin = getValue< std::string >( jsonObject, Keys::globalFrameOrigin );
         globalFrameOrientation = getValue< std::string >( jsonObject, Keys::globalFrameOrientation );
+    }
 
-        // Spice
-        if ( defined( jsonObject, Keys::spice ) )
+    //! -DOC
+    virtual void resetSpice( )
+    {
+        spiceSettings = NULL;
+        updateFromJSONIfDefined( spiceSettings, jsonObject, Keys::spice );
+        if ( spiceSettings )
         {
-            updateFromJSON( spiceSettings, jsonObject, Keys::spice );
             spice_interface::clearSpiceKernels( );
             for ( const path kernel : spiceSettings->kernels_ )
             {
                 spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
             }
         }
-        else
-        {
-            spiceSettings = NULL;
-        }
-
-        // Bodies
-        resetBodies( );
-
-        // Propagation
-        updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
-        propagationSettings->createIntegratedStateModels( bodyMap );
-
-        // Integrator
-        updateFromJSON( integratorSettings, jsonObject, Keys::integrator );
     }
 
     //! -DOC
-    void resetBodies( )
+    virtual void resetBodies( )
     {
         using namespace simulation_setup;
 
@@ -275,6 +278,50 @@ private:
         setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
     }
 
+    //! -DOC
+    virtual void resetPropagation( )
+    {
+        updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
+        propagationSettings->createIntegratedStateModels( bodyMap );
+    }
+
+    //! -DOC
+    virtual void resetIntegrator( )
+    {
+        updateFromJSON( integratorSettings, jsonObject, Keys::integrator );
+    }
+
+    //! -DOC
+    virtual void resetValidation( )
+    {
+        validationSettings = boost::make_shared< ValidationSettings >( );
+        updateFromJSONIfDefined( validationSettings, jsonObject, Keys::validation );
+    }
+
+
+private:
+
+    //! Update the JSON object with all the data from the current settings (objests).
+    void updateJSONObjectFromSettings( )
+    {
+        jsonObject = *this;
+    }
+
+    //! Update all the settings (objects) from the JSON object.
+    void updateSettingsFromJSONObject( )
+    {
+        clearAccessHistory( );
+
+        resetGeneral( );
+        resetSpice( );
+        resetBodies( );
+        resetPropagation( );
+        resetIntegrator( );
+        resetValidation( );
+
+        checkUnusedKeys( jsonObject, validationSettings->unusedKey );
+    }
+
     //! Absolute path to the input file.
     path inputFilePath;
 
@@ -297,6 +344,8 @@ private:
 template< typename TimeType = double, typename StateScalarType = double >
 void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {
+    jsonObject.clear( );
+
     // assignIfNot( jsonObject, Keys::simulationType, simulation.type, customSimulation );
     jsonObject[ Keys::startEpoch ] = simulation.startEpoch;
     jsonObject[ Keys::endEpoch ] = simulation.endEpoch;
@@ -306,6 +355,7 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
     jsonObject[ Keys::propagation ] = simulation.propagationSettings;
     jsonObject[ Keys::integrator ] = simulation.integratorSettings;
+    jsonObject[ Keys::validation ] = simulation.validationSettings;
 }
 
 } // namespace json_interface

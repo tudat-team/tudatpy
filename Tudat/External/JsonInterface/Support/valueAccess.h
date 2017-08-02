@@ -45,6 +45,22 @@ KeyPath getKeyPath( const json& jsonObject );
 std::string getParentKey( const json& jsonObject,
                           const std::string& errorMessage = "Could not determine parent key: context is missing." );
 
+//! -DOC
+void convertToObjectIfArray( json& jsonObject, const bool onlyIfElementsAreStructured = false );
+
+
+//! -DOC
+extern std::set< KeyPath > accessedKeyPaths;
+
+//! -DOC
+inline void clearAccessHistory( )
+{
+    accessedKeyPaths = { };
+}
+
+//! -DOC
+void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType response );
+
 
 //! Get the value of a parameter defined by a `KeyPath` from a `json` object.
 /*!
@@ -59,7 +75,7 @@ std::string getParentKey( const json& jsonObject,
 template< typename ValueType >
 ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
 {
-    boost::shared_ptr< json > rootObject;
+    boost::shared_ptr< json > rootObjectPointer;
     json currentObject = jsonObject;
     KeyPath currentKeyPath = keyPath;
     KeyPath canonicalKeyPath = keyPath;
@@ -69,7 +85,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
-            rootObject = getRootObject( currentObject );
+            rootObjectPointer = getRootObject( currentObject );
             if ( currentKeyPath.size( ) > 0 )
             {
                 if ( *currentKeyPath.begin( ) == SpecialKeys::root || contains( currentKeyPath, SpecialKeys::up ) )
@@ -80,13 +96,13 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
                     currentKeyPath = canonicalKeyPath;
 
                     // Use jsonObject's root object instead
-                    if ( ! rootObject )
+                    if ( ! rootObjectPointer )
                     {
                         std::cerr << "Could not use absolute key path because "
                                   << "the JSON object does not contain a root object." << std::endl;
                         throw;
                     }
-                    currentObject = *rootObject;
+                    currentObject = *rootObjectPointer;
                 }
             }
         }
@@ -97,6 +113,8 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         // Remove "~"
         currentKeyPath.erase( currentKeyPath.begin( ) );
     }
+
+    accessedKeyPaths.insert( canonicalKeyPath );
 
     try
     {
@@ -121,23 +139,15 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         throw UndefinedKeyError( canonicalKeyPath );
     }
 
-    if ( ! contains( currentKeyPath, SpecialKeys::all ) )
+    if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
     {
         // If jsonObject is an array, convert to object
-        if ( currentObject.is_array( ) )
-        {
-            json jsonArray = currentObject;
-            currentObject = json( );
-            for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
-            {
-                currentObject[ std::to_string( i ) ] = jsonArray.at( i );
-            }
-        }
+        convertToObjectIfArray( currentObject );
 
-        // Define keys rootObject and keyPath of jsonObject to be returned
         if ( currentObject.is_object( ) )
         {
-            currentObject[ SpecialKeys::rootObject ] = rootObject ? *rootObject : jsonObject;
+            // Define keys rootObject and keyPath of jsonObject to be returned
+            currentObject[ SpecialKeys::rootObject ] = rootObjectPointer ? *rootObjectPointer : jsonObject;
             currentObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
         }
     }
@@ -336,19 +346,24 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
 
 
 //! -DOC
-template< typename ValueType >
-void updateFromJSON( ValueType& value, const json& jsonObject, const KeyPath& keyPath, bool throwIfNotDefined = true )
+template< typename T >
+void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath )
+{
+    value = getValue< T >( jsonObject, keyPath );
+}
+
+
+//! -DOC
+template< typename T >
+void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& keyPath )
 {
     try
     {
-        value = getValue< ValueType >( jsonObject, keyPath );
+        updateFromJSON( value, jsonObject, keyPath );
     }
     catch ( const UndefinedKeyError& error )
     {
-        if ( throwIfNotDefined || ! error.wasTriggeredByMissingValueAt( keyPath ) )
-        {
-            throw error;
-        }
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
     }
 }
 

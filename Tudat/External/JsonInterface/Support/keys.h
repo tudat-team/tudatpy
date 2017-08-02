@@ -27,6 +27,7 @@ struct SpecialKeys
     static const std::string root;
     static const std::string up;
     static const std::string rootObject;
+    static const std::string accessHistory;
     static const std::string keyPath;
 
     static const std::vector< std::string > all;
@@ -326,7 +327,12 @@ struct Keys
         static const std::string interpolator;
     };
 
-    static const std::string output;
+    static const std::string validation;
+    struct Validation
+    {
+        static const std::string usingDefaultValueForMissingKey;
+        static const std::string unusedKey;
+    };
 };
 
 // FIXME: what about arrays?

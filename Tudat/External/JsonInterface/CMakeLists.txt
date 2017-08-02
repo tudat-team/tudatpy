@@ -31,6 +31,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/thrust.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/torque.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/validation.cpp"
 )
 
 # Set the header files.
@@ -63,6 +64,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/torque.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/integrator.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolator.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/validation.h"
     "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
 )
 
