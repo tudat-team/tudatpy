@@ -19,8 +19,10 @@
 
 #include "Environment/spice.h"
 #include "Environment/body.h"
+#include "Propagation/variable.h"
 #include "Propagation/propagator.h"
 #include "Mathematics/integrator.h"
+#include "Propagation/export.h"
 #include "Support/validation.h"
 
 namespace tudat
@@ -168,11 +170,17 @@ public:
     //! Body settings.
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap;
 
+    //! Dependent variable settings.
+    std::unordered_map< std::string, boost::shared_ptr< propagators::VariableSettings > > variableSettingsMap;
+
     //! Propagation settings.
     boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings;
 
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
+
+    //! Validation settings.
+    std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector;
 
     //! Validation settings.
     boost::shared_ptr< ValidationSettings > validationSettings;
@@ -279,6 +287,14 @@ protected:
     }
 
     //! -DOC
+    virtual void resetVariables( )
+    {
+        variableSettingsMap.clear( );
+        updateFromJSONIfDefined( variableSettingsMap, jsonObject, Keys::variables );
+        // FIXME: modify jsonObject to define "save" for the corresponding propagators
+    }
+
+    //! -DOC
     virtual void resetPropagation( )
     {
         updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
@@ -289,6 +305,13 @@ protected:
     virtual void resetIntegrator( )
     {
         updateFromJSON( integratorSettings, jsonObject, Keys::integrator );
+    }
+
+    //! -DOC
+    virtual void resetExport( )
+    {
+        exportSettingsVector.clear( );
+        updateFromJSONIfDefined( exportSettingsVector, jsonObject, Keys::xport );
     }
 
     //! -DOC
@@ -315,8 +338,10 @@ private:
         resetGeneral( );
         resetSpice( );
         resetBodies( );
+        resetVariables( );
         resetPropagation( );
         resetIntegrator( );
+        resetExport( );
         resetValidation( );
 
         checkUnusedKeys( jsonObject, validationSettings->unusedKey );
@@ -353,8 +378,10 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation;
     assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings );
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
+    assignIfNotEmpty( jsonObject, Keys::variables, simulation.variableSettingsMap );
     jsonObject[ Keys::propagation ] = simulation.propagationSettings;
     jsonObject[ Keys::integrator ] = simulation.integratorSettings;
+    assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector );
     jsonObject[ Keys::validation ] = simulation.validationSettings;
 }
 

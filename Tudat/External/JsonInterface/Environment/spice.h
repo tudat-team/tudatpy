@@ -72,6 +72,10 @@ public:
     SpiceSettings( const std::vector< boost::filesystem::path >& kernels, const bool preloadKernels ) :
         kernels_( kernels ), preloadKernels_( preloadKernels ) { }
 
+    //! Destructor.
+    virtual ~SpiceSettings( ) { }
+
+
     //! Vector containing the paths to the spice kernel files to be used.
     std::vector< boost::filesystem::path > kernels_;
 

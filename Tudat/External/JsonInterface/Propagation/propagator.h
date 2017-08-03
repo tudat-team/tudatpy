@@ -17,7 +17,7 @@
 #include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 #include "termination.h"
-#include "output.h"
+#include "save.h"
 #include "acceleration.h"
 // #include "massRate.h"
 // #include "torque.h"
@@ -157,7 +157,7 @@ void to_json( json& jsonObject,
     jsonObject[ K::integratedStateType ] = integratedStateType;
     jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
     jsonObject[ K::termination ] = singleArcPropagatorSettings->getTerminationSettings( );
-    assignIfNotNull( jsonObject, K::output, singleArcPropagatorSettings->getDependentVariablesToSave( ) );
+    assignIfNotNull( jsonObject, K::save, singleArcPropagatorSettings->getDependentVariablesToSave( ) );
     assignIfNotNaN( jsonObject, K::printInterval, singleArcPropagatorSettings->getPrintInterval( ) );
 
     switch ( integratedStateType )
@@ -220,7 +220,7 @@ void from_json( const json& jsonObject,
                     getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
                         jsonObject, K::propagators ),
                     terminationSettings,
-                    getValue( jsonObject, K::output, defaults.getDependentVariablesToSave( ) ),
+                    getValue( jsonObject, K::save, defaults.getDependentVariablesToSave( ) ),
                     getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
         return;
     }
@@ -235,7 +235,7 @@ void from_json( const json& jsonObject,
                     getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates ),
                     terminationSettings,
                     getValue( jsonObject, K::type, defaults.propagator_ ),
-                    getValue( jsonObject, K::output, defaults.getDependentVariablesToSave( ) ),
+                    getValue( jsonObject, K::save, defaults.getDependentVariablesToSave( ) ),
                     getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
         return;
     }

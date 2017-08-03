@@ -23,6 +23,51 @@ namespace tudat
 namespace propagators
 {
 
+//! -DOC
+enum VariableType
+{
+    epochVariable,
+    stateVariable,
+    dependentVariable
+};
+
+//! -DOC
+class VariableSettings
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param variableType Type of variable.
+     */
+    VariableSettings( const VariableType variableType ) :
+        variableType_( variableType ) { }
+
+    //! Destructor.
+    virtual ~VariableSettings( ){ }
+
+    //! Type of dependent variable that is to be saved.
+    VariableType variableType_;
+};
+
+
+//! -DOC
+class BodyVariableSettings: public VariableSettings
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param variableType Type of variable.
+     * \param associatedBody Body associated with dependent variable.
+     */
+    BodyVariableSettings( const VariableType variableType, const std::string& associatedBody ) :
+        VariableSettings( variableType), associatedBody_( associatedBody ) { }
+
+    //! Body associated with variable.
+    std::string associatedBody_;
+};
+
 
 //! Enum listing the dependent variables that can be saved during the propagation
 enum PropagationDependentVariables
@@ -69,32 +114,28 @@ enum PropagationDependentVariables
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
  */
-class SingleDependentVariableSaveSettings
+class SingleDependentVariableSaveSettings : public BodyVariableSettings
 {
 public:
 
-    //! Constructor
+    //! Constructor.4
     /*!
-     * Constructor
-     * \param variableType Type of dependent variable that is to be saved.
-     * \param associatedBody Body associated with dependent variable
+     * Constructor.
+     * \param dependentVariableType Type of dependent variable that is to be saved.
+     * \param associatedBody Body associated with dependent variable.
      * \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
      * position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
      */
     SingleDependentVariableSaveSettings(
-            const PropagationDependentVariables variableType,
+            const PropagationDependentVariables dependentVariableType,
             const std::string& associatedBody,
             const std::string& secondaryBody = "" ):
-        variableType_( variableType ), associatedBody_( associatedBody ), secondaryBody_( secondaryBody ){ }
-
-    //! Destructor.
-    virtual ~SingleDependentVariableSaveSettings( ){ }
+        BodyVariableSettings( dependentVariable, associatedBody ),
+        dependentVariableType_( dependentVariableType ),
+        secondaryBody_( secondaryBody ) { }
 
     //! Type of dependent variable that is to be saved.
-    PropagationDependentVariables variableType_;
-
-    //! Body associated with dependent variable
-    std::string associatedBody_;
+    PropagationDependentVariables dependentVariableType_;
 
     //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
     //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
@@ -235,11 +276,29 @@ public:
     bool printDependentVariableTypes_;
 };
 
+
+//! Function to get a string representing a 'named identification' of a variable type
+/*!
+ * Function to get a string representing a 'named identification' of a variable type
+ * \param propagationDependentVariables Variable type
+ * \return String with variable type id.
+ */
+std::string getVariableName( const VariableType variableType );
+
+//! Function to get a string representing a 'named identification' of a variable
+/*!
+ * Function to get a string representing a 'named identification' of a variable
+ * \param variableSettings Variable
+ * \return String with variable id.
+ */
+std::string getVariableId( const boost::shared_ptr< VariableSettings > variableSettings );
+
+
 //! Function to get a string representing a 'named identification' of a dependent variable type
 /*!
  * Function to get a string representing a 'named identification' of a dependent variable type
  * \param propagationDependentVariables Dependent variable type
- * \return String with variable type id.
+ * \return String with dependent variable type id.
  */
 std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables );
 
@@ -247,7 +306,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 /*!
  * Function to get a string representing a 'named identification' of a dependent variable
  * \param dependentVariableSettings Dependent variable
- * \return String with variable id.
+ * \return String with dependent variable id.
  */
 std::string getDependentVariableId(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );

@@ -48,26 +48,3 @@ std::string removePathPlaceholders( std::string path )
 } // namespace json_interface
 
 } // namespace tudat
-
-
-namespace boost
-{
-
-namespace filesystem
-{
-
-//! Create a `json` object from a `path`.
-void to_json( json& j, const path& p )
-{
-    j = tudat::json_interface::addPathPlaceholders( canonical( p ).string( ) );
-}
-
-//! Create a path from a `json` object.
-void from_json( const json& j, path& p )
-{
-    p = canonical( tudat::json_interface::removePathPlaceholders( j.get< std::string >( ) ) );
-}
-
-}  // namespace filesystem
-
-}  // namespace boost

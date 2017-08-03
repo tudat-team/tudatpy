@@ -190,7 +190,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     boost::function< double( ) > variableFunction;
 
     // Retrieve base information on dependent variable
-    PropagationDependentVariables dependentVariable = dependentVariableSettings->variableType_;
+    PropagationDependentVariables dependentVariable = dependentVariableSettings->dependentVariableType_;
     const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
     const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
 
@@ -580,7 +580,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     default:
         std::string errorMessage =
                 "Error, did not recognize double dependent variable type when making variable function: " +
-                boost::lexical_cast< std::string >( dependentVariableSettings->variableType_ );
+                boost::lexical_cast< std::string >( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
     return variableFunction;
@@ -609,7 +609,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     int parameterSize;
 
     // Retrieve base information on dependent variable
-    PropagationDependentVariables dependentVariable = dependentVariableSettings->variableType_;
+    PropagationDependentVariables dependentVariable = dependentVariableSettings->dependentVariableType_;
     const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
     const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
 
@@ -897,7 +897,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
-                boost::lexical_cast< std::string >( dependentVariableSettings->variableType_ );
+                boost::lexical_cast< std::string >( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
     return std::make_pair( variableFunction, parameterSize );
@@ -952,7 +952,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
     for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
     {
         // Create double parameter
-        if( getDependentVariableSize( dependentVariables.at( i )->variableType_ ) == 1 )
+        if( getDependentVariableSize( dependentVariables.at( i )->dependentVariableType_ ) == 1 )
         {
             doubleFunctionList.push_back( getDoubleDependentVariableFunction(
                                               dependentVariables.at( i ),

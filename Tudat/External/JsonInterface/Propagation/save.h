@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_JSONINTERFACE_OUTPUT_H
-#define TUDAT_JSONINTERFACE_OUTPUT_H
+#ifndef TUDAT_JSONINTERFACE_SAVE_H
+#define TUDAT_JSONINTERFACE_SAVE_H
 
 #include <Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h>
 
@@ -32,4 +32,4 @@ void from_json( const json& jsonObject, boost::shared_ptr< DependentVariableSave
 
 } // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_OUTPUT_H
+#endif // TUDAT_JSONINTERFACE_SAVE_H
