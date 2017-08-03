@@ -172,6 +172,25 @@ struct Keys
     };
 
 
+    static const std::string variables;
+    struct Variable
+    {
+        static const std::string type;
+        static const std::string dependentVariableType;
+        static const std::string body;
+        static const std::string relativeToBody;
+        static const std::string accelerationType;
+        // static const std::string bodyUndergoingAcceleration;
+        static const std::string bodyExertingAcceleration;
+        static const std::string torqueType;
+        // static const std::string bodyUndergoingTorque;
+        static const std::string bodyExertingTorque;
+        static const std::string baseFrame;
+        static const std::string targetFrame;
+        static const std::string angle;
+    };
+
+
     static const std::string propagation;
     struct Propagator
     {
@@ -188,30 +207,11 @@ struct Keys
             static const std::string useAsLowerLimit;
         };
 
-        static const std::string output;
-        struct Output
+        static const std::string save;
+        struct Save
         {
             static const std::string variables;
-            static const std::string printVariableTypes;
-            static const std::string onlyLastStep;
-            static const std::string saveFrequency;
-            static const std::string numericalPrecision;
-        };
-
-        struct DependentVariable
-        {
-            static const std::string name;
-            static const std::string associatedBody;
-            static const std::string secondaryBody;
-            static const std::string accelerationType;
-            static const std::string bodyUndergoingAcceleration;
-            static const std::string bodyExertingAcceleration;
-            static const std::string torqueType;
-            static const std::string bodyUndergoingTorque;
-            static const std::string bodyExertingTorque;
-            static const std::string baseFrame;
-            static const std::string targetFrame;
-            static const std::string angle;
+            static const std::string printVariablesNames;
         };
 
         static const std::string printInterval;
@@ -325,6 +325,16 @@ struct Keys
         static const std::string finalTime;
         static const std::string timeStep;
         static const std::string interpolator;
+    };
+
+    static const std::string xport;
+    struct Export
+    {
+        static const std::string file;
+        static const std::string epochsInFirstColumn;
+        static const std::string variables;
+        static const std::string onlyFinalStep;
+        static const std::string numericalPrecision;
     };
 
     static const std::string validation;

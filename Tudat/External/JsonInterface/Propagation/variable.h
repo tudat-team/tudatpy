@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_JSONINTERFACE_DEPENDENTVARIABLE_H
-#define TUDAT_JSONINTERFACE_DEPENDENTVARIABLE_H
+#ifndef TUDAT_JSONINTERFACE_VARIABLE_H
+#define TUDAT_JSONINTERFACE_VARIABLE_H
 
 #include <Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h>
 
@@ -22,8 +22,36 @@ namespace tudat
 namespace propagators
 {
 
+/// VariableType
+
+//! Map of `VariableType`s string representations.
+static std::map< VariableType, std::string > variableTypes =
+{
+    { epochVariable, "epoch" },
+    { stateVariable, "state" },
+    { dependentVariable, "dependent" }
+};
+
+//! `VariableType`s not supported by `json_interface`.
+static std::vector< VariableType > unsupportedVariableTypes = { };
+
+//! Convert `VariableType` to `json`.
+inline void to_json( json& jsonObject, const VariableType& variableType )
+{
+    jsonObject = json_interface::stringFromEnum( variableType, variableTypes );
+}
+
+//! Convert `json` to `VariableType`.
+inline void from_json( const json& jsonObject, VariableType& variableType )
+{
+    variableType = json_interface::enumFromString( jsonObject.get< std::string >( ), variableTypes );
+}
+
+
+/// PropagationDependentVariables
+
 //! Map of `PropagationDependentVariables` string representations.
-static std::map< PropagationDependentVariables, std::string > dependentVariables =
+static std::map< PropagationDependentVariables, std::string > dependentVariableTypes =
 {
     { mach_number_dependent_variable, "machNumber" },
     { altitude_dependent_variable, "altitude" },
@@ -35,9 +63,9 @@ static std::map< PropagationDependentVariables, std::string > dependentVariables
     { relative_velocity_dependent_variable, "relativeVelocity" },
     { radiation_pressure_dependent_variable, "radiationPressure" },
     { total_acceleration_norm_dependent_variable, "totalAccelerationNorm" },
-    { single_acceleration_norm_dependent_variable, "singleAccelerationNorm" },
+    { single_acceleration_norm_dependent_variable, "accelerationNorm" },
     { total_acceleration_dependent_variable, "totalAcceleration" },
-    { single_acceleration_dependent_variable, "singleAcceleration" },
+    { single_acceleration_dependent_variable, "acceleration" },
     { aerodynamic_force_coefficients_dependent_variable, "aerodynamicForceCoefficients" },
     { aerodynamic_moment_coefficients_dependent_variable, "aerodynamicMomentCoefficients" },
     { rotation_matrix_to_body_fixed_frame_variable, "rotationMatrixToBodyFixedFrame" },
@@ -53,9 +81,9 @@ static std::map< PropagationDependentVariables, std::string > dependentVariables
     { lvlh_to_inertial_frame_rotation_dependent_variable, "lvlhToInertialFrameRotation" },
     { periapsis_altitude_dependent_variable, "periapsisAltitude" },
     { total_torque_norm_dependent_variable, "totalTorqueNorm" },
-    { single_torque_norm_dependent_variable, "singleTorqueNorm" },
+    { single_torque_norm_dependent_variable, "torqueNorm" },
     { total_torque_dependent_variable, "totalTorque" },
-    { single_torque_dependent_variable, "singleTorque" },
+    { single_torque_dependent_variable, "torque" },
     { body_fixed_groundspeed_based_velocity_variable, "bodyFixedGroundspeedBasedVelocity" }
 };
 
@@ -65,23 +93,50 @@ static std::map< PropagationDependentVariables, std::string > dependentVariables
 //! Convert `PropagationDependentVariables` to `json`.
 inline void to_json( json& jsonObject, const PropagationDependentVariables& dependentVariable )
 {
-    jsonObject = json_interface::stringFromEnum( dependentVariable, dependentVariables );
+    jsonObject = json_interface::stringFromEnum( dependentVariable, dependentVariableTypes );
 }
 
 //! Convert `json` to `PropagationDependentVariables`.
 inline void from_json( const json& jsonObject, PropagationDependentVariables& dependentVariable )
 {
-    dependentVariable = json_interface::enumFromString( jsonObject.get< std::string >( ), dependentVariables );
+    dependentVariable = json_interface::enumFromString( jsonObject.get< std::string >( ), dependentVariableTypes );
 }
 
+
+/// VariableSettings
+
+//! Create a `json` object from a shared pointer to a `VariableSettings` object.
+void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings );
+
+//! Create a shared pointer to a `VariableSettings` object from a `json` object.
+void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings );
+
+
+/// SingleDependentVariableSaveSettings
+
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< SingleDependentVariableSaveSettings >& variableSettings );
+void to_json( json& jsonObject,
+              const boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 //! Create a shared pointer to a `SingleDependentVariableSaveSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< SingleDependentVariableSaveSettings >& variableSettings );
+void from_json( const json& jsonObject,
+                boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 } // namespace propagators
 
+
+namespace json_interface
+{
+
+//! -DOC
+boost::shared_ptr< propagators::VariableSettings > getVariable( const json& jsonObject, const KeyPath& keyPath );
+
+//! -DOC
+std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
+        const json& jsonObject, const KeyPath& keyPath );
+
+} // json_interface
+
 } // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_DEPENDENTVARIABLE_H
+#endif // TUDAT_JSONINTERFACE_VARIABLE_H

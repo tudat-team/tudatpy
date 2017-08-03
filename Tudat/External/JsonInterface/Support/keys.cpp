@@ -154,6 +154,22 @@ const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDeg
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 
 
+/// Variable
+const std::string Keys::variables = "variables";
+const std::string Keys::Variable::type = "type";
+const std::string Keys::Variable::dependentVariableType = "dependentVariableType";
+const std::string Keys::Variable::body = "body";
+const std::string Keys::Variable::relativeToBody = "relativeToBody";
+const std::string Keys::Variable::accelerationType = "accelerationType";
+// const std::string Keys::Variable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
+const std::string Keys::Variable::bodyExertingAcceleration = "bodyExertingAcceleration";
+const std::string Keys::Variable::torqueType = "torqueType";
+// const std::string Keys::Variable::bodyUndergoingTorque = "bodyUndergoingTorque";
+const std::string Keys::Variable::bodyExertingTorque = "bodyExertingTorque";
+const std::string Keys::Variable::baseFrame = "baseFrame";
+const std::string Keys::Variable::targetFrame = "targetFrame";
+const std::string Keys::Variable::angle = "angle";
+
 
 /// Propagator
 const std::string Keys::propagation = "propagation";
@@ -168,27 +184,10 @@ const std::string Keys::Propagator::Termination::variable = "variable";
 const std::string Keys::Propagator::Termination::limitValue = "limitValue";
 const std::string Keys::Propagator::Termination::useAsLowerLimit = "useAsLowerLimit";
 
-////// Propagator::Output
-const std::string Keys::Propagator::output = "output";
-const std::string Keys::Propagator::Output::variables = "variables";
-const std::string Keys::Propagator::Output::printVariableTypes = "printVariableTypes";
-const std::string Keys::Propagator::Output::onlyLastStep = "onlyLastStep";
-const std::string Keys::Propagator::Output::saveFrequency = "saveFrequency";
-const std::string Keys::Propagator::Output::numericalPrecision = "numericalPrecision";
-
-////// Propagator:::DependentVariable
-const std::string Keys::Propagator::DependentVariable::name = "name";
-const std::string Keys::Propagator::DependentVariable::associatedBody = "associatedBody";
-const std::string Keys::Propagator::DependentVariable::secondaryBody = "secondaryBody";
-const std::string Keys::Propagator::DependentVariable::accelerationType = "accelerationType";
-const std::string Keys::Propagator::DependentVariable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
-const std::string Keys::Propagator::DependentVariable::bodyExertingAcceleration = "bodyExertingAcceleration";
-const std::string Keys::Propagator::DependentVariable::torqueType = "torqueType";
-const std::string Keys::Propagator::DependentVariable::bodyUndergoingTorque = "bodyUndergoingTorque";
-const std::string Keys::Propagator::DependentVariable::bodyExertingTorque = "bodyExertingTorque";
-const std::string Keys::Propagator::DependentVariable::baseFrame = "baseFrame";
-const std::string Keys::Propagator::DependentVariable::targetFrame = "targetFrame";
-const std::string Keys::Propagator::DependentVariable::angle = "angle";
+////// Propagator::Save
+const std::string Keys::Propagator::save = "save";
+const std::string Keys::Propagator::Save::variables = "variables";
+const std::string Keys::Propagator::Save::printVariablesNames = "printVariablesNames";
 
 
 const std::string Keys::Propagator::printInterval = "printInterval";
@@ -279,6 +278,16 @@ const std::string Keys::ModelInterpolation::initialTime = "initialTime";
 const std::string Keys::ModelInterpolation::finalTime = "finalTime";
 const std::string Keys::ModelInterpolation::timeStep = "timeStep";
 const std::string Keys::ModelInterpolation::interpolator = "interpolator";
+
+
+/// Export
+const std::string Keys::xport = "export";
+const std::string Keys::Export::file = "file";
+const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
+const std::string Keys::Export::variables = "variables";
+const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
+const std::string Keys::Export::numericalPrecision = "numericalPrecision";
+
 
 /// Validation
 const std::string Keys::validation = "validation";

@@ -110,23 +110,46 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
         {
             myVector.push_back( getValue< ValueType >( jsonObject, i ) );
         }
-        return;
-    }
-    else if ( jsonObject.is_object( ) )
-    {
-        // Convert to map, and use that to create the vector
-        const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
-        for ( auto entry : auxiliaryMap )
-        {
-            if ( ! contains( SpecialKeys::all, entry.first ) )
-            {
-                myVector.push_back( entry.second );
-            }
-        }
     }
     else
     {
-        throw std::runtime_error( "Could not convert json to std::vector because it is not an array or object." );
+        bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
+        if ( isObjectWithIntConvertibleKeys )
+        {
+            for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+            {
+                const std::string key = it.key( );
+                if ( ! contains( SpecialKeys::all, key ) )
+                {
+                    try
+                    {
+                        stoi( key );
+                    }
+                    catch ( ... )
+                    {
+                        isObjectWithIntConvertibleKeys = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( isObjectWithIntConvertibleKeys )
+        {
+            // Convert to map, and use that to create the vector
+            const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
+            for ( auto entry : auxiliaryMap )
+            {
+                if ( ! contains( SpecialKeys::all, entry.first ) )
+                {
+                    myVector.push_back( entry.second );
+                }
+            }
+        }
+        else
+        {
+            throw nlohmann::detail::type_error::create( 0, "" );
+        }
     }
 }
 

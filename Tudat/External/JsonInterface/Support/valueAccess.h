@@ -189,6 +189,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
     */
 }
 
+
 //! -DOC
 template< typename ValueType >
 ValueType getAs( const json& jsonObject )

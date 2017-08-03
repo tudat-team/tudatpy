@@ -11,7 +11,7 @@
 
 #include "termination.h"
 
-#include "dependentVariable.h"
+#include "variable.h"
 
 namespace tudat
 {
@@ -43,7 +43,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         if ( timeTerminationSettings )  // time
         {
-            jsonObject[ K::variable ] = "time";
+            jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( epochVariable );
             jsonObject[ K::limitValue ] = timeTerminationSettings->terminationTime_;
             return;
         }
@@ -67,7 +67,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     using namespace json_interface;
     using K = Keys::Propagator::Termination;
 
-    if ( defined( jsonObject, K::conditions ) )  // hybrid
+    // hybrid
+    if ( defined( jsonObject, K::conditions ) )
     {
         PropagationHybridTerminationSettings defaults( { } );
         terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
@@ -76,25 +77,28 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
                     getValue( jsonObject, K::stopIfSingleConditionMet, defaults.fulFillSingleCondition_ ) );
         return;
     }
-    else
+
+    const boost::shared_ptr< VariableSettings > variable = getVariable( jsonObject, K::variable );
+    switch ( variable->variableType_ )
     {
-        const json variable = getValue< json >( jsonObject, K::variable );
-        if ( variable.is_string( ) )
-        {
-            if ( variable.get< std::string >( ) == "time" )  // time
-            {
-                terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
-                            getEpoch( jsonObject, K::limitValue, getEpoch< double >(
-                                          jsonObject, SpecialKeys::root / Keys::endEpoch ) ) );
-                return;
-            }
-        }
-        // dependent variable
+    case epochVariable:
+    {
+        terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
+                    getEpoch( jsonObject, K::limitValue,
+                              getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) ) );
+        return;
+    }
+    case dependentVariable:
+    {
         terminationSettings = boost::make_shared< PropagationDependentVariableTerminationSettings >(
-                    getAs< boost::shared_ptr< SingleDependentVariableSaveSettings > >( variable ),
+                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable ),
                     getNumeric< double >( jsonObject, K::limitValue ),
                     getValue< bool >( jsonObject, K::useAsLowerLimit ) );
         return;
+    }
+    default:
+        throw std::runtime_error( "Termination settings cannot be defined as a function of variable: " +
+                                  getVariableId( variable ) );
     }
 }
 

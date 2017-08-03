@@ -9,9 +9,9 @@
  *
  */
 
-#include "output.h"
+#include "save.h"
 
-#include "dependentVariable.h"
+#include "variable.h"
 
 namespace tudat
 {
@@ -27,18 +27,22 @@ void to_json( json& jsonObject, const boost::shared_ptr< DependentVariableSaveSe
         return;
     }
     using namespace json_interface;
-    using K = Keys::Propagator::Output;
+    using K = Keys::Propagator::Save;
 
-
+    jsonObject[ K::variables ] = saveSettings->dependentVariables_;
+    jsonObject[ K::printVariablesNames ] = saveSettings->printDependentVariableTypes_;
 }
 
 //! Create a shared pointer to a `DependentVariableSaveSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< DependentVariableSaveSettings >& saveSettings )
 {
     using namespace json_interface;
-    using K = Keys::Propagator::Output;
+    using K = Keys::Propagator::Save;
 
-
+    saveSettings = boost::make_shared< DependentVariableSaveSettings >(
+        getValue< std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > >(
+            jsonObject, K::variables ) );
+    updateFromJSONIfDefined( saveSettings->printDependentVariableTypes_, jsonObject, K::printVariablesNames );
 }
 
 } // namespace propagators
