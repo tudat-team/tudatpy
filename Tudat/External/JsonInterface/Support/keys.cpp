@@ -22,19 +22,17 @@ namespace json_interface
 const std::string SpecialKeys::root = "~";
 const std::string SpecialKeys::up = "..";
 const std::string SpecialKeys::rootObject = "#root";
-const std::string SpecialKeys::accessHistory = "#history";
 const std::string SpecialKeys::keyPath = "#keypath";
 
 const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
                                                       SpecialKeys::up,
                                                       SpecialKeys::rootObject,
-                                                      SpecialKeys::accessHistory,
                                                       SpecialKeys::keyPath };
 
 
 //! Keys recognised by json_interface.
 
-const std::string Keys::simulationType = "simulationType";
+// const std::string Keys::simulationType = "simulationType";
 const std::string Keys::startEpoch = "startEpoch";
 const std::string Keys::endEpoch = "endEpoch";
 const std::string Keys::globalFrameOrigin = "globalFrameOrigin";
@@ -184,12 +182,12 @@ const std::string Keys::Propagator::Termination::variable = "variable";
 const std::string Keys::Propagator::Termination::limitValue = "limitValue";
 const std::string Keys::Propagator::Termination::useAsLowerLimit = "useAsLowerLimit";
 
-////// Propagator::Save
-const std::string Keys::Propagator::save = "save";
-const std::string Keys::Propagator::Save::variables = "variables";
-const std::string Keys::Propagator::Save::printVariablesNames = "printVariablesNames";
+// ////// Propagator::Save
+// const std::string Keys::Propagator::save = "save";
+// const std::string Keys::Propagator::Save::variables = "variables";
+// const std::string Keys::Propagator::Save::printVariablesNames = "printVariablesNames";
 
-
+const std::string Keys::Propagator::computeVariables = "computeVariables";
 const std::string Keys::Propagator::printInterval = "printInterval";
 
 // Hybrid
@@ -253,6 +251,7 @@ const std::string Keys::Propagator::Torque::type = "type";
 const std::string Keys::integrator = "integrator";
 const std::string Keys::Integrator::type = "type";
 const std::string Keys::Integrator::initialTime = "initialTime";
+const std::string Keys::Integrator::timeStep = "timeStep";
 const std::string Keys::Integrator::initialTimeStep = "initialTimeStep";
 const std::string Keys::Integrator::saveFrequency = "saveFrequency";
 const std::string Keys::Integrator::rungeKuttaCoefficientSet = "rungeKuttaCoefficientSet";
@@ -283,7 +282,7 @@ const std::string Keys::ModelInterpolation::interpolator = "interpolator";
 /// Export
 const std::string Keys::xport = "export";
 const std::string Keys::Export::file = "file";
-const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
+// const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
 const std::string Keys::Export::variables = "variables";
 const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
 const std::string Keys::Export::numericalPrecision = "numericalPrecision";

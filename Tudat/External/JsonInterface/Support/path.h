@@ -53,16 +53,10 @@ namespace filesystem
 {
 
 //! Create a `json` object from a `path`.
-inline void to_json( json& j, const path& p )
-{
-    j = tudat::json_interface::addPathPlaceholders( weakly_canonical( p ).string( ) );
-}
+void to_json( json& j, const path& p );
 
 //! Create a path from a `json` object.
-inline void from_json( const json& j, path& p )
-{
-    p = weakly_canonical( tudat::json_interface::removePathPlaceholders( j.get< std::string >( ) ) );
-}
+void from_json( const json& j, path& p );
 
 }  // namespace filesystem
 

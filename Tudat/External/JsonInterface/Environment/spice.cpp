@@ -17,6 +17,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+/*
 //! Get the set of spice kernels to be used for a SimulationType.
 std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType simulationType )
 {
@@ -35,6 +36,7 @@ std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType sim
     }
     return kernels;
 }
+*/
 
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
@@ -61,6 +63,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
     using namespace json_interface;
     using K = Keys::Spice;
 
+    /*
     const boost::shared_ptr< SimulationType > simulationType
             = getOptional< SimulationType >( jsonObject, SpecialKeys::root / Keys::simulationType );
     if ( simulationType )
@@ -69,20 +72,21 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
     }
     else
     {
-        spiceSettings = boost::make_shared< SpiceSettings >(
-                    getValue< std::vector< path > >( jsonObject, K::kernels ) );
-        updateFromJSONIfDefined( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels );
-        if ( spiceSettings->preloadKernels_ )
-        {
-            std::pair< double, double > preloadOffsets =
-                    getValue( jsonObject, K::preloadOffsets, spiceSettings->preloadOffsets_ );
-            preloadOffsets.first = getValue( jsonObject, K::startPreloadOffset,
-                                             - getValue( jsonObject, K::preloadOffset, - preloadOffsets.first ) );
-            preloadOffsets.second = getValue( jsonObject, K::endPreloadOffset,
-                                              getValue( jsonObject, K::preloadOffset, preloadOffsets.second ) );
-            spiceSettings->preloadOffsets_ = preloadOffsets;
-        }
+    */
+    spiceSettings = boost::make_shared< SpiceSettings >(
+                getValue< std::vector< path > >( jsonObject, K::kernels ) );
+    updateFromJSONIfDefined( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels );
+    if ( spiceSettings->preloadKernels_ )
+    {
+        std::pair< double, double > preloadOffsets =
+                getValue( jsonObject, K::preloadOffsets, spiceSettings->preloadOffsets_ );
+        preloadOffsets.first = getValue( jsonObject, K::startPreloadOffset,
+                                         - getValue( jsonObject, K::preloadOffset, - preloadOffsets.first ) );
+        preloadOffsets.second = getValue( jsonObject, K::endPreloadOffset,
+                                          getValue( jsonObject, K::preloadOffset, preloadOffsets.second ) );
+        spiceSettings->preloadOffsets_ = preloadOffsets;
     }
+    // }
 }
 
 } // namespace simulation_setup

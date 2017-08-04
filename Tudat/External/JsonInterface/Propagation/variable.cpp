@@ -122,7 +122,7 @@ void to_json( json& jsonObject,
                     dependentVariableSettings );
         enforceNonNullPointer( accelerationVariableSettings );
         jsonObject[ K::accelerationType ] = accelerationVariableSettings->accelerationModeType_;
-        jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->associatedBody_;
+        jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         return;
     }
     case single_torque_norm_dependent_variable:
@@ -133,7 +133,7 @@ void to_json( json& jsonObject,
                     dependentVariableSettings );
         enforceNonNullPointer( torqueVariableSettings );
         jsonObject[ K::torqueType ] = torqueVariableSettings->torqueModeType_;
-        jsonObject[ K::bodyExertingTorque ] = dependentVariableSettings->associatedBody_;
+        jsonObject[ K::bodyExertingTorque ] = dependentVariableSettings->secondaryBody_;
         return;
     }
     case intermediate_aerodynamic_rotation_matrix_variable:
@@ -279,6 +279,25 @@ std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
         variables.push_back( getVariable( jsonObject, keyPath / i ) );
     }
     return variables;
+}
+
+//! -DOC
+std::vector< boost::shared_ptr< propagators::SingleDependentVariableSaveSettings > > getDependentVariables(
+        const json& jsonObject, const KeyPath& keyPath )
+{
+    using namespace propagators;
+    const std::vector< boost::shared_ptr< VariableSettings > > variables = getVariables( jsonObject, keyPath );
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    for ( const boost::shared_ptr< VariableSettings > variable : variables )
+    {
+        boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
+                boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings > ( variable );
+        if ( dependentVariable )
+        {
+            dependentVariables.push_back( dependentVariable );
+        }
+    }
+    return dependentVariables;
 }
 
 } // json_interface

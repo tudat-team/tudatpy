@@ -135,6 +135,10 @@ boost::shared_ptr< propagators::VariableSettings > getVariable( const json& json
 std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
         const json& jsonObject, const KeyPath& keyPath );
 
+//! -DOC
+std::vector< boost::shared_ptr< propagators::SingleDependentVariableSaveSettings > > getDependentVariables(
+        const json& jsonObject, const KeyPath& keyPath );
+
 } // json_interface
 
 } // namespace tudat

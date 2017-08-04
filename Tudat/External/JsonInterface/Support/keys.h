@@ -27,7 +27,6 @@ struct SpecialKeys
     static const std::string root;
     static const std::string up;
     static const std::string rootObject;
-    static const std::string accessHistory;
     static const std::string keyPath;
 
     static const std::vector< std::string > all;
@@ -36,7 +35,7 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-    static const std::string simulationType;
+    // static const std::string simulationType;
     static const std::string startEpoch;
     static const std::string endEpoch;
     static const std::string globalFrameOrigin;
@@ -207,12 +206,15 @@ struct Keys
             static const std::string useAsLowerLimit;
         };
 
+        static const std::string computeVariables;
+        /*
         static const std::string save;
         struct Save
         {
             static const std::string variables;
             static const std::string printVariablesNames;
         };
+        */
 
         static const std::string printInterval;
 
@@ -297,6 +299,7 @@ struct Keys
     {
         static const std::string type;
         static const std::string initialTime;
+        static const std::string timeStep;
         static const std::string initialTimeStep;
         static const std::string saveFrequency;
         static const std::string rungeKuttaCoefficientSet;
@@ -331,8 +334,8 @@ struct Keys
     struct Export
     {
         static const std::string file;
-        static const std::string epochsInFirstColumn;
         static const std::string variables;
+        // static const std::string epochsInFirstColumn;
         static const std::string onlyFinalStep;
         static const std::string numericalPrecision;
     };

@@ -128,13 +128,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
     using K = Keys::Integrator;
 
     // Fallback initial time (retrieved from simulation.startEpoch), to be used if not specified in integrator settings
-    const TimeType fallbackInitialTime = 0.0; /*getNumeric< TimeType >(
-                jsonObject, SpecialKeys::root / Keys::startEpoch, TUDAT_NAN, true );*/
+    const TimeType fallbackInitialTime =
+            getEpoch< TimeType >( jsonObject, SpecialKeys::root / Keys::startEpoch, TUDAT_NAN, true );
 
     // Read JSON settings shared by all supported integrators
     const AvailableIntegrators integratorType = getValue< AvailableIntegrators >( jsonObject, K::type );
     const TimeType initialTime = getNumeric( jsonObject, K::initialTime, fallbackInitialTime );
-    const TimeType initialTimeStep = getNumeric< TimeType >( jsonObject, K::initialTimeStep );
 
     // Create IntegratorSettings pointer from JSON settings
     switch ( integratorType )
@@ -144,7 +143,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
     {
         IntegratorSettings< TimeType > defaults( integratorType, 0.0, 0.0 );
         integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >(
-                    integratorType, initialTime, initialTimeStep,
+                    integratorType,
+                    initialTime,
+                    getNumeric< TimeType >( jsonObject, K::timeStep ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ) );
         return;
     }
@@ -154,7 +155,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
                     integratorType, 0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
 
         RungeKuttaVariableStepSizeSettings< TimeType > rkSettings(
-                    integratorType, initialTime, initialTimeStep,
+                    integratorType,
+                    initialTime,
+                    getNumeric< TimeType >( jsonObject, K::initialTimeStep ),
                     getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
                     getNumeric< TimeType >( jsonObject, K::minimumStepSize ),
                     getNumeric< TimeType >( jsonObject, K::maximumStepSize ),

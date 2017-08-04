@@ -17,7 +17,7 @@
 #include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
 #include "termination.h"
-#include "save.h"
+#include "variable.h"
 #include "acceleration.h"
 // #include "massRate.h"
 // #include "torque.h"
@@ -157,7 +157,11 @@ void to_json( json& jsonObject,
     jsonObject[ K::integratedStateType ] = integratedStateType;
     jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
     jsonObject[ K::termination ] = singleArcPropagatorSettings->getTerminationSettings( );
-    assignIfNotNull( jsonObject, K::save, singleArcPropagatorSettings->getDependentVariablesToSave( ) );
+    if( singleArcPropagatorSettings->getDependentVariablesToSave( ) )
+    {
+        assignIfNotEmpty( jsonObject, K::computeVariables,
+                          singleArcPropagatorSettings->getDependentVariablesToSave( )->dependentVariables_ );
+    }
     assignIfNotNaN( jsonObject, K::printInterval, singleArcPropagatorSettings->getPrintInterval( ) );
 
     switch ( integratedStateType )
@@ -210,6 +214,14 @@ void from_json( const json& jsonObject,
                 jsonObject, K::termination, boost::make_shared< PropagationTimeTerminationSettings >(
                     getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) ) );
 
+    // Save settings
+    boost::shared_ptr< DependentVariableSaveSettings > saveSettings;
+    if ( defined( jsonObject, K::computeVariables) )
+    {
+        saveSettings = boost::make_shared< DependentVariableSaveSettings >(
+                    getDependentVariables( jsonObject, K::computeVariables ), false );
+    }
+
     switch ( integratedStateType )
     {
     case hybrid:
@@ -220,7 +232,7 @@ void from_json( const json& jsonObject,
                     getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
                         jsonObject, K::propagators ),
                     terminationSettings,
-                    getValue( jsonObject, K::save, defaults.getDependentVariablesToSave( ) ),
+                    saveSettings,
                     getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
         return;
     }
@@ -235,7 +247,7 @@ void from_json( const json& jsonObject,
                     getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates ),
                     terminationSettings,
                     getValue( jsonObject, K::type, defaults.propagator_ ),
-                    getValue( jsonObject, K::save, defaults.getDependentVariablesToSave( ) ),
+                    saveSettings,
                     getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
         return;
     }

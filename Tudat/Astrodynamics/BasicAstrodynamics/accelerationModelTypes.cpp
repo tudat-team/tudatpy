@@ -93,6 +93,16 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_central_gravity;
     }
+    else if( boost::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_spherical_harmonic_gravity;
+    }
+    else if( boost::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
     else if( boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                  accelerationModel ) != NULL  )
     {
@@ -146,7 +156,7 @@ AvailableMassRateModels getMassRateModelType(
         massRateType = custom_mass_rate_model;
     }
     else if( boost::dynamic_pointer_cast< propulsion::FromThrustMassRateModel >(
-                massRateModel ) != NULL )
+                 massRateModel ) != NULL )
     {
         massRateType = from_thrust_mass_rate_model;
     }
@@ -179,8 +189,8 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
 {
     bool accelerationIsDirectGravity = 0;
     if( ( accelerationType == central_gravity ) ||
-           ( accelerationType == spherical_harmonic_gravity ) ||
-           ( accelerationType == mutual_spherical_harmonic_gravity ) )
+            ( accelerationType == spherical_harmonic_gravity ) ||
+            ( accelerationType == mutual_spherical_harmonic_gravity ) )
     {
         accelerationIsDirectGravity = 1;
     }
