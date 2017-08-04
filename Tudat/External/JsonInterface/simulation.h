@@ -50,6 +50,8 @@ public:
     void setInputFile( const std::string& inputFile )
     {
         inputFilePath = getPathForJSONFile( inputFile );
+        boost::filesystem::current_path( inputFilePath.parent_path( ) );
+
         jsonObject = getParsedModularJSON( inputFilePath );
         originalJsonObject = jsonObject;
 
@@ -86,6 +88,7 @@ public:
     //! -DOC
     virtual void run( )
     {
+        // FIXME: MultiArc
         using namespace propagators;
 
         // FIXME: ? sync( );
@@ -94,30 +97,131 @@ public:
         dynamicsSimulator = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodyMap, integratorSettings, propagationSettings, false );
 
+        dynamicsSimulator->integrateEquationsOfMotion( propagationSettings->getInitialStates( ) );
+    }
+
+    //! -DOC
+    virtual void exportResults( )
+    {
         // FIXME: MultiArc
+        using namespace propagators;
+        using namespace input_output;
+        using namespace simulation_setup;
 
         boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
                 = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     dynamicsSimulator );
         if ( singleArcDynamicsSimulator )
         {
-            singleArcDynamicsSimulator->integrateEquationsOfMotion( propagationSettings->getInitialStates( ) );
-            return;
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > statesHistory =
+                    singleArcDynamicsSimulator->getEquationsOfMotionNumericalSolution( );
+            std::map< TimeType, Eigen::VectorXd > dependentVariables =
+                    singleArcDynamicsSimulator->getDependentVariableHistory( );
+
+            // Cast TimeType and StateVariableType to double (only for exporting as table columns)
+            std::map< TimeType, Eigen::VectorXd > epochs, states;
+            for ( auto entry : statesHistory )
+            {
+                epochs[ entry.first ] = ( Eigen::VectorXd( 1 ) << static_cast< double >( entry.first ) ).finished( );
+                states[ entry.first ] = entry.second.template cast< double >( );
+            }
+
+            for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+            {
+                if ( exportSettings->onlyFinalStep )
+                {
+                    reduceToLast( epochs );
+                    reduceToLast( states );
+                    reduceToLast( dependentVariables );
+                }
+
+                // Determine number of columns (not including first column = epoch).
+                unsigned int cols = 0;
+                for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+                {
+                    switch ( variable->variableType_ )
+                    {
+                    case epochVariable:
+                    {
+                        cols += 1;
+                        break;
+                    }
+                    case stateVariable:
+                    {
+                        cols += 6;  // FIXME: will depend on which states have been requested (satellite's? also mass?)
+                        break;
+                    }
+                    case dependentVariable:
+                    {
+                        const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
+                                boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                        enforceNonNullPointer( depVariable );
+                        cols += getDependentVariableSize( depVariable->dependentVariableType_ );
+                        break;
+                    }
+                    default:
+                    {
+                        throw std::runtime_error( "Could not export variable of unsupported type." );
+                    }
+                    }
+                }
+
+                // Concatenate requested results
+                std::map< TimeType, Eigen::VectorXd > results;
+                for ( auto entry : epochs )
+                {
+                    unsigned int currentIndex = 0;
+
+                    const TimeType epoch = entry.first;
+                    Eigen::VectorXd result( cols );
+                    for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+                    {
+                        unsigned int size;
+                        switch ( variable->variableType_ )
+                        {
+                        case epochVariable:
+                        {
+                            size = 1;
+                            result.segment( currentIndex, size ) = entry.second;
+                            break;
+                        }
+                        case stateVariable:
+                        {
+                            size = 6;  // FIXME
+                            result.segment( currentIndex, size ) = states.at( epoch );
+                            break;
+                        }
+                        case dependentVariable:
+                        {
+                            const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
+                                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                            enforceNonNullPointer( depVariable );
+                            size = getDependentVariableSize( depVariable->dependentVariableType_ );
+                            unsigned int index =
+                                    getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
+                                                     getDependentVariableId( depVariable ) );
+                            result.segment( currentIndex, size ) =
+                                    dependentVariables.at( epoch ).segment( index, size );
+                            break;
+                        }
+                        default:
+                            throw std::runtime_error( "Could not export variable of unsupported type." );
+                        }
+                        currentIndex += size;
+                    }
+                    results[ epoch ] = result;
+                }
+
+                // Write propagation history to file.
+                writeDataMapToTextFile( results,
+                                        exportSettings->outputFile.filename( ).string( ),
+                                        exportSettings->outputFile.parent_path( ).string( ),
+                                        "",
+                                        exportSettings->numericalPrecision,
+                                        exportSettings->numericalPrecision,
+                                        "," );
+            }
         }
-
-        boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > multiArcDynamicsSimulator
-                = boost::dynamic_pointer_cast< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    dynamicsSimulator );
-        if ( multiArcDynamicsSimulator )
-        {
-            throw std::runtime_error( "MultiArcDynamicsSimulator not supported by JSON interface." );
-        }
-    }
-
-    //! -DOC
-    virtual void exportResults( )
-    {
-
     }
 
     //! -DOC
@@ -167,10 +271,10 @@ public:
     //! Spice settings ( NULL if Spice is not used ).
     boost::shared_ptr< simulation_setup::SpiceSettings > spiceSettings;
 
-    //! Body settings.
+    //! Map of body settings.
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap;
 
-    //! Dependent variable settings.
+    //! Map of variable settings.
     std::unordered_map< std::string, boost::shared_ptr< propagators::VariableSettings > > variableSettingsMap;
 
     //! Propagation settings.
@@ -179,7 +283,7 @@ public:
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
 
-    //! Validation settings.
+    //! Vector of export settings.
     std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector;
 
     //! Validation settings.
@@ -378,7 +482,7 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation;
     assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings );
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
-    assignIfNotEmpty( jsonObject, Keys::variables, simulation.variableSettingsMap );
+    // assignIfNotEmpty( jsonObject, Keys::variables, simulation.variableSettingsMap );
     jsonObject[ Keys::propagation ] = simulation.propagationSettings;
     jsonObject[ Keys::integrator ] = simulation.integratorSettings;
     assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector );

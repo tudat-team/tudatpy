@@ -111,9 +111,48 @@ void parseModularJSON( json& jsonObject, const path& parentDirectoryPath )
 }
 
 //! -DOC
+std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, const std::streampos position )
+{
+    std::streampos originalPos = stream.tellg( );
+    stream.seekg( 0, std::ifstream::beg );
+
+    std::string lineContents;
+    unsigned int line = 1;
+    std::streampos col;
+    std::streampos lastPos = stream.tellg( );
+    while ( std::getline( stream, lineContents ) )
+    {
+        const std::streampos currentPos = stream.tellg( );
+        if ( currentPos > position )
+        {
+            col = position - lastPos;
+            break;
+        }
+        lastPos = currentPos;
+        line++;
+    }
+
+    stream.seekg( originalPos );
+    return { line, col };
+}
+
+//! -DOC
 json getParsedModularJSON( const path& filePath )
 {
-    json jsonObject = json::parse( std::ifstream( filePath.string( ) ) );
+    std::ifstream stream( filePath.string( ) );
+    json jsonObject;
+    try
+    {
+        jsonObject = json::parse( stream );
+    }
+    catch ( const nlohmann::detail::parse_error& error )
+    {
+        std::pair< unsigned int, unsigned int > errorLineCol = getLineAndCol( stream, error.byte );
+        std::cerr << "Parse error in file " << filePath
+                  << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "." << std::endl;
+        throw error;
+    }
+
     parseModularJSON( jsonObject, filePath.parent_path( ) );
     return jsonObject;
 }

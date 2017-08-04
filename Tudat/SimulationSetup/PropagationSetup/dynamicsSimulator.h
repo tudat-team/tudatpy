@@ -524,6 +524,19 @@ public:
         return propagationTerminationReason_;
     }
 
+
+
+    //! Function to retrieve the dependent variables IDs
+    /*!
+     * Function to retrieve the dependent variables IDs
+     * \return Map listing starting entry of dependent variables in output vector, along with associated ID
+     */
+    std::map< int, std::string > getDependentVariableIds( )
+    {
+        return dependentVariableIds_;
+    }
+
+
 protected:
 
 

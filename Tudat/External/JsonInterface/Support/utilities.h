@@ -36,6 +36,30 @@ std::vector< T > set2vector( std::set< T > set )
 }
 */
 
+//! Remove all entries of map except last.
+template< typename K, typename V >
+void reduceToLast( std::map< K, V > map )
+{
+    if ( map.size( ) > 0 )
+    {
+        map = { { ( --map.end( ) )->first, ( --map.end( ) )->second } };
+    }
+}
+
+//! Remove all entries of map except last.
+template< typename K, typename V >
+K getKeyWithValue( const std::map< K, V >& map, const V& value )
+{
+    for ( auto entry : map )
+    {
+        if ( entry.second == value )
+        {
+            return entry.first;
+        }
+    }
+    throw std::runtime_error( "Could not find an entry in map with the requested value." );
+}
+
 //! Returns whether a value is NaN.
 template< typename T >
 bool isNaN( const T& value )

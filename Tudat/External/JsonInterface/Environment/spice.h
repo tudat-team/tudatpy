@@ -20,6 +20,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+/*
 /// SimulationType
 
 //! Frequently-used simulations.
@@ -50,19 +51,24 @@ inline void from_json( const json& jsonObject, SimulationType& simulationType )
 {
     simulationType = json_interface::enumFromString( jsonObject.get< std::string >( ), simulationTypes );
 }
+*/
 
 
 /// SpiceSettings
 
+/*
 //! Get the set of spice kernels to be used for a SimulationType.
 std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType simulationType );
+*/
 
 class SpiceSettings
 {
 public:
+    /*
     //! Constructor.
     SpiceSettings( const SimulationType simulationType ) :
         kernels_( getSpiceKernels( simulationType ) ) { }
+    */
 
     //! Constructor.
     SpiceSettings( const std::vector< boost::filesystem::path >& kernels, const double preloadOffset = 300.0 ) :

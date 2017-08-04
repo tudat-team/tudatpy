@@ -975,7 +975,7 @@ public:
             boost::shared_ptr< DependentVariableSaveSettings >( ),
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >(
-            hybrid, Eigen::VectorXd::Zero( 0 ),
+            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ),
             terminationSettings, dependentVariablesToSave, printInterval )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
