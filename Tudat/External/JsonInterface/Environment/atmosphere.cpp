@@ -30,7 +30,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
     const AtmosphereTypes atmosphereType = atmosphereSettings->getAtmosphereType( );
     jsonObject[ K::type ] = atmosphereType;
 
-    /// ExponentialAtmosphereSettings
+    // ExponentialAtmosphereSettings
     switch ( atmosphereType )
     {
     case exponential_atmosphere:
@@ -65,7 +65,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
+        handleUnimplementedEnumValue( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
     }
 }
 
@@ -108,7 +108,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
+        handleUnimplementedEnumValue( atmosphereType, atmosphereTypes, unsupportedAtmosphereTypes );
     }
 }
 

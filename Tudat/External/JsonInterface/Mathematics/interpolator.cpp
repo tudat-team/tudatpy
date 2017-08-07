@@ -49,8 +49,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >&
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( interpolatorType, oneDimensionalInterpolatorTypes,
-                                                         unsupportedOneDimensionalInterpolatorTypes );
+        handleUnimplementedEnumValue( interpolatorType, oneDimensionalInterpolatorTypes,
+                                      unsupportedOneDimensionalInterpolatorTypes );
     }
 }
 
@@ -88,8 +88,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings 
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( interpolatorType, oneDimensionalInterpolatorTypes,
-                                              unsupportedOneDimensionalInterpolatorTypes );
+        handleUnimplementedEnumValue( interpolatorType, oneDimensionalInterpolatorTypes,
+                                      unsupportedOneDimensionalInterpolatorTypes );
     }
 }
 

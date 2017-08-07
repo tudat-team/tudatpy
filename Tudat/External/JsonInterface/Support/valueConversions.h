@@ -62,7 +62,7 @@ MapType< KeyType, ValueType > mapFromJson( const json& jsonObject )
 namespace std
 {
 
-/// STD::UNORDERED_MAP
+// STD::UNORDERED_MAP
 
 //! Create a `json` object from a `std::unordered_map` with arbitrary key type.
 template< typename KeyType, typename ValueType >
@@ -79,7 +79,7 @@ void from_json( const json& jsonObject, unordered_map< KeyType, ValueType >& uno
 }
 
 
-/// STD::MAP
+// STD::MAP
 
 //! Create a `json` object from a `std::map` with arbitrary key type.
 template< typename KeyType, typename ValueType >
@@ -96,7 +96,7 @@ void from_json( const json& jsonObject, map< KeyType, ValueType >& orderedMap )
 }
 
 
-/// STD::VECTOR
+// STD::VECTOR
 
 //! Create a `std::vector` from a `json` object.
 template< typename ValueType >
@@ -154,7 +154,7 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
 }
 
 
-/// STD::PAIR
+// STD::PAIR
 
 //! Create a `std::pair` from a `json` object.
 template< typename V, typename W >
@@ -166,7 +166,7 @@ void from_json( const json& jsonObject, pair< V, W >& myPair )
 }
 
 
-/// STD::COMPLEX
+// STD::COMPLEX
 
 //! Create a `json` object from a `std::complex`.
 template< typename T >

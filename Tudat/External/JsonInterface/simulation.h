@@ -118,23 +118,8 @@ public:
             std::map< TimeType, Eigen::VectorXd > dependentVariables =
                     singleArcDynamicsSimulator->getDependentVariableHistory( );
 
-            // Cast TimeType and StateVariableType to double (only for exporting as table columns)
-            std::map< TimeType, Eigen::VectorXd > epochs, states;
-            for ( auto entry : statesHistory )
-            {
-                epochs[ entry.first ] = ( Eigen::VectorXd( 1 ) << static_cast< double >( entry.first ) ).finished( );
-                states[ entry.first ] = entry.second.template cast< double >( );
-            }
-
             for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
             {
-                if ( exportSettings->onlyFinalStep )
-                {
-                    reduceToLast( epochs );
-                    reduceToLast( states );
-                    reduceToLast( dependentVariables );
-                }
-
                 // Determine number of columns (not including first column = epoch).
                 unsigned int cols = 0;
                 for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
@@ -168,48 +153,52 @@ public:
 
                 // Concatenate requested results
                 std::map< TimeType, Eigen::VectorXd > results;
-                for ( auto entry : epochs )
+                for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
                 {
-                    unsigned int currentIndex = 0;
-
-                    const TimeType epoch = entry.first;
-                    Eigen::VectorXd result( cols );
-                    for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+                    if ( ! exportSettings->onlyFinalStep || it == --statesHistory.end( ) )
                     {
-                        unsigned int size;
-                        switch ( variable->variableType_ )
+                        unsigned int currentIndex = 0;
+
+                        const TimeType epoch = it->first;
+                        Eigen::VectorXd result( cols );
+                        for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
                         {
-                        case epochVariable:
-                        {
-                            size = 1;
-                            result.segment( currentIndex, size ) = entry.second;
-                            break;
+                            unsigned int size;
+                            switch ( variable->variableType_ )
+                            {
+                            case epochVariable:
+                            {
+                                size = 1;
+                                result.segment( currentIndex, size ) =
+                                        ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
+                                break;
+                            }
+                            case stateVariable:
+                            {
+                                size = 6;  // FIXME
+                                result.segment( currentIndex, size ) = it->second.template cast< double >( );
+                                break;
+                            }
+                            case dependentVariable:
+                            {
+                                const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
+                                        boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                                enforceNonNullPointer( depVariable );
+                                size = getDependentVariableSize( depVariable->dependentVariableType_ );
+                                unsigned int index =
+                                        getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
+                                                         getDependentVariableId( depVariable ) );
+                                result.segment( currentIndex, size ) =
+                                        dependentVariables.at( epoch ).segment( index, size );
+                                break;
+                            }
+                            default:
+                                throw std::runtime_error( "Could not export variable of unsupported type." );
+                            }
+                            currentIndex += size;
                         }
-                        case stateVariable:
-                        {
-                            size = 6;  // FIXME
-                            result.segment( currentIndex, size ) = states.at( epoch );
-                            break;
-                        }
-                        case dependentVariable:
-                        {
-                            const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
-                                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                            enforceNonNullPointer( depVariable );
-                            size = getDependentVariableSize( depVariable->dependentVariableType_ );
-                            unsigned int index =
-                                    getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
-                                                     getDependentVariableId( depVariable ) );
-                            result.segment( currentIndex, size ) =
-                                    dependentVariables.at( epoch ).segment( index, size );
-                            break;
-                        }
-                        default:
-                            throw std::runtime_error( "Could not export variable of unsupported type." );
-                        }
-                        currentIndex += size;
+                        results[ epoch ] = result;
                     }
-                    results[ epoch ] = result;
                 }
 
                 // Write propagation history to file.
@@ -254,7 +243,7 @@ public:
     }
 
 
-    /// Data contained in the JSON file:
+    // Data contained in the JSON file:
 
     //! Initial epoch for the simulation.
     TimeType startEpoch;
@@ -469,7 +458,7 @@ private:
 };
 
 
-//! Function to create a `json` object from a `Simulation` object.
+//! Function to create a `json` object from a Simulation object.
 template< typename TimeType = double, typename StateScalarType = double >
 void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {

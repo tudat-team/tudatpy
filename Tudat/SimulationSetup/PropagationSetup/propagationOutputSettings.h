@@ -23,7 +23,7 @@ namespace tudat
 namespace propagators
 {
 
-//! -DOC
+//! Enum listing the variables that can be exported or use in termination conditions during the propagation
 enum VariableType
 {
     epochVariable,
@@ -31,7 +31,12 @@ enum VariableType
     dependentVariable
 };
 
-//! -DOC
+//! Functional base class for defining settings for variables
+/*!
+ *  Functional base class for defining settings for variables.
+ *  Any variable that requires additional information in addition to what can be provided here, should be
+ *  defined by a dedicated derived class.
+ */
 class VariableSettings
 {
 public:
@@ -51,7 +56,12 @@ public:
 };
 
 
-//! -DOC
+//! Functional base class for defining settings for variables associated to a body
+/*!
+ *  Functional base class for defining settings for variables associated to a body.
+ *  Any variable that requires additional information in addition to what can be provided here, should be
+ *  defined by a dedicated derived class.
+ */
 class BodyVariableSettings: public VariableSettings
 {
 public:
@@ -118,7 +128,7 @@ class SingleDependentVariableSaveSettings : public BodyVariableSettings
 {
 public:
 
-    //! Constructor.4
+    //! Constructor.
     /*!
      * Constructor.
      * \param dependentVariableType Type of dependent variable that is to be saved.
@@ -280,7 +290,7 @@ public:
 //! Function to get a string representing a 'named identification' of a variable type
 /*!
  * Function to get a string representing a 'named identification' of a variable type
- * \param propagationDependentVariables Variable type
+ * \param variableType Variable type
  * \return String with variable type id.
  */
 std::string getVariableName( const VariableType variableType );

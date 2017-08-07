@@ -19,7 +19,9 @@ namespace tudat
 namespace json_interface
 {
 
-//! -DOC
+// KEY ACCESS
+
+//! Whether the key at \p keyPath is defined for \p jsonObject.
 bool defined( const json& jsonObject, const KeyPath& keyPath )
 {
     if ( getOptional< json >( jsonObject, keyPath ) )
@@ -29,19 +31,19 @@ bool defined( const json& jsonObject, const KeyPath& keyPath )
     return false;
 }
 
-//! -DOC
+//! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
 boost::shared_ptr< json > getRootObject( const json& jsonObject )
 {
     return getOptional< json >( jsonObject, SpecialKeys::rootObject );
 }
 
-//! -DOC
+//! Get the absolute key path from which \p jsonObject was retrieved.
 KeyPath getKeyPath( const json& jsonObject )
 {
     return getValue< KeyPath >( jsonObject, SpecialKeys::keyPath, SpecialKeys::root );
 }
 
-//! -DOC
+//! Get the key at which \p jsonObject was obtained.
 std::string getParentKey( const json& jsonObject, const std::string& errorMessage )
 {
     try
@@ -55,37 +57,47 @@ std::string getParentKey( const json& jsonObject, const std::string& errorMessag
     }
 }
 
-//! -DOC
-void convertToObjectIfArray( json& jsonObject, const bool onlyIfElementsAreStructured )
+//! Convert \p j to object if \p j is array.
+void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured )
 {
-    if ( ! jsonObject.is_array( ) )
+    if ( ! j.is_array( ) )
     {
         return;
     }
     if ( onlyIfElementsAreStructured )
     {
-        if ( jsonObject.empty( ) )
+        if ( j.empty( ) )
         {
             return;
         }
-        if ( ! jsonObject.front( ).is_structured( ) )
+        if ( ! j.front( ).is_structured( ) )
         {
             return;
         }
     }
-    json jsonArray = jsonObject;
-    jsonObject = json( );
+    json jsonArray = j;
+    j = json( );
     for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
     {
-        jsonObject[ std::to_string( i ) ] = jsonArray.at( i );
+        j[ std::to_string( i ) ] = jsonArray.at( i );
     }
 }
 
 
-//! -DOC
+// ACCESS HISTORY
+
+//! Global variable containing all the key paths that were accessed since clearAccessHistory() was called for the
+//! last time (or since this variable was initialized).
 std::set< KeyPath > accessedKeyPaths = { };
 
-//! -DOC
+//! Get all the key paths defined for \p jsonObject.
+/*!
+ * @copybrief getKeyPaths
+ * \param jsonObject The `json` object.
+ * \param baseKeyPath The key path in which to look for sub-key paths. Default is SpecialKeys::root, i.e. a key path
+ * will be added to the returned `std::set` for each key defined in \p jsonObject.
+ * \return A set containing a key path for each key defined in \p jsonObject at \p baseKeyPath.
+ */
 std::set< KeyPath > getKeyPaths( const json& jsonObject, const KeyPath& baseKeyPath = SpecialKeys::root )
 {
     std::set< KeyPath > keyPaths;
@@ -108,7 +120,7 @@ std::set< KeyPath > getKeyPaths( const json& jsonObject, const KeyPath& baseKeyP
     return keyPaths;
 }
 
-//! -DOC
+//! Check for key paths that are defined in \p jsonObject but not contained by the global variable accessedKeyPaths.
 void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType response )
 {
     if ( response == printWarning || response == throwError )

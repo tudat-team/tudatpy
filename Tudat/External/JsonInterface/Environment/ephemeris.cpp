@@ -111,7 +111,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ep
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
+        handleUnimplementedEnumValue( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }
 }
 
@@ -209,7 +209,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     }
     */
     default:
-        handleUnimplementedEnumValueFromJson( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
+        handleUnimplementedEnumValue( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }
 }
 

@@ -115,8 +115,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AccelerationSettings >&
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( accelerationType, accelerationTypes,
-                                                         unsupportedAccelerationTypes );
+        handleUnimplementedEnumValue( accelerationType, accelerationTypes, unsupportedAccelerationTypes );
     }
 }
 
@@ -204,7 +203,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AccelerationSettings 
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( accelerationType, accelerationTypes, unsupportedAccelerationTypes );
+        handleUnimplementedEnumValue( accelerationType, accelerationTypes, unsupportedAccelerationTypes );
     }
 }
 

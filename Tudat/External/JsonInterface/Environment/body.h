@@ -36,20 +36,20 @@ void from_json( const json& jsonObject, boost::shared_ptr< BodySettings >& bodyS
 namespace json_interface
 {
 
-//! Create a `BodySettings` object with the settings from a `json` object.
+//! Create a simulation_setup::BodySettings object with the settings from \p jsonObject.
 /*!
- * Create a `BodySettings` object with the settings from a `json` object.
- * \param settings `json` object containing the settings for one body.
+ * @copybrief createBodySettings
+ * \param jsonObject `json` object containing the settings for one body.
  * \return Body settings object.
  */
 boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& jsonObject );
 
-//! Update a `BodySettings` object with the settings from a `json` object.
+//! Update \p bodySettings with the settings from \p jsonObject.
 /*!
- * Update a `BodySettings` object with the settings from a `json` object.
- * Does not change the values already defined in `bodySettings` that are not provided in `settings`.
+ * @copybrief updateBodySettings
+ * Does not change the values already defined in \p bodySettings that are not specified in \p jsonObject.
  * \param bodySettings Body settings object to be updated.
- * \param settings `json` object containing only the settings for one body.
+ * \param jsonObject `json` object containing only the settings for one body.
  */
 void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const json& jsonObject );
 

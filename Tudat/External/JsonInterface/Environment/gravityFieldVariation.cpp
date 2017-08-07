@@ -58,8 +58,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSe
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( bodyDeformationType, bodyDeformationTypes,
-                                                         unsupportedBodyDeformationTypes );
+        handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
     }
 }
 
@@ -96,8 +95,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariation
                         jsonObject, K::modelInterpolation )->interpolatorSettings_ );
         return;
     default:
-        handleUnimplementedEnumValueFromJson( bodyDeformationType, bodyDeformationTypes,
-                                              unsupportedBodyDeformationTypes );
+        handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );
     }
 }
 

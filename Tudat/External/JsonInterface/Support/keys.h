@@ -348,8 +348,11 @@ struct Keys
     };
 };
 
-// FIXME: what about arrays?
-//! Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json` objects.
+
+//! Class for specifying a key pat used to access data from `json` objects.
+/*!
+ * Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json` objects.
+ */
 class KeyPath : public std::vector< std::string >
 {
 public:
@@ -368,39 +371,20 @@ public:
      * Constructor with a single char key.
      * \param key The key to be accessed.
      */
-    //! Constructor with a single char key.
     KeyPath( const char* key ) : KeyPath( std::string( key ) ) { }
 
     //! Constructor with an element index.
     /*!
      * Constructor with an element index.
-     * \param key The index of the element to be accessed.
+     * \param vectorIndex The index of the element to be accessed.
      */
-    //! Constructor with a single char key.
     KeyPath( unsigned int vectorIndex ) : KeyPath( std::to_string( vectorIndex ) ) { }
 
-    /*
-    //! -DOC
-    KeyPath& operator+ ( const KeyPath& subkeys ) const
-    {
-        KeyPath* compoundKeyPath = new KeyPath( *this );
-        for ( std::string subkey : subkeys )
-        {
-            compoundKeyPath->push_back( subkey );
-        }
-        return *compoundKeyPath;
-    }
-
-    //! -DOC
-    KeyPath& operator+ ( const unsigned int vectorIndex ) const
-    {
-        KeyPath* compoundKeyPath = new KeyPath( *this );
-        compoundKeyPath->push_back( std::to_string( vectorIndex ) );
-        return *compoundKeyPath;
-    }
-    */
-
-    //! -DOC
+    //! Get whether the key path is absolute.
+    /*!
+     * Get whether the key path is absolute. Absolute key paths begin with `SpecialKeys::root`.
+     * \return Whether the key path is absolute.
+     */
     bool isAbsolute( ) const
     {
         if ( size( ) == 0 )
@@ -410,7 +394,14 @@ public:
         return *begin( ) == SpecialKeys::root;
     }
 
-    //! -DOC
+    //! Get the canonical representation of the key path.
+    /*!
+     * Get the canonical representation of the key path, optionally relative to \p basePath.
+     * This method is used to construct absolute paths, also navigating up and removing `SpecialKeys::up`.
+     * \param basePath Key path with respect to which the path is to be constructed.
+     * Optional, if not provided the key path is constructed with respect to the root.
+     * \return Canonical representation of the key path.
+     */
     KeyPath canonical( const KeyPath& basePath = SpecialKeys::root ) const;
 };
 

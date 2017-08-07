@@ -35,42 +35,99 @@ namespace tudat
 namespace json_interface
 {
 
-//! -DOC
+// KEY ACCESS
+
+//! Whether the key at \p keyPath is defined for \p jsonObject.
+/*!
+ * @copybrief defined
+ * \param jsonObject The `json` object.
+ * \param keyPath The key path specifying to key to be checked.
+ * \return @copybrief defined
+ */
+bool defined( const json& jsonObject, const KeyPath& keyPath );
+
+//! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
+/*!
+ * copybrief getRootObject
+ * \param jsonObject The `json` object.
+ * \return Sshared pointer to \p jsonObject at key SpecialKeys::rootObject.
+ * `NULL` if key SpecialKeys::rootObject is not defined for \p jsonObject.
+ */
 boost::shared_ptr< json > getRootObject( const json& jsonObject );
 
-//! -DOC
+//! Get the absolute key path from which \p jsonObject was retrieved.
+/*!
+ * copybrief getKeyPath
+ * \param jsonObject The `json` object.
+ * \return Absolute key path from which \p jsonObject was retrieved.
+ * \throws UndefinedKeyError If the key SpecialKeys::keyPath is not defined for \p jsonObject.
+ */
 KeyPath getKeyPath( const json& jsonObject );
 
-//! -DOC
+//! Get the key at which \p jsonObject was obtained.
+/*!
+ * copybrief getParentKey
+ * \param jsonObject The `json` object.
+ * \param errorMessage Error message to be printed if \p jsonObject has no key SpecialKeys::keyPath.
+ * \return Key at which \p jsonObject was obtained.
+ * \throws UndefinedKeyError If the key SpecialKeys::keyPath is not defined for \p jsonObject.
+ */
 std::string getParentKey( const json& jsonObject,
                           const std::string& errorMessage = "Could not determine parent key: context is missing." );
 
-//! -DOC
-void convertToObjectIfArray( json& jsonObject, const bool onlyIfElementsAreStructured = false );
+//! Convert \p j to object if \p j is array.
+/*!
+ * @copybrief convertToObjectIfArray This method does nothing if \p j is not an array, if \p is empty, or if \p is
+ * an array of primitive elements and \p onlyIfElementsAreStructured is set to `true`.
+ * \param j `json` object to be converted.
+ * \param onlyIfElementsAreStructured Only perform the conversion if the elements of \p j are either an object or an
+ * array, i.e. if they are not primitive. Defualt is `false` (all arrays will be converted regardless of their elements
+ * type).
+ */
+void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = false );
 
 
-//! -DOC
+// ACCESS HISTORY
+
+//! Global variable containing all the key paths that were accessed since clearAccessHistory() was called for the
+//! last time (or since this variable was initialized).
 extern std::set< KeyPath > accessedKeyPaths;
 
-//! -DOC
+//! Clear the global variable accessedKeyPaths.
+/*!
+ * @copybrief clearAccessHistory
+ */
 inline void clearAccessHistory( )
 {
-    accessedKeyPaths = { };
+    accessedKeyPaths.clear( );
 }
 
-//! -DOC
+//! Check for key paths that are defined in \p jsonObject but not contained by the global variable accessedKeyPaths.
+/*!
+ * @copybrief checkUnusedKeys
+ * \param jsonObject The `json` object.
+ * \param response Response type when finding unused keys in \p jsonObject.
+ * \throws std::runtime_error If \p response is set to ExceptionResponseType::throwError and at least one unsued key
+ * was found in \p jsonObject.
+ */
 void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType response );
 
 
-//! Get the value of a parameter defined by a `KeyPath` from a `json` object.
+// GET FROM JSON
+
+//! Get the value of \p jsonObject at \p keyPath.
 /*!
- * Get the value of a parameter defined by a `KeyPath` from a `json` object.
- * An error will be thrown if the requested key does not exist, or the provided value is not of the expected type `T`.
- * \param jsonObject JSON object from which to get the value.
- * \param keyPath Vector of keys defining the value to be accessed (key.subkey.subsubkey ...).
- * \return Value of the requested key.
- * \throw UndefinedKeyError If the requested key is not defined.
- * \throw IllegalValueError If the provided value for the requested key is not of type `T`.
+ * Get the value of \p jsonObject at \p keyPath.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \return Value at the requested key path.
+ * \throws UndefinedKeyError If the requested key path is not defined.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPath is of type object).
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename ValueType >
 ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
@@ -167,38 +224,34 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         // Could not convert string to enum
         throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
     }
-    /*
-    catch ( const UndefinedKeyError& error )
-    {
-        error.rethrowIfNotTriggeredByMissingValueAt( currentKeyPath );
-        // Some of the keys that had to be defined for currentObject are missing.
-        if ( currentObject.is_object( ) )
-        {
-            // If currentObject is an object, the user wants to know which key is missing.
-            // Thus, we re-throw the undefined key error.
-            throw error;
-        }
-        else
-        {
-            // If currentObject is not an object (e.g. is a number or a string)
-            // the user wants to know that an illegal value was provided for the expected object.
-            // Thus, we throw an illegal value error.
-            throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
-        }
-    }
-    */
 }
 
-
-//! -DOC
+//! Convert \p jsonObject to `ValueType`.
+/*!
+ * Convert \p jsonObject to `ValueType`.
+ * \param jsonObject The `json` object.
+ * \return \p jsonObject as `ValueType`.
+ * \throws IllegalValueError<ValueType> If \p jsonObject is not convertible to `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
+ */
 template< typename ValueType >
 ValueType getAs( const json& jsonObject )
 {
     return getValue< ValueType >( jsonObject, { } );
 }
 
-
-//! -DOC
+//! Get the numeric value of \p jsonObject at \p keyPath.
+/*!
+ * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with units and
+ * convert to SI units if it is as string.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \return Numeric value at the requested key path.
+ * \throws UndefinedKeyError If the requested key path is not defined.
+ * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
+ * `NumberType`.
+ */
 template< typename NumberType >
 NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath )
 {
@@ -222,8 +275,17 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath )
     }
 }
 
-
-//! -DOC
+//! Get the numeric value of \p jsonObject at \p keyPath.
+/*!
+ * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to seconds since
+ * J2000 if it is as string.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \return Numeric value at the requested key path.
+ * \throws UndefinedKeyError If the requested key path is not defined.
+ * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
+ * `NumberType`.
+ */
 template< typename NumberType >
 NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
 {
@@ -247,8 +309,19 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
     }
 }
 
-
-//! -DOC
+//! Get a pointer to the value of \p jsonObject at \p keyPath.
+/*!
+ * Get a pointer to the value of \p jsonObject at \p keyPath, or `NULL` if the key path does not exist.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \param getFunction Function used to retrieve the value. Default function is getValue. Can be set to
+ * getNumeric or getEpoch to enable parsing of the obtained value when provided as a string.
+ * \return Value at the requested key path.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPath is of type object).
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ */
 template< typename ValueType >
 boost::shared_ptr< ValueType > getOptional(
         const json& jsonObject, const KeyPath& keyPath,
@@ -265,24 +338,52 @@ boost::shared_ptr< ValueType > getOptional(
     }
 }
 
-
-//! -DOC
+//! Get a pointer to the numeric value of \p jsonObject at \p keyPath.
+/*!
+ * Get a pointer to the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with
+ * units and convert to SI units if it is as string, or `NULL` if the key path does not exist.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \return Value at the requested key path.
+ * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
+ * `NumberType`.
+ */
 template< typename NumberType >
 boost::shared_ptr< NumberType > getOptionalNumeric( const json& jsonObject, const KeyPath& keyPath )
 {
     return getOptional( jsonObject, keyPath, getNumeric< NumberType > );
 }
 
-
-//! -DOC
+//! Get a pointer to the numeric value of \p jsonObject at \p keyPath.
+/*!
+ * Get a pointer to the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to
+ * seconds since J2000 if it is as string, or `NULL` if the key path does not exist.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \return Value at the requested key path.
+ * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
+ * `NumberType`.
+ */
 template< typename NumberType >
 boost::shared_ptr< NumberType > getOptionalEpoch( const json& jsonObject, const KeyPath& keyPath )
 {
     return getOptional( jsonObject, keyPath, getEpoch< NumberType > );
 }
 
-
-//! -DOC
+//! Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
+/*!
+ * Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \param optionalValue The default value to be returned if the key is not defined.
+ * \return Value at the requested key path, or \p optionalValue if not defined.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPath is of type object).
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
+ */
 template< typename ValueType >
 ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueType& optionalValue )
 {
@@ -297,8 +398,20 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
     }
 }
 
-
-//! -DOC
+//! Get the numeric value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
+/*!
+ * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with units and
+ * convert to SI units if it is as string, or return \p optionalValue if not defined.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \param optionalValue The default value to be returned if the key is not defined.
+ * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
+ * \return Value at the requested key path, or \p optionalValue if not defined.
+ * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
+ * is set to `false`.
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ */
 template< typename NumberType >
 NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
                        const NumberType& optionalValue, bool allowNaN = false )
@@ -309,7 +422,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );  // not needed? NumberType cannot have subkeys
         if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
@@ -321,8 +434,20 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
     }
 }
 
-
-//! -DOC
+//! Get the numeric value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
+/*!
+ * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to seconds since
+ * J2000 if it is as string, or return \p optionalValue if not defined.
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \param optionalValue The default value to be returned if the key is not defined.
+ * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
+ * \return Value at the requested key path, or \p optionalValue if not defined.
+ * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
+ * is set to `false`.
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ */
 template< typename NumberType >
 NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
                      const NumberType& optionalValue, bool allowNaN = false )
@@ -333,7 +458,7 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );  // not needed? NumberType cannot have subkeys
         if ( ! allowNaN && isNaN( optionalValue ) )
         {
             throw error;
@@ -346,15 +471,42 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
 }
 
 
-//! -DOC
+// UPDATE FROM JSON
+
+//! Set \p value to be the value of \p jsonObject at \p keyPath.
+/*!
+ * Set \p value to be the value of \p jsonObject at \p keyPath.
+ * \param value The value to be updated (i.e. re-initialized).
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \throws UndefinedKeyError If the requested key path is not defined.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPath is of type object).
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
+ */
 template< typename T >
 void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath )
 {
     value = getValue< T >( jsonObject, keyPath );
 }
 
-
-//! -DOC
+//! Set \p value to be the value of \p jsonObject at \p keyPath if defined.
+/*!
+ * Set \p value to be the value of \p jsonObject at \p keyPath if defined.
+ * \remark This function does nothing if \p jsonObject is not defined at \p keyPath.
+ * \param value The value to be updated (i.e. re-initialized).
+ * \param jsonObject The `json` object.
+ * \param keyPath Key path from which to retrieve the value.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPath is of type object).
+ * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
+ * `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
+ */
 template< typename T >
 void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& keyPath )
 {
@@ -368,10 +520,18 @@ void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& k
     }
 }
 
-//! -DOC
-bool defined( const json& jsonObject, const KeyPath& keyPath );
 
-//! -DOC
+// UPDATE JSON
+
+//! Assign \p value to `jsonObject[ key ]` if \p value is not NaN.
+/*!
+ * @copybrief assignIfNotNaN
+ * \remark This function does nothing if \p value is NaN.
+ * \remark The comparison operator must be defined for `EquatableType`.
+ * \param jsonObject The `json` object being updated.
+ * \param key The key of \p jsonObject being updated.
+ * \param value The value to be used for updating `jsonObject[ key ]`.
+ */
 template< typename EquatableType >
 void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableType& value )
 {
@@ -381,7 +541,14 @@ void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableTy
     }
 }
 
-//! -DOC
+//! Assign \p object to `jsonObject[ key ]` if \p object is not NULL.
+/*!
+ * @copybrief assignIfNotNull
+ * \remark This function does nothing if \p object is `NULL`.
+ * \param jsonObject The `json` object being updated.
+ * \param key The key of \p jsonObject being updated.
+ * \param object Shared pointer to the object that is being to be used to update `jsonObject[ key ]`.
+ */
 template< typename T >
 void assignIfNotNull( json& jsonObject, const std::string& key, const boost::shared_ptr< T >& object )
 {
@@ -391,18 +558,27 @@ void assignIfNotNull( json& jsonObject, const std::string& key, const boost::sha
     }
 }
 
-//! -DOC
+//! Assign \p object to `jsonObject[ key ]` if \p container is not empty.
+/*!
+ * @copybrief assignIfNotEmpty
+ * \remark This function does nothing if \p container is empty.
+ * \remark The method `empty()` must be defined for `ContainerType`.
+ * \param jsonObject The `json` object being updated.
+ * \param key The key of \p jsonObject being updated.
+ * \param container Container (e.g. `std::vector`, `std::set`, `std::map` or `std::unordered_map`) that is being to be
+ * used to update `jsonObject[ key ]`.
+ */
 template< typename ContainerType >
-void assignIfNotEmpty( json& jsonObject, const std::string& key, const ContainerType& value )
+void assignIfNotEmpty( json& jsonObject, const std::string& key, const ContainerType& container )
 {
-    if ( value.size( ) > 0 )
+    if ( ! container.empty( ) )
     {
-        jsonObject[ key ] = value;
+        jsonObject[ key ] = container;
     }
 }
 
 
-//! Support for single-body and body-to-body maps
+// Typedefs for single-body and body-to-body maps.
 
 template < typename T >
 using SingleBodyMap = std::unordered_map< std::string, std::vector< boost::shared_ptr< T > > >;
@@ -415,37 +591,6 @@ using NoPointerSingleBodyMap = std::unordered_map< std::string, std::vector< T >
 
 template < typename T >
 using NoPointerBodyToBodyMap = std::unordered_map< std::string, NoPointerSingleBodyMap< T > >;
-
-/*
-//! Get a `BodyToBodyMap` of `T` objects from a `json` object.
-template < typename T >
-BodyToBodyMap< T > getBodyToBodyMap(
-        const json& jsonObject, const KeyPath& keyPath,
-        std::function< boost::shared_ptr< T >( const json&, const KeyPath& ) > createFunction )
-{
-    BodyToBodyMap< T > bodyToBodyMap;
-
-    NoPointerBodyToBodyMap< json > jsonBodyToBodyMap =
-            getValue< NoPointerBodyToBodyMap< json > >( jsonObject, keyPath, { } );
-    for ( auto entry : jsonBodyToBodyMap )
-    {
-        const std::string bodyUndergoing = entry.first;
-        const NoPointerSingleBodyMap< json > jsonSingleBodyMap = entry.second;
-        for ( auto subentry : jsonSingleBodyMap )
-        {
-            const std::string bodyExerting = subentry.first;
-            const std::vector< json > jsonVector = subentry.second;
-            for ( unsigned int i = 0; i < jsonVector.size( ); ++i )
-            {
-                bodyToBodyMap[ bodyUndergoing ][ bodyExerting ].push_back(
-                            createFunction( jsonObject, keyPath / bodyUndergoing / bodyExerting / i ) );
-            }
-        }
-    }
-
-    return bodyToBodyMap;
-}
-*/
 
 } // namespace json_interface
 

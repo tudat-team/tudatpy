@@ -35,7 +35,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
     {
         jsonObject[ K::conditions ] = hybridTerminationSettings->terminationSettings_;
         jsonObject[ K::stopIfSingleConditionMet ] = hybridTerminationSettings->fulFillSingleCondition_;
-        return;
     }
     else
     {
@@ -45,7 +44,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
         {
             jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( epochVariable );
             jsonObject[ K::limitValue ] = timeTerminationSettings->terminationTime_;
-            return;
         }
         else  // dependent variable
         {
@@ -56,7 +54,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
             jsonObject[ K::variable ] = dependentVariableTerminationSettings->dependentVariableSettings_;
             jsonObject[ K::limitValue ] = dependentVariableTerminationSettings->limitValue_;
             jsonObject[ K::useAsLowerLimit ] = dependentVariableTerminationSettings->useAsLowerLimit_;
-            return;
         }
     }
 }

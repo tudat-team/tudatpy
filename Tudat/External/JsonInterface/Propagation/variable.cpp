@@ -21,7 +21,7 @@ namespace tudat
 namespace propagators
 {
 
-/// VariableSettings
+// VariableSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings )
@@ -57,7 +57,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& var
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( variableType, variableTypes, unsupportedVariableTypes );
+        handleUnimplementedEnumValue( variableType, variableTypes, unsupportedVariableTypes );
     }
 }
 
@@ -90,12 +90,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& v
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( variableType, variableTypes, unsupportedVariableTypes );
+        handleUnimplementedEnumValue( variableType, variableTypes, unsupportedVariableTypes );
     }
 }
 
 
-/// SingleDependentVariableSaveSettings
+// SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
 void to_json( json& jsonObject,
@@ -224,7 +224,7 @@ void from_json( const json& jsonObject,
 namespace json_interface
 {
 
-//! -DOC
+//! Get a shared pointer to a `VariableSettings` object created from a `jsonObject[ keyPath ]`.
 boost::shared_ptr< propagators::VariableSettings > getVariable( const json& jsonObject, const KeyPath& keyPath )
 {
     using namespace propagators;
@@ -267,7 +267,7 @@ boost::shared_ptr< propagators::VariableSettings > getVariable( const json& json
     return getAs< boost::shared_ptr< VariableSettings > >( variable );
 }
 
-//! -DOC
+//! Get a vector of shared pointers to `VariableSettings` objects created from `jsonObject[ keyPath ]`.
 std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
         const json& jsonObject, const KeyPath& keyPath )
 {
@@ -281,7 +281,8 @@ std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
     return variables;
 }
 
-//! -DOC
+//! Get a vector of shared pointers to `SingleDependentVariableSaveSettings` objects created from
+//! `jsonObject[ keyPath ]`.
 std::vector< boost::shared_ptr< propagators::SingleDependentVariableSaveSettings > > getDependentVariables(
         const json& jsonObject, const KeyPath& keyPath )
 {

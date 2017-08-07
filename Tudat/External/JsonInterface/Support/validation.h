@@ -20,7 +20,7 @@ namespace tudat
 namespace json_interface
 {
 
-/// ExceptionResponseType
+// ExceptionResponseType
 
 //! Map of `ExceptionResponseType` string representations.
 static std::map< ExceptionResponseType, std::string > exceptionResponseTypes =
@@ -43,8 +43,9 @@ inline void from_json( const json& jsonObject, ExceptionResponseType& exceptionR
 }
 
 
-/// ValidationSettings
+// ValidationSettings
 
+//! Class containing the validation settings for running Tudat apps that use json_interface.
 class ValidationSettings
 {
 public:

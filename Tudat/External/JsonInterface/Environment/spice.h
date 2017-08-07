@@ -21,7 +21,7 @@ namespace simulation_setup
 {
 
 /*
-/// SimulationType
+// SimulationType
 
 //! Frequently-used simulations.
 enum SimulationType
@@ -54,13 +54,17 @@ inline void from_json( const json& jsonObject, SimulationType& simulationType )
 */
 
 
-/// SpiceSettings
+// SpiceSettings
 
 /*
 //! Get the set of spice kernels to be used for a SimulationType.
 std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType simulationType );
 */
 
+//! Class containing the settings for Spice used in a simulation.
+/*!
+ * Class containing the settings for Spice used in a simulation.
+ */
 class SpiceSettings
 {
 public:
@@ -70,31 +74,43 @@ public:
         kernels_( getSpiceKernels( simulationType ) ) { }
     */
 
-    //! Constructor.
-    SpiceSettings( const std::vector< boost::filesystem::path >& kernels, const double preloadOffset = 300.0 ) :
-        kernels_( kernels ), preloadOffsets_( { -preloadOffset, preloadOffset } ) { }
-
-    //! Constructor.
-    SpiceSettings( const std::vector< boost::filesystem::path >& kernels, const bool preloadKernels ) :
-        kernels_( kernels ), preloadKernels_( preloadKernels ) { }
+    //! Constructor with a vector of Spice kernels to be used.
+    /*!
+     * @copybrief SpiceSettings
+     * \param kernels
+     */
+    SpiceSettings( const std::vector< boost::filesystem::path >& kernels ) : kernels_( kernels ) { }
 
     //! Destructor.
     virtual ~SpiceSettings( ) { }
 
 
-    //! Vector containing the paths to the spice kernel files to be used.
+    //! Vector containing the paths to the spice kernel files to be loaded.
     std::vector< boost::filesystem::path > kernels_;
 
     //! Whether all the data from the Spice kernels should be preloaded before the simulation for the interval start
     //! epoch to end epoch (true), or whether the data from Spice should be accessed on request at every step (false).
-    //! Preloading Spice data generally results in faster propagations, unless:
-    //! * The simulation ends much earlier than the specified maximum simulation end epoch.
-    //! * The integrator step-size is very large (in the order of several hours or days).
+    /*!
+     * Whether all the data from the Spice kernels should be preloaded before the simulation for the interval start
+     * epoch to end epoch (true), or whether the data from Spice should be accessed on request at every step (false).
+     * <br/>
+     * Preloading Spice data generally results in faster propagations, unless:
+     * <br/>
+     * <ul>
+     *  <li>The simulation ends much earlier than the specified maximum simulation end epoch.</li>
+     *  <li>The integrator step-size is very large (in the order of several hours or days).</li>
+     * </ul>
+     */
     bool preloadKernels_ = true;
 
-    //! Offsets for the interval for which the spice kernels are to be preloaded (only used if preloadKernels_ = true).
-    //! The kernels will be preloaded for the interval:
-    //! [ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]
+    //! Offsets for the interval for which the spice kernels are to be preloaded.
+    /*!
+     * Offsets for the interval for which the spice kernels are to be preloaded.
+     * <br/>
+     * The kernels will be preloaded for the interval:
+     * `[ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]`
+     * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
+     */
     std::pair< double, double > preloadOffsets_ = { -300.0, 300.0 };
 };
 

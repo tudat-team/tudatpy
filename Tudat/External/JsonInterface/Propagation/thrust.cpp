@@ -17,7 +17,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-/// DIRECTION
+// DIRECTION
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
@@ -48,8 +48,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( directionType, thrustDirectionTypes,
-                                                         unsupportedThrustDirectionTypes );
+        handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
     }
 }
 
@@ -77,12 +76,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidan
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
+        handleUnimplementedEnumValue( directionType, thrustDirectionTypes, unsupportedThrustDirectionTypes );
     }
 }
 
 
-/// MAGNITUDE
+// MAGNITUDE
 
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
@@ -118,8 +117,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( magnitudeType, thrustMagnitudeTypes,
-                                                         unsupportedThrustMagnitudeTypes );
+        handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
     }
 }
 
@@ -150,7 +148,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings 
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
+        handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
     }
 }
 

@@ -22,7 +22,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-/// DIRECTION
+// DIRECTION
 
 static std::map< ThrustDirectionGuidanceTypes, std::string > thrustDirectionTypes =
 {
@@ -58,7 +58,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
 
 
-/// MAGNITUDE
+// MAGNITUDE
 
 //! Map of `ThrustMagnitudeTypes` string representations.
 static std::map< ThrustMagnitudeTypes, std::string > thrustMagnitudeTypes =

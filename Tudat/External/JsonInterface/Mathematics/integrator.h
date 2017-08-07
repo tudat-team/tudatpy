@@ -115,7 +115,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( integratorType, integratorTypes, unsupportedIntegratorTypes );
+        handleUnimplementedEnumValue( integratorType, integratorTypes, unsupportedIntegratorTypes );
     }
 }
 
@@ -175,7 +175,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( integratorType, integratorTypes, unsupportedIntegratorTypes );
+        handleUnimplementedEnumValue( integratorType, integratorTypes, unsupportedIntegratorTypes );
     }
 }
 

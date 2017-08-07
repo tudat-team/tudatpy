@@ -47,8 +47,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >
     case spice_rotation_model:
         return;
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( rotationModelType, rotationModelTypes,
-                                                         unsupportedRotationModelTypes );
+        handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
     }
 }
 
@@ -81,7 +80,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
+        handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
     }
 }
 

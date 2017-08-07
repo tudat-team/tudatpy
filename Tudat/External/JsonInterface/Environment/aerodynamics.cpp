@@ -52,8 +52,8 @@ void to_json( json& jsonObject,
     }
         // FIXME: derivered classes missing
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
-                                                         unsupportedAerodynamicCoefficientTypes );
+        handleUnimplementedEnumValue( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
+                                      unsupportedAerodynamicCoefficientTypes );
     }
 }
 
@@ -103,8 +103,8 @@ void from_json( const json& jsonObject,
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
-                                            unsupportedAerodynamicCoefficientTypes );
+        handleUnimplementedEnumValue( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
+                                      unsupportedAerodynamicCoefficientTypes );
     }
 }
 

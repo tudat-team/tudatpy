@@ -19,8 +19,8 @@ namespace tudat
 namespace json_interface
 {
 
-//! Replace recognized paths with placeholders such as ${TUDAT_ROOT}.
-std::string addPathPlaceholders( std::string path )
+//! Return \p path with the recognized paths replaced by placeholders (such as ${TUDAT_ROOT_PATH}).
+std::string pathAddingPlaceholders( std::string path )
 {
     using namespace boost;
     for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
@@ -35,8 +35,8 @@ std::string addPathPlaceholders( std::string path )
     return regex_replace( path, regex( currentPath.string( ) ), "" );
 }
 
-//! Replace recognized placeholders such as ${SRCROOT} with the actual paths.
-std::string removePathPlaceholders( std::string path )
+//! Return \p path with the recognized path placeholders (such as ${TUDAT_ROOT_PATH}) replaced by the actual paths.
+std::string pathRemovingPlaceholders( std::string path )
 {
     using namespace boost;
     for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
@@ -64,13 +64,13 @@ namespace filesystem
 void to_json( json& j, const path& p )
 {
     const path absolutePath = p.is_absolute( ) ? p : current_path( ) / p;
-    j = tudat::json_interface::addPathPlaceholders( weakly_canonical( absolutePath ).string( ) );
+    j = tudat::json_interface::pathAddingPlaceholders( weakly_canonical( absolutePath ).string( ) );
 }
 
 //! Create a path from a `json` object.
 void from_json( const json& j, path& p )
 {
-    const path actualPath = tudat::json_interface::removePathPlaceholders( j.get< std::string >( ) );
+    const path actualPath = tudat::json_interface::pathRemovingPlaceholders( j.get< std::string >( ) );
     const path absolutePath = actualPath.is_absolute( ) ? actualPath : current_path( ) / actualPath;
     p = weakly_canonical( absolutePath );
 }
