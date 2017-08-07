@@ -26,7 +26,8 @@ namespace json_interface
 
 typedef boost::filesystem::path path;
 
-//! -DOC
+//! Names for replacable paths in JSON files.
+//! E.g., the text "${TUDAT_ROOT_PATH}" will be replaced with the actual path when reading JSON files.
 static std::vector< std::pair< std::string, std::string > > pathPlaceholders =
 {
     std::make_pair( "TUDAT_ROOT_PATH", input_output::getTudatRootPath( ) ),
@@ -35,11 +36,22 @@ static std::vector< std::pair< std::string, std::string > > pathPlaceholders =
     std::make_pair( "SPICE_KERNELS_PATH", input_output::getSpiceKernelPath( ) )
 };
 
-//! Replace recognized paths with placeholders such as ${TUDAT_ROOT_PATH}.
-std::string addPathPlaceholders( std::string path );
+//! Return \p path with the recognized paths replaced by placeholders (such as ${TUDAT_ROOT_PATH}).
+/*!
+ * @copybrief pathAddingPlaceholders
+ * \param path Path without placeholders.
+ * \return Path with placeholders.
+ */
+std::string pathAddingPlaceholders( std::string path );
 
-//! Replace recognized placeholders such as ${TUDAT_ROOT_PATH} with the actual paths.
-std::string removePathPlaceholders( std::string path );
+//! Return \p path with the recognized path placeholders (such as ${TUDAT_ROOT_PATH}) replaced by the actual paths.
+/*!
+ * @copybrief pathRemovingPlaceholders
+ * If any of the placeholders is not recognized, it will not be replaced and no warning or error will be generated.
+ * \param path Path with placeholders.
+ * \return Path without placeholders.
+ */
+std::string pathRemovingPlaceholders( std::string path );
 
 } // namespace json_interface
 

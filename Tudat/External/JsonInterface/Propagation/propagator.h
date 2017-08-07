@@ -28,7 +28,7 @@ namespace tudat
 namespace propagators
 {
 
-/// IntegratedStateType
+// IntegratedStateType
 
 //! Map of `IntegratedStateType`s string representations.
 static std::map< IntegratedStateType, std::string > integratedStateTypes =
@@ -61,7 +61,7 @@ inline void from_json( const json& jsonObject, IntegratedStateType& integratedSt
 }
 
 
-/// TranslationalPropagatorType
+// TranslationalPropagatorType
 
 //! Map of `TranslationalPropagatorType`s string representations.
 static std::map< TranslationalPropagatorType, std::string > translationalPropagatorTypes =
@@ -89,7 +89,7 @@ inline void from_json( const json& jsonObject, TranslationalPropagatorType& tran
 }
 
 
-/// PropagatorSettings
+// PropagatorSettings
 
 //! Create a `json` object from a shared pointer to a `PropagatorSettings` object.
 template< typename StateScalarType = double >
@@ -137,7 +137,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagatorSettings< S
 }
 
 
-/// SingleArcPropagatorSettings
+// SingleArcPropagatorSettings
 
 //! Create a `json` object from a shared pointer to a `SingleArcPropagatorSettings` object.
 template< typename StateScalarType = double >
@@ -190,8 +190,7 @@ void to_json( json& jsonObject,
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( integratedStateType, integratedStateTypes,
-                                                         unsupportedIntegratedStateTypes );
+        handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
     }
 }
 
@@ -252,8 +251,7 @@ void from_json( const json& jsonObject,
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( integratedStateType, integratedStateTypes,
-                                              unsupportedIntegratedStateTypes );
+        handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
     }
 }
 

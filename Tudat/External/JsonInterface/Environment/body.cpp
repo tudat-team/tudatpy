@@ -59,7 +59,7 @@ void from_json( const json& jsonObject,  boost::shared_ptr< BodySettings >& body
 namespace json_interface
 {
 
-//! Create a `BodySettings` object with the settings from a `json` object.
+//! Create a simulation_setup::BodySettings object with the settings from \p jsonObject.
 boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& jsonObject )
 {
     using namespace simulation_setup;
@@ -68,7 +68,7 @@ boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const js
     return bodySettings;
 }
 
-//! Update a `BodySettings` object with the settings from a `json` object.
+//! Update \p bodySettings with the settings from \p jsonObject.
 void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const json& jsonObject )
 {
     using namespace simulation_setup;

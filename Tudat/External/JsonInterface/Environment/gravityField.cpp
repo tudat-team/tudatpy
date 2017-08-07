@@ -51,7 +51,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
         jsonObject[ K::associatedReferenceFrame ] =
                 sphericalHarmonicsGravityFieldSettings->getAssociatedReferenceFrame( );
 
-        /// SphericalHarmonicsFileGravityFieldSettings
+        // SphericalHarmonicsFileGravityFieldSettings
         boost::shared_ptr< SphericalHarmonicsFileGravityFieldSettings > sphericalHarmonicsFileGravityFieldSettings =
                 boost::dynamic_pointer_cast< SphericalHarmonicsFileGravityFieldSettings >( gravityFieldSettings );
         if ( sphericalHarmonicsFileGravityFieldSettings )
@@ -93,8 +93,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( gravityFieldType, gravityFieldTypes,
-                                                         unsupportedGravityFieldTypes );
+        handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
     }
 }
 
@@ -122,7 +121,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
     case spherical_harmonic:
     {
         const boost::shared_ptr< path > file = getOptional< path >( jsonObject, K::file );
-        if ( file )  /// SphericalHarmonicsFileGravityFieldSettings
+        if ( file )  // SphericalHarmonicsFileGravityFieldSettings
         {
             const int gmIndex = getNumeric( jsonObject, K::gravitationalParameterIndex, 0 );
             const int radiusIndex = getNumeric( jsonObject, K::referenceRadiusIndex, 1 );
@@ -137,7 +136,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
                         getNumeric< double >( jsonObject, K::referenceRadius, TUDAT_NAN, radiusIndex >= 0 ) );
             return;
         }
-        else   /// SphericalHarmonicsGravityFieldSettings
+        else   // SphericalHarmonicsGravityFieldSettings
         {
             gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         getNumeric< double >( jsonObject, K::gravitationalParameter ),
@@ -149,7 +148,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
         }
     }
     default:
-        handleUnimplementedEnumValueFromJson( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
+        handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );
     }
 }
 

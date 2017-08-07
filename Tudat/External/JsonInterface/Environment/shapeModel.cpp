@@ -52,7 +52,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bo
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
+        handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
     }
 }
 
@@ -85,7 +85,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< BodyShapeSettings >& 
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
+        handleUnimplementedEnumValue( bodyShapeType, bodyShapeTypes, unsupportedBodyShapeTypes );
     }
 }
 

@@ -48,8 +48,8 @@ void to_json( json& jsonObject,
         return;
     }
     default:
-        jsonObject = handleUnimplementedEnumValueToJson( radiationPressureType, radiationPressureTypes,
-                                                         unsupportedRadiationPressureTypes );
+        handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes,
+                                      unsupportedRadiationPressureTypes );
     }
 }
 
@@ -84,8 +84,8 @@ void from_json( const json& jsonObject,
         return;
     }
     default:
-        handleUnimplementedEnumValueFromJson( radiationPressureType, radiationPressureTypes,
-                                              unsupportedRadiationPressureTypes );
+        handleUnimplementedEnumValue( radiationPressureType, radiationPressureTypes,
+                                      unsupportedRadiationPressureTypes );
     }
 }
 

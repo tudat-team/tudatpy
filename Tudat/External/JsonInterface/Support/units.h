@@ -27,7 +27,10 @@ namespace json_interface
 
 
 //! Equivalent SI value of units supported by json_interface.
-//! IMPORTANT: keys are all defined in lowercase here, but user can also use uppercase in input files.
+/*!
+ * @copybrief SIUnits
+ * \remark Keys must be all in lowercase.
+ */
 static std::map< std::string, double > SIUnits =
 {
     // Time [ s ]
@@ -46,20 +49,30 @@ static std::map< std::string, double > SIUnits =
 };
 
 
-//! -DOC
+//! Split \p string using \p delimiter.
+/*!
+ * Split \p string using \p delimiter.
+ */
 template< typename T >
-void split( const std::string& string, char delimiter, T result ) {
+void split( const std::string& string, char delimiter, T result )
+{
     std::stringstream stream;
     stream.str( string );
     std::string item;
     while ( std::getline( stream, item, delimiter ) )
     {
-        *(result++) = item;
+        *( result++ ) = item;
     }
 }
 
-//! -DOC
-static inline std::vector< std::string > split( const std::string& string, char delimiter )
+//! Get a vector containing the parts resulting from splitting \p string using \p delimiter.
+/*!
+ * Get a vector containing the parts resulting from splitting \p string using \p delimiter.
+ * \param string The string to be splitted.
+ * \param delimiter The delimiter to be used.
+ * \return Vector containing the parts resulting from splitting \p string using \p delimiter.
+ */
+inline std::vector< std::string > split( const std::string& string, char delimiter )
 {
     std::vector< std::string > parts;
     split( string, delimiter, std::back_inserter( parts ) );
@@ -67,9 +80,18 @@ static inline std::vector< std::string > split( const std::string& string, char 
 }
 
 
-//! -DOC
-template< typename T >
-T convertToSecondsSinceJ2000( const std::string& date )
+//! Convert a formatted date string into second since J2000.
+/*!
+ * @copybrief convertToSecondsSinceJ2000
+ * \remark Supported formats: all of the formats supported by `boost::posix_time::time_from_string`,
+ * `boost::posix_time::from_iso_string` and `boost::posix_time::from_iso_extended_string`.
+ * \remark The epoch at J2000 corresponds to `boost::posix_time:time_from_string( "2000-01-01 12:00:00" )`.
+ * \param date The formatted date.
+ * \return The number of seconds from J2000 to \p date.
+ * \throws exception If the provided date format is not recognized.
+ */
+template< typename NumberType >
+NumberType convertToSecondsSinceJ2000( const std::string& date )
 {
     using namespace boost::posix_time;
     ptime pt;
@@ -101,9 +123,18 @@ T convertToSecondsSinceJ2000( const std::string& date )
     return duration.total_seconds( );
 }
 
-//! -DOC
-template< typename T >
-T convertToSIUnits( T number, const std::string& units )
+
+//! Convert a \p number with generic \p units to SI units.
+/*!
+ * @copybrief convertToSIUnits
+ * \remark Supported units: see keys of json_interface::SIUnits (case insensitive search).
+ * \param number The original number.
+ * \param units The original units.
+ * \return The number in SI units.
+ * \throws exception If the provided units are not recognized.
+ */
+template< typename NumberType >
+NumberType convertToSIUnits( NumberType number, const std::string& units )
 {
     std::string lowercaseUnits = boost::algorithm::to_lower_copy( units );
     if ( SIUnits.count( lowercaseUnits ) == 0 )
@@ -117,17 +148,24 @@ T convertToSIUnits( T number, const std::string& units )
         std::cerr << "." << std::endl;
         throw;
     }
-    return number * static_cast< T >( SIUnits.at( lowercaseUnits ) );
+    return number * static_cast< NumberType >( SIUnits.at( lowercaseUnits ) );
 }
 
-//! -DOC
-template< typename T >
-T parseMagnitudeWithUnits( const std::string& text )
+//! Convert a formatted physical magnitude string into a number in SI units.
+/*!
+ * @copybrief parseMagnitudeWithUnits
+ * \remark Supported units: see keys of json_interface::SIUnits (case insensitive search).
+ * \param text String containing the original number and units, separated by one space (e.g. "20 min").
+ * \return The number in SI units.
+ * \throws exception If the provided units are not recognized.
+ */
+template< typename NumberType >
+NumberType parseMagnitudeWithUnits( const std::string& text )
 {
     std::vector< std::string > parts = split( text, ' ' );
-    T number = boost::lexical_cast< T >( parts.at( 0 ) );
+    NumberType number = boost::lexical_cast< NumberType >( parts.at( 0 ) );
     std::string originalUnits = parts.at( 1 );
-    return convertToSIUnits< T >( number, originalUnits );
+    return convertToSIUnits< NumberType >( number, originalUnits );
 }
 
 

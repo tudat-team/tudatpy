@@ -30,7 +30,7 @@ namespace tudat
 namespace json_interface
 {
 
-//! Possible responses to a exception during JSON validation.
+//! Possible responses to an exception during validation phase in Tudat apps that use json_interface.
 enum ExceptionResponseType
 {
     continueSilently,
@@ -38,18 +38,26 @@ enum ExceptionResponseType
     throwError
 };
 
-//! -DOC
+//! Class for errors generated during the retrieval of a value from a `json` object.
+/*!
+ * Class for errors generated during the retrieval of a value from a `json` object.
+ */
 class ValueAccessError : public std::runtime_error
 {
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param errorMessage The first part of the message to be printed.
+     * \param keyPath Key path trying to access / accessed when the error was generated.
+     */
     ValueAccessError( const std::string& errorMessage, const KeyPath& keyPath )
         : runtime_error( errorMessage.c_str( ) ), keyPath( keyPath ) { }
 
-    //! Key path.
+    //! Key path trying to access / accessed when the error was generated.
     const KeyPath keyPath;
 
-    //! Error message.
+    //! Full error message.
     virtual const char* what( ) const throw( )
     {
         std::ostringstream stream;
@@ -59,20 +67,36 @@ public:
     }
 };
 
-//! -DOC
+//! Class for errors generated when trying to access a key from a `json` object that does not exist.
+/*!
+ * Class for errors generated when trying to access a key from a `json` object that does not exist.
+ */
 class UndefinedKeyError : public ValueAccessError
 {
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param keyPath Key path trying to access when the error was generated.
+     */
     UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
 
-    //! -DOC
+    //! Whether `this` was generated when trying to access \p keyPath.
+    /*!
+     * @copybrief wasTriggeredByMissingValueAt
+     * \param keyPath The key path to which the instance's key path is to be compared.
+     * \return @copybrief wasTriggeredByMissingValueAt
+     */
     bool wasTriggeredByMissingValueAt( const KeyPath& keyPath ) const
     {
         return this->keyPath.back( ) == keyPath.back( );
     }
 
-    //! -DOC
+    //! Rethrow `this` if `this` was not generated when trying to access \p keyPath.
+    /*!
+     * @copybrief rethrowIfNotTriggeredByMissingValueAt
+     * \param keyPath The key path to which the instance's key path is to be compared.
+     */
     void rethrowIfNotTriggeredByMissingValueAt( const KeyPath& keyPath ) const
     {
         if ( ! wasTriggeredByMissingValueAt( keyPath ) )
@@ -82,20 +106,27 @@ public:
     }
 };
 
-
-//! -DOC
+//! Class for errors generated when trying to convert a `json` object to type `ExpectedValueType`.
+/*!
+ * Class for errors generated when trying to convert a `json` object to type `ExpectedValueType`.
+ */
 template< typename ExpectedValueType >
 class IllegalValueError : public ValueAccessError
 {
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param keyPath Key path \p value was retrieved from.
+     * \param value The `json` object that was going to be converted to type `ExpectedValueType`.
+     */
     IllegalValueError( const KeyPath& keyPath, const json& value )
         : ValueAccessError( "Illegal value for key", keyPath ), value( value ) { }
 
     //! Associated (illegal) value.
     json value;
 
-    //! Error message.
+    //! Full error message.
     virtual const char* what( ) const throw( )
     {
         std::cerr << "Could not convert value to expected type "
@@ -108,90 +139,135 @@ public:
 };
 
 
-//! -DOC
+//! Class for errors that print a report bug link.
+/*!
+ * Class for errors that print a report bug link.
+ */
 class ReportableBugError : public std::exception
 {
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param errorMessage @copydoc ReportableBugError::errorMessage
+     * \param reportURL @copydoc ReportableBugError::reportURL
+     */
     ReportableBugError(
             const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
-            const std::string& reportLink = "https://github.com/Tudat/tudat/issues" )
-        : std::exception( ), errorMessage( errorMessage ), reportLink( reportLink ) { }
+            const std::string& reportURL = "https://github.com/Tudat/tudat/issues" )
+        : std::exception( ), errorMessage( errorMessage ), reportURL( reportURL ) { }
 
     //! Full error message.
     virtual const char* what( ) const throw( )
     {
-        std::cerr << errorMessage << std::endl << std::endl << reportLink << std::endl << std::endl;
+        std::cerr << errorMessage << std::endl << std::endl << reportURL << std::endl << std::endl;
         std::ostringstream stream;
         stream << std::exception::what( ) << std::endl;
         return stream.str( ).c_str( );
     }
 
 protected:
-    //! Error message.
+    //! The message to print before the error link.
     std::string errorMessage;
 
-    //! Report link.
-    std::string reportLink;
+    //! The URL that can be used to report the error.
+    std::string reportURL;
 };
 
 
-//! -DOC
+//! Class for errors that print a report bug link to open an issue on GitHub (optionally pre-filled).
+/*!
+ * Class for errors that print a report bug link to open an issue on GitHub (optionally pre-filled).
+ */
 class AutoReportableBugError : public ReportableBugError
 {
-private:
-    //! Pre-filled title for new issue.
-    std::string issueTitle;
-
-    //! Pre-filled comment for new issue.
-    std::string issueBody;
-
-    void updateReportLink( )
-    {
-        reportLink = "https://github.com/Tudat/tudat/issues/new";
-        reportLink += "?title=";
-        reportLink += url_encode( issueTitle );
-        reportLink += "&body=";
-        reportLink += url_encode( issueBody );
-    }
-
 public:
     //! Constructor.
+    /*!
+     * Constructor.
+     * \param errorMessage First part of the message.
+     * \param issueTitle @copydoc AutoReportableBugError::issueTitle
+     * \param issueBody @copydoc AutoReportableBugError::issueBody
+     */
     AutoReportableBugError(
             const std::string& errorMessage = "Internal Tudat error. Please, report this bug by using this link: ",
             const std::string& issueTitle = "", const std::string& issueBody = "" )
         : ReportableBugError( errorMessage ), issueTitle( issueTitle ), issueBody( issueBody )
     {
-        updateReportLink( );
+        updateReportURL( );
     }
 
-    void setIssueTitle( const std::string& str )
+    //! Change the issue's title and update the report URL.
+    /*!
+     * @copybrief setIssueTitle
+     * \param title New issue's title.
+     */
+    void setIssueTitle( const std::string& title )
     {
-        issueTitle = str;
-        updateReportLink( );
+        issueTitle = title;
+        updateReportURL( );
     }
 
-    void setIssueBody( const std::string& str )
+    //! Change the issue's body and update the report URL.
+    /*!
+     * @copybrief setIssueBody
+     * \param body New issue's body.
+     */
+    void setIssueBody( const std::string& body )
     {
-        issueBody = str;
-        updateReportLink( );
+        issueBody = body;
+        updateReportURL( );
     }
 
+    //! Change the issue's title and body and update the report URL.
+    /*!
+     * @copybrief setIssue
+     * \param title New issue's title.
+     * \param body New issue's body.
+     */
     void setIssue( const std::string& title, const std::string& body )
     {
         issueTitle = title;
         issueBody = body;
-        updateReportLink( );
+        updateReportURL( );
+    }
+
+private:
+    //! Pre-filled title for the new issue to be opened on GitHub.
+    std::string issueTitle;
+
+    //! Pre-filled title for the new issue to be opened on GitHub.
+    std::string issueBody;
+
+    //! Update the report URL.
+    /*!
+     * Update the report URL for the current \p issueTitle and \p issueBody.
+     */
+    void updateReportURL( )
+    {
+        reportURL = "https://github.com/Tudat/tudat/issues/new";
+        reportURL += "?title=";
+        reportURL += url_encode( issueTitle );
+        reportURL += "&body=";
+        reportURL += url_encode( issueBody );
     }
 };
 
 
-//! -DOC
+// NULL POINTERS
+
+//! Class for errors generated when a pointer that should not be `NULL` is `NULL`.
+/*!
+ * Class for errors generated when a pointer to an object of type `T` that should not be `NULL` is `NULL`.
+ */
 template< typename T >
 class NullPointerError : public AutoReportableBugError
 {
 public:
     //! Constructor
+    /*!
+     * Empty constructor.
+     */
     NullPointerError( ) : AutoReportableBugError( )
     {
         const std::string typeName = boost::core::demangled_name( typeid( T ) );
@@ -208,21 +284,53 @@ public:
     }
 };
 
+//! Check that a pointer is not `NULL`.
+/*!
+ * Check that a pointer to an object of type `T` is not `NULL`.
+ * \param pointer The pointer that is not allowed to be `NULL`.
+ * \throws NullPointerError<T> If \p pointer is `NULL`.
+ */
+template< typename T >
+void enforceNonNullPointer( const boost::shared_ptr< T >& pointer )
+{
+    if ( pointer )
+    {
+        return;
+    }
+    else
+    {
+        throw NullPointerError< T >( );
+    }
+}
 
 
-/// ENUMS
 
-//! -DOC
+// ENUMS
+
+//! Class for errors generated when trying to convert between `enum` and `std::string`.
+/*!
+ * Class for errors generated when trying to convert between `enum` and `std::string`.
+ */
 class UnknownEnumError : public std::runtime_error
 {
 public:
+    //! Constructor.
+    /*!
+     * Empty constructor.
+     */
     UnknownEnumError( ) : runtime_error( "Unknown conversion between enum and string." ) { }
 };
 
-//! -DOC
+//! Get an `enum` value of type `EnumType` from a `std::string`.
+/*!
+ * @copybrief \enumFromString
+ * \param stringValue The string to be converted to `EnumType`.
+ * \param stringValues Map containing the string representation for the values of `EnumType`.
+ * \return The `EnumType` corresponding to \p stringValue.
+ * \throws UnknownEnumError If no entry with value \p stringValue is found in \p stringValues.
+ */
 template< typename EnumType >
-EnumType enumFromString( const std::string& stringValue,
-                         const std::map< EnumType, std::string >& stringValues )
+EnumType enumFromString( const std::string& stringValue, const std::map< EnumType, std::string >& stringValues )
 {
     for ( auto entry : stringValues )
     {
@@ -241,7 +349,14 @@ EnumType enumFromString( const std::string& stringValue,
     throw UnknownEnumError( );
 }
 
-//! -DOC
+//! Get a `std::string` from an `enum` value of type `EnumType`.
+/*!
+ * @copybrief \stringFromEnum
+ * \param enumValue The `EnumType` to be converted to string.
+ * \param stringValues Map containing the string representation for the values of `EnumType`.
+ * \return The `std::string` corresponding to \p enumValue.
+ * \throws UnknownEnumError If no entry with key \p enumValue is found in \p stringValues.
+ */
 template< typename EnumType >
 std::string stringFromEnum( const EnumType enumValue, const std::map< EnumType, std::string >& stringValues )
 {
@@ -257,12 +372,23 @@ std::string stringFromEnum( const EnumType enumValue, const std::map< EnumType, 
     }
 }
 
-//! -DOC
+//! Class for errors generated when trying to use a value for an `enum` of type `T` that is not supported by
+//! json_interface.
+/*!
+ * Class for errors generated when trying to use a value for an `enum` of type `T` that is not supported by
+ * json_interface.
+ */
 template< typename T >
 class UnsupportedEnumError : public AutoReportableBugError
 {
 public:
-    //! Constructor
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param enumValue The `enum` value of type `T` that is not supported.
+     * \param stringValues Map containing the string representation for the values of `EnumType`
+     * (including \p enumValue).
+     */
     UnsupportedEnumError( const T enumValue, const std::map< T, std::string >& stringValues )
         : AutoReportableBugError( )
     {
@@ -284,17 +410,27 @@ public:
     }
 };
 
-
-//! -DOC
-template< typename T >
+//! Class for errors generated when trying to use a value for an `enum` of type `EnumType` that is marked as supported
+//! by json_interface but for which no implementation was found.
+/*!
+ * Class for errors generated when trying to use a value for an `enum` of type `EnumType` that is marked as supported
+ * by json_interface but for which no implementation was found.
+ */
+template< typename EnumType >
 class UnimplementedEnumError : public AutoReportableBugError
 {
 public:
-    //! Constructor
-    UnimplementedEnumError( const T enumValue, const std::map< T, std::string >& stringValues )
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param enumValue The `enum` value of type `EnumType` that is not supported.
+     * \param stringValues Map containing the string representation for the values of `EnumType`
+     * (including \p enumValue).
+     */
+    UnimplementedEnumError( const EnumType enumValue, const std::map< EnumType, std::string >& stringValues )
         : AutoReportableBugError( )
     {
-        const std::string typeName = boost::core::demangled_name( typeid( T ) );
+        const std::string typeName = boost::core::demangled_name( typeid( EnumType ) );
         const std::string stringValue = stringFromEnum( enumValue, stringValues );
 
         errorMessage =
@@ -311,12 +447,20 @@ public:
     }
 };
 
-
-//! -DOC
+//! Handle an unimplemented `enum` value of type `EnumType`.
+/*!
+ * @copybrief handleUnimplementedEnumValue
+ * \param enumValue The `enum` value of type `T` that is not implemented.
+ * \param stringValues Map containing the string representation for the values of `EnumType`
+ * (including \p enumValue).
+ * \param unssupportedValues Vector of values of `EnumType` that are not supported by json_interface.
+ * \throws UnsupportedEnumError<EnumType> If \p enumValue is contained in \p unssupportedValues.
+ * \throws UnimplementedEnumError<EnumType> If \p enumValue is not contained in \p unssupportedValues.
+ */
 template< typename EnumType >
-json handleUnimplementedEnumValueToJson( const EnumType enumValue,
-                                         const std::map< EnumType, std::string >& stringValues,
-                                         const std::vector< EnumType >& unssupportedValues )
+void handleUnimplementedEnumValue( const EnumType enumValue,
+                                   const std::map< EnumType, std::string >& stringValues,
+                                   const std::vector< EnumType >& unssupportedValues )
 {
     if ( contains( unssupportedValues, enumValue ) )
     {
@@ -327,41 +471,6 @@ json handleUnimplementedEnumValueToJson( const EnumType enumValue,
     {
         UnimplementedEnumError< EnumType > error( enumValue, stringValues );
         error.what( );
-    }
-    return json( );
-}
-
-
-//! -DOC
-template< typename EnumType >
-void handleUnimplementedEnumValueFromJson( const EnumType enumValue,
-                                           const std::map< EnumType, std::string >& stringValues,
-                                           const std::vector< EnumType >& unssupportedValues )
-{
-    if ( contains( unssupportedValues, enumValue ) )
-    {
-        UnsupportedEnumError< EnumType > error( enumValue, stringValues );
-        error.what( );
-    }
-    else
-    {
-        UnimplementedEnumError< EnumType > error( enumValue, stringValues );
-        error.what( );
-    }
-    throw UnknownEnumError( );
-}
-
-
-template< typename T >
-void enforceNonNullPointer( const boost::shared_ptr< T >& pointer )
-{
-    if ( pointer )
-    {
-        return;
-    }
-    else
-    {
-        throw NullPointerError< T >( );
     }
 }
 

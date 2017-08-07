@@ -35,9 +35,9 @@ void to_json( json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqu
     case underfined_torque:
     case second_order_gravitational_torque:
     case aerodynamic_torque:
-	return;
+        return;
     default:
-	jsonObject = handleUnimplementedEnumValueToJson( torqueType, torqueTypes, unsupportedTorqueTypes );
+        handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
     }
 }
 
@@ -56,11 +56,11 @@ void from_json( const json& jsonObject, boost::shared_ptr< TorqueSettings >& tor
     case second_order_gravitational_torque:
     case aerodynamic_torque:
     {
-	torqueSettings = boost::make_shared< TorqueSettings >( torqueType );
-	return;
+        torqueSettings = boost::make_shared< TorqueSettings >( torqueType );
+        return;
     }
     default:
-	handleUnimplementedEnumValueFromJson( torqueType, torqueTypes, unsupportedTorqueTypes );
+        handleUnimplementedEnumValue( torqueType, torqueTypes, unsupportedTorqueTypes );
     }
 }
 

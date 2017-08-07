@@ -22,7 +22,7 @@ namespace tudat
 namespace reference_frames
 {
 
-/// AerodynamicsReferenceFrames
+// AerodynamicsReferenceFrames
 
 //! Map of `AerodynamicsReferenceFrames` string representations.
 static std::map< AerodynamicsReferenceFrames, std::string > aerodynamicsReferenceFrames =
@@ -49,7 +49,7 @@ inline void from_json( const json& jsonObject, AerodynamicsReferenceFrames& aero
 }
 
 
-/// AerodynamicsReferenceFrameAngles
+// AerodynamicsReferenceFrameAngles
 
 //! Map of `AerodynamicsReferenceFrameAngles` string representations.
 static std::map< AerodynamicsReferenceFrameAngles, std::string > aerodynamicsReferenceFrameAngles =

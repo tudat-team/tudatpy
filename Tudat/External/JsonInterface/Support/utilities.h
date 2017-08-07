@@ -27,16 +27,10 @@ namespace tudat
 namespace json_interface
 {
 
-/*
-//! Convert a `std::set` to a `std::vecotr`.
-template< typename T >
-std::vector< T > set2vector( std::set< T > set )
-{
-    return std::vector< T >( set.begin(), set.end() );
-}
-*/
-
-//! Remove all entries of map except last.
+//! Remove all entries of \p map except the last one.
+/*!
+ * @copybrief reduceToLast If \p map is empty, this function does nothing.
+ */
 template< typename K, typename V >
 void reduceToLast( std::map< K, V > map )
 {
@@ -46,7 +40,11 @@ void reduceToLast( std::map< K, V > map )
     }
 }
 
-//! Remove all entries of map except last.
+//! The key of \p map containing \p value.
+/*!
+ * \return @copybrief getKeyWithValue
+ * \throws std::runtime_error If \p map does not contain \p value.
+ */
 template< typename K, typename V >
 K getKeyWithValue( const std::map< K, V >& map, const V& value )
 {
@@ -60,21 +58,30 @@ K getKeyWithValue( const std::map< K, V >& map, const V& value )
     throw std::runtime_error( "Could not find an entry in map with the requested value." );
 }
 
-//! Returns whether a value is NaN.
+//! Whether \p value is NaN.
+/*!
+ * \return @copybrief isNaN
+ */
 template< typename T >
 bool isNaN( const T& value )
 {
     return value != value;
 }
 
-//! Returns whether a `vector` contains a `value`.
+//! Whether \p vector contains \p value.
+/*!
+ * \return @copybrief contains
+ */
 template< typename T >
 bool contains( const std::vector< T >& vector, const T& value )
 {
     return std::find( vector.begin( ), vector.end( ), value ) != vector.end( );
 }
 
-//! Returns whether a `vector` contains any of `values`.
+//! Whether \p vector contains any of \p values.
+/*!
+ * \return @copybrief containsAnyOf
+ */
 template< typename T >
 bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
 {
@@ -88,7 +95,10 @@ bool containsAnyOf( const std::vector< T >& vector, std::vector< T > values )
     return false;
 }
 
-//! Returns whether a `vector` contains all of `values`.
+//! Whether \p vector contains all of \p values.
+/*!
+ * \return @copybrief containsAllOf
+ */
 template< typename T >
 bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
 {
@@ -102,27 +112,10 @@ bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
     return true;
 }
 
-/*
-//! Push back an element to a vector.
-template< typename T >
-void pushBackElements( std::vector< T >& vector, const T& element )
-{
-    vector.push_back( element );
-}
-
-//! Push back the elements of a vector to another vector.
-template< typename T >
-void pushBackElements( std::vector< T >& vector, const std::vector< T >& elements )
-{
-    for ( const T element : elements )
-    {
-        pushBackElements( vector, element );
-    }
-}
-*/
-
-
-//! Get a vector containing the keys of a map / unordered_map.
+//! Get a vector containing the keys of an (un)ordered map.
+/*!
+ * @copybrief getMapKeys
+ */
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 {
@@ -134,7 +127,10 @@ std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
     return keys;
 }
 
-//! Get a vector containing the values of a map / unordered_map.
+//! Get a vector containing the values of an (un)ordered map.
+/*!
+ * @copybrief getMapValues
+ */
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map )
 {
@@ -146,7 +142,10 @@ std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map 
     return values;
 }
 
-//! Get a vector containing the values of a map / unordered_map.
+//! Get a vector containing the concatenated values of the vectors of an (un)ordered map.
+/*!
+ * @copybrief getFlattenedMapValues
+ */
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vector< ValueType > >& map )
 {
@@ -162,9 +161,12 @@ std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vec
 }
 
 
-/// EIGEN <- STD
+// EIGEN <- STD
 
 //! Create an Eigen column-vector from a `std::vector`.
+/*!
+ * @copybrief eigenVectorFromStdVector
+ */
 template< typename ScalarType >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > eigenVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
@@ -172,6 +174,9 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > eigenVectorFromStdVector( const s
 }
 
 //! Create an Eigen row-vector from a `std::vector`.
+/*!
+ * @copybrief eigenRowVectorFromStdVector
+ */
 template< typename ScalarType >
 Eigen::Matrix< ScalarType, 1, Eigen::Dynamic > eigenRowVectorFromStdVector( const std::vector< ScalarType >& stdVector )
 {
@@ -179,6 +184,10 @@ Eigen::Matrix< ScalarType, 1, Eigen::Dynamic > eigenRowVectorFromStdVector( cons
 }
 
 //! Create an Eigen matrix from a `std::vector` of `std::vector`s.
+/*!
+ * @copybrief eigenMatrixFromStdVectorOfVectors
+ * \throws exception If all the elements of \p vectorOfVectors are not of the same size.
+ */
 template< typename ScalarType >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > eigenMatrixFromStdVectorOfVectors(
         const std::vector< std::vector< ScalarType > >& vectorOfVectors )
@@ -199,9 +208,12 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > eigenMatrixFromStdVe
 }
 
 
-/// STD <- EIGEN
+// STD <- EIGEN
 
 //! Create a `std::vector` from an Eigen matrix.
+/*!
+ * @copybrief stdVectorFromEigenMatrix
+ */
 template< typename ScalarType, int rows, int cols >
 std::vector< ScalarType > stdVectorFromEigenMatrix(
         const Eigen::Matrix< ScalarType, rows, cols >& matrix )
@@ -210,6 +222,9 @@ std::vector< ScalarType > stdVectorFromEigenMatrix(
 }
 
 //! Create a `std::vector` of `std::vector`s from an Eigen matrix.
+/*!
+ * @copybrief stdVectorOfVectorsFromEigenMatrix
+ */
 template< typename ScalarType, int rows, int cols >
 std::vector< std::vector< ScalarType > > stdVectorOfVectorsFromEigenMatrix(
         const Eigen::Matrix< ScalarType, rows, cols >& matrix )
@@ -224,7 +239,10 @@ std::vector< std::vector< ScalarType > > stdVectorOfVectorsFromEigenMatrix(
 }
 
 
-//! Encode a string for use in URL [ https://stackoverflow.com/questions/154536/encode-decode-urls-in-c ]
+//! Encode a string for use in an URL.
+/*!
+ * @copybrief url_encode Reference: https://stackoverflow.com/questions/154536/encode-decode-urls-in-c
+ */
 inline std::string url_encode( const std::string &value )
 {
     std::ostringstream escaped;

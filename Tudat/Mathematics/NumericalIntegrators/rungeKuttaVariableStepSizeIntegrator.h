@@ -610,13 +610,12 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
 //! Exception that is thrown if the minimum step size is exceeded.
 /*!
- * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::
- * computeNextStepSizeAndValidateResult() if the minimum step size is exceeded.
+ * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::computeNextStepSizeAndValidateResult()
+ * if the minimum step size is exceeded.
  */
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType,
-        StateDerivativeType, TimeStepType >
-        ::MinimumStepSizeExceededError : public std::runtime_error
+        StateDerivativeType, TimeStepType >::MinimumStepSizeExceededError : public std::runtime_error
 {
 public:
 

@@ -35,18 +35,18 @@ typedef boost::filesystem::path path;
  * \param file Name of the JSON file (with extension) or directory at which a "main.json" file is located.
  * \param basePath Parent directory in which to look for the requested file.
  * \return Path for the JSON file.
- * \throw Error if the file does not exist.
+ * \throws Error if the file does not exist.
  */
 path getPathForJSONFile( const std::string& file, const path& basePath = boost::filesystem::current_path( ) );
 
 
-//! Parse a modular `json` object containing #import commands.
+//! Parse a modular `json` object containing "#import" commands.
 /*!
  * Parses a modular `json` object, by recursively iterating over all the values of the keys defined in `jsonObject`
  * that are either an object or an array of objects, looking inside those objects for keys with string values following
  * the expression "#import relativePathToJsonFile", and replacing them with the contents of "relativePathToJsonFile".
  *
- * The number of spaces between #import and relativePathToJsonFile is irrelevant, but must be at least 1.
+ * The number of spaces between "#import" and "relativePathToJsonFile" is irrelevant, but must be at least 1.
  * relativePathToJsonFile can contain spaces. Some characters must be escaped (e.g. \").
  *
  * Flattening will be applied during the replacement if (and only if) in relativePathToJsonFile only one key is defined,
@@ -95,7 +95,13 @@ path getPathForJSONFile( const std::string& file, const path& basePath = boost::
 void parseModularJSON( json& jsonObject, const path& parentDirectoryPath );
 
 
-//! -DOC
+//! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
+/*!
+ * Read and parse a (normal) `json` object from a file, and then parse its imported modular files using
+ * parseModularJSON().
+ * \param inputFilePath Path to the root JSON file.
+ * \return Object containing the keys defined in the original file and all the imported files.
+ */
 json getParsedModularJSON( const path& inputFilePath );
 
 }  // namespace json_interface

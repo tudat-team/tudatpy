@@ -110,7 +110,14 @@ void parseModularJSON( json& jsonObject, const path& parentDirectoryPath )
     }
 }
 
-//! -DOC
+//! Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
+/*!
+ * Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
+ * \param stream The stream (passed by reference, its current byte position will be set to zero and then reset to the
+ * original one before returning, so effectively this function does not modify the stream).
+ * \param position The byte position (or character index) of interest.
+ * \return Line and column for the character at `position` in `stream`.
+ */
 std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, const std::streampos position )
 {
     std::streampos originalPos = stream.tellg( );
@@ -136,7 +143,7 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
     return { line, col };
 }
 
-//! -DOC
+//! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
 json getParsedModularJSON( const path& filePath )
 {
     std::ifstream stream( filePath.string( ) );
