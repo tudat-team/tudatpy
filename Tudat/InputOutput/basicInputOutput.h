@@ -341,8 +341,26 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
+template< typename KeyType, typename ValueType >
+void writeDataMapToTextFile(
+        const std::map< KeyType, ValueType >& dataMap,
+        const boost::filesystem::path& outputPath,
+        const std::string& fileHeader,
+        const int precision )
+{
+    writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
+                            outputPath.filename( ).string( ), outputPath.parent_path( ),
+                            fileHeader, precision, precision, " " );
+}
+
+//! -DOC
 void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
                         std::string fileName,
+                        const int numberOfDigits = 16 );
+
+//! -DOC
+void writeMatrixToFile( const Eigen::MatrixXd& matrixToWrite,
+                        const boost::filesystem::path& outputPath,
                         const int numberOfDigits = 16 );
 
 //! Typedef for double-KeyType, double-ValueType map.

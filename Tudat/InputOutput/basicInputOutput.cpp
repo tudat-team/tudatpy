@@ -125,6 +125,7 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory(
     return listOfFileNamesWithPath_;
 }
 
+//! -DOC
 void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
                         std::string fileName,
                         const int numberOfDigits  )
@@ -152,6 +153,20 @@ void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
     // Close output file.
     outputFile_.close( );
 }
+
+//! -DOC
+void writeMatrixToFile( const Eigen::MatrixXd& matrixToWrite,
+                        const boost::filesystem::path& outputPath,
+                        const int numberOfDigits )
+{
+    // Check if output directory exists; create it if it doesn't.
+    if ( ! boost::filesystem::exists( outputPath.parent_path( ) ) )
+    {
+        boost::filesystem::create_directories( outputPath.parent_path( ) );
+    }
+    writeMatrixToFile( matrixToWrite, outputPath.string( ), numberOfDigits );
+}
+
 
 } // namespace input_output
 } // namespace tudat

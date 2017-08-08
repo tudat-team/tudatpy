@@ -29,7 +29,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
 
     jsonObject[ K::file ] = exportSettings->outputFile;
     jsonObject[ K::variables ] = exportSettings->variables;
-    // jsonObject[ K::epochsInFirstColumn ] = exportSettings->epochsInFirstColumn;
+    jsonObject[ K::epochsInFirstColumn ] = exportSettings->epochsInFirstColumn;
+    jsonObject[ K::onlyInitialStep ] = exportSettings->onlyInitialStep;
     jsonObject[ K::onlyFinalStep ] = exportSettings->onlyFinalStep;
     jsonObject[ K::numericalPrecision ] = exportSettings->numericalPrecision;
 }
@@ -42,7 +43,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& exp
 
     exportSettings = boost::make_shared< ExportSettings >( getValue< path >( jsonObject, K::file ),
                                                            getVariables( jsonObject, K::variables ) );
-    // updateFromJSONIfDefined( exportSettings->epochsInFirstColumn, jsonObject, K::epochsInFirstColumn );
+    updateFromJSONIfDefined( exportSettings->epochsInFirstColumn, jsonObject, K::epochsInFirstColumn );
+    updateFromJSONIfDefined( exportSettings->onlyInitialStep, jsonObject, K::onlyInitialStep );
     updateFromJSONIfDefined( exportSettings->onlyFinalStep, jsonObject, K::onlyFinalStep );
     updateFromJSONIfDefined( exportSettings->numericalPrecision, jsonObject, K::numericalPrecision );
 }

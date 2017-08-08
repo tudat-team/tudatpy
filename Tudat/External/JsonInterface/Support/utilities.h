@@ -19,6 +19,8 @@
 #include <sstream>
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include <eigen/Eigen>
 
 namespace tudat

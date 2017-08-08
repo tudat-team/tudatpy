@@ -87,7 +87,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
     const AvailableIntegrators integratorType = integratorSettings->integratorType_;
     jsonObject[ K::type ] = integratorType;
     jsonObject[ K::initialTime ] = integratorSettings->initialTime_;
-    jsonObject[ K::initialTimeStep ] = integratorSettings->initialTimeStep_;
+    jsonObject[ K::initialStepSize ] = integratorSettings->initialTimeStep_;
     jsonObject[ K::saveFrequency ] = integratorSettings->saveFrequency_;
 
     switch ( integratorType )
@@ -145,7 +145,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
         integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >(
                     integratorType,
                     initialTime,
-                    getNumeric< TimeType >( jsonObject, K::timeStep ),
+                    getNumeric< TimeType >( jsonObject, K::stepSize ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ) );
         return;
     }
@@ -157,7 +157,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
         RungeKuttaVariableStepSizeSettings< TimeType > rkSettings(
                     integratorType,
                     initialTime,
-                    getNumeric< TimeType >( jsonObject, K::initialTimeStep ),
+                    getNumeric< TimeType >( jsonObject, K::initialStepSize ),
                     getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
                     getNumeric< TimeType >( jsonObject, K::minimumStepSize ),
                     getNumeric< TimeType >( jsonObject, K::maximumStepSize ),
