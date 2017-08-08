@@ -152,7 +152,7 @@ struct Keys
             static const std::string type;
             static const std::string referenceArea;
             static const std::string radiationPressureCoefficient;
-            static const std::string ocultingBodies;
+            static const std::string occultingBodies;
         };
 
         static const std::string gravityFieldVariations;
@@ -299,8 +299,8 @@ struct Keys
     {
         static const std::string type;
         static const std::string initialTime;
-        static const std::string timeStep;
-        static const std::string initialTimeStep;
+        static const std::string stepSize;
+        static const std::string initialStepSize;
         static const std::string saveFrequency;
         static const std::string rungeKuttaCoefficientSet;
         static const std::string minimumStepSize;
@@ -335,7 +335,8 @@ struct Keys
     {
         static const std::string file;
         static const std::string variables;
-        // static const std::string epochsInFirstColumn;
+        static const std::string epochsInFirstColumn;
+        static const std::string onlyInitialStep;
         static const std::string onlyFinalStep;
         static const std::string numericalPrecision;
     };

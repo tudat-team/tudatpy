@@ -43,7 +43,7 @@ void to_json( json& jsonObject,
         jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
         jsonObject[ K::radiationPressureCoefficient ] =
                 cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );
-        jsonObject[ K::ocultingBodies ] =
+        jsonObject[ K::occultingBodies ] =
                 cannonBallRadiationPressureInterfaceSettings->getOccultingBodies( );
         return;
     }
@@ -80,7 +80,7 @@ void from_json( const json& jsonObject,
                     sourceBodyName,
                     getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
                     getValue< double >( jsonObject, K::radiationPressureCoefficient ),
-                    getValue( jsonObject, K::ocultingBodies, defaults.getOccultingBodies( ) ) );
+                    getValue( jsonObject, K::occultingBodies, defaults.getOccultingBodies( ) ) );
         return;
     }
     default:

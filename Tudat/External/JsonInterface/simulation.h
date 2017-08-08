@@ -31,15 +31,11 @@ namespace tudat
 namespace json_interface
 {
 
-typedef boost::filesystem::path path;
-
-
 //! -DOC
 template< typename TimeType = double, typename StateScalarType = double >
 class Simulation
 {
 public:
-
     //! -DOC
     Simulation( const std::string& inputFile )
     {
@@ -155,60 +151,75 @@ public:
                 std::map< TimeType, Eigen::VectorXd > results;
                 for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
                 {
-                    if ( ! exportSettings->onlyFinalStep || it == --statesHistory.end( ) )
+                    if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep &&
+                           exportSettings->onlyFinalStep ) ||
+                         ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep &&
+                           exportSettings->onlyInitialStep )
+                         || ( ( it != statesHistory.begin( ) && it != --statesHistory.end( ) ) &&
+                              ( exportSettings->onlyInitialStep || exportSettings->onlyFinalStep ) ) )
                     {
-                        unsigned int currentIndex = 0;
-
-                        const TimeType epoch = it->first;
-                        Eigen::VectorXd result( cols );
-                        for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
-                        {
-                            unsigned int size;
-                            switch ( variable->variableType_ )
-                            {
-                            case epochVariable:
-                            {
-                                size = 1;
-                                result.segment( currentIndex, size ) =
-                                        ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
-                                break;
-                            }
-                            case stateVariable:
-                            {
-                                size = 6;  // FIXME
-                                result.segment( currentIndex, size ) = it->second.template cast< double >( );
-                                break;
-                            }
-                            case dependentVariable:
-                            {
-                                const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
-                                        boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                                enforceNonNullPointer( depVariable );
-                                size = getDependentVariableSize( depVariable->dependentVariableType_ );
-                                unsigned int index =
-                                        getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
-                                                         getDependentVariableId( depVariable ) );
-                                result.segment( currentIndex, size ) =
-                                        dependentVariables.at( epoch ).segment( index, size );
-                                break;
-                            }
-                            default:
-                                throw std::runtime_error( "Could not export variable of unsupported type." );
-                            }
-                            currentIndex += size;
-                        }
-                        results[ epoch ] = result;
+                        continue;
                     }
+                    unsigned int currentIndex = 0;
+
+                    const TimeType epoch = it->first;
+                    Eigen::VectorXd result( cols );
+                    for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+                    {
+                        unsigned int size;
+                        switch ( variable->variableType_ )
+                        {
+                        case epochVariable:
+                        {
+                            size = 1;
+                            result.segment( currentIndex, size ) =
+                                    ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
+                            break;
+                        }
+                        case stateVariable:
+                        {
+                            size = 6;  // FIXME
+                            result.segment( currentIndex, size ) = it->second.template cast< double >( );
+                            break;
+                        }
+                        case dependentVariable:
+                        {
+                            const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
+                                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                            enforceNonNullPointer( depVariable );
+                            size = getDependentVariableSize( depVariable->dependentVariableType_ );
+                            unsigned int index =
+                                    getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
+                                                     getDependentVariableId( depVariable ) );
+                            result.segment( currentIndex, size ) =
+                                    dependentVariables.at( epoch ).segment( index, size );
+                            break;
+                        }
+                        default:
+                            throw std::runtime_error( "Could not export variable of unsupported type." );
+                        }
+                        currentIndex += size;
+                    }
+                    results[ epoch ] = result;
                 }
 
-                // Write propagation history to file.
-                writeDataMapToTextFile( results,
-                                        exportSettings->outputFile.filename( ).string( ),
-                                        exportSettings->outputFile.parent_path( ).string( ),
-                                        "",
-                                        exportSettings->numericalPrecision,
-                                        exportSettings->numericalPrecision,
-                                        "," );
+                if ( exportSettings->epochsInFirstColumn )
+                {
+                    // Write results map to file.
+                    writeDataMapToTextFile( results, exportSettings->outputFile,
+                                            "", exportSettings->numericalPrecision );
+                }
+                else
+                {
+                    // Write results matrix to file.
+                    Eigen::MatrixXd resultsMatrix( results.size( ), cols );
+                    int currentRow = 0;
+                    for ( auto entry : results )
+                    {
+                        resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
+                    }
+                    writeMatrixToFile( resultsMatrix, exportSettings->outputFile, exportSettings->numericalPrecision );
+                }
             }
         }
     }
@@ -232,7 +243,7 @@ public:
     //! -DOC
     void exportAsJSON( const unsigned int tabSize = 2 )
     {
-        std::string filename = inputFilePath.stem( ).string( ) + ".populated" + inputFilePath.extension( ).string( );
+        const std::string filename = "." + inputFilePath.filename( ).string( );
         exportAsJSON( inputFilePath.parent_path( ) / filename, tabSize );
     }
 

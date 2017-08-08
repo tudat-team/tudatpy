@@ -120,7 +120,7 @@ const std::string Keys::Body::radiationPressure = "radiationPressure";
 const std::string Keys::Body::RadiationPressure::type = "type";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
 const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
-const std::string Keys::Body::RadiationPressure::ocultingBodies = "ocultingBodies";
+const std::string Keys::Body::RadiationPressure::occultingBodies = "occultingBodies";
 
 // //  Body::RotationModel
 const std::string Keys::Body::rotationModel = "rotationModel";
@@ -251,8 +251,8 @@ const std::string Keys::Propagator::Torque::type = "type";
 const std::string Keys::integrator = "integrator";
 const std::string Keys::Integrator::type = "type";
 const std::string Keys::Integrator::initialTime = "initialTime";
-const std::string Keys::Integrator::timeStep = "timeStep";
-const std::string Keys::Integrator::initialTimeStep = "initialTimeStep";
+const std::string Keys::Integrator::stepSize = "stepSize";
+const std::string Keys::Integrator::initialStepSize = "initialStepSize";
 const std::string Keys::Integrator::saveFrequency = "saveFrequency";
 const std::string Keys::Integrator::rungeKuttaCoefficientSet = "rungeKuttaCoefficientSet";
 const std::string Keys::Integrator::minimumStepSize = "minimumStepSize";
@@ -282,8 +282,9 @@ const std::string Keys::ModelInterpolation::interpolator = "interpolator";
 //  Export
 const std::string Keys::xport = "export";
 const std::string Keys::Export::file = "file";
-// const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
+const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
 const std::string Keys::Export::variables = "variables";
+const std::string Keys::Export::onlyInitialStep = "onlyInitialStep";
 const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
 const std::string Keys::Export::numericalPrecision = "numericalPrecision";
 

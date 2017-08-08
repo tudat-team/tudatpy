@@ -42,13 +42,16 @@ public:
     //! and the columns contain the values of the variables specified in this vector in the provided order.
     std::vector< boost::shared_ptr< propagators::VariableSettings > > variables;
 
-    // //! Whether to include the epochs in the first column of the results table.
-    // bool epochsInFirstColumn = true;
+    //! Whether to include the epochs in the first column of the results table.
+    bool epochsInFirstColumn = true;
 
     //! Number of significant digits for the exported results.
     unsigned int numericalPrecision = 10;
 
-    //! Whether to print only the values corresponding to the last integration step.
+    //! Whether to print only the values corresponding to the initial integration step.
+    bool onlyInitialStep = false;
+
+    //! Whether to print only the values corresponding to the final integration step.
     bool onlyFinalStep = false;
 };
 
