@@ -218,7 +218,8 @@ void from_json( const json& jsonObject,
     if ( defined( jsonObject, K::computeVariables) )
     {
         saveSettings = boost::make_shared< DependentVariableSaveSettings >(
-                    getDependentVariables( jsonObject, K::computeVariables ), false );
+                    getValue< std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > >(
+                        jsonObject, K::computeVariables  ), false );
     }
 
     switch ( integratedStateType )

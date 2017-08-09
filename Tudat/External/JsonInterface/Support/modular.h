@@ -90,9 +90,9 @@ path getPathForJSONFile( const std::string& file, const path& basePath = boost::
  * }
  *
  * \param jsonObject
- * \param parentDirectoryPath
+ * \param filePath
  */
-void parseModularJSON( json& jsonObject, const path& parentDirectoryPath );
+// void parseModularJSON( json& jsonObject, const path& filePath );
 
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.

@@ -124,58 +124,6 @@ void from_json( const json& jsonObject,
 
 } // namespace propagators
 
-
-namespace json_interface
-{
-
-//! Get a shared pointer to a `VariableSettings` object created from a `jsonObject[ keyPath ]`.
-/*!
- * Get a shared pointer to a `VariableSettings` object created from `jsonObject[ keyPath ]`.
- *
- * If `jsonObject[ keyPath ]` is an object, the variable is created directly using the `from_json` function.
- * If `jsonObject[ keyPath ]` is a string, depending on its value the following can happen:
- * - "epoch": the variable is created automatically as a `VariableSettings` with type `epochVariable`.
- * - "bodyName.state": the variable is created automatically as a `BodyVariableSettings` with type `stateVariable`
- * and associated to body named "bodyName".
- * - "customName": the variable will be retrieved (if defined) from the root `json` object at "variables.customName".
- *
- * \param jsonObject `json` object containing, at `keyPath`, the variable settings or the variable name and a root
- * `json` object.
- * \param keyPath The key path at which the variable settings are specified in `jsonObject`.
- * \return Shared pointer to a `VariableSettings` object created from `jsonObject[ keyPath ]`.
- */
-boost::shared_ptr< propagators::VariableSettings > getVariable( const json& jsonObject, const KeyPath& keyPath );
-
-//! Get a vector of shared pointers to `VariableSettings` objects created from `jsonObject[ keyPath ]`.
-/*!
- * Get a vector of shared pointers to `VariableSettings` objects created from `jsonObject[ keyPath ]`.
- * Each of the variable settings of the vector are created using the `getVariable` function.
- * \param jsonObject `json` object containing, at `keyPath`, the variables settings or the variable names and a root
- * `json` object.
- * \param keyPath The key path at which the variables settings are specified in `jsonObject`.
- * \return Vector of shared pointers to `VariableSettings` objects created from `jsonObject[ keyPath ]`.
- */
-std::vector< boost::shared_ptr< propagators::VariableSettings > > getVariables(
-        const json& jsonObject, const KeyPath& keyPath );
-
-//! Get a vector of shared pointers to `SingleDependentVariableSaveSettings` objects created from
-//! `jsonObject[ keyPath ]`.
-/*!
- * Get a vector of shared pointers to `SingleDependentVariableSaveSettings` objects created from
- * `jsonObject[ keyPath ]`.
- * Each of the variable settings of the vector are created using the `getVariable` function. Only the variables
- * defined in `jsonObject[ keyPath ]` that are of type `dependentVariable` are included in the vector.
- * \param jsonObject `json` object containing, at `keyPath`, the dependent variables settings or the dependent variable
- * names and a root `json` object.
- * \param keyPath The key path at which the dependent variables settings are specified in `jsonObject`.
- * \return Vector of shared pointers to `SingleDependentVariableSaveSettings` objects created from
- * `jsonObject[ keyPath ]`.
- */
-std::vector< boost::shared_ptr< propagators::SingleDependentVariableSaveSettings > > getDependentVariables(
-        const json& jsonObject, const KeyPath& keyPath );
-
-} // json_interface
-
 } // namespace tudat
 
 #endif // TUDAT_JSONINTERFACE_VARIABLE_H

@@ -38,11 +38,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& exportSettings )
 {
+    using namespace propagators;
     using namespace json_interface;
     using K = Keys::Export;
 
-    exportSettings = boost::make_shared< ExportSettings >( getValue< path >( jsonObject, K::file ),
-                                                           getVariables( jsonObject, K::variables ) );
+    exportSettings = boost::make_shared< ExportSettings >(
+                getValue< path >( jsonObject, K::file ),
+                getValue< std::vector< boost::shared_ptr< VariableSettings > > >( jsonObject, K::variables ) );
     updateFromJSONIfDefined( exportSettings->epochsInFirstColumn, jsonObject, K::epochsInFirstColumn );
     updateFromJSONIfDefined( exportSettings->onlyInitialStep, jsonObject, K::onlyInitialStep );
     updateFromJSONIfDefined( exportSettings->onlyFinalStep, jsonObject, K::onlyFinalStep );
