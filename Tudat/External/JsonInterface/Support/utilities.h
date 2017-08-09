@@ -29,6 +29,36 @@ namespace tudat
 namespace json_interface
 {
 
+//! Split \p string using \p delimiter.
+/*!
+ * Split \p string using \p delimiter.
+ */
+template< typename T >
+void split( const std::string& string, char delimiter, T result )
+{
+    std::stringstream stream;
+    stream.str( string );
+    std::string item;
+    while ( std::getline( stream, item, delimiter ) )
+    {
+        *( result++ ) = item;
+    }
+}
+
+//! Get a vector containing the parts resulting from splitting \p string using \p delimiter.
+/*!
+ * Get a vector containing the parts resulting from splitting \p string using \p delimiter.
+ * \param string The string to be splitted.
+ * \param delimiter The delimiter to be used.
+ * \return Vector containing the parts resulting from splitting \p string using \p delimiter.
+ */
+inline std::vector< std::string > split( const std::string& string, char delimiter )
+{
+    std::vector< std::string > parts;
+    split( string, delimiter, std::back_inserter( parts ) );
+    return parts;
+}
+
 //! Remove all entries of \p map except the last one.
 /*!
  * @copybrief reduceToLast If \p map is empty, this function does nothing.

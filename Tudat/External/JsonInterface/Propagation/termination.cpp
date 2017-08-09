@@ -75,7 +75,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
         return;
     }
 
-    const boost::shared_ptr< VariableSettings > variable = getVariable( jsonObject, K::variable );
+    const boost::shared_ptr< VariableSettings > variable =
+            getValue< boost::shared_ptr< VariableSettings > >( jsonObject, K::variable );
     switch ( variable->variableType_ )
     {
     case epochVariable:

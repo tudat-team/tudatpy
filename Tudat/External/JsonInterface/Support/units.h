@@ -19,12 +19,13 @@
 
 #include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 
+#include "utilities.h"
+
 namespace tudat
 {
 
 namespace json_interface
 {
-
 
 //! Equivalent SI value of units supported by json_interface.
 /*!
@@ -47,38 +48,6 @@ static std::map< std::string, double > SIUnits =
     { "km", 1e3 },
     { "au", physical_constants::ASTRONOMICAL_UNIT },
 };
-
-
-//! Split \p string using \p delimiter.
-/*!
- * Split \p string using \p delimiter.
- */
-template< typename T >
-void split( const std::string& string, char delimiter, T result )
-{
-    std::stringstream stream;
-    stream.str( string );
-    std::string item;
-    while ( std::getline( stream, item, delimiter ) )
-    {
-        *( result++ ) = item;
-    }
-}
-
-//! Get a vector containing the parts resulting from splitting \p string using \p delimiter.
-/*!
- * Get a vector containing the parts resulting from splitting \p string using \p delimiter.
- * \param string The string to be splitted.
- * \param delimiter The delimiter to be used.
- * \return Vector containing the parts resulting from splitting \p string using \p delimiter.
- */
-inline std::vector< std::string > split( const std::string& string, char delimiter )
-{
-    std::vector< std::string > parts;
-    split( string, delimiter, std::back_inserter( parts ) );
-    return parts;
-}
-
 
 //! Convert a formatted date string into second since J2000.
 /*!
@@ -123,7 +92,6 @@ NumberType convertToSecondsSinceJ2000( const std::string& date )
     return duration.total_seconds( );
 }
 
-
 //! Convert a \p number with generic \p units to SI units.
 /*!
  * @copybrief convertToSIUnits
@@ -167,7 +135,6 @@ NumberType parseMagnitudeWithUnits( const std::string& text )
     std::string originalUnits = parts.at( 1 );
     return convertToSIUnits< NumberType >( number, originalUnits );
 }
-
 
 } // namespace json_interface
 

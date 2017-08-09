@@ -12,6 +12,8 @@
 #include <boost/regex.hpp>
 
 #include "modular.h"
+#include "keys.h"
+#include "utilities.h"
 
 namespace tudat
 {
@@ -60,51 +62,109 @@ path getPathForJSONFile( const std::string& file, const path& basePath )
     }
 }
 
-//! Parse a modular `json` object containing "#import" commands.
-void parseModularJSON( json& jsonObject, const path& parentDirectoryPath )
+//! Parse a modular `json` object.
+void parseModularJSON( json& jsonObject, const path& filePath, json parentObject = json( ) )
 {
-    for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+    if ( parentObject.is_null( ) )
     {
-        const std::string key = it.key( );
-        json& value = it.value( );
-        if ( value.is_structured( ) )  // it is an array or a JSON object
+        parentObject = jsonObject;
+    }
+    if ( jsonObject.is_structured( ) )
+    {
+        for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
-            if ( value.is_array( ) )
+            json& subjson = it.value( );
+            parseModularJSON( subjson, filePath, jsonObject );
+        }
+    }
+    else if ( jsonObject.is_string( ) )
+    {
+        boost::regex expression( R"(\$(?:\((.+?)\))?(?:\{(.+?)\})?)" );
+        boost::cmatch groups;
+        boost::regex_match( jsonObject.get< std::string >( ).c_str( ), groups, expression );
+        const bool fileMatch = groups[ 1 ].matched;
+        const bool varsMatch = groups[ 2 ].matched;
+        if ( fileMatch || varsMatch )
+        {
+            const std::string file( groups[ 1 ] );
+            const std::string vars( groups[ 2 ] );
+            const path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
+            const json importedJsonObject =
+                    fileMatch ? json::parse( std::ifstream( importPath.string( ) ) ) : parentObject;
+            std::vector< std::string > keys;
+            std::vector< KeyPath > keyPaths;
+            if ( varsMatch )
             {
-                for ( unsigned int i = 0; i < value.size( ); ++i )
+                for ( const std::string variable : split( vars, ',' ) )
                 {
-                    json& subvalue = value.at( i );
-                    if ( subvalue.is_object( ) )
+                    const std::vector< std::string > keyVar = split( variable, ':' );
+                    if ( keyVar.size( ) == 2 )
                     {
-                        parseModularJSON( subvalue, parentDirectoryPath );
+                        keys.push_back( keyVar.front( ) );
                     }
+                    keyPaths.push_back( split( keyVar.back( ), '.' ) );
                 }
             }
-            else  // it is a JSON object (convertible to map / struct / class)
+            else
             {
-                parseModularJSON( value, parentDirectoryPath );
+                keyPaths = { KeyPath( { } ) };
             }
-        }
-        else if ( value.is_string( ) )
-        {
-            std::string importCommand = value;
-            boost::regex expression { "#import\\s+(.+)" };
-            boost::regex_token_iterator< std::string::iterator >
-                    bit{ importCommand.begin( ), importCommand.end( ), expression, 1 };
-            boost::regex_token_iterator< std::string::iterator > bend;
-            while ( bit != bend )
+            json parsedJsonObject;
+            for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
             {
-                const std::string fileToImport = *bit++;
-                const json importedJson =
-                        getParsedModularJSON( getPathForJSONFile( fileToImport, parentDirectoryPath ) );
-                if ( importedJson.size( ) == 1 && importedJson.count( key ) == 1 )
+                const KeyPath keyPath = keyPaths.at( i );
+                json subJsonObject = importedJsonObject;
+                if ( keyPath.empty( ) )
                 {
-                    jsonObject[ key ] = importedJson[ key ];
+                    parseModularJSON( subJsonObject, importPath, parentObject );
                 }
                 else
                 {
-                    jsonObject[ key ] = importedJson;
+                    try
+                    {
+                        // Recursively update jsonObject for every key in keyPath
+                        for ( const std::string key : keyPath )
+                        {
+                            try
+                            {
+                                // Try to access element at key
+                                subJsonObject = subJsonObject.at( key );
+                            }
+                            catch ( ... )
+                            {
+                                // Key may be convertible to int.
+                                subJsonObject = subJsonObject.at( std::stoi( key ) );
+                            }
+                            parseModularJSON( subJsonObject, importPath, parentObject );
+                        }
+                    }
+                    catch ( ... )
+                    {
+                        std::cerr << "Could not load ";
+                        if ( ! keyPath.empty( ) )
+                        {
+                            std::cerr << "value for " << keyPath << " from ";
+                        }
+                        std::cerr << "file " << importPath << " referenced from file " << filePath << std::endl;
+                        throw;
+                    }
                 }
+                if ( keys.size( ) > 0 )
+                {
+                    parsedJsonObject[ keys.at( i ) ] = subJsonObject;
+                }
+                else
+                {
+                    parsedJsonObject[ i ] = subJsonObject;
+                }
+            }
+            if ( keyPaths.size( ) == 1 && keys.size( ) == 0 && vars.find( ',' ) == std::string::npos )
+            {
+                jsonObject = parsedJsonObject.front( );
+            }
+            else
+            {
+                jsonObject = parsedJsonObject;
             }
         }
     }
@@ -122,7 +182,7 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
 {
     std::streampos originalPos = stream.tellg( );
     stream.seekg( 0, std::ifstream::beg );
-
+    
     std::string lineContents;
     unsigned int line = 1;
     std::streampos col;
@@ -138,7 +198,7 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
         lastPos = currentPos;
         line++;
     }
-
+    
     stream.seekg( originalPos );
     return { line, col };
 }
@@ -159,8 +219,8 @@ json getParsedModularJSON( const path& filePath )
                   << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "." << std::endl;
         throw error;
     }
-
-    parseModularJSON( jsonObject, filePath.parent_path( ) );
+    
+    parseModularJSON( jsonObject, filePath );
     return jsonObject;
 }
 
