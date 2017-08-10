@@ -532,7 +532,7 @@ public:
      *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
      *  a pointer to an acceleration model.
      */
-    basic_astrodynamics::AccelerationMap accelerationsMap_;
+    basic_astrodynamics::AccelerationMap accelerationsMap_;  // FIXME: private, check size in getter
 
     //! List of bodies for which the translational state is to be propagated.
     std::vector< std::string > bodiesToIntegrate_;

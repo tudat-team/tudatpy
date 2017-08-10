@@ -37,7 +37,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& var
 
     switch ( variableType )
     {
-    case epochVariable:
+    case independentVariable:
     {
         jsonObject[ K::type ] = variableType;
         return;
@@ -73,7 +73,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& v
 
     switch ( variableType )
     {
-    case epochVariable:
+    case independentVariable:
     {
         variableSettings = boost::make_shared< VariableSettings >( variableType );
         return;

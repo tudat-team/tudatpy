@@ -21,8 +21,8 @@ std::string getVariableName( const VariableType variableType )
 {
     switch ( variableType )
     {
-    case epochVariable:
-        return "Epoch ";
+    case independentVariable:
+        return "Independent variable ";
     case stateVariable:
         return "Integrated state ";
     case dependentVariable:

@@ -11,7 +11,7 @@
 
 #include "valueAccess.h"
 
-#include "validation.h"
+#include "options.h"
 
 namespace tudat
 {
@@ -20,6 +20,54 @@ namespace json_interface
 {
 
 // KEY ACCESS
+
+//! -DOC
+int indexFromKey( const std::string& key, const json& jsonArray )
+{
+    int arrayIndex = std::stoi( key );
+    if ( arrayIndex < 0 )
+    {
+        arrayIndex += jsonArray.size( );
+    }
+    return arrayIndex;
+}
+
+//! Access/modify a key of a `json` object or array.
+json& valueAt( json& jsonObject, const std::string& key )
+{
+    try
+    {
+        return jsonObject[ key ];
+    }
+    catch ( ... )
+    {
+        return jsonObject[ indexFromKey( key, jsonObject ) ];
+    }
+}
+
+//! Access a key of a `json` object or array.
+const json& valueAt( const json& jsonObject, const std::string& key )
+{
+    try
+    {
+        return jsonObject.at( key );
+    }
+    catch ( ... )
+    {
+        return jsonObject.at( indexFromKey( key, jsonObject ) );
+    }
+}
+
+//! -DOC
+json valueAt( json jsonObject, const KeyPath& keyPath )
+{
+    for ( const std::string key : keyPath )
+    {
+        const json constJsonObject = jsonObject;
+        jsonObject = valueAt( constJsonObject, key );
+    }
+    return jsonObject;
+}
 
 //! Whether the key at \p keyPath is defined for \p jsonObject.
 bool defined( const json& jsonObject, const KeyPath& keyPath )
@@ -30,6 +78,9 @@ bool defined( const json& jsonObject, const KeyPath& keyPath )
     }
     return false;
 }
+
+
+// SPECIAL KEYS ACCESS
 
 //! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
 boost::shared_ptr< json > getRootObject( const json& jsonObject )

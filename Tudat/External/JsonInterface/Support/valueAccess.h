@@ -37,6 +37,32 @@ namespace json_interface
 
 // KEY ACCESS
 
+//! Access/modify a key of a `json` object or array.
+/*!
+ * Access/modify a key of a `json` object or array. \p jsonObject is passed by reference and the returned value is a
+ * reference, so this method can be used to modify a \p jsonObject (e.g. `valueAt( jsonObject, myKey ) = newValue`).
+ * Supports json arrays. If the field "key" does not exist, this function will try to convert it to integer and
+ * access \p jsonObject at that index.
+ * \param jsonObject The `json` object.
+ * \param key The key to access.
+ * \return A reference to the value of the accessed key.
+ */
+json& valueAt( json& jsonObject, const std::string& key );
+
+//! Access a key of a `json` object or array.
+/*!
+ * Access a key of a `json` object or array. \p jsonObject is constant, so the returned value cannot be modified.
+ * Supports json arrays. If the field "key" does not exist, this function will try to convert it to integer and
+ * access \p jsonObject at that index.
+ * \param jsonObject The constant `json` object.
+ * \param key The key to access.
+ * \return A constant reference to the value of the accessed key.
+ */
+const json& valueAt( const json& jsonObject, const std::string& key );
+
+//! -DOC
+json valueAt( json jsonObject, const KeyPath& keyPath );
+
 //! Whether the key at \p keyPath is defined for \p jsonObject.
 /*!
  * @copybrief defined
@@ -45,6 +71,9 @@ namespace json_interface
  * \return @copybrief defined
  */
 bool defined( const json& jsonObject, const KeyPath& keyPath );
+
+
+// SPECIAL KEYS ACCESS
 
 //! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
 /*!
@@ -175,20 +204,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
 
     try
     {
-        // Recursively update jsonObject for every key in keyPath
-        for ( const std::string key : currentKeyPath )
-        {
-            try
-            {
-                // Try to access element at key
-                currentObject = currentObject.at( key );
-            }
-            catch ( ... )
-            {
-                // Key may be convertible to int.
-                currentObject = currentObject.at( std::stoi( key ) );
-            }
-        }
+        currentObject = valueAt( currentObject, currentKeyPath );
     }
     catch ( ... )
     {

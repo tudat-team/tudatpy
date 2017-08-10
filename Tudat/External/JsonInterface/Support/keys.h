@@ -171,7 +171,6 @@ struct Keys
     };
 
 
-    static const std::string variables;
     struct Variable
     {
         static const std::string type;
@@ -341,11 +340,12 @@ struct Keys
         static const std::string numericalPrecision;
     };
 
-    static const std::string validation;
-    struct Validation
+    static const std::string options;
+    struct Options
     {
         static const std::string usingDefaultValueForMissingKey;
         static const std::string unusedKey;
+        static const std::string populatedFile;
     };
 };
 

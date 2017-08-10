@@ -26,9 +26,9 @@ namespace propagators
 //! Enum listing the variables that can be exported or use in termination conditions during the propagation
 enum VariableType
 {
-    epochVariable,
+    independentVariable,
     stateVariable,
-    dependentVariable
+    dependentVariable  // -> derivedVariable ?
 };
 
 //! Functional base class for defining settings for variables

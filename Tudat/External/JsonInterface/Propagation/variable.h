@@ -27,7 +27,7 @@ namespace propagators
 //! Map of `VariableType`s string representations.
 static std::map< VariableType, std::string > variableTypes =
 {
-    { epochVariable, "epoch" },
+    { independentVariable, "independent" },
     { stateVariable, "state" },
     { dependentVariable, "dependent" }
 };

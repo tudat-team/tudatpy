@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_JSONINTERFACE_VALIDATION_H
-#define TUDAT_JSONINTERFACE_VALIDATION_H
+#ifndef TUDAT_JSONINTERFACE_OPTIONS_H
+#define TUDAT_JSONINTERFACE_OPTIONS_H
 
 #include "valueAccess.h"
 #include "valueConversions.h"
@@ -43,30 +43,34 @@ inline void from_json( const json& jsonObject, ExceptionResponseType& exceptionR
 }
 
 
-// ValidationSettings
+// ApplicationOptions
 
-//! Class containing the validation settings for running Tudat apps that use json_interface.
-class ValidationSettings
+//! Class containing the application options for Tudat apps that use json_interface.
+class ApplicationOptions
 {
 public:
     //! Constructor.
-    ValidationSettings( ) { }
+    ApplicationOptions( ) { }
 
     //! Response to a "default value used for missing key" event.
     ExceptionResponseType usingDefaultValueForMissingKey = continueSilently;
 
     //! Response to a "unused key" event.
     ExceptionResponseType unusedKey = printWarning;
+
+    //! Path where the populated file (containing the json with all the settings actually used for the simulation)
+    //! is going to be saved. Empty string if the file should not be saved.
+    path populatedFile = "";
 };
 
-//! Create a `json` object from a shared pointer to a `ValidationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ValidationSettings >& spiceSettings );
+//! Create a `json` object from a shared pointer to a `ApplicationOptions` object.
+void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& spiceSettings );
 
-//! Create a shared pointer to a `ValidationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ValidationSettings >& spiceSettings );
+//! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
+void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >& spiceSettings );
 
 } // namespace json_interface
 
 } // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_VALIDATION_H
+#endif // TUDAT_JSONINTERFACE_OPTIONS_H

@@ -19,11 +19,10 @@
 
 #include "Environment/spice.h"
 #include "Environment/body.h"
-#include "Propagation/variable.h"
 #include "Propagation/propagator.h"
 #include "Mathematics/integrator.h"
 #include "Propagation/export.h"
-#include "Support/validation.h"
+#include "Support/options.h"
 
 namespace tudat
 {
@@ -84,16 +83,22 @@ public:
     //! -DOC
     virtual void run( )
     {
-        // FIXME: MultiArc
         using namespace propagators;
 
         // FIXME: ? sync( );
+
+        if ( ! applicationOptions->populatedFile.empty( ) )
+        {
+            exportAsJSON( applicationOptions->populatedFile );
+        }
 
         // Create simulation object
         dynamicsSimulator = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodyMap, integratorSettings, propagationSettings, false );
 
         dynamicsSimulator->integrateEquationsOfMotion( propagationSettings->getInitialStates( ) );
+
+        // FIXME: MultiArc
     }
 
     //! -DOC
@@ -122,7 +127,7 @@ public:
                 {
                     switch ( variable->variableType_ )
                     {
-                    case epochVariable:
+                    case independentVariable:
                     {
                         cols += 1;
                         break;
@@ -169,7 +174,7 @@ public:
                         unsigned int size;
                         switch ( variable->variableType_ )
                         {
-                        case epochVariable:
+                        case independentVariable:
                         {
                             size = 1;
                             result.segment( currentIndex, size ) =
@@ -241,13 +246,6 @@ public:
     }
 
     //! -DOC
-    void exportAsJSON( const unsigned int tabSize = 2 )
-    {
-        const std::string filename = "." + inputFilePath.filename( ).string( );
-        exportAsJSON( inputFilePath.parent_path( ) / filename, tabSize );
-    }
-
-    //! -DOC
     json getOriginalJSONObject( )
     {
         return originalJsonObject;
@@ -274,9 +272,6 @@ public:
     //! Map of body settings.
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap;
 
-    //! Map of variable settings.
-    std::unordered_map< std::string, boost::shared_ptr< propagators::VariableSettings > > variableSettingsMap;
-
     //! Propagation settings.
     boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings;
 
@@ -286,8 +281,8 @@ public:
     //! Vector of export settings.
     std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector;
 
-    //! Validation settings.
-    boost::shared_ptr< ValidationSettings > validationSettings;
+    //! Application options.
+    boost::shared_ptr< ApplicationOptions > applicationOptions;
 
 
 protected:
@@ -391,14 +386,6 @@ protected:
     }
 
     //! -DOC
-    virtual void resetVariables( )
-    {
-        variableSettingsMap.clear( );
-        updateFromJSONIfDefined( variableSettingsMap, jsonObject, Keys::variables );
-        // FIXME: modify jsonObject to define "save" for the corresponding propagators
-    }
-
-    //! -DOC
     virtual void resetPropagation( )
     {
         updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
@@ -419,10 +406,10 @@ protected:
     }
 
     //! -DOC
-    virtual void resetValidation( )
+    virtual void resetApplicationOptions( )
     {
-        validationSettings = boost::make_shared< ValidationSettings >( );
-        updateFromJSONIfDefined( validationSettings, jsonObject, Keys::validation );
+        applicationOptions = boost::make_shared< ApplicationOptions >( );
+        updateFromJSONIfDefined( applicationOptions, jsonObject, Keys::options );
     }
 
 
@@ -442,13 +429,12 @@ private:
         resetGeneral( );
         resetSpice( );
         resetBodies( );
-        resetVariables( );
         resetPropagation( );
         resetIntegrator( );
         resetExport( );
-        resetValidation( );
+        resetApplicationOptions( );
 
-        checkUnusedKeys( jsonObject, validationSettings->unusedKey );
+        checkUnusedKeys( jsonObject, applicationOptions->unusedKey );
     }
 
     //! Absolute path to the input file.
@@ -482,11 +468,10 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation;
     assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings );
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
-    // assignIfNotEmpty( jsonObject, Keys::variables, simulation.variableSettingsMap );
     jsonObject[ Keys::propagation ] = simulation.propagationSettings;
     jsonObject[ Keys::integrator ] = simulation.integratorSettings;
     assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector );
-    jsonObject[ Keys::validation ] = simulation.validationSettings;
+    jsonObject[ Keys::options ] = simulation.applicationOptions;
 }
 
 } // namespace json_interface
