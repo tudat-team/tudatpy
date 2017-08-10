@@ -30,9 +30,12 @@ std::string pathAddingPlaceholders( std::string path )
         const std::string placeholderPath = filesystem::canonical( rit->second ).string( );
         path = regex_replace( path, regex( placeholderPath ), "${" + placeholderId + "}" );
     }
-    filesystem::path currentPath = filesystem::current_path( );
-    currentPath += filesystem::path::preferred_separator;
-    return regex_replace( path, regex( currentPath.string( ) ), "" );
+    const std::string relativePath = filesystem::relative( path, filesystem::current_path( ) ).string( );
+    if ( ! relativePath.empty( ) && relativePath.size( ) < path.size( ) )
+    {
+        path = relativePath;
+    }
+    return path;
 }
 
 //! Return \p path with the recognized path placeholders (such as ${TUDAT_ROOT_PATH}) replaced by the actual paths.

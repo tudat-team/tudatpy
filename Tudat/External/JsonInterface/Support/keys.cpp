@@ -153,7 +153,6 @@ const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrde
 
 
 //  Variable
-const std::string Keys::variables = "variables";
 const std::string Keys::Variable::type = "type";
 const std::string Keys::Variable::dependentVariableType = "dependentVariableType";
 const std::string Keys::Variable::body = "body";
@@ -289,10 +288,11 @@ const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
 const std::string Keys::Export::numericalPrecision = "numericalPrecision";
 
 
-//  Validation
-const std::string Keys::validation = "validation";
-const std::string Keys::Validation::usingDefaultValueForMissingKey = "usingDefaultValueForMissingKey";
-const std::string Keys::Validation::unusedKey = "unusedKey";
+//  Options
+const std::string Keys::options = "options";
+const std::string Keys::Options::usingDefaultValueForMissingKey = "usingDefaultValueForMissingKey";
+const std::string Keys::Options::unusedKey = "unusedKey";
+const std::string Keys::Options::populatedFile = "populatedFile";
 
 
 //! Get the canonical representation of the key path.

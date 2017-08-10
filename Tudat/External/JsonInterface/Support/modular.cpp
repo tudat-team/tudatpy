@@ -14,6 +14,7 @@
 #include "modular.h"
 #include "keys.h"
 #include "utilities.h"
+#include "valueAccess.h"
 
 namespace tudat
 {
@@ -62,26 +63,228 @@ path getPathForJSONFile( const std::string& file, const path& basePath )
     }
 }
 
+//! Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
+/*!
+ * Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
+ * \param stream The stream (passed by reference, its current byte position will be set to zero and then reset to the
+ * original one before returning, so effectively this function does not modify the stream).
+ * \param position The byte position (or character index) of interest.
+ * \return Line and column for the character at `position` in `stream`.
+ */
+std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, const std::streampos position )
+{
+    std::streampos originalPos = stream.tellg( );
+    stream.seekg( 0, std::ifstream::beg );
+
+    std::string lineContents;
+    unsigned int line = 1;
+    std::streampos col;
+    std::streampos lastPos = stream.tellg( );
+    while ( std::getline( stream, lineContents ) )
+    {
+        const std::streampos currentPos = stream.tellg( );
+        if ( currentPos > position )
+        {
+            col = position - lastPos;
+            break;
+        }
+        lastPos = currentPos;
+        line++;
+    }
+
+    stream.seekg( originalPos );
+    return { line, col };
+}
+
+//! Update path
+void updatePaths( json& jsonObject, const path& filePath, const path& parentFilePath, const path& rootFilePath )
+{
+    if ( jsonObject.is_structured( ) )
+    {
+        for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        {
+            json& subjson = it.value( );
+            updatePaths( subjson, filePath, parentFilePath, rootFilePath );
+        }
+    }
+    else if ( jsonObject.is_string( ) )
+    {
+        std::string str = jsonObject.get< std::string >( );
+
+        // Replace: ${FILE_STEM}, ${FILE_NAME}, etc.
+        str = regex_replace( str, boost::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
+
+        // Fix relative paths
+        boost::cmatch groups;
+        boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.+)\))" ) );
+        if ( groups[ 1 ].matched )
+        {
+            const path relativePath = std::string( groups[ 1 ] );
+            if ( relativePath.is_relative( ) )
+            {
+                const path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
+                str = ( rel / relativePath ).string( );
+            }
+        }
+
+        jsonObject = str;
+    }
+}
+
+//! Read a JSON file into a `json` object.
+/*!
+ * @copybrief readJSON. If \p inclusionFile is not empty, the strings matching the expression "#path(relativePath)"
+ * are replaced by the corresponding relative path relative to the file in which it is being included.
+ * \param filePath Path to the JSON file.
+ * \param inclusionFile File from which the contents of \p filePath are being read. Empty if read directly from a C++
+ * function.
+ * \return Read `json` object.
+ */
+json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) )
+{
+    std::ifstream stream( filePath.string( ) );
+    json jsonObject;
+    try
+    {
+        jsonObject = json::parse( stream );
+    }
+    catch ( const nlohmann::detail::parse_error& error )
+    {
+        std::pair< unsigned int, unsigned int > errorLineCol = getLineAndCol( stream, error.byte );
+        std::cerr << "Parse error in file " << filePath
+                  << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "." << std::endl;
+        throw error;
+    }
+    updatePaths( jsonObject, filePath, parentFilePath.empty( ) ? filePath : parentFilePath,
+                 rootFilePath.empty( ) ? filePath : rootFilePath );
+    return jsonObject;
+}
+
+//! -DOC
+void mergeJSON( json& jsonObject, const path& filePath )
+{
+    if ( jsonObject.is_object( ) )
+    {
+        return;
+    }
+    else if ( jsonObject.is_array( ) )
+    {
+        json jsonArray = jsonObject;
+        json::iterator it = jsonArray.begin( );
+        for ( ; it != jsonArray.end( ); ++it )
+        {
+            json subjson = it.value( );
+            if ( ! subjson.is_object( ) )
+            {
+                break;
+            }
+            if ( it == jsonArray.begin( ) )
+            {
+                jsonObject = subjson;
+            }
+            else
+            {
+                for ( json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
+                {
+                    const KeyPath keyPath = split( subit.key( ), '.' );
+                    try
+                    {
+                        json newValue = subit.value( );
+                        for ( unsigned int j = 0; j < keyPath.size( ); ++j )
+                        {
+                            json updatedsonObject = jsonObject;
+                            for ( unsigned int i = 0; i < keyPath.size( ) - j; ++i )
+                            {
+                                const std::string key = keyPath.at( i );
+                                if ( i < keyPath.size( ) - 1 - j )
+                                {
+                                    updatedsonObject = valueAt( updatedsonObject, key );
+                                }
+                                else
+                                {
+                                    valueAt( updatedsonObject, key ) = newValue;
+                                }
+                            }
+                            newValue = updatedsonObject;
+                        }
+                        jsonObject = newValue;
+                    }
+                    catch ( ... )
+                    {
+                        std::cerr << "Could not update value for " << keyPath << " referenced from file "
+                                  << filePath << std::endl;
+                        throw;
+                    }
+                }
+            }
+        }
+        if ( it == jsonArray.end( ) )
+        {
+            return;
+        }
+    }
+    std::cerr << "Could not parse " << filePath << " as a Tudat input file." << std::endl;
+    throw;
+}
+
 //! Parse a modular `json` object.
-void parseModularJSON( json& jsonObject, const path& filePath, json parentObject = json( ) )
+/*!
+ * Parse a modular `json` object containing strings (or being equal to a string) of matching the expression
+ * `"$(path){key}"`, which will be replaced with the value for the key "key" in the file at "path".
+ * <br/>
+ * "path" can be absolute or relative (to the parent directory of \p filePath).
+ * <br/>
+ * If the part "(path)" is not provided, the key "key" will be searched in \p parentObject
+ * (or in \p jsonObject if \p parentObject is not defined).
+ * <br/>
+ * If the part "{key}" is not provided, the whole `json` object contained in the file at "path" will be used.
+ * <br/>
+ * "key" can be a single key, or a key path separated by dots (e.g. "key.subkey.subsubkey").
+ * Elements of arrays can be accessed by indicating their index, starting from 0 (e.g. "key.2.subkey.0").
+ * <br/>
+ * "key" can contain a single key (path) or many, separated by commas (e.g. "key1,key2.subkey"). If the character ","
+ * is found in "key", \p jsonObject will be converted to an array. The key "key1," creates an array with one element.
+ * <br/>
+ * "key" can contain colons, in which case \p jsonObject will be converted to an object/map (e.g. "a:keyA,b:keyB.0").
+ * <br/>
+ * Illegal characters in referenced file paths: (){}
+ * <br/>
+ * Illegal characters in referenced keys: (){}.:,
+ * \remark This function results in a recursive loop when a key value references itself, making the app terminate
+ * without providing an informative error message.
+ * \param jsonObject The `json` object to be parsed (passed by reference).
+ * \param filePath Path of the file from which \p jsonObject was retrieved.
+ * \param parentObject The `json` object form which \p jsonObject was retrieved, if any (default is null `json`).
+ */
+void parseModularJSON( json& jsonObject, const path& filePath,
+                       json parentObject = json( ), path rootFilePath = path( ) )
 {
     if ( parentObject.is_null( ) )
     {
         parentObject = jsonObject;
+    }
+    if ( rootFilePath.empty( ) )
+    {
+        rootFilePath = filePath;
     }
     if ( jsonObject.is_structured( ) )
     {
         for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
             json& subjson = it.value( );
-            parseModularJSON( subjson, filePath, jsonObject );
+            parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
     else if ( jsonObject.is_string( ) )
     {
-        boost::regex expression( R"(\$(?:\((.+?)\))?(?:\{(.+?)\})?)" );
         boost::cmatch groups;
-        boost::regex_match( jsonObject.get< std::string >( ).c_str( ), groups, expression );
+        boost::regex_match( jsonObject.get< std::string >( ).c_str( ), groups,
+                            boost::regex( R"(\$(?:\((.+?)\))?(?:\{(.+?)\})?)" ) );
         const bool fileMatch = groups[ 1 ].matched;
         const bool varsMatch = groups[ 2 ].matched;
         if ( fileMatch || varsMatch )
@@ -89,8 +292,7 @@ void parseModularJSON( json& jsonObject, const path& filePath, json parentObject
             const std::string file( groups[ 1 ] );
             const std::string vars( groups[ 2 ] );
             const path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
-            const json importedJsonObject =
-                    fileMatch ? json::parse( std::ifstream( importPath.string( ) ) ) : parentObject;
+            const json importedJsonObject = fileMatch ? readJSON( importPath, filePath, rootFilePath ) : parentObject;
             std::vector< std::string > keys;
             std::vector< KeyPath > keyPaths;
             if ( varsMatch )
@@ -116,7 +318,7 @@ void parseModularJSON( json& jsonObject, const path& filePath, json parentObject
                 json subJsonObject = importedJsonObject;
                 if ( keyPath.empty( ) )
                 {
-                    parseModularJSON( subJsonObject, importPath, parentObject );
+                    parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
                 }
                 else
                 {
@@ -125,17 +327,8 @@ void parseModularJSON( json& jsonObject, const path& filePath, json parentObject
                         // Recursively update jsonObject for every key in keyPath
                         for ( const std::string key : keyPath )
                         {
-                            try
-                            {
-                                // Try to access element at key
-                                subJsonObject = subJsonObject.at( key );
-                            }
-                            catch ( ... )
-                            {
-                                // Key may be convertible to int.
-                                subJsonObject = subJsonObject.at( std::stoi( key ) );
-                            }
-                            parseModularJSON( subJsonObject, importPath, parentObject );
+                            subJsonObject = valueAt( subJsonObject, key );
+                            parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
                         }
                     }
                     catch ( ... )
@@ -170,57 +363,12 @@ void parseModularJSON( json& jsonObject, const path& filePath, json parentObject
     }
 }
 
-//! Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
-/*!
- * Get the corresponding line and column for a certain (byte) position in a `std::ifstream`.
- * \param stream The stream (passed by reference, its current byte position will be set to zero and then reset to the
- * original one before returning, so effectively this function does not modify the stream).
- * \param position The byte position (or character index) of interest.
- * \return Line and column for the character at `position` in `stream`.
- */
-std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, const std::streampos position )
-{
-    std::streampos originalPos = stream.tellg( );
-    stream.seekg( 0, std::ifstream::beg );
-    
-    std::string lineContents;
-    unsigned int line = 1;
-    std::streampos col;
-    std::streampos lastPos = stream.tellg( );
-    while ( std::getline( stream, lineContents ) )
-    {
-        const std::streampos currentPos = stream.tellg( );
-        if ( currentPos > position )
-        {
-            col = position - lastPos;
-            break;
-        }
-        lastPos = currentPos;
-        line++;
-    }
-    
-    stream.seekg( originalPos );
-    return { line, col };
-}
-
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
 json getParsedModularJSON( const path& filePath )
 {
-    std::ifstream stream( filePath.string( ) );
-    json jsonObject;
-    try
-    {
-        jsonObject = json::parse( stream );
-    }
-    catch ( const nlohmann::detail::parse_error& error )
-    {
-        std::pair< unsigned int, unsigned int > errorLineCol = getLineAndCol( stream, error.byte );
-        std::cerr << "Parse error in file " << filePath
-                  << " at line " << errorLineCol.first << ", col " << errorLineCol.second << "." << std::endl;
-        throw error;
-    }
-    
+    json jsonObject = readJSON( filePath );
     parseModularJSON( jsonObject, filePath );
+    mergeJSON( jsonObject, filePath );
     return jsonObject;
 }
 

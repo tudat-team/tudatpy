@@ -42,7 +42,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         if ( timeTerminationSettings )  // time
         {
-            jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( epochVariable );
+            jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( independentVariable );
             jsonObject[ K::limitValue ] = timeTerminationSettings->terminationTime_;
         }
         else  // dependent variable
@@ -79,7 +79,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
             getValue< boost::shared_ptr< VariableSettings > >( jsonObject, K::variable );
     switch ( variable->variableType_ )
     {
-    case epochVariable:
+    case independentVariable:
     {
         terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
                     getEpoch( jsonObject, K::limitValue,
