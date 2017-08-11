@@ -96,7 +96,30 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
     return { line, col };
 }
 
-//! Update path
+//! Update paths for a JSON object.
+/*!
+ * @copybrief updatePaths
+ * <br/>
+ * Looks for expressions ${FILE_STEM}, ${FILE_NAME}, ${PARENT_FILE_STEM}, ${PARENT_FILE_NAME},
+ * ${ROOT_FILE_STEM} and ${ROOT_FILE_NAME} in all the strings of \p jsonObject, replacing them, respetively, bu the
+ * stem of filename of the file in which it is defined, in which it was included, or in the root input file (the one
+ * provided to the command line app as argument).
+ * <br/>
+ * Then, it fixes paths in included files by searching string matching the expressions "@path(myPath)", only when
+ * myPath is a relative path. This is necessary because myPath must be relative to the root file, but in input files
+ * the user provides paths relative to the directory in which the definition file is located.
+ * <br/>
+ * This feature can be "turned off" by providing paths directly without the "@path" keyword (e.g. "myPath"). This
+ * is safe when no modular files are included, but can result in problems otherwise. If paths are provided directly
+ * without the "@path" keyword, then the user is responsible for defining them always relative to the root file in
+ * which they are going to be included (and not relative to the file in which they are defined).
+ * \param jsonObject The `json` object containing / being a string.
+ * \param filePath Path to the file in which the path is defined.
+ * \param parentFilePath Path to the file in which the file in which the path is defined was included
+ * (equal to \p filePath if \p jsonObject was defined at \p parentFilePath).
+ * \param rootFilePath Path to the root file that was passed as command-line argument to the application.
+ * (equal to \p filePath if \p jsonObject was defined at \p rootFilePath).
+ */
 void updatePaths( json& jsonObject, const path& filePath, const path& parentFilePath, const path& rootFilePath )
 {
     if ( jsonObject.is_structured( ) )
@@ -138,11 +161,13 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
 
 //! Read a JSON file into a `json` object.
 /*!
- * @copybrief readJSON. If \p inclusionFile is not empty, the strings matching the expression "#path(relativePath)"
+ * @copybrief readJSON If \p inclusionFile is not empty, the strings matching the expression "#path(relativePath)"
  * are replaced by the corresponding relative path relative to the file in which it is being included.
  * \param filePath Path to the JSON file.
- * \param inclusionFile File from which the contents of \p filePath are being read. Empty if read directly from a C++
- * function.
+ * \param parentFilePath File from which the contents of \p filePath are being read
+ * (empty if \p filePath is equal to \p parentFilePath).
+ * \param rootFilePath Path to the root file that was passed as command-line argument to the application
+ * (empty if \p filePath is equal to \p rootFilePath).
  * \return Read `json` object.
  */
 json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) )
@@ -165,7 +190,19 @@ json readJSON( const path& filePath, const path& parentFilePath = path( ), const
     return jsonObject;
 }
 
-//! -DOC
+//! Merge an array of JSON input objects.
+/*!
+ * @copybrief mergeJSON
+ * <br/>
+ * If \p jsonObject is an object, this function will return immediatelly.
+ * <br/>
+ * If \p jsonObject is an array of objects, the first object will be used to create the initial `json` object.
+ * Then, the subsequent objects will be used to create this initial object, by updating (or settings) the keys
+ * defined in these subsequent objects with the provided objects.
+ * \param jsonObject The `json` containing an object (no merging will be applied) or an array of objects
+ * (the elements will be merged).
+ * \param filePath The file from which \p jsonObject was retrieved.
+ */
 void mergeJSON( json& jsonObject, const path& filePath )
 {
     if ( jsonObject.is_object( ) )
@@ -260,6 +297,8 @@ void mergeJSON( json& jsonObject, const path& filePath )
  * \param jsonObject The `json` object to be parsed (passed by reference).
  * \param filePath Path of the file from which \p jsonObject was retrieved.
  * \param parentObject The `json` object form which \p jsonObject was retrieved, if any (default is null `json`).
+ * \param rootFilePath Path to the root file that was passed as command-line argument to the application
+ * (empty if \p filePath is equal to \p rootFilePath).
  */
 void parseModularJSON( json& jsonObject, const path& filePath,
                        json parentObject = json( ), path rootFilePath = path( ) )
