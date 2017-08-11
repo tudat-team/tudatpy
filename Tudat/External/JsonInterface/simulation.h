@@ -193,11 +193,21 @@ public:
                                     boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
                             enforceNonNullPointer( depVariable );
                             size = getDependentVariableSize( depVariable->dependentVariableType_ );
-                            unsigned int index =
-                                    getKeyWithValue( singleArcDynamicsSimulator->getDependentVariableIds( ),
-                                                     getDependentVariableId( depVariable ) );
-                            result.segment( currentIndex, size ) =
-                                    dependentVariables.at( epoch ).segment( index, size );
+                            const std::string varID = getDependentVariableId( depVariable );
+                            try
+                            {
+                                unsigned int index = getKeyWithValue(
+                                            singleArcDynamicsSimulator->getDependentVariableIds( ), varID );
+                                result.segment( currentIndex, size ) =
+                                        dependentVariables.at( epoch ).segment( index, size );
+                            }
+                            catch ( ... )
+                            {
+                                std::cerr << "Could not export the results for variable \"" << varID << "\" "
+                                          << "because none of the propagators was configured to compute this variable."
+                                          << std::endl;
+                                throw;
+                            }
                             break;
                         }
                         default:
@@ -211,8 +221,10 @@ public:
                 if ( exportSettings->epochsInFirstColumn )
                 {
                     // Write results map to file.
-                    writeDataMapToTextFile( results, exportSettings->outputFile,
-                                            "", exportSettings->numericalPrecision );
+                    writeDataMapToTextFile( results,
+                                            exportSettings->outputFile,
+                                            "",
+                                            exportSettings->numericalPrecision );
                 }
                 else
                 {
@@ -223,7 +235,10 @@ public:
                     {
                         resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
                     }
-                    writeMatrixToFile( resultsMatrix, exportSettings->outputFile, exportSettings->numericalPrecision );
+                    writeMatrixToFile( resultsMatrix,
+                                       exportSettings->outputFile.filename( ).string( ),
+                                       exportSettings->numericalPrecision,
+                                       exportSettings->outputFile.parent_path( ) );
                 }
             }
         }

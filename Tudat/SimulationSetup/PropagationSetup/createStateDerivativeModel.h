@@ -24,7 +24,9 @@
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 
 namespace tudat
 {
@@ -501,6 +503,34 @@ createStateDerivativeModels(
 
     return stateDerivativeModels;
 }
+
+//! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
+/*!
+ *  Function to create an integrator to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.
+ * \param integratorSettings Settings for the numerical integration
+ * \param massParameter Normalized mass parameter
+ * \param initialState Initial normalized state
+ * \return Integrator object for propagation of CR3BP with requested settings
+ */
+boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
+        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double massParameter,
+        const Eigen::Vector6d& initialState );
+
+//! Function to propagate the dynamics (in normalized units) in CR3BP
+/*!
+ *  Function to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.
+ * \param integratorSettings Settings for the numerical integration
+ * \param massParameter Normalized mass parameter
+ * \param initialState Initial normalized state
+ * \param finalTime End time for the numerical integration
+ * \return Propagated state history of normalized dynamics in CR3BP.
+ */
+std::map< double, Eigen::Vector6d > performCR3BPIntegration(
+        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const double massParameter,
+        const Eigen::Vector6d& initialState,
+        const double finalTime  );
 
 } // namespace propagators
 

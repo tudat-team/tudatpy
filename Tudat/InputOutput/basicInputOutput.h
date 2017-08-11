@@ -394,17 +394,6 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
     outputFile_.close( );
 }
 
-//! -DOC
-template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
-void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
-                        const boost::filesystem::path& outputFilePath,
-                        const int numberOfDigits = 16,
-                        const std::string& delimiter = "\t" )
-{
-    writeMatrixToFile( matrixToWrite, outputFilePath.filename( ).string( ),
-                       numberOfDigits, outputFilePath.parent_path( ), delimiter );
-}
-
 //! Typedef for double-KeyType, double-ValueType map.
 /*!
  * Typedef for double-KeyType, double-ValueType map.
