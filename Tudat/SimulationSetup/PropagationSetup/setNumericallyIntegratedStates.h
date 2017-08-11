@@ -407,7 +407,6 @@ void resetMultiArcIntegratedEphemerides(
                                             currentBodyEphemeris->getReferenceFrameOrientation( ) ) );
 
         }
-
         currentBodyEphemeris->resetSingleArcEphemerides( arcEphemerisList, arcStartTimes );
     }
 

@@ -68,6 +68,13 @@ struct BodySettings
 
 };
 
+//! Function that determines the order in which bodies are to be created
+/*!
+ * Function that determines the order in which bodies are to be created, to ensure that any dependency between body models are
+ * correctly handled. Currently, no dependencies exist that force any particular creation order.
+ * \param bodySettings Map of body settings (with map key the body name)
+ * \return List of pairs: name and body settings of that body
+ */
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
 

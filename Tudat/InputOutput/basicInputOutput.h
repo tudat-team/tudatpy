@@ -18,6 +18,7 @@
 #define TUDAT_BASIC_INPUT_OUTPUT_H
 
 #include <fstream>
+#include <iostream>
 #include <iomanip>
 #include <limits>
 #include <map>
@@ -53,7 +54,7 @@ static inline std::string getTudatRootPath( )
 
     // Strip filename from temporary string and return root-path string.
     return filePath_.substr( 0, filePath_.length( ) -
-                                std::string( "InputOutput/basicInputOutput.h" ).length( ) );
+                             std::string( "InputOutput/basicInputOutput.h" ).length( ) );
 #endif
 }
 
@@ -118,7 +119,7 @@ std::string printInFormattedScientificNotation(
  * \return Container of filenames in directory, stored as Boost path variables.
  */
 std::vector< boost::filesystem::path > listAllFilesInDirectory(
-    const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories = false );
+        const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!
@@ -157,13 +158,15 @@ void writeValueToStream( OutputStream& stream, const ValueType& value,
  * \param value Value to write to stream.
  * \param precision Precision to write the value with.
  * \param delimiter Delimiter to precede the value.
+ * \param endLineAfterRow Boolean to denote whether a new line is to be started after each row of the matrix
  */
 template< typename OutputStream, typename ScalarType,
           int NumberOfRows, int NumberOfColumns, int Options, int MaximumRows, int MaximumCols >
 void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                          NumberOfRows, NumberOfColumns, Options,
                          MaximumRows, MaximumCols >& value,
-                         const int precision, const std::string& delimiter )
+                         const int precision, const std::string& delimiter,
+                         const bool endLineAfterRow  = 0 )
 {
     for ( int i = 0; i < value.rows( ); i++ )
     {
@@ -173,6 +176,12 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                    << std::setprecision( precision ) << std::left
                    << std::setw( precision + 1 )
                    << value( i, j );
+
+
+        }
+        if( endLineAfterRow )
+        {
+            stream << std::endl;
         }
     }
     stream << std::endl;
@@ -192,7 +201,6 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
  *          line.
  * \param precisionOfKeyType Number of significant digits of KeyType-data to output.
  * \param precisionOfValueType Number of significant digits of ValueType-data to output.
-
  * \param delimiter Delimiter character, to delimit data entries in file.
  */
 template< typename InputIterator >
@@ -250,9 +258,9 @@ void writeDataMapToTextFile(
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile(
         const std::map< KeyType, ValueType >& dataMap, const std::string& outputFilename,
-        const boost::filesystem::path& outputDirectory, const std::string& fileHeader,
-        const int precisionOfKeyType, const int precisionOfValueType,
-        const std::string& delimiter )
+        const boost::filesystem::path& outputDirectory, const std::string& fileHeader = "",
+        const int precisionOfKeyType = 16, const int precisionOfValueType = 16,
+        const std::string& delimiter = "\t" )
 {
     writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
                             outputFilename, outputDirectory, fileHeader,
@@ -341,6 +349,7 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
+//! -DOC
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile(
         const std::map< KeyType, ValueType >& dataMap,
@@ -353,15 +362,48 @@ void writeDataMapToTextFile(
                             fileHeader, precision, precision, " " );
 }
 
-//! -DOC
-void writeMatrixToFile( Eigen::MatrixXd matrixToWrite,
-                        std::string fileName,
-                        const int numberOfDigits = 16 );
+//! Write Eigen matrix to text file.
+/*!
+ * Write Eigen matrix to text file.
+ * \param matrixToWrite Matrix that is to be written to a file
+ * \param outputFilename Output filename.
+ * \param precisionOfMatrixEntries Number of significant digits of Matrix output
+ * \param outputDirectory Output directory. It can be passed as a string as well. The directory be created if it does not exist.
+ * \param delimiter Delimiter character, to delimit data entries in file.
+ */
+template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
+void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
+                        const std::string& outputFilename,
+                        const int precisionOfMatrixEntries = 16,
+                        const boost::filesystem::path& outputDirectory = getTudatRootPath( ),
+                        const std::string& delimiter = "\t" )
+{
+    // Check if output directory exists; create it if it doesn't.
+    if ( !boost::filesystem::exists( outputDirectory ) )
+    {
+        boost::filesystem::create_directories( outputDirectory );
+    }
+
+    // Open output file.
+    std::string outputDirectoryAndFilename = outputDirectory.string( ) + "/" + outputFilename;
+    std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
+
+    writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
+                        delimiter, true );
+
+    outputFile_.close( );
+}
 
 //! -DOC
-void writeMatrixToFile( const Eigen::MatrixXd& matrixToWrite,
-                        const boost::filesystem::path& outputPath,
-                        const int numberOfDigits = 16 );
+template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
+void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
+                        const boost::filesystem::path& outputFilePath,
+                        const int numberOfDigits = 16,
+                        const std::string& delimiter = "\t" )
+{
+    writeMatrixToFile( matrixToWrite, outputFilePath.filename( ).string( ),
+                       numberOfDigits, outputFilePath.parent_path( ), delimiter );
+}
 
 //! Typedef for double-KeyType, double-ValueType map.
 /*!

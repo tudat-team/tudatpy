@@ -175,6 +175,11 @@ public:
      */
     std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
 
+    void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
+    {
+        associatedReferenceFrame_ = associatedReferenceFrame;
+    }
+
     bool getCreateTimeDependentField( ){ return createTimeDependentField_; }
 
     void setCreateTimeDependentField( const bool createTimeDependentField )

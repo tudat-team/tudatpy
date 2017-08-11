@@ -27,72 +27,20 @@ namespace simulation_setup
 using namespace ephemerides;
 using namespace gravitation;
 
+//! Function that determines the order in which bodies are to be created
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
 {
     std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > outputVector;
 
-    std::map< std::string, std::vector< boost::shared_ptr< GravityFieldVariationSettings > > >
-            gravityFieldVariationSettingsList;
-
+    // Create vector of pairs (body name and body settings) that is to be created.
     for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator bodyIterator
-                 = bodySettings.begin( );
+         = bodySettings.begin( );
          bodyIterator != bodySettings.end( ); bodyIterator ++ )
     {
-        if( bodyIterator->second->gravityFieldVariationSettings.size( ) != 0 )
-        {
-            gravityFieldVariationSettingsList[ bodyIterator->first ] =
-                    bodyIterator->second->gravityFieldVariationSettings;
-        }
         outputVector.push_back( std::make_pair( bodyIterator->first, bodyIterator->second ) );
     }
 
-    if( gravityFieldVariationSettingsList.size( ) != 0 )
-    {
-        for( std::map< std::string,
-                     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > >::iterator
-                     variationIterator = gravityFieldVariationSettingsList.begin( );
-             variationIterator != gravityFieldVariationSettingsList.end( ); variationIterator++ )
-        {
-            unsigned int currentBodyIndex = -1;
-
-            for( unsigned int k = 0; k < variationIterator->second.size( ); k++ )
-            {
-                boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > variationSettings1
-                        = boost::dynamic_pointer_cast<
-                    BasicSolidBodyGravityFieldVariationSettings >( variationIterator->second[ k ] );
-
-                if( variationSettings1 != NULL )
-                {
-
-                    for( unsigned int i = 0; i < outputVector.size( ); i++ )
-                    {
-                        if( outputVector[ i ].first == variationIterator->first )
-                        {
-                            currentBodyIndex = i;
-                        }
-                    }
-
-                    std::vector< std::string > deformingBodies
-                            = variationSettings1->getDeformingBodies( );
-                    for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
-                    {
-                        for( unsigned int j = 0; j < outputVector.size( ); j++ )
-                        {
-                            if( deformingBodies[ i ] == outputVector[ j ].first
-                                && j > currentBodyIndex )
-                            {
-                                std::pair< std::string, boost::shared_ptr< BodySettings > >
-                                        entryToMove = outputVector[ j ];
-                                outputVector.erase( outputVector.begin( ) + j );
-                                outputVector.insert( outputVector.begin( ) + i, entryToMove );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
     return outputVector;
 }
 
@@ -102,13 +50,13 @@ NamedBodyMap createBodies(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
 {
     std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > orderedBodySettings
-           = determineBodyCreationOrder( bodySettings );
+            = determineBodyCreationOrder( bodySettings );
 
     // Declare map of bodies that is to be returned.
     NamedBodyMap bodyMap;
 
     // Create empty body objects.
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         bodyMap[ orderedBodySettings.at( i ).first ] = boost::make_shared< Body >( );
     }
@@ -124,7 +72,7 @@ NamedBodyMap createBodies(
     }
 
     // Create ephemeris objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->ephemerisSettings != NULL )
         {
@@ -135,7 +83,7 @@ NamedBodyMap createBodies(
     }
 
     // Create atmosphere model objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->atmosphereSettings != NULL )
         {
@@ -146,7 +94,7 @@ NamedBodyMap createBodies(
     }
 
     // Create body shape model objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->shapeModelSettings != NULL )
         {
@@ -157,7 +105,7 @@ NamedBodyMap createBodies(
     }
 
     // Create rotation model objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->rotationModelSettings != NULL )
         {
@@ -168,7 +116,7 @@ NamedBodyMap createBodies(
     }
 
     // Create gravity field model objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldSettings != NULL )
         {
@@ -179,7 +127,7 @@ NamedBodyMap createBodies(
         }
     }
 
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->gravityFieldVariationSettings.size( ) > 0 )
         {
@@ -191,7 +139,7 @@ NamedBodyMap createBodies(
     }
 
     // Create aerodynamic coefficient interface objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != NULL )
         {
@@ -204,7 +152,7 @@ NamedBodyMap createBodies(
 
 
     // Create radiation pressure coefficient objects for each body (if required).
-    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >
                 radiationPressureSettings

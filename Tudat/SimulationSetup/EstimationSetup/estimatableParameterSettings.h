@@ -99,7 +99,8 @@ public:
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
-            throw std::runtime_error ("Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+            throw std::runtime_error(
+                        "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
     }
 
@@ -110,7 +111,7 @@ public:
      * \param minimumOrder Minimum order of field that is to be estimated.
      * \param maximumDegree Maximum degree of field that is to be estimated.
      * \param maximumOrder Maximum order of field that is to be estimated.
-     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param associatedBody Body for which  coefficients are to be estimated.
      * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
      * of spherical_harmonics_sine_coefficient_block).
      */
@@ -338,6 +339,132 @@ public:
     //! List of times at which empirical acceleration arcs are to start
     std::vector< double > arcStartTimeList_;
 
+
+};
+
+//! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
+/*!
+ *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
+ *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
+ *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
+ *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
+ *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ */
+class FullDegreeTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree,
+                                                            const std::string deformingBody,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
+        useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBodies Names of bodies causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree ,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    //! Degree of Love number that is to be estimated
+    int degree_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    //! True if the complex Love number is estimated, false if only teh real part is considered
+    bool useComplexValue_;
+
+};
+
+//! Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree.
+/*!
+ *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
+ *  degree. The estimation will provide separate Love numbers for each order
+ *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
+ *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
+ *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
+ *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ */
+class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param deformingBody Names of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::string& deformingBody,
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param deformingBodies Names of bodies causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::vector< std::string >& deformingBodies,
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    //! Degree of Love number that is to be estimated
+    int degree_;
+
+    //! List of orders at which Love numbers are to be estimated.
+    const std::vector< int > orders_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    //! True if the complex Love number is estimated, false if only teh real part is considered
+    bool useComplexValue_;
 
 };
 

@@ -22,8 +22,7 @@ namespace tudat
 namespace unit_tests
 {
 
-////Using declarations.
-
+//! Using declarations.
 using namespace tudat;
 using namespace interpolators;
 using namespace numerical_integrators;
@@ -46,7 +45,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
 
 
-    for( unsigned testCase = 0; testCase < 2; testCase++ )
+    for( unsigned testCase = 0; testCase < 3; testCase++ )
     {
         std::vector< std::string > bodyNames;
         bodyNames.push_back( "Earth" );
@@ -130,6 +129,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                           systemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
         }
 
+        // For case 0: test multi-arc estimation with same integration settings for each arc
         if( testCase == 0 )
         {
             boost::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -139,6 +139,7 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                         bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ), integrationArcStarts );
         }
+        // For case 1: test multi-arc estimation with different integration settings object for each arc
         else if( testCase == 1 )
         {
             std::vector< boost::shared_ptr< IntegratorSettings< > > > integratorSettingsList;
@@ -150,6 +151,17 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
             MultiArcDynamicsSimulator< > dynamicsSimulator(
                         bodyMap, integratorSettingsList, boost::make_shared< MultiArcPropagatorSettings< double > >(
                             arcPropagationSettingsList ) );
+        }
+        // For case 0: test multi-arc estimation with same integration settings for each arc, and arc initial state interpolated
+        // from previous state
+        else  if( testCase == 2 )
+        {
+            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    boost::make_shared< IntegratorSettings< > >
+                    ( rungeKutta4, initialEphemerisTime, 120.0 );
+            MultiArcDynamicsSimulator< > dynamicsSimulator(
+                        bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< double > >(
+                            arcPropagationSettingsList, true ), integrationArcStarts );
         }
 
 
@@ -181,20 +193,43 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                 testEndTime = integrationArcStarts.at( i + 1 ) - timeBuffer;
             }
 
-            double currentTestTime = testStartTime;
-            while( currentTestTime < testEndTime )
+            // Check if output corresponds to expected analytical solution
+            if( testCase < 2 || i == 0 )
             {
-                stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
-                        ( orbital_element_conversions::convertKeplerianToCartesianElements(
-                              propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
-                                                    earthGravitationalParameter ), earthGravitationalParameter ) );
-                for( int i = 0; i < 3; i++ )
+                double currentTestTime = testStartTime;
+                while( currentTestTime < testEndTime )
                 {
-                    BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-4 );
-                    BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-10 );
+                    stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
+                            ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                                  propagateKeplerOrbit( initialKeplerElements.at( i ), currentTestTime - integrationArcStarts.at( i ),
+                                                        earthGravitationalParameter ), earthGravitationalParameter ) );
+                    for( int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-4 );
+                        BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-10 );
 
+                    }
+                    currentTestTime += testTimeStep;
                 }
-                currentTestTime += testTimeStep;
+            }
+            // Check if arc information is properly passed to next arc
+            else
+            {
+                double currentTestTime = testStartTime;
+                while( currentTestTime < testEndTime )
+                {
+                    stateDifference = ( moonEphemeris->getCartesianState( currentTestTime ) ) -
+                            ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                                  propagateKeplerOrbit( initialKeplerElements.at( 0 ), currentTestTime - integrationArcStarts.at( 0 ),
+                                                        earthGravitationalParameter ), earthGravitationalParameter ) );
+                    for( int i = 0; i < 3; i++ )
+                    {
+                        BOOST_CHECK_SMALL( stateDifference( i ), 1.0E-3);
+                        BOOST_CHECK_SMALL( stateDifference( i + 3 ), 1.0E-9 );
+
+                    }
+                    currentTestTime += testTimeStep;
+                }
             }
         }
     }

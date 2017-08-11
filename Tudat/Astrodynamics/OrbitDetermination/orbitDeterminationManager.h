@@ -449,6 +449,7 @@ public:
      *  when first calling this object (e.g. before 1st iteration of algorithm)
      *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
      *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \param saveResidualsFromFirstIteration Boolean denoting whether the residuals from the 1st iteration are to be saved
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
@@ -458,7 +459,8 @@ public:
             const bool reintegrateEquationsOnFirstIteration = 1,
             const bool reintegrateVariationalEquations = 1,
             const bool saveInformationmatrix = 1,
-            const bool printOutput = 1 )
+            const bool printOutput = 1,
+            const bool saveResidualsFromFirstIteration = 0  )
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -476,6 +478,8 @@ public:
         Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Zero( totalNumberOfObservations, parameterVectorSize );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Zero( totalNumberOfObservations );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Zero( parameterVectorSize, parameterVectorSize );
+
+        Eigen::VectorXd firstIterationResiduals = Eigen::VectorXd::Zero( 0 );
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -535,9 +539,11 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
+            if( numberOfIterations == 0 && saveResidualsFromFirstIteration )
+            {
+                firstIterationResiduals = residualsAndPartials.first;
+            }
 
-            input_output::writeMatrixToFile( residualsAndPartials.second, "partials.dat" );
-            input_output::writeMatrixToFile( leastSquaresOutput.second, "covariance.dat" );
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
             oldParameterEstimate = newParameterEstimate;
@@ -546,15 +552,10 @@ public:
             {
                 std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
             }
+
             // Calculate mean residual for current iteration.
-            residualRms = 0.0;
-            double residualSum = 1.0;
-            for( int i = 0; i < residualsAndPartials.first.size( ); i++ )
-            {
-                residualRms += std::fabs( residualsAndPartials.first[ i ] );// * weightMatrix( i, i );
-                residualSum += 1.0; //weightMatrix( i, i );
-            }
-            residualRms = residualRms / ( residualSum );
+            residualRms = linear_algebra::getVectorEntryRootMeanSquare( residualsAndPartials.first );
+
             rmsResidualHistory.push_back( residualRms );
             if( printOutput )
             {
@@ -588,7 +589,7 @@ public:
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual );
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, firstIterationResiduals );
     }
 
     //! Function to reset the current parameter estimate.
