@@ -39,7 +39,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
-  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 )
 
 # Add static libraries.
