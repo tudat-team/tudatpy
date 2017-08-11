@@ -245,7 +245,7 @@ public:
     {
         if( loveNumbers_.size( ) > static_cast< unsigned int >( degree - 2 ) )
         {
-            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree ) )
+            if( loveNumbers.size( ) <= static_cast< unsigned int >( degree + 1 ) )
             {
                 loveNumbers_[ degree - 2 ] = loveNumbers;
             }

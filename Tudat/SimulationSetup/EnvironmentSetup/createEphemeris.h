@@ -99,7 +99,12 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
-    bool getMakeMultiArcEphemeris( )
+    //! Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
+    double getMakeMultiArcEphemeris( )
     {
         return makeMultiArcEphemeris_;
     }
@@ -118,6 +123,11 @@ public:
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
+    //! Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \param makeMultiArcEphemeris New boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
     void resetMakeMultiArcEphemeris( const bool makeMultiArcEphemeris )
     {
         makeMultiArcEphemeris_ = makeMultiArcEphemeris;
@@ -134,6 +144,12 @@ protected:
     //! Orientation of frame in which ephemeris data is defined.
     std::string frameOrientation_;
 
+    //! Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     *  Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If true, the createEphemeris
+     *  function creates a multi-arc ephemeris with a single arc spanning all time, created according to the contents of the
+     *  EphemerisSettings object.
+     */
     bool makeMultiArcEphemeris_;
 };
 
@@ -676,6 +692,15 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
+//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
+/*!
+ * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ * on which the interpolator inside this object is valid is checked and returned
+ * \param ephemerisModel Ephemeris model for which the interval is to be determined.
+ * \return The time interval at which the ephemeris can be safely interrogated
+ */
+std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 } // namespace simulation_setup
 

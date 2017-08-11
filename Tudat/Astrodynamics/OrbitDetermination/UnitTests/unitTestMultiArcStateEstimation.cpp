@@ -36,9 +36,10 @@ using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
 
 template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
-Eigen::VectorXd  executeParameterEstimation( )
+Eigen::VectorXd  executeParameterEstimation(
+        const int linkArcs )
 {
-    //Load spice kernels.
+    //Load spice kernels.f
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
@@ -122,7 +123,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     double integrationStartTime = initialEphemerisTime + 1.0E4;
     double integrationEndTime = finalEphemerisTime - 1.0E4;
     double arcDuration = 1.6E7;
-    double arcOverlap = 1.0E4;
+    double arcOverlap = 2.0E4;
 
     double currentStartTime = integrationStartTime, currentEndTime = integrationStartTime + arcDuration;
 
@@ -183,14 +184,13 @@ Eigen::VectorXd  executeParameterEstimation( )
                       integrationArcEndTimes.at( i ) ) );
     }
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
-            boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList );
+            boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
 
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodyMap, parametersToEstimate,
                 observationSettingsMap, integratorSettings, propagatorSettings );
-
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
@@ -265,22 +265,27 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
-    Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( );
-    int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
-
-    std::cout<<parameterError.transpose( )<<std::endl;
-    for( int i = 0; i < numberOfEstimatedArcs; i++ )
+    // Execute test for linked arcs and separate arcs.
+    for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
-        for( unsigned int j = 0; j < 3; j++ )
-        {
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-5 );
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-11  );
-        }
-    }
+        Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >(
+                    testCase );
+        int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-14 );
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-14 );
+        std::cout<<parameterError.transpose( )<<std::endl;
+        for( int i = 0; i < numberOfEstimatedArcs; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-4 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-10  );
+            }
+        }
+
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-12 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-12 );
+    }
 
 }
 

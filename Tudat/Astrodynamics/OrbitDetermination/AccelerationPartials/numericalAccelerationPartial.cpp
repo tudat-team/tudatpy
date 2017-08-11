@@ -157,7 +157,6 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
     Eigen::VectorXd perturbedParameterValue;
     for( int i = 0; i < unperturbedParameterValue.size( ); i++ )
     {
-
         perturbedParameterValue = unperturbedParameterValue;
         perturbedParameterValue( i ) += parameterPerturbation( i );
 

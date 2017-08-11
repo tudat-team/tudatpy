@@ -19,6 +19,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
 # Add header files.
@@ -38,6 +39,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
 # Add static libraries.
@@ -111,5 +113,9 @@ target_link_libraries(test_PropagationTerminationReason ${TUDAT_PROPAGATION_LIBR
 add_executable(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestRotationalDynamicsPropagator.cpp")
 setup_custom_test_program(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_RotationalDynamicsPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCR3BPPropagation.cpp")
+setup_custom_test_program(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_CR3BPPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )

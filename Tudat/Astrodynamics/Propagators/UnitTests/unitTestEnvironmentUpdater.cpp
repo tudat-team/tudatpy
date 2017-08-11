@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             accelerationSettingsMap[ "Moon" ][ "Sun" ].push_back(
                         boost::make_shared< AccelerationSettings >( central_gravity ) );
             accelerationSettingsMap[ "Moon" ][ "Earth" ].push_back(
-                        boost::make_shared< SphericalHarmonicAccelerationSettings >( 6, 6 ) );
+                        boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
             accelerationSettingsMap[ "Moon" ][ "Mars" ].push_back(
                         boost::make_shared< AccelerationSettings >( central_gravity ) );
 
