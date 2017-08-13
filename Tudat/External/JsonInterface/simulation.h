@@ -134,7 +134,7 @@ public:
                     }
                     case stateVariable:
                     {
-                        cols += 6;  // FIXME: will depend on which states have been requested (satellite's? also mass?)
+                        cols += statesHistory.begin( )->second.rows( );
                         break;
                     }
                     case dependentVariable:
@@ -183,7 +183,7 @@ public:
                         }
                         case stateVariable:
                         {
-                            size = 6;  // FIXME
+                            size = it->second.rows( );
                             result.segment( currentIndex, size ) = it->second.template cast< double >( );
                             break;
                         }
@@ -403,7 +403,38 @@ protected:
     //! -DOC
     virtual void resetPropagation( )
     {
+        using namespace propagators;
+
         updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
+
+        // Try to get initial states from bodies' epehemeris if not provided
+        if ( propagationSettings->getInitialStates( ).rows( ) == 0 )
+        {
+            boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagator =
+                    boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                        propagationSettings );
+            if ( translationalPropagator )
+            {
+                try
+                {
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
+                            getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
+                                                      translationalPropagator->centralBodies_,
+                                                      bodyMap, startEpoch );
+                    translationalPropagator->resetInitialStates( systemInitialState );
+                }
+                catch ( ... ) { }
+            }
+        }
+        if ( propagationSettings->getInitialStates( ).rows( ) == 0 )
+        {
+            std::cerr << "Could not determine initial integration state. "
+                      << "Please provide it to the propagator settings using the key \""
+                      << Keys::Propagator::initialStates << "\"." << std::endl;
+            throw;
+        }
+
+        // Create integrated state models (acceleration, mass-rate, rotational models)
         propagationSettings->createIntegratedStateModels( bodyMap );
     }
 

@@ -45,16 +45,7 @@ std::string getVariableId( const boost::shared_ptr< VariableSettings > variableS
     }
     else
     {
-        std::string variableId = getVariableName( variableSettings->variableType_ );
-
-        boost::shared_ptr< BodyVariableSettings > bodyVariableSettings =
-                boost::dynamic_pointer_cast< BodyVariableSettings >( variableSettings );
-        if ( bodyVariableSettings )
-        {
-            variableId += "of " + bodyVariableSettings->associatedBody_;
-        }
-
-        return variableId;
+        return getVariableName( variableSettings->variableType_ );
     }
 }
 
