@@ -67,6 +67,24 @@ public:
     }
 };
 
+//! Class for unrecognized errors generated during the retrieval of a value from a `json` object.
+/*!
+ * Class for unrecognized errors generated during the retrieval of a value from a `json` object.
+ */
+template< typename ExpectedValueType >
+class UnrecognizedValueAccessError : public ValueAccessError
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param keyPath Key path trying to access when the error was generated.
+     */
+    UnrecognizedValueAccessError( const KeyPath& keyPath ) :
+        ValueAccessError( "Unrecognized error when trying to create object of type " +
+                          boost::core::demangled_name( typeid( ExpectedValueType ) ) + " from key", keyPath ) { }
+};
+
 //! Class for errors generated when trying to access a key from a `json` object that does not exist.
 /*!
  * Class for errors generated when trying to access a key from a `json` object that does not exist.
@@ -132,7 +150,8 @@ public:
         std::cerr << "Could not convert value to expected type "
                   << boost::core::demangled_name( typeid( ExpectedValueType ) ) << std::endl;
         std::ostringstream stream;
-        stream << ValueAccessError::what( ) << " = " << value.dump( 2 );
+        stream << ValueAccessError::what( );
+        // stream << ValueAccessError::what( ) << " = " << value.dump( 2 );
         // std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
         return stream.str( ).c_str( );
     }

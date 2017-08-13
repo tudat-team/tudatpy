@@ -225,7 +225,7 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
         else
         {
             std::cerr << "Could not convert JSON array (of arrays) to Eigen vector/matrix." << std::endl;
-            throw;
+            throw nlohmann::detail::type_error::create( 0, "" );
         }
     }
     matrix = tudat::json_interface::eigenMatrixFromStdVectorOfVectors< ScalarType >( vectorOfVectors );
@@ -249,7 +249,7 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
             std::cerr << providedRows << "x" << providedCols;
         }
         std::cerr << "." << std::endl;
-        throw;
+        throw nlohmann::detail::type_error::create( 0, "" );
     }
 }
 

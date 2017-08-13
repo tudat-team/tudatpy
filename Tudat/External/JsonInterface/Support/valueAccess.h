@@ -240,6 +240,14 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         // Could not convert string to enum
         throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
     }
+    catch ( const UndefinedKeyError& error )
+    {
+        throw error;
+    }
+    catch ( ... )
+    {
+        throw UnrecognizedValueAccessError< ValueType >( canonicalKeyPath );
+    }
 }
 
 //! Convert \p jsonObject to `ValueType`.

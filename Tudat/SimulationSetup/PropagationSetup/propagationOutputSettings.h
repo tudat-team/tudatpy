@@ -56,29 +56,6 @@ public:
 };
 
 
-//! Functional base class for defining settings for variables associated to a body
-/*!
- *  Functional base class for defining settings for variables associated to a body.
- *  Any variable that requires additional information in addition to what can be provided here, should be
- *  defined by a dedicated derived class.
- */
-class BodyVariableSettings: public VariableSettings
-{
-public:
-    //! Constructor.
-    /*!
-     * Constructor.
-     * \param variableType Type of variable.
-     * \param associatedBody Body associated with dependent variable.
-     */
-    BodyVariableSettings( const VariableType variableType, const std::string& associatedBody ) :
-        VariableSettings( variableType), associatedBody_( associatedBody ) { }
-
-    //! Body associated with variable.
-    std::string associatedBody_;
-};
-
-
 //! Enum listing the dependent variables that can be saved during the propagation
 enum PropagationDependentVariables
 {
@@ -124,7 +101,7 @@ enum PropagationDependentVariables
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
  */
-class SingleDependentVariableSaveSettings : public BodyVariableSettings
+class SingleDependentVariableSaveSettings : public VariableSettings
 {
 public:
 
@@ -140,12 +117,16 @@ public:
             const PropagationDependentVariables dependentVariableType,
             const std::string& associatedBody,
             const std::string& secondaryBody = "" ):
-        BodyVariableSettings( dependentVariable, associatedBody ),
+        VariableSettings( dependentVariable ),
         dependentVariableType_( dependentVariableType ),
+        associatedBody_( associatedBody ),
         secondaryBody_( secondaryBody ) { }
 
     //! Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
+
+    //! Body associated with variable.
+    std::string associatedBody_;
 
     //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
     //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).

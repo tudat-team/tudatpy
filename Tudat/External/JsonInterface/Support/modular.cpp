@@ -134,11 +134,14 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
     {
         std::string str = jsonObject.get< std::string >( );
 
-        // Replace: ${FILE_STEM}, ${FILE_NAME}, etc.
+        // Replace: ${FILE_DIR}, ${FILE_STEM}, ${FILE_NAME}, etc.
+        str = regex_replace( str, boost::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_DIR\})" ), parentFilePath.parent_path( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
+        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_DIR\})" ), rootFilePath.parent_path( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
         str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
 
@@ -147,11 +150,16 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
         boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.+)\))" ) );
         if ( groups[ 1 ].matched )
         {
-            const path relativePath = std::string( groups[ 1 ] );
-            if ( relativePath.is_relative( ) )
+            const path providedPath = std::string( groups[ 1 ] );
+            if ( providedPath.is_relative( ) )
             {
                 const path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
-                str = ( rel / relativePath ).string( );
+                str = ( rel / providedPath ).string( );
+            }
+            else
+            {
+                const path rel = boost::filesystem::relative( providedPath, rootFilePath.parent_path( ) );
+                str = ( ( ! rel.empty( ) && rel.size( ) < providedPath.size( ) ) ? rel : providedPath ).string( );
             }
         }
 
@@ -194,7 +202,7 @@ json readJSON( const path& filePath, const path& parentFilePath = path( ), const
 /*!
  * @copybrief mergeJSON
  * <br/>
- * If \p jsonObject is an object, this function will return immediatelly.
+ * If \p jsonObject is not an array, this function will do nothing.
  * <br/>
  * If \p jsonObject is an array of objects, the first object will be used to create the initial `json` object.
  * Then, the subsequent objects will be used to create this initial object, by updating (or settings) the keys
@@ -205,21 +213,13 @@ json readJSON( const path& filePath, const path& parentFilePath = path( ), const
  */
 void mergeJSON( json& jsonObject, const path& filePath )
 {
-    if ( jsonObject.is_object( ) )
-    {
-        return;
-    }
-    else if ( jsonObject.is_array( ) )
+    if ( jsonObject.is_array( ) )
     {
         json jsonArray = jsonObject;
-        json::iterator it = jsonArray.begin( );
-        for ( ; it != jsonArray.end( ); ++it )
+        for ( json::iterator it = jsonArray.begin( ); it != jsonArray.end( ); ++it )
         {
             json subjson = it.value( );
-            if ( ! subjson.is_object( ) )
-            {
-                break;
-            }
+            mergeJSON( subjson, filePath );
             if ( it == jsonArray.begin( ) )
             {
                 jsonObject = subjson;
@@ -260,13 +260,7 @@ void mergeJSON( json& jsonObject, const path& filePath )
                 }
             }
         }
-        if ( it == jsonArray.end( ) )
-        {
-            return;
-        }
     }
-    std::cerr << "Could not parse " << filePath << " as a Tudat input file." << std::endl;
-    throw;
 }
 
 //! Parse a modular `json` object.

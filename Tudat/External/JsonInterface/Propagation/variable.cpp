@@ -38,17 +38,9 @@ void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& var
     switch ( variableType )
     {
     case independentVariable:
-    {
-        jsonObject[ K::type ] = variableType;
-        return;
-    }
     case stateVariable:
     {
-        boost::shared_ptr< BodyVariableSettings > bodyVariableSettings =
-                boost::dynamic_pointer_cast< BodyVariableSettings >( variableSettings );
-        enforceNonNullPointer( bodyVariableSettings );
         jsonObject[ K::type ] = variableType;
-        jsonObject[ K::body ] = bodyVariableSettings->associatedBody_;
         return;
     }
     case dependentVariable:
@@ -74,14 +66,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& v
     switch ( variableType )
     {
     case independentVariable:
-    {
-        variableSettings = boost::make_shared< VariableSettings >( variableType );
-        return;
-    }
     case stateVariable:
     {
-        variableSettings = boost::make_shared< BodyVariableSettings >(
-                    variableType, getValue< std::string >( jsonObject, K::body ) );
+        variableSettings = boost::make_shared< VariableSettings >( variableType );
         return;
     }
     case dependentVariable:

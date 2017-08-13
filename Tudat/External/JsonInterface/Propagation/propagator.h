@@ -239,12 +239,12 @@ void from_json( const json& jsonObject,
     case translational_state:
     {
         TranslationalStatePropagatorSettings< StateScalarType > defaults(
-        { }, SelectedAccelerationMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
+        { }, SelectedAccelerationMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 0 ), NULL );
         singleArcPropagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
                     getValue< std::vector< std::string > >( jsonObject, K::centralBodies ),
                     getValue< SelectedAccelerationMap >( jsonObject, K::accelerations ),
                     getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
-                    getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates ),
+                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
                     terminationSettings,
                     getValue( jsonObject, K::type, defaults.propagator_ ),
                     saveSettings,

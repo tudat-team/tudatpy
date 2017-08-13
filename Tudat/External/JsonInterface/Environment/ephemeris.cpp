@@ -150,7 +150,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     }
     case tabulated_ephemeris:
     {
-        /* FIXME::MAP
         TabulatedEphemerisSettings defaults( { } );
         TabulatedEphemerisSettings tabulatedEphemerisSettings(
                     getValue< std::map< double, Eigen::Vector6d > >( jsonObject, K::bodyStateHistory ),
@@ -159,7 +158,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
         tabulatedEphemerisSettings.setUseLongDoubleStates(
                     getValue( jsonObject, K::useLongDoubleStates, defaults.getUseLongDoubleStates( ) ) );
         ephemerisSettings = boost::make_shared< TabulatedEphemerisSettings >( tabulatedEphemerisSettings );
-        */
         return;
     }
     case interpolated_spice:
