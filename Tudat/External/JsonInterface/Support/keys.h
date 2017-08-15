@@ -29,6 +29,8 @@ struct SpecialKeys
     static const std::string rootObject;
     static const std::string keyPath;
 
+    static const std::vector< std::string > pathRelated;
+    static const std::vector< std::string > objectRelated;
     static const std::vector< std::string > all;
 };
 
@@ -47,9 +49,6 @@ struct Keys
         static const std::string kernels;
         static const std::string preloadKernels;
         static const std::string preloadOffsets;
-        static const std::string preloadOffset;
-        static const std::string startPreloadOffset;
-        static const std::string endPreloadOffset;
     };
 
     static const std::string bodies;
@@ -247,42 +246,41 @@ struct Keys
             static const std::string sineAcceleration;
             static const std::string cosineAcceleration;
 
-            static const std::string direction;
-            struct ThrustDirection
+            struct Thrust
             {
-                static const std::string type;
-                static const std::string relativeBody;
-                static const std::string colinearWithVelocity;
-                static const std::string towardsRelativeBody;
-            };
+                static const std::string direction;
+                struct Direction
+                {
+                    static const std::string type;
+                    static const std::string relativeBody;
+                    static const std::string colinearWithVelocity;
+                    static const std::string towardsRelativeBody;
+                };
 
-            static const std::string magnitude;
-            struct ThrustMagnitude
-            {
-                static const std::string type;
-                static const std::string originID;
-                static const std::string constantMagnitude;
+                static const std::string magnitude;
+                struct Magnitude
+                {
+                    static const std::string type;
+                    static const std::string originID;
+                    static const std::string constantMagnitude;
+                    static const std::string specificImpulse;
+                    static const std::string bodyFixedDirection;
+                    static const std::string useAllEngines;
+                };
+
+                static const std::string dataInterpolation;
                 static const std::string specificImpulse;
-                static const std::string bodyFixedDirection;
-                static const std::string useAllEngines;
+                static const std::string frame;
+                static const std::string centralBody;
             };
-
-            // static const std::string thrustFrame;
-            // static const std::string centralBody;
-
-            /*
-            static const std::string fullThrustInterpolationInterface;
-            struct FullThrustInterpolationInterface
-            {
-
-            };
-            */
         };
 
-        static const std::string massRates;
-        struct MassRate
+        static const std::string massRateModels;
+        struct MassRateModel
         {
-            // static const std::string type;
+            static const std::string type;
+            static const std::string useAllThrustModels;
+            static const std::string associatedThroustSource;
         };
 
         static const std::string torques;
@@ -311,22 +309,39 @@ struct Keys
         static const std::string minimumFactorDecreaseForNextStepSize;
     };
 
-    static const std::string interpolator;
-    struct Interpolator
+    struct Interpolation
     {
-        static const std::string type;
-        static const std::string lookupScheme;
-        static const std::string useLongDoubleTimeStep;
-        static const std::string order;
-        static const std::string boundaryHandling;
-    };
+        struct DataMap
+        {
+            static const std::string map;
+            static const std::string file;
+            static const std::string independentVariableValues;
+            static const std::string dependentVariableValues;
+            static const std::string dependentVariableFirstDerivativeValues;
+        };
 
-    struct ModelInterpolation
-    {
-        static const std::string initialTime;
-        static const std::string finalTime;
-        static const std::string timeStep;
-        static const std::string interpolator;
+        struct Interpolator
+        {
+            static const std::string type;
+            static const std::string lookupScheme;
+            static const std::string useLongDoubleTimeStep;
+            static const std::string order;
+            static const std::string boundaryHandling;
+        };
+
+        struct DataInterpolation
+        {
+            static const std::string data;
+            static const std::string interpolator;
+        };
+
+        struct ModelInterpolation
+        {
+            static const std::string initialTime;
+            static const std::string finalTime;
+            static const std::string timeStep;
+            static const std::string interpolator;
+        };
     };
 
     static const std::string xport;
@@ -343,8 +358,9 @@ struct Keys
     static const std::string options;
     struct Options
     {
-        static const std::string usingDefaultValueForMissingKey;
+        static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
+        static const std::string unidimensionalArrayInference;
         static const std::string populatedFile;
     };
 };

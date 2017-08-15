@@ -55,7 +55,7 @@ public:
         : runtime_error( errorMessage.c_str( ) ), keyPath( keyPath ) { }
 
     //! Key path trying to access / accessed when the error was generated.
-    const KeyPath keyPath;
+    KeyPath keyPath;
 
     //! Full error message.
     virtual const char* what( ) const throw( )
@@ -65,39 +65,6 @@ public:
         std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
         return stream.str( ).c_str( );
     }
-};
-
-//! Class for unrecognized errors generated during the retrieval of a value from a `json` object.
-/*!
- * Class for unrecognized errors generated during the retrieval of a value from a `json` object.
- */
-template< typename ExpectedValueType >
-class UnrecognizedValueAccessError : public ValueAccessError
-{
-public:
-    //! Constructor.
-    /*!
-     * Constructor.
-     * \param keyPath Key path trying to access when the error was generated.
-     */
-    UnrecognizedValueAccessError( const KeyPath& keyPath ) :
-        ValueAccessError( "Unrecognized error when trying to create object of type " +
-                          boost::core::demangled_name( typeid( ExpectedValueType ) ) + " from key", keyPath ) { }
-};
-
-//! Class for errors generated when trying to access a key from a `json` object that does not exist.
-/*!
- * Class for errors generated when trying to access a key from a `json` object that does not exist.
- */
-class UndefinedKeyError : public ValueAccessError
-{
-public:
-    //! Constructor.
-    /*!
-     * Constructor.
-     * \param keyPath Key path trying to access when the error was generated.
-     */
-    UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
 
     //! Whether `this` was generated when trying to access \p keyPath.
     /*!
@@ -124,11 +91,82 @@ public:
     }
 };
 
-//! Class for errors generated when trying to convert a `json` object to type `ExpectedValueType`.
+//! Class for unrecognized errors generated during the retrieval of a value from a `json` object.
 /*!
- * Class for errors generated when trying to convert a `json` object to type `ExpectedValueType`.
+ * Class for unrecognized errors generated during the retrieval of a value from a `json` object.
  */
-template< typename ExpectedValueType >
+class UnrecognizedValueAccessError : public ValueAccessError
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param keyPath Key path trying to access when the error was generated.
+     * \param expectedTypeInfo Type id info of the expected type.
+     */
+    UnrecognizedValueAccessError( const KeyPath& keyPath, const std::type_info& expectedTypeInfo ) :
+        ValueAccessError( "Unrecognized error when trying to create object of type " +
+                          boost::core::demangled_name( expectedTypeInfo ) + " from key", keyPath ) { }
+};
+
+//! Class for errors generated when trying to access a key from a `json` object that does not exist.
+/*!
+ * Class for errors generated when trying to access a key from a `json` object that does not exist.
+ */
+class UndefinedKeyError : public ValueAccessError
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param keyPath Key path trying to access when the error was generated.
+     */
+    UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
+
+    //! Rethrow `this` if default values are not allowed.
+    /*!
+     * @copybrief rethrowIfDefaultValuesNotAllowed
+     * \param response The response to usage of dafault values.
+     * \param defaultValue `json` representation of the used dafault value.
+     */
+    void rethrowIfDefaultValuesNotAllowed( const ExceptionResponseType& response, const json& defaultValue ) const
+    {
+        if ( ! containsAnyOf( keyPath, SpecialKeys::objectRelated ) )
+        {
+            if ( response != continueSilently )
+            {
+                if ( response == throwError )
+                {
+                    throw *this;
+                }
+                else
+                {
+                    std::cerr << "Using default value for key: " << keyPath << " = " << defaultValue << std::endl;
+                }
+            }
+        }
+    }
+
+    //! Rethrow `this` if NaN default values are not allowed and the provided default value is NaN.
+    /*!
+     * @copybrief rethrowIfNaNNotAllowed
+     * \param allowNaN Whether NaN default values are allowed.
+     * \param defaultValue The default value to be checked.
+     */
+    template< typename NumberType >
+    void rethrowIfNaNNotAllowed( bool allowNaN, const NumberType& defaultValue ) const
+    {
+        if ( ! allowNaN && isNaN( defaultValue ) )
+        {
+            throw *this;
+        }
+    }
+};
+
+//! Class for errors generated when trying to convert a `json` object to another type.
+/*!
+ * Class for errors generated when trying to convert a `json` object to another type.
+ */
 class IllegalValueError : public ValueAccessError
 {
 public:
@@ -136,19 +174,23 @@ public:
     /*!
      * Constructor.
      * \param keyPath Key path \p value was retrieved from.
-     * \param value The `json` object that was going to be converted to type `ExpectedValueType`.
+     * \param value The `json` object that was going to be converted to the expected type.
+     * \param expectedTypeInfo Type id info of the expected type.
      */
-    IllegalValueError( const KeyPath& keyPath, const json& value )
-        : ValueAccessError( "Illegal value for key", keyPath ), value( value ) { }
+    IllegalValueError( const KeyPath& keyPath, const json& value, const std::type_info& expectedTypeInfo ) :
+        ValueAccessError( "Illegal value for key", keyPath ), value( value ),
+        expectedTypeName( boost::core::demangled_name( expectedTypeInfo ) ) { }
 
     //! Associated (illegal) value.
     json value;
 
+    //! Expected type name.
+    std::string expectedTypeName;
+
     //! Full error message.
     virtual const char* what( ) const throw( )
     {
-        std::cerr << "Could not convert value to expected type "
-                  << boost::core::demangled_name( typeid( ExpectedValueType ) ) << std::endl;
+        std::cerr << "Could not convert value to expected type " << expectedTypeName << std::endl;
         std::ostringstream stream;
         stream << ValueAccessError::what( );
         // stream << ValueAccessError::what( ) << " = " << value.dump( 2 );
@@ -156,7 +198,6 @@ public:
         return stream.str( ).c_str( );
     }
 };
-
 
 //! Class for errors that print a report bug link.
 /*!

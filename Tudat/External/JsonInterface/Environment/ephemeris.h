@@ -73,7 +73,10 @@ static std::map< EphemerisType, std::string > ephemerisTypes =
 };
 
 //! `EphemerisType` not supported by `json_interface`.
-static std::vector< EphemerisType > unsupportedEphemerisTypes = { custom_ephemeris };
+static std::vector< EphemerisType > unsupportedEphemerisTypes =
+{
+    custom_ephemeris
+};
 
 //! Convert `EphemerisType` to `json`.
 inline void to_json( json& jsonObject, const EphemerisType& ephemerisType )

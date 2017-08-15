@@ -18,7 +18,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
-
+// #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 
 namespace tudat
@@ -349,26 +349,29 @@ public:
         thrustMagnitudeSettings_( thrustMagnitudeSettings ),
         thrustFrame_( unspecified_thurst_frame ){ }
 
-    //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
+    //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
+    //! variable specific impulse
     /*!
-     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator
-     * \param fullThrustInterpolator Interpolator that returns the thrust as a function of time in
-     * frame defined by thrustFrame
+     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using
+     * variable specific impulse
+     * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
+     * time in frame defined by thrustFrame
      * \param specificImpulseFunction Function returning the specific impulse as a function of time
      * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
-            fullThrustInterpolator,
+            const boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
+            dataInterpolationSettings,
             const boost::function< double( const double ) > specificImpulseFunction,
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
-        AccelerationSettings( basic_astrodynamics::thrust_acceleration ), thrustFrame_( thrustFrame ),
-        centralBody_( centralBody )
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
+        constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
+        centralBody_( centralBody ), dataInterpolationSettings_( dataInterpolationSettings )
     {
-        interpolatorInterface_ =
-                boost::make_shared< FullThrustInterpolationInterface >( fullThrustInterpolator );
+        interpolatorInterface_ = boost::make_shared< FullThrustInterpolationInterface >(
+                    interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
         thrustDirectionGuidanceSettings_ = boost::make_shared< CustomThrustDirectionSettings >(
                     boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, _1 ) );
         thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
@@ -377,6 +380,32 @@ public:
                     boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
                     boost::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
     }
+
+    //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
+    //! specific impulse
+    /*!
+     * Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
+     * specific impulse
+     * \param dataInterpolationSettings Settings to create the interpolator that returns the thrust as a function of
+     * time in frame defined by thrustFrame
+     * \param constantSpecificImpulse Constant specific impulse
+     * \param thrustFrame Identifier of frame in which thrust returned by fullThrustInterpolator is expressed
+     * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
+     */
+    ThrustAccelerationSettings(
+            const boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
+            dataInterpolationSettings,
+            const double constantSpecificImpulse,
+            const ThrustFrames thrustFrame = unspecified_thurst_frame,
+            const std::string centralBody = "" ):
+        ThrustAccelerationSettings( dataInterpolationSettings,
+                                    boost::lambda::constant( constantSpecificImpulse ),
+                                    thrustFrame,
+                                    centralBody )
+    {
+        constantSpecificImpulse_ = constantSpecificImpulse;
+    }
+
 
     //! Destructor.
     ~ThrustAccelerationSettings( ){ }
@@ -387,6 +416,10 @@ public:
 
     //! Settings for the magnitude of the thrust
     boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
+
+    //! Constant specific impulse used when determining the direction and magnitude of thrust from an interpolator.
+    //! NaN if the specific impulse is not constant (i.e. is defined using a boost::function).
+    double constantSpecificImpulse_ = TUDAT_NAN;
 
     //! Identifier of frame in which thrust returned by fullThrustInterpolator is expressed.
     /*!
@@ -401,6 +434,9 @@ public:
      *  only used if interpolatorInterface_ is set
      */
     std::string centralBody_;
+
+    //! Settings to create the interpolator interface
+    boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolationSettings_;
 
     //! Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation.
     boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;

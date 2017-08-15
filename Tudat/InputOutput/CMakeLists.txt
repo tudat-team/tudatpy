@@ -23,7 +23,6 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.cpp"

@@ -26,8 +26,9 @@ void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& a
     }
     using K = Keys::Options;
 
-    jsonObject[ K::usingDefaultValueForMissingKey ] = applicationOptions->usingDefaultValueForMissingKey;
+    jsonObject[ K::defaultValueUsedForMissingKey ] = applicationOptions->defaultValueUsedForMissingKey;
     jsonObject[ K::unusedKey ] = applicationOptions->unusedKey;
+    jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference;
     assignIfNotEmpty( jsonObject, K::populatedFile, applicationOptions->populatedFile );
 }
 
@@ -37,9 +38,11 @@ void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >&
     using K = Keys::Options;
 
     applicationOptions = boost::make_shared< ApplicationOptions >( );
-    updateFromJSONIfDefined( applicationOptions->usingDefaultValueForMissingKey,
-                             jsonObject, K::usingDefaultValueForMissingKey );
+    updateFromJSONIfDefined( applicationOptions->defaultValueUsedForMissingKey,
+                             jsonObject, K::defaultValueUsedForMissingKey );
     updateFromJSONIfDefined( applicationOptions->unusedKey, jsonObject, K::unusedKey );
+    updateFromJSONIfDefined( applicationOptions->unidimensionalArrayInference,
+                             jsonObject, K::unidimensionalArrayInference );
     updateFromJSONIfDefined( applicationOptions->populatedFile, jsonObject, K::populatedFile );
 }
 

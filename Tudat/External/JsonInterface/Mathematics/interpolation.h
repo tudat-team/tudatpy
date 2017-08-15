@@ -22,6 +22,8 @@ namespace tudat
 namespace interpolators
 {
 
+// OneDimensionalInterpolatorTypes
+
 //! Map of `OneDimensionalInterpolatorTypes` string representations.
 static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalInterpolatorTypes =
 {
@@ -49,6 +51,8 @@ inline void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& 
 }
 
 
+// AvailableLookupScheme
+
 //! Map of `AvailableLookupScheme`s string representations.
 static std::map< AvailableLookupScheme, std::string > lookupSchemeTypes =
 {
@@ -71,6 +75,8 @@ inline void from_json( const json& jsonObject, AvailableLookupScheme& availableL
     availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), lookupSchemeTypes );
 }
 
+
+// LagrangeInterpolatorBoundaryHandling
 
 //! Map of `LagrangeInterpolatorBoundaryHandling`s string representations.
 static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInterpolatorBoundaryHandlings =
@@ -96,17 +102,132 @@ inline void from_json( const json& jsonObject,
 }
 
 
+// DataMapSettings
+
+//! Create a `json` object from a shared pointer to a `DataMapSettings` object.
+template< typename I, typename D >
+void to_json( json& jsonObject, const boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
+{
+    if ( ! dataMapSettings )
+    {
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Interpolation::DataMap;
+
+    boost::shared_ptr< HermiteDataSettings< I, D > > hermiteDataSettings =
+            boost::dynamic_pointer_cast< HermiteDataSettings< I, D > >( dataMapSettings );
+    if ( hermiteDataSettings )
+    {
+        jsonObject[ K::map ] = hermiteDataSettings->getDataMap( );
+        jsonObject[ K::dependentVariableFirstDerivativeValues ] =
+                hermiteDataSettings->firstDerivativeOfDependentVariables_;
+        return;
+    }
+
+    boost::shared_ptr< FromFileDataMapSettings< D > > fromFileDataMapSettings =
+            boost::dynamic_pointer_cast< FromFileDataMapSettings< D > >( dataMapSettings );
+    if ( fromFileDataMapSettings )
+    {
+        jsonObject[ K::file ] = path( fromFileDataMapSettings->relativeFilePath_ );
+        return;
+    }
+
+    boost::shared_ptr< IndependentDependentDataMapSettings< I, D > > independentDependentDataMapSettings =
+            boost::dynamic_pointer_cast< IndependentDependentDataMapSettings< I, D > >( dataMapSettings );
+    if ( independentDependentDataMapSettings )
+    {
+        jsonObject[ K::independentVariableValues ] = independentDependentDataMapSettings->independentVariableValues_;
+        jsonObject[ K::dependentVariableValues ] = independentDependentDataMapSettings->dependentVariableValues_;
+        return;
+    }
+
+    jsonObject[ K::map ] = fromFileDataMapSettings->getDataMap( );
+}
+
+//! Create a shared pointer to a `DataMapSettings` object from a `json` object.
+template< typename I, typename D >
+void from_json( const json& jsonObject, boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
+{
+    using namespace json_interface;
+    using K = Keys::Interpolation::DataMap;
+
+    if ( defined( jsonObject, K::dependentVariableFirstDerivativeValues ) )
+    {
+        dataMapSettings = boost::make_shared< HermiteDataSettings< I, D > >(
+                    getValue< std::map< I, D > >( jsonObject, K::map ),
+                    getValue< std::vector< D > >( jsonObject, K::dependentVariableFirstDerivativeValues ) );
+        return;
+    }
+
+    if ( defined( jsonObject, K::file ) )
+    {
+        dataMapSettings = boost::make_shared< FromFileDataMapSettings< D > >(
+                    getValue< path >( jsonObject, K::file ).string( ) );
+        return;
+    }
+
+    if ( defined( jsonObject, K::independentVariableValues ) || defined( jsonObject, K::dependentVariableValues ) )
+    {
+        dataMapSettings = boost::make_shared< IndependentDependentDataMapSettings< I, D > >(
+                    getValue< std::vector< I > >( jsonObject, K::independentVariableValues ),
+                    getValue< std::vector< D > >( jsonObject, K::dependentVariableValues ) );
+        return;
+    }
+
+    dataMapSettings = boost::make_shared< DataMapSettings< I, D > >(
+                getValue< std::map< I, D > >( jsonObject, K::map ) );
+    return;
+}
+
+
+// InterpolatorSettings
+
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
 
 //! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
 
+
+// DataInterpolationSettings
+
+//! Create a `json` object from a shared pointer to a `DataInterpolationSettings` object.
+template< typename I, typename D >
+void to_json( json& jsonObject,
+              const boost::shared_ptr< DataInterpolationSettings< I, D > >& dataInterpolationSettings )
+{
+    if ( ! dataInterpolationSettings )
+    {
+        return;
+    }
+    using namespace json_interface;
+    using K = Keys::Interpolation::DataInterpolation;
+
+    jsonObject[ K::data ] = dataInterpolationSettings->dataSettings_;
+    jsonObject[ K::interpolator ] = dataInterpolationSettings->interpolatorSettings_;
+}
+
+//! Create a shared pointer to a `DataInterpolationSettings` object from a `json` object.
+template< typename I, typename D >
+void from_json( const json& jsonObject,
+                boost::shared_ptr< DataInterpolationSettings< I, D > >& dataInterpolationSettings )
+{
+    using namespace json_interface;
+    using K = Keys::Interpolation::DataInterpolation;
+
+    dataInterpolationSettings = boost::make_shared< DataInterpolationSettings< I, D > >(
+                getValue< boost::shared_ptr< DataMapSettings< I, D > > >( jsonObject, K::data ),
+                getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
+}
+
 } // namespace interpolators
 
 
 namespace simulation_setup
 {
+
+// ModelInterpolationSettings
 
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
