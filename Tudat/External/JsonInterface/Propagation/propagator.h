@@ -19,8 +19,8 @@
 #include "termination.h"
 #include "variable.h"
 #include "acceleration.h"
-// #include "massRate.h"
-// #include "torque.h"
+#include "massRateModel.h"
+#include "torque.h"
 
 namespace tudat
 {
@@ -189,6 +189,25 @@ void to_json( json& jsonObject,
         jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->accelerationSettingsMap_;
         return;
     }
+    case body_mass_state:
+    {
+        boost::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
+                boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        enforceNonNullPointer( massPropagatorSettings );
+        jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
+        jsonObject[ K::massRateModels ] = massPropagatorSettings->massRateSettingsMap_;
+        return;
+    }
+    case rotational_state:
+    {
+        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
+                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+                    singleArcPropagatorSettings );
+        enforceNonNullPointer( rotationalStatePropagatorSettings );
+        jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
+        jsonObject[ K::torques ] = rotationalStatePropagatorSettings->torqueSettingsMap_;
+        return;
+    }
     default:
         handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
     }
@@ -247,6 +266,32 @@ void from_json( const json& jsonObject,
                     getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
                     terminationSettings,
                     getValue( jsonObject, K::type, defaults.propagator_ ),
+                    saveSettings,
+                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
+        return;
+    }
+    case body_mass_state:
+    {
+        MassPropagatorSettings< StateScalarType > defaults(
+        { }, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
+        singleArcPropagatorSettings = boost::make_shared< MassPropagatorSettings< StateScalarType > >(
+                    getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
+                    getValue< SelectedMassRateModelMap >( jsonObject, K::massRateModels ),
+                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
+                    terminationSettings,
+                    saveSettings,
+                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
+        return;
+    }
+    case rotational_state:
+    {
+        RotationalStatePropagatorSettings< StateScalarType > defaults(
+        SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
+        singleArcPropagatorSettings = boost::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                    getValue< SelectedTorqueMap >( jsonObject, K::torques ),
+                    getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
+                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
+                    terminationSettings,
                     saveSettings,
                     getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
         return;

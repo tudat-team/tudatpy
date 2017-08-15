@@ -11,6 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_THRUST_H
 #define TUDAT_JSONINTERFACE_THRUST_H
 
+#include <Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h>
 #include <Tudat/SimulationSetup/PropagationSetup/thrustSettings.h>
 
 #include "Tudat/External/JsonInterface/Support/valueAccess.h"
@@ -22,8 +23,9 @@ namespace tudat
 namespace simulation_setup
 {
 
-// DIRECTION
+// ThrustDirectionGuidanceTypes
 
+//! Map of `ThrustDirectionGuidanceTypes` string representations.
 static std::map< ThrustDirectionGuidanceTypes, std::string > thrustDirectionTypes =
 {
     { colinear_with_state_segment_thrust_direction, "colinearWithStateSegment" },
@@ -40,16 +42,19 @@ static std::vector< ThrustDirectionGuidanceTypes > unsupportedThrustDirectionTyp
 };
 
 //! Convert `ThrustDirectionGuidanceTypes` to `json`.
-inline void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& directionType )
+inline void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& thrustDirectionType )
 {
-    jsonObject = json_interface::stringFromEnum( directionType, thrustDirectionTypes );
+    jsonObject = json_interface::stringFromEnum( thrustDirectionType, thrustDirectionTypes );
 }
 
 //! Convert `json` to `ThrustDirectionGuidanceTypes`.
-inline void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& directionType )
+inline void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& thrustDirectionType )
 {
-    directionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
+    thrustDirectionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
 }
+
+
+// ThrustDirectionGuidanceSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustDirectionGuidanceSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
@@ -58,7 +63,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
 
 
-// MAGNITUDE
+// ThrustMagnitudeTypes
 
 //! Map of `ThrustMagnitudeTypes` string representations.
 static std::map< ThrustMagnitudeTypes, std::string > thrustMagnitudeTypes =
@@ -77,22 +82,60 @@ static std::vector< ThrustMagnitudeTypes > unsupportedThrustMagnitudeTypes =
 };
 
 //! Convert `ThrustMagnitudeTypes` to `json`.
-inline void to_json( json& jsonObject, const ThrustMagnitudeTypes& magnitudeType )
+inline void to_json( json& jsonObject, const ThrustMagnitudeTypes& thrustMagnitudeType )
 {
-    jsonObject = json_interface::stringFromEnum( magnitudeType, thrustMagnitudeTypes );
+    jsonObject = json_interface::stringFromEnum( thrustMagnitudeType, thrustMagnitudeTypes );
 }
 
 //! Convert `json` to `ThrustMagnitudeTypes`.
-inline void from_json( const json& jsonObject, ThrustMagnitudeTypes& magnitudeType )
+inline void from_json( const json& jsonObject, ThrustMagnitudeTypes& thrustMagnitudeType )
 {
-    magnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );
+    thrustMagnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );
 }
+
+
+// ThrustEngineSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
+
+
+// ThrustFrames
+
+//! Map of `ThrustFrames` string representations.
+static std::map< ThrustFrames, std::string > thrustFrameTypes =
+{
+    { unspecified_thurst_frame, "unspecified" },
+    { inertial_thurst_frame, "intertial" },
+    { lvlh_thrust_frame, "lvlh" }
+};
+
+//! `ThrustFrames` not supported by `json_interface`.
+static std::vector< ThrustFrames > unsupportedThrustFrameTypes = { };
+
+//! Convert `ThrustFrames` to `json`.
+inline void to_json( json& jsonObject, const ThrustFrames& thrustFrameType )
+{
+    jsonObject = json_interface::stringFromEnum( thrustFrameType, thrustFrameTypes );
+}
+
+//! Convert `json` to `ThrustFrames`.
+inline void from_json( const json& jsonObject, ThrustFrames& thrustFrameType )
+{
+    thrustFrameType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustFrameTypes );
+}
+
+
+// Thrust
+
+//! Create a `json` object from a shared pointer to a `ThrustAccelerationSettings` object.
+void to_json( json& jsonObject, const boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
+
+//! Create a shared pointer to a `ThrustAccelerationSettings` object from a `json` object.
+void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
 
 } // namespace simulation_setup
 

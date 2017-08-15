@@ -9,7 +9,10 @@
  *
  */
 
+#include "acceleration.h"
 #include "thrust.h"
+
+#include "Tudat/External/JsonInterface/Mathematics/interpolation.h"
 
 namespace tudat
 {
@@ -17,7 +20,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-// DIRECTION
+// ThrustDirectionGuidanceSettings
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
@@ -27,7 +30,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
         return;
     }
     using namespace json_interface;
-    using K = Keys::Propagator::Acceleration::ThrustDirection;
+    using K = Keys::Propagator::Acceleration::Thrust::Direction;
 
     const ThrustDirectionGuidanceTypes directionType = directionSettings->thrustDirectionType_;
     jsonObject[ K::type ] = directionType;
@@ -56,7 +59,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
     using namespace json_interface;
-    using K = Keys::Propagator::Acceleration::ThrustDirection;
+    using K = Keys::Propagator::Acceleration::Thrust::Direction;
 
     const ThrustDirectionGuidanceTypes directionType = getValue< ThrustDirectionGuidanceTypes >( jsonObject, K::type );
     const std::string relativeBody = getValue< std::string >( jsonObject, K::relativeBody );
@@ -81,7 +84,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidan
 }
 
 
-// MAGNITUDE
+// ThrustEngineSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
@@ -91,7 +94,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
         return;
     }
     using namespace json_interface;
-    using K = Keys::Propagator::Acceleration::ThrustMagnitude;
+    using K = Keys::Propagator::Acceleration::Thrust::Magnitude;
 
     const ThrustMagnitudeTypes magnitudeType = magnitudeSettings->thrustMagnitudeGuidanceType_;
     jsonObject[ K::type ] = magnitudeType;
@@ -125,7 +128,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
 void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
 {
     using namespace json_interface;
-    using K = Keys::Propagator::Acceleration::ThrustMagnitude;
+    using K = Keys::Propagator::Acceleration::Thrust::Magnitude;
 
     const ThrustMagnitudeTypes magnitudeType = getValue< ThrustMagnitudeTypes >( jsonObject, K::type );
 
@@ -149,6 +152,60 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings 
     }
     default:
         handleUnimplementedEnumValue( magnitudeType, thrustMagnitudeTypes, unsupportedThrustMagnitudeTypes );
+    }
+}
+
+
+// Thrust
+
+//! Create a `json` object from a shared pointer to a `ThrustAccelerationSettings` object.
+void to_json( json& jsonObject, const boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
+{
+    if ( ! thrustAccelerationSettings )
+    {
+        return;
+    }
+    using namespace json_interface;
+    using namespace interpolators;
+    using K = Keys::Propagator::Acceleration::Thrust;
+
+    jsonObject[ Keys::Propagator::Acceleration::type ] = basic_astrodynamics::thrust_acceleration;
+
+    if ( thrustAccelerationSettings->dataInterpolationSettings_ )
+    {
+        jsonObject[ K::dataInterpolation ] = thrustAccelerationSettings->dataInterpolationSettings_;
+        jsonObject[ K::specificImpulse ] = thrustAccelerationSettings->constantSpecificImpulse_;
+        jsonObject[ K::frame ] = thrustAccelerationSettings->thrustFrame_;
+        assignIfNotEmpty( jsonObject, K::centralBody, thrustAccelerationSettings->centralBody_ );
+    }
+    else
+    {
+        jsonObject[ K::direction ] = thrustAccelerationSettings->thrustDirectionGuidanceSettings_;
+        jsonObject[ K::magnitude ] = thrustAccelerationSettings->thrustMagnitudeSettings_;
+    }
+}
+
+//! Create a shared pointer to a `ThrustAccelerationSettings` object from a `json` object.
+void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
+{
+    using namespace json_interface;
+    using namespace interpolators;
+    using K = Keys::Propagator::Acceleration::Thrust;
+
+    if ( defined( jsonObject, K::dataInterpolation ) )
+    {
+        thrustAccelerationSettings = boost::make_shared< ThrustAccelerationSettings >(
+                    getValue< boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >(
+                        jsonObject, K::dataInterpolation ),
+                    getNumeric< double >( jsonObject, K::specificImpulse ),
+                    getValue( jsonObject, K::frame, unspecified_thurst_frame ),
+                    getValue( jsonObject, K::centralBody, std::string( ) ) );
+    }
+    else
+    {
+        thrustAccelerationSettings = boost::make_shared< ThrustAccelerationSettings >(
+                    getValue< boost::shared_ptr< ThrustDirectionGuidanceSettings > >( jsonObject, K::direction ),
+                    getValue< boost::shared_ptr< ThrustEngineSettings > >( jsonObject, K::magnitude ) );
     }
 }
 

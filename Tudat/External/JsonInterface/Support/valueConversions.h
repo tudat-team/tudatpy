@@ -104,51 +104,51 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
 {
     using namespace tudat::json_interface;
 
-    if ( jsonObject.is_array( ) )
+    bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
+    if ( isObjectWithIntConvertibleKeys )
     {
-        for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
+        for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
-            myVector.push_back( getValue< ValueType >( jsonObject, i ) );
+            const std::string key = it.key( );
+            if ( ! contains( SpecialKeys::all, key ) )
+            {
+                try
+                {
+                    stoi( key );
+                }
+                catch ( ... )
+                {
+                    isObjectWithIntConvertibleKeys = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    if ( isObjectWithIntConvertibleKeys )
+    {
+        // Convert to map, and use that to create the vector
+        const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
+        for ( auto entry : auxiliaryMap )
+        {
+            if ( ! contains( SpecialKeys::all, entry.first ) )
+            {
+                myVector.push_back( entry.second );
+            }
         }
     }
     else
     {
-        bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
-        if ( isObjectWithIntConvertibleKeys )
+        if ( jsonObject.is_array( ) )
         {
-            for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+            for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
             {
-                const std::string key = it.key( );
-                if ( ! contains( SpecialKeys::all, key ) )
-                {
-                    try
-                    {
-                        stoi( key );
-                    }
-                    catch ( ... )
-                    {
-                        isObjectWithIntConvertibleKeys = false;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if ( isObjectWithIntConvertibleKeys )
-        {
-            // Convert to map, and use that to create the vector
-            const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
-            for ( auto entry : auxiliaryMap )
-            {
-                if ( ! contains( SpecialKeys::all, entry.first ) )
-                {
-                    myVector.push_back( entry.second );
-                }
+                myVector.push_back( getValue< ValueType >( jsonObject, i ) );
             }
         }
         else
         {
-            throw nlohmann::detail::type_error::create( 0, "" );
+            myVector.push_back( getAs< ValueType >( jsonObject ) );
         }
     }
 }

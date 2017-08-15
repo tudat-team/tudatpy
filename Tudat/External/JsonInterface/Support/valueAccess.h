@@ -115,6 +115,18 @@ std::string getParentKey( const json& jsonObject,
  */
 void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = false );
 
+//! Get the response type to an event for a `json` object.
+/*!
+ * @copybrief getResponseToEventNamed
+ * \param jsonObject The `json` object in which the type of response to the event is defined, or a `json` object with
+ * a root object containing this information.
+ * \param eventName The name of the event.
+ * \param defaultResponse Default response if the response to the event is not defined. By default, continueSilently.
+ * \return Response type to the event.
+ */
+ExceptionResponseType getResponseToEventNamed( const json& jsonObject, const std::string& eventName,
+                                               const ExceptionResponseType defaultResponse = continueSilently );
+
 
 // ACCESS HISTORY
 
@@ -212,6 +224,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         throw UndefinedKeyError( canonicalKeyPath );
     }
 
+    const bool chunkObjectWasArray = currentObject.is_array( );
     if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
     {
         // If jsonObject is an array, convert to object
@@ -225,28 +238,67 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         }
     }
 
+    const IllegalValueError illegalValueError =
+            IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     try
     {
         // Try to convert to the requested type
-        return currentObject.get< ValueType >( );
+        const ValueType convertedObject = currentObject.get< ValueType >( );
+
+        // Check if unidimensional array inference was applied
+        json convertedJsonObject = json( convertedObject );
+        if ( convertedJsonObject.is_array( ) && ! chunkObjectWasArray )
+        {
+            const ExceptionResponseType response =
+                    getResponseToEventNamed( jsonObject, Keys::Options::unidimensionalArrayInference );
+            if ( response == throwError )
+            {
+                throw illegalValueError;
+            }
+            else
+            {
+                if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
+                {
+                    convertToObjectIfArray( convertedJsonObject );
+                    convertedJsonObject[ SpecialKeys::rootObject ] =
+                            rootObjectPointer ? *rootObjectPointer : jsonObject;
+                    convertedJsonObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
+                }
+
+                if ( response == printWarning )
+                {
+                    std::cerr << "Unidimensional array inferred for key: " << canonicalKeyPath << std::endl;
+                }
+
+                return convertedJsonObject.get< ValueType >( );
+            }
+        }
+
+        return convertedObject;
     }
     catch ( const nlohmann::detail::type_error& )
     {
         // Could not convert to the requested type
-        throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
+        throw illegalValueError;
     }
     catch ( const UnknownEnumError& )
     {
         // Could not convert string to enum
-        throw IllegalValueError< ValueType >( canonicalKeyPath, currentObject );
+        throw illegalValueError;
     }
     catch ( const UndefinedKeyError& error )
     {
+        // Some of the keys needed during creation of object of type ValueType were missing
+        throw error;
+    }
+    catch ( const IllegalValueError& error )
+    {
+        // Some of the values for the keys needed during creation of object of type ValueType were illegal
         throw error;
     }
     catch ( ... )
     {
-        throw UnrecognizedValueAccessError< ValueType >( canonicalKeyPath );
+        throw UnrecognizedValueAccessError( canonicalKeyPath, typeid( ValueType ) );
     }
 }
 
@@ -283,7 +335,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath )
     {
         return getValue< NumberType >( jsonObject, keyPath );
     }
-    catch ( const IllegalValueError< NumberType >& error )
+    catch ( const IllegalValueError& error )
     {
         // Could not convert to the requested type
         try
@@ -317,7 +369,7 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
     {
         return getValue< NumberType >( jsonObject, keyPath );
     }
-    catch ( const IllegalValueError< NumberType >& error )
+    catch ( const IllegalValueError& error )
     {
         // Could not convert to the requested type
         try
@@ -399,7 +451,7 @@ boost::shared_ptr< NumberType > getOptionalEpoch( const json& jsonObject, const 
  * Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
  * \param jsonObject The `json` object.
  * \param keyPath Key path from which to retrieve the value.
- * \param optionalValue The default value to be returned if the key is not defined.
+ * \param defaultValue The default value to be returned if the key is not defined.
  * \return Value at the requested key path, or \p optionalValue if not defined.
  * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
  * (only when \p jsonObject at \p keyPath is of type object).
@@ -409,7 +461,7 @@ boost::shared_ptr< NumberType > getOptionalEpoch( const json& jsonObject, const 
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename ValueType >
-ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueType& optionalValue )
+ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueType& defaultValue )
 {
     try
     {
@@ -418,7 +470,10 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
     catch ( const UndefinedKeyError& error )
     {
         error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        return optionalValue;
+        error.rethrowIfDefaultValuesNotAllowed(
+                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
+                    json( defaultValue ) );
+        return defaultValue;
     }
 }
 
@@ -428,7 +483,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
  * convert to SI units if it is as string, or return \p optionalValue if not defined.
  * \param jsonObject The `json` object.
  * \param keyPath Key path from which to retrieve the value.
- * \param optionalValue The default value to be returned if the key is not defined.
+ * \param defaultValue The default value to be returned if the key is not defined.
  * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
  * \return Value at the requested key path, or \p optionalValue if not defined.
  * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
@@ -438,7 +493,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
  */
 template< typename NumberType >
 NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
-                       const NumberType& optionalValue, bool allowNaN = false )
+                       const NumberType& defaultValue, bool allowNaN = false )
 {
     try
     {
@@ -446,15 +501,12 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );  // not needed? NumberType cannot have subkeys
-        if ( ! allowNaN && isNaN( optionalValue ) )
-        {
-            throw error;
-        }
-        else
-        {
-            return optionalValue;
-        }
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
+        error.rethrowIfDefaultValuesNotAllowed(
+                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
+                    json( defaultValue ) );
+        error.rethrowIfNaNNotAllowed( allowNaN, defaultValue );
+        return defaultValue;
     }
 }
 
@@ -464,7 +516,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
  * J2000 if it is as string, or return \p optionalValue if not defined.
  * \param jsonObject The `json` object.
  * \param keyPath Key path from which to retrieve the value.
- * \param optionalValue The default value to be returned if the key is not defined.
+ * \param defaultValue The default value to be returned if the key is not defined.
  * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
  * \return Value at the requested key path, or \p optionalValue if not defined.
  * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
@@ -474,7 +526,7 @@ NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
  */
 template< typename NumberType >
 NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
-                     const NumberType& optionalValue, bool allowNaN = false )
+                     const NumberType& defaultValue, bool allowNaN = false )
 {
     try
     {
@@ -482,15 +534,12 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
     }
     catch ( const UndefinedKeyError& error )
     {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );  // not needed? NumberType cannot have subkeys
-        if ( ! allowNaN && isNaN( optionalValue ) )
-        {
-            throw error;
-        }
-        else
-        {
-            return optionalValue;
-        }
+        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
+        error.rethrowIfDefaultValuesNotAllowed(
+                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
+                    json( defaultValue ) );
+        error.rethrowIfNaNNotAllowed( allowNaN, defaultValue );
+        return defaultValue;
     }
 }
 

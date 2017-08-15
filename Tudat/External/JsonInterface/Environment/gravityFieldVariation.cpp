@@ -11,7 +11,7 @@
 
 #include "gravityFieldVariation.h"
 
-#include "Tudat/External/JsonInterface/Mathematics/interpolator.h"
+#include "Tudat/External/JsonInterface/Mathematics/interpolation.h"
 
 namespace tudat
 {

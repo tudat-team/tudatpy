@@ -24,10 +24,25 @@ const std::string SpecialKeys::up = "..";
 const std::string SpecialKeys::rootObject = "#root";
 const std::string SpecialKeys::keyPath = "#keypath";
 
-const std::vector< std::string > SpecialKeys::all = { SpecialKeys::root,
-                                                      SpecialKeys::up,
-                                                      SpecialKeys::rootObject,
-                                                      SpecialKeys::keyPath };
+const std::vector< std::string > SpecialKeys::pathRelated =
+{
+    SpecialKeys::root,
+    SpecialKeys::up,
+};
+
+const std::vector< std::string > SpecialKeys::objectRelated =
+{
+    SpecialKeys::rootObject,
+    SpecialKeys::keyPath
+};
+
+const std::vector< std::string > SpecialKeys::all =
+{
+    SpecialKeys::root,
+    SpecialKeys::up,
+    SpecialKeys::rootObject,
+    SpecialKeys::keyPath
+};
 
 
 // Keys recognised by json_interface.
@@ -44,9 +59,6 @@ const std::string Keys::spice = "spice";
 const std::string Keys::Spice::kernels = "kernels";
 const std::string Keys::Spice::preloadKernels = "preloadKernels";
 const std::string Keys::Spice::preloadOffsets = "preloadOffsets";
-const std::string Keys::Spice::preloadOffset = "preloadOffset";
-const std::string Keys::Spice::startPreloadOffset = "startPreloadOffset";
-const std::string Keys::Spice::endPreloadOffset = "endPreloadOffset";
 
 
 //  Body
@@ -218,25 +230,35 @@ const std::string Keys::Propagator::Acceleration::constantAcceleration = "consta
 const std::string Keys::Propagator::Acceleration::sineAcceleration = "sineAcceleration";
 const std::string Keys::Propagator::Acceleration::cosineAcceleration = "cosineAcceleration";
 
-// // //  Acceleration::ThrustDirection
-const std::string Keys::Propagator::Acceleration::direction = "direction";
-const std::string Keys::Propagator::Acceleration::ThrustDirection::type = "type";
-const std::string Keys::Propagator::Acceleration::ThrustDirection::relativeBody = "relativeBody";
-const std::string Keys::Propagator::Acceleration::ThrustDirection::colinearWithVelocity = "colinearWithVelocity";
-const std::string Keys::Propagator::Acceleration::ThrustDirection::towardsRelativeBody = "towardsRelativeBody";
+// // //  Acceleration::Thrust
 
-// // //  Acceleration::ThrustDirection
-const std::string Keys::Propagator::Acceleration::magnitude = "magnitude";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::type = "type";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::originID = "originID";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::constantMagnitude = "constantMagnitude";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::specificImpulse = "specificImpulse";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::bodyFixedDirection = "bodyFixedDirection";
-const std::string Keys::Propagator::Acceleration::ThrustMagnitude::useAllEngines = "useAllEngines";
+// // // //  Acceleration::Thrust::Direction
+const std::string Keys::Propagator::Acceleration::Thrust::direction = "direction";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::type = "type";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::relativeBody = "relativeBody";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::colinearWithVelocity = "colinearWithVelocity";
+const std::string Keys::Propagator::Acceleration::Thrust::Direction::towardsRelativeBody = "towardsRelativeBody";
+
+// // // //  Acceleration::Thrust::Direction
+const std::string Keys::Propagator::Acceleration::Thrust::magnitude = "magnitude";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::type = "type";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::originID = "originID";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::constantMagnitude = "constantMagnitude";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::specificImpulse = "specificImpulse";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::bodyFixedDirection = "bodyFixedDirection";
+const std::string Keys::Propagator::Acceleration::Thrust::Magnitude::useAllEngines = "useAllEngines";
+
+const std::string Keys::Propagator::Acceleration::Thrust::dataInterpolation = "dataInterpolation";
+const std::string Keys::Propagator::Acceleration::Thrust::specificImpulse = "specificImpulse";
+const std::string Keys::Propagator::Acceleration::Thrust::frame = "frame";
+const std::string Keys::Propagator::Acceleration::Thrust::centralBody = "centralBody";
 
 
-// //  Mass rate
-const std::string Keys::Propagator::massRates = "massRates";
+// //  Mass rate model
+const std::string Keys::Propagator::massRateModels = "massRateModels";
+const std::string Keys::Propagator::MassRateModel::type = "type";
+const std::string Keys::Propagator::MassRateModel::useAllThrustModels = "useAllThrustModels";
+const std::string Keys::Propagator::MassRateModel::associatedThroustSource = "associatedThroustSource";
 
 
 // //  Torque
@@ -263,19 +285,31 @@ const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize = "maxi
 const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "minimumFactorDecreaseForNextStepSize";
 
 
-//  Interpolator
-const std::string Keys::interpolator = "interpolator";
-const std::string Keys::Interpolator::type = "type";
-const std::string Keys::Interpolator::lookupScheme = "lookupScheme";
-const std::string Keys::Interpolator::useLongDoubleTimeStep = "useLongDoubleTimeStep";
-const std::string Keys::Interpolator::order = "order";
-const std::string Keys::Interpolator::boundaryHandling = "boundaryHandling";
+//  Interpolation
 
-//  ModelInterpolation
-const std::string Keys::ModelInterpolation::initialTime = "initialTime";
-const std::string Keys::ModelInterpolation::finalTime = "finalTime";
-const std::string Keys::ModelInterpolation::timeStep = "timeStep";
-const std::string Keys::ModelInterpolation::interpolator = "interpolator";
+// //  Interpolation::DataMap
+const std::string Keys::Interpolation::DataMap::map = "map";
+const std::string Keys::Interpolation::DataMap::file = "file";
+const std::string Keys::Interpolation::DataMap::independentVariableValues = "independentVariableValues";
+const std::string Keys::Interpolation::DataMap::dependentVariableValues = "dependentVariableValues";
+const std::string Keys::Interpolation::DataMap::dependentVariableFirstDerivativeValues = "dependentVariableFirstDerivativeValues";
+
+// //  Interpolation::Interpolator
+const std::string Keys::Interpolation::Interpolator::type = "type";
+const std::string Keys::Interpolation::Interpolator::lookupScheme = "lookupScheme";
+const std::string Keys::Interpolation::Interpolator::useLongDoubleTimeStep = "useLongDoubleTimeStep";
+const std::string Keys::Interpolation::Interpolator::order = "order";
+const std::string Keys::Interpolation::Interpolator::boundaryHandling = "boundaryHandling";
+
+// //  Interpolation::DataInterpolation
+const std::string Keys::Interpolation::DataInterpolation::data = "data";
+const std::string Keys::Interpolation::DataInterpolation::interpolator = "interpolator";
+
+// //  Interpolation::ModelInterpolation
+const std::string Keys::Interpolation::ModelInterpolation::initialTime = "initialTime";
+const std::string Keys::Interpolation::ModelInterpolation::finalTime = "finalTime";
+const std::string Keys::Interpolation::ModelInterpolation::timeStep = "timeStep";
+const std::string Keys::Interpolation::ModelInterpolation::interpolator = "interpolator";
 
 
 //  Export
@@ -290,8 +324,9 @@ const std::string Keys::Export::numericalPrecision = "numericalPrecision";
 
 //  Options
 const std::string Keys::options = "options";
-const std::string Keys::Options::usingDefaultValueForMissingKey = "usingDefaultValueForMissingKey";
+const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUsedForMissingKey";
 const std::string Keys::Options::unusedKey = "unusedKey";
+const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalArrayInference";
 const std::string Keys::Options::populatedFile = "populatedFile";
 
 

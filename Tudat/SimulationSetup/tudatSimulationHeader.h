@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/mapTextFileReader.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Basics/basicTypedefs.h"

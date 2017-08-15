@@ -83,8 +83,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AccelerationSettings >&
         boost::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings
                 = boost::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
         enforceNonNullPointer( thrustAccelerationSettings );
-        jsonObject[ K::direction ] = thrustAccelerationSettings->thrustDirectionGuidanceSettings_;
-        jsonObject[ K::magnitude ] = thrustAccelerationSettings->thrustMagnitudeSettings_;
+        jsonObject = thrustAccelerationSettings;
         return;
     }
     case relativistic_correction_acceleration:
@@ -176,9 +175,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AccelerationSettings 
         return;
     }
     case thrust_acceleration:
-        accelerationSettings = boost::make_shared< ThrustAccelerationSettings >(
-                    getValue< boost::shared_ptr< ThrustDirectionGuidanceSettings > >( jsonObject, K::direction ),
-                    getValue< boost::shared_ptr< ThrustEngineSettings > >( jsonObject, K::magnitude ) );
+        accelerationSettings = getAs< boost::shared_ptr< ThrustAccelerationSettings > >( jsonObject );
         return;
     case relativistic_correction_acceleration:
     {

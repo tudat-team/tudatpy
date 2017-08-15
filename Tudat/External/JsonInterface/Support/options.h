@@ -53,10 +53,13 @@ public:
     ApplicationOptions( ) { }
 
     //! Response to a "default value used for missing key" event.
-    ExceptionResponseType usingDefaultValueForMissingKey = continueSilently;
+    ExceptionResponseType defaultValueUsedForMissingKey = continueSilently;
 
     //! Response to a "unused key" event.
     ExceptionResponseType unusedKey = printWarning;
+
+    //! Response to a "unidimensional array inference" event.
+    ExceptionResponseType unidimensionalArrayInference = continueSilently;
 
     //! Path where the populated file (containing the json with all the settings actually used for the simulation)
     //! is going to be saved. Empty string if the file should not be saved.

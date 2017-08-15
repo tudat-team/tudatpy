@@ -9,13 +9,15 @@
  *
  */
 
-#include "interpolator.h"
+#include "interpolation.h"
 
 namespace tudat
 {
 
 namespace interpolators
 {
+
+// InterpolatorSettings
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
@@ -25,9 +27,9 @@ void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >&
         return;
     }
     using namespace json_interface;
-    using K = Keys::Interpolator;
+    using K = Keys::Interpolation::Interpolator;
 
-    OneDimensionalInterpolatorTypes interpolatorType  = interpolatorSettings->getInterpolatorType( );
+    const OneDimensionalInterpolatorTypes interpolatorType  = interpolatorSettings->getInterpolatorType( );
     jsonObject[ K::type ] = interpolatorType;
     jsonObject[ K::lookupScheme ] = interpolatorSettings->getSelectedLookupScheme( );
     jsonObject[ K::useLongDoubleTimeStep ] = interpolatorSettings->getUseLongDoubleTimeStep( );
@@ -58,7 +60,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >&
 void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     using namespace json_interface;
-    using K = Keys::Interpolator;
+    using K = Keys::Interpolation::Interpolator;
 
     // Get interpolator type
     const OneDimensionalInterpolatorTypes interpolatorType =
@@ -99,6 +101,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings 
 namespace simulation_setup
 {
 
+// ModelInterpolationSettings
+
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
@@ -107,7 +111,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSetti
         return;
     }
     using namespace json_interface;
-    using K = Keys::ModelInterpolation;
+    using K = Keys::Interpolation::ModelInterpolation;
 
     jsonObject[ K::initialTime ] = modelInterpolationSettings->initialTime_;
     jsonObject[ K::finalTime ] = modelInterpolationSettings->finalTime_;
@@ -119,7 +123,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSetti
 void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     using namespace json_interface;
-    using K = Keys::ModelInterpolation;
+    using K = Keys::Interpolation::ModelInterpolation;
 
     ModelInterpolationSettings defaults;
     modelInterpolationSettings = boost::make_shared< ModelInterpolationSettings >(
@@ -127,7 +131,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSet
                 getEpoch( jsonObject, K::finalTime, defaults.finalTime_ ),
                 getNumeric( jsonObject, K::timeStep, defaults.timeStep_ ),
                 getValue( jsonObject, K::interpolator, defaults.interpolatorSettings_ ) );
-    return;
 }
 
 } // namespace simulation_setup

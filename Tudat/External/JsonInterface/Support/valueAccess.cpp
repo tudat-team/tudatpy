@@ -134,6 +134,25 @@ void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured )
     }
 }
 
+//! Get the response type to an event for a `json` object.
+ExceptionResponseType getResponseToEventNamed( const json& jsonObject, const std::string& eventName,
+                                               const ExceptionResponseType defaultResponse )
+{
+    ExceptionResponseType response = defaultResponse;
+    try
+    {
+        json rootObject = jsonObject;
+        try
+        {
+            rootObject = valueAt( jsonObject, SpecialKeys::rootObject );
+        }
+        catch ( ... ) { }
+        response = valueAt( rootObject, Keys::options / eventName ).get< ExceptionResponseType >( );
+    }
+    catch ( ... ) { }
+    return response;
+}
+
 
 // ACCESS HISTORY
 
