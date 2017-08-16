@@ -238,8 +238,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         }
     }
 
-    const IllegalValueError illegalValueError =
-            IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
+    const IllegalValueError illegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     try
     {
         // Try to convert to the requested type
@@ -296,10 +295,12 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         // Some of the values for the keys needed during creation of object of type ValueType were illegal
         throw error;
     }
+    /*
     catch ( ... )
     {
         throw UnrecognizedValueAccessError( canonicalKeyPath, typeid( ValueType ) );
     }
+    */
 }
 
 //! Convert \p jsonObject to `ValueType`.

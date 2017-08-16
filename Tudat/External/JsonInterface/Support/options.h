@@ -52,18 +52,24 @@ public:
     //! Constructor.
     ApplicationOptions( ) { }
 
+    //! Whether a message should be printed when the propagation starts.
+    bool notifyOnPropagationStart_ = false;
+
+    //! Whether a message should be printed when the propagation is terminated with no errors.
+    bool notifyOnPropagationTermination_ = false;
+
     //! Response to a "default value used for missing key" event.
-    ExceptionResponseType defaultValueUsedForMissingKey = continueSilently;
+    ExceptionResponseType defaultValueUsedForMissingKey_ = continueSilently;
 
     //! Response to a "unused key" event.
-    ExceptionResponseType unusedKey = printWarning;
+    ExceptionResponseType unusedKey_ = printWarning;
 
     //! Response to a "unidimensional array inference" event.
-    ExceptionResponseType unidimensionalArrayInference = continueSilently;
+    ExceptionResponseType unidimensionalArrayInference_ = continueSilently;
 
     //! Path where the populated file (containing the json with all the settings actually used for the simulation)
     //! is going to be saved. Empty string if the file should not be saved.
-    path populatedFile = "";
+    path populatedFile_ = "";
 };
 
 //! Create a `json` object from a shared pointer to a `ApplicationOptions` object.

@@ -324,6 +324,8 @@ const std::string Keys::Export::numericalPrecision = "numericalPrecision";
 
 //  Options
 const std::string Keys::options = "options";
+const std::string Keys::Options::notifyOnPropagationStart = "notifyOnPropagationStart";
+const std::string Keys::Options::notifyOnPropagationTermination = "notifyOnPropagationTermination";
 const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUsedForMissingKey";
 const std::string Keys::Options::unusedKey = "unusedKey";
 const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalArrayInference";

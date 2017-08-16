@@ -227,10 +227,17 @@ void from_json( const json& jsonObject,
             getValue( jsonObject, K::integratedStateType, translational_state );
 
     // Termination settings. If not provided, stop when epoch > simulation.endEpoch
-    const boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            getValue< boost::shared_ptr< PropagationTerminationSettings > >(
-                jsonObject, K::termination, boost::make_shared< PropagationTimeTerminationSettings >(
-                    getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) ) );
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    if ( defined( jsonObject, K::termination ) )
+    {
+        terminationSettings =
+                getValue< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, K::termination );
+    }
+    else
+    {
+        terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
+                    getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) );
+    }
 
     // Save settings
     boost::shared_ptr< DependentVariableSaveSettings > saveSettings;
@@ -286,7 +293,7 @@ void from_json( const json& jsonObject,
     case rotational_state:
     {
         RotationalStatePropagatorSettings< StateScalarType > defaults(
-        SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
+                    SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
         singleArcPropagatorSettings = boost::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
                     getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),

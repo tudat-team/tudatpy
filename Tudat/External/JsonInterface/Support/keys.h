@@ -358,6 +358,8 @@ struct Keys
     static const std::string options;
     struct Options
     {
+        static const std::string notifyOnPropagationStart;
+        static const std::string notifyOnPropagationTermination;
         static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
         static const std::string unidimensionalArrayInference;
