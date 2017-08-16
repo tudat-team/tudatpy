@@ -86,16 +86,9 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Mars" )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string marsGravityFieldFile =
-                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/jgmro_120d_sha.tab";
-        std::pair< double, double > referenceData =
-                readGravityFieldFile( marsGravityFieldFile, 50, 50, coefficients, 1, 0 );
-        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Mars" );
-
+        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
+                    input_output::getGravityModelsPath( ) + "Mars/jgmro120d.txt", "IAU_Mars", 50, 50, 0, 1 );
     }
-
     else
     {
 #if USE_CSPICE

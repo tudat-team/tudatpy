@@ -44,11 +44,11 @@ public:
     //! -DOC
     void setInputFile( const std::string& inputFile )
     {
-        inputFilePath = getPathForJSONFile( inputFile );
-        boost::filesystem::current_path( inputFilePath.parent_path( ) );
+        inputFilePath_ = getPathForJSONFile( inputFile );
+        boost::filesystem::current_path( inputFilePath_.parent_path( ) );
 
-        jsonObject = getParsedModularJSON( inputFilePath );
-        originalJsonObject = jsonObject;
+        jsonObject_ = getParsedModularJSON( inputFilePath_ );
+        originalJsonObject_ = jsonObject_;
 
         // std::cout << originalJsonObject.dump( 2 ) << std::endl;
         // throw;
@@ -87,16 +87,27 @@ public:
 
         // FIXME: ? sync( );
 
-        if ( ! applicationOptions->populatedFile.empty( ) )
+        if ( ! applicationOptions_->populatedFile_.empty( ) )
         {
-            exportAsJSON( applicationOptions->populatedFile );
+            exportAsJSON( applicationOptions_->populatedFile_ );
         }
 
-        // Create simulation object
-        dynamicsSimulator = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap, integratorSettings, propagationSettings, false );
+        // Create dynamics simulator object
+        dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodyMap_, integratorSettings_, propagationSettings_, false );
 
-        dynamicsSimulator->integrateEquationsOfMotion( propagationSettings->getInitialStates( ) );
+        if ( applicationOptions_->notifyOnPropagationStart_ )
+        {
+            std::cout << "Propagation of file " << inputFilePath_ << " started." << std::endl;
+        }
+
+        // Run simulation
+        dynamicsSimulator_->integrateEquationsOfMotion( propagationSettings_->getInitialStates( ) );
+
+        if ( applicationOptions_->notifyOnPropagationTermination_ )
+        {
+            std::cout << "Propagation of file " << inputFilePath_ << " terminated with no errors.\n" << std::endl;
+        }
 
         // FIXME: MultiArc
     }
@@ -111,7 +122,7 @@ public:
 
         boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
                 = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    dynamicsSimulator );
+                    dynamicsSimulator_ );
         if ( singleArcDynamicsSimulator )
         {
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > statesHistory =
@@ -119,7 +130,7 @@ public:
             std::map< TimeType, Eigen::VectorXd > dependentVariables =
                     singleArcDynamicsSimulator->getDependentVariableHistory( );
 
-            for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+            for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector_ )
             {
                 // Determine number of columns (not including first column = epoch).
                 unsigned int cols = 0;
@@ -249,7 +260,7 @@ public:
     {
         // sync( );
         updateJSONObjectFromSettings( );
-        return jsonObject;
+        return jsonObject_;
     }
 
     //! -DOC
@@ -263,66 +274,48 @@ public:
     //! -DOC
     json getOriginalJSONObject( )
     {
-        return originalJsonObject;
+        return originalJsonObject_;
     }
 
 
     // Data contained in the JSON file:
 
-    //! Initial epoch for the simulation.
-    TimeType startEpoch;
-
-    //! Maximum end epoch for the simulation.
-    TimeType endEpoch;
-
-    //! Global frame origin.
-    std::string globalFrameOrigin;
-
-    //! Global frame orientation.
-    std::string globalFrameOrientation;
+    //! Integrator settings.
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     //! Spice settings ( NULL if Spice is not used ).
-    boost::shared_ptr< simulation_setup::SpiceSettings > spiceSettings;
+    boost::shared_ptr< simulation_setup::SpiceSettings > spiceSettings_;
 
     //! Map of body settings.
-    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap;
+    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
 
     //! Propagation settings.
-    boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings;
-
-    //! Integrator settings.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings;
+    boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings_;
 
     //! Vector of export settings.
-    std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector;
+    std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector_;
 
     //! Application options.
-    boost::shared_ptr< ApplicationOptions > applicationOptions;
+    boost::shared_ptr< ApplicationOptions > applicationOptions_;
 
 
 protected:
 
     //! -DOC
-    virtual void resetGeneral( )
+    virtual void resetIntegrator( )
     {
-        // Start and end epochs
-        startEpoch = getEpoch< TimeType >( jsonObject, Keys::startEpoch );
-        endEpoch = getEpoch< TimeType >( jsonObject, Keys::endEpoch );
-
-        // Global frame origin and orientation
-        globalFrameOrigin = getValue< std::string >( jsonObject, Keys::globalFrameOrigin );
-        globalFrameOrientation = getValue< std::string >( jsonObject, Keys::globalFrameOrientation );
+        updateFromJSON( integratorSettings_, jsonObject_, Keys::integrator );
     }
 
     //! -DOC
     virtual void resetSpice( )
     {
-        spiceSettings = NULL;
-        updateFromJSONIfDefined( spiceSettings, jsonObject, Keys::spice );
-        if ( spiceSettings )
+        spiceSettings_ = NULL;
+        updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
+        if ( spiceSettings_ )
         {
             spice_interface::clearSpiceKernels( );
-            for ( const path kernel : spiceSettings->kernels_ )
+            for ( const path kernel : spiceSettings_->kernels_ )
             {
                 spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
             }
@@ -334,16 +327,16 @@ protected:
     {
         using namespace simulation_setup;
 
-        bodySettingsMap.clear( );
+        bodySettingsMap_.clear( );
 
         std::map< std::string, json > jsonBodySettingsMap =
-                getValue< std::map< std::string, json > >( jsonObject, Keys::bodies );
+                getValue< std::map< std::string, json > >( jsonObject_, Keys::bodies );
 
         std::vector< std::string > defaultBodyNames;
         for ( auto entry : jsonBodySettingsMap )
         {
             const std::string bodyName = entry.first;
-            if ( getValue( jsonObject, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
+            if ( getValue( jsonObject_, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
             {
                 defaultBodyNames.push_back( bodyName );
             }
@@ -352,17 +345,19 @@ protected:
         // Create map with default body settings.
         if ( ! defaultBodyNames.empty( ) )
         {
-            if ( spiceSettings )
+            if ( spiceSettings_ )
             {
-                if ( spiceSettings->preloadKernels_ )
+                if ( spiceSettings_->preloadKernels_ )
                 {
-                    bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
-                                                              startEpoch + spiceSettings->preloadOffsets_.first,
-                                                              endEpoch + spiceSettings->preloadOffsets_.second );
+                    bodySettingsMap_ = getDefaultBodySettings( defaultBodyNames,
+                                                               integratorSettings_->initialTime_
+                                                               + spiceSettings_->preloadOffsets_.first,
+                                                               getEpoch< TimeType >( jsonObject_, Keys::endEpoch )
+                                                               + spiceSettings_->preloadOffsets_.second );
                 }
                 else
                 {
-                    bodySettingsMap = getDefaultBodySettings( defaultBodyNames );
+                    bodySettingsMap_ = getDefaultBodySettings( defaultBodyNames );
                 }
             }
             else
@@ -372,32 +367,43 @@ protected:
             }
         }
 
+        // Global frame origin and orientation
+        const std::string globalFrameOrigin = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
+        const std::string globalFrameOrientation =
+                getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
+
         // Get body settings from JSON.
         for ( auto entry : jsonBodySettingsMap )
         {
             const std::string bodyName = entry.first;
             const json jsonBodySettings = jsonBodySettingsMap[ bodyName ];
-            if ( bodySettingsMap.count( bodyName ) )
+            if ( bodySettingsMap_.count( bodyName ) )
             {
+                boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap_[ bodyName ];
                 // Reset ephemeris and rotational models frames.
-                boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];
-                bodySettings->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
-                bodySettings->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
+                if ( bodySettings->ephemerisSettings )
+                {
+                    bodySettings->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
+                }
+                if ( bodySettings->rotationModelSettings )
+                {
+                    bodySettings->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
+                }
                 // Update body settings from JSON.
                 updateBodySettings( bodySettings, jsonBodySettings );
             }
             else
             {
                 // Create body settings from JSON.
-                bodySettingsMap[ bodyName ] = createBodySettings( jsonBodySettings );
+                bodySettingsMap_[ bodyName ] = createBodySettings( jsonBodySettings );
             }
         }
 
         // Create bodies.
-        bodyMap = createBodies( bodySettingsMap );
+        bodyMap_ = createBodies( bodySettingsMap_ );
 
         // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
+        setGlobalFrameBodyEphemerides( bodyMap_, globalFrameOrigin, globalFrameOrientation );
     }
 
     //! -DOC
@@ -405,14 +411,14 @@ protected:
     {
         using namespace propagators;
 
-        updateFromJSON( propagationSettings, jsonObject, Keys::propagation );
+        updateFromJSON( propagationSettings_, jsonObject_, Keys::propagation );
 
         // Try to get initial states from bodies' epehemeris if not provided
-        if ( propagationSettings->getInitialStates( ).rows( ) == 0 )
+        if ( propagationSettings_->getInitialStates( ).rows( ) == 0 )
         {
             boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagator =
                     boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
-                        propagationSettings );
+                        propagationSettings_ );
             if ( translationalPropagator )
             {
                 try
@@ -420,13 +426,13 @@ protected:
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
                             getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
                                                       translationalPropagator->centralBodies_,
-                                                      bodyMap, startEpoch );
+                                                      bodyMap_, integratorSettings_->initialTime_ );
                     translationalPropagator->resetInitialStates( systemInitialState );
                 }
                 catch ( ... ) { }
             }
         }
-        if ( propagationSettings->getInitialStates( ).rows( ) == 0 )
+        if ( propagationSettings_->getInitialStates( ).rows( ) == 0 )
         {
             std::cerr << "Could not determine initial integration state. "
                       << "Please provide it to the propagator settings using the key \""
@@ -435,27 +441,21 @@ protected:
         }
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
-        propagationSettings->createIntegratedStateModels( bodyMap );
-    }
-
-    //! -DOC
-    virtual void resetIntegrator( )
-    {
-        updateFromJSON( integratorSettings, jsonObject, Keys::integrator );
+        propagationSettings_->createIntegratedStateModels( bodyMap_ );
     }
 
     //! -DOC
     virtual void resetExport( )
     {
-        exportSettingsVector.clear( );
-        updateFromJSONIfDefined( exportSettingsVector, jsonObject, Keys::xport );
+        exportSettingsVector_.clear( );
+        updateFromJSONIfDefined( exportSettingsVector_, jsonObject_, Keys::xport );
     }
 
     //! -DOC
     virtual void resetApplicationOptions( )
     {
-        applicationOptions = boost::make_shared< ApplicationOptions >( );
-        updateFromJSONIfDefined( applicationOptions, jsonObject, Keys::options );
+        applicationOptions_ = boost::make_shared< ApplicationOptions >( );
+        updateFromJSONIfDefined( applicationOptions_, jsonObject_, Keys::options );
     }
 
 
@@ -464,7 +464,7 @@ private:
     //! Update the JSON object with all the data from the current settings (objests).
     void updateJSONObjectFromSettings( )
     {
-        jsonObject = *this;
+        jsonObject_ = *this;
     }
 
     //! Update all the settings (objects) from the JSON object.
@@ -472,31 +472,30 @@ private:
     {
         clearAccessHistory( );
 
-        resetGeneral( );
+        resetIntegrator( );  // Integrator first, because then integrator->initialTime is used by other methods
         resetSpice( );
         resetBodies( );
         resetPropagation( );
-        resetIntegrator( );
         resetExport( );
         resetApplicationOptions( );
 
-        checkUnusedKeys( jsonObject, applicationOptions->unusedKey );
+        checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
     }
 
     //! Absolute path to the input file.
-    path inputFilePath;
+    path inputFilePath_;
 
     //! Original JSON object with all the settings read directly from the input file.
-    json originalJsonObject;
+    json originalJsonObject_;
 
     //! JSON object with the current settings.
-    json jsonObject;
+    json jsonObject_;
 
     //! Body map.
-    simulation_setup::NamedBodyMap bodyMap;
+    simulation_setup::NamedBodyMap bodyMap_;
 
     //! Dynamics simulator.
-    boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator;
+    boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
 };
 
@@ -508,16 +507,12 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject.clear( );
 
     // assignIfNot( jsonObject, Keys::simulationType, simulation.type, customSimulation );
-    jsonObject[ Keys::startEpoch ] = simulation.startEpoch;
-    jsonObject[ Keys::endEpoch ] = simulation.endEpoch;
-    jsonObject[ Keys::globalFrameOrigin ] = simulation.globalFrameOrigin;
-    jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation;
-    assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings );
-    jsonObject[ Keys::bodies ] = simulation.bodySettingsMap;
-    jsonObject[ Keys::propagation ] = simulation.propagationSettings;
-    jsonObject[ Keys::integrator ] = simulation.integratorSettings;
-    assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector );
-    jsonObject[ Keys::options ] = simulation.applicationOptions;
+    jsonObject[ Keys::integrator ] = simulation.integratorSettings_;
+    assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings_ );
+    jsonObject[ Keys::bodies ] = simulation.bodySettingsMap_;
+    jsonObject[ Keys::propagation ] = simulation.propagationSettings_;
+    assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector_ );
+    jsonObject[ Keys::options ] = simulation.applicationOptions_;
 }
 
 } // namespace json_interface

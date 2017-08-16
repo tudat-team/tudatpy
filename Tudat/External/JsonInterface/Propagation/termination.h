@@ -22,34 +22,20 @@ namespace tudat
 namespace propagators
 {
 
-/*
-//! Map of `PropagationTerminationTypes`s string representations.
-static std::map< PropagationTerminationTypes, std::string > terminationTypes =
-{
-
-};
-
-//! `PropagationTerminationTypes`s not supported by `json_interface`.
-static std::vector< PropagationTerminationTypes > unsupportedTerminationType = { };
-
-//! Convert `PropagationTerminationTypes` to `json`.
-inline void to_json( json& jsonObject, const PropagationTerminationTypes& terminationType )
-{
-    jsonObject = json_interface::stringFromEnum( terminationType, terminationTypes );
-}
-
-//! Convert `json` to `PropagationTerminationTypes`.
-inline void from_json( const json& jsonObject, PropagationTerminationTypes& terminationType )
-{
-    terminationType = json_interface::enumFromString( jsonObject.get< std::string >( ), terminationTypes );
-}
-*/
+// PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+
+
+// PropagationHybridTerminationSettings
+
+//! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
+void from_json( const json& jsonObject,
+                boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 } // namespace propagators
 

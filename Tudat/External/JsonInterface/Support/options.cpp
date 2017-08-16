@@ -26,10 +26,12 @@ void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& a
     }
     using K = Keys::Options;
 
-    jsonObject[ K::defaultValueUsedForMissingKey ] = applicationOptions->defaultValueUsedForMissingKey;
-    jsonObject[ K::unusedKey ] = applicationOptions->unusedKey;
-    jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference;
-    assignIfNotEmpty( jsonObject, K::populatedFile, applicationOptions->populatedFile );
+    jsonObject[ K::notifyOnPropagationStart ] = applicationOptions->notifyOnPropagationStart_;
+    jsonObject[ K::notifyOnPropagationTermination ] = applicationOptions->notifyOnPropagationTermination_;
+    jsonObject[ K::defaultValueUsedForMissingKey ] = applicationOptions->defaultValueUsedForMissingKey_;
+    jsonObject[ K::unusedKey ] = applicationOptions->unusedKey_;
+    jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference_;
+    assignIfNotEmpty( jsonObject, K::populatedFile, applicationOptions->populatedFile_ );
 }
 
 //! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
@@ -38,12 +40,21 @@ void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >&
     using K = Keys::Options;
 
     applicationOptions = boost::make_shared< ApplicationOptions >( );
-    updateFromJSONIfDefined( applicationOptions->defaultValueUsedForMissingKey,
+
+    updateFromJSONIfDefined( applicationOptions->notifyOnPropagationStart_, jsonObject, K::notifyOnPropagationStart );
+
+    updateFromJSONIfDefined( applicationOptions->notifyOnPropagationTermination_,
+                             jsonObject, K::notifyOnPropagationTermination );
+
+    updateFromJSONIfDefined( applicationOptions->defaultValueUsedForMissingKey_,
                              jsonObject, K::defaultValueUsedForMissingKey );
-    updateFromJSONIfDefined( applicationOptions->unusedKey, jsonObject, K::unusedKey );
-    updateFromJSONIfDefined( applicationOptions->unidimensionalArrayInference,
+
+    updateFromJSONIfDefined( applicationOptions->unusedKey_, jsonObject, K::unusedKey );
+
+    updateFromJSONIfDefined( applicationOptions->unidimensionalArrayInference_,
                              jsonObject, K::unidimensionalArrayInference );
-    updateFromJSONIfDefined( applicationOptions->populatedFile, jsonObject, K::populatedFile );
+
+    updateFromJSONIfDefined( applicationOptions->populatedFile_, jsonObject, K::populatedFile );
 }
 
 } // namespace json_interface
