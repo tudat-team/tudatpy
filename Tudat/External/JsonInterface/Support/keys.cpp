@@ -181,34 +181,15 @@ const std::string Keys::Variable::angle = "angle";
 
 
 //  Propagator
-const std::string Keys::propagation = "propagation";
+const std::string Keys::propagator = "propagator";
+
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
 const std::string Keys::Propagator::initialStates = "initialStates";
-
-// //  Propagator::Termination
-const std::string Keys::Propagator::termination = "termination";
-const std::string Keys::Propagator::Termination::conditions = "conditions";
-const std::string Keys::Propagator::Termination::stopIfSingleConditionMet = "stopIfSingleConditionMet";
-const std::string Keys::Propagator::Termination::variable = "variable";
-const std::string Keys::Propagator::Termination::limitValue = "limitValue";
-const std::string Keys::Propagator::Termination::useAsLowerLimit = "useAsLowerLimit";
-
-// // //  Propagator::Save
-// const std::string Keys::Propagator::save = "save";
-// const std::string Keys::Propagator::Save::variables = "variables";
-// const std::string Keys::Propagator::Save::printVariablesNames = "printVariablesNames";
-
-const std::string Keys::Propagator::computeVariables = "computeVariables";
-const std::string Keys::Propagator::printInterval = "printInterval";
-
-// Hybrid
-const std::string Keys::Propagator::propagators = "propagators";
 
 // Translational
 const std::string Keys::Propagator::type = "type";
 const std::string Keys::Propagator::centralBodies = "centralBodies";
 const std::string Keys::Propagator::bodiesToPropagate = "bodiesToPropagate";
-// const std::string Keys::Propagator::initialStateTypes = "initialStateTypes";
 
 // //  Acceleration
 const std::string Keys::Propagator::accelerations = "accelerations";
@@ -266,6 +247,14 @@ const std::string Keys::Propagator::torques = "torques";
 const std::string Keys::Propagator::Torque::type = "type";
 
 
+
+// Termination
+const std::string Keys::termination = "termination";
+const std::string Keys::Termination::anyOf = "anyOf";
+const std::string Keys::Termination::allOf = "allOf";
+const std::string Keys::Termination::variable = "variable";
+const std::string Keys::Termination::lowerLimit = "lowerLimit";
+const std::string Keys::Termination::upperLimit = "upperLimit";
 
 
 //  Integrator
@@ -326,6 +315,7 @@ const std::string Keys::Export::numericalPrecision = "numericalPrecision";
 const std::string Keys::options = "options";
 const std::string Keys::Options::notifyOnPropagationStart = "notifyOnPropagationStart";
 const std::string Keys::Options::notifyOnPropagationTermination = "notifyOnPropagationTermination";
+const std::string Keys::Options::printInterval = "printInterval";
 const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUsedForMissingKey";
 const std::string Keys::Options::unusedKey = "unusedKey";
 const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalArrayInference";

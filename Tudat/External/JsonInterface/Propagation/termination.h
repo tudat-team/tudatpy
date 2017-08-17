@@ -22,6 +22,17 @@ namespace tudat
 namespace propagators
 {
 
+// PropagationHybridTerminationSettings
+
+//! Create a `json` object from a shared pointer to a `PropagationHybridTerminationSettings` object.
+void to_json( json& jsonObject,
+              const boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
+
+//! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
+void from_json( const json& jsonObject,
+                boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
+
+
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
@@ -29,13 +40,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
-
-
-// PropagationHybridTerminationSettings
-
-//! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
-void from_json( const json& jsonObject,
-                boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 } // namespace propagators
 

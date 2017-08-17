@@ -94,7 +94,7 @@ public:
 
         // Create dynamics simulator object
         dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagationSettings_, false );
+                    bodyMap_, integratorSettings_, propagatorSettings_, false );
 
         if ( applicationOptions_->notifyOnPropagationStart_ )
         {
@@ -102,7 +102,7 @@ public:
         }
 
         // Run simulation
-        dynamicsSimulator_->integrateEquationsOfMotion( propagationSettings_->getInitialStates( ) );
+        dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
 
         if ( applicationOptions_->notifyOnPropagationTermination_ )
         {
@@ -132,34 +132,81 @@ public:
 
             for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector_ )
             {
+                std::vector< boost::shared_ptr< VariableSettings > > variables;
+                std::vector< unsigned int > variableSizes;
+                std::vector< unsigned int > variableIndices;
+
                 // Determine number of columns (not including first column = epoch).
                 unsigned int cols = 0;
+
                 for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
                 {
+                    unsigned int variableSize = 0;
+                    unsigned int variableIndex = 0;
                     switch ( variable->variableType_ )
                     {
                     case independentVariable:
                     {
-                        cols += 1;
+                        variableSize = 1;
                         break;
                     }
                     case stateVariable:
                     {
-                        cols += statesHistory.begin( )->second.rows( );
+                        variableSize = statesHistory.begin( )->second.rows( );
                         break;
                     }
                     case dependentVariable:
                     {
-                        const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
+                        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
                                 boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                        enforceNonNullPointer( depVariable );
-                        cols += getDependentVariableSize( depVariable->dependentVariableType_ );
+                        enforceNonNullPointer( dependentVar );
+                        try
+                        {
+                            const std::string variableID = getDependentVariableId( dependentVar );
+                            try
+                            {
+                                variableIndex = getKeyWithValue(
+                                            singleArcDynamicsSimulator->getDependentVariableIds( ), variableID );
+                                try
+                                {
+                                    variableSize = getDependentVariableSize( dependentVar->dependentVariableType_ );
+                                }
+                                catch ( ... )
+                                {
+                                    std::cerr << "Could not export the results for variable \"" << variableID << "\" "
+                                              << "because its size is not known." << std::endl;
+                                }
+                            }
+                            catch ( ... )
+                            {
+                                std::cerr << "Could not export the results for variable \"" << variableID << "\" "
+                                          << "because the main propagator was configured to compute this variable."
+                                          << std::endl;
+                            }
+                        }
+                        catch ( ... )
+                        {
+                            std::cerr << "Could not export results for dependent variable of type "
+                                      << dependentVar->dependentVariableType_
+                                      << " because its ID is not known." << std::endl;
+                        }
                         break;
                     }
                     default:
                     {
-                        throw std::runtime_error( "Could not export variable of unsupported type." );
+                        std::cerr << "Could not export results for variable of unsupported type "
+                                  << variable->variableType_ << "." << std::endl;
+                        break;
                     }
+                    }
+
+                    if ( variableSize > 0 )
+                    {
+                        variables.push_back( variable );
+                        variableSizes.push_back( variableSize );
+                        variableIndices.push_back( variableIndex );
+
+                        cols += variableSize;
                     }
                 }
 
@@ -179,52 +226,35 @@ public:
                     unsigned int currentIndex = 0;
 
                     const TimeType epoch = it->first;
-                    Eigen::VectorXd result( cols );
-                    for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+                    Eigen::VectorXd result = Eigen::VectorXd::Zero( cols );
+                    for ( unsigned int i = 0; i < variables.size( ); ++i )
                     {
-                        unsigned int size;
+                        const boost::shared_ptr< VariableSettings > variable = variables.at( i );
+                        const unsigned int variableSize = variableSizes.at( i );
+
                         switch ( variable->variableType_ )
                         {
                         case independentVariable:
                         {
-                            size = 1;
-                            result.segment( currentIndex, size ) =
+                            result.segment( currentIndex, variableSize ) =
                                     ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
                             break;
                         }
                         case stateVariable:
                         {
-                            size = it->second.rows( );
-                            result.segment( currentIndex, size ) = it->second.template cast< double >( );
+                            result.segment( currentIndex, variableSize ) = it->second.template cast< double >( );
                             break;
                         }
                         case dependentVariable:
                         {
-                            const boost::shared_ptr< SingleDependentVariableSaveSettings > depVariable =
-                                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                            enforceNonNullPointer( depVariable );
-                            size = getDependentVariableSize( depVariable->dependentVariableType_ );
-                            const std::string varID = getDependentVariableId( depVariable );
-                            try
-                            {
-                                unsigned int index = getKeyWithValue(
-                                            singleArcDynamicsSimulator->getDependentVariableIds( ), varID );
-                                result.segment( currentIndex, size ) =
-                                        dependentVariables.at( epoch ).segment( index, size );
-                            }
-                            catch ( ... )
-                            {
-                                std::cerr << "Could not export the results for variable \"" << varID << "\" "
-                                          << "because none of the propagators was configured to compute this variable."
-                                          << std::endl;
-                                throw;
-                            }
+                            result.segment( currentIndex, variableSize ) =
+                                    dependentVariables.at( epoch ).segment( variableIndices.at( i ), variableSize );
                             break;
                         }
                         default:
-                            throw std::runtime_error( "Could not export variable of unsupported type." );
+                            break;
                         }
-                        currentIndex += size;
+                        currentIndex += variableSize;
                     }
                     results[ epoch ] = result;
                 }
@@ -290,7 +320,7 @@ public:
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
 
     //! Propagation settings.
-    boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagationSettings_;
+    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
     //! Vector of export settings.
     std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector_;
@@ -407,32 +437,40 @@ protected:
     }
 
     //! -DOC
-    virtual void resetPropagation( )
+    virtual void resetPropagator( )
     {
         using namespace propagators;
 
-        updateFromJSON( propagationSettings_, jsonObject_, Keys::propagation );
+        updateFromJSON( propagatorSettings_, jsonObject_ );
 
         // Try to get initial states from bodies' epehemeris if not provided
-        if ( propagationSettings_->getInitialStates( ).rows( ) == 0 )
+        if ( propagatorSettings_->getInitialStates( ).rows( ) == 0 )
         {
-            boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagator =
-                    boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
-                        propagationSettings_ );
-            if ( translationalPropagator )
+            if ( propagatorSettings_->propagatorSettingsMap_.size( ) == 1 )
             {
                 try
                 {
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
-                            getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
-                                                      translationalPropagator->centralBodies_,
-                                                      bodyMap_, integratorSettings_->initialTime_ );
-                    translationalPropagator->resetInitialStates( systemInitialState );
+                    const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >
+                            translationalPropagators =
+                            propagatorSettings_->propagatorSettingsMap_.at( transational_state );
+                    if ( translationalPropagators.size( ) == 1 )
+                    {
+                        const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                                translationalPropagator = boost::dynamic_pointer_cast<
+                                TranslationalStatePropagatorSettings< StateScalarType > >(
+                                    translationalPropagators.front( ) );
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
+                                getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
+                                                          translationalPropagator->centralBodies_,
+                                                          bodyMap_, integratorSettings_->initialTime_ );
+                        translationalPropagator->resetInitialStates( systemInitialState );
+                        propagatorSettings_->resetInitialStates( systemInitialState );
+                    }
                 }
                 catch ( ... ) { }
             }
         }
-        if ( propagationSettings_->getInitialStates( ).rows( ) == 0 )
+        if ( propagatorSettings_->getInitialStates( ).rows( ) == 0 )
         {
             std::cerr << "Could not determine initial integration state. "
                       << "Please provide it to the propagator settings using the key \""
@@ -441,7 +479,7 @@ protected:
         }
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
-        propagationSettings_->createIntegratedStateModels( bodyMap_ );
+        propagatorSettings_->createIntegratedStateModels( bodyMap_ );
     }
 
     //! -DOC
@@ -475,7 +513,7 @@ private:
         resetIntegrator( );  // Integrator first, because then integrator->initialTime is used by other methods
         resetSpice( );
         resetBodies( );
-        resetPropagation( );
+        resetPropagator( );
         resetExport( );
         resetApplicationOptions( );
 
@@ -507,12 +545,32 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     jsonObject.clear( );
 
     // assignIfNot( jsonObject, Keys::simulationType, simulation.type, customSimulation );
+
+    // integrator
     jsonObject[ Keys::integrator ] = simulation.integratorSettings_;
+
+    // spice
     assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings_ );
+
+    // bodies
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap_;
-    jsonObject[ Keys::propagation ] = simulation.propagationSettings_;
+
+    // propagators
+    // jsonObject[ Keys::propagators ] = getFlattenedMapValues( simulation.propagatorSettings_->propagatorSettingsMap_ );
+
+    // termination
+    // jsonObject[ Keys::termination ] = simulation.propagatorSettings_->getTerminationSettings( );
+
+    // export
     assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector_ );
+
+    // options
     jsonObject[ Keys::options ] = simulation.applicationOptions_;
+    // assignIfNotNaN( jsonObject[ Keys::options ], Keys::Options::printInterval,
+    //         simulation.propagatorSettings_->getPrintInterval( ) );
+
+    // propagation + termination + options.printInterval
+    propagators::to_json( jsonObject, simulation.propagatorSettings_ );
 }
 
 } // namespace json_interface

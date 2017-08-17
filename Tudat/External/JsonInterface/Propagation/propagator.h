@@ -88,7 +88,7 @@ inline void from_json( const json& jsonObject, TranslationalPropagatorType& tran
             json_interface::enumFromString( jsonObject.get< std::string >( ), translationalPropagatorTypes );
 }
 
-
+/*
 // PropagatorSettings
 
 //! Create a `json` object from a shared pointer to a `PropagatorSettings` object.
@@ -135,6 +135,94 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagatorSettings< S
         propagatorSettings = getAs< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >( jsonObject );
     }
 }
+*/
+
+// MultiTypePropagatorSettings
+
+//! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
+template< typename StateScalarType = double >
+void to_json( json& jsonObject,
+              const boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+{
+    if ( ! multiTypePropagatorSettings )
+    {
+        return;
+    }
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    jsonObject[ Keys::propagator ] = getFlattenedMapValues< std::map, IntegratedStateType,
+            boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
+                multiTypePropagatorSettings->propagatorSettingsMap_ );
+    jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
+    if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
+    {
+        jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
+    }
+}
+
+//! Create a shared pointer to a `MultiTypePropagatorSettings` object from a `json` object.
+template< typename StateScalarType = double >
+void from_json( const json& jsonObject,
+                boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+{
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Termination settings. If not provided, stop when epoch > simulation.endEpoch
+    std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationConditions;
+
+    // Find user-defined conditions (and determine if time condition is missing)
+    bool timeConditionMissing = true;
+    if ( defined( jsonObject, Keys::termination ) )
+    {
+        boost::shared_ptr< PropagationHybridTerminationSettings > userConditions =
+                getValue< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, Keys::termination );
+        terminationConditions.push_back( userConditions );
+
+        for ( boost::shared_ptr< PropagationTerminationSettings > condition : userConditions->terminationSettings_ )
+        {
+            boost::shared_ptr< PropagationTimeTerminationSettings > timeCondition =
+                    boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( condition );
+            if ( timeCondition )
+            {
+                timeConditionMissing = false;
+                break;
+            }
+        }
+    }
+
+    // If user did not provide conditions, or if endEpoch is defined but the time condition is missing, create it
+    if ( ! defined( jsonObject, Keys::termination ) ||
+         ( defined( jsonObject, Keys::endEpoch ) && timeConditionMissing ) )
+    {
+        terminationConditions.push_back( boost::make_shared< PropagationTimeTerminationSettings >(
+                                             getEpoch< double >( jsonObject, Keys::endEpoch ) ) );
+    }
+
+    // If there's only one condition in total (either user-provided time, user-provided dependent or created time)
+    // use it as termination settings.
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    if ( terminationConditions.size( ) == 1 )
+    {
+        terminationSettings = terminationConditions.at( 0 );
+    }
+    // If there are two conditions (those provided by the user, and the created time condition), combine them into
+    // hybrid termination settings satisfying any of the two conditions.
+    else
+    {
+        terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >( terminationConditions, true );
+    }
+
+    // Print interval
+    const double printInterval =
+            getNumeric( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN, true );
+
+    multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+                getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
+                    jsonObject, Keys::propagator ),
+                terminationSettings, boost::shared_ptr< DependentVariableSaveSettings >( ), printInterval );
+}
 
 
 // SingleArcPropagatorSettings
@@ -155,28 +243,13 @@ void to_json( json& jsonObject,
     // Common keys
     const IntegratedStateType integratedStateType = singleArcPropagatorSettings->getStateType( );
     jsonObject[ K::integratedStateType ] = integratedStateType;
-    jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
-    jsonObject[ K::termination ] = singleArcPropagatorSettings->getTerminationSettings( );
-    if( singleArcPropagatorSettings->getDependentVariablesToSave( ) )
+    if ( singleArcPropagatorSettings->getInitialStates( ).rows( ) > 0 )
     {
-        assignIfNotEmpty( jsonObject, K::computeVariables,
-                          singleArcPropagatorSettings->getDependentVariablesToSave( )->dependentVariables_ );
+        jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
     }
-    assignIfNotNaN( jsonObject, K::printInterval, singleArcPropagatorSettings->getPrintInterval( ) );
 
     switch ( integratedStateType )
     {
-    case hybrid:
-    {
-        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >(
-                    singleArcPropagatorSettings );
-        enforceNonNullPointer( multiTypePropagatorSettings );
-        jsonObject[ K::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
-                boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
-                    multiTypePropagatorSettings->propagatorSettingsMap_ );
-        return;
-    }
     case translational_state:
     {
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
@@ -208,6 +281,12 @@ void to_json( json& jsonObject,
         jsonObject[ K::torques ] = rotationalStatePropagatorSettings->torqueSettingsMap_;
         return;
     }
+    case hybrid:
+    {
+        std::cerr << "Multitype (hybrid) propagation is implicitly supported by providing a list of propagators, "
+                  << "but multitype propagators cannot be nested inside multitype propagators." << std::endl;
+        throw;
+    }
     default:
         handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
     }
@@ -226,42 +305,12 @@ void from_json( const json& jsonObject,
     const IntegratedStateType integratedStateType =
             getValue( jsonObject, K::integratedStateType, translational_state );
 
-    // Termination settings. If not provided, stop when epoch > simulation.endEpoch
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
-    if ( defined( jsonObject, K::termination ) )
-    {
-        terminationSettings =
-                getValue< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, K::termination );
-    }
-    else
-    {
-        terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
-                    getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch ) );
-    }
-
-    // Save settings
-    boost::shared_ptr< DependentVariableSaveSettings > saveSettings;
-    if ( defined( jsonObject, K::computeVariables) )
-    {
-        saveSettings = boost::make_shared< DependentVariableSaveSettings >(
-                    getValue< std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > >(
-                        jsonObject, K::computeVariables  ), false );
-    }
+    // No termination settings ( epoch > TUDAT_NAN will always be false )
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            boost::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
 
     switch ( integratedStateType )
     {
-    case hybrid:
-    {
-        MultiTypePropagatorSettings< StateScalarType > defaults(
-                    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >( ), NULL );
-        singleArcPropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
-                    getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
-                        jsonObject, K::propagators ),
-                    terminationSettings,
-                    saveSettings,
-                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
-        return;
-    }
     case translational_state:
     {
         TranslationalStatePropagatorSettings< StateScalarType > defaults(
@@ -272,9 +321,7 @@ void from_json( const json& jsonObject,
                     getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
                     getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
                     terminationSettings,
-                    getValue( jsonObject, K::type, defaults.propagator_ ),
-                    saveSettings,
-                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
+                    getValue( jsonObject, K::type, defaults.propagator_ ) );
         return;
     }
     case body_mass_state:
@@ -285,9 +332,7 @@ void from_json( const json& jsonObject,
                     getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
                     getValue< SelectedMassRateModelMap >( jsonObject, K::massRateModels ),
                     getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
-                    terminationSettings,
-                    saveSettings,
-                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
+                    terminationSettings );
         return;
     }
     case rotational_state:
@@ -298,10 +343,14 @@ void from_json( const json& jsonObject,
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
                     getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
                     getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
-                    terminationSettings,
-                    saveSettings,
-                    getNumeric( jsonObject, K::printInterval, defaults.getPrintInterval( ), true ) );
+                    terminationSettings );
         return;
+    }
+    case hybrid:
+    {
+        std::cerr << "Multitype (hybrid) propagation is implicitly supported by providing a list of propagators, "
+                  << "but multitype propagators cannot be nested inside multitype propagators." << std::endl;
+        throw;
     }
     default:
         handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
