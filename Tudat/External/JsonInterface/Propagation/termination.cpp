@@ -52,10 +52,10 @@ void from_json( const json& jsonObject,
     }
     else
     {
-        const bool satisfyAny = defined( jsonObject, K::anyOf );
+        const bool meetAnyCondition = defined( jsonObject, K::anyOf );
         hybridTerminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
                     getValue< std::vector< boost::shared_ptr< PropagationTerminationSettings > > >(
-                        jsonObject, satisfyAny ? K::anyOf : K::allOf ), satisfyAny );
+                        jsonObject, meetAnyCondition ? K::anyOf : K::allOf ), meetAnyCondition );
     }
 }
 
@@ -72,23 +72,33 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
     using namespace json_interface;
     using K = Keys::Termination;
 
+    // hybrid
+    boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+            boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+    if ( hybridTerminationSettings )
+    {
+        jsonObject = hybridTerminationSettings;
+        return;
+    }
+
+    // time
     boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
             boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
-    if ( timeTerminationSettings )  // time
+    if ( timeTerminationSettings )
     {
         jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( independentVariable );
         jsonObject[ K::upperLimit ] = timeTerminationSettings->terminationTime_;
+        return;
     }
-    else  // dependent variable
-    {
-        boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >(
-                    terminationSettings );
-        enforceNonNullPointer( dependentVariableTerminationSettings );
-        jsonObject[ K::variable ] = dependentVariableTerminationSettings->dependentVariableSettings_;
-        jsonObject[ dependentVariableTerminationSettings->useAsLowerLimit_ ? K::lowerLimit : K::upperLimit ] =
-                dependentVariableTerminationSettings->limitValue_;
-    }
+
+    // dependent variable
+    boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
+            boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >(
+                terminationSettings );
+    enforceNonNullPointer( dependentVariableTerminationSettings );
+    jsonObject[ K::variable ] = dependentVariableTerminationSettings->dependentVariableSettings_;
+    jsonObject[ dependentVariableTerminationSettings->useAsLowerLimit_ ? K::lowerLimit : K::upperLimit ] =
+            dependentVariableTerminationSettings->limitValue_;
 }
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
@@ -118,7 +128,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     case dependentVariable:
     {
         // If both lower limit and upper limit, create hybrid satistying any of the two conditions
-        if ( defined( jsonObject, K::lowerLimit ) || defined( jsonObject, K::upperLimit ) )
+        if ( defined( jsonObject, K::lowerLimit ) && defined( jsonObject, K::upperLimit ) )
         {
             // Lower limit
             json lowerLimitObject = jsonObject;

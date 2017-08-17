@@ -21,6 +21,7 @@
 #include "acceleration.h"
 #include "massRateModel.h"
 #include "torque.h"
+#include "export.h"
 
 namespace tudat
 {
@@ -214,6 +215,29 @@ void from_json( const json& jsonObject,
         terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >( terminationConditions, true );
     }
 
+    // Determine save settings from variables to be exported
+    std::vector< std::string > addedVariablesIDs;
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector;
+    updateFromJSONIfDefined( exportSettingsVector, jsonObject, Keys::xport );
+    for ( const boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+    {
+        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables )
+        {
+            boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
+                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+            if ( dependentVariable )
+            {
+                const std::string variableID = getVariableId( dependentVariable );
+                if ( ! contains( addedVariablesIDs, variableID ) )
+                {
+                    addedVariablesIDs.push_back( variableID );
+                    dependentVariables.push_back( dependentVariable );
+                }
+            }
+        }
+    }
+
     // Print interval
     const double printInterval =
             getNumeric( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN, true );
@@ -221,7 +245,9 @@ void from_json( const json& jsonObject,
     multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
                 getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
                     jsonObject, Keys::propagator ),
-                terminationSettings, boost::shared_ptr< DependentVariableSaveSettings >( ), printInterval );
+                terminationSettings,
+                boost::make_shared< DependentVariableSaveSettings >( dependentVariables, false ),
+                printInterval );
 }
 
 
