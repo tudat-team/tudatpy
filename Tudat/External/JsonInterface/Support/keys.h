@@ -188,42 +188,16 @@ struct Keys
     };
 
 
-    static const std::string propagation;
+    static const std::string propagator;
     struct Propagator
     {
         static const std::string integratedStateType;
         static const std::string initialStates;
 
-        static const std::string termination;
-        struct Termination
-        {
-            static const std::string conditions;
-            static const std::string stopIfSingleConditionMet;
-            static const std::string variable;
-            static const std::string limitValue;
-            static const std::string useAsLowerLimit;
-        };
-
-        static const std::string computeVariables;
-        /*
-        static const std::string save;
-        struct Save
-        {
-            static const std::string variables;
-            static const std::string printVariablesNames;
-        };
-        */
-
-        static const std::string printInterval;
-
-        // Hybrid
-        static const std::string propagators;
-
         // Translational
         static const std::string type;
         static const std::string centralBodies;
         static const std::string bodiesToPropagate;
-        // static const std::string initialStateTypes;
 
         static const std::string accelerations;
         struct Acceleration
@@ -288,7 +262,16 @@ struct Keys
         {
             static const std::string type;
         };
+    };
 
+    static const std::string termination;
+    struct Termination
+    {
+        static const std::string anyOf;
+        static const std::string allOf;
+        static const std::string variable;
+        static const std::string lowerLimit;
+        static const std::string upperLimit;
     };
 
     static const std::string integrator;
@@ -360,6 +343,7 @@ struct Keys
     {
         static const std::string notifyOnPropagationStart;
         static const std::string notifyOnPropagationTermination;
+        static const std::string printInterval;
         static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
         static const std::string unidimensionalArrayInference;

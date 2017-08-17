@@ -562,7 +562,7 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath )
+void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath = { } )
 {
     value = getValue< T >( jsonObject, keyPath );
 }
@@ -582,7 +582,7 @@ void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath )
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& keyPath )
+void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& keyPath = { } )
 {
     try
     {

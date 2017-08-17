@@ -1107,6 +1107,9 @@ public:
                     boost::lexical_cast< std::string >( initialBodyStates.rows( ) );
             throw std::runtime_error( errorMessage );
         }
+
+        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+
     }
 
     //! List of propagator settings to use
