@@ -288,6 +288,15 @@ public:
         currentTime_ = currentTime;
     }
 
+    //! Function to retrieve the thrust interpolator.
+    /*!
+     * Function to retrieve the thrust interpolator.
+     */
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getThrustInterpolator( )
+    {
+        return thrustInterpolator_;
+    }
+
 private:
 
     //! Function to update the thrust vector to the current time

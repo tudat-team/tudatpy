@@ -44,7 +44,7 @@ void from_json( const json& jsonObject,
     using K = Keys::Termination;
 
     // Not-hybrid
-    if ( ! defined( jsonObject, K::allOf ) || ! defined( jsonObject, K::anyOf ) )
+    if ( ! defined( jsonObject, K::allOf ) && ! defined( jsonObject, K::anyOf ) )
     {
         hybridTerminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
                     std::vector< boost::shared_ptr< PropagationTerminationSettings > >(
