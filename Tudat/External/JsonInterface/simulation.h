@@ -180,7 +180,7 @@ public:
                             catch ( ... )
                             {
                                 std::cerr << "Could not export the results for variable \"" << variableID << "\" "
-                                          << "because the main propagator was configured to compute this variable."
+                                          << "because the main propagator was not configured to compute this variable."
                                           << std::endl;
                             }
                         }
