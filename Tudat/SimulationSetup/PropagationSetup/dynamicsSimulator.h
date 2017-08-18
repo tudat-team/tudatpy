@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
@@ -282,13 +283,15 @@ public:
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false ):
+            const bool setIntegratedResult = false,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
         propagatorSettings_(
             boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
-        initialPropagationTime_( integratorSettings_->initialTime_ ), propagationTerminationReason_( propagation_never_run )
+        initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
+        propagationTerminationReason_( propagation_never_run )
     {
         if( propagatorSettings == NULL )
         {
@@ -384,10 +387,12 @@ public:
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                 propagationTerminationCondition_, _1 ),
+                                 propagationTerminationCondition_, _1, _2 ),
                     dependentVariableHistory_,
+                    cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
-                    propagatorSettings_->getPrintInterval( ) );
+                    propagatorSettings_->getPrintInterval( ),
+                    initialClockTime_ );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 
@@ -415,6 +420,16 @@ public:
     std::map< TimeType, Eigen::VectorXd > getDependentVariableHistory( )
     {
         return dependentVariableHistory_;
+    }
+
+    //! Function to return the map of cummulative computation time history that was saved during numerical propagation.
+    /*!
+     * Function to return the map of cummulative computation time history that was saved during numerical propagation.
+     * \return Map of cummulative computation time history that was saved during numerical propagation.
+     */
+    std::map< TimeType, double > getCummulativeComputationTimeHistory( )
+    {
+        return cummulativeComputationTimeHistory_;
     }
 
 
@@ -640,8 +655,14 @@ protected:
     //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
 
+    //! Map of cummulative computation time history that was saved during numerical propagation.
+    std::map< TimeType, double > cummulativeComputationTimeHistory_;
+
     //! Initial time of propagation
     double initialPropagationTime_;
+
+    //!
+    std::chrono::steady_clock::time_point initialClockTime_;
 
     //! Event that triggered the termination of the propagation
     PropagationTerminationReason propagationTerminationReason_;

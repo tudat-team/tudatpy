@@ -28,6 +28,7 @@ namespace propagators
 static std::map< VariableType, std::string > variableTypes =
 {
     { independentVariable, "independent" },
+    { cpuTimeVariable, "cpuTime" },
     { stateVariable, "state" },
     { dependentVariable, "dependent" }
 };

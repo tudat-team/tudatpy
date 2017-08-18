@@ -36,7 +36,9 @@ class Simulation
 {
 public:
     //! -DOC
-    Simulation( const std::string& inputFile )
+    Simulation( const std::string& inputFile,
+                const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
+        : initialClockTime_( initialClockTime )
     {
         setInputFile( inputFile );
     }
@@ -94,7 +96,7 @@ public:
 
         // Create dynamics simulator object
         dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, false );
+                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
 
         if ( applicationOptions_->notifyOnPropagationStart_ )
         {
@@ -129,6 +131,8 @@ public:
                     singleArcDynamicsSimulator->getEquationsOfMotionNumericalSolution( );
             std::map< TimeType, Eigen::VectorXd > dependentVariables =
                     singleArcDynamicsSimulator->getDependentVariableHistory( );
+            std::map< TimeType, double > cpuTimes =
+                    singleArcDynamicsSimulator->getCummulativeComputationTimeHistory( );
 
             for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector_ )
             {
@@ -146,6 +150,7 @@ public:
                     switch ( variable->variableType_ )
                     {
                     case independentVariable:
+                    case cpuTimeVariable:
                     {
                         variableSize = 1;
                         break;
@@ -238,6 +243,12 @@ public:
                         {
                             result.segment( currentIndex, variableSize ) =
                                     ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
+                            break;
+                        }
+                        case cpuTimeVariable:
+                        {
+                            result.segment( currentIndex, variableSize ) =
+                                    ( Eigen::VectorXd( 1 ) << cpuTimes.at( epoch ) ).finished( );
                             break;
                         }
                         case stateVariable:
@@ -519,6 +530,9 @@ private:
 
         checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
     }
+
+    //! Absolute path to the input file.
+    std::chrono::steady_clock::time_point initialClockTime_;
 
     //! Absolute path to the input file.
     path inputFilePath_;
