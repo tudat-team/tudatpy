@@ -60,7 +60,15 @@ json& valueAt( json& jsonObject, const std::string& key );
  */
 const json& valueAt( const json& jsonObject, const std::string& key );
 
-//! -DOC
+//! Access a key path of a `json` object or array.
+/*!
+ * Access a key path of a `json` object or array. \p jsonObject is constant, so the returned value cannot be modified.
+ * Supports json arrays. If the any key in \p keyPath does not exist, this function will try to convert it to integer
+ * and access \p jsonObject at that index.
+ * \param jsonObject The constant `json` object.
+ * \param keyPath The key path to access.
+ * \return The value at the accessed key path.
+ */
 json valueAt( json jsonObject, const KeyPath& keyPath );
 
 //! Whether the key at \p keyPath is defined for \p jsonObject.

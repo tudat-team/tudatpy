@@ -52,6 +52,7 @@ public:
      * (Pure virtual) function to check whether the propagation should be stopped. Note that the accelerations and
      * environment must be updated (done automatically during numerical propagation) to check the stopping condition.
      * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
     virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
@@ -80,6 +81,7 @@ public:
     /*!
      * Function to check whether the propagation is to be be stopped, i.e. whether the stopTime_ has been reached or not.
      * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
@@ -111,6 +113,7 @@ public:
     /*!
      * Function to check whether the propagation is to be be stopped, i.e. whether the stopTime_ has been reached or not.
      * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
@@ -151,6 +154,8 @@ public:
     /*!
      * Function to check whether the propagation is to be be stopped, i.e. whether the given dependent variable has been
      * reached or not.
+     * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
@@ -194,6 +199,8 @@ public:
     /*!
      * Function to check whether the propagation is to be be stopped, i.e. one or all (depending on value of
      * fulFillSingleCondition_) of the stopping conditions are fulfilled.
+     * \param time Current time in propagation
+     * \param cpuTime Current CPU time in propagation
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );

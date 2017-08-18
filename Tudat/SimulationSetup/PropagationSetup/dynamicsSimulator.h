@@ -276,6 +276,8 @@ public:
      *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides (default true).
+     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  By default now(), i.e. the moment at which this function is called.
      */
     SingleArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,
