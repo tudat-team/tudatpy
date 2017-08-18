@@ -223,7 +223,7 @@ void from_json( const json& jsonObject,
     updateFromJSONIfDefined( exportSettingsVector, jsonObject, Keys::xport );
     for ( const boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables )
+        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
         {
             boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
                     boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );

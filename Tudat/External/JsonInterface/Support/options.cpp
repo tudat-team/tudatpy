@@ -32,6 +32,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& a
     jsonObject[ K::unusedKey ] = applicationOptions->unusedKey_;
     jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference_;
     assignIfNotEmpty( jsonObject, K::populatedFile, applicationOptions->populatedFile_ );
+    jsonObject[ K::tagOutputFilesIfPropagationFails ] = applicationOptions->tagOutputFilesIfPropagationFails_;
 }
 
 //! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
@@ -55,6 +56,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >&
                              jsonObject, K::unidimensionalArrayInference );
 
     updateFromJSONIfDefined( applicationOptions->populatedFile_, jsonObject, K::populatedFile );
+
+    updateFromJSONIfDefined( applicationOptions->tagOutputFilesIfPropagationFails_,
+                             jsonObject, K::tagOutputFilesIfPropagationFails );
 }
 
 } // namespace json_interface

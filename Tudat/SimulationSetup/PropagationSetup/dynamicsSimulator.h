@@ -208,6 +208,12 @@ public:
     virtual void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates ) = 0;
 
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const = 0;
 
     //! Function to get the map of named bodies involved in simulation.
     /*!
@@ -513,7 +519,6 @@ public:
         return dynamicsStateDerivative_;
     }
 
-
     //! Function to retrieve the Object defining when the propagation is to be terminated.
     /*!
      * Function to retrieve the Object defining when the propagation is to be terminated.
@@ -523,6 +528,7 @@ public:
     {
         return propagationTerminationCondition_;
     }
+
 
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
     IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
@@ -539,6 +545,16 @@ public:
     PropagationTerminationReason getPropagationTerminationReason()
     {
         return propagationTerminationReason_;
+    }
+
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const
+    {
+        return propagationTerminationReason_ == termination_condition_reached;
     }
 
 
@@ -1056,6 +1072,24 @@ public:
     std::vector< double > getArcStartTimes( )
     {
         return arcStartTimes_;
+    }
+
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const
+    {
+        for ( const boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > >
+              singleArcDynamicsSimulator : singleArcDynamicsSimulators_ )
+        {
+            if ( ! singleArcDynamicsSimulator->integrationCompletedSuccessfully( ) )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 

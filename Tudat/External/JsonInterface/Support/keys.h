@@ -332,6 +332,7 @@ struct Keys
     {
         static const std::string file;
         static const std::string variables;
+        static const std::string header;
         static const std::string epochsInFirstColumn;
         static const std::string onlyInitialStep;
         static const std::string onlyFinalStep;
@@ -348,6 +349,7 @@ struct Keys
         static const std::string unusedKey;
         static const std::string unidimensionalArrayInference;
         static const std::string populatedFile;
+        static const std::string tagOutputFilesIfPropagationFails;
     };
 };
 

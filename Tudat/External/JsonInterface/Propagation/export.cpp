@@ -27,12 +27,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
     using namespace json_interface;
     using K = Keys::Export;
 
-    jsonObject[ K::file ] = exportSettings->outputFile;
-    jsonObject[ K::variables ] = exportSettings->variables;
-    jsonObject[ K::epochsInFirstColumn ] = exportSettings->epochsInFirstColumn;
-    jsonObject[ K::onlyInitialStep ] = exportSettings->onlyInitialStep;
-    jsonObject[ K::onlyFinalStep ] = exportSettings->onlyFinalStep;
-    jsonObject[ K::numericalPrecision ] = exportSettings->numericalPrecision;
+    jsonObject[ K::file ] = exportSettings->outputFile_;
+    jsonObject[ K::variables ] = exportSettings->variables_;
+    assignIfNotEmpty( jsonObject, K::header, exportSettings->header_ );
+    jsonObject[ K::epochsInFirstColumn ] = exportSettings->epochsInFirstColumn_;
+    jsonObject[ K::onlyInitialStep ] = exportSettings->onlyInitialStep_;
+    jsonObject[ K::onlyFinalStep ] = exportSettings->onlyFinalStep_;
+    jsonObject[ K::numericalPrecision ] = exportSettings->numericalPrecision_;
 }
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
@@ -45,10 +46,11 @@ void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& exp
     exportSettings = boost::make_shared< ExportSettings >(
                 getValue< path >( jsonObject, K::file ),
                 getValue< std::vector< boost::shared_ptr< VariableSettings > > >( jsonObject, K::variables ) );
-    updateFromJSONIfDefined( exportSettings->epochsInFirstColumn, jsonObject, K::epochsInFirstColumn );
-    updateFromJSONIfDefined( exportSettings->onlyInitialStep, jsonObject, K::onlyInitialStep );
-    updateFromJSONIfDefined( exportSettings->onlyFinalStep, jsonObject, K::onlyFinalStep );
-    updateFromJSONIfDefined( exportSettings->numericalPrecision, jsonObject, K::numericalPrecision );
+    updateFromJSONIfDefined( exportSettings->header_, jsonObject, K::header );
+    updateFromJSONIfDefined( exportSettings->epochsInFirstColumn_, jsonObject, K::epochsInFirstColumn );
+    updateFromJSONIfDefined( exportSettings->onlyInitialStep_, jsonObject, K::onlyInitialStep );
+    updateFromJSONIfDefined( exportSettings->onlyFinalStep_, jsonObject, K::onlyFinalStep );
+    updateFromJSONIfDefined( exportSettings->numericalPrecision_, jsonObject, K::numericalPrecision );
 }
 
 } // namespace simulation_setup
