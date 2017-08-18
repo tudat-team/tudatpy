@@ -304,8 +304,9 @@ const std::string Keys::Interpolation::ModelInterpolation::interpolator = "inter
 //  Export
 const std::string Keys::xport = "export";
 const std::string Keys::Export::file = "file";
-const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
 const std::string Keys::Export::variables = "variables";
+const std::string Keys::Export::header = "header";
+const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
 const std::string Keys::Export::onlyInitialStep = "onlyInitialStep";
 const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
 const std::string Keys::Export::numericalPrecision = "numericalPrecision";
@@ -320,6 +321,7 @@ const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUs
 const std::string Keys::Options::unusedKey = "unusedKey";
 const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalArrayInference";
 const std::string Keys::Options::populatedFile = "populatedFile";
+const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFilesIfPropagationFails";
 
 
 //! Get the canonical representation of the key path.

@@ -383,13 +383,16 @@ void writeDataMapToTextFile(
  * \param precisionOfMatrixEntries Number of significant digits of Matrix output
  * \param outputDirectory Output directory. It can be passed as a string as well. The directory be created if it does not exist.
  * \param delimiter Delimiter character, to delimit data entries in file.
+ * \param header Header to be added in the first line. Header char (e.g. %, #), if any, must be included in this string.
+ * Must end in line break to make data matrix start in the next line.
  */
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
                         const int precisionOfMatrixEntries = 16,
                         const boost::filesystem::path& outputDirectory = getTudatRootPath( ),
-                        const std::string& delimiter = "\t" )
+                        const std::string& delimiter = "\t",
+                        const std::string& header = "" )
 {
     // Check if output directory exists; create it if it doesn't.
     if ( !boost::filesystem::exists( outputDirectory ) )
@@ -400,6 +403,9 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
     // Open output file.
     std::string outputDirectoryAndFilename = outputDirectory.string( ) + "/" + outputFilename;
     std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
+
+    // Write header
+    outputFile_ << header;
 
     writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
                         delimiter, true );

@@ -30,31 +30,34 @@ public:
     //! Constructor.
     ExportSettings( const boost::filesystem::path& outputFile,
                     const std::vector< boost::shared_ptr< propagators::VariableSettings > >& variables ) :
-        outputFile( outputFile ), variables( variables ) { }
+        outputFile_( outputFile ), variables_( variables ) { }
 
     //! Destructor.
     virtual ~ExportSettings( ) { }
 
 
     //! Path of the output file the results will be written to.
-    boost::filesystem::path outputFile;
+    boost::filesystem::path outputFile_;
 
     //! Variables to export.
     //! The variables will be exported to a table in which each row corresponds to an epoch,
     //! and the columns contain the values of the variables specified in this vector in the provided order.
-    std::vector< boost::shared_ptr< propagators::VariableSettings > > variables;
+    std::vector< boost::shared_ptr< propagators::VariableSettings > > variables_;
+
+    //! Header to be included in the first line of the output file. If empty, no header will be added.
+    std::string header_ = "";
 
     //! Whether to include the epochs in the first column of the results table.
-    bool epochsInFirstColumn = true;
+    bool epochsInFirstColumn_ = true;
 
     //! Number of significant digits for the exported results.
-    unsigned int numericalPrecision = 10;
+    unsigned int numericalPrecision_ = 16;
 
     //! Whether to print only the values corresponding to the initial integration step.
-    bool onlyInitialStep = false;
+    bool onlyInitialStep_ = false;
 
     //! Whether to print only the values corresponding to the final integration step.
-    bool onlyFinalStep = false;
+    bool onlyFinalStep_ = false;
 };
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
@@ -107,7 +110,7 @@ void exportResultsOfDynamicsSimulator(
             // Determine number of columns (not including first column = epoch).
             unsigned int cols = 0;
 
-            for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
+            for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
             {
                 unsigned int variableSize = 0;
                 unsigned int variableIndex = 0;
@@ -183,12 +186,12 @@ void exportResultsOfDynamicsSimulator(
             std::map< TimeType, Eigen::VectorXd > results;
             for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
             {
-                if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep &&
-                       exportSettings->onlyFinalStep ) ||
-                     ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep &&
-                       exportSettings->onlyInitialStep )
+                if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep_ &&
+                       exportSettings->onlyFinalStep_ ) ||
+                     ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep_ &&
+                       exportSettings->onlyInitialStep_ )
                      || ( ( it != statesHistory.begin( ) && it != --statesHistory.end( ) ) &&
-                          ( exportSettings->onlyInitialStep || exportSettings->onlyFinalStep ) ) )
+                          ( exportSettings->onlyInitialStep_ || exportSettings->onlyFinalStep_ ) ) )
                 {
                     continue;
                 }
@@ -234,13 +237,13 @@ void exportResultsOfDynamicsSimulator(
                 results[ epoch ] = result;
             }
 
-            if ( exportSettings->epochsInFirstColumn )
+            if ( exportSettings->epochsInFirstColumn_ )
             {
                 // Write results map to file.
                 writeDataMapToTextFile( results,
-                                        exportSettings->outputFile,
-                                        "",
-                                        exportSettings->numericalPrecision );
+                                        exportSettings->outputFile_,
+                                        exportSettings->header_,
+                                        exportSettings->numericalPrecision_ );
             }
             else
             {
@@ -252,9 +255,10 @@ void exportResultsOfDynamicsSimulator(
                     resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
                 }
                 writeMatrixToFile( resultsMatrix,
-                                   exportSettings->outputFile.filename( ).string( ),
-                                   exportSettings->numericalPrecision,
-                                   exportSettings->outputFile.parent_path( ) );
+                                   exportSettings->outputFile_.filename( ).string( ),
+                                   exportSettings->numericalPrecision_,
+                                   exportSettings->outputFile_.parent_path( ),
+                                   " ", exportSettings->header_ );
             }
         }
     }

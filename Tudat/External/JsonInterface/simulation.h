@@ -106,7 +106,16 @@ public:
         // Print message on propagation termination if requested
         if ( applicationOptions_->notifyOnPropagationTermination_ )
         {
-            std::cout << "Propagation of file " << inputFilePath_ << " terminated with no errors.\n" << std::endl;
+            if ( dynamicsSimulator_->integrationCompletedSuccessfully( ) )
+            {
+                std::cout << "SUCCESS: propagation of file " << inputFilePath_ << " terminated with no errors."
+                          << std::endl;
+            }
+            else
+            {
+                std::cout << "FAILURE: propagation of file " << inputFilePath_ << " terminated with errors."
+                          << std::endl;
+            }
         }
     }
 
@@ -116,6 +125,16 @@ public:
      */
     virtual void exportResults( )
     {
+        if ( applicationOptions_->tagOutputFilesIfPropagationFails_ &&
+             ! dynamicsSimulator_->integrationCompletedSuccessfully( ) )
+        {
+            // Add header "FAILURE" to output files
+            for ( boost::shared_ptr< simulation_setup::ExportSettings >& exportSettings : exportSettingsVector_ )
+            {
+                exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
+            }
+        }
+
         exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_ );
     }
 
@@ -174,7 +193,6 @@ public:
         updateJSONObjectFromSettings( );
         updateSettingsFromJSONObject( );
     }
-
 
     // Settings read from the JSON file:
 
