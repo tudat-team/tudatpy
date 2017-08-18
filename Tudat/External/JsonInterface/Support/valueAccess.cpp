@@ -21,7 +21,15 @@ namespace json_interface
 
 // KEY ACCESS
 
-//! -DOC
+//! Get an index for a `json` array from a int-convertible key
+/*!
+ * @copybrief indexFromKey
+ * \remark If \p key is a negative integer, reverse access is used (e.g. -1 = last element).
+ * \param key The int-convertible key.
+ * \param jsonArray The `json` array.
+ * \return The array index.
+ * \throws std::exception If \p key is not int-convertible.
+ */
 int indexFromKey( const std::string& key, const json& jsonArray )
 {
     int arrayIndex = std::stoi( key );
@@ -58,7 +66,7 @@ const json& valueAt( const json& jsonObject, const std::string& key )
     }
 }
 
-//! -DOC
+//! Access a key path of a `json` object or array.
 json valueAt( json jsonObject, const KeyPath& keyPath )
 {
     for ( const std::string key : keyPath )

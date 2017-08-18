@@ -43,11 +43,15 @@ namespace propagators
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
+ *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+ *  as map (time as key; returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
+ *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+ *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
@@ -187,9 +191,13 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
+     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
     static PropagationTerminationReason integrateEquations(
@@ -223,9 +231,13 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
+     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
     static PropagationTerminationReason integrateEquations(
@@ -274,9 +286,13 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
+     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
     static PropagationTerminationReason integrateEquations(
