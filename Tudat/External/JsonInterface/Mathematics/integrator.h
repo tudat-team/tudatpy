@@ -73,7 +73,7 @@ inline void from_json( const json& jsonObject, RungeKuttaCoefficients::Coefficie
 
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
-template< typename TimeType = double >
+template< typename TimeType >
 void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     if ( ! integratorSettings )
@@ -120,7 +120,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
 }
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
-template< typename TimeType = double >
+template< typename TimeType >
 void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace json_interface;
