@@ -165,37 +165,62 @@ protected:
 };
 
 
-//! -DOC
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief DataMapSettings
+ * The class can be used to provided a map directly, or as a base class for loading the map using different procedures.
+ */
 template< typename IndependentType, typename DependentType >
 class DataMapSettings
 {
 public:
-    //! -DOC
+    //! Empty constructor.
+    /*!
+     * Empty constructor.
+     */
     DataMapSettings( ) { }
 
-    //! -DOC
+    //! Constructor with a data map.
+    /*!
+     * Constructor to be used when the data map is provided directly.
+     * \param dataMap The data map containing values for the independent and dependent variables.
+     */
     DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ) : dataMap_( dataMap ) { }
 
     //! Virtual destructor
     virtual ~DataMapSettings( ) { }
 
-    //! -DOC
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * \return The data map associated to the current setting object.
+     */
     virtual std::map< IndependentType, DependentType > getDataMap( ) const
     {
         return dataMap_;
     }
 
 protected:
-    //! -DOC
-    std::map< IndependentType, DependentType > dataMap_;
+    //! The data map directly provided by the user in the constructor.
+    const std::map< IndependentType, DependentType > dataMap_;
 };
 
-//! -DOC
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief IndependentDependentDataMapSettings
+ * The data map will be created by combining values of independent and dependent variables.
+ */
 template< typename IndependentType, typename DependentType >
 class IndependentDependentDataMapSettings : public DataMapSettings< IndependentType, DependentType >
 {
 public:
-    //! -DOC
+    //! Consturctor.
+    /*!
+     * Constructor.
+     * \param independentVariableValues Vector containing the values of the indepedent variable.
+     * \param dependentVariableValues Vector containing the values of the depedent variable.
+     */
     IndependentDependentDataMapSettings( const std::vector< IndependentType >& independentVariableValues,
                                          const std::vector< DependentType >& dependentVariableValues ) :
         DataMapSettings< IndependentType, DependentType >( ),
@@ -205,13 +230,18 @@ public:
     //! Virtual destructor
     virtual ~IndependentDependentDataMapSettings( ) { }
 
-    //! -DOC
+    //! Vector containing the values of the indepedent variable.
     std::vector< IndependentType > independentVariableValues_;
 
-    //! -DOC
+    //! Vector containing the values of the depedent variable.
     std::vector< DependentType > dependentVariableValues_;
 
-    //! -DOC
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * The map is created from the provided vectors of independent and depedent variables values.
+     * \return The data map associated to the current setting object.
+     */
     virtual std::map< IndependentType, DependentType > getDataMap( ) const
     {
         if ( independentVariableValues_.size( ) != dependentVariableValues_.size( ) )
@@ -229,12 +259,21 @@ public:
     }
 };
 
-//! -DOC
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief FromFileDataMapSettings
+ * The data map will be read from a file.
+ */
 template< typename EigenVectorType >
 class FromFileDataMapSettings : public DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >
 {
 public:
-    //! -DOC
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param relativeFilePath Relative path to the file from which the map is to be loaded.
+     */
     FromFileDataMapSettings( const std::string& relativeFilePath ) :
         DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >( ),
         relativeFilePath_( relativeFilePath ) { }
@@ -242,22 +281,37 @@ public:
     //! Virtual destructor
     virtual ~FromFileDataMapSettings( ) { }
 
-    //! -DOC
+    //! Relative path to the file from which the map is to be loaded.
     std::string relativeFilePath_;
 
-    //! -DOC
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * The map is loaded from the specified relativeFilePath_.
+     * \return The data map associated to the current setting object.
+     */
     virtual std::map< typename EigenVectorType::Scalar, EigenVectorType > getDataMap( ) const
     {
         return input_output::readEigenVectorMapFromFile< EigenVectorType >( relativeFilePath_ );
     }
 };
 
-//! -DOC
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief HermiteDataSettings
+ * The data map will be created directly, in addition to the first derivatives.
+ */
 template< typename IndependentType, typename DependentType >
 class HermiteDataSettings : public DataMapSettings< IndependentType, DependentType >
 {
 public:
-    //! -DOC
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param dataToInterpolate The data map containing values for the independent and dependent variables.
+     * \param firstDerivativeOfDependentVariables Vector containing the first derivatives of the depedent variables.
+     */
     HermiteDataSettings( const std::map< IndependentType, DependentType >& dataToInterpolate,
                          const std::vector< DependentType >& firstDerivativeOfDependentVariables ) :
         DataMapSettings< IndependentType, DependentType >( dataToInterpolate ),
@@ -266,17 +320,26 @@ public:
     //! Virtual destructor
     virtual ~HermiteDataSettings( ) { }
 
-    //! -DOC
+    //! Vector containing the first derivatives of the depedent variables.
     std::vector< DependentType > firstDerivativeOfDependentVariables_;
 };
 
 
-//! -DOC
+//! Class containing (the settings to create) the data needed for the interpolation and the settings to create the
+//! interpolator.
+/*!
+ * @copybrief DataInterpolationSettings
+ */
 template< typename IndependentType, typename DependentType >
 class DataInterpolationSettings
 {
 public:
-    //! -DOC
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param dataSettings Object containing (the settings to create) the data needed for the interpolation.
+     * \param interpolatorSettings Object containing the settings to create the interpolator to be used.
+     */
     DataInterpolationSettings(
             const boost::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
             const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings ) :
@@ -285,10 +348,10 @@ public:
     //! Virtual destructor
     virtual ~DataInterpolationSettings( ){ }
 
-    //! -DOC
+    //! Object containing (the settings to create) the data needed for the interpolation.
     boost::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;
 
-    //! -DOC
+    //! Object containing the settings to create the interpolator to be used.
     boost::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
 
@@ -399,7 +462,13 @@ createOneDimensionalInterpolator(
     return createdInterpolator;
 }
 
-//! -DOC
+//! Function to create an interpolator from DataInterpolationSettings
+/*!
+ *  Function to create an interpolator from DataInterpolationSettings
+ *  \param dataInterpolationSettings Object containing the data that is to be interpolated and settings that are to be
+ *  used to create the interpolator.
+ *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
+ */
 template< typename IndependentType, typename DependentType >
 boost::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > createOneDimensionalInterpolator(
         const boost::shared_ptr< DataInterpolationSettings< IndependentType, DependentType > >

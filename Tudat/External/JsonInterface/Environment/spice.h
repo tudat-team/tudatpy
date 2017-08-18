@@ -11,6 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_SPICE_H
 #define TUDAT_JSONINTERFACE_SPICE_H
 
+#include <Tudat/External/SpiceInterface/spiceInterface.h>
+
 #include "Tudat/External/JsonInterface/Support/valueAccess.h"
 #include "Tudat/External/JsonInterface/Support/valueConversions.h"
 
@@ -121,6 +123,21 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
 void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings );
 
 } // namespace simulation_setup
+
+
+namespace json_interface
+{
+
+//! Load in Tudat the Spice kernels specified in \p spiceSettings.
+/*!
+ * @copybrief loadSpiceKernels
+ * \remark Clears any Spice kernel loaded previously.
+ * \remark If \p spiceSettings is `NULL`, no kernels are loaded.
+ * \param spiceSettings The Spice settings containing the paths to the kernels to be loaded.
+ */
+void loadSpiceKernels( const boost::shared_ptr< simulation_setup::SpiceSettings >& spiceSettings );
+
+} // namespace json_interface
 
 } // namespace tudat
 

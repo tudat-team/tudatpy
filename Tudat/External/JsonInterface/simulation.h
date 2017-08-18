@@ -30,12 +30,18 @@ namespace tudat
 namespace json_interface
 {
 
-//! -DOC
+//! Class for JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
 class Simulation
 {
 public:
-    //! -DOC
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
+     * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
+     * computed. Default is the moment at which the constructor was called.
+     */
     Simulation( const std::string& inputFile,
                 const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
         : initialClockTime_( initialClockTime )
@@ -43,7 +49,11 @@ public:
         setInputFile( inputFile );
     }
 
-    //! -DOC
+    //! Set the root JSON input file.
+    /*!
+     * @copybrief setInputFile
+     * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
+     */
     void setInputFile( const std::string& inputFile )
     {
         inputFilePath_ = getPathForJSONFile( inputFile );
@@ -55,49 +65,36 @@ public:
         // std::cout << originalJsonObject.dump( 2 ) << std::endl;
         // throw;
 
+        // Clear global variable keeping track of the keys that have been accessed
+        clearAccessHistory( );
+
         updateSettingsFromJSONObject( );
     }
 
-    //! Synchronize JSON object and members.
+    //! Run the simulation.
     /*!
-     * Synchronize JSON object and members.
-     *
-     * To be called by the user after he modifies any of the public members manually.
-     * Only necessary if then he needs to access some specific settings that may depend on the modified settings.
-     * If the user modifies the settings, it is not necessary to call this method:
-     * - Before running the simulation (the `run` mehtod always calls `sync` before starting the propagation).
-     * - Before converting the simulation to `json` (`sync` will be called before accessing the object's settings).
-     *
-     * This is how this method works:
-     * 1. Update `jsonObject` from the data contained in the public settings objects.
-     * 2. Update the settings objects from the data contained in `jsonObject`.
-     *
-     * FIXME: If startEpoch is read by IntegratorSettings, then startEpoch changed, after the sync
-     * IntegratorSettings will have the old start epoch... Because it is not undefined inside IntegratorSettings
-     * anymore, so it will not try to access the key startEpoch of the root JSON object...
+     * @copybrief run
+     * <br/>
+     * Before running the simulation, the JSON representation of `this` will be exported if requested in
+     * applicationOptions_, and a message will be printed if requested in applicationOptions_.
+     * <br/>
+     * If some of the keys in jsonObject_ haven't been used, a message may be printed or an error may be thrown
+     * depending on applicationOptions_.
+     * <br/>
+     * After running the simulation, a message will be printed if requested in applicationOptions_.
      */
-    void sync( )
-    {
-        updateJSONObjectFromSettings( );
-        updateSettingsFromJSONObject( );
-    }
-
-    //! -DOC
     virtual void run( )
     {
-        using namespace propagators;
+        // Check if any keys in jsonObject_ haven't been used
+        checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
 
-        // FIXME: ? sync( );
-
+        // Export populated JSON file if requested
         if ( ! applicationOptions_->populatedFile_.empty( ) )
         {
             exportAsJSON( applicationOptions_->populatedFile_ );
         }
 
-        // Create dynamics simulator object
-        dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
-
+        // Print message on propagation start if requested
         if ( applicationOptions_->notifyOnPropagationStart_ )
         {
             std::cout << "Propagation of file " << inputFilePath_ << " started." << std::endl;
@@ -106,205 +103,40 @@ public:
         // Run simulation
         dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
 
+        // Print message on propagation termination if requested
         if ( applicationOptions_->notifyOnPropagationTermination_ )
         {
             std::cout << "Propagation of file " << inputFilePath_ << " terminated with no errors.\n" << std::endl;
         }
-
-        // FIXME: MultiArc
     }
 
-    //! -DOC
+    //! Export the results of the dynamics simulation according to the export settings.
+    /*!
+     * @copybrief exportResults
+     */
     virtual void exportResults( )
     {
-        // FIXME: MultiArc
-        using namespace propagators;
-        using namespace input_output;
-        using namespace simulation_setup;
-
-        boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
-                = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    dynamicsSimulator_ );
-        if ( singleArcDynamicsSimulator )
-        {
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > statesHistory =
-                    singleArcDynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-            std::map< TimeType, Eigen::VectorXd > dependentVariables =
-                    singleArcDynamicsSimulator->getDependentVariableHistory( );
-            std::map< TimeType, double > cpuTimes =
-                    singleArcDynamicsSimulator->getCummulativeComputationTimeHistory( );
-
-            for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector_ )
-            {
-                std::vector< boost::shared_ptr< VariableSettings > > variables;
-                std::vector< unsigned int > variableSizes;
-                std::vector< unsigned int > variableIndices;
-
-                // Determine number of columns (not including first column = epoch).
-                unsigned int cols = 0;
-
-                for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables )
-                {
-                    unsigned int variableSize = 0;
-                    unsigned int variableIndex = 0;
-                    switch ( variable->variableType_ )
-                    {
-                    case independentVariable:
-                    case cpuTimeVariable:
-                    {
-                        variableSize = 1;
-                        break;
-                    }
-                    case stateVariable:
-                    {
-                        variableSize = statesHistory.begin( )->second.rows( );
-                        break;
-                    }
-                    case dependentVariable:
-                    {
-                        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
-                                boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                        enforceNonNullPointer( dependentVar );
-                        try
-                        {
-                            const std::string variableID = getDependentVariableId( dependentVar );
-                            try
-                            {
-                                variableIndex = getKeyWithValue(
-                                            singleArcDynamicsSimulator->getDependentVariableIds( ), variableID );
-                                try
-                                {
-                                    variableSize = getDependentVariableSize( dependentVar->dependentVariableType_ );
-                                }
-                                catch ( ... )
-                                {
-                                    std::cerr << "Could not export the results for variable \"" << variableID << "\" "
-                                              << "because its size is not known." << std::endl;
-                                }
-                            }
-                            catch ( ... )
-                            {
-                                std::cerr << "Could not export the results for variable \"" << variableID << "\" "
-                                          << "because the main propagator was not configured to compute this variable."
-                                          << std::endl;
-                            }
-                        }
-                        catch ( ... )
-                        {
-                            std::cerr << "Could not export results for dependent variable of type "
-                                      << dependentVar->dependentVariableType_
-                                      << " because its ID is not known." << std::endl;
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        std::cerr << "Could not export results for variable of unsupported type "
-                                  << variable->variableType_ << "." << std::endl;
-                        break;
-                    }
-                    }
-
-                    if ( variableSize > 0 )
-                    {
-                        variables.push_back( variable );
-                        variableSizes.push_back( variableSize );
-                        variableIndices.push_back( variableIndex );
-
-                        cols += variableSize;
-                    }
-                }
-
-                // Concatenate requested results
-                std::map< TimeType, Eigen::VectorXd > results;
-                for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
-                {
-                    if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep &&
-                           exportSettings->onlyFinalStep ) ||
-                         ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep &&
-                           exportSettings->onlyInitialStep )
-                         || ( ( it != statesHistory.begin( ) && it != --statesHistory.end( ) ) &&
-                              ( exportSettings->onlyInitialStep || exportSettings->onlyFinalStep ) ) )
-                    {
-                        continue;
-                    }
-                    unsigned int currentIndex = 0;
-
-                    const TimeType epoch = it->first;
-                    Eigen::VectorXd result = Eigen::VectorXd::Zero( cols );
-                    for ( unsigned int i = 0; i < variables.size( ); ++i )
-                    {
-                        const boost::shared_ptr< VariableSettings > variable = variables.at( i );
-                        const unsigned int variableSize = variableSizes.at( i );
-
-                        switch ( variable->variableType_ )
-                        {
-                        case independentVariable:
-                        {
-                            result.segment( currentIndex, variableSize ) =
-                                    ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
-                            break;
-                        }
-                        case cpuTimeVariable:
-                        {
-                            result.segment( currentIndex, variableSize ) =
-                                    ( Eigen::VectorXd( 1 ) << cpuTimes.at( epoch ) ).finished( );
-                            break;
-                        }
-                        case stateVariable:
-                        {
-                            result.segment( currentIndex, variableSize ) = it->second.template cast< double >( );
-                            break;
-                        }
-                        case dependentVariable:
-                        {
-                            result.segment( currentIndex, variableSize ) =
-                                    dependentVariables.at( epoch ).segment( variableIndices.at( i ), variableSize );
-                            break;
-                        }
-                        default:
-                            break;
-                        }
-                        currentIndex += variableSize;
-                    }
-                    results[ epoch ] = result;
-                }
-
-                if ( exportSettings->epochsInFirstColumn )
-                {
-                    // Write results map to file.
-                    writeDataMapToTextFile( results,
-                                            exportSettings->outputFile,
-                                            "",
-                                            exportSettings->numericalPrecision );
-                }
-                else
-                {
-                    // Write results matrix to file.
-                    Eigen::MatrixXd resultsMatrix( results.size( ), cols );
-                    int currentRow = 0;
-                    for ( auto entry : results )
-                    {
-                        resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
-                    }
-                    writeMatrixToFile( resultsMatrix,
-                                       exportSettings->outputFile.filename( ).string( ),
-                                       exportSettings->numericalPrecision,
-                                       exportSettings->outputFile.parent_path( ) );
-                }
-            }
-        }
+        exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_ );
     }
 
-    //! -DOC
+    //! Export `this` as a `json` object.
+    /*!
+     * @copybrief getAsJSON
+     * \return JSON representation of `this`.
+     */
     json getAsJSON( )
     {
-        // sync( );
         updateJSONObjectFromSettings( );
         return jsonObject_;
     }
 
-    //! -DOC
+    //! Export `this` as a `json` object to the file \p exportPath.
+    /*!
+     * @copybrief exportAsJSON
+     * \param exportPath Path to which the contents of the JSON object are to be exported.
+     * \param tabSize Size of tabulations in the exported file (default = 2, i.e. 2 spaces). If set to 0, no
+     * indentantion or line breaks will be used, so the exported file will contain just one line.
+     */
     void exportAsJSON( const path& exportPath, const unsigned int tabSize = 2 )
     {
         std::ofstream outputFile( exportPath.string( ) );
@@ -312,19 +144,44 @@ public:
         outputFile.close( );
     }
 
-    //! -DOC
+    //! Get original JSON object (defined at construction or last time setInputFile was called).
+    /*!
+     * @copybrief getOriginalJSONObject
+     * \remark The returned JSON object is the result of combining all the JSON files that
+     * may be included in the root JSON file into one single object containing all the settings, but before default
+     * values have been loaded or unit conversions have been applied.
+     * \return The original JSON object.
+     */
     json getOriginalJSONObject( )
     {
         return originalJsonObject_;
     }
 
+    //! Synchronize JSON object and class members.
+    /*!
+     * @copybrief sync
+     * <br/>
+     * Call this method after modifying any of the public members manually and before:
+     * <ul>
+     *   <li>Accessing any specific setting that may depend on the modified settings.</li>
+     *   <li>Calling the method run.</li>
+     *   <li>Calling the method exportResults.</li>
+     *   <li>Converting `this` to `json` by calling getAsJSON, exportAsJSON or using the `json()` constructor.</li>
+     * </ul>
+     */
+    void sync( )
+    {
+        updateJSONObjectFromSettings( );
+        updateSettingsFromJSONObject( );
+    }
 
-    // Data contained in the JSON file:
+
+    // Settings read from the JSON file:
 
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
-    //! Spice settings ( NULL if Spice is not used ).
+    //! Spice settings (NULL if Spice is not used).
     boost::shared_ptr< simulation_setup::SpiceSettings > spiceSettings_;
 
     //! Map of body settings.
@@ -333,7 +190,7 @@ public:
     //! Propagation settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    //! Vector of export settings.
+    //! Vector of export settings (each element corresponds to an output file).
     std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector_;
 
     //! Application options.
@@ -342,169 +199,84 @@ public:
 
 protected:
 
-    //! -DOC
-    virtual void resetIntegrator( )
+    //! Reset integratorSettings_ from the current jsonObject_.
+    /*!
+     * @copybrief resetIntegratorSettings
+     */
+    virtual void resetIntegratorSettings( )
     {
         updateFromJSON( integratorSettings_, jsonObject_, Keys::integrator );
     }
 
-    //! -DOC
+    //! Reset spiceSettings_ from the current jsonObject_.
+    /*!
+     * @copybrief resetSpice
+     * Loads the requested kernels in Tudat (if any).
+     */
     virtual void resetSpice( )
     {
         spiceSettings_ = NULL;
         updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
-        if ( spiceSettings_ )
-        {
-            spice_interface::clearSpiceKernels( );
-            for ( const path kernel : spiceSettings_->kernels_ )
-            {
-                spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
-            }
-        }
+        loadSpiceKernels( spiceSettings_ );
     }
 
-    //! -DOC
+    //! Reset bodySettingsMap_ and bodyMap_ from the current jsonObject_.
+    /*!
+     * @copybrief resetBodies
+     */
     virtual void resetBodies( )
     {
-        using namespace simulation_setup;
-
-        bodySettingsMap_.clear( );
-
-        std::map< std::string, json > jsonBodySettingsMap =
-                getValue< std::map< std::string, json > >( jsonObject_, Keys::bodies );
-
-        std::vector< std::string > defaultBodyNames;
-        for ( auto entry : jsonBodySettingsMap )
-        {
-            const std::string bodyName = entry.first;
-            if ( getValue( jsonObject_, Keys::bodies / bodyName / Keys::Body::useDefaultSettings, false ) )
-            {
-                defaultBodyNames.push_back( bodyName );
-            }
-        }
-
-        // Create map with default body settings.
-        if ( ! defaultBodyNames.empty( ) )
-        {
-            if ( spiceSettings_ )
-            {
-                if ( spiceSettings_->preloadKernels_ )
-                {
-                    bodySettingsMap_ = getDefaultBodySettings( defaultBodyNames,
-                                                               integratorSettings_->initialTime_
-                                                               + spiceSettings_->preloadOffsets_.first,
-                                                               getEpoch< TimeType >( jsonObject_, Keys::endEpoch )
-                                                               + spiceSettings_->preloadOffsets_.second );
-                }
-                else
-                {
-                    bodySettingsMap_ = getDefaultBodySettings( defaultBodyNames );
-                }
-            }
-            else
-            {
-                throw std::runtime_error(
-                            "Could not get default bodies settings because no Spice settings were found." );
-            }
-        }
-
-        // Global frame origin and orientation
-        const std::string globalFrameOrigin = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
-        const std::string globalFrameOrientation =
-                getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
-
-        // Get body settings from JSON.
-        for ( auto entry : jsonBodySettingsMap )
-        {
-            const std::string bodyName = entry.first;
-            const json jsonBodySettings = jsonBodySettingsMap[ bodyName ];
-            if ( bodySettingsMap_.count( bodyName ) )
-            {
-                boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap_[ bodyName ];
-                // Reset ephemeris and rotational models frames.
-                if ( bodySettings->ephemerisSettings )
-                {
-                    bodySettings->ephemerisSettings->resetFrameOrientation( globalFrameOrientation );
-                }
-                if ( bodySettings->rotationModelSettings )
-                {
-                    bodySettings->rotationModelSettings->resetOriginalFrame( globalFrameOrientation );
-                }
-                // Update body settings from JSON.
-                updateBodySettings( bodySettings, jsonBodySettings );
-            }
-            else
-            {
-                // Create body settings from JSON.
-                bodySettingsMap_[ bodyName ] = createBodySettings( jsonBodySettings );
-            }
-        }
-
-        // Create bodies.
-        bodyMap_ = createBodies( bodySettingsMap_ );
-
-        // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap_, globalFrameOrigin, globalFrameOrientation );
+        updateBodiesFromJSON( jsonObject_, bodyMap_, bodySettingsMap_, spiceSettings_, integratorSettings_ );
     }
 
-    //! -DOC
-    virtual void resetPropagator( )
+    //! Reset propagatorSettings_ from the current jsonObject_
+    /*!
+     * @copybrief resetPropagatorSettings
+     * Tries to infer the initial states from the body ephemeris if not provided.
+     * Creates the integrated state models using bodyMap_
+     */
+    virtual void resetPropagatorSettings( )
     {
-        using namespace propagators;
-
         updateFromJSON( propagatorSettings_, jsonObject_ );
 
-        // Try to get initial states from bodies' epehemeris if not provided
-        if ( propagatorSettings_->getInitialStates( ).rows( ) == 0 )
-        {
-            if ( propagatorSettings_->propagatorSettingsMap_.size( ) == 1 )
-            {
-                try
-                {
-                    const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >
-                            translationalPropagators =
-                            propagatorSettings_->propagatorSettingsMap_.at( transational_state );
-                    if ( translationalPropagators.size( ) == 1 )
-                    {
-                        const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                                translationalPropagator = boost::dynamic_pointer_cast<
-                                TranslationalStatePropagatorSettings< StateScalarType > >(
-                                    translationalPropagators.front( ) );
-                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
-                                getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
-                                                          translationalPropagator->centralBodies_,
-                                                          bodyMap_, integratorSettings_->initialTime_ );
-                        translationalPropagator->resetInitialStates( systemInitialState );
-                        propagatorSettings_->resetInitialStates( systemInitialState );
-                    }
-                }
-                catch ( ... ) { }
-            }
-        }
-        if ( propagatorSettings_->getInitialStates( ).rows( ) == 0 )
-        {
-            std::cerr << "Could not determine initial integration state. "
-                      << "Please provide it to the propagator settings using the key \""
-                      << Keys::Propagator::initialStates << "\"." << std::endl;
-            throw;
-        }
+        // Infer initial states from body ephemeris if not provided
+        inferInitialStatesIfNecessary( propagatorSettings_, bodyMap_, integratorSettings_ );
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
         propagatorSettings_->createIntegratedStateModels( bodyMap_ );
     }
 
-    //! -DOC
-    virtual void resetExport( )
+    //! Reset exportSettingsVector_ from the current jsonObject_.
+    /*!
+     * @copybrief resetExportSettings
+     */
+    virtual void resetExportSettings( )
     {
         exportSettingsVector_.clear( );
         updateFromJSONIfDefined( exportSettingsVector_, jsonObject_, Keys::xport );
     }
 
-    //! -DOC
+    //! Reset applicationOptions_ from the current jsonObject_.
+    /*!
+     * @copybrief resetApplicationOptions
+     */
     virtual void resetApplicationOptions( )
     {
         applicationOptions_ = boost::make_shared< ApplicationOptions >( );
         updateFromJSONIfDefined( applicationOptions_, jsonObject_, Keys::options );
+    }
+
+    //! Reset dynamicsSimulator_ for the current bodyMap_, integratorSettings_ and propagatorSettings_.
+    /*!
+     * @copybrief resetDynamicsSimulator
+     */
+    virtual void resetDynamicsSimulator( )
+    {
+        // FIXME: MultiArc
+
+        dynamicsSimulator_ =
+                boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
     }
 
 
@@ -519,16 +291,14 @@ private:
     //! Update all the settings (objects) from the JSON object.
     void updateSettingsFromJSONObject( )
     {
-        clearAccessHistory( );
-
-        resetIntegrator( );  // Integrator first, because then integrator->initialTime is used by other methods
+        // Integrator settings first, because then integratorSettings_->initialTime is used by other methods
+        resetIntegratorSettings( );
         resetSpice( );
         resetBodies( );
-        resetPropagator( );
-        resetExport( );
+        resetPropagatorSettings( );
+        resetExportSettings( );
         resetApplicationOptions( );
-
-        checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
+        resetDynamicsSimulator( );
     }
 
     //! Absolute path to the input file.
@@ -553,7 +323,7 @@ private:
 
 
 //! Function to create a `json` object from a Simulation object.
-template< typename TimeType = double, typename StateScalarType = double >
+template< typename TimeType, typename StateScalarType >
 void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {
     jsonObject.clear( );
@@ -569,19 +339,11 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     // bodies
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap_;
 
-    // propagators
-    // jsonObject[ Keys::propagators ] = getFlattenedMapValues( simulation.propagatorSettings_->propagatorSettingsMap_ );
-
-    // termination
-    // jsonObject[ Keys::termination ] = simulation.propagatorSettings_->getTerminationSettings( );
-
     // export
     assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector_ );
 
     // options
     jsonObject[ Keys::options ] = simulation.applicationOptions_;
-    // assignIfNotNaN( jsonObject[ Keys::options ], Keys::Options::printInterval,
-    //         simulation.propagatorSettings_->getPrintInterval( ) );
 
     // propagation + termination + options.printInterval
     propagators::to_json( jsonObject, simulation.propagatorSettings_ );

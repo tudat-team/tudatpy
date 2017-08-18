@@ -85,4 +85,24 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
 
 } // namespace simulation_setup
 
+
+namespace json_interface
+{
+
+//! Load in Tudat the Spice kernels specified in \p spiceSettings.
+void loadSpiceKernels( const boost::shared_ptr< simulation_setup::SpiceSettings >& spiceSettings )
+{
+    spice_interface::clearSpiceKernels( );
+
+    if ( spiceSettings )
+    {
+        for ( const path kernel : spiceSettings->kernels_ )
+        {
+            spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
+        }
+    }
+}
+
+} // namespace json_interface
+
 } // namespace tudat

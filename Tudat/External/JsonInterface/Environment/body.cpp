@@ -47,12 +47,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     assignIfNotEmpty( jsonObject, K::gravityFieldVariations, bodySettings->gravityFieldVariationSettings );
 }
 
-//! Create a shared pointer to a `BodySettings` object from a `json` object.
-void from_json( const json& jsonObject,  boost::shared_ptr< BodySettings >& bodySettings )
-{
-    json_interface::updateBodySettings( bodySettings, jsonObject );
-}
-
 } // namespace simulation_setup
 
 
