@@ -349,7 +349,20 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
-//! -DOC
+//! Write data map to text file.
+/*!
+ * Writes Eigen data stored in a map to text file, using default KeyType-precision and
+ * ValueType-precision (digits10 from "limits" standard library), output directory
+ * (Tudat root-path), and delimiter (space).
+ * \tparam KeyType Data type for map key.
+ * \tparam ValueType Data type for Eigen::Matrix, used as map value.
+ * \param dataMap Map with data.
+ * \param outputPath Path of the output file.
+ * \param fileHeader Text to be placed at the head of the output file. N.B: This string MUST end in
+ *          a newline/return character, or the first line of data will not be printed on a new
+ *          line.
+ * \param precision Number of significant digits of KeyType-data and ValueType-data to output.
+ */
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile(
         const std::map< KeyType, ValueType >& dataMap,

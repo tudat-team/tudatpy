@@ -13,6 +13,7 @@
 
 #include <Eigen/Core>
 #include <boost/lambda/lambda.hpp>
+#include <chrono>
 
 #include <map>
 
@@ -53,13 +54,15 @@ template< typename StateType = Eigen::MatrixXd, typename TimeType = double, type
 PropagationTerminationReason integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
-        const boost::function< bool( const double ) > stopPropagationFunction,
+        const boost::function< bool( const double, const double ) > stopPropagationFunction,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+        std::map< TimeType, double >& cummulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
         const int saveFrequency = TUDAT_NAN,
-        const TimeType printInterval = TUDAT_NAN )
+        const TimeType printInterval = TUDAT_NAN,
+        const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
 {
     PropagationTerminationReason propagationTerminationReason;
 
@@ -71,14 +74,20 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
     // Initialization of numerical solutions for variational equations
     solutionHistory.clear( );
     solutionHistory[ currentTime ] = newState;
+
     dependentVariableHistory.clear( );
-
-
     if( !dependentVariableFunction.empty( ) )
     {
         integrator->getStateDerivativeFunction( )( currentTime, newState );
         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
     }
+
+    // CPU time
+    cummulativeComputationTimeHistory.clear( );
+    double currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
+                std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
+    cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+
 
     // Set initial time step and total integration time.
     TimeStepType timeStep = initialTimeStep;
@@ -112,7 +121,12 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                     integrator->getStateDerivativeFunction( )( currentTime, newState );
                     dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
                 }
+
             }
+
+            currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
+                        std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
+            cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
 
             // Print solutions
@@ -128,7 +142,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                 }
             }
 
-            if( stopPropagationFunction( static_cast< double >( currentTime ) ) )
+            if( stopPropagationFunction( static_cast< double >( currentTime ), currentCPUTime ) )
             {
                 propagationTerminationReason = termination_condition_reached;
                 breakPropagation = true;
@@ -183,11 +197,13 @@ public:
             std::map< TimeType, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::function< bool( const double ) > stopPropagationFunction,
+            const boost::function< bool( const double, const double ) > stopPropagationFunction,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+            std::map< TimeType, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const TimeType printInterval = TUDAT_NAN );
+            const TimeType printInterval = TUDAT_NAN,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
 };
 
 //! Interface class for integrating some state derivative function.
@@ -217,11 +233,13 @@ public:
             std::map< double, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            const boost::function< bool( const double ) > stopPropagationFunction,
+            const boost::function< bool( const double, const double ) > stopPropagationFunction,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
+            std::map< double, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const double printInterval = TUDAT_NAN )
+            const double printInterval = TUDAT_NAN,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
@@ -231,8 +249,11 @@ public:
         return integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
                     dependentVariableHistory,
+                    cummulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    integratorSettings->saveFrequency_, printInterval );
+                    integratorSettings->saveFrequency_,
+                    printInterval,
+                    initialClockTime );
     }
 };
 
@@ -263,11 +284,13 @@ public:
             std::map< Time, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
-            const boost::function< bool( const double ) > stopPropagationFunction,
+            const boost::function< bool( const double, const double ) > stopPropagationFunction,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
+            std::map< Time, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const Time printInterval = TUDAT_NAN )
+            const Time printInterval = TUDAT_NAN,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
@@ -277,8 +300,11 @@ public:
         return integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
                     dependentVariableHistory,
+                    cummulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    integratorSettings->saveFrequency_, printInterval );
+                    integratorSettings->saveFrequency_,
+                    printInterval,
+                    initialClockTime );
     }
 };
 

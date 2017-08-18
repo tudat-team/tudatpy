@@ -38,6 +38,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& var
     switch ( variableType )
     {
     case independentVariable:
+    case cpuTimeVariable:
     case stateVariable:
     {
         jsonObject[ K::type ] = variableType;
@@ -66,6 +67,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& v
     switch ( variableType )
     {
     case independentVariable:
+    case cpuTimeVariable:
     case stateVariable:
     {
         variableSettings = boost::make_shared< VariableSettings >( variableType );

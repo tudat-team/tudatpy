@@ -91,6 +91,16 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
         return;
     }
 
+    // cpu time
+    boost::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
+            boost::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
+    if ( cpuTimeTerminationSettings )
+    {
+        jsonObject[ K::variable ] = boost::make_shared< VariableSettings >( cpuTimeVariable );
+        jsonObject[ K::upperLimit ] = cpuTimeTerminationSettings->cpuTerminationTime_;
+        return;
+    }
+
     // dependent variable
     boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
             boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >(
@@ -123,6 +133,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
         terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
                     getEpoch( jsonObject, K::upperLimit,
                               getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch, TUDAT_NAN, true ) ) );
+        return;
+    }
+    case cpuTimeVariable:
+    {
+        terminationSettings = boost::make_shared< PropagationCPUTimeTerminationSettings >(
+                    getNumeric< double >( jsonObject, K::upperLimit ) );
         return;
     }
     case dependentVariable:

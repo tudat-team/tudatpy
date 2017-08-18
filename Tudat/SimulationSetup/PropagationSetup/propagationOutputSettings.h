@@ -27,6 +27,7 @@ namespace propagators
 enum VariableType
 {
     independentVariable,
+    cpuTimeVariable,
     stateVariable,
     dependentVariable  // -> derivedVariable ?
 };
