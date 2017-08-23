@@ -25,29 +25,83 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Constructor.
-SphericalHarmonicsFileGravityFieldSettings::SphericalHarmonicsFileGravityFieldSettings(
-        const std::string& fileName, const std::string& associatedReferenceFrame,
+//! Get the path of the SH file for a SH model.
+std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel )
+{
+    switch ( sphericalHarmonicsModel )
+    {
+    case egm96:
+        return input_output::getGravityModelsPath( ) + "Earth/egm96.txt";
+    case ggm02c:
+        return input_output::getGravityModelsPath( ) + "Earth/ggm02c.txt";
+    case ggm02s:
+        return input_output::getGravityModelsPath( ) + "Earth/ggm02s.txt";
+    case glgm3150:
+        return input_output::getGravityModelsPath( ) + "Moon/glgm3150.txt";
+    case lpe200:
+        return input_output::getGravityModelsPath( ) + "Moon/lpe200.txt";
+    case jgmro120d:
+        return input_output::getGravityModelsPath( ) + "Mars/jgmro120d.txt";
+    default:
+        std::cerr << "No path known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
+        throw;
+    }
+}
+
+//! Get the associated reference frame for a SH model.
+std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel )
+{
+    switch ( sphericalHarmonicsModel )
+    {
+    case egm96:
+    case ggm02c:
+    case ggm02s:
+        return "IAU_Earth";
+    case glgm3150:
+    case lpe200:
+        return "IAU_Moon";
+    case jgmro120d:
+        return "IAU_Mars";
+    default:
+        std::cerr << "No reference frame known for Spherical Harmonics Model " << sphericalHarmonicsModel << std::endl;
+        throw;
+    }
+}
+
+//! Constructor with custom model.
+SphericalHarmonicsModelGravityFieldSettings::SphericalHarmonicsModelGravityFieldSettings(
+        const std::string& filePath, const std::string& associatedReferenceFrame,
         const int maximumDegree, const int maximumOrder,
         const int gravitationalParameterIndex, const int referenceRadiusIndex,
         const double gravitationalParameter, const double referenceRadius ) :
     SphericalHarmonicsGravityFieldSettings( gravitationalParameter, referenceRadius, Eigen::MatrixXd( ),
                                             Eigen::MatrixXd( ), associatedReferenceFrame ),
-    fileName( fileName ),
-    maximumDegree( maximumDegree ),
-    maximumOrder( maximumOrder ),
-    gravitationalParameterIndex( gravitationalParameterIndex ),
-    referenceRadiusIndex( referenceRadiusIndex )
+    filePath_( filePath ),
+    maximumDegree_( maximumDegree ),
+    maximumOrder_( maximumOrder ),
+    gravitationalParameterIndex_( gravitationalParameterIndex ),
+    referenceRadiusIndex_( referenceRadiusIndex )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
     std::pair< double, double > referenceData =
-            readGravityFieldFile( fileName, maximumDegree, maximumOrder, coefficients,
+            readGravityFieldFile( filePath, maximumDegree, maximumOrder, coefficients,
                                   gravitationalParameterIndex, referenceRadiusIndex );
     gravitationalParameter_ = gravitationalParameterIndex >= 0 ? referenceData.first : gravitationalParameter;
     referenceRadius_ = referenceRadiusIndex >= 0 ? referenceData.second : referenceRadius;
     cosineCoefficients_ = coefficients.first;
     sineCoefficients_ = coefficients.second;
 }
+
+//! Constructor with model included in Tudat.
+SphericalHarmonicsModelGravityFieldSettings::SphericalHarmonicsModelGravityFieldSettings(
+        const SphericalHarmonicsModel sphericalHarmonicsModel ) :
+    SphericalHarmonicsModelGravityFieldSettings( getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+                                                 getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+                                                 50, 50, 0, 1 )
+{
+    sphericalHarmonicsModel_ = sphericalHarmonicsModel;
+}
+
 
 //! Function to read a gravity field file
 std::pair< double, double  > readGravityFieldFile(
@@ -94,9 +148,9 @@ std::pair< double, double  > readGravityFieldFile(
         referenceRadius = boost::lexical_cast< double >( vectorOfIndividualStrings[ referenceRadiusIndex ] );
     }
     else if( ( !( gravitationalParameterIndex >= 0 ) &&
-              ( referenceRadiusIndex >= 0 ) ) ||
+               ( referenceRadiusIndex >= 0 ) ) ||
              ( ( gravitationalParameterIndex >= 0 ) &&
-                           !( referenceRadiusIndex >= 0 ) ) )
+               !( referenceRadiusIndex >= 0 ) ) )
     {
         throw std::runtime_error( "Error when reading gravity field file, must retrieve either both or neither of Re and mu" );
     }
@@ -195,7 +249,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
-    #if USE_CSPICE
+#if USE_CSPICE
     case central_spice:
     {
         if( gravityFieldVariationSettings.size( ) != 0 )
@@ -211,7 +265,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
         break;
     }
-    #endif
+#endif
     case spherical_harmonic:
     {
         // Check whether settings for spherical harmonic gravity field model are consistent with
@@ -300,7 +354,7 @@ boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTri
     // Compute coefficients
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients =
             gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
-            axisA, axisB, axisC, maximumDegree, maximumOrder );
+                axisA, axisB, axisC, maximumDegree, maximumOrder );
 
     return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,

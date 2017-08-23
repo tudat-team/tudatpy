@@ -76,18 +76,15 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 {
     if( bodyName == "Earth" )
     {
-        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getGravityModelsPath( ) + "Earth/egm96.txt", "IAU_Earth", 50, 50, 0, 1 );
+        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( egm96 );
     }
     else if( bodyName == "Moon" )
     {
-        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", "IAU_Moon", 50, 50, 0, 1 );
+        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( lpe200 );
     }
     else if( bodyName == "Mars" )
     {
-        return boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                    input_output::getGravityModelsPath( ) + "Mars/jgmro120d.txt", "IAU_Mars", 50, 50, 0, 1 );
+        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( jgmro120d );
     }
     else
     {
