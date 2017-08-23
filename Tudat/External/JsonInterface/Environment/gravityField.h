@@ -22,6 +22,8 @@ namespace tudat
 namespace simulation_setup
 {
 
+// GravityFieldType
+
 //! Map of `GravityFieldType`s string representations.
 static std::map< GravityFieldType, std::string > gravityFieldTypes =
 {
@@ -30,7 +32,7 @@ static std::map< GravityFieldType, std::string > gravityFieldTypes =
     { spherical_harmonic, "sphericalHarmonic" }
 };
 
-//! `AtmosphereTypes` not supported by `json_interface`.
+//! `GravityFieldType` not supported by `json_interface`.
 static std::vector< GravityFieldType > unsupportedGravityFieldTypes = { };
 
 //! Convert `GravityFieldType` to `json`.
@@ -44,6 +46,40 @@ inline void from_json( const json& jsonObject, GravityFieldType& gravityFieldTyp
 {
     gravityFieldType = json_interface::enumFromString( jsonObject.get< std::string >( ), gravityFieldTypes );
 }
+
+
+// SphericalHarmonicsModel
+
+//! Map of `SphericalHarmonicsModel`s string representations.
+static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels =
+{
+    { customModel, "customModel" },
+    { egm96, "egm96" },
+    { ggm02c, "ggm02c" },
+    { ggm02s, "ggm02s" },
+    { glgm3150, "glgm3150" },
+    { lpe200, "lpe200" },
+    { jgmro120d, "jgmro120d" }
+};
+
+//! `SphericalHarmonicsModel` not supported by `json_interface`.
+static std::vector< SphericalHarmonicsModel > unsupportedSphericalHarmonicsModels = { };
+
+//! Convert `SphericalHarmonicsModel` to `json`.
+inline void to_json( json& jsonObject, const SphericalHarmonicsModel& sphericalHarmonicsModel )
+{
+    jsonObject = json_interface::stringFromEnum( sphericalHarmonicsModel, sphericalHarmonicsModels );
+}
+
+//! Convert `json` to `SphericalHarmonicsModel`.
+inline void from_json( const json& jsonObject, SphericalHarmonicsModel& sphericalHarmonicsModel )
+{
+    sphericalHarmonicsModel =
+            json_interface::enumFromString( jsonObject.get< std::string >( ), sphericalHarmonicsModels );
+}
+
+
+// GravityFieldSettings
 
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );

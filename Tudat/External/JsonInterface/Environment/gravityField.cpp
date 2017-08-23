@@ -45,51 +45,53 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
         return;
     case spherical_harmonic:
     {
-        boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicsGravityFieldSettings =
+        boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        enforceNonNullPointer( sphericalHarmonicsGravityFieldSettings );
-        jsonObject[ K::associatedReferenceFrame ] =
-                sphericalHarmonicsGravityFieldSettings->getAssociatedReferenceFrame( );
+        enforceNonNullPointer( shGravityFieldSettings );
+        jsonObject[ K::associatedReferenceFrame ] = shGravityFieldSettings->getAssociatedReferenceFrame( );
 
-        // SphericalHarmonicsFileGravityFieldSettings
-        boost::shared_ptr< SphericalHarmonicsFileGravityFieldSettings > sphericalHarmonicsFileGravityFieldSettings =
-                boost::dynamic_pointer_cast< SphericalHarmonicsFileGravityFieldSettings >( gravityFieldSettings );
-        if ( sphericalHarmonicsFileGravityFieldSettings )
+        // SphericalHarmonicsModelGravityFieldSettings
+        boost::shared_ptr< SphericalHarmonicsModelGravityFieldSettings > shModelGravityFieldSettings =
+                boost::dynamic_pointer_cast< SphericalHarmonicsModelGravityFieldSettings >( gravityFieldSettings );
+        if ( shModelGravityFieldSettings )
         {
-            jsonObject[ K::file ] = path( sphericalHarmonicsFileGravityFieldSettings->fileName );
-            jsonObject[ K::maximumDegree ] = sphericalHarmonicsFileGravityFieldSettings->maximumDegree;
-            jsonObject[ K::maximumOrder ] = sphericalHarmonicsFileGravityFieldSettings->maximumOrder;
-
-            // Gravitational parameter (index)
-            const int gmIndex = sphericalHarmonicsFileGravityFieldSettings->gravitationalParameterIndex;
-            jsonObject[ K::gravitationalParameterIndex ] = gmIndex;
-            if ( ! ( gmIndex >= 0 ) )
+            const SphericalHarmonicsModel model = shModelGravityFieldSettings->getSphericalHarmonicsModel( );
+            if ( model == customModel )
             {
-                jsonObject[ K::gravitationalParameter ] =
-                        sphericalHarmonicsFileGravityFieldSettings->getGravitationalParameter( );
-            }
+                jsonObject[ K::file ] = path( shModelGravityFieldSettings->getFilePath( ) );
+                jsonObject[ K::maximumDegree ] = shModelGravityFieldSettings->getMaximumDegree( );
+                jsonObject[ K::maximumOrder ] = shModelGravityFieldSettings->getMaximumOrder( );
 
-            // Reference radius (index)
-            const int rIndex = sphericalHarmonicsFileGravityFieldSettings->referenceRadiusIndex;
-            jsonObject[ K::referenceRadiusIndex ] = rIndex;
-            if ( ! ( rIndex >= 0 ) )
+                // Gravitational parameter (index)
+                const int gmIndex = shModelGravityFieldSettings->getGravitationalParameterIndex( );
+                jsonObject[ K::gravitationalParameterIndex ] = gmIndex;
+                if ( gmIndex < 0 )
+                {
+                    jsonObject[ K::gravitationalParameter ] =
+                            shModelGravityFieldSettings->getGravitationalParameter( );
+                }
+
+                // Reference radius (index)
+                const int rIndex = shModelGravityFieldSettings->getReferenceRadiusIndex( );
+                jsonObject[ K::referenceRadiusIndex ] = rIndex;
+                if ( rIndex < 0 )
+                {
+                    jsonObject[ K::referenceRadius ] =
+                            shModelGravityFieldSettings->getReferenceRadius( );
+                }
+            }
+            else
             {
-                jsonObject[ K::referenceRadius ] =
-                        sphericalHarmonicsFileGravityFieldSettings->getReferenceRadius( );
+                jsonObject[ K::model ] = model;
             }
-
-            return;
         }
-
-        jsonObject[ K::gravitationalParameter ] =
-                sphericalHarmonicsGravityFieldSettings->getGravitationalParameter( );
-        jsonObject[ K::referenceRadius ] =
-                sphericalHarmonicsGravityFieldSettings->getReferenceRadius( );
-        jsonObject[ K::cosineCoefficients ] =
-                sphericalHarmonicsGravityFieldSettings->getCosineCoefficients( );
-        jsonObject[ K::sineCoefficients ] =
-                sphericalHarmonicsGravityFieldSettings->getSineCoefficients( );
-
+        else
+        {
+            jsonObject[ K::gravitationalParameter ] = shGravityFieldSettings->getGravitationalParameter( );
+            jsonObject[ K::referenceRadius ] = shGravityFieldSettings->getReferenceRadius( );
+            jsonObject[ K::cosineCoefficients ] = shGravityFieldSettings->getCosineCoefficients( );
+            jsonObject[ K::sineCoefficients ] = shGravityFieldSettings->getSineCoefficients( );
+        }
         return;
     }
     default:
@@ -120,13 +122,13 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
     }
     case spherical_harmonic:
     {
-        const boost::shared_ptr< path > file = getOptional< path >( jsonObject, K::file );
-        if ( file )  // SphericalHarmonicsFileGravityFieldSettings
+        // load coefficients from custom file
+        if ( defined( jsonObject, K::file ) )
         {
             const int gmIndex = getNumeric( jsonObject, K::gravitationalParameterIndex, 0 );
             const int radiusIndex = getNumeric( jsonObject, K::referenceRadiusIndex, 1 );
-            gravityFieldSettings = boost::make_shared< SphericalHarmonicsFileGravityFieldSettings >(
-                        file->string( ),
+            gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
+                        getValue< path >( jsonObject, K::file ).string( ),
                         getValue< std::string >( jsonObject, K::associatedReferenceFrame ),
                         getValue< int >( jsonObject, K::maximumDegree ),
                         getValue< int >( jsonObject, K::maximumOrder ),
@@ -136,16 +138,23 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
                         getNumeric< double >( jsonObject, K::referenceRadius, TUDAT_NAN, radiusIndex >= 0 ) );
             return;
         }
-        else   // SphericalHarmonicsGravityFieldSettings
+
+        // load coefficients from model included in Tudat
+        if ( defined( jsonObject, K::model ) )
         {
-            gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                        getNumeric< double >( jsonObject, K::gravitationalParameter ),
-                        getNumeric< double >( jsonObject, K::referenceRadius ),
-                        getValue< Eigen::MatrixXd >( jsonObject, K::cosineCoefficients ),
-                        getValue< Eigen::MatrixXd >( jsonObject, K::sineCoefficients ),
-                        getValue< std::string >( jsonObject, K::associatedReferenceFrame ) );
+            gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
+                        getValue< SphericalHarmonicsModel >( jsonObject, K::model ) );
             return;
         }
+
+        // user-provided coefficients in JSON object
+        gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    getNumeric< double >( jsonObject, K::gravitationalParameter ),
+                    getNumeric< double >( jsonObject, K::referenceRadius ),
+                    getValue< Eigen::MatrixXd >( jsonObject, K::cosineCoefficients ),
+                    getValue< Eigen::MatrixXd >( jsonObject, K::sineCoefficients ),
+                    getValue< std::string >( jsonObject, K::associatedReferenceFrame ) );
+        return;
     }
     default:
         handleUnimplementedEnumValue( gravityFieldType, gravityFieldTypes, unsupportedGravityFieldTypes );

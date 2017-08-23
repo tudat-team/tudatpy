@@ -210,15 +210,43 @@ protected:
 };
 
 
+//! Spherical harmonics models supported by Tudat.
+enum SphericalHarmonicsModel
+{
+    customModel,
+    egm96,
+    ggm02c,
+    ggm02s,
+    glgm3150,
+    lpe200,
+    jgmro120d
+};
+
+//! Get the path of the SH file for a SH model.
+/*!
+ * @copybrief getPathForSphericalHarmonicsModel
+ * \param sphericalHarmonicsModel The spherical harmonics model.
+ * \return The path of the SH file for a SH model.
+ */
+std::string getPathForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
+
+//! Get the associated reference frame for a SH model.
+/*!
+ * @copybrief getReferenceFrameForSphericalHarmonicsModel
+ * \param sphericalHarmonicsModel The spherical harmonics model.
+ * \return The associated reference frame for a SH model.
+ */
+std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonicsModel sphericalHarmonicsModel );
+
 //! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
-//! field representation to be loaded from file.
-class SphericalHarmonicsFileGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
+//! field representation to be loaded from a spherical harmonics model file.
+class SphericalHarmonicsModelGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
 {
 public:
-    //! Constructor.
+    //! Constructor with custom model.
     /*!
-     * Constructor.
-     * \param fileName Name of PDS gravity field file to be loaded.
+     * Constructor with custom model.
+     * \param filePath Path of PDS gravity field file to be loaded.
      * \param associatedReferenceFrame Identifier for body-fixed reference frame to which the coefficients are referred.
      * \param maximumDegree Maximum degree of gravity field to be loaded.
      * \param maximumOrder Maximum order of gravity field to be loaded.
@@ -229,31 +257,102 @@ public:
      * \param gravitationalParameter Gravitational parameter of gravity field to be used if file has no header.
      * \param referenceRadius Reference radius of gravity field to be used if file has no header.
      */
-    SphericalHarmonicsFileGravityFieldSettings( const std::string& fileName,
-                                                const std::string& associatedReferenceFrame,
-                                                const int maximumDegree,
-                                                const int maximumOrder,
-                                                const int gravitationalParameterIndex,
-                                                const int referenceRadiusIndex,
-                                                const double gravitationalParameter = TUDAT_NAN,
-                                                const double referenceRadius = TUDAT_NAN );
+    SphericalHarmonicsModelGravityFieldSettings( const std::string& filePath,
+                                                 const std::string& associatedReferenceFrame,
+                                                 const int maximumDegree,
+                                                 const int maximumOrder,
+                                                 const int gravitationalParameterIndex,
+                                                 const int referenceRadiusIndex,
+                                                 const double gravitationalParameter = TUDAT_NAN,
+                                                 const double referenceRadius = TUDAT_NAN );
 
-    //! Name of loaded PDS gravity field file.
-    std::string fileName;
+    //! Constructor with model included in Tudat.
+    /*!
+     * Constructor with model included in Tudat.
+     * \param sphericalHarmonicsModel Spherical harmonics model to be used.
+     */
+    SphericalHarmonicsModelGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
+
+    //! Get the sphericals harmonics model.
+    /*!
+     * @copybrief getSphericalHarmonicsModel
+     * \return The sphericals harmonics model.
+     */
+    SphericalHarmonicsModel getSphericalHarmonicsModel( )
+    {
+        return sphericalHarmonicsModel_;
+    }
+
+    //! Get the sphericals harmonics model.
+    /*!
+     * @copybrief getSphericalHarmonicsModel
+     * \return The sphericals harmonics model.
+     */
+    std::string getFilePath( )
+    {
+        return filePath_;
+    }
+
+    //! Get the maximum degree.
+    /*!
+     * @copybrief getMaximumDegree
+     * \return The maximum degree.
+     */
+    int getMaximumDegree( )
+    {
+        return maximumDegree_;
+    }
+
+    //! Get the maximum order.
+    /*!
+     * @copybrief getMaximumOrder
+     * \return The maximum order.
+     */
+    int getMaximumOrder( )
+    {
+        return maximumOrder_;
+    }
+
+    //! Get the gravitational parameter index.
+    /*!
+     * @copybrief getGravitationalParameterIndex
+     * \return The gravitational parameter index.
+     */
+    int getGravitationalParameterIndex( )
+    {
+        return gravitationalParameterIndex_;
+    }
+
+    //! Get the reference radius index.
+    /*!
+     * @copybrief getReferenceRadiusIndex
+     * \return The reference radius index.
+     */
+    int getReferenceRadiusIndex( )
+    {
+        return referenceRadiusIndex_;
+    }
+
+protected:
+    //! Spherical harmonics model.
+    SphericalHarmonicsModel sphericalHarmonicsModel_ = customModel;
+
+    //! Path of loaded PDS gravity field file.
+    std::string filePath_;
 
     //! Maximum loaded degree from file.
-    int maximumDegree;
+    int maximumDegree_;
 
     //! Maximum loaded order from file.
-    int maximumOrder;
+    int maximumOrder_;
 
     //! Index at which the gravitational parameter can be found in the first line of the file.
     //! -1 if this information is not available in the file.
-    int gravitationalParameterIndex;
+    int gravitationalParameterIndex_;
 
     //! Index at which the reference radius can be found in the first line of the file.
     //! -1 if this information is not available in the file.
-    int referenceRadiusIndex;
+    int referenceRadiusIndex_;
 
 };
 

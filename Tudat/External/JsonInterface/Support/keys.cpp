@@ -121,6 +121,7 @@ const std::string Keys::Body::GravityField::referenceRadius = "referenceRadius";
 const std::string Keys::Body::GravityField::cosineCoefficients = "cosineCoefficients";
 const std::string Keys::Body::GravityField::sineCoefficients = "sineCoefficients";
 const std::string Keys::Body::GravityField::associatedReferenceFrame = "associatedReferenceFrame";
+const std::string Keys::Body::GravityField::model = "model";
 const std::string Keys::Body::GravityField::file = "file";
 const std::string Keys::Body::GravityField::maximumDegree = "maximumDegree";
 const std::string Keys::Body::GravityField::maximumOrder = "maximumOrder";

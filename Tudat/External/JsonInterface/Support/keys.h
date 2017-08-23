@@ -118,6 +118,7 @@ struct Keys
             static const std::string cosineCoefficients;
             static const std::string sineCoefficients;
             static const std::string associatedReferenceFrame;
+            static const std::string model;
             static const std::string file;
             static const std::string maximumDegree;
             static const std::string maximumOrder;
