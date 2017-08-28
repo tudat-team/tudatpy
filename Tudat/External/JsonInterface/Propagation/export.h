@@ -21,7 +21,7 @@
 namespace tudat
 {
 
-namespace simulation_setup
+namespace json_interface
 {
 
 class ExportSettings
@@ -66,11 +66,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& saveS
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& saveSettings );
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
 
 //! Export results of \p dynamicsSimulator according to the settings specified in \p exportSettingsVector.
 /*!
@@ -83,11 +78,10 @@ namespace json_interface
 template< typename TimeType = double, typename StateScalarType = double >
 void exportResultsOfDynamicsSimulator(
         const boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > >& dynamicsSimulator,
-        const std::vector< boost::shared_ptr< simulation_setup::ExportSettings > >& exportSettingsVector )
+        const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
     using namespace input_output;
-    using namespace simulation_setup;
 
     boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
             = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(

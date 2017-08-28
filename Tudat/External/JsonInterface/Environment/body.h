@@ -71,7 +71,7 @@ void updateBodiesFromJSON(
         const json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
         std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
-        const boost::shared_ptr< simulation_setup::SpiceSettings >& spiceSettings,
+        const boost::shared_ptr< SpiceSettings >& spiceSettings,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace simulation_setup;
@@ -102,9 +102,9 @@ void updateBodiesFromJSON(
                 {
                     bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
                                                               integratorSettings->initialTime_
-                                                              + spiceSettings->preloadOffsets_.first,
+                                                              + spiceSettings->getInitialOffset( ),
                                                               getEpoch< TimeType >( jsonObject, Keys::endEpoch )
-                                                              + spiceSettings->preloadOffsets_.second,
+                                                              + spiceSettings->getFinalOffset( ),
                                                               spiceSettings->interpolationStep_ );
                 }
                 else

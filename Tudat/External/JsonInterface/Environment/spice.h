@@ -19,7 +19,7 @@
 namespace tudat
 {
 
-namespace simulation_setup
+namespace json_interface
 {
 
 /*
@@ -113,13 +113,49 @@ public:
      * `[ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
      */
-    std::pair< double, double > preloadOffsets_ = { -3000.0, 3000.0 };
+    std::pair< double, double > preloadOffsets_ = { TUDAT_NAN, TUDAT_NAN };
 
     //! Step-size for the interpolated Spice ephemeris.
     /*!
      * Step-size for the interpolated Spice ephemeris. Ignored if preloadKernels_ set to false.
      */
     double interpolationStep_ = 300.0;
+
+    //! Get initial offset for the interpolated Spice ephemeris.
+    /*!
+     * @copybrief getInitialOffset
+     * \remark If not defined by the user (i.e. is NaN), returns `-10 * interpolationStep_`.
+     * \return Initial offset for the interpolated Spice ephemeris.
+     */
+    double getInitialOffset( )
+    {
+        if ( isNaN( preloadOffsets_.first ) )
+        {
+            return -10.0 * interpolationStep_;
+        }
+        else
+        {
+            return preloadOffsets_.first;
+        }
+    }
+
+    //! Get final offset for the interpolated Spice ephemeris.
+    /*!
+     * @copybrief getFinalOffset
+     * \remark If not defined by the user (i.e. is NaN), returns `10 * interpolationStep_`.
+     * \return Final offset for the interpolated Spice ephemeris.
+     */
+    double getFinalOffset( )
+    {
+        if ( isNaN( preloadOffsets_.second ) )
+        {
+            return 10.0 * interpolationStep_;
+        }
+        else
+        {
+            return preloadOffsets_.second;
+        }
+    }
 };
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
@@ -128,11 +164,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings );
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
 /*!
@@ -141,7 +172,7 @@ namespace json_interface
  * \remark If \p spiceSettings is `NULL`, no kernels are loaded.
  * \param spiceSettings The Spice settings containing the paths to the kernels to be loaded.
  */
-void loadSpiceKernels( const boost::shared_ptr< simulation_setup::SpiceSettings >& spiceSettings );
+void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings );
 
 } // namespace json_interface
 

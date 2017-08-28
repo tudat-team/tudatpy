@@ -14,7 +14,7 @@
 namespace tudat
 {
 
-namespace simulation_setup
+namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
@@ -24,7 +24,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
     {
         return;
     }
-    using namespace json_interface;
     using K = Keys::Export;
 
     jsonObject[ K::file ] = exportSettings->outputFile_;
@@ -40,7 +39,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
 void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& exportSettings )
 {
     using namespace propagators;
-    using namespace json_interface;
     using K = Keys::Export;
 
     exportSettings = boost::make_shared< ExportSettings >(
