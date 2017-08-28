@@ -113,7 +113,13 @@ public:
      * `[ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
      */
-    std::pair< double, double > preloadOffsets_ = { -300.0, 300.0 };
+    std::pair< double, double > preloadOffsets_ = { -3000.0, 3000.0 };
+
+    //! Step-size for the interpolated Spice ephemeris.
+    /*!
+     * Step-size for the interpolated Spice ephemeris. Ignored if preloadKernels_ set to false.
+     */
+    double interpolationStep_ = 300.0;
 };
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.

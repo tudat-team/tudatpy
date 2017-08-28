@@ -49,6 +49,7 @@ struct Keys
         static const std::string kernels;
         static const std::string preloadKernels;
         static const std::string preloadOffsets;
+        static const std::string interpolationStep;
     };
 
     static const std::string bodies;
@@ -61,13 +62,28 @@ struct Keys
         static const std::string aerodynamics;
         struct Aerodynamics
         {
-            static const std::string type;
+            static const std::string coefficientsType;
+            static const std::string referenceLength;
             static const std::string referenceArea;
+            static const std::string lateralReferenceLength;
+            static const std::string momentReferencePoint;
+            static const std::string independentVariableNames;
+            static const std::string areCoefficientsInAerodynamicFrame;
+            static const std::string areCoefficientsInNegativeAxisDirection;
+            static const std::string controlSurfaceSettings;  // FIXME: unimplemented
+
+            // Constant
             static const std::string dragCoefficient;
             static const std::string forceCoefficients;
             static const std::string momentCoefficients;
-            static const std::string areCoefficientsInAerodynamicFrame;
-            static const std::string areCoefficientsInNegativeAxisDirection;
+
+            // Tabulated< N >
+            static const std::string numberOfDimensions;
+            static const std::string independentVariables;
+
+            // Tabulated< 1 >
+            static const std::string interpolator;
+            static const std::string independentVariableName;
         };
 
         static const std::string atmosphere;

@@ -83,14 +83,14 @@ bool defined( const json& jsonObject, const KeyPath& keyPath );
 
 // SPECIAL KEYS ACCESS
 
-//! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
+//! Get the \p jsonObject at key SpecialKeys::rootObject.
 /*!
  * copybrief getRootObject
  * \param jsonObject The `json` object.
- * \return Sshared pointer to \p jsonObject at key SpecialKeys::rootObject.
- * `NULL` if key SpecialKeys::rootObject is not defined for \p jsonObject.
+ * \return JSON representation of the root object of \p jsonObject.
+ * \throws UndefinedKeyError If the key SpecialKeys::rootObject is not defined for \p jsonObject.
  */
-boost::shared_ptr< json > getRootObject( const json& jsonObject );
+json getRootObject( const json& jsonObject );
 
 //! Get the absolute key path from which \p jsonObject was retrieved.
 /*!
@@ -181,7 +181,7 @@ void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType respon
 template< typename ValueType >
 ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
 {
-    boost::shared_ptr< json > rootObjectPointer;
+    json rootObject;
     json currentObject = jsonObject;
     KeyPath currentKeyPath = keyPath;
     KeyPath canonicalKeyPath = keyPath;
@@ -191,10 +191,15 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
-            rootObjectPointer = getRootObject( currentObject );
+            try
+            {
+                rootObject = getRootObject( currentObject );
+            }
+            catch ( ... ) { }
+
             if ( currentKeyPath.size( ) > 0 )
             {
-                if ( *currentKeyPath.begin( ) == SpecialKeys::root || contains( currentKeyPath, SpecialKeys::up ) )
+                if ( currentKeyPath.front( ) == SpecialKeys::root || contains( currentKeyPath, SpecialKeys::up ) )
                 {
                     // Path is absolute or contains ..
 
@@ -202,13 +207,13 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
                     currentKeyPath = canonicalKeyPath;
 
                     // Use jsonObject's root object instead
-                    if ( ! rootObjectPointer )
+                    if ( rootObject.is_null( ) )
                     {
                         std::cerr << "Could not use absolute key path because "
                                   << "the JSON object does not contain a root object." << std::endl;
                         throw;
                     }
-                    currentObject = *rootObjectPointer;
+                    currentObject = rootObject;
                 }
             }
         }
@@ -241,7 +246,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         if ( currentObject.is_object( ) )
         {
             // Define keys rootObject and keyPath of jsonObject to be returned
-            currentObject[ SpecialKeys::rootObject ] = rootObjectPointer ? *rootObjectPointer : jsonObject;
+            currentObject[ SpecialKeys::rootObject ] = rootObject.is_null( ) ? jsonObject : rootObject;
             currentObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
         }
     }
@@ -267,8 +272,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
                 if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
                 {
                     convertToObjectIfArray( convertedJsonObject );
-                    convertedJsonObject[ SpecialKeys::rootObject ] =
-                            rootObjectPointer ? *rootObjectPointer : jsonObject;
+                    convertedJsonObject[ SpecialKeys::rootObject ] = rootObject.is_null( ) ? jsonObject : rootObject;
                     convertedJsonObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
                 }
 
@@ -392,67 +396,6 @@ NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
             throw error;
         }
     }
-}
-
-//! Get a pointer to the value of \p jsonObject at \p keyPath.
-/*!
- * Get a pointer to the value of \p jsonObject at \p keyPath, or `NULL` if the key path does not exist.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \param getFunction Function used to retrieve the value. Default function is getValue. Can be set to
- * getNumeric or getEpoch to enable parsing of the obtained value when provided as a string.
- * \return Value at the requested key path.
- * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
- * (only when \p jsonObject at \p keyPath is of type object).
- * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
- * `ValueType`.
- */
-template< typename ValueType >
-boost::shared_ptr< ValueType > getOptional(
-        const json& jsonObject, const KeyPath& keyPath,
-        const std::function< ValueType( const json&, const KeyPath& ) > getFunction = getValue< ValueType > )
-{
-    try
-    {
-        return boost::make_shared< ValueType >( getFunction( jsonObject, keyPath ) );
-    }
-    catch ( const UndefinedKeyError& error )
-    {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        return NULL;
-    }
-}
-
-//! Get a pointer to the numeric value of \p jsonObject at \p keyPath.
-/*!
- * Get a pointer to the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with
- * units and convert to SI units if it is as string, or `NULL` if the key path does not exist.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \return Value at the requested key path.
- * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
- * `NumberType`.
- */
-template< typename NumberType >
-boost::shared_ptr< NumberType > getOptionalNumeric( const json& jsonObject, const KeyPath& keyPath )
-{
-    return getOptional( jsonObject, keyPath, getNumeric< NumberType > );
-}
-
-//! Get a pointer to the numeric value of \p jsonObject at \p keyPath.
-/*!
- * Get a pointer to the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to
- * seconds since J2000 if it is as string, or `NULL` if the key path does not exist.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \return Value at the requested key path.
- * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
- * `NumberType`.
- */
-template< typename NumberType >
-boost::shared_ptr< NumberType > getOptionalEpoch( const json& jsonObject, const KeyPath& keyPath )
-{
-    return getOptional( jsonObject, keyPath, getEpoch< NumberType > );
 }
 
 //! Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.

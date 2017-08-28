@@ -104,7 +104,8 @@ void updateBodiesFromJSON(
                                                               integratorSettings->initialTime_
                                                               + spiceSettings->preloadOffsets_.first,
                                                               getEpoch< TimeType >( jsonObject, Keys::endEpoch )
-                                                              + spiceSettings->preloadOffsets_.second );
+                                                              + spiceSettings->preloadOffsets_.second,
+                                                              spiceSettings->interpolationStep_ );
                 }
                 else
                 {

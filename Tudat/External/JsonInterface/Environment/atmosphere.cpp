@@ -82,7 +82,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
     case exponential_atmosphere:
     {
         atmosphereSettings = boost::make_shared< ExponentialAtmosphereSettings >(
-                    getValue< double >( jsonObject, K::densityScaleHeight ),
+                    getNumeric< double >( jsonObject, K::densityScaleHeight ),
                     getValue< double >( jsonObject, K::constantTemperature ),
                     getValue< double >( jsonObject, K::densityAtZeroAltitude ),
                     getValue< double >( jsonObject, K::specificGasConstant ) );
@@ -96,10 +96,10 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
     }
     case nrlmsise00:
     {
-        const boost::shared_ptr< path > spaceWeatherFile = getOptional< path >( jsonObject, K::spaceWeatherFile );
-        if ( spaceWeatherFile )
+        if ( defined( jsonObject, K::spaceWeatherFile ) )
         {
-            atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >( spaceWeatherFile->string( ) );
+            atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >(
+                        getValue< path >( jsonObject, K::spaceWeatherFile ).string( ) );
         }
         else
         {

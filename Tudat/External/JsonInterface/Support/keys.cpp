@@ -59,6 +59,7 @@ const std::string Keys::spice = "spice";
 const std::string Keys::Spice::kernels = "kernels";
 const std::string Keys::Spice::preloadKernels = "preloadKernels";
 const std::string Keys::Spice::preloadOffsets = "preloadOffsets";
+const std::string Keys::Spice::interpolationStep = "interpolationStep";
 
 
 //  Body
@@ -70,13 +71,26 @@ const std::string Keys::Body::referenceArea = "referenceArea";
 
 // //  Body::Aerodynamics
 const std::string Keys::Body::aerodynamics = "aerodynamics";
-const std::string Keys::Body::Aerodynamics::type = "type";
+const std::string Keys::Body::Aerodynamics::coefficientsType = "coefficientsType";
+const std::string Keys::Body::Aerodynamics::referenceLength = "referenceLength";
 const std::string Keys::Body::Aerodynamics::referenceArea = "referenceArea";
+const std::string Keys::Body::Aerodynamics::lateralReferenceLength = "lateralReferenceLength";
+const std::string Keys::Body::Aerodynamics::momentReferencePoint = "momentReferencePoint";
+const std::string Keys::Body::Aerodynamics::independentVariableNames = "independentVariableNames";
+const std::string Keys::Body::Aerodynamics::areCoefficientsInAerodynamicFrame = "areCoefficientsInAerodynamicFrame";
+const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirection = "areCoefficientsInNegativeAxisDirection";
+const std::string Keys::Body::Aerodynamics::controlSurfaceSettings = "controlSurfaceSettings";
+// Constant
 const std::string Keys::Body::Aerodynamics::dragCoefficient = "dragCoefficient";
 const std::string Keys::Body::Aerodynamics::forceCoefficients = "forceCoefficients";
 const std::string Keys::Body::Aerodynamics::momentCoefficients = "momentCoefficients";
-const std::string Keys::Body::Aerodynamics::areCoefficientsInAerodynamicFrame = "areCoefficientsInAerodynamicFrame";
-const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirection = "areCoefficientsInNegativeAxisDirection";
+// Tabulated< N >
+const std::string Keys::Body::Aerodynamics::numberOfDimensions = "numberOfDimensions";
+const std::string Keys::Body::Aerodynamics::independentVariables = "independentVariables";
+// Tabulated< 1 >
+const std::string Keys::Body::Aerodynamics::interpolator = "interpolator";
+const std::string Keys::Body::Aerodynamics::independentVariableName = "independentVariableName";
+
 
 // //  Body::Atmosphere
 const std::string Keys::Body::atmosphere = "atmosphere";
