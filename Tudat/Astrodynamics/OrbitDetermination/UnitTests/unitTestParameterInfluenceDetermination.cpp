@@ -51,9 +51,8 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
     std::vector< std::string > targetBodies = { "Mercury", "Venus" };
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "planetaryOrbitKernel.tm" );
 
     // Set simulation times
@@ -86,6 +85,14 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                       0.0, 0.0, 0.0,
                       sunNormalizedJ2 , 0.0, 0.0 ).finished( ),
                     Eigen::Matrix3d::Zero( ), "IAU_Sun" );
+
+//        // Setting approximate ephemeris for Jupiter to prevent having to use large Spice kernel.
+//        double jupiterGravitationalParameter = getBodyGravitationalParameter( "Jupiter" );
+//        bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+//                    convertCartesianToKeplerianElements(
+//                        getBodyCartesianStateAtEpoch(
+//                            "Jupiter", "SSB", "ECLIPJ2000", "None", simulationStartEpoch ),
+//                        jupiterGravitationalParameter ), simulationStartEpoch, jupiterGravitationalParameter );
 
         // Update environment settings of target body
         std::vector< std::string > currentTargetBodies;
