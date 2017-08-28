@@ -504,12 +504,12 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     }
 
    // Define minimum elevation angles for Earth/Mars stations
-    double earthMinimumElevationAngle = 4.0 * M_PI / 180.0;
-    double marsMinimumElevationAngle = 10.0 * M_PI / 180.0;
+    double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
+    double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
 
     // Define minimum Sun avoidance angles for Earth/Mars stations
-    double earthSunAvoidanceAngle = 30.0 * M_PI / 180.0;
-    double marsSunAvoidanceAngle = 21.0 * M_PI / 180.0;
+    double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
+    double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
 
 
     // Create observation viability settings
