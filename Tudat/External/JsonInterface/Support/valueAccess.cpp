@@ -80,20 +80,24 @@ json valueAt( json jsonObject, const KeyPath& keyPath )
 //! Whether the key at \p keyPath is defined for \p jsonObject.
 bool defined( const json& jsonObject, const KeyPath& keyPath )
 {
-    if ( getOptional< json >( jsonObject, keyPath ) )
+    try
     {
+        valueAt( jsonObject, keyPath );
         return true;
     }
-    return false;
+    catch ( ... )
+    {
+        return false;
+    }
 }
 
 
 // SPECIAL KEYS ACCESS
 
 //! Get the a shared pointer to \p jsonObject at key SpecialKeys::rootObject.
-boost::shared_ptr< json > getRootObject( const json& jsonObject )
+json getRootObject( const json& jsonObject )
 {
-    return getOptional< json >( jsonObject, SpecialKeys::rootObject );
+    return getValue< json >( jsonObject, SpecialKeys::rootObject );
 }
 
 //! Get the absolute key path from which \p jsonObject was retrieved.

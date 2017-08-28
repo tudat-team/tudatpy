@@ -9,6 +9,8 @@
  *
  */
 
+#include "Tudat/External/JsonInterface/Mathematics/interpolation.h"
+
 #include "aerodynamics.h"
 
 namespace tudat
@@ -18,10 +20,9 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void to_json( json& jsonObject,
-              const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )
+void to_json( json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
-    if ( ! aerodynamicCoefficientSettings )
+    if ( ! aerodynamicSettings )
     {
         return;
     }
@@ -29,28 +30,72 @@ void to_json( json& jsonObject,
     using K = Keys::Body::Aerodynamics;
 
     const AerodynamicCoefficientTypes aerodynamicCoefficientType =
-            aerodynamicCoefficientSettings->getAerodynamicCoefficientType( );
-    jsonObject[ K::type ] = aerodynamicCoefficientType;
-    jsonObject[ K::referenceArea ] = aerodynamicCoefficientSettings->getReferenceArea( );
+            aerodynamicSettings->getAerodynamicCoefficientType( );
+    jsonObject[ K::coefficientsType ] = aerodynamicCoefficientType;
+    jsonObject[ K::referenceArea ] = aerodynamicSettings->getReferenceArea( );
 
     switch ( aerodynamicCoefficientType ) {
     case constant_aerodynamic_coefficients:
     {
-        boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicCoefficientSettings =
-                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >(
-                    aerodynamicCoefficientSettings );
-        enforceNonNullPointer( constantAerodynamicCoefficientSettings );
-        jsonObject[ K::forceCoefficients ] =
-                constantAerodynamicCoefficientSettings->getConstantForceCoefficient( );
-        // FIXME: jsonObject[ K::momentCoefficients ] =
-        //         constantAerodynamicCoefficientSettings->getConstantMomentCoefficient( );
+        boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicSettings =
+                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicSettings );
+        enforceNonNullPointer( constantAerodynamicSettings );
+        jsonObject[ K::referenceArea ] = constantAerodynamicSettings->getReferenceArea( );
+        jsonObject[ K::forceCoefficients ] = constantAerodynamicSettings->getConstantForceCoefficient( );
+
+        // Moments
+        if ( ! isNaN( constantAerodynamicSettings->getReferenceLength( ) ) )
+        {
+            jsonObject[ K::referenceLength ] = constantAerodynamicSettings->getReferenceLength( );
+            jsonObject[ K::lateralReferenceLength ] = constantAerodynamicSettings->getLateralReferenceLength( );
+            jsonObject[ K::momentReferencePoint ] = constantAerodynamicSettings->getMomentReferencePoint( );
+            jsonObject[ K::momentCoefficients ] = constantAerodynamicSettings->getConstantMomentCoefficient( );
+        }
+
         jsonObject[ K::areCoefficientsInAerodynamicFrame ] =
-                constantAerodynamicCoefficientSettings->getAreCoefficientsInAerodynamicFrame( );
+                constantAerodynamicSettings->getAreCoefficientsInAerodynamicFrame( );
         jsonObject[ K::areCoefficientsInNegativeAxisDirection ] =
-                constantAerodynamicCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( );
+                constantAerodynamicSettings->getAreCoefficientsInNegativeAxisDirection( );
         return;
     }
-        // FIXME: derivered classes missing
+    case tabulated_coefficients:
+    {
+        boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulatedAerodynamicSettings =
+                boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >( aerodynamicSettings );
+        if ( tabulatedAerodynamicSettings )  // uni-dimensional
+        {
+            jsonObject[ K::independentVariables ] =
+                    getMapKeys< std::map >( tabulatedAerodynamicSettings->getForceCoefficients( ) );
+            jsonObject[ K::forceCoefficients ] =
+                    getMapValues< std::map >( tabulatedAerodynamicSettings->getForceCoefficients( ) );
+            jsonObject[ K::referenceArea ] = tabulatedAerodynamicSettings->getReferenceArea( );
+
+            // Moments
+            if ( ! isNaN( tabulatedAerodynamicSettings->getReferenceLength( ) ) )
+            {
+                jsonObject[ K::momentCoefficients ] =
+                        getMapValues< std::map >( tabulatedAerodynamicSettings->getMomentCoefficients( ) );
+                jsonObject[ K::referenceLength ] = tabulatedAerodynamicSettings->getReferenceLength( );
+                jsonObject[ K::lateralReferenceLength ] = tabulatedAerodynamicSettings->getLateralReferenceLength( );
+                jsonObject[ K::momentReferencePoint ] = tabulatedAerodynamicSettings->getMomentReferencePoint( );
+            }
+
+            jsonObject[ K::independentVariableName ] =
+                    tabulatedAerodynamicSettings->getIndependentVariableNames( ).front( );
+            jsonObject[ K::interpolator ] = tabulatedAerodynamicSettings->getInterpolationSettings( );
+
+            jsonObject[ K::areCoefficientsInAerodynamicFrame ] =
+                    tabulatedAerodynamicSettings->getAreCoefficientsInAerodynamicFrame( );
+            jsonObject[ K::areCoefficientsInNegativeAxisDirection ] =
+                    tabulatedAerodynamicSettings->getAreCoefficientsInNegativeAxisDirection( );
+        }
+        else
+        {
+            std::cerr << "Multi-dimensional tabulated aerodynamic coefficients not yet supported by json_interface."
+                      << std::endl;
+        }
+        return;
+    }
     default:
         handleUnimplementedEnumValue( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
                                       unsupportedAerodynamicCoefficientTypes );
@@ -58,52 +103,109 @@ void to_json( json& jsonObject,
 }
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void from_json( const json& jsonObject,
-                boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicCoefficientSettings )
+void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
+    using namespace aerodynamics;
+    using namespace interpolators;
     using namespace json_interface;
     using K = Keys::Body::Aerodynamics;
 
     // Aerodynamic coefficient type (constant by default)
-    const AerodynamicCoefficientTypes aerodynamicCoefficientType =
-            getValue( jsonObject, K::type, constant_aerodynamic_coefficients );
+    const AerodynamicCoefficientTypes coefficientsType =
+            getValue( jsonObject, K::coefficientsType, constant_aerodynamic_coefficients );
 
     // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
     double fallbackReferenceArea = getNumeric< double >(
                 jsonObject, SpecialKeys::up / K::referenceArea, TUDAT_NAN, true );
 
-    switch ( aerodynamicCoefficientType )
+    switch ( coefficientsType )
     {
     case constant_aerodynamic_coefficients:
     {
-        // Create settings (with default arguments)
-        ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, Eigen::Vector3d( ) );
-
         // Read forceCoefficients. If not defined, use [ dragCoefficient, 0, 0 ].
         Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
-        const boost::shared_ptr< Eigen::Vector3d > forceCoefficientsPointer =
-                getOptional< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
-        if ( forceCoefficientsPointer )
+        if ( defined( jsonObject, K::forceCoefficients ) )
         {
-            forceCoefficients = *forceCoefficientsPointer;
+            forceCoefficients = getValue< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
         }
         else
         {
             forceCoefficients( 0 ) = getValue< double >( jsonObject, K::dragCoefficient );
         }
 
-        // Return shared pointer
-        aerodynamicCoefficientSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                    getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
-                    forceCoefficients,
-                    getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
-                              defaults.getAreCoefficientsInAerodynamicFrame( ) ),
-                    getValue( jsonObject, K::areCoefficientsInNegativeAxisDirection,
-                              defaults.getAreCoefficientsInNegativeAxisDirection( ) ) );
+        if ( defined( jsonObject, K::momentCoefficients ) )  // moments
+        {
+            ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
+                                                             Eigen::Vector3d( ), Eigen::Vector3d( ) );
+            aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                        getNumeric< double >( jsonObject, K::referenceLength ),
+                        getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
+                        getNumeric< double >( jsonObject, K::lateralReferenceLength ),
+                        getValue< Eigen::Vector3d >( jsonObject, K::momentReferencePoint ),
+                        forceCoefficients,
+                        getValue< Eigen::Vector3d >( jsonObject, K::momentCoefficients ),
+                        getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
+                                  defaults.getAreCoefficientsInAerodynamicFrame( ) ),
+                        getValue( jsonObject, K::areCoefficientsInNegativeAxisDirection,
+                                  defaults.getAreCoefficientsInNegativeAxisDirection( ) ) );
+        }
+        else  // no moments
+        {
+            ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, Eigen::Vector3d( ) );
+            aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                        getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
+                        forceCoefficients,
+                        getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
+                                  defaults.getAreCoefficientsInAerodynamicFrame( ) ),
+                        getValue( jsonObject, K::areCoefficientsInNegativeAxisDirection,
+                                  defaults.getAreCoefficientsInNegativeAxisDirection( ) ) );
+        }
+        return;
+    }
+    case tabulated_coefficients:
+    {
+        const unsigned int dimensions = getValue< unsigned int >( jsonObject, K::numberOfDimensions, 1 );
+        if ( dimensions == 1 )
+        {
+            TabulatedAerodynamicCoefficientSettings< 1 > defaults(
+            { }, { }, { }, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, Eigen::Vector3d( ), mach_number_dependent, NULL );
+            aerodynamicSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                        getValue< std::vector< double > >( jsonObject, K::independentVariables ),
+                        getValue< std::vector< Eigen::Vector3d > >( jsonObject, K::forceCoefficients ),
+                        getValue< std::vector< Eigen::Vector3d > >( jsonObject, K::momentCoefficients ),
+                        getNumeric< double >( jsonObject, K::referenceLength ),
+                        getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
+                        getNumeric< double >( jsonObject, K::lateralReferenceLength ),
+                        getValue< Eigen::Vector3d >( jsonObject, K::momentReferencePoint ),
+                        getValue< AerodynamicCoefficientsIndependentVariables >(
+                            jsonObject, K::independentVariableName ),
+                        getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ),
+                        getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
+                                  defaults.getAreCoefficientsInAerodynamicFrame( ) ),
+                        getValue( jsonObject, K::areCoefficientsInNegativeAxisDirection,
+                                  defaults.getAreCoefficientsInNegativeAxisDirection( ) ) );
+        }
+        else
+        {
+            /*
+            if ( defined( jsonObject, K::momentCoefficients ) )  // moments
+            {
+                TabulatedAerodynamicCoefficientSettings< dimensions > defaults(
+                { }, { }, { }, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, Eigen::Vector3d( ), { } );
+            }
+            else  // no moments
+            {
+                TabulatedAerodynamicCoefficientSettings< dimensions > defaults( { }, { }, TUDAT_NAN, { } );
+            }
+            */
+            std::cerr << "Multi-dimensional tabulated aerodynamic coefficients not yet supported by json_interface."
+                      << std::endl;
+            throw;
+        }
         return;
     }
     default:
-        handleUnimplementedEnumValue( aerodynamicCoefficientType, aerodynamicCoefficientTypes,
+        handleUnimplementedEnumValue( coefficientsType, aerodynamicCoefficientTypes,
                                       unsupportedAerodynamicCoefficientTypes );
     }
 }
