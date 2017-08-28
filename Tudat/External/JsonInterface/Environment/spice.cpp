@@ -14,7 +14,7 @@
 namespace tudat
 {
 
-namespace simulation_setup
+namespace json_interface
 {
 
 /*
@@ -46,7 +46,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
     {
         return;
     }
-    using namespace json_interface;
     using K = Keys::Spice;
 
     jsonObject[ K::kernels ] = spiceSettings->kernels_;
@@ -61,7 +60,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
 void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings )
 {
-    using namespace json_interface;
     using K = Keys::Spice;
 
     /*
@@ -86,14 +84,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
     // }
 }
 
-} // namespace simulation_setup
-
-
-namespace json_interface
-{
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
-void loadSpiceKernels( const boost::shared_ptr< simulation_setup::SpiceSettings >& spiceSettings )
+void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings )
 {
     spice_interface::clearSpiceKernels( );
 

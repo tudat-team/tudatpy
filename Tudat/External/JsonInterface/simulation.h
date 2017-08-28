@@ -129,7 +129,7 @@ public:
              ! dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
-            for ( boost::shared_ptr< simulation_setup::ExportSettings >& exportSettings : exportSettingsVector_ )
+            for ( boost::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
             {
                 exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
             }
@@ -200,7 +200,7 @@ public:
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     //! Spice settings (NULL if Spice is not used).
-    boost::shared_ptr< simulation_setup::SpiceSettings > spiceSettings_;
+    boost::shared_ptr< SpiceSettings > spiceSettings_;
 
     //! Map of body settings.
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
@@ -209,7 +209,7 @@ public:
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).
-    std::vector< boost::shared_ptr< simulation_setup::ExportSettings > > exportSettingsVector_;
+    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
 
     //! Application options.
     boost::shared_ptr< ApplicationOptions > applicationOptions_;
