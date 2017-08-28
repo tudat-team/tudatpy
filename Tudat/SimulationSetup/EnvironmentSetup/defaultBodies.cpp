@@ -57,12 +57,13 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return boost::make_shared< InterpolatedSpiceEphemerisSettings >(
-                initialTime, finalTime, 300.0, "SSB", "ECLIPJ2000" );
+                initialTime, finalTime, timeStep, "SSB", "ECLIPJ2000" );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
 #endif
@@ -130,7 +131,8 @@ boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
 boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
     boost::shared_ptr< BodySettings > singleBodySettings = boost::make_shared< BodySettings >( );
 
@@ -153,7 +155,7 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     else
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    body, initialTime, finalTime );
+                    body, initialTime, finalTime, timeStep );
     }
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
                 body, initialTime, finalTime );
@@ -168,7 +170,8 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
     std::map< std::string, boost::shared_ptr< BodySettings > > settingsMap;
 
@@ -176,7 +179,7 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), initialTime, finalTime );
+                    bodies.at( i ), initialTime, finalTime, timeStep );
 
     }
     return settingsMap;
@@ -193,7 +196,7 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN );
+                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
 
     }
     return settingsMap;
