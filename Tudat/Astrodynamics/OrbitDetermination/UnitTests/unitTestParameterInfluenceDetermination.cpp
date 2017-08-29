@@ -204,10 +204,10 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         {
             BOOST_CHECK_EQUAL( finalPrefitDifference.norm( ) > 400.0, true );
 
-            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 50.0, true );
+            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 40.0, true );
             BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) < 60.0, true );
 
-            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 50.0, true );
+            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 40.0, true );
             BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) < 60.0, true );
 
             BOOST_CHECK_EQUAL( prefitRms / postfitRms > 8.0, true );
@@ -233,8 +233,8 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                     parameterCorrections.at( 1 ).segment( 0, 6 ) - estimationOutput.second.segment( 6, 6 );
             for( unsigned int index = 0; index < 3; index++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 5.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 5.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
                 BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 5.0E-2 );
                 BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 5.0E-8 );
             }
