@@ -44,7 +44,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySet
     assignIfNotNull( jsonObject, K::shapeModel, bodySettings->shapeModelSettings );
     assignIfNotEmpty( jsonObject, K::radiationPressure, bodySettings->radiationPressureSettings );
     assignIfNotNull( jsonObject, K::aerodynamics, bodySettings->aerodynamicCoefficientSettings );
-    assignIfNotEmpty( jsonObject, K::gravityFieldVariations, bodySettings->gravityFieldVariationSettings );
+    assignIfNotEmpty( jsonObject, K::gravityFieldVariation, bodySettings->gravityFieldVariationSettings );
 }
 
 } // namespace simulation_setup
@@ -76,7 +76,7 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
     updateFromJSONIfDefined( bodySettings->shapeModelSettings, jsonObject, K::shapeModel );
     updateFromJSONIfDefined( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure );
     updateFromJSONIfDefined( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics );
-    updateFromJSONIfDefined( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariations );
+    updateFromJSONIfDefined( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariation );
 }
 
 } // namespace json_interface

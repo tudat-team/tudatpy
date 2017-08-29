@@ -70,7 +70,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
                     targetFrame,
                     getValue< Eigen::Quaterniond >( jsonObject, K::initialOrientation ),
                     getEpoch< double >( jsonObject, K::initialTime ),
-                    getNumeric< double >( jsonObject, K::rotationRate ) );
+                    getValue< double >( jsonObject, K::rotationRate ) );
         return;
     }
     case spice_rotation_model:

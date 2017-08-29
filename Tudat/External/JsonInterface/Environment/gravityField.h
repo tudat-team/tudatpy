@@ -27,8 +27,8 @@ namespace simulation_setup
 //! Map of `GravityFieldType`s string representations.
 static std::map< GravityFieldType, std::string > gravityFieldTypes =
 {
-    { central, "central" },
-    { central_spice, "centralSpice" },
+    { central, "pointMass" },
+    { central_spice, "pointMassSpice" },
     { spherical_harmonic, "sphericalHarmonic" }
 };
 
@@ -53,7 +53,7 @@ inline void from_json( const json& jsonObject, GravityFieldType& gravityFieldTyp
 //! Map of `SphericalHarmonicsModel`s string representations.
 static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels =
 {
-    { customModel, "customModel" },
+    { customModel, "custom" },
     { egm96, "egm96" },
     { ggm02c, "ggm02c" },
     { ggm02s, "ggm02s" },

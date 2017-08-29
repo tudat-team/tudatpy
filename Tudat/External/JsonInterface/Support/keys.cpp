@@ -167,7 +167,7 @@ const std::string Keys::Body::ShapeModel::flattening = "flattening";
 
 
 // //  Body::GravityFieldVariation
-const std::string Keys::Body::gravityFieldVariations = "gravityFieldVariations";
+const std::string Keys::Body::gravityFieldVariation = "gravityFieldVariation";
 const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "bodyDeformationType";
 const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
 const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
