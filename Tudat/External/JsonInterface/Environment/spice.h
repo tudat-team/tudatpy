@@ -112,6 +112,7 @@ public:
      * The kernels will be preloaded for the interval:
      * `[ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
+     * \remark If not specified, the used values are 10 * interpolationStep_.
      */
     std::pair< double, double > preloadOffsets_ = { TUDAT_NAN, TUDAT_NAN };
 
