@@ -171,7 +171,7 @@ struct Keys
             static const std::string occultingBodies;
         };
 
-        static const std::string gravityFieldVariations;
+        static const std::string gravityFieldVariation;
         struct GravityFieldVariation
         {
             static const std::string bodyDeformationType;

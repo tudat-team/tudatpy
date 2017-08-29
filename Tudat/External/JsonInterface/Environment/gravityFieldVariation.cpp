@@ -82,7 +82,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariation
                     getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
                     getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
                     getNumeric< double >( jsonObject, K::referenceRadius ),
-                    getValue< boost::shared_ptr< ModelInterpolationSettings > >( jsonObject, K::modelInterpolation ) );
+                    getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
         return;
     }
     case tabulated_variation:
