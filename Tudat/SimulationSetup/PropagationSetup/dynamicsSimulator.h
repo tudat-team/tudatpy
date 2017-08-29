@@ -279,9 +279,9 @@ public:
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
      *  immediately at the end of the contructor or not (default true).
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides (default true).
+     *  after propagation and resetting ephemerides (default false).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides (default true).
+     *  ephemerides (default false).
      *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      */
