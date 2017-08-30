@@ -1,0 +1,8 @@
+{
+  "correctForStellarAbberation": true,
+  "correctForLightTimeAbberation": false,
+  "convergeLighTimeAbberation": true,
+  "type": "directSpice",
+  "frameOrigin": "Foo",
+  "frameOrientation": "FOO"
+}

@@ -104,7 +104,7 @@ public:
      * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      */
-    double getMakeMultiArcEphemeris( )
+    bool getMakeMultiArcEphemeris( )
     {
         return makeMultiArcEphemeris_;
     }
