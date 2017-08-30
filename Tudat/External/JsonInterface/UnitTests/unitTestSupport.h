@@ -25,14 +25,9 @@ namespace json_interface
 template< typename T = json >
 T readInputFile( const std::string& filename, const std::string& extension = "json" )
 {
-    const std::string filePath =
-            ( path( __FILE__ ).parent_path( ) / "inputs" / ( filename + "." + extension ) ).string( );
-    return readJSON( filePath ).get< T >( );
-}
-
-void makeInputPathRelative( json& jsonPath )
-{
-    jsonPath = ( path( __FILE__ ).parent_path( ) / "inputs" / jsonPath.get< std::string >( ) ).string( );
+    const path filePath = path( __FILE__ ).parent_path( ) / "inputs" / ( filename + "." + extension );
+    boost::filesystem::current_path( filePath.parent_path( ) );
+    return readJSON( filePath.string( ) ).get< T >( );
 }
 
 

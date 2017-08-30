@@ -113,14 +113,11 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file )
     using namespace json_interface;
 
     // Create GravityFieldSettings from JSON file
-    json jsonSettings = readInputFile( "gravityField_sphericalHarmonic_file" );
-    makeInputPathRelative( jsonSettings[ "file" ] );
-
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            jsonSettings.get< boost::shared_ptr< GravityFieldSettings > >( );
+            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_sphericalHarmonic_file" );
 
     // Create GravityFieldSettings manually
-    const std::string file = jsonSettings[ "file" ];
+    const std::string file = "sh.txt";
     const std::string associatedReferenceFrame = "IAU_Earth";
     const unsigned int maximumDegree = 2;
     const unsigned int maximumOrder = 1;
@@ -145,14 +142,12 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file_manualparam 
     using namespace json_interface;
 
     // Create GravityFieldSettings from JSON file
-    json jsonSettings = readInputFile( "gravityField_sphericalHarmonic_file_manualparam" );
-    makeInputPathRelative( jsonSettings[ "file" ] );
-
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            jsonSettings.get< boost::shared_ptr< GravityFieldSettings > >( );
+            readInputFile< boost::shared_ptr< GravityFieldSettings > >(
+                "gravityField_sphericalHarmonic_file_manualparam" );
 
     // Create GravityFieldSettings manually
-    const std::string file = jsonSettings[ "file" ];
+    const std::string file = "sh_manualparam.txt";
     const std::string associatedReferenceFrame = "IAU_Earth";
     const unsigned int maximumDegree = 2;
     const unsigned int maximumOrder = 1;
