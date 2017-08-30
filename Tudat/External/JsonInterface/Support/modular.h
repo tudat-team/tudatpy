@@ -25,6 +25,19 @@ namespace json_interface
 typedef boost::filesystem::path path;
 
 
+//! Read a JSON file into a `json` object.
+/*!
+ * @copybrief readJSON If \p inclusionFile is not empty, the strings matching the expression "#path(relativePath)"
+ * are replaced by the corresponding relative path relative to the file in which it is being included.
+ * \param filePath Path to the JSON file.
+ * \param parentFilePath File from which the contents of \p filePath are being read
+ * (empty if \p filePath is equal to \p parentFilePath).
+ * \param rootFilePath Path to the root file that was passed as command-line argument to the application
+ * (empty if \p filePath is equal to \p rootFilePath).
+ * \return Read `json` object.
+ */
+json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) );
+
 //! Get the path for a JSON file.
 /*!
  * Get the path for a JSON file.

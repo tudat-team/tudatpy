@@ -8,34 +8,44 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_UNITTESTS_JSONINTERFACE_SUPPORT
-#define TUDAT_UNITTESTS_JSONINTERFACE_SUPPORT
+#ifndef TUDAT_JSONINTERFACE_UNITTESTSUPPORT
+#define TUDAT_JSONINTERFACE_UNITTESTSUPPORT
 
-#include <fstream>
+#include <boost/test/unit_test.hpp>
 
-#include "json/src/json.hpp"
-using json = nlohmann::json;
-
+#include "Tudat/External/JsonInterface/Support/modular.h"
 #include "Tudat/External/JsonInterface/Support/utilities.h"
 
 namespace tudat
 {
 
-namespace unit_tests
+namespace json_interface
 {
 
 template< typename T = json >
-T readFile( const std::string& filename, const std::string& extension = "json" )
+T readInputFile( const std::string& filename, const std::string& extension = "json" )
 {
-    const std::string filePath = ( boost::filesystem::path( __FILE__ ).parent_path( ) /
-				   "inputs" / ( filename + "." + extension ) ).string( );
-    return json::parse( std::ifstream( filePath ) ).get< T >( );
+    const std::string filePath =
+            ( path( __FILE__ ).parent_path( ) / "inputs" / ( filename + "." + extension ) ).string( );
+    return readJSON( filePath ).get< T >( );
 }
 
+
+template< typename T >
+void checkJsonEquivalent( const T& left, const T& right )
+{
+    const std::string fromFile = json( left ).dump( 2 );
+    const std::string manual = json( right ).dump( 2 );
+    BOOST_CHECK_EQUAL( fromFile, manual );
+}
+
+#define BOOST_CHECK_EQUAL_JSON( left, right ) tudat::json_interface::checkJsonEquivalent( left, right )
+
+
 template< typename Enum >
-bool isEnumConsistent( const std::vector< Enum >& values,
-		       const std::map< Enum, std::string >& stringValues,
-		       const std::vector< Enum >& usupportedValues )
+void checkConsistentEnum( const std::string& filename,
+                       const std::map< Enum, std::string >& stringValues,
+                       const std::vector< Enum >& usupportedValues )
 {
     using namespace json_interface;
 
@@ -43,27 +53,23 @@ bool isEnumConsistent( const std::vector< Enum >& values,
     std::vector< Enum > supportedValues;
     for ( auto entry : stringValues )
     {
-	Enum value = entry.first;
-	if ( ! contains( usupportedValues, value ) )
-	{
-	    supportedValues.push_back( value );
-	}
+        Enum value = entry.first;
+        if ( ! contains( usupportedValues, value ) )
+        {
+            supportedValues.push_back( value );
+        }
     }
 
-    // Check that `values` contains all the elements in `supportedValues`, and viceversa
-    return containsAllOf( values, supportedValues ) && containsAllOf( supportedValues, values );
+    // Check that values and supportedValues are equivalent
+    const std::vector< Enum > values = readInputFile< std::vector< Enum > >( filename );
+    BOOST_CHECK_EQUAL_JSON( values, supportedValues );
 }
 
-template< typename Enum >
-bool isEnumConsistent( const std::string& filename,
-		       const std::map< Enum, std::string >& stringValues,
-		       const std::vector< Enum >& usupportedValues )
-{
-    return isEnumConsistent( readFile< std::vector< Enum > >( filename ), stringValues, usupportedValues );
-}
+#define BOOST_CHECK_EQUAL_ENUM( filename, stringValues, usupportedValues ) tudat::json_interface::checkConsistentEnum( filename, stringValues, usupportedValues )
 
-} // namespace unit_tests
+
+} // namespace json_interface
 
 } // namespace tudat
 
-#endif // TUDAT_UNITTESTS_JSONINTERFACE_SUPPORT
+#endif // TUDAT_JSONINTERFACE_UNITTESTSUPPORT

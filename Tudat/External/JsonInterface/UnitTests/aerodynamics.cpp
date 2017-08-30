@@ -24,10 +24,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
-
 #include "unitTestSupport.h"
-
 #include <Tudat/External/JsonInterface/Environment/aerodynamics.h>
 
 namespace tudat
@@ -41,17 +38,17 @@ BOOST_AUTO_TEST_SUITE( test_json_aerodynamics )
 // Test 1: aerodynamic coefficients types
 BOOST_AUTO_TEST_CASE( test_json_aerodynamics_coefficientsTypes )
 {
-    BOOST_CHECK( isEnumConsistent( "aerodynamics_coefficientsTypes",
-                                   simulation_setup::aerodynamicCoefficientTypes,
-                                   simulation_setup::unsupportedAerodynamicCoefficientTypes ) );
+    BOOST_CHECK_EQUAL_ENUM( "aerodynamics_coefficientsTypes",
+                            simulation_setup::aerodynamicCoefficientTypes,
+                            simulation_setup::unsupportedAerodynamicCoefficientTypes );
 }
 
 // Test 2: aerodynamic variables
 BOOST_AUTO_TEST_CASE( test_json_aerodynamics_variables )
 {
-    BOOST_CHECK( isEnumConsistent( "aerodynamics_variables",
-                                   aerodynamics::aerodynamicVariables,
-                                   aerodynamics::unsupportedAerodynamicVariables ) );
+    BOOST_CHECK_EQUAL_ENUM( "aerodynamics_variables",
+                            aerodynamics::aerodynamicVariables,
+                            aerodynamics::unsupportedAerodynamicVariables );
 }
 
 // Test 3: constant aerodynamics (only drag coefficient)
@@ -62,18 +59,18 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_dragCoefficient )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_dragCoefficient" );
+            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_dragCoefficient" );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceArea = 10.5;
     const double dragCoefficient = 2.2;
     Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
     forceCoefficients( 0 ) = dragCoefficient;
-    const boost::shared_ptr< ConstantAerodynamicCoefficientSettings > manualSettings =
+    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea, forceCoefficients );
 
     // Compare
-    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
 // Test 4: constant aerodynamics (full)
@@ -84,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_constant" );
+            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_constant" );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceLength = 5.0;
@@ -95,7 +92,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
     const Eigen::Vector3d momentCoefficients = ( Eigen::Vector3d( ) << 0.0, 1.0e-3, -0.1 ).finished( );
     const bool areCoefficientsInAerodynamicFrame = true;
     const bool areCoefficientsInNegativeAxisDirection = false;
-    const boost::shared_ptr< ConstantAerodynamicCoefficientSettings > manualSettings =
+    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
                 referenceLength,
                 referenceArea,
@@ -107,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
                 areCoefficientsInNegativeAxisDirection );
 
     // Compare
-    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
 // Test 5: tabulated aerodynamics (1 dimension)
@@ -120,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulated1" );
+            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulated1" );
 
     // Create AerodynamicCoefficientSettings manually
     const std::vector< double > independentVariables = { 0.0, 1.0, 2.0, 3.0 };
@@ -147,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
             boost::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
     const bool areCoefficientsInAerodynamicFrame = false;
     const bool areCoefficientsInNegativeAxisDirection = false;
-    const boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > manualSettings =
+    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
             boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 independentVariables,
                 forceCoefficients,
@@ -162,7 +159,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
                 areCoefficientsInNegativeAxisDirection );
 
     // Compare
-    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
