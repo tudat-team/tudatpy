@@ -1,0 +1,172 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    Notes
+ *      To run this unit tests, a number of spice kernels need to be placed in the
+ *      Spice kernel folder, by default External/SpiceInterface/Kernels or the
+ *      SPICE_KERNEL_CUSTOM_FOLDER folder set as an argument to CMake or in UserSetings.txt.
+ *      The required kernels are:
+ *           de421.bsp
+ *           pck00009.tpc
+ *           naif0009.tls
+ *           de-403-masses.tpc
+ *      They can be found in a single zip file on the wiki at
+ *      http://tudat.tudelft.nl/projects/tudat/wiki/SpiceInterface/ on the Tudat website or,
+ *      alternatively, on the NAIF server at ftp://naif.jpl.nasa.gov/pub/naif/generic_kernels/.
+ *
+ */
+
+#define BOOST_TEST_MAIN
+
+#include <boost/test/unit_test.hpp>
+
+#include "unitTestSupport.h"
+
+#include <Tudat/External/JsonInterface/Environment/aerodynamics.h>
+
+namespace tudat
+{
+
+namespace unit_tests
+{
+
+BOOST_AUTO_TEST_SUITE( test_json_aerodynamics )
+
+// Test 1: aerodynamic coefficients types
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_coefficientsTypes )
+{
+    BOOST_CHECK( isEnumConsistent( "aerodynamics_coefficientsTypes",
+                                   simulation_setup::aerodynamicCoefficientTypes,
+                                   simulation_setup::unsupportedAerodynamicCoefficientTypes ) );
+}
+
+// Test 2: aerodynamic variables
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_variables )
+{
+    BOOST_CHECK( isEnumConsistent( "aerodynamics_variables",
+                                   aerodynamics::aerodynamicVariables,
+                                   aerodynamics::unsupportedAerodynamicVariables ) );
+}
+
+// Test 3: constant aerodynamics (only drag coefficient)
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_dragCoefficient )
+{
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Create AerodynamicCoefficientSettings from JSON file
+    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_dragCoefficient" );
+
+    // Create AerodynamicCoefficientSettings manually
+    const double referenceArea = 10.5;
+    const double dragCoefficient = 2.2;
+    Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
+    forceCoefficients( 0 ) = dragCoefficient;
+    const boost::shared_ptr< ConstantAerodynamicCoefficientSettings > manualSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea, forceCoefficients );
+
+    // Compare
+    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+}
+
+// Test 4: constant aerodynamics (full)
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
+{
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Create AerodynamicCoefficientSettings from JSON file
+    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_constant" );
+
+    // Create AerodynamicCoefficientSettings manually
+    const double referenceLength = 5.0;
+    const double referenceArea = 10.5;
+    const double lateralReferenceLength = 4.0;
+    const Eigen::Vector3d momentReferencePoint = ( Eigen::Vector3d( ) << 0.7, 0.8, 0.9 ).finished( );
+    const Eigen::Vector3d forceCoefficients = ( Eigen::Vector3d( ) << 1.0, 2.0, 3.0 ).finished( );
+    const Eigen::Vector3d momentCoefficients = ( Eigen::Vector3d( ) << 0.0, 1.0e-3, -0.1 ).finished( );
+    const bool areCoefficientsInAerodynamicFrame = true;
+    const bool areCoefficientsInNegativeAxisDirection = false;
+    const boost::shared_ptr< ConstantAerodynamicCoefficientSettings > manualSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceLength,
+                referenceArea,
+                lateralReferenceLength,
+                momentReferencePoint,
+                forceCoefficients,
+                momentCoefficients,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection );
+
+    // Compare
+    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+}
+
+// Test 5: tabulated aerodynamics (1 dimension)
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
+{
+    using namespace aerodynamics;
+    using namespace interpolators;
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Create AerodynamicCoefficientSettings from JSON file
+    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            readFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulated1" );
+
+    // Create AerodynamicCoefficientSettings manually
+    const std::vector< double > independentVariables = { 0.0, 1.0, 2.0, 3.0 };
+    const std::vector< Eigen::Vector3d > forceCoefficients =
+    {
+        ( Eigen::Vector3d( ) << 0.7, 0.8, 0.9 ).finished( ),
+        ( Eigen::Vector3d( ) << 1.7, 1.8, 1.9 ).finished( ),
+        ( Eigen::Vector3d( ) << 2.7, 2.8, 2.9 ).finished( ),
+        ( Eigen::Vector3d( ) << 3.7, 3.8, 3.9 ).finished( )
+    };
+    const std::vector< Eigen::Vector3d > momentCoefficients =
+    {
+        ( Eigen::Vector3d( ) << 1.0, 2.0, 3.0 ).finished( ),
+        ( Eigen::Vector3d( ) << 1.0, 1.0, 1.0 ).finished( ),
+        ( Eigen::Vector3d( ) << 2.0, 2.0, 2.0 ).finished( ),
+        ( Eigen::Vector3d( ) << 3.0, 3.0, 3.0 ).finished( )
+    };
+    const double referenceLength = 5.0;
+    const double referenceArea = 10.5;
+    const double lateralReferenceLength = 4.0;
+    const Eigen::Vector3d momentReferencePoint = ( Eigen::Vector3d( ) << 0.7, 0.8, 0.9 ).finished( );
+    const AerodynamicCoefficientsIndependentVariables independentVariableName = angle_of_sideslip_dependent;
+    const boost::shared_ptr< InterpolatorSettings > interpolatorSettings =
+            boost::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
+    const bool areCoefficientsInAerodynamicFrame = false;
+    const bool areCoefficientsInNegativeAxisDirection = false;
+    const boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > manualSettings =
+            boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                independentVariables,
+                forceCoefficients,
+                momentCoefficients,
+                referenceLength,
+                referenceArea,
+                lateralReferenceLength,
+                momentReferencePoint,
+                independentVariableName,
+                interpolatorSettings,
+                areCoefficientsInAerodynamicFrame,
+                areCoefficientsInNegativeAxisDirection );
+
+    // Compare
+    BOOST_CHECK( json( fromFileSettings ) == json( manualSettings ) );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+
+} // namespace tudat

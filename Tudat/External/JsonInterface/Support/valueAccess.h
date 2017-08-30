@@ -209,9 +209,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
                     // Use jsonObject's root object instead
                     if ( rootObject.is_null( ) )
                     {
-                        std::cerr << "Could not use absolute key path because "
-                                  << "the JSON object does not contain a root object." << std::endl;
-                        throw;
+                        throw UndefinedKeyError( canonicalKeyPath );
                     }
                     currentObject = rootObject;
                 }

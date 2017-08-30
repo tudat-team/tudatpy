@@ -8,7 +8,7 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
-#Set the source files.
+# Set the source files.
 set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.cpp"
@@ -74,7 +74,19 @@ set(JSONINTERFACE_HEADERS
 add_library(tudat_json_interface STATIC ${JSONINTERFACE_SOURCES} ${JSONINTERFACE_HEADERS})
 setup_tudat_library_target(tudat_json_interface "${SRCROOT}${JSONINTERFACEDIR}")
 
+
 # Add unit tests.
-# add_executable(test_SpiceInterface "${SRCROOT}${EXTERNALDIR}/SpiceInterface/UnitTests/unitTestSpiceInterface.cpp")
-# setup_custom_test_program(test_SpiceInterface "${SRCROOT}${EXTERNALDIR}/SpiceInterface")
-# target_link_libraries(test_SpiceInterface tudat_ephemerides tudat_basic_mathematics tudat_spice_interface tudat_basic_astrodynamics ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
+
+# aerodynamics
+add_executable(test_json_aerodynamics "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/aerodynamics.cpp")
+setup_custom_test_program(test_json_aerodynamics "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_aerodynamics tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+
+
+
+
+
+
+
+
