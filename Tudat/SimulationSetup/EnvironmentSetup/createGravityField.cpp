@@ -114,7 +114,7 @@ std::pair< double, double  > readGravityFieldFile(
     if( stream.fail( ) )
     {
         boost::throw_exception(
-                    std::runtime_error( "Pds gravity field data file could not be opened." ) );
+                    std::runtime_error( "Pds gravity field data file could not be opened: " + fileName ) );
     }
 
     // Declare variables for reading file.

@@ -154,7 +154,7 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
             if ( providedPath.is_relative( ) )
             {
                 const path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
-                str = ( rel / providedPath ).string( );
+                str = ( rel.filename_is_dot( ) ? providedPath : rel / providedPath ).string( );
             }
             else
             {
