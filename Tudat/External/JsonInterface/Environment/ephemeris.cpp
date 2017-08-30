@@ -132,33 +132,31 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
                     getValue< ApproximatePlanetPositionsBase::BodiesWithEphemerisData >(
                         jsonObject, K::bodyIdentifier ),
                     getValue< bool >( jsonObject, K::useCircularCoplanarApproximation ) );
-        return;
+        break;
     }
     case direct_spice_ephemeris:
     {
         DirectSpiceEphemerisSettings defaults;
         ephemerisSettings = boost::make_shared< DirectSpiceEphemerisSettings >(
-                    getValue( jsonObject, K::frameOrigin, defaults.getFrameOrigin( ) ),
-                    getValue( jsonObject, K::frameOrientation, defaults.getFrameOrientation( ) ),
+                    defaults.getFrameOrigin( ),
+                    defaults.getFrameOrientation( ),
                     getValue( jsonObject, K::correctForStellarAbberation,
                               defaults.getCorrectForStellarAbberation( ) ),
                     getValue( jsonObject, K::correctForLightTimeAbberation,
                               defaults.getCorrectForLightTimeAbberation( ) ),
                     getValue( jsonObject, K::convergeLighTimeAbberation,
                               defaults.getConvergeLighTimeAbberation( ) ) );
-        return;
+        break;
     }
     case tabulated_ephemeris:
     {
         TabulatedEphemerisSettings defaults( { } );
         TabulatedEphemerisSettings tabulatedEphemerisSettings(
-                    getValue< std::map< double, Eigen::Vector6d > >( jsonObject, K::bodyStateHistory ),
-                    getValue( jsonObject, K::frameOrigin, defaults.getFrameOrigin( ) ),
-                    getValue( jsonObject, K::frameOrientation, defaults.getFrameOrientation( ) ) );
+                    getValue< std::map< double, Eigen::Vector6d > >( jsonObject, K::bodyStateHistory ) );
         tabulatedEphemerisSettings.setUseLongDoubleStates(
                     getValue( jsonObject, K::useLongDoubleStates, defaults.getUseLongDoubleStates( ) ) );
         ephemerisSettings = boost::make_shared< TabulatedEphemerisSettings >( tabulatedEphemerisSettings );
-        return;
+        break;
     }
     case interpolated_spice:
     {
@@ -167,23 +165,21 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
                     getEpoch< double >( jsonObject, K::initialTime ),
                     getEpoch< double >( jsonObject, K::finalTime ),
                     getNumeric< double >( jsonObject, K::timeStep ),
-                    getValue( jsonObject, K::frameOrigin, defaults.getFrameOrigin( ) ),
-                    getValue( jsonObject, K::frameOrientation, defaults.getFrameOrientation( ) ),
+                    defaults.getFrameOrigin( ),
+                    defaults.getFrameOrientation( ),
                     getValue( jsonObject, K::interpolator, defaults.getInterpolatorSettings( ) ) );
         interpolatedSpiceEphemerisSettings.setUseLongDoubleStates(
                     getValue( jsonObject, K::useLongDoubleStates, defaults.getUseLongDoubleStates( ) ) );
         ephemerisSettings = boost::make_shared< InterpolatedSpiceEphemerisSettings >(
                     interpolatedSpiceEphemerisSettings );
-        return;
+        break;
     }
     case constant_ephemeris:
     {
         ConstantEphemerisSettings defaults( ( Eigen::Vector6d( ) ) );
         ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
-                    getValue< Eigen::Vector6d >( jsonObject, K::constantState ),
-                    getValue( jsonObject, K::frameOrigin, defaults.getFrameOrigin( ) ),
-                    getValue( jsonObject, K::frameOrientation, defaults.getFrameOrientation( ) ) );
-        return;
+                    getValue< Eigen::Vector6d >( jsonObject, K::constantState ) );
+        break;
     }
     case kepler_ephemeris:
     {
@@ -192,13 +188,13 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
                     getValue< Eigen::Vector6d >( jsonObject, K::initialStateInKeplerianElements ),
                     getEpoch< double >( jsonObject, K::epochOfInitialState ),
                     getNumeric< double >( jsonObject, K::centralBodyGravitationalParameter ),
-                    getValue( jsonObject, K::frameOrigin, defaults.getFrameOrigin( ) ),
-                    getValue( jsonObject, K::frameOrientation, defaults.getFrameOrientation( ) ),
+                    defaults.getFrameOrigin( ),
+                    defaults.getFrameOrientation( ),
                     getValue( jsonObject, K::rootFinderAbsoluteTolerance,
                               defaults.getRootFinderAbsoluteTolerance( ) ),
                     getValue( jsonObject, K::rootFinderMaximumNumberOfIterations,
                               defaults.getRootFinderMaximumNumberOfIterations( ) ) );
-        return;
+        break;
     }
         /* FIXME
     case custom_ephemeris:
@@ -208,6 +204,21 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     */
     default:
         handleUnimplementedEnumValue( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
+    }
+
+    if ( defined( jsonObject, K::frameOrigin ) )
+    {
+        ephemerisSettings->resetFrameOrigin( getValue< std::string >( jsonObject, K::frameOrigin ) );
+    }
+
+    if ( defined( jsonObject, K::frameOrientation ) )
+    {
+        ephemerisSettings->resetFrameOrientation( getValue< std::string >( jsonObject, K::frameOrientation ) );
+    }
+
+    if ( defined( jsonObject, K::makeMultiArc ) )
+    {
+        ephemerisSettings->resetMakeMultiArcEphemeris( getValue< bool >( jsonObject, K::makeMultiArc ) );
     }
 }
 

@@ -67,7 +67,8 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_dragCoefficient )
     Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
     forceCoefficients( 0 ) = dragCoefficient;
     const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea, forceCoefficients );
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea,
+                                                                          forceCoefficients );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -93,15 +94,14 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
     const bool areCoefficientsInAerodynamicFrame = true;
     const bool areCoefficientsInNegativeAxisDirection = false;
     const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceLength,
-                referenceArea,
-                lateralReferenceLength,
-                momentReferencePoint,
-                forceCoefficients,
-                momentCoefficients,
-                areCoefficientsInAerodynamicFrame,
-                areCoefficientsInNegativeAxisDirection );
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceLength,
+                                                                          referenceArea,
+                                                                          lateralReferenceLength,
+                                                                          momentReferencePoint,
+                                                                          forceCoefficients,
+                                                                          momentCoefficients,
+                                                                          areCoefficientsInAerodynamicFrame,
+                                                                          areCoefficientsInNegativeAxisDirection );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -145,18 +145,17 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
     const bool areCoefficientsInAerodynamicFrame = false;
     const bool areCoefficientsInNegativeAxisDirection = false;
     const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
-                independentVariables,
-                forceCoefficients,
-                momentCoefficients,
-                referenceLength,
-                referenceArea,
-                lateralReferenceLength,
-                momentReferencePoint,
-                independentVariableName,
-                interpolatorSettings,
-                areCoefficientsInAerodynamicFrame,
-                areCoefficientsInNegativeAxisDirection );
+            boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >( independentVariables,
+                                                                                forceCoefficients,
+                                                                                momentCoefficients,
+                                                                                referenceLength,
+                                                                                referenceArea,
+                                                                                lateralReferenceLength,
+                                                                                momentReferencePoint,
+                                                                                independentVariableName,
+                                                                                interpolatorSettings,
+                                                                                areCoefficientsInAerodynamicFrame,
+                                                                                areCoefficientsInNegativeAxisDirection );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

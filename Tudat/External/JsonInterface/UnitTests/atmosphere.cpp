@@ -59,8 +59,10 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_exponential )
     const double densityAtZeroAltitude = 1.0;
     const double specificGasConstant = 3.0;
     const boost::shared_ptr< AtmosphereSettings > manualSettings =
-            boost::make_shared< ExponentialAtmosphereSettings >(
-                densityScaleHeight, constantTemperature, densityAtZeroAltitude, specificGasConstant );
+            boost::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight,
+                                                                 constantTemperature,
+                                                                 densityAtZeroAltitude,
+                                                                 specificGasConstant );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
