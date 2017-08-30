@@ -30,6 +30,11 @@ T readInputFile( const std::string& filename, const std::string& extension = "js
     return readJSON( filePath ).get< T >( );
 }
 
+void makeInputPathRelative( json& jsonPath )
+{
+    jsonPath = ( path( __FILE__ ).parent_path( ) / "inputs" / jsonPath.get< std::string >( ) ).string( );
+}
+
 
 template< typename T >
 void checkJsonEquivalent( const T& left, const T& right )
