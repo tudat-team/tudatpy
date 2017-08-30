@@ -1,0 +1,7 @@
+{
+  "densityScaleHeight": 5,
+  "constantTemperature": 290,
+  "densityAtZeroAltitude": 1,
+  "specificGasConstant": 3,
+  "type": "exponential"
+}

@@ -67,6 +67,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolation.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/export.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/options.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/unitTestSupport.h"
     "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
 )
 
@@ -81,6 +82,12 @@ setup_tudat_library_target(tudat_json_interface "${SRCROOT}${JSONINTERFACEDIR}")
 add_executable(test_json_aerodynamics "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/aerodynamics.cpp")
 setup_custom_test_program(test_json_aerodynamics "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_aerodynamics tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+# atmosphere
+add_executable(test_json_atmosphere "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/atmosphere.cpp")
+setup_custom_test_program(test_json_atmosphere "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_atmosphere tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 
 
 
