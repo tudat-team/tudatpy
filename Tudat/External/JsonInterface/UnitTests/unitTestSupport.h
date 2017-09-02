@@ -65,7 +65,8 @@ void checkConsistentEnum( const std::string& filename,
     BOOST_CHECK_EQUAL_JSON( values, supportedValues );
 }
 
-#define BOOST_CHECK_EQUAL_ENUM( filename, stringValues, usupportedValues ) tudat::json_interface::checkConsistentEnum( filename, stringValues, usupportedValues )
+#define BOOST_CHECK_EQUAL_ENUM( filename, stringValues, usupportedValues ) \
+    tudat::json_interface::checkConsistentEnum( filename, stringValues, usupportedValues )
 
 
 } // namespace json_interface
