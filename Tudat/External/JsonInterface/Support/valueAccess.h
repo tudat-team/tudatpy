@@ -191,11 +191,10 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
-            try
+            if ( defined( currentObject, SpecialKeys::rootObject ) )
             {
-                rootObject = getRootObject( currentObject );
+                rootObject = getValue< json >( currentObject, SpecialKeys::rootObject );
             }
-            catch ( ... ) { }
 
             if ( currentKeyPath.size( ) > 0 )
             {

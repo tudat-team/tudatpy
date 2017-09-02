@@ -98,25 +98,25 @@ add_executable(test_json_gravityField "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/g
 setup_custom_test_program(test_json_gravityField "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_gravityField tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-# # gravityFieldVariation
-# add_executable(test_json_gravityFieldVariation "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/gravityFieldVariation.cpp")
-# setup_custom_test_program(test_json_gravityFieldVariation "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_gravityFieldVariation tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
-# # radiationPressure
-# add_executable(test_json_radiationPressure "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/radiationPressure.cpp")
-# setup_custom_test_program(test_json_radiationPressure "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_radiationPressure tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
-# # rotationalModel
-# add_executable(test_json_rotationalModel "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/rotationalModel.cpp")
-# setup_custom_test_program(test_json_rotationalModel "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_rotationalModel tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
-# # shapeModel
-# add_executable(test_json_shapeModel "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/shapeModel.cpp")
-# setup_custom_test_program(test_json_shapeModel "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_shapeModel tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+# gravityFieldVariation
+add_executable(test_json_gravityFieldVariation "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/gravityFieldVariation.cpp")
+setup_custom_test_program(test_json_gravityFieldVariation "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_gravityFieldVariation tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+# radiationPressure
+add_executable(test_json_radiationPressure "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/radiationPressure.cpp")
+setup_custom_test_program(test_json_radiationPressure "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_radiationPressure tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+# rotationModel
+add_executable(test_json_rotationModel "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/rotationModel.cpp")
+setup_custom_test_program(test_json_rotationModel "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_rotationModel tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+# shapeModel
+add_executable(test_json_shapeModel "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/shapeModel.cpp")
+setup_custom_test_program(test_json_shapeModel "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_shapeModel tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 
 

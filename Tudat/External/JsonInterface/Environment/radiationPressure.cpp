@@ -63,10 +63,6 @@ void from_json( const json& jsonObject,
     // Get radiation pressure coefficient type (cannonBall by default)
     const RadiationPressureType radiationPressureType = getValue( jsonObject, K::type, cannon_ball );
 
-    const std::string sourceBodyName = getParentKey(
-                jsonObject, "Creating RadiationPressureInterfaceSettings out of context is not allowed "
-                            "because the name of the radiating body cannot be inferred." );
-
     // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
     double fallbackReferenceArea = getNumeric< double >(
                 jsonObject, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea, TUDAT_NAN, true );
@@ -75,9 +71,23 @@ void from_json( const json& jsonObject,
     {
     case cannon_ball:
     {
+        std::string sourceBody;
+        if ( ! defined( jsonObject, K::sourceBody ) )
+        {
+            try
+            {
+                sourceBody = getParentKey( jsonObject );
+            }
+            catch ( ... ) { }
+        }
+        if ( sourceBody.empty( ) )
+        {
+            sourceBody = getValue< std::string >( jsonObject, K::sourceBody );
+        }
+
         CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
         radiationPressureInterfaceSettings = boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    sourceBodyName,
+                    sourceBody,
                     getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
                     getValue< double >( jsonObject, K::radiationPressureCoefficient ),
                     getValue( jsonObject, K::occultingBodies, defaults.getOccultingBodies( ) ) );

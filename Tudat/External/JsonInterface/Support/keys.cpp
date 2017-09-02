@@ -66,7 +66,9 @@ const std::string Keys::Spice::interpolationStep = "interpolationStep";
 const std::string Keys::bodies = "bodies";
 
 const std::string Keys::Body::useDefaultSettings = "useDefaultSettings";
+const std::string Keys::Body::cartesianState = "cartesianState";
 const std::string Keys::Body::mass = "mass";
+const std::string Keys::Body::rotationalState = "rotationalState";
 const std::string Keys::Body::referenceArea = "referenceArea";
 
 // //  Body::Aerodynamics
@@ -145,6 +147,7 @@ const std::string Keys::Body::GravityField::referenceRadiusIndex = "referenceRad
 // //  Body::RadiationPressure
 const std::string Keys::Body::radiationPressure = "radiationPressure";
 const std::string Keys::Body::RadiationPressure::type = "type";
+const std::string Keys::Body::RadiationPressure::sourceBody = "sourceBody";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
 const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
 const std::string Keys::Body::RadiationPressure::occultingBodies = "occultingBodies";
@@ -346,26 +349,25 @@ KeyPath KeyPath::canonical( const KeyPath& basePath ) const
     KeyPath compoundKeyPath;
 
     // Check absolute paths
-    if ( this->isAbsolute( ) )
-    {
-        compoundKeyPath = *this;
-    }
-    else if ( basePath.isAbsolute( ) )
+    if ( ! this->isAbsolute( ) && basePath.isAbsolute( ) )
     {
         compoundKeyPath = basePath / *this;
     }
     else
     {
-        throw std::runtime_error( "Could not determine canonical key path because the base path is not absolute." );
+        compoundKeyPath = *this;
     }
 
     // Remove ..
-    KeyPath canonicalKeyPath;
+    KeyPath canonicalKeyPath = { };
     for ( std::string key : compoundKeyPath )
     {
         if ( key == SpecialKeys::up )
         {
-            canonicalKeyPath.pop_back( );
+            if ( canonicalKeyPath.size( ) > 0 )
+            {
+                canonicalKeyPath.pop_back( );
+            }
         }
         else
         {
