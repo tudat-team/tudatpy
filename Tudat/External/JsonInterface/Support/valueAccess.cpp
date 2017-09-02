@@ -103,7 +103,7 @@ json getRootObject( const json& jsonObject )
 //! Get the absolute key path from which \p jsonObject was retrieved.
 KeyPath getKeyPath( const json& jsonObject )
 {
-    return getValue< KeyPath >( jsonObject, SpecialKeys::keyPath, SpecialKeys::root );
+    return getValue( jsonObject, SpecialKeys::keyPath, KeyPath( SpecialKeys::root ) );
 }
 
 //! Get the key at which \p jsonObject was obtained.

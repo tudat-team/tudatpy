@@ -27,6 +27,139 @@
 namespace tudat
 {
 
+namespace json_interface
+{
+
+//! Get the associated key (defined in a body JSON object) for an integrated state.
+/*!
+ * @copybrief getAssociatedKey
+ * \param integratedStateType The integrated state type for which the associated key is requested.
+ * \return The associated key for the integrated state.
+ */
+std::string getAssociatedKey( const propagators::IntegratedStateType integratedStateType )
+{
+    switch ( integratedStateType )
+    {
+    case propagators::translational_state:
+        return Keys::Body::cartesianState;
+    case propagators::body_mass_state:
+        return Keys::Body::mass;
+    case propagators::rotational_state:
+        return Keys::Body::rotationalState;
+    default:
+        std::cerr << "Unknown associated JSON key for state type " << integratedStateType << std::endl;
+        throw;
+    }
+}
+
+//! Get the system initial state for a \p jsonObject containing the settings for a propagator.
+/*!
+ * @copybrief getInitialStates If the property "initialStates" is defined, this value will be returned.
+ * If it is not defined, the function will try to look for the states in the properties defined in the root object at
+ * "bodies". If this process fails, an empty matrix of size 0x1 will be returned.
+ * \param jsonObject The `json` object containing the settings for a propagator (and optionally the root object).
+ * \return Initial cobined state for the bodies to be propagated.
+ */
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json& jsonObject )
+{
+    using namespace propagators;
+    using namespace json_interface;
+    using K = Keys::Propagator;
+
+    if ( defined( jsonObject, K::initialStates ) )
+    {
+        return getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
+    }
+    else
+    {
+        // Integrated state type
+        const IntegratedStateType integratedStateType =
+                getValue( jsonObject, K::integratedStateType, translational_state );
+
+        // State size and associated stateKey
+        const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
+        const std::string stateKey = getAssociatedKey( integratedStateType );
+
+        // Bodies to propagate
+        const std::vector< std::string > bodiesToPropagate =
+                getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate );
+
+        // System initial state
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                    stateSize * bodiesToPropagate.size( ), 1 );
+
+        // Get state for each body
+        for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
+        {
+            initialStates.segment( i * stateSize, stateSize ) =
+                    getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
+                        jsonObject, SpecialKeys::root / Keys::bodies / bodiesToPropagate.at( i ) / stateKey );
+        }
+
+        return initialStates;
+    }
+}
+
+//! Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
+//! at the initial time of \p integratorSettings.
+/*!
+ * Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
+ * at the initial time of \p integratorSettings.
+ * \param jsonObject The root `json` object to be updated with the inferred initial states (returned by reference).
+ * \param bodyMap Body map containing only bodies to be propagated with valid ephemeris.
+ * \param integratorSettings Integrator settings containing the initial epoch for the ephemeris to be used.
+ * \throws std::exception If initial states were not provided and could not be inferred. This happens when \p
+ * multiTypePropagatorSettings contains more than one propagator, or when it contains no translational propagator,
+ * or when some of the bodies to integrate contains no (valid) ephemeris (loaded by Spice).
+ */
+template< typename TimeType, typename StateScalarType >
+void inferInitialStatesFromEphemeris(
+        json& jsonObject,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
+{
+    using namespace propagators;
+    using K = Keys::Propagator;
+
+    if ( ! defined( jsonObject, K::initialStates ) )
+    {
+        const json jsonPropagators = jsonObject.at( Keys::propagator );
+        if ( jsonPropagators.is_object( ) || ( jsonPropagators.is_array( ) && jsonPropagators.size( ) == 1 ) )
+        {
+            json jsonPropagator;
+            if ( jsonPropagators.is_object( ) )
+            {
+                jsonPropagator = jsonPropagators;
+            }
+            else
+            {
+                jsonPropagator = jsonPropagators.front( );
+            }
+
+            const IntegratedStateType integratedStateType =
+                    getValue( jsonPropagator, K::integratedStateType, translational_state );
+
+            if ( integratedStateType == translational_state )
+            {
+                try
+                {
+                    jsonPropagator[ K::initialStates ] = getInitialStatesOfBodies< TimeType, StateScalarType >(
+                                getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate ),
+                                getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ),
+                                bodyMap,
+                                integratorSettings->initialTime_ );
+                    jsonObject[ Keys::propagator ] = jsonPropagator;
+                } catch ( ... ) { }
+            }
+        }
+    }
+}
+
+} // namespace json_interface
+
+
 namespace propagators
 {
 
@@ -336,17 +469,25 @@ void from_json( const json& jsonObject,
     boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
             boost::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
 
+    // Named of bodies to propagate
+    const std::vector< std::string > bodiesToPropagate =
+            getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate );
+
+    // Initial states
+    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
+            getInitialStates< StateScalarType >( jsonObject );
+
     switch ( integratedStateType )
     {
     case translational_state:
     {
         TranslationalStatePropagatorSettings< StateScalarType > defaults(
-        { }, SelectedAccelerationMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 0 ), NULL );
+        { }, SelectedAccelerationMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
         singleArcPropagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
                     getValue< std::vector< std::string > >( jsonObject, K::centralBodies ),
                     getValue< SelectedAccelerationMap >( jsonObject, K::accelerations ),
-                    getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
-                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
+                    bodiesToPropagate,
+                    initialStates,
                     terminationSettings,
                     getValue( jsonObject, K::type, defaults.propagator_ ) );
         return;
@@ -356,9 +497,9 @@ void from_json( const json& jsonObject,
         MassPropagatorSettings< StateScalarType > defaults(
         { }, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
         singleArcPropagatorSettings = boost::make_shared< MassPropagatorSettings< StateScalarType > >(
-                    getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
+                    bodiesToPropagate,
                     getValue< SelectedMassRateModelMap >( jsonObject, K::massRateModels ),
-                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
+                    initialStates,
                     terminationSettings );
         return;
     }
@@ -368,8 +509,8 @@ void from_json( const json& jsonObject,
                     SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), NULL );
         singleArcPropagatorSettings = boost::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
-                    getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate ),
-                    getValue( jsonObject, K::initialStates, defaults.getInitialStates( ) ),
+                    bodiesToPropagate,
+                    initialStates,
                     terminationSettings );
         return;
     }
@@ -385,70 +526,6 @@ void from_json( const json& jsonObject,
 }
 
 } // namespace propagators
-
-
-namespace json_interface
-{
-
-//! Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
-//! at the initial time of \p integratorSettings.
-/*!
- * Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
- * at the initial time of \p integratorSettings.
- * \param multiTypePropagatorSettings Propagator settings whose initial states may be updated (returned by reference).
- * \param bodyMap Body map containing only bodies to be propagated with valid ephemeris.
- * \param integratorSettings Integrator settings containing the initial epoch for the ephemeris to be used.
- * \throws std::exception If initial states were not provided and could not be inferred. This happens when \p
- * multiTypePropagatorSettings contains more than one propagator, or when it contains no translational propagator,
- * or when some of the bodies to integrate contains no (valid) ephemeris (loaded by Spice).
- */
-template< typename TimeType, typename StateScalarType >
-void inferInitialStatesIfNecessary(
-        boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
-{
-    using namespace propagators;
-
-    // Try to get initial states from bodies' epehemeris if not provided
-    if ( multiTypePropagatorSettings->getInitialStates( ).rows( ) == 0 )
-    {
-        if ( multiTypePropagatorSettings->propagatorSettingsMap_.size( ) == 1 )
-        {
-            try
-            {
-                const std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >
-                        translationalPropagators =
-                        multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
-                if ( translationalPropagators.size( ) == 1 )
-                {
-                    const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                            translationalPropagator = boost::dynamic_pointer_cast<
-                            TranslationalStatePropagatorSettings< StateScalarType > >(
-                                translationalPropagators.front( ) );
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
-                            getInitialStatesOfBodies( translationalPropagator->bodiesToIntegrate_,
-                                                      translationalPropagator->centralBodies_,
-                                                      bodyMap, integratorSettings->initialTime_ );
-                    translationalPropagator->resetInitialStates( systemInitialState );
-                    multiTypePropagatorSettings->resetInitialStates( systemInitialState );
-                }
-            }
-            catch ( ... ) { }
-        }
-    }
-
-    // If initial states could not be inferred, propagation cannot be run
-    if ( multiTypePropagatorSettings->getInitialStates( ).rows( ) == 0 )
-    {
-        std::cerr << "Could not determine initial integration state. "
-                  << "Please provide it to the propagator settings using the key \""
-                  << Keys::Propagator::initialStates << "\"." << std::endl;
-        throw;
-    }
-}
-
-} // namespace json_interface
 
 } // namespace tudat
 

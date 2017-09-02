@@ -255,10 +255,11 @@ protected:
      */
     virtual void resetPropagatorSettings( )
     {
-        updateFromJSON( propagatorSettings_, jsonObject_ );
+        // Update jsonObject_ by infering initial states from body ephemeris if not provided
+        inferInitialStatesFromEphemeris< TimeType, StateScalarType >( jsonObject_, bodyMap_, integratorSettings_ );
 
-        // Infer initial states from body ephemeris if not provided
-        inferInitialStatesIfNecessary( propagatorSettings_, bodyMap_, integratorSettings_ );
+        // Update propagatorSettings_ from jsonObject_
+        updateFromJSON( propagatorSettings_, jsonObject_ );
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
         propagatorSettings_->createIntegratedStateModels( bodyMap_ );

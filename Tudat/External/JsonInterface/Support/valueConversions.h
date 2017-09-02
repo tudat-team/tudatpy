@@ -105,6 +105,8 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
     using namespace tudat::json_interface;
 
     bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
+    std::vector< unsigned int > indeces;
+    std::vector< ValueType > values;
     if ( isObjectWithIntConvertibleKeys )
     {
         for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
@@ -114,26 +116,30 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
             {
                 try
                 {
-                    stoi( key );
+                    indeces.push_back( stoi( key ) );
                 }
                 catch ( ... )
                 {
                     isObjectWithIntConvertibleKeys = false;
                     break;
                 }
+                values.push_back( getValue< ValueType >( jsonObject, key ) );
             }
         }
     }
 
     if ( isObjectWithIntConvertibleKeys )
     {
-        // Convert to map, and use that to create the vector
-        const map< string, ValueType > auxiliaryMap = getAs< map< string, ValueType > >( jsonObject );
-        for ( auto entry : auxiliaryMap )
+        if ( indeces.empty( ) )
         {
-            if ( ! contains( SpecialKeys::all, entry.first ) )
+            myVector = { };
+        }
+        else
+        {
+            myVector = std::vector< ValueType >( *std::max_element( indeces.begin( ), indeces.end( ) ) + 1 );
+            for ( unsigned int i = 0; i < indeces.size( ); ++i )
             {
-                myVector.push_back( entry.second );
+                myVector[ indeces.at( i ) ] = values.at( i );
             }
         }
     }
@@ -266,7 +272,7 @@ void to_json( json& jsonObject, const Quaternion< ScalarType >& quaternion )
 template< typename ScalarType >
 void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
 {
-    // Get rotation matrix from json object and use that to initialise json object
+    // Get rotation matrix from json object and use that to initialise quaternion
     quaternion = jsonObject.get< Eigen::Matrix< ScalarType, 3, 3 > >( );
 }
 

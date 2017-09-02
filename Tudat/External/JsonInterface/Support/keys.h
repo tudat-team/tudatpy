@@ -56,7 +56,9 @@ struct Keys
     struct Body
     {
         static const std::string useDefaultSettings;
+        static const std::string cartesianState;
         static const std::string mass;
+        static const std::string rotationalState;
         static const std::string referenceArea;
 
         static const std::string aerodynamics;
@@ -166,6 +168,7 @@ struct Keys
         struct RadiationPressure
         {
             static const std::string type;
+            static const std::string sourceBody;
             static const std::string referenceArea;
             static const std::string radiationPressureCoefficient;
             static const std::string occultingBodies;
@@ -413,7 +416,7 @@ public:
         {
             return false;
         }
-        return *begin( ) == SpecialKeys::root;
+        return front( ) == SpecialKeys::root;
     }
 
     //! Get the canonical representation of the key path.
@@ -421,10 +424,9 @@ public:
      * Get the canonical representation of the key path, optionally relative to \p basePath.
      * This method is used to construct absolute paths, also navigating up and removing `SpecialKeys::up`.
      * \param basePath Key path with respect to which the path is to be constructed.
-     * Optional, if not provided the key path is constructed with respect to the root.
      * \return Canonical representation of the key path.
      */
-    KeyPath canonical( const KeyPath& basePath = SpecialKeys::root ) const;
+    KeyPath canonical( const KeyPath& basePath ) const;
 };
 
 //! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
