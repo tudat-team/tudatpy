@@ -70,194 +70,186 @@ void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& sav
 //! Export results of \p dynamicsSimulator according to the settings specified in \p exportSettingsVector.
 /*!
  * @copybrief exportResultsOfDynamicsSimulator
- * \param dynamicsSimulator The dynamics simulator containing the results.
+ * \param singleArcDynamicsSimulator The dynamics simulator containing the results.
  * \param exportSettingsVector The vector containing export settings (each element represents a file to be exported).
  * \throws std::exception If any of the requested variables is not recognized or was not stored in the results of
  * \p dynamicsSimulator.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 void exportResultsOfDynamicsSimulator(
-        const boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > >& dynamicsSimulator,
+        const boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >& singleArcDynamicsSimulator,
         const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
     using namespace input_output;
 
-    boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > singleArcDynamicsSimulator
-            = boost::dynamic_pointer_cast< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                dynamicsSimulator );
-    if ( singleArcDynamicsSimulator )
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > statesHistory =
+            singleArcDynamicsSimulator->getEquationsOfMotionNumericalSolution( );
+    std::map< TimeType, Eigen::VectorXd > dependentVariables =
+            singleArcDynamicsSimulator->getDependentVariableHistory( );
+    std::map< TimeType, double > cpuTimes =
+            singleArcDynamicsSimulator->getCummulativeComputationTimeHistory( );
+
+    for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > statesHistory =
-                singleArcDynamicsSimulator->getEquationsOfMotionNumericalSolution( );
-        std::map< TimeType, Eigen::VectorXd > dependentVariables =
-                singleArcDynamicsSimulator->getDependentVariableHistory( );
-        std::map< TimeType, double > cpuTimes =
-                singleArcDynamicsSimulator->getCummulativeComputationTimeHistory( );
+        std::vector< boost::shared_ptr< VariableSettings > > variables;
+        std::vector< unsigned int > variableSizes;
+        std::vector< unsigned int > variableIndices;
 
-        for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+        // Determine number of columns (not including first column = epoch).
+        unsigned int cols = 0;
+
+        for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
         {
-            std::vector< boost::shared_ptr< VariableSettings > > variables;
-            std::vector< unsigned int > variableSizes;
-            std::vector< unsigned int > variableIndices;
-
-            // Determine number of columns (not including first column = epoch).
-            unsigned int cols = 0;
-
-            for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
+            unsigned int variableSize = 0;
+            unsigned int variableIndex = 0;
+            switch ( variable->variableType_ )
             {
-                unsigned int variableSize = 0;
-                unsigned int variableIndex = 0;
-                switch ( variable->variableType_ )
+            case independentVariable:
+            case cpuTimeVariable:
+            {
+                variableSize = 1;
+                break;
+            }
+            case stateVariable:
+            {
+                variableSize = statesHistory.begin( )->second.rows( );
+                break;
+            }
+            case dependentVariable:
+            {
+                const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
+                        boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                enforceNonNullPointer( dependentVar );
+                try
                 {
-                case independentVariable:
-                case cpuTimeVariable:
-                {
-                    variableSize = 1;
-                    break;
-                }
-                case stateVariable:
-                {
-                    variableSize = statesHistory.begin( )->second.rows( );
-                    break;
-                }
-                case dependentVariable:
-                {
-                    const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
-                            boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                    enforceNonNullPointer( dependentVar );
+                    const std::string variableID = getDependentVariableId( dependentVar );
                     try
                     {
-                        const std::string variableID = getDependentVariableId( dependentVar );
+                        variableIndex = getKeyWithValue(
+                                    singleArcDynamicsSimulator->getDependentVariableIds( ), variableID );
                         try
                         {
-                            variableIndex = getKeyWithValue(
-                                        singleArcDynamicsSimulator->getDependentVariableIds( ), variableID );
-                            try
-                            {
-                                variableSize = getDependentVariableSize( dependentVar->dependentVariableType_ );
-                            }
-                            catch ( ... )
-                            {
-                                std::cerr << "Could not export the results for variable \"" << variableID << "\" "
-                                          << "because its size is not known." << std::endl;
-                            }
+                            variableSize = getDependentVariableSize( dependentVar->dependentVariableType_ );
                         }
                         catch ( ... )
                         {
                             std::cerr << "Could not export the results for variable \"" << variableID << "\" "
-                                      << "because the main propagator was not configured to compute this variable."
-                                      << std::endl;
+                                      << "because its size is not known." << std::endl;
                         }
                     }
                     catch ( ... )
                     {
-                        std::cerr << "Could not export results for dependent variable of type "
-                                  << dependentVar->dependentVariableType_
-                                  << " because its ID is not known." << std::endl;
+                        std::cerr << "Could not export the results for variable \"" << variableID << "\" "
+                                  << "because the main propagator was not configured to compute this variable."
+                                  << std::endl;
                     }
+                }
+                catch ( ... )
+                {
+                    std::cerr << "Could not export results for dependent variable of type "
+                              << dependentVar->dependentVariableType_
+                              << " because its ID is not known." << std::endl;
+                }
+                break;
+            }
+            default:
+            {
+                std::cerr << "Could not export results for variable of unsupported type "
+                          << variable->variableType_ << "." << std::endl;
+                break;
+            }
+            }
+
+            if ( variableSize > 0 )
+            {
+                variables.push_back( variable );
+                variableSizes.push_back( variableSize );
+                variableIndices.push_back( variableIndex );
+
+                cols += variableSize;
+            }
+        }
+
+        // Concatenate requested results
+        std::map< TimeType, Eigen::VectorXd > results;
+        for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
+        {
+            if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep_ &&
+                   exportSettings->onlyFinalStep_ ) ||
+                 ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep_ &&
+                   exportSettings->onlyInitialStep_ )
+                 || ( ( it != statesHistory.begin( ) && it != --statesHistory.end( ) ) &&
+                      ( exportSettings->onlyInitialStep_ || exportSettings->onlyFinalStep_ ) ) )
+            {
+                continue;
+            }
+            unsigned int currentIndex = 0;
+
+            const TimeType epoch = it->first;
+            Eigen::VectorXd result = Eigen::VectorXd::Zero( cols );
+            for ( unsigned int i = 0; i < variables.size( ); ++i )
+            {
+                const boost::shared_ptr< VariableSettings > variable = variables.at( i );
+                const unsigned int variableSize = variableSizes.at( i );
+
+                switch ( variable->variableType_ )
+                {
+                case independentVariable:
+                {
+                    result.segment( currentIndex, variableSize ) =
+                            ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
+                    break;
+                }
+                case cpuTimeVariable:
+                {
+                    result.segment( currentIndex, variableSize ) =
+                            ( Eigen::VectorXd( 1 ) << cpuTimes.at( epoch ) ).finished( );
+                    break;
+                }
+                case stateVariable:
+                {
+                    result.segment( currentIndex, variableSize ) = it->second.template cast< double >( );
+                    break;
+                }
+                case dependentVariable:
+                {
+                    result.segment( currentIndex, variableSize ) =
+                            dependentVariables.at( epoch ).segment( variableIndices.at( i ), variableSize );
                     break;
                 }
                 default:
-                {
-                    std::cerr << "Could not export results for variable of unsupported type "
-                              << variable->variableType_ << "." << std::endl;
                     break;
                 }
-                }
-
-                if ( variableSize > 0 )
-                {
-                    variables.push_back( variable );
-                    variableSizes.push_back( variableSize );
-                    variableIndices.push_back( variableIndex );
-
-                    cols += variableSize;
-                }
+                currentIndex += variableSize;
             }
+            results[ epoch ] = result;
+        }
 
-            // Concatenate requested results
-            std::map< TimeType, Eigen::VectorXd > results;
-            for ( auto it = statesHistory.begin( ); it != statesHistory.end( ); ++it )
+        if ( exportSettings->epochsInFirstColumn_ )
+        {
+            // Write results map to file.
+            writeDataMapToTextFile( results,
+                                    exportSettings->outputFile_,
+                                    exportSettings->header_,
+                                    exportSettings->numericalPrecision_ );
+        }
+        else
+        {
+            // Write results matrix to file.
+            Eigen::MatrixXd resultsMatrix( results.size( ), cols );
+            int currentRow = 0;
+            for ( auto entry : results )
             {
-                if ( ( it == statesHistory.begin( ) && ! exportSettings->onlyInitialStep_ &&
-                       exportSettings->onlyFinalStep_ ) ||
-                     ( it == --statesHistory.end( ) && ! exportSettings->onlyFinalStep_ &&
-                       exportSettings->onlyInitialStep_ )
-                     || ( ( it != statesHistory.begin( ) && it != --statesHistory.end( ) ) &&
-                          ( exportSettings->onlyInitialStep_ || exportSettings->onlyFinalStep_ ) ) )
-                {
-                    continue;
-                }
-                unsigned int currentIndex = 0;
-
-                const TimeType epoch = it->first;
-                Eigen::VectorXd result = Eigen::VectorXd::Zero( cols );
-                for ( unsigned int i = 0; i < variables.size( ); ++i )
-                {
-                    const boost::shared_ptr< VariableSettings > variable = variables.at( i );
-                    const unsigned int variableSize = variableSizes.at( i );
-
-                    switch ( variable->variableType_ )
-                    {
-                    case independentVariable:
-                    {
-                        result.segment( currentIndex, variableSize ) =
-                                ( Eigen::VectorXd( 1 ) << static_cast< double >( epoch ) ).finished( );
-                        break;
-                    }
-                    case cpuTimeVariable:
-                    {
-                        result.segment( currentIndex, variableSize ) =
-                                ( Eigen::VectorXd( 1 ) << cpuTimes.at( epoch ) ).finished( );
-                        break;
-                    }
-                    case stateVariable:
-                    {
-                        result.segment( currentIndex, variableSize ) = it->second.template cast< double >( );
-                        break;
-                    }
-                    case dependentVariable:
-                    {
-                        result.segment( currentIndex, variableSize ) =
-                                dependentVariables.at( epoch ).segment( variableIndices.at( i ), variableSize );
-                        break;
-                    }
-                    default:
-                        break;
-                    }
-                    currentIndex += variableSize;
-                }
-                results[ epoch ] = result;
+                resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
             }
-
-            if ( exportSettings->epochsInFirstColumn_ )
-            {
-                // Write results map to file.
-                writeDataMapToTextFile( results,
-                                        exportSettings->outputFile_,
-                                        exportSettings->header_,
-                                        exportSettings->numericalPrecision_ );
-            }
-            else
-            {
-                // Write results matrix to file.
-                Eigen::MatrixXd resultsMatrix( results.size( ), cols );
-                int currentRow = 0;
-                for ( auto entry : results )
-                {
-                    resultsMatrix.row( currentRow++ ) = entry.second.transpose( );
-                }
-                writeMatrixToFile( resultsMatrix,
-                                   exportSettings->outputFile_.filename( ).string( ),
-                                   exportSettings->numericalPrecision_,
-                                   exportSettings->outputFile_.parent_path( ),
-                                   " ", exportSettings->header_ );
-            }
+            writeMatrixToFile( resultsMatrix,
+                               exportSettings->outputFile_.filename( ).string( ),
+                               exportSettings->numericalPrecision_,
+                               exportSettings->outputFile_.parent_path( ),
+                               " ", exportSettings->header_ );
         }
     }
-
-    // FIXME: MultiArc
 }
 
 } // namespace json_interface
