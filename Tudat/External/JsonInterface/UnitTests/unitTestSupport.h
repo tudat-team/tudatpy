@@ -117,22 +117,14 @@ void checkCloseIntegrationResults(
 
     // Compare initial conditions
 
-    const double initialEpochTolerance = tolerance;
-    const double initialStateTolerance = tolerance;
-
-    const double initialStateError = ( initialStateJSON - initialState ).norm( );
-
-    BOOST_CHECK_SMALL( std::fabs( initialEpochJSON - initialEpoch ), initialEpochTolerance );
-    BOOST_CHECK_SMALL( initialStateError, initialStateTolerance );
+    BOOST_CHECK_SMALL( std::fabs( initialEpochJSON - initialEpoch ), tolerance );
+    BOOST_CHECK_SMALL( ( initialStateJSON - initialState ).norm( ), tolerance );
 
 
     // Compare final conditions
 
-    const double finalEpochTolerance = tolerance;
-    const double finalStateTolerance = initialStateError * ( finalEpoch - initialEpoch );
-
-    BOOST_CHECK_SMALL( std::fabs( finalEpochJSON - finalEpoch ), finalEpochTolerance );
-    BOOST_CHECK_SMALL( ( finalStateJSON - finalState ).norm( ), finalStateTolerance );
+    BOOST_CHECK_SMALL( std::fabs( finalEpochJSON - finalEpoch ), tolerance );
+    BOOST_CHECK_SMALL( ( finalStateJSON - finalState ).norm( ), tolerance );
 }
 
 #define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonSimulator, manualSimulator, tolerance ) \
