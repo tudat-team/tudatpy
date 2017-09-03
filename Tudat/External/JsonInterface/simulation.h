@@ -176,6 +176,28 @@ public:
         return originalJsonObject_;
     }
 
+    //! Get the body map.
+    /*!
+     * @copybrief getBodyMap
+     * \return The body map.
+     */
+    simulation_setup::NamedBodyMap getBodyMap( )
+    {
+        return bodyMap_;
+    }
+
+    //! Get the dynamics simulator.
+    /*!
+     * @copybrief getDynamicsSimulator
+     * \return The dynamics simulator.
+     */
+    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( )
+    {
+        return dynamicsSimulator_;
+    }
+
+
+
     //! Synchronize JSON object and class members.
     /*!
      * @copybrief sync
@@ -291,8 +313,6 @@ protected:
      */
     virtual void resetDynamicsSimulator( )
     {
-        // FIXME: MultiArc
-
         dynamicsSimulator_ =
                 boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
@@ -336,7 +356,7 @@ private:
     simulation_setup::NamedBodyMap bodyMap_;
 
     //! Dynamics simulator.
-    boost::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
+    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
 };
 

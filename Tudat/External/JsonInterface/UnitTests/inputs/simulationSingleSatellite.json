@@ -1,0 +1,57 @@
+{
+  "startEpoch": 0,
+  "endEpoch": 86400,
+  "spice": {
+    "kernels": [
+      "${SPICE_KERNELS_PATH}\/pck00009.tpc",
+      "${SPICE_KERNELS_PATH}\/de-403-masses.tpc",
+      "${SPICE_KERNELS_PATH}\/de421.bsp"
+    ]
+  },
+  "bodies": {
+    "Earth": {
+      "useDefaultSettings": true,
+      "ephemeris": {
+        "constantState": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "type": "constant"
+      }
+    },
+    "asterix": {
+      "cartesianState": [
+        7.0374840013343766E+6,
+        3.2380590179219963E+6,
+        2.1507241875025737E+6,
+        -1465.6576272424477,
+        -40.958394892935885,
+        6622.797609422495
+      ]
+    }
+  },
+  "propagator": {
+    "centralBodies": [
+      "Earth"
+    ],
+    "accelerations": {
+      "asterix": {
+        "Earth": {
+          "type": "pointMassGravity"
+        }
+      }
+    },
+    "integratedStateType": "translational",
+    "bodiesToPropagate": [
+      "asterix"
+    ]
+  },
+  "integrator": {
+    "type": "rungeKutta4",
+    "stepSize": 10
+  }
+}
