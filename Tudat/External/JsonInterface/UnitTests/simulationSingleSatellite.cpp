@@ -110,25 +110,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // Set initial conditions for the Asterix satellite that will be propagated in this simulation.
-    // The initial conditions are given in Keplerian elements and later on converted to Cartesian
-    // elements.
-
-    // Set Keplerian elements for Asterix.
-    Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
-    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
-    asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
-
-    // Convert Asterix state from Keplerian elements to Cartesian elements.
-    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
-    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
-                asterixInitialStateInKeplerianElements,
-                earthGravitationalParameter );
+    const Eigen::VectorXd systemInitialState =
+            ( Eigen::Vector6d( ) << 7.037484e6, 3.238059e6, 2.150724e6, -1.465658e3, -0.040958e3, 6.622798e3 ).finished( );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -148,7 +131,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
 
     // Create simulation object and propagate dynamics.
     boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-                boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+            boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
 
 
 
@@ -158,7 +141,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonSimulation.getDynamicsSimulator( ), dynamicsSimulator, 1.0E-9 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonSimulation.getDynamicsSimulator( ), dynamicsSimulator, 1.0E-15 );
 
 }
 
