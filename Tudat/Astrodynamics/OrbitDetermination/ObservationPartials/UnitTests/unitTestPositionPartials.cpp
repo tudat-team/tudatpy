@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
