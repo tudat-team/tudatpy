@@ -120,6 +120,20 @@ Eigen::VectorXd evaluateListOfFunctions(
     return variableList;
 }
 
+//! Funtion to get the size of a dependent variable save settings
+int getDependentVariableSaveSize(
+        const boost::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings )
+{
+    if ( singleDependentVariableSaveSettings->componentIndex_ >= 0 )
+    {
+        return 1;
+    }
+    else
+    {
+        return getDependentVariableSize( singleDependentVariableSaveSettings->dependentVariableType_ );
+    }
+}
+
 //! Funtion to get the size of a dependent variable
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings )

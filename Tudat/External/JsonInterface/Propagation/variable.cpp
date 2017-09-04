@@ -100,6 +100,10 @@ void to_json( json& jsonObject,
     const PropagationDependentVariables dependentVariableType = dependentVariableSettings->dependentVariableType_;
     jsonObject[ K::dependentVariableType ] = dependentVariableType;
     jsonObject[ K::body ] = dependentVariableSettings->associatedBody_;
+    if ( dependentVariableSettings->componentIndex_ >= 0 )
+    {
+        jsonObject[ K::componentIndex ] = dependentVariableSettings->componentIndex_;
+    }
 
     switch ( dependentVariableType )
     {
@@ -164,6 +168,7 @@ void from_json( const json& jsonObject,
     const PropagationDependentVariables dependentVariableType =
             getValue< PropagationDependentVariables >( jsonObject, K::dependentVariableType );
     const std::string bodyName = getValue< std::string>( jsonObject, K::body );
+    const int componentIndex = getValue< int >( jsonObject, K::componentIndex, -1 );
 
     switch ( dependentVariableType )
     {
@@ -172,8 +177,10 @@ void from_json( const json& jsonObject,
     {
         dependentVariableSettings = boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                     getValue< AvailableAcceleration >( jsonObject, K::accelerationType ),
-                    bodyName, getValue< std::string>( jsonObject, K::bodyExertingAcceleration ),
-                    dependentVariableType == single_acceleration_norm_dependent_variable );
+                    bodyName,
+                    getValue< std::string>( jsonObject, K::bodyExertingAcceleration ),
+                    dependentVariableType == single_acceleration_norm_dependent_variable,
+                    componentIndex );
         return;
     }
     case single_torque_norm_dependent_variable:
@@ -181,27 +188,35 @@ void from_json( const json& jsonObject,
     {
         dependentVariableSettings = boost::make_shared< SingleTorqueDependentVariableSaveSettings >(
                     getValue< AvailableTorque >( jsonObject, K::torqueType ),
-                    bodyName, getValue< std::string>( jsonObject, K::bodyExertingTorque ),
-                    dependentVariableType == single_torque_norm_dependent_variable );
+                    bodyName,
+                    getValue< std::string>( jsonObject, K::bodyExertingTorque ),
+                    dependentVariableType == single_torque_norm_dependent_variable,
+                    componentIndex );
         return;
     }
     case intermediate_aerodynamic_rotation_matrix_variable:
     {
         dependentVariableSettings = boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
-                    bodyName, getValue< AerodynamicsReferenceFrames >( jsonObject, K::baseFrame ),
-                    getValue< AerodynamicsReferenceFrames >( jsonObject, K::targetFrame ) );
+                    bodyName,
+                    getValue< AerodynamicsReferenceFrames >( jsonObject, K::baseFrame ),
+                    getValue< AerodynamicsReferenceFrames >( jsonObject, K::targetFrame ),
+                    componentIndex );
         return;
     }
     case relative_body_aerodynamic_orientation_angle_variable:
     {
         dependentVariableSettings = boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-                    bodyName, getValue< AerodynamicsReferenceFrameAngles >( jsonObject, K::angle ) );
+                    bodyName,
+                    getValue< AerodynamicsReferenceFrameAngles >( jsonObject, K::angle ) );
         return;
     }
     default:
     {
         dependentVariableSettings = boost::make_shared< SingleDependentVariableSaveSettings >(
-                    dependentVariableType, bodyName, getValue< std::string>( jsonObject, K::relativeToBody, "" ) );
+                    dependentVariableType,
+                    bodyName,
+                    getValue< std::string>( jsonObject, K::relativeToBody, "" ),
+                    componentIndex );
         return;
     }
     }
