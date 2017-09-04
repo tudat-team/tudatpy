@@ -87,13 +87,13 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
     const AvailableIntegrators integratorType = integratorSettings->integratorType_;
     jsonObject[ K::type ] = integratorType;
     jsonObject[ K::initialTime ] = integratorSettings->initialTime_;
-    jsonObject[ K::initialStepSize ] = integratorSettings->initialTimeStep_;
     jsonObject[ K::saveFrequency ] = integratorSettings->saveFrequency_;
 
     switch ( integratorType )
     {
     case rungeKutta4:
     case euler:
+        jsonObject[ K::stepSize ] = integratorSettings->initialTimeStep_;
         return;
     case rungeKuttaVariableStepSize:
     {
@@ -102,6 +102,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
         enforceNonNullPointer( rungeKuttaVariableStepSizeSettings );
         jsonObject[ K::rungeKuttaCoefficientSet ] =
                 stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
+        jsonObject[ K::initialStepSize ] = rungeKuttaVariableStepSizeSettings->initialTimeStep_;
         jsonObject[ K::minimumStepSize ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
         jsonObject[ K::maximumStepSize ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
         jsonObject[ K::relativeErrorTolerance ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;

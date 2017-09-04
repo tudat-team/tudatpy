@@ -42,6 +42,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
 
     Simulation< > jsonSimulation( ( inputDirectory( ) / "simulationSingleSatellite.json" ).string( ) );
     jsonSimulation.run( );
+    std::map< double, Eigen::VectorXd > jsonResults =
+            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
 
 
@@ -119,7 +121,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
 
 
     // Create numerical integrator.
-    double simulationStartEpoch = 0.0;
+    const double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
@@ -130,9 +132,9 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
+    const boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
             boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
-
+    const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -141,9 +143,28 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonSimulation.getDynamicsSimulator( ), dynamicsSimulator, 1.0E-15 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-15 );
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ///////////      CHECK CONSISTENCY OF from_json and to_json FUNCTIONS          /////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
+    // (using from_json functions)
+    jsonSimulation.reset( jsonSimulation.getAsJSON( ) );
+
+    // Get results
+    jsonSimulation.run( );
+    jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-15 );
 
 }
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
