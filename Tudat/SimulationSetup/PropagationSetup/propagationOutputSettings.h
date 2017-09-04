@@ -113,15 +113,19 @@ public:
      * \param associatedBody Body associated with dependent variable.
      * \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
      * position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleDependentVariableSaveSettings(
             const PropagationDependentVariables dependentVariableType,
             const std::string& associatedBody,
-            const std::string& secondaryBody = "" ):
+            const std::string& secondaryBody = "",
+            const int componentIndex = -1 ):
         VariableSettings( dependentVariable ),
         dependentVariableType_( dependentVariableType ),
         associatedBody_( associatedBody ),
-        secondaryBody_( secondaryBody ) { }
+        secondaryBody_( secondaryBody ),
+        componentIndex_( componentIndex ) { }
 
     //! Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
@@ -133,6 +137,10 @@ public:
     //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
     std::string secondaryBody_;
 
+    //! Index of the component to be saved.
+    //! Only applicable to vectorial dependent variables.
+    //! If negative, all the components of the vector are saved.
+    int componentIndex_;
 };
 
 //! Class to define settings for saving a single acceleration (norm or vector) during propagation
@@ -151,15 +159,18 @@ public:
      * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      * \param bodyExertingAcceleration Name of body exerting the acceleration.
      * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleAccelerationDependentVariableSaveSettings(
             const basic_astrodynamics::AvailableAcceleration accelerationModeType,
             const std::string& bodyUndergoingAcceleration,
             const std::string& bodyExertingAcceleration,
-            const bool useNorm = 0 ):
+            const bool useNorm = 0,
+            const int componentIndex = -1 ):
         SingleDependentVariableSaveSettings(
             ( useNorm == 1 ) ? ( single_acceleration_norm_dependent_variable ) : ( single_acceleration_dependent_variable ),
-            bodyUndergoingAcceleration, bodyExertingAcceleration ),
+            bodyUndergoingAcceleration, bodyExertingAcceleration, componentIndex ),
         accelerationModeType_( accelerationModeType )
     { }
 
@@ -179,15 +190,18 @@ public:
      * \param bodyUndergoingTorque Name of body undergoing the torque.
      * \param bodyExertingTorque Name of body exerting the torque.
      * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleTorqueDependentVariableSaveSettings(
             const basic_astrodynamics::AvailableTorque torqueModeType,
             const std::string& bodyUndergoingTorque,
             const std::string& bodyExertingTorque,
-            const bool useNorm = 0 ):
+            const bool useNorm = 0,
+            const int componentIndex = -1 ):
         SingleDependentVariableSaveSettings(
             ( useNorm == 1 ) ? ( single_torque_norm_dependent_variable ) : ( single_torque_dependent_variable ),
-            bodyUndergoingTorque, bodyExertingTorque ),
+            bodyUndergoingTorque, bodyExertingTorque, componentIndex ),
         torqueModeType_( torqueModeType )
     { }
 
@@ -207,12 +221,16 @@ public:
      * \param associatedBody Body for which the rotation matrix is to be saved.
      * \param baseFrame Frame from which rotation is to take place.
      * \param targetFrame Frame to which the rotation is to take place.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     IntermediateAerodynamicRotationVariableSaveSettings(
             const std::string& associatedBody,
             const reference_frames::AerodynamicsReferenceFrames baseFrame,
-            const reference_frames::AerodynamicsReferenceFrames targetFrame ):
-        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody ),
+            const reference_frames::AerodynamicsReferenceFrames targetFrame,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody,
+                                             "", componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
 
     //! Frame from which rotation is to take place.

@@ -130,7 +130,7 @@ void exportResultsOfDynamicsSimulator(
                                     singleArcDynamicsSimulator->getDependentVariableIds( ), variableID );
                         try
                         {
-                            variableSize = getDependentVariableSize( dependentVar->dependentVariableType_ );
+                            variableSize = getDependentVariableSaveSize( dependentVar );
                         }
                         catch ( ... )
                         {

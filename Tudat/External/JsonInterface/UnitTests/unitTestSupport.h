@@ -118,6 +118,9 @@ void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& re
 
     BOOST_CHECK_SMALL( std::fabs( finalEpoch1 - finalEpoch2 ), tolerance );
     BOOST_CHECK_SMALL( ( finalState1 - finalState2 ).norm( ), tolerance );
+
+
+    // FIXME: check size of map
 }
 
 #define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, tolerance ) \

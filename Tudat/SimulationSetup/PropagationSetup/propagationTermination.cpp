@@ -125,8 +125,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
 
         // Get dependent variable function
         boost::function< double( ) > dependentVariableFunction;
-        if( getDependentVariableSize(
-                    dependentVariableTerminationSettings->dependentVariableSettings_->dependentVariableType_ ) == 1 )
+        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(

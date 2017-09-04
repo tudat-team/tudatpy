@@ -196,6 +196,7 @@ struct Keys
         static const std::string dependentVariableType;
         static const std::string body;
         static const std::string relativeToBody;
+        static const std::string componentIndex;
         static const std::string accelerationType;
         // static const std::string bodyUndergoingAcceleration;
         static const std::string bodyExertingAcceleration;

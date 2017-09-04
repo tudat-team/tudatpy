@@ -186,6 +186,7 @@ const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrde
 const std::string Keys::Variable::type = "type";
 const std::string Keys::Variable::dependentVariableType = "dependentVariableType";
 const std::string Keys::Variable::body = "body";
+const std::string Keys::Variable::componentIndex = "componentIndex";
 const std::string Keys::Variable::relativeToBody = "relativeToBody";
 const std::string Keys::Variable::accelerationType = "accelerationType";
 // const std::string Keys::Variable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
