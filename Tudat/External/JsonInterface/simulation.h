@@ -46,23 +46,33 @@ public:
                 const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
         : initialClockTime_( initialClockTime )
     {
-        setInputFile( inputFile );
+        reset( inputFile );
     }
 
-    //! Set the root JSON input file.
+    //! Reset the root JSON input file.
     /*!
-     * @copybrief setInputFile
+     * Reset the root JSON input file.
      * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
      */
-    void setInputFile( const std::string& inputFile )
+    void reset( const std::string& inputFile )
     {
         inputFilePath_ = getPathForJSONFile( inputFile );
         boost::filesystem::current_path( inputFilePath_.parent_path( ) );
 
-        jsonObject_ = getParsedModularJSON( inputFilePath_ );
+        reset( getParsedModularJSON( inputFilePath_ ) );
+    }
+
+    //! Reset the `json` object.
+    /*!
+     * Reset the `json` object.
+     * \param jsonObject The new `json` object to be used for creating the simulation settings.
+     */
+    void reset( const json& jsonObject )
+    {
+        jsonObject_ = jsonObject;
         originalJsonObject_ = jsonObject_;
 
-        // std::cout << originalJsonObject.dump( 2 ) << std::endl;
+        // std::cout << jsonObject_.dump( 2 ) << std::endl;
         // throw;
 
         // Clear global variable keeping track of the keys that have been accessed

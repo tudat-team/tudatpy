@@ -61,8 +61,8 @@ void checkJsonEquivalent( const T& left, const T& right )
 
 template< typename Enum >
 void checkConsistentEnum( const std::string& filename,
-                       const std::map< Enum, std::string >& stringValues,
-                       const std::vector< Enum >& usupportedValues )
+                          const std::map< Enum, std::string >& stringValues,
+                          const std::vector< Enum >& usupportedValues )
 {
     using namespace json_interface;
 
@@ -86,49 +86,42 @@ void checkConsistentEnum( const std::string& filename,
     tudat::json_interface::checkConsistentEnum( filename, stringValues, usupportedValues )
 
 
-void checkCloseIntegrationResults(
-        const boost::shared_ptr< propagators::SingleArcDynamicsSimulator< double, double > >& jsonSimulator,
-        const boost::shared_ptr< propagators::SingleArcDynamicsSimulator< double, double > >& manualSimulator,
-        const double tolerance )
+void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
+                                   const std::map< double, Eigen::VectorXd >& results2,
+                                   const double tolerance )
 {
-    // JSON
+    // Results 1
 
-    const std::map< double, Eigen::VectorXd > integrationResultJSON =
-            jsonSimulator->getEquationsOfMotionNumericalSolution( );
+    const double initialEpoch1 = results1.begin( )->first;
+    const Eigen::VectorXd initialState1 = results1.begin( )->second;
 
-    const double initialEpochJSON = integrationResultJSON.begin( )->first;
-    const Eigen::VectorXd initialStateJSON = integrationResultJSON.begin( )->second;
-
-    const double finalEpochJSON = ( --integrationResultJSON.end( ) )->first;
-    const Eigen::VectorXd finalStateJSON = ( --integrationResultJSON.end( ) )->second;
+    const double finalEpoch1 = ( --results1.end( ) )->first;
+    const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
 
 
-    // Manual
+    // Results 2
 
-    const std::map< double, Eigen::VectorXd > integrationResult =
-            manualSimulator->getEquationsOfMotionNumericalSolution( );
+    const double initialEpoch2 = results2.begin( )->first;
+    const Eigen::VectorXd initialState2 = results2.begin( )->second;
 
-    const double initialEpoch = integrationResult.begin( )->first;
-    const Eigen::VectorXd initialState = integrationResult.begin( )->second;
-
-    const double finalEpoch = ( --integrationResult.end( ) )->first;
-    const Eigen::VectorXd finalState = ( --integrationResult.end( ) )->second;
+    const double finalEpoch2 = ( --results2.end( ) )->first;
+    const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
 
 
     // Compare initial conditions
 
-    BOOST_CHECK_SMALL( std::fabs( initialEpochJSON - initialEpoch ), tolerance );
-    BOOST_CHECK_SMALL( ( initialStateJSON - initialState ).norm( ), tolerance );
+    BOOST_CHECK_SMALL( std::fabs( initialEpoch1 - initialEpoch2 ), tolerance );
+    BOOST_CHECK_SMALL( ( initialState1 - initialState2 ).norm( ), tolerance );
 
 
     // Compare final conditions
 
-    BOOST_CHECK_SMALL( std::fabs( finalEpochJSON - finalEpoch ), tolerance );
-    BOOST_CHECK_SMALL( ( finalStateJSON - finalState ).norm( ), tolerance );
+    BOOST_CHECK_SMALL( std::fabs( finalEpoch1 - finalEpoch2 ), tolerance );
+    BOOST_CHECK_SMALL( ( finalState1 - finalState2 ).norm( ), tolerance );
 }
 
-#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonSimulator, manualSimulator, tolerance ) \
-    tudat::json_interface::checkCloseIntegrationResults( jsonSimulator, manualSimulator, tolerance )
+#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, tolerance ) \
+    tudat::json_interface::checkCloseIntegrationResults( results1, results2, tolerance )
 
 } // namespace json_interface
 

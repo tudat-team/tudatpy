@@ -48,7 +48,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
         boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
         enforceNonNullPointer( shGravityFieldSettings );
-        jsonObject[ K::associatedReferenceFrame ] = shGravityFieldSettings->getAssociatedReferenceFrame( );
 
         // SphericalHarmonicsModelGravityFieldSettings
         boost::shared_ptr< SphericalHarmonicsModelGravityFieldSettings > shModelGravityFieldSettings =
@@ -59,6 +58,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
             if ( model == customModel )
             {
                 jsonObject[ K::file ] = path( shModelGravityFieldSettings->getFilePath( ) );
+                jsonObject[ K::associatedReferenceFrame ] = shModelGravityFieldSettings->getAssociatedReferenceFrame( );
                 jsonObject[ K::maximumDegree ] = shModelGravityFieldSettings->getMaximumDegree( );
                 jsonObject[ K::maximumOrder ] = shModelGravityFieldSettings->getMaximumOrder( );
 
@@ -91,6 +91,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
             jsonObject[ K::referenceRadius ] = shGravityFieldSettings->getReferenceRadius( );
             jsonObject[ K::cosineCoefficients ] = shGravityFieldSettings->getCosineCoefficients( );
             jsonObject[ K::sineCoefficients ] = shGravityFieldSettings->getSineCoefficients( );
+            jsonObject[ K::associatedReferenceFrame ] = shGravityFieldSettings->getAssociatedReferenceFrame( );
         }
         return;
     }
