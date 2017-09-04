@@ -35,7 +35,7 @@ public:
     WindModel( ){ }
 
     //! Destructor.
-    ~WindModel( ){ }
+   virtual  ~WindModel( ){ }
 
     //! Function (pure virtual) to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
