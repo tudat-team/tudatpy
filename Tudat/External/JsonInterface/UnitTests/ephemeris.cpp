@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_ephemeris )
 
 // Test 1: ephemeris types
 BOOST_AUTO_TEST_CASE( test_json_ephemeris_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( "ephemeris_types",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
                             simulation_setup::ephemerisTypes,
                             simulation_setup::unsupportedEphemerisTypes );
 }
@@ -46,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_types )
 // Test 2: bodies with ephemeris data
 BOOST_AUTO_TEST_CASE( test_json_ephemeris_bodiesWithEphemerisData )
 {
-    BOOST_CHECK_EQUAL_ENUM( "ephemeris_bodiesWithEphemerisData",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "bodiesWithEphemerisData" ),
                             ephemerides::bodiesWithEphemerisData,
                             ephemerides::unsupportedBodiesWithEphemerisData );
 }
@@ -60,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_approximatePlanetPositions )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_approximatePlanetPositions" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "approximatePlanetPositions" ) );
 
     // Create EphemerisSettings manually
     const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
@@ -82,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_directSpice )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_directSpice" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "directSpice" ) );
 
     // Create EphemerisSettings manually
     const std::string frameOrigin = "Foo";
@@ -109,7 +112,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_tabulated )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_tabulated" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "tabulated" ) );
 
     // Create EphemerisSettings manually
     const std::map< double, Eigen::Vector6d > bodyStateHistory =
@@ -133,7 +136,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_interpolatedSpice )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_interpolatedSpice" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "interpolatedSpice" ) );
 
     // Create EphemerisSettings manually
     const double initialTime = 2.0;
@@ -164,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_constant )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_constant" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "constant" ) );
 
     // Create EphemerisSettings manually
     const Eigen::Vector6d constantState = ( Eigen::Vector6d( ) << 0.0, 1.0, 0.0, -0.1, 0.0, 0.0 ).finished( );
@@ -183,7 +186,7 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_kepler )
 
     // Create EphemerisSettings from JSON file
     const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< EphemerisSettings > >( "ephemeris_kepler" );
+            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "kepler" ) );
 
     // Create EphemerisSettings manually
     const Eigen::Vector6d initialStateInKeplerianElements =

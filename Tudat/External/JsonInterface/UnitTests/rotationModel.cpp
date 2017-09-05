@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_rotationModel )
 
 // Test 1: rotation model types
 BOOST_AUTO_TEST_CASE( test_json_rotationModel_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( "rotationModel_types",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
                             simulation_setup::rotationModelTypes,
                             simulation_setup::unsupportedRotationModelTypes );
 }
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
 
     // Create RotationModelSettings from JSON file
     const boost::shared_ptr< RotationModelSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< RotationModelSettings > >( "rotationModel_simple" );
+            parseJSONFile< boost::shared_ptr< RotationModelSettings > >( INPUT( "simple" ) );
 
     // Create RotationModelSettings manually
     const std::string originalFrame = "A";
@@ -81,7 +84,7 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_spice )
 
     // Create RotationModelSettings from JSON file
     const boost::shared_ptr< RotationModelSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< RotationModelSettings > >( "rotationModel_spice" );
+            parseJSONFile< boost::shared_ptr< RotationModelSettings > >( INPUT( "spice" ) );
 
     // Create RotationModelSettings manually
     const std::string originalFrame = "foo";

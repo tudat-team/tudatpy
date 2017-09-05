@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_radiationPressure )
 
 // Test 1: radiation pressure types
 BOOST_AUTO_TEST_CASE( test_json_radiationPressure_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( "radiationPressure_types",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
                             simulation_setup::radiationPressureTypes,
                             simulation_setup::unsupportedRadiationPressureTypes );
 }
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_json_radiationPressure_cannonBall )
 
     // Create RadiationPressureInterfaceSettings from JSON file
     const boost::shared_ptr< RadiationPressureInterfaceSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< RadiationPressureInterfaceSettings > >( "radiationPressure_cannonBall" );
+            parseJSONFile< boost::shared_ptr< RadiationPressureInterfaceSettings > >( INPUT( "cannonBall" ) );
 
     // Create RadiationPressureInterfaceSettings manually
     const std::string sourceBody = "Sun";

@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_gravityField )
 
 // Test 1: gravity field types
 BOOST_AUTO_TEST_CASE( test_json_gravityField_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( "gravityField_types",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
                             simulation_setup::gravityFieldTypes,
                             simulation_setup::unsupportedGravityFieldTypes );
 }
@@ -46,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_types )
 // Test 2: spherical harmonic models
 BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonicModels )
 {
-    BOOST_CHECK_EQUAL_ENUM( "gravityField_sphericalHarmonicModels",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "sphericalHarmonicModels" ),
                             simulation_setup::sphericalHarmonicsModels,
                             simulation_setup::unsupportedSphericalHarmonicsModels );
 }
@@ -59,7 +62,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_pointMass )
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_pointMass" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "pointMass" ) );
 
     // Create GravityFieldSettings manually
     const double gravitationalParameter = 4.0e14;
@@ -78,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_pointMassSpice )
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_pointMassSpice" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "pointMassSpice" ) );
 
     // Create GravityFieldSettings manually
     const boost::shared_ptr< GravityFieldSettings > manualSettings =
@@ -96,7 +99,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_model )
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_sphericalHarmonic_model" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "sphericalHarmonic_model" ) );
 
     // Create GravityFieldSettings manually
     const boost::shared_ptr< GravityFieldSettings > manualSettings =
@@ -114,7 +117,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file )
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_sphericalHarmonic_file" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "sphericalHarmonic_file" ) );
 
     // Create GravityFieldSettings manually
     const std::string file = "sh.txt";
@@ -143,8 +146,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file_manualparam 
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >(
-                "gravityField_sphericalHarmonic_file_manualparam" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "sphericalHarmonic_file_manualparam" ) );
 
     // Create GravityFieldSettings manually
     const std::string file = "sh_manualparam.txt";
@@ -177,7 +179,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_direct )
 
     // Create GravityFieldSettings from JSON file
     const boost::shared_ptr< GravityFieldSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldSettings > >( "gravityField_sphericalHarmonic_direct" );
+            parseJSONFile< boost::shared_ptr< GravityFieldSettings > >( INPUT( "sphericalHarmonic_direct" ) );
 
     // Create GravityFieldSettings manually
     const double gravitationalParameter = 4.0e14;

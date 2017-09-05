@@ -34,17 +34,15 @@ path inputDirectory( )
     return currentDirectory( ) / "inputs";
 }
 
-path outputDirectory( )
-{
-    return currentDirectory( ) / "outputs";
-}
-
 template< typename T = json >
-T readInputFile( const std::string& filename, const std::string& extension = "json" )
+T parseJSONFile( std::string file )
 {
-    const path filePath = inputDirectory( ) / ( filename + "." + extension );
-    boost::filesystem::current_path( filePath.parent_path( ) );
-    return readJSON( filePath.string( ) ).get< T >( );
+    if ( path( file ).extension( ).empty( ) )
+    {
+        file += ".json";
+    }
+    boost::filesystem::current_path( path( file ).parent_path( ) );
+    return readJSON( file ).get< T >( );
 }
 
 
@@ -78,7 +76,7 @@ void checkConsistentEnum( const std::string& filename,
     }
 
     // Check that values and supportedValues are equivalent
-    const std::vector< Enum > values = readInputFile< std::vector< Enum > >( filename );
+    const std::vector< Enum > values = parseJSONFile< std::vector< Enum > >( filename );
     BOOST_CHECK_EQUAL_JSON( values, supportedValues );
 }
 
