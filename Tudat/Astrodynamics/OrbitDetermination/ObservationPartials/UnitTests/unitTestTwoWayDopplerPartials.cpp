@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
 
             testObservationPartials< 1 >(
                         twoWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, two_way_doppler, 1.0E-5,
-                        true, false, 10.0, parameterPerturbationMultipliers );
+                        true, true, 10.0, parameterPerturbationMultipliers );
 
         }
     }

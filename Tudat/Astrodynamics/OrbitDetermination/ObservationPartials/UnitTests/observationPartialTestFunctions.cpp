@@ -316,7 +316,6 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
     for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
     {
-        std::cout<<"Estimated body "<<i<<" "<<bodiesWithEstimatedState.at( i )<<std::endl;
         currentPartialTimes.clear( );
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
@@ -325,6 +324,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
+
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
