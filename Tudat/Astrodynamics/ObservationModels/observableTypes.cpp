@@ -209,9 +209,10 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             break;
         case reflector1:
             linkEndIndices.push_back( 1 );
+            linkEndIndices.push_back( 2 );
             break;
         case receiver:
-            linkEndIndices.push_back( 2 );
+            linkEndIndices.push_back( 3 );
             break;
         default:
             std::string errorMessage =

@@ -175,7 +175,6 @@ inline void testObservationPartials(
 
         for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
         {
-            std::cout<<i<<"Times size: "<<analyticalObservationPartials[ i ].size( )<<" "<<expectedPartialTimes[ i ].size( )<<std::endl;
             // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
             if( i < 2 )
             {
@@ -322,10 +321,6 @@ inline void testObservationPartials(
                 }
             }
         }
-        linkEndIterator++;
-        linkEndIterator++;
-        linkEndIterator++;
-        linkEndIterator++;
     }
 }
 
