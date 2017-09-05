@@ -147,7 +147,7 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
 
         // Fix relative paths
         boost::cmatch groups;
-        boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.+)\))" ) );
+        boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.*)\))" ) );
         if ( groups[ 1 ].matched )
         {
             const path providedPath = std::string( groups[ 1 ] );

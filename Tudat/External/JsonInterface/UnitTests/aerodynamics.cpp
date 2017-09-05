@@ -161,6 +161,45 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
+// Test 6: tabulated aerodynamics (N dimensions)
+BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulatedN )
+{
+    using namespace aerodynamics;
+    using namespace interpolators;
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Create AerodynamicCoefficientSettings from JSON file
+    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulatedN" );
+
+    // Create AerodynamicCoefficientSettings manually
+    const std::map< int, std::string > forceCoefficientsFiles = { { 0, "aurora_CD.txt" }, { 2, "aurora_CL.txt" } };
+    const std::map< int, std::string > momentCoefficientsFiles = { { 1, "aurora_Cm.txt" } };
+    const double referenceLength = 5.0;
+    const double referenceArea = 10.5;
+    const double lateralReferenceLength = 4.0;
+    const Eigen::Vector3d momentReferencePoint = ( Eigen::Vector3d( ) << 0.7, 0.8, 0.9 ).finished( );
+    const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames =
+    { mach_number_dependent, angle_of_attack_dependent };
+    const bool areCoefficientsInAerodynamicFrame = true;
+    const bool areCoefficientsInNegativeAxisDirection = true;
+    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
+            readTabulatedAerodynamicCoefficientsFromFiles(
+                                        forceCoefficientsFiles,
+                                        momentCoefficientsFiles,
+                                        referenceLength,
+                                        referenceArea,
+                                        lateralReferenceLength,
+                                        momentReferencePoint,
+                                        independentVariableNames,
+                                        areCoefficientsInAerodynamicFrame,
+                                        areCoefficientsInNegativeAxisDirection );
+
+    // Compare
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests

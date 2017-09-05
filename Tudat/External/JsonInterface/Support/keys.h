@@ -85,7 +85,6 @@ struct Keys
 
             // Tabulated< 1 >
             static const std::string interpolator;
-            static const std::string independentVariableName;
         };
 
         static const std::string atmosphere;

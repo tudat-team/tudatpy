@@ -165,7 +165,7 @@ public:
             const boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > controlSurfaceSetting,
             const std::string controlSurfaceName )
     {
-         controlSurfaceSettings_[ controlSurfaceName ] = controlSurfaceSetting;
+        controlSurfaceSettings_[ controlSurfaceName ] = controlSurfaceSetting;
     }
 
 private:
@@ -266,7 +266,7 @@ public:
         constantMomentCoefficient_( constantMomentCoefficient )
     { }
 
-   //! Constructor.
+    //! Constructor.
     /*!
     *  Constructor, omitting all moment coefficient data.
     *  \param constantForceCoefficient Constant force coefficients.
@@ -323,6 +323,63 @@ private:
     Eigen::Vector3d constantMomentCoefficient_;
 };
 
+//! Base class (non-functional) for AerodynamicCoefficientSettings that can (but not necessarily) be loaded from files.
+/*!
+ * Base class (non-functional) for AerodynamicCoefficientSettings that can (but not necessarily) be loaded from files.
+ */
+class FromFileAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+{
+public:
+    // Inherit constructors
+    using AerodynamicCoefficientSettings::AerodynamicCoefficientSettings;
+
+    //! Function to return files for force coefficients.
+    /*!
+     * Function to return files for force coefficients.
+     * \return Files for force coefficients.
+     */
+    std::map< int, std::string > getForceCoefficientsFiles( )
+    {
+        return forceCoefficientsFiles_;
+    }
+
+    //! Function to return files for moment coefficients.
+    /*!
+     * Function to return files for moment coefficients.
+     * \return Files for moment coefficients.
+     */
+    std::map< int, std::string > getMomentCoefficientsFiles( )
+    {
+        return momentCoefficientsFiles_;
+    }
+
+    //! Function to set the force coefficients files.
+    /*!
+     * Function to set the force coefficients files.
+     * \param forceCoefficientsFiles The force coefficients files.
+     */
+    void setForceCoefficientsFiles( const std::map< int, std::string >& forceCoefficientsFiles )
+    {
+        forceCoefficientsFiles_ = forceCoefficientsFiles;
+    }
+
+    //! Function to set the moment coefficients files.
+    /*!
+     * Function to set the moment coefficients files.
+     * \param momentCoefficientsFiles The moment coefficients files.
+     */
+    void setMomentCoefficientsFiles( const std::map< int, std::string >& momentCoefficientsFiles )
+    {
+        momentCoefficientsFiles_ = momentCoefficientsFiles;
+    }
+
+private:
+    //! Files from which the force coefficients should be loaded.
+    std::map< int, std::string > forceCoefficientsFiles_;
+
+    //! Files from which the moment coefficients should be loaded.
+    std::map< int, std::string > momentCoefficientsFiles_;
+};
 
 //! Object for setting aerodynamic coefficients from a user-defined N-dimensional table (with N>1).
 /*!
@@ -332,7 +389,7 @@ private:
  *  define the physical meaning of each of the independent variables.
  */
 template< unsigned int NumberOfDimensions >
-class TabulatedAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+class TabulatedAerodynamicCoefficientSettings: public FromFileAerodynamicCoefficientSettings
 {
 public:
 
@@ -374,7 +431,7 @@ public:
             independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -409,7 +466,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -483,7 +540,7 @@ private:
  *  define the physical meaning of the independent variables.
  */
 template< >
-class TabulatedAerodynamicCoefficientSettings< 1 >: public AerodynamicCoefficientSettings
+class TabulatedAerodynamicCoefficientSettings< 1 >: public FromFileAerodynamicCoefficientSettings
 {
 public:
 
@@ -526,7 +583,7 @@ public:
             const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
@@ -587,7 +644,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             independentVariableName, areCoefficientsInAerodynamicFrame,
@@ -640,7 +697,7 @@ public:
             const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
@@ -685,7 +742,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        AerodynamicCoefficientSettings(
+        FromFileAerodynamicCoefficientSettings(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -811,10 +868,14 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
     }
 
-    return boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+    boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > > tabulatedCoefficients =
+            boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
                 aerodynamicForceCoefficients.second, aerodynamicForceCoefficients.first, aerodynamicMomentCoefficients.first,
                 referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint, independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    tabulatedCoefficients->setForceCoefficientsFiles( forceCoefficientFiles );
+    tabulatedCoefficients->setMomentCoefficientsFiles( momentCoefficientFiles );
+    return tabulatedCoefficients;
 }
 
 //! Function to create aerodynamic coefficient settings fom coefficients stored in data files
@@ -858,9 +919,12 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     }
 
     // Create coefficient settings.
-    return boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
+    boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > > tabulatedCoefficients =
+            boost::make_shared< TabulatedAerodynamicCoefficientSettings< NumberOfIndependentVariables > >(
                 aerodynamicCoefficients.second, aerodynamicCoefficients.first, referenceArea, independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+    tabulatedCoefficients->setForceCoefficientsFiles( forceCoefficientFiles );
+    return tabulatedCoefficients;
 }
 
 //! Function to create aerodynamic coefficient settings fom coefficients stored in data files
@@ -1008,7 +1072,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
 
     if( independentVariableNames.size( ) != NumberOfDimensions )
     {
-       throw std::runtime_error( "Error when creating tabulated aerodynamic coefficient interface, inconsistent variable name vector dimensioning" );
+        throw std::runtime_error( "Error when creating tabulated aerodynamic coefficient interface, inconsistent variable name vector dimensioning" );
 
     }
 
