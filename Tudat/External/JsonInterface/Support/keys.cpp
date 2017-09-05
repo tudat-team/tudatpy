@@ -91,7 +91,6 @@ const std::string Keys::Body::Aerodynamics::numberOfDimensions = "numberOfDimens
 const std::string Keys::Body::Aerodynamics::independentVariables = "independentVariables";
 // Tabulated< 1 >
 const std::string Keys::Body::Aerodynamics::interpolator = "interpolator";
-const std::string Keys::Body::Aerodynamics::independentVariableName = "independentVariableName";
 
 
 // //  Body::Atmosphere

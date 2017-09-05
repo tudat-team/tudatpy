@@ -1,5 +1,4 @@
 {
-  "independentVariableName": "angleOfSideslip",
   "independentVariables": [
     0,
     1,
@@ -61,6 +60,9 @@
     0.7,
     0.8,
     0.9
+  ],
+  "independentVariableNames": [
+    "angleOfSideslip"
   ],
   "areCoefficientsInAerodynamicFrame": false,
   "areCoefficientsInNegativeAxisDirection": false

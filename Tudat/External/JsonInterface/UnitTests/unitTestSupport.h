@@ -91,36 +91,27 @@ void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& re
                                    const double tolerance )
 {
     // Results 1
-
     const double initialEpoch1 = results1.begin( )->first;
     const Eigen::VectorXd initialState1 = results1.begin( )->second;
-
     const double finalEpoch1 = ( --results1.end( ) )->first;
     const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
 
-
     // Results 2
-
     const double initialEpoch2 = results2.begin( )->first;
     const Eigen::VectorXd initialState2 = results2.begin( )->second;
-
     const double finalEpoch2 = ( --results2.end( ) )->first;
     const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
 
-
     // Compare initial conditions
-
     BOOST_CHECK_SMALL( std::fabs( initialEpoch1 - initialEpoch2 ), tolerance );
     BOOST_CHECK_SMALL( ( initialState1 - initialState2 ).norm( ), tolerance );
 
-
     // Compare final conditions
-
     BOOST_CHECK_SMALL( std::fabs( finalEpoch1 - finalEpoch2 ), tolerance );
     BOOST_CHECK_SMALL( ( finalState1 - finalState2 ).norm( ), tolerance );
 
-
-    // FIXME: check size of map
+    // Check size of maps
+    BOOST_CHECK_EQUAL( results1.size( ), results2.size( ) );
 }
 
 #define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, tolerance ) \
