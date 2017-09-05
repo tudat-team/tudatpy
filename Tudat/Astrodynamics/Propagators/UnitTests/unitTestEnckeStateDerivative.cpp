@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         //Load spice kernels.
         std::string kernelsPath = input_output::getSpiceKernelPath( );
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
@@ -450,7 +450,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
 
     for( unsigned testCase = 0; testCase < testEccentricities.size( ); testCase++ )
     {
-        std::cout<<"Testint with eccentricity "<<testEccentricities.at( testCase );
         // Set simulation end epoch.
         const double simulationEndEpoch = 2.0 * tudat::physical_constants::JULIAN_DAY;
 

@@ -131,7 +131,6 @@ NWayRangePartial::NWayRangePartialReturnType NWayRangePartial::calculatePartial(
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
         {
-            std::cout<<currentPartialSet[ i ].first<<" "<<currentPartialSet[ i ].second<<" "<<currentPartialMultiplier<<std::endl;
             currentPartialSet[ i ].first *= currentPartialMultiplier;
         }
         completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );

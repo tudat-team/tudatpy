@@ -46,7 +46,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         std::map< double, boost::shared_ptr< Ephemeris > > singleArcEphemerides;
         ephemerisSettings->resetMakeMultiArcEphemeris( false );
 
-        singleArcEphemerides[ -std::numeric_limits< double >::min( ) ] = createBodyEphemeris(
+        singleArcEphemerides[ -std::numeric_limits< double >::lowest( ) ] = createBodyEphemeris(
                     ephemerisSettings, bodyName );
 
         ephemeris = boost::make_shared< MultiArcEphemeris >(
@@ -284,6 +284,32 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     return ephemeris;
 
 }
+
+//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
+std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
+{
+    // Make default output pair
+    std::pair< double, double > safeInterval = std::make_pair(
+                std::numeric_limits< double >::lowest( ),  std::numeric_limits< double >::max( ) );
+
+    // Check if model is tabulated, and retrieve safe interval from model
+    if( isTabulatedEphemeris( ephemerisModel ) )
+    {
+        safeInterval = getTabulatedEphemerisSafeInterval( ephemerisModel );
+    }
+    // Check if model is multi-arc, and retrieve safe intervals from first and last arc.
+    else if( boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != NULL )
+    {
+        boost::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel  =
+                boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel );
+        safeInterval.first = getSafeInterpolationInterval( multiArcEphemerisModel->getSingleArcEphemerides( ).at( 0 ) ).first;
+        safeInterval.second = getSafeInterpolationInterval(
+                    multiArcEphemerisModel->getSingleArcEphemerides( ).at(
+                        multiArcEphemerisModel->getSingleArcEphemerides( ).size( ) - 1 ) ).second;
+    }
+    return safeInterval;
+}
+
 
 } // namespace simulation_setup
 

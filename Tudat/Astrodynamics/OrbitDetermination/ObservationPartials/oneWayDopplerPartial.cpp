@@ -378,6 +378,7 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
 {
     if( linkEndOfFixedTime != oneWayDopplerScaler_->getCurrentLinkEndType( ) )
     {
+        std::cout<<linkEndOfFixedTime<<" "<<oneWayDopplerScaler_->getCurrentLinkEndType( )<<std::endl;
         throw std::runtime_error( "Error one-way doppler partial and scaling are inconsistent" );
     }
 

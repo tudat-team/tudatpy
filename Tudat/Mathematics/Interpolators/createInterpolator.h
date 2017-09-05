@@ -34,7 +34,7 @@ enum OneDimensionalInterpolatorTypes
     cubic_spline_interpolator = 2,
     lagrange_interpolator = 3,
     hermite_spline_interpolator = 4,
-    piecewise_constant_interpolator = 45
+    piecewise_constant_interpolator = 5
 };
 
 //! Base class for providing settings for creating an interpolator.

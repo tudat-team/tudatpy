@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -296,9 +296,13 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
     // Create bodies
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
-    // Create ground station
+    // Create ground stations
     const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
     createGroundStation( bodyMap.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
+
+    // Set station with unrealistic position to force stronger proper time effect
+    const Eigen::Vector3d stationCartesianPosition2( 4324532.0, 157372.0, -9292843.0 );
+    createGroundStation( bodyMap.at( "Earth" ), "Station2", stationCartesianPosition2, cartesian_position );
 
     // Create Spacecraft
     Eigen::Vector6d spacecraftOrbitalElements;
@@ -445,81 +449,117 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
         }
     }
 
-//    // Test proper time rates
-//    {
-//        // Define link ends for observations.
-//        LinkEnds linkEndsStationSpacecraft;
-//        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-//        linkEndsStationSpacecraft[ reflector1 ] = std::make_pair( "Spacecraft" , ""  );
-//        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , "Station1"  );
+    // Test proper time rates in two-way link where effects should cancel (no retransmission delays; transmitter and receiver are
+    // same station)
+    for( unsigned test = 0; test < 2; test++ )
+    {
+        std::string receivingStation;
+        Eigen::Vector3d receivingStationPosition;
 
-//        LinkEnds uplinkLinkEndsStationSpacecraft;
-//        uplinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
-//        uplinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
+        if( test == 0 )
+        {
+            receivingStation = "Station1";
+            receivingStationPosition = stationCartesianPosition;
+        }
+        else
+        {
+            receivingStation = "Station2";
+            receivingStationPosition = stationCartesianPosition2;
+        }
 
-//        LinkEnds downlinkLinkEndsStationSpacecraft;
-//        downlinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , "Station1"  );
-//        downlinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Spacecraft" , ""  );
+        // Define link ends for observations.
+        LinkEnds linkEndsStationSpacecraft;
+        linkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
+        linkEndsStationSpacecraft[ reflector1 ] = std::make_pair( "Spacecraft" , ""  );
+        linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , receivingStation  );
 
-//        // Create observation settings
-//        boost::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections = boost::make_shared< ObservationSettings >
-//                ( two_way_doppler );
+        LinkEnds uplinkLinkEndsStationSpacecraft;
+        uplinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Earth" , "Station1"  );
+        uplinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft" , ""  );
 
-//        // Create observation model.
-//        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrections =
-//                ObservationModelCreator< 1, double, double>::createObservationModel(
-//                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
+        LinkEnds downlinkLinkEndsStationSpacecraft;
+        downlinkLinkEndsStationSpacecraft[ receiver ] = std::make_pair( "Earth" , receivingStation  );
+        downlinkLinkEndsStationSpacecraft[ transmitter ] = std::make_pair( "Spacecraft" , ""  );
 
-//        // Create observation settings
-//        boost::shared_ptr< ObservationSettings > oneWayObservableSettingsWithCorrections =
-//                boost::make_shared< OneWayDopperObservationSettings >
-//                (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
-//                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-//                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
-//        boost::shared_ptr< ObservationSettings > twoWayObservableSettingsWithCorrections =
-//                boost::make_shared< TwoWayDopperObservationSettings >
-//                ( oneWayObservableSettingsWithCorrections, oneWayObservableSettingsWithCorrections );
+        // Create observation settings
+        boost::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections = boost::make_shared< ObservationSettings >
+                ( two_way_doppler );
 
-//        // Create observation model.
-//        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
-//                ObservationModelCreator< 1, double, double>::createObservationModel(
-//                    linkEndsStationSpacecraft, twoWayObservableSettingsWithCorrections, bodyMap );
+        // Create observation model.
+        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithoutCorrections =
+                ObservationModelCreator< 1, double, double>::createObservationModel(
+                    linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
 
-//        double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+        // Create observation settings
+        boost::shared_ptr< OneWayDopperObservationSettings > oneWayObservableSettingsWithCorrections =
+                boost::make_shared< OneWayDopperObservationSettings >
+                (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
 
-//        double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
-//                    observationTime, receiver ).x( );
-//        double observationWithCorrections = observationModelWithCorrections->computeIdealObservations(
-//                    observationTime, receiver ).x( );
+        boost::shared_ptr< ObservationSettings > twoWayObservableSettingsWithCorrections =
+                boost::make_shared< TwoWayDopperObservationSettings >
+                ( oneWayObservableSettingsWithCorrections, oneWayObservableSettingsWithCorrections );
 
-//        boost::shared_ptr< RotationalEphemeris > earthRotationModel =
-//                bodyMap.at( "Earth" )->getRotationalEphemeris( );
-//        Eigen::Vector3d groundStationVelocityVector =
-//                earthRotationModel->getDerivativeOfRotationToTargetFrame( observationTime ) *
-//                ( earthRotationModel->getRotationToBaseFrame( observationTime ) * stationCartesianPosition );
+        // Create observation model.
+        boost::shared_ptr< ObservationModel< 1, double, double> > observationModelWithCorrections =
+                ObservationModelCreator< 1, double, double>::createObservationModel(
+                    linkEndsStationSpacecraft, twoWayObservableSettingsWithCorrections, bodyMap );
 
-//        boost::shared_ptr< Ephemeris > spacecraftEphemeris =
-//                bodyMap.at( "Spacecraft" )->getEphemeris( );
-//        Eigen::Vector6d spacecraftState =
-//                spacecraftEphemeris->getCartesianState( observationTime );
+        double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
-//        long double groundStationProperTimeRate = 1.0L - static_cast< long double >(
-//                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-//                    ( 0.5 * std::pow( groundStationVelocityVector.norm( ), 2 ) +
-//                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
-//        long double spacecraftProperTimeRate = 1.0L - static_cast< long double >(
-//                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
-//                    ( 0.5 * std::pow( spacecraftState.segment( 3, 3 ).norm( ), 2 ) +
-//                      earthGravitationalParameter / spacecraftState.segment( 0, 3 ).norm( ) ) );
+        double observationWithoutCorrections = observationModelWithoutCorrections->computeIdealObservations(
+                    observationTime, receiver ).x( );
 
-//        long double manualDopplerValue =
-//                groundStationProperTimeRate *
-//                ( 1.0L + static_cast< long double >( observationWithoutCorrections ) ) /
-//                spacecraftProperTimeRate - 1.0L;
+        std::vector< double > linkEndTimes;
+        std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
 
-//        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( manualDopplerValue ) - observationWithCorrections ),
-//                           static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
-//    }
+        double observationWithCorrections = observationModelWithCorrections->computeIdealObservationsWithLinkEndData(
+                    observationTime, receiver, linkEndTimes, linkEndStates ).x( );
+
+        boost::shared_ptr< RotationalEphemeris > earthRotationModel =
+                bodyMap.at( "Earth" )->getRotationalEphemeris( );
+
+        Eigen::Vector3d groundStationVelocityVectorAtTransmission =
+                earthRotationModel->getDerivativeOfRotationToTargetFrame( linkEndTimes.at( 0 ) ) *
+                ( earthRotationModel->getRotationToBaseFrame( linkEndTimes.at( 0 ) ) * stationCartesianPosition );
+
+        Eigen::Vector3d groundStationVelocityVectorAtReception =
+                earthRotationModel->getDerivativeOfRotationToTargetFrame( linkEndTimes.at( 2 ) ) *
+                ( earthRotationModel->getRotationToBaseFrame( linkEndTimes.at( 2 ) ) * receivingStationPosition );
+
+
+
+        long double groundStationProperTimeRateAtTransmission = 1.0L - static_cast< long double >(
+                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                    ( 0.5 * std::pow( groundStationVelocityVectorAtTransmission.norm( ), 2 ) +
+                      earthGravitationalParameter / stationCartesianPosition.norm( ) ) );
+
+        long double groundStationProperTimeRateAtReception = 1.0L - static_cast< long double >(
+                    physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT *
+                    ( 0.5 * std::pow( groundStationVelocityVectorAtReception.norm( ), 2 ) +
+                      earthGravitationalParameter / receivingStationPosition.norm( ) ) );
+
+        if( test == 0 )
+        {
+            BOOST_CHECK_SMALL( std::fabs( observationWithCorrections - observationWithoutCorrections ),
+                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+            BOOST_CHECK_SMALL( std::fabs( static_cast< double >(
+                                              groundStationProperTimeRateAtTransmission - groundStationProperTimeRateAtReception ) ),
+                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+        }
+        else
+
+        {
+            long double properTimeRatioDeviation =
+                    groundStationProperTimeRateAtTransmission / groundStationProperTimeRateAtReception - 1.0L;
+            long double observableDifference =
+                    observationWithCorrections - ( observationWithoutCorrections + properTimeRatioDeviation +
+                                                   observationWithoutCorrections * properTimeRatioDeviation );
+            BOOST_CHECK_SMALL( std::fabs( static_cast< double >( observableDifference ) ),
+                               static_cast< double >( std::numeric_limits< long double >::epsilon( ) ) );
+        }
+    }
 }
 
 

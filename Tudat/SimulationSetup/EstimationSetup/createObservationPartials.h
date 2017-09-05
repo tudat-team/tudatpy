@@ -45,7 +45,6 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
-    std::cout<<"Retrieving corrections"<<std::endl;
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
     std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
@@ -101,10 +100,10 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         boost::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
-                singleObservableCorrectionList =
-                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
-                singleObservableCorrectionList =
-                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
             case observation_models::angular_position:

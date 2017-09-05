@@ -32,13 +32,13 @@ void checkTranslationalStatesFeasibility(
         {
             std::string ephemerisOrigin
                     = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
+
             if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
                 != bodiesToIntegrate.end( ) )
             {
-                throw std::runtime_error(
-                            "Warning, found non-integrated body with an integrated body as ephemeris origin" +
+                std::cerr<< "Warning, found non-integrated body with an integrated body as ephemeris origin" +
                             bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
-                            bodyIterator->first );
+                            bodyIterator->first<<std::endl;
             }
         }
 

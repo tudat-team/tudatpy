@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                 stationState->getRotationFromBodyFixedToTopocentricFrame( 0.0 ) * inertialToBodyFixedFrame *
                 testCartesianPoint ;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    testPointInLocalFrame, expectedTestPointInLocalFrame, std::numeric_limits< double >::epsilon( ) );
+                    testPointInLocalFrame, expectedTestPointInLocalFrame, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
 
 }

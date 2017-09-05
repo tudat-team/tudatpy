@@ -57,8 +57,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( "No semi-major axis entry found." ) ) );
+        throw std::runtime_error( "No semi-major axis entry found." );
     }
 
     // Find and set eccentricity.
@@ -72,8 +71,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( "No eccentricity entry found." ) ) );
+        throw std::runtime_error( "No eccentricity entry found." );
     }
 
     // Find and set inclination.
@@ -87,8 +85,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( "No inclination entry found." ) ) );
+        throw std::runtime_error( "No inclination entry found." );
     }
 
     // Find and set longitude of ascending node.
@@ -102,9 +99,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error(
-                                        "No longitude of ascending node entry found." ) ) );
+        throw std::runtime_error( "No longitude of ascending node entry found." );
     }
 
     // Find and set argument of periapsis.
@@ -118,9 +113,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error(
-                                        "No argument of periapsis entry found." ) ) );
+        throw std::runtime_error( "No argument of periapsis entry found." );
     }
 
     // Find and set true anomaly.
@@ -156,9 +149,7 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     else
     {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error(
-                                        "No true anomaly or mean anomaly entries found." ) ) );
+        throw std::runtime_error( "No true anomaly or mean anomaly entries found." );
     }
 
     return keplerianElements;

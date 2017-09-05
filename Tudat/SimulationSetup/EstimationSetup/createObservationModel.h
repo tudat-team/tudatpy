@@ -774,7 +774,7 @@ public:
             if( linkEnds.size( ) != 3 )
             {
                 std::string errorMessage =
-                        "Error when making 1 way Doppler model, " +
+                        "Error when making 2 way Doppler model, " +
                         boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }

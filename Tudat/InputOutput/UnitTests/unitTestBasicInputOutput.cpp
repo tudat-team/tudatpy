@@ -32,13 +32,12 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/throw_exception.hpp>
 
 #include <Eigen/Core>
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/streamFilters.h"
-
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
@@ -90,9 +89,7 @@ std::vector< std::string > readLinesFromFile(
 
     else
     {
-        boost::throw_exception( std::runtime_error( boost::str(
-                boost::format( "Data file '%s' could not be opened." )
-                                                        % dataFileAbsolutePath.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + dataFileAbsolutePath );
     }
 
     // Trim all stray whitespaces.
@@ -559,6 +556,25 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
         // Remove output directory.
         boost::filesystem::remove_all( pathToOutputDirectory );
     }
+}
+
+//! Test if matrix is correctly written to a file
+BOOST_AUTO_TEST_CASE( testMatrixFileWriting )
+{
+    // Create random matrix
+    Eigen::MatrixXd randomMatrix = Eigen::MatrixXd::Random( 20, 10 );
+
+    // Write matrix to file
+    std::string fileName = "randomTestMatrix.save";
+    std::string outputPath = input_output::getTudatRootPath( ) + "InputOutput/UnitTests/";
+    input_output::writeMatrixToFile( randomMatrix, fileName, 16, outputPath, "\t" );
+
+    //  Read matrix to file and check if it is equal to original
+    Eigen::MatrixXd retrievedRandomMatrix = input_output::readMatrixFromFile( outputPath + fileName, "\t" );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( randomMatrix,
+                                       retrievedRandomMatrix,
+                                       ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

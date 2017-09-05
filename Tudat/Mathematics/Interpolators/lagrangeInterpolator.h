@@ -313,6 +313,16 @@ public:
         return interpolatedValue;
     }
 
+    //! Function to retrieve the number of stages of interpolator
+    /*!
+     * Function to retrieve the number of stages of interpolator
+     * \return Number of stages of interpolator
+     */
+    int getNumberOfStages( )
+    {
+        return numberOfStages_;
+    }
+
 
 protected:
 

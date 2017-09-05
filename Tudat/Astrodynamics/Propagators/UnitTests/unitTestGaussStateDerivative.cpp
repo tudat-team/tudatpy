@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         //Load spice kernels.
         std::string kernelsPath = input_output::getSpiceKernelPath( );
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
         spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
@@ -234,9 +234,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
         for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
         {
-            // std::cout<<gaussIterator->first<<" "<<( gaussIterator->second - cowellIterator->second ).transpose( )<<std::endl;
-            //        std::cout<<gaussIterator->first<<" "<<currentKeplerianStateDifference.transpose( )<<std::endl;
-            //        std::cout<<cowellIterator->first<<" "<<( cowellIterator->second ).transpose( )<<std::endl<<std::endl;
 
             for( int j= 0; j< 3; j++ )
             {
