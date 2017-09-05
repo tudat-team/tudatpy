@@ -66,10 +66,38 @@ const std::string Keys::Spice::interpolationStep = "interpolationStep";
 const std::string Keys::bodies = "bodies";
 
 const std::string Keys::Body::useDefaultSettings = "useDefaultSettings";
-const std::string Keys::Body::cartesianState = "cartesianState";
+const std::string Keys::Body::initialState = "initialState";
 const std::string Keys::Body::mass = "mass";
 const std::string Keys::Body::rotationalState = "rotationalState";
 const std::string Keys::Body::referenceArea = "referenceArea";
+
+// //  Body::State
+const std::string Keys::Body::State::type = "type";
+// Cartesian
+const std::string Keys::Body::State::x = "x";
+const std::string Keys::Body::State::y = "y";
+const std::string Keys::Body::State::z = "z";
+const std::string Keys::Body::State::vx = "vx";
+const std::string Keys::Body::State::vy = "vy";
+const std::string Keys::Body::State::vz = "vz";
+// Keplerian
+const std::string Keys::Body::State::centralBody = "centralBody";
+const std::string Keys::Body::State::semiMajorAxis = "semiMajorAxis";
+const std::string Keys::Body::State::eccentricity = "eccentricity";
+const std::string Keys::Body::State::inclination = "inclination";
+const std::string Keys::Body::State::argumentOfPeriapsis = "argumentOfPeriapsis";
+const std::string Keys::Body::State::longitudeOfAscendingNode = "longitudeOfAscendingNode";
+const std::string Keys::Body::State::trueAnomaly = "trueAnomaly";
+const std::string Keys::Body::State::meanAnomaly = "meanAnomaly";
+const std::string Keys::Body::State::eccentricAnomaly = "eccentricAnomaly";
+const std::string Keys::Body::State::semiLatusRectum = "semiLatusRectum";
+const std::string Keys::Body::State::radius = "radius";
+const std::string Keys::Body::State::altitude = "altitude";
+const std::string Keys::Body::State::periapsisDistance = "periapsisDistance";
+const std::string Keys::Body::State::apoapsisDistance = "apoapsisDistance";
+const std::string Keys::Body::State::periapsisAltitude = "periapsisAltitude";
+const std::string Keys::Body::State::apoapsisAltitude = "apoapsisAltitude";
+
 
 // //  Body::Aerodynamics
 const std::string Keys::Body::aerodynamics = "aerodynamics";

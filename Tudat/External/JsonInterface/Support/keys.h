@@ -56,10 +56,39 @@ struct Keys
     struct Body
     {
         static const std::string useDefaultSettings;
-        static const std::string cartesianState;
+        static const std::string initialState;
         static const std::string mass;
         static const std::string rotationalState;
         static const std::string referenceArea;
+
+        struct State
+        {
+            static const std::string type;
+            // Cartesian
+            static const std::string x;
+            static const std::string y;
+            static const std::string z;
+            static const std::string vx;
+            static const std::string vy;
+            static const std::string vz;
+            // Keplerian
+            static const std::string centralBody;
+            static const std::string semiMajorAxis;
+            static const std::string eccentricity;
+            static const std::string inclination;
+            static const std::string argumentOfPeriapsis;
+            static const std::string longitudeOfAscendingNode;
+            static const std::string trueAnomaly;
+            static const std::string meanAnomaly;
+            static const std::string eccentricAnomaly;
+            static const std::string semiLatusRectum;
+            static const std::string radius;
+            static const std::string altitude;
+            static const std::string periapsisDistance;
+            static const std::string apoapsisDistance;
+            static const std::string periapsisAltitude;
+            static const std::string apoapsisAltitude;
+        };
 
         static const std::string aerodynamics;
         struct Aerodynamics
