@@ -21,6 +21,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     std::string parameterDescription;
     switch( parameterType )
     {
+    case arc_wise_initial_body_state:
+        parameterDescription = "arc-wise translational state ";
+        break;
     case initial_body_state:
         parameterDescription = "translational state ";
         break;
@@ -53,6 +56,21 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     case ground_station_position:
         parameterDescription = "ground station position ";
+        break;
+    case equivalence_principle_lpi_violation_parameter:
+        parameterDescription = " equivalence principle violation parameter ";
+        break;
+    case empirical_acceleration_coefficients:
+        parameterDescription = " empirical acceleration coefficients ";
+        break;
+    case arc_wise_empirical_acceleration_coefficients:
+        parameterDescription = " arc-wise empirical acceleration coefficients ";
+        break;
+    case full_degree_tidal_love_number:
+        parameterDescription = " tidal Love number at full degree ";
+        break;
+    case single_degree_variable_tidal_love_number:
+        parameterDescription = " tidal Love number at separate orders of single degree ";
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
@@ -126,6 +144,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case equivalence_principle_lpi_violation_parameter:
         isDoubleParameter = true;
         break;
+   case full_degree_tidal_love_number:
+        isDoubleParameter = false;
+        break;
+    case single_degree_variable_tidal_love_number:
+         isDoubleParameter = false;
+         break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );
@@ -170,6 +194,26 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     }
     return flag;
 }
+
+//! Function to determine whether the given parameter influences a body's tidal gravity field variations.
+bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case full_degree_tidal_love_number:
+        flag = true;
+        break;
+    case single_degree_variable_tidal_love_number:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
+
 
 
 

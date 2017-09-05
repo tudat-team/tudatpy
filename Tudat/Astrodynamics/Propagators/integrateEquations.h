@@ -119,7 +119,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             if( printInterval == printInterval )
             {
                 if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
-                      static_cast< int >( printInterval ) ) <
+                      static_cast< int >( printInterval ) ) <=
                         ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
                           static_cast<int>( printInterval ) )  )
                 {

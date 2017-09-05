@@ -175,7 +175,8 @@ inline void testObservationPartials(
 
         for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
         {
-            // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estiamtion)
+            std::cout<<i<<"Times size: "<<analyticalObservationPartials[ i ].size( )<<" "<<expectedPartialTimes[ i ].size( )<<std::endl;
+            // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
             if( i < 2 )
             {
                 BOOST_CHECK_EQUAL( analyticalObservationPartials[ i ].size( ), expectedPartialTimes[ i ].size( ) );
@@ -239,6 +240,7 @@ inline void testObservationPartials(
             }
         }
 
+
         if( testParameterPartial )
         {
 
@@ -272,6 +274,9 @@ inline void testObservationPartials(
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
+                    std::cout<<"Parameter partial "<<std::endl<<
+                           currentParameterPartial<<std::endl<<numericalPartialsWrtDoubleParameters[ i ]<<std::endl<<
+                           currentParameterPartial - numericalPartialsWrtDoubleParameters[ i ]<<std::endl<<std::endl;
                 }
             }
 
@@ -311,9 +316,16 @@ inline void testObservationPartials(
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
+                    std::cout<<"Parameter partial "<<std::endl<<
+                           currentParameterPartial<<std::endl<<numericalPartialsWrtVectorParameters[ i ]<<std::endl<<
+                           currentParameterPartial - numericalPartialsWrtVectorParameters[ i ]<<std::endl<<std::endl;
                 }
             }
         }
+        linkEndIterator++;
+        linkEndIterator++;
+        linkEndIterator++;
+        linkEndIterator++;
     }
 }
 

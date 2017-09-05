@@ -197,7 +197,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         std::string acceleratedBody;
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
         }
@@ -380,6 +381,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
 
 {
+    std::cout<<"A1"<<std::endl;
     // Define return partial list
     SingleLinkObservationPartialList twoWayDopplerPartialList;
 
@@ -396,18 +398,22 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
+        std::cout<<"A2 "<<i<<" "<<lightTimeCorrections.size( )<<std::endl;
+
         currentLightTimeCorrections.clear( );
         if( lightTimeCorrections.size( ) > 0 )
         {
             currentLightTimeCorrections = lightTimeCorrections.at( i );
         }
+        std::cout<<"A3 "<<i<<std::endl;
 
         // Define links for current one-way Doppler link
         currentLinkEnds.clear( );
         currentLinkEnds[ observation_models::transmitter ] = twoWayDopplerLinkEnds.at(
-                    observation_models::getNWayLinkEnumFromIndex( i, 2 ) );
+                    observation_models::getNWayLinkEnumFromIndex( i, 3 ) );
         currentLinkEnds[ observation_models::receiver ] = twoWayDopplerLinkEnds.at(
-                    observation_models::getNWayLinkEnumFromIndex( i + 1, 2 ) );
+                    observation_models::getNWayLinkEnumFromIndex( i + 1, 3 ) );
+        std::cout<<"A4 "<<i<<std::endl;
 
         boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > transmitterDopplerProperTimeInterface;
         boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > receiverDopplerProperTimeInterface;
@@ -426,6 +432,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
                     twoWayObservationModel->getDownlinkDopplerCalculator( )->getReceiverProperTimeRateCalculator( );
         }
 
+        std::cout<<"A5 "<<i<<std::endl;
+
         // Create one-way Doppler partials for current link
         constituentOneWayDopplerPartials[ i ] =
                 createOneWayDopplerPartials(
@@ -436,6 +444,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
     std::map< int, boost::shared_ptr< OneWayDopplerScaling > > twoWayDopplerScalers;
     std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > > sortedTwoWayDopplerPartials;
+
     std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier > parameterIdList;
     for( OneWayDopplerPartialList::iterator oneWayPartialIterator = constituentOneWayDopplerPartials.begin( );
          oneWayPartialIterator != constituentOneWayDopplerPartials.end( ); oneWayPartialIterator++ )

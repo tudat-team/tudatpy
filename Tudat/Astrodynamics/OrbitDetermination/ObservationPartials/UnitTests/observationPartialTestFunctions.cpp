@@ -42,7 +42,7 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
 
 
     // Create bodies.
@@ -316,6 +316,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
     for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
     {
+        std::cout<<"Estimated body "<<i<<" "<<bodiesWithEstimatedState.at( i )<<std::endl;
         currentPartialTimes.clear( );
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )

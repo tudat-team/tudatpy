@@ -54,8 +54,8 @@ void getNominalJupiterGravityField(
     double jupiterc22 = -0.03E-6;
     double jupiters22 = -0.007E-6;
 
-    cosineCoefficients.setZero( 5, 5 );
-    sineCoefficients.setZero( 5, 5 );
+    cosineCoefficients.setZero( 6, 6 );
+    sineCoefficients.setZero( 6, 6 );
 
     // Normalize coefficients and set in matrices.
     cosineCoefficients( 0, 0 ) = 1.0;

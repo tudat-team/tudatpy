@@ -14,7 +14,7 @@
  *      The required kernels are:
  *           de421.bsp
  *           pck00009.tpc
- *           naif0009.tls
+ *           naif0012.tls
  *           de-403-masses.tpc
  *      They can be found in a single zip file on the wiki at
  *      http://tudat.tudelft.nl/projects/tudat/wiki/SpiceInterface/ on the Tudat website or,
@@ -72,9 +72,9 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
                   << std::endl;
     }
 
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "naif0009.tls" ) )
+    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "naif0012.tls" ) )
     {
-        std::cerr << "SPICE kernel naif0009.tls not found in "<<getSpiceKernelPath( )
+        std::cerr << "SPICE kernel naif0012.tls not found in "<<getSpiceKernelPath( )
                   << std::endl;
     }
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0012.tls" );
 
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
@@ -494,7 +494,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     // Load spice kernels.
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0012.tls" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
 
     // Get ammount of loaded Spice kernels.

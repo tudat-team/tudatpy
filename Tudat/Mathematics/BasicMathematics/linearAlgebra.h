@@ -144,8 +144,36 @@ Eigen::Matrix3d calculatePartialOfNormalizedVector(
         const Eigen::Matrix3d& partialOfUnnormalizedVector,
         const Eigen::Vector3d& unnormalizedVector );
 
+//! Function to check whether an Eigen Matrix has any NaN entries
+/*!
+ *  Function to check whether an Eigen Matrix has any NaN entries
+ *  \param matrixToCheck Eigen Matrix to check for any NaN entries
+ *  \return True if matrix has NaN entries, false otherwise
+ */
+template< typename StateScalarType, int NumberOfRows, int NumberOfColumns >
+bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRows, NumberOfColumns > matrixToCheck )
+{
+    bool areNanEntriesPresent = false;
+    for( int i = 0; i < matrixToCheck.rows( ); i++ )
+    {
+        for( int j = 0; j < matrixToCheck.cols( ); j++ )
+        {
+            if( !( matrixToCheck( i, j ) == matrixToCheck( i, j ) ) )
+            {
+                areNanEntriesPresent = true;
+            }
+        }
+    }
+    return areNanEntriesPresent;
+}
 
-
+//! Function to compute the root mean square value of the entries in an Eigen vector
+/*!
+ *  Function to compute the root mean square (RMS) value of the entries in an Eigen vector
+ * \param inputVector Vector for which the RMS is to be computed
+ * \return RMS of input vector
+ */
+double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
 
 
 } // namespace linear_algebra

@@ -255,6 +255,7 @@ struct PodOutput
      * matrix were divided to normalize its entries.
      * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
+     * \param firstIterationResiduals Vector of observation residuals at first iteration
      */
     PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
@@ -262,16 +263,26 @@ struct PodOutput
                const Eigen::VectorXd& weightsMatrixDiagonal,
                const Eigen::VectorXd& informationMatrixTransformationDiagonal,
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
-               const double residualStandardDeviation ):
+               const double residualStandardDeviation,
+               const Eigen::VectorXd& firstIterationResiduals =
+            Eigen::VectorXd::Zero( 0 ) ):
 
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
-        residualStandardDeviation_( residualStandardDeviation ){ }
+        residualStandardDeviation_( residualStandardDeviation ),
+        firstIterationResiduals_( firstIterationResiduals )
+    { }
 
+    //! Function to retrieve the unnormalized inverse estimation covariance matrix
+    /*!
+     * Function to retrieve the unnormalized inverse estimation covariance matrix
+     * \return Isnverse estimation covariance matrix
+     */
     Eigen::MatrixXd getUnnormalizedInverseCovarianceMatrix( )
     {
+
         Eigen::MatrixXd inverseUnnormalizedCovarianceMatrix = inverseNormalizedCovarianceMatrix_;
 
         for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
@@ -285,6 +296,36 @@ struct PodOutput
         }
 
         return inverseUnnormalizedCovarianceMatrix;
+    }
+
+    //! Function to retrieve the unnormalized estimation covariance matrix
+    /*!
+     * Function to retrieve the unnormalized estimation covariance matrix
+     * \return Estimation covariance matrix
+     */
+    Eigen::MatrixXd getUnnormalizedCovarianceMatrix( )
+    {
+        return getUnnormalizedInverseCovarianceMatrix( ).inverse( );
+    }
+
+    //! Function to retrieve the unnormalized formal error vector of the estimation result.
+    /*!
+     * Function to retrieve the unnormalized formal error vector of the estimation result.
+     * \return Formal error vector of the estimation result.
+     */
+    Eigen::VectorXd getFormalErrorVector( )
+    {
+        return ( getUnnormalizedCovarianceMatrix( ).diagonal( ) ).cwiseSqrt( );
+    }
+
+    //! Function to retrieve the correlation matrix of the estimation result.
+    /*!
+     * Function to retrieve the correlation matrix of the estimation result.
+     * \return Correlation matrix of the estimation result.
+     */
+    Eigen::MatrixXd getCorrelationMatrix( )
+    {
+        return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
     //! Vector of estimated parameter values.
@@ -307,6 +348,9 @@ struct PodOutput
 
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
+
+    //! Vector of observation residuals at first iteration
+    Eigen::VectorXd firstIterationResiduals_;
 };
 
 }

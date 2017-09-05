@@ -36,14 +36,13 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     observation_models::LinkEndType referenceLinkEnd;
     int fixedLinkEndIndex = observation_models::getNWayLinkIndexFromLinkEndType(
                 fixedLinkEnd, 3 );
-
     {
         singleLinkEndStates[ 0 ] = linkEndStates.at( 0 );
         singleLinkEndStates[ 1 ] = linkEndStates.at( 1 );
         singleLinkTimes[ 0 ] = times.at( 0 );
         singleLinkTimes[ 1 ] = times.at( 1 );
 
-        if( fixedLinkEndIndex == observation_models::transmitter )
+        if( fixedLinkEndIndex == 0 )
         {
             referenceLinkEnd = observation_models::transmitter;
         }
@@ -62,7 +61,7 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
         singleLinkTimes[ 0 ] = times.at( 2 );
         singleLinkTimes[ 1 ] = times.at( 3 );
 
-        if( fixedLinkEndIndex == observation_models::receiver )
+        if( fixedLinkEndIndex == 2 )
         {
             referenceLinkEnd = observation_models::receiver;
         }
@@ -108,24 +107,27 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
 
     double currentPartialMultiplier = TUDAT_NAN;
 
-    for( rangePartialIterator_ = dopplerPartialList_.begin( ); rangePartialIterator_ != dopplerPartialList_.end( );
-         rangePartialIterator_++ )
+    std::cout<<parameterIdentifier_.first<<" "<<parameterIdentifier_.second.first<<std::endl;
+    for( dopplerPartialIterator_ = dopplerPartialList_.begin( ); dopplerPartialIterator_ != dopplerPartialList_.end( );
+         dopplerPartialIterator_++ )
     {
         TwoWayDopplerPartialReturnType currentPartialSet;
 
         // Set link end times and states for current one-way range
-        subLinkStates[ 0 ] = states[ 2 * rangePartialIterator_->first ];
-        subLinkStates[ 1 ] = states[ 2 * rangePartialIterator_->first + 1 ];
-        subLinkTimes[ 0 ] = times[ 2 * rangePartialIterator_->first ];
-        subLinkTimes[ 1 ] = times[ 2 * rangePartialIterator_->first + 1 ];
+        subLinkStates[ 0 ] = states[ 2 * dopplerPartialIterator_->first ];
+        subLinkStates[ 1 ] = states[ 2 * dopplerPartialIterator_->first + 1 ];
+        subLinkTimes[ 0 ] = times[ 2 * dopplerPartialIterator_->first ];
+        subLinkTimes[ 1 ] = times[ 2 * dopplerPartialIterator_->first + 1 ];
 
         // Compute value by which one-way range should be scaled for inclusion into n-way range
         currentPartialMultiplier = 1.0;
-        if( rangePartialIterator_->first >= referenceStartLinkEndIndex )
+        std::cout<<"Current link ends "<<dopplerPartialIterator_->first<<" "<<referenceStartLinkEndIndex<<std::endl;
+
+        if( dopplerPartialIterator_->first >= referenceStartLinkEndIndex )
         {
             subLinkReference = observation_models::transmitter;
 
-            for( int i = rangePartialIterator_->first + 1; i < numberOfLinkEnds_ - 1; i++ )
+            for( int i = dopplerPartialIterator_->first + 1; i < numberOfLinkEnds_ - 1; i++ )
             {
                 currentPartialMultiplier += twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i ) - 1.0;
             }
@@ -133,14 +135,15 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         else
         {
             subLinkReference = observation_models::receiver;
-            for( int i = rangePartialIterator_->first; i > 0; i-- )
+            for( int i = dopplerPartialIterator_->first; i > 0; i-- )
             {
                 currentPartialMultiplier += 1.0 / twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i - 1 ) - 1.0;
             }
         }
 
+
         // Compute one-way range partials
-        currentPartialSet = rangePartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference );
+        currentPartialSet = dopplerPartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference );
 
         // Scale partials by required amount and add to return map.
         for( unsigned int i = 0; i < currentPartialSet.size( ); i++ )
@@ -149,6 +152,7 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         }
         completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
     }
+    std::cout<<std::endl;
 
     return completePartialSet;
 }

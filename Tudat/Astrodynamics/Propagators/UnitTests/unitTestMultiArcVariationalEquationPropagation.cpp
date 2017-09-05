@@ -56,14 +56,17 @@ BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
 
 
 template< typename TimeType = double , typename StateScalarType  = double >
-std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeMultiArcEarthMoonSimulation(
         const std::vector< std::string > centralBodies,
         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
         const int propagationType = 0,
+        const bool patchArcsTogether = 0,
         const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ),
         const bool propagateVariationalEquations = 1,
+        const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > forcedArcInitialStates =
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
         const double arcDuration = 5.0E5,
         const double arcOverlap  = 5.0E3 )
 {
@@ -71,7 +74,7 @@ executeMultiArcEarthMoonSimulation(
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
@@ -155,12 +158,20 @@ executeMultiArcEarthMoonSimulation(
     }
     while( currentEndTime < ( integrationEndTime ) );
 
+
     // Set (perturbed) initial state.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > systemInitialStates;
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        systemInitialStates.push_back( getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                           bodiesToIntegrate, centralBodies, bodyMap, arcStartTimes.at( i ) ) );
+        if( forcedArcInitialStates.size( ) == 0 )
+        {
+            systemInitialStates.push_back( getInitialStatesOfBodies< TimeType, StateScalarType >(
+                                               bodiesToIntegrate, centralBodies, bodyMap, arcStartTimes.at( i ) ) );
+        }
+        else
+        {
+            systemInitialStates.push_back( forcedArcInitialStates.at( i ) );
+        }
         systemInitialStates[ i ] += initialStateDifference;
     }
 
@@ -181,6 +192,20 @@ executeMultiArcEarthMoonSimulation(
         propagatorSettingsList.push_back( boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                                           ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ),
                                             arcEndTimes.at( i ), propagatorType ) );
+    }
+    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings;
+
+    if( patchArcsTogether && forcedArcInitialStates.size( ) == 0 )
+    {
+        multiArcPropagatorSettings =
+                boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettingsList, patchArcsTogether );
+    }
+    else
+    {
+        multiArcPropagatorSettings =
+                boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                    propagatorSettingsList );
     }
 
     // Define parameters.
@@ -215,17 +240,16 @@ executeMultiArcEarthMoonSimulation(
         // Create dynamics simulator
         MultiArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 MultiArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
-                        propagatorSettingsList ), parametersToEstimate, arcStartTimes );
+                    bodyMap, integratorSettings, multiArcPropagatorSettings, parametersToEstimate, arcStartTimes );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
         {
-            variationalEquations.integrateVariationalAndDynamicalEquations( systemInitialStates, 1 );
+            variationalEquations.integrateVariationalAndDynamicalEquations( multiArcPropagatorSettings->getInitialStateList( ), 1 );
         }
         else
         {
-            variationalEquations.integrateDynamicalEquationsOfMotionOnly( systemInitialStates );
+            variationalEquations.integrateDynamicalEquationsOfMotionOnly( multiArcPropagatorSettings->getInitialStateList( ) );
         }
 
 
@@ -248,8 +272,12 @@ executeMultiArcEarthMoonSimulation(
             {
                 results.first.push_back( variationalEquations.getStateTransitionMatrixInterface( )->
                                          getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+                results.second.push_back( multiArcPropagatorSettings->getInitialStateList( ).at( arc ) );
             }
-            results.second.push_back( testStates );
+            else
+            {
+                results.second.push_back( testStates );
+            }
         }
     }
     return results;
@@ -308,76 +336,85 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
             maximumPropagatorType = 1;
         }
 
-        // Test for all requested propagator types.
-        for( unsigned int k = 0; k < maximumPropagatorType; k++ )
+        for( unsigned int patchArcs = 0; patchArcs < 2; patchArcs++ )
         {
-            // Compute state transition and sensitivity matrices
-            currentOutput = executeMultiArcEarthMoonSimulation < double, double >(
-                        centralBodiesSet[ i ], Eigen::Matrix< double, 12, 1 >::Zero( ), k );
-            std::vector< Eigen::MatrixXd > stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first;
-            std::vector< Eigen::MatrixXd > manualPartial;
-            manualPartial.resize( stateTransitionAndSensitivityMatrixAtEpoch.size( ) );
-            for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
+            // Test for all requested propagator types.
+            for( unsigned int k = 0; k < maximumPropagatorType; k++ )
             {
-                manualPartial[ arc ] = Eigen::MatrixXd::Zero( 12, 15 );
-            }
-            // Numerically compute state transition matrix
-            for( unsigned int j = 0; j < 12; j++ )
-            {
-                std::vector< Eigen::VectorXd > upPerturbedState, downPerturbedState;
-                perturbedState.setZero( );
-                perturbedState( j ) += statePerturbation( j );
-                upPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
-                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second;
-
-                perturbedState.setZero( );
-                perturbedState( j ) -= statePerturbation( j );
-                downPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
-                            centralBodiesSet[ i ], perturbedState, k, Eigen::Vector3d::Zero( ), 0 ).second;
-
-                for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
+                std::cout<<"Test: "<<i<<" "<<patchArcs<<" "<<k<<std::endl;
+                // Compute state transition and sensitivity matrices
+                currentOutput = executeMultiArcEarthMoonSimulation < double, double >(
+                            centralBodiesSet[ i ], Eigen::Matrix< double, 12, 1 >::Zero( ), k, patchArcs );
+                std::vector< Eigen::MatrixXd > stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first;
+                std::vector< Eigen::VectorXd > nominalArcStartStates;
+                if( patchArcs )
                 {
-                    manualPartial[ arc ].block( 0, j, 12, 1 ) =
-                            ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * statePerturbation( j ) );
+                    nominalArcStartStates = currentOutput.second;
                 }
-            }
 
-            // Numerically compute sensitivity matrix
-            for( unsigned int j = 0; j < 3; j ++ )
-            {
-                std::vector< Eigen::VectorXd > upPerturbedState, downPerturbedState;
-                perturbedState.setZero( );
-                Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
-                perturbedParameter.setZero( );
-                perturbedParameter( j ) += parameterPerturbation( j );
-                upPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
-                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second;
-
-                perturbedParameter.setZero( );
-                perturbedParameter( j ) -= parameterPerturbation( j );
-                downPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
-                            centralBodiesSet[ i ], perturbedState, k, perturbedParameter, 0 ).second;
-
-                for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
+                std::vector< Eigen::MatrixXd > manualPartial;
+                manualPartial.resize( stateTransitionAndSensitivityMatrixAtEpoch.size( ) );
+                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
                 {
-                    manualPartial[ arc ].block( 0, j + 12, 12, 1 ) =
-                            ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * parameterPerturbation( j ) );
+                    manualPartial[ arc ] = Eigen::MatrixXd::Zero( 12, 15 );
                 }
+                // Numerically compute state transition matrix
+                for( unsigned int j = 0; j < 12; j++ )
+                {
+                    std::vector< Eigen::VectorXd > upPerturbedState, downPerturbedState;
+                    perturbedState.setZero( );
+                    perturbedState( j ) += statePerturbation( j );
+                    upPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
+                                centralBodiesSet[ i ], perturbedState, k, patchArcs, Eigen::Vector3d::Zero( ), 0, nominalArcStartStates ).second;
+
+                    perturbedState.setZero( );
+                    perturbedState( j ) -= statePerturbation( j );
+                    downPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
+                                centralBodiesSet[ i ], perturbedState, k, patchArcs, Eigen::Vector3d::Zero( ), 0, nominalArcStartStates ).second;
+
+                    for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
+                    {
+                        manualPartial[ arc ].block( 0, j, 12, 1 ) =
+                                ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * statePerturbation( j ) );
+                    }
+                }
+
+                // Numerically compute sensitivity matrix
+                for( unsigned int j = 0; j < 3; j ++ )
+                {
+                    std::vector< Eigen::VectorXd > upPerturbedState, downPerturbedState;
+                    perturbedState.setZero( );
+                    Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) += parameterPerturbation( j );
+                    upPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
+                                centralBodiesSet[ i ], perturbedState, k, patchArcs, perturbedParameter, 0, nominalArcStartStates ).second;
+
+                    perturbedParameter.setZero( );
+                    perturbedParameter( j ) -= parameterPerturbation( j );
+                    downPerturbedState = executeMultiArcEarthMoonSimulation< double, double >(
+                                centralBodiesSet[ i ], perturbedState, k, patchArcs, perturbedParameter, 0, nominalArcStartStates ).second;
+
+                    for( unsigned int arc = 0; arc < upPerturbedState.size( ); arc++ )
+                    {
+                        manualPartial[ arc ].block( 0, j + 12, 12, 1 ) =
+                                ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * parameterPerturbation( j ) );
+                    }
+                }
+
+                std::cout<<manualPartial.at( 1 )<<std::endl<<std::endl<<
+                           stateTransitionAndSensitivityMatrixAtEpoch.at( 1 )<<std::endl;
+
+                // Check results
+                for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
+                {
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
+                                manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
+                }
+
             }
-
-            std::cout<<manualPartial.at( 0 )<<std::endl<<std::endl<<
-                       stateTransitionAndSensitivityMatrixAtEpoch.at( 0 )<<std::endl;
-
-            // Check results
-            for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
-            {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 12, 15 ),
-                            manualPartial.at( arc ).block( 0, 0, 12, 15 ), 5.0E-4 );
-            }
-
         }
-
     }
 }
 

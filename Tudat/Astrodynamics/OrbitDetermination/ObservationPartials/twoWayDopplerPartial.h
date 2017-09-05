@@ -150,7 +150,7 @@ protected:
     std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > dopplerPartialList_;
 
     //! Predeclared iterator
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
+    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator dopplerPartialIterator_;
 
     //! Number of link ends in two-way observable
     int numberOfLinkEnds_;
