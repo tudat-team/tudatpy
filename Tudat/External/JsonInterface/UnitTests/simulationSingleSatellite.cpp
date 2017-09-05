@@ -21,6 +21,9 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_simulationSingleSatellite )
 
 BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
@@ -40,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    Simulation< > jsonSimulation( ( inputDirectory( ) / "simulationSingleSatellite.json" ).string( ) );
+    Simulation< > jsonSimulation( INPUT( "" ) );
     jsonSimulation.run( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );

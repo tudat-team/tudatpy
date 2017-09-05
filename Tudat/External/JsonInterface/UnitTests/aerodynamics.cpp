@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_aerodynamics )
 
 // Test 1: aerodynamic coefficients types
 BOOST_AUTO_TEST_CASE( test_json_aerodynamics_coefficientsTypes )
 {
-    BOOST_CHECK_EQUAL_ENUM( "aerodynamics_coefficientsTypes",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "coefficientsTypes" ),
                             simulation_setup::aerodynamicCoefficientTypes,
                             simulation_setup::unsupportedAerodynamicCoefficientTypes );
 }
@@ -46,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_coefficientsTypes )
 // Test 2: aerodynamic variables
 BOOST_AUTO_TEST_CASE( test_json_aerodynamics_variables )
 {
-    BOOST_CHECK_EQUAL_ENUM( "aerodynamics_variables",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "variables" ),
                             aerodynamics::aerodynamicVariables,
                             aerodynamics::unsupportedAerodynamicVariables );
 }
@@ -59,7 +62,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_dragCoefficient )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_dragCoefficient" );
+            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "dragCoefficient" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceArea = 10.5;
@@ -82,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_constant" );
+            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "constant" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceLength = 5.0;
@@ -117,7 +120,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulated1" );
+            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulated1" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const std::vector< double > independentVariables = { 0.0, 1.0, 2.0, 3.0 };
@@ -171,7 +174,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulatedN )
 
     // Create AerodynamicCoefficientSettings from JSON file
     const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( "aerodynamics_tabulatedN" );
+            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulatedN" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const std::map< int, std::string > forceCoefficientsFiles = { { 0, "aurora_CD.txt" }, { 2, "aurora_CL.txt" } };

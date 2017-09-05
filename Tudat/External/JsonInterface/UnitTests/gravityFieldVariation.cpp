@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_gravityFieldVariation )
 
 // Test 1: gravity field variation types
 BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_bodyDeformationTypes )
 {
-    BOOST_CHECK_EQUAL_ENUM( "gravityFieldVariation_bodyDeformationTypes",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "bodyDeformationTypes" ),
                             gravitation::bodyDeformationTypes,
                             gravitation::unsupportedBodyDeformationTypes );
 }
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_basicSolidBody )
 
     // Create GravityFieldVariationSettings from JSON file
     const boost::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldVariationSettings > >( "gravityFieldVariation_basicSolidBody" );
+            parseJSONFile< boost::shared_ptr< GravityFieldVariationSettings > >( INPUT( "basicSolidBody" ) );
 
     // Create GravityFieldVariationSettings manually
     const std::vector< std::string > deformingBodies = { "Moon" };
@@ -80,7 +83,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
 
     // Create GravityFieldVariationSettings from JSON file
     const boost::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< GravityFieldVariationSettings > >( "gravityFieldVariation_tabulated" );
+            parseJSONFile< boost::shared_ptr< GravityFieldVariationSettings > >( INPUT( "tabulated" ) );
 
     // Create GravityFieldVariationSettings manually
     const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections =

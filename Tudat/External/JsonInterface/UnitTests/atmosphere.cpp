@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_atmosphere )
 
 // Test 1: atmosphere models
 BOOST_AUTO_TEST_CASE( test_json_atmosphere_models )
 {
-    BOOST_CHECK_EQUAL_ENUM( "atmosphere_models",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "models" ),
                             simulation_setup::atmosphereTypes,
                             simulation_setup::unsupportedAtmosphereTypes );
 }
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_exponential )
 
     // Create AtmosphereSettings from JSON file
     const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AtmosphereSettings > >( "atmosphere_exponential" );
+            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "exponential" ) );
 
     // Create AtmosphereSettings manually
     const double densityScaleHeight = 5.0;
@@ -76,7 +79,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_tabulated )
 
     // Create AtmosphereSettings from JSON file
     const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AtmosphereSettings > >( "atmosphere_tabulated" );
+            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "tabulated" ) );
 
     // Create AtmosphereSettings manually
     const boost::shared_ptr< AtmosphereSettings > manualSettings =
@@ -94,7 +97,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00 )
 
     // Create AtmosphereSettings from JSON file
     const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AtmosphereSettings > >( "atmosphere_nrlmsise00" );
+            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00" ) );
 
     // Create AtmosphereSettings manually
     const boost::shared_ptr< AtmosphereSettings > manualSettings =
@@ -112,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00_custom )
 
     // Create AtmosphereSettings from JSON file
     const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< AtmosphereSettings > >( "atmosphere_nrlmsise00_custom" );
+            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00_custom" ) );
 
     // Create AtmosphereSettings manually
     const boost::shared_ptr< AtmosphereSettings > manualSettings =

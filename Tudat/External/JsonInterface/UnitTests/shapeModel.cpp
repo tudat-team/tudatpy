@@ -33,12 +33,15 @@ namespace tudat
 namespace unit_tests
 {
 
+#define INPUT( filename ) \
+    ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
+
 BOOST_AUTO_TEST_SUITE( test_json_shapeModel )
 
 // Test 1: radiation pressure types
 BOOST_AUTO_TEST_CASE( test_json_shapeModel_types )
 {
-    BOOST_CHECK_EQUAL_ENUM( "shapeModel_types",
+    BOOST_CHECK_EQUAL_ENUM( INPUT( "types" ),
                             simulation_setup::bodyShapeTypes,
                             simulation_setup::unsupportedBodyShapeTypes );
 }
@@ -51,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_spherical )
 
     // Create BodyShapeSettings from JSON file
     const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< BodyShapeSettings > >( "shapeModel_spherical" );
+            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "spherical" ) );
 
     // Create BodyShapeSettings manually
     const double radius = 6.4e6;
@@ -70,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_sphericalSpice )
 
     // Create BodyShapeSettings from JSON file
     const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< BodyShapeSettings > >( "shapeModel_sphericalSpice" );
+            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "sphericalSpice" ) );
 
     // Create BodyShapeSettings manually
     const boost::shared_ptr< BodyShapeSettings > manualSettings =
@@ -88,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_oblateSpherical )
 
     // Create BodyShapeSettings from JSON file
     const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            readInputFile< boost::shared_ptr< BodyShapeSettings > >( "shapeModel_oblateSpherical" );
+            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "oblateSpherical" ) );
 
     // Create BodyShapeSettings manually
     const double equatorialRadius = 6.378e6;
