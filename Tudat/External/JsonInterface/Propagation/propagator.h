@@ -30,6 +30,38 @@ namespace tudat
 namespace json_interface
 {
 
+// StateType
+
+//! Possible ways of providing initial translational states.
+enum StateType
+{
+    cartesianComponents,
+    keplerianComponents
+};
+
+//! Map of `StateType` string representations.
+static std::map< StateType, std::string > stateTypes =
+{
+    { cartesianComponents, "cartesian" },
+    { keplerianComponents, "keplerian" }
+};
+
+//! `StateType` not supported by `json_interface`.
+static std::vector< StateType > unsupportedStateTypes = { };
+
+//! Convert `StateType` to `json`.
+inline void to_json( json& jsonObject, const StateType& stateType )
+{
+    jsonObject = json_interface::stringFromEnum( stateType, stateTypes );
+}
+
+//! Convert `json` to `StateType`.
+inline void from_json( const json& jsonObject, StateType& stateType )
+{
+    stateType = json_interface::enumFromString( jsonObject.get< std::string >( ), stateTypes );
+}
+
+
 //! Get the associated key (defined in a body JSON object) for an integrated state.
 /*!
  * @copybrief getAssociatedKey
@@ -41,7 +73,7 @@ std::string getAssociatedKey( const propagators::IntegratedStateType integratedS
     switch ( integratedStateType )
     {
     case propagators::translational_state:
-        return Keys::Body::cartesianState;
+        return Keys::Body::initialState;
     case propagators::body_mass_state:
         return Keys::Body::mass;
     case propagators::rotational_state:
@@ -103,58 +135,176 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json
 }
 
 //! Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
-//! at the initial time of \p integratorSettings.
+//! at the initial time of \p integratorSettings. -DOC
 /*!
  * Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
- * at the initial time of \p integratorSettings.
+ * at the initial time of \p integratorSettings. -DOC
  * \param jsonObject The root `json` object to be updated with the inferred initial states (returned by reference).
  * \param bodyMap Body map containing only bodies to be propagated with valid ephemeris.
  * \param integratorSettings Integrator settings containing the initial epoch for the ephemeris to be used.
  * \throws std::exception If initial states were not provided and could not be inferred. This happens when \p
  * multiTypePropagatorSettings contains more than one propagator, or when it contains no translational propagator,
- * or when some of the bodies to integrate contains no (valid) ephemeris (loaded by Spice).
+ * or when some of the bodies to integrate contains no (valid) ephemeris (loaded by Spice). -DOC
  */
 template< typename TimeType, typename StateScalarType >
-void inferInitialStatesFromEphemeris(
+void determineInitialStates(
         json& jsonObject,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace propagators;
-    using K = Keys::Propagator;
+    using namespace orbital_element_conversions;
+    using namespace simulation_setup;
+    using KP = Keys::Propagator;
+    using KS = Keys::Body::State;
 
-    if ( ! defined( jsonObject, K::initialStates ) )
+    // Get propagators as an array of json (even if only one object is provided)
+    json jsonPropagators = jsonObject.at( Keys::propagator );
+    if ( jsonPropagators.is_object( ) )
     {
-        const json jsonPropagators = jsonObject.at( Keys::propagator );
-        if ( jsonPropagators.is_object( ) || ( jsonPropagators.is_array( ) && jsonPropagators.size( ) == 1 ) )
-        {
-            json jsonPropagator;
-            if ( jsonPropagators.is_object( ) )
-            {
-                jsonPropagator = jsonPropagators;
-            }
-            else
-            {
-                jsonPropagator = jsonPropagators.front( );
-            }
+        jsonPropagators = json( );
+        jsonPropagators[ 0 ] = jsonObject.at( Keys::propagator );
+    }
 
+    // Update propagators at jsonObject with initial states retrieved from bodies ephemeris
+    bool usedEphemeris = false;
+    if ( jsonPropagators.size( ) == 1 )
+    {
+        json& jsonPropagator = jsonPropagators.front( );
+        if ( ! defined( jsonPropagator, KP::initialStates ) )
+        {
             const IntegratedStateType integratedStateType =
-                    getValue( jsonPropagator, K::integratedStateType, translational_state );
+                    getValue( jsonPropagator, KP::integratedStateType, translational_state );
 
             if ( integratedStateType == translational_state )
             {
                 try
                 {
-                    jsonPropagator[ K::initialStates ] = getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate ),
-                                getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ),
+                    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
+                            getInitialStatesOfBodies< TimeType, StateScalarType >(
+                                getValue< std::vector< std::string > >( jsonPropagator, KP::bodiesToPropagate ),
+                                getValue< std::vector< std::string > >( jsonPropagator, KP::centralBodies ),
                                 bodyMap,
                                 integratorSettings->initialTime_ );
-                    jsonObject[ Keys::propagator ] = jsonPropagator;
+                    jsonPropagator[ KP::initialStates ] = initialStates;
+                    usedEphemeris = true;
                 } catch ( ... ) { }
             }
         }
     }
+
+    if ( ! usedEphemeris )
+    {
+        // Update propagators at jsonObject with initial states stored at JSON bodies settings
+        for ( json& jsonPropagator : jsonPropagators )
+        {
+            if ( ! defined( jsonPropagator, KP::initialStates ) )
+            {
+                // Integrated state type
+                const IntegratedStateType integratedStateType =
+                        getValue( jsonPropagator, KP::integratedStateType, translational_state );
+
+                // State size and associated stateKey
+                const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
+                const std::string stateKey = getAssociatedKey( integratedStateType );
+
+                // Bodies to propagate
+                const std::vector< std::string > bodiesToPropagate =
+                        getValue< std::vector< std::string > >( jsonPropagator, KP::bodiesToPropagate );
+
+                // System initial state
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                            stateSize * bodiesToPropagate.size( ), 1 );
+
+                // Get state for each body
+                for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
+                {
+                    const KeyPath stateKeyPath = Keys::bodies / bodiesToPropagate.at( i ) / stateKey;
+                    const json jsonState = getValue< json >( jsonObject, stateKeyPath );
+
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState( 0 );
+
+                    // Instead of a vector, an object can be used to provide initial translational state
+                    if ( integratedStateType == translational_state &&
+                         valueAt( jsonObject, stateKeyPath ).is_object( ) )
+                    {
+                        const StateType stateType = getValue< StateType >( jsonState, KS::type );
+                        switch ( stateType ) {
+                        case cartesianComponents:
+                        {
+                            bodyState = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( stateSize );
+                            updateFromJSONIfDefined( bodyState( xCartesianPositionIndex ), jsonState, KS::x );
+                            updateFromJSONIfDefined( bodyState( yCartesianPositionIndex ), jsonState, KS::y );
+                            updateFromJSONIfDefined( bodyState( zCartesianPositionIndex ), jsonState, KS::z );
+                            updateFromJSONIfDefined( bodyState( xCartesianVelocityIndex ), jsonState, KS::vx );
+                            updateFromJSONIfDefined( bodyState( yCartesianVelocityIndex ), jsonState, KS::vy );
+                            updateFromJSONIfDefined( bodyState( zCartesianVelocityIndex ), jsonState, KS::vz );
+                            break;
+                        }
+                        case keplerianComponents:
+                        {
+                            StateScalarType semiMajorAxis = 0.0;
+                            StateScalarType eccentricity = 0.0;
+                            StateScalarType inclination = 0.0;
+                            StateScalarType argumentOfPeriapsis = 0.0;
+                            StateScalarType longitudeOfAscendingNode = 0.0;
+                            StateScalarType trueAnomaly = 0.0;
+
+                            updateFromJSONIfDefined( semiMajorAxis, jsonState, KS::semiMajorAxis );
+                            updateFromJSONIfDefined( eccentricity, jsonState, KS::eccentricity );
+                            updateFromJSONIfDefined( inclination, jsonState, KS::inclination );
+                            updateFromJSONIfDefined( argumentOfPeriapsis, jsonState, KS::argumentOfPeriapsis );
+                            updateFromJSONIfDefined( longitudeOfAscendingNode, jsonState, KS::longitudeOfAscendingNode );
+                            updateFromJSONIfDefined( trueAnomaly, jsonState, KS::trueAnomaly );
+
+                            Eigen::Matrix< StateScalarType, 6, 1 > keplerianElements;
+                            keplerianElements( semiMajorAxisIndex ) = semiMajorAxis;
+                            keplerianElements( eccentricityIndex ) = eccentricity;
+                            keplerianElements( inclinationIndex ) = inclination;
+                            keplerianElements( argumentOfPeriapsisIndex ) = argumentOfPeriapsis;
+                            keplerianElements( longitudeOfAscendingNodeIndex ) = longitudeOfAscendingNode;
+                            keplerianElements( trueAnomalyIndex ) = trueAnomaly;
+
+                            // Get central body
+                            std::string centralBodyName;
+                            if ( defined( jsonState, KS::centralBody ) )
+                            {
+                                centralBodyName = getValue< std::string >( jsonState, KS::centralBody );
+                            }
+                            else
+                            {
+                                centralBodyName = getValue< std::string >( jsonPropagator, KP::centralBodies / i );
+                            }
+                            const boost::shared_ptr< Body > centralBody = bodyMap.at( centralBodyName );
+
+                            // Convert to Cartesian elements
+                            bodyState = convertKeplerianToCartesianElements(
+                                        keplerianElements,
+                                        centralBody->getGravityFieldModel( )->getGravitationalParameter( ) );
+                            break;
+                        }
+                        default:
+                            handleUnimplementedEnumValue( stateType, stateTypes, unsupportedStateTypes );
+                        }
+                    }
+
+                    // Could not get the state as Cartesian, Keplerian components... then try to convert directly
+                    if ( bodyState.rows( ) == 0 )
+                    {
+                        bodyState = getAs< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonState );
+                    }
+
+                    // Update initial states segment for current body
+                    initialStates.segment( i * stateSize, stateSize ) = bodyState;
+                }
+
+                jsonPropagator[ KP::initialStates ] = initialStates;
+            }
+        }
+    }
+
+    jsonObject[ Keys::propagator ] = jsonPropagators;
 }
 
 } // namespace json_interface
@@ -475,7 +625,7 @@ void from_json( const json& jsonObject,
 
     // Initial states
     const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
-            getInitialStates< StateScalarType >( jsonObject );
+            getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
 
     switch ( integratedStateType )
     {

@@ -102,33 +102,42 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     SingleSelectedAccelerationMap accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::central_gravity ) );
-    accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
 
-
     ////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE PROPAGATION SETTINGS            /////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    // Set initial conditions for the Asterix satellite that will be propagated in this simulation.
-    const Eigen::VectorXd systemInitialState =
-            ( Eigen::Vector6d( ) << 7.037484e6, 3.238059e6, 2.150724e6, -1.465658e3, -0.040958e3, 6.622798e3 ).finished( );
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch );
 
-
-    // Create numerical integrator.
-    const double simulationStartEpoch = 0.0;
     const double fixedStepSize = 10.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+            ( rungeKutta4, 0.0, fixedStepSize );
+
 
     ////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             PROPAGATE ORBIT            /////////////////////////
@@ -146,7 +155,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     ////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-15 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-8 );
 
 
 
@@ -164,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     jsonSimulation.run( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-15 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-8 );
 
 }
 

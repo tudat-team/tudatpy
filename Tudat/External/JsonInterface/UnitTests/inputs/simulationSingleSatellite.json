@@ -24,14 +24,15 @@
       }
     },
     "asterix": {
-      "cartesianState": [
-        7.037484E+6,
-        3.238059E+6,
-        2.150724E+6,
-        -1465.658,
-        -40.958,
-        6622.798
-      ]
+      "initialState": {
+        "semiMajorAxis": 7.5E+6,
+        "eccentricity": 0.1,
+        "inclination": 1.4887658519511631,
+        "argumentOfPeriapsis": 4.1137410469506346,
+        "longitudeOfAscendingNode": 0.40840704496667307,
+        "trueAnomaly": 2.4411920247644687,
+        "type": "keplerian"
+      }
     }
   },
   "propagator": {

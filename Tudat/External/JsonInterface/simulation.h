@@ -206,8 +206,6 @@ public:
         return dynamicsSimulator_;
     }
 
-
-
     //! Synchronize JSON object and class members.
     /*!
      * @copybrief sync
@@ -287,8 +285,10 @@ protected:
      */
     virtual void resetPropagatorSettings( )
     {
-        // Update jsonObject_ by infering initial states from body ephemeris if not provided
-        inferInitialStatesFromEphemeris< TimeType, StateScalarType >( jsonObject_, bodyMap_, integratorSettings_ );
+        // Update jsonObject_ by determining initial states if not provided directly to the propagator settings:
+        // * By obtaining the initial states from body properties (and transforming to Cartesian if necessary)
+        // * By infering initial states from body ephemeris
+        determineInitialStates< TimeType, StateScalarType >( jsonObject_, bodyMap_, integratorSettings_ );
 
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
