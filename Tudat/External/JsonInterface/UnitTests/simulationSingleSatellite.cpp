@@ -117,12 +117,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
     asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
     asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
-    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
-            = unit_conversions::convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
-            = unit_conversions::convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = 1.4888;
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 4.1137;
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.4084;
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.4412;
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
@@ -173,7 +171,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     jsonSimulation.run( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-8 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-15 );
 
 }
 
