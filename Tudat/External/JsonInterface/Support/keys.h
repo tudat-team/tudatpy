@@ -82,6 +82,8 @@ struct Keys
             static const std::string meanAnomaly;
             static const std::string eccentricAnomaly;
             static const std::string semiLatusRectum;
+            static const std::string meanMotion;
+            static const std::string period;
             static const std::string radius;
             static const std::string altitude;
             static const std::string periapsisDistance;

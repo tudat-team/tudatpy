@@ -13,6 +13,7 @@
 
 #include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
 #include <Tudat/SimulationSetup/PropagationSetup/propagationSettings.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h>
 
 #include "Tudat/External/JsonInterface/Support/valueAccess.h"
 #include "Tudat/External/JsonInterface/Support/valueConversions.h"
@@ -153,6 +154,7 @@ void determineInitialStates(
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace propagators;
+    using namespace basic_astrodynamics;
     using namespace orbital_element_conversions;
     using namespace simulation_setup;
     using KP = Keys::Propagator;
@@ -220,7 +222,8 @@ void determineInitialStates(
                 // Get state for each body
                 for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
                 {
-                    const KeyPath stateKeyPath = Keys::bodies / bodiesToPropagate.at( i ) / stateKey;
+                    const std::string bodyName = bodiesToPropagate.at( i );
+                    const KeyPath stateKeyPath = Keys::bodies / bodyName / stateKey;
                     const json jsonState = getValue< json >( jsonObject, stateKeyPath );
 
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState( 0 );
@@ -244,28 +247,6 @@ void determineInitialStates(
                         }
                         case keplerianComponents:
                         {
-                            StateScalarType semiMajorAxis = 0.0;
-                            StateScalarType eccentricity = 0.0;
-                            StateScalarType inclination = 0.0;
-                            StateScalarType argumentOfPeriapsis = 0.0;
-                            StateScalarType longitudeOfAscendingNode = 0.0;
-                            StateScalarType trueAnomaly = 0.0;
-
-                            updateFromJSONIfDefined( semiMajorAxis, jsonState, KS::semiMajorAxis );
-                            updateFromJSONIfDefined( eccentricity, jsonState, KS::eccentricity );
-                            updateFromJSONIfDefined( inclination, jsonState, KS::inclination );
-                            updateFromJSONIfDefined( argumentOfPeriapsis, jsonState, KS::argumentOfPeriapsis );
-                            updateFromJSONIfDefined( longitudeOfAscendingNode, jsonState, KS::longitudeOfAscendingNode );
-                            updateFromJSONIfDefined( trueAnomaly, jsonState, KS::trueAnomaly );
-
-                            Eigen::Matrix< StateScalarType, 6, 1 > keplerianElements;
-                            keplerianElements( semiMajorAxisIndex ) = semiMajorAxis;
-                            keplerianElements( eccentricityIndex ) = eccentricity;
-                            keplerianElements( inclinationIndex ) = inclination;
-                            keplerianElements( argumentOfPeriapsisIndex ) = argumentOfPeriapsis;
-                            keplerianElements( longitudeOfAscendingNodeIndex ) = longitudeOfAscendingNode;
-                            keplerianElements( trueAnomalyIndex ) = trueAnomaly;
-
                             // Get central body
                             std::string centralBodyName;
                             if ( defined( jsonState, KS::centralBody ) )
@@ -277,11 +258,175 @@ void determineInitialStates(
                                 centralBodyName = getValue< std::string >( jsonPropagator, KP::centralBodies / i );
                             }
                             const boost::shared_ptr< Body > centralBody = bodyMap.at( centralBodyName );
+                            const double mu = centralBody->getGravityFieldModel( )->getGravitationalParameter( );
+                            const double R = centralBody->getShapeModel( )->getAverageRadius( );
+                            bool usedAverageRadius = false;
+
+
+                            // Detemrine semiMajorAxis, eccentricity, argumentOfPeriapsis
+
+                            StateScalarType semiMajorAxis = TUDAT_NAN;
+                            StateScalarType eccentricity = TUDAT_NAN;
+                            StateScalarType argumentOfPeriapsis = TUDAT_NAN;
+
+                            if ( defined( jsonState, KS::radius ) || defined( jsonState, KS::altitude ) )  // circular
+                            {
+                                if ( defined( jsonState, KS::altitude ) )
+                                {
+                                    semiMajorAxis = R + getValue< StateScalarType >( jsonState, KS::altitude );
+                                    usedAverageRadius = true;
+                                }
+                                else
+                                {
+                                    semiMajorAxis = getValue< StateScalarType >( jsonState, KS::radius );
+                                }
+                                eccentricity = 0.0;
+                                argumentOfPeriapsis = 0.0;
+                            }
+                            else  // generic
+                            {
+                                argumentOfPeriapsis = getValue< StateScalarType >( jsonState, KS::argumentOfPeriapsis, 0.0 );
+
+                                if ( defined( jsonState, KS::apoapsisDistance ) || defined( jsonState, KS::apoapsisAltitude ) ||
+                                     defined( jsonState, KS::periapsisDistance ) || defined( jsonState, KS::periapsisAltitude ) )
+                                {
+                                    StateScalarType apoapsisDistance = TUDAT_NAN;
+                                    if ( defined( jsonState, KS::apoapsisAltitude ) )
+                                    {
+                                        apoapsisDistance = R + getValue< StateScalarType >( jsonState, KS::apoapsisAltitude );
+                                        usedAverageRadius = true;
+                                    }
+                                    else if ( defined( jsonState, KS::apoapsisDistance ) )
+                                    {
+                                        apoapsisDistance = getValue< StateScalarType >( jsonState, KS::apoapsisDistance );
+                                    }
+
+                                    StateScalarType periapsisDistance = TUDAT_NAN;
+                                    if ( defined( jsonState, KS::periapsisAltitude ) )
+                                    {
+                                        periapsisDistance = R + getValue< StateScalarType >( jsonState, KS::periapsisAltitude );
+                                        usedAverageRadius = true;
+                                    }
+                                    else if ( defined( jsonState, KS::periapsisDistance ) )
+                                    {
+                                        periapsisDistance = getValue< StateScalarType >( jsonState, KS::periapsisDistance );
+                                    }
+
+                                    if ( ! isNaN( apoapsisDistance) && ! isNaN( periapsisDistance ) )
+                                    {
+                                        // r_a, r_p -> a, e
+                                        semiMajorAxis = ( apoapsisDistance + periapsisDistance ) / 2.0;
+                                        eccentricity = ( apoapsisDistance - periapsisDistance ) / ( 2.0 * semiMajorAxis );
+                                    }
+                                    else if ( ! isNaN( apoapsisDistance) )
+                                    {
+                                        if ( defined( jsonState, KS::semiMajorAxis ) )
+                                        {
+                                            semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
+                                            // r_a, a -> e
+                                            eccentricity = apoapsisDistance / semiMajorAxis - 1.0;
+                                        }
+                                        else
+                                        {
+                                            eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity );
+                                            // r_a, e -> a
+                                            semiMajorAxis = apoapsisDistance / ( 1.0 + eccentricity );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if ( defined( jsonState, KS::semiMajorAxis ) )
+                                        {
+                                            semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
+                                            // r_p, a -> e
+                                            eccentricity = 1.0 - periapsisDistance / semiMajorAxis;
+                                        }
+                                        else
+                                        {
+                                            eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity );
+                                            // r_p, e -> a
+                                            semiMajorAxis = periapsisDistance / ( 1.0 - eccentricity );
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity, 0.0 );
+
+                                    if ( defined( jsonState, KS::semiLatusRectum ) )
+                                    {
+                                        semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiLatusRectum ) /
+                                                ( 1.0 - std::pow( eccentricity, 2.0 ) );
+                                    }
+                                    else if ( defined( jsonState, KS::meanMotion ) || defined( jsonState, KS::period ) )
+                                    {
+                                        StateScalarType meanMotion;
+                                        if ( defined( jsonState, KS::meanMotion ) )
+                                        {
+                                            meanMotion = getValue< StateScalarType >( jsonState, KS::meanMotion );
+                                        }
+                                        else
+                                        {
+                                            meanMotion = 2.0 * M_PI / getValue< StateScalarType >( jsonState, KS::period );
+                                        }
+                                        semiMajorAxis = std::pow( ( mu / std::pow( meanMotion, 2.0 ) ), 1.0/3.0 );
+                                    }
+                                    else
+                                    {
+                                        semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
+                                    }
+                                }
+                            }
+
+
+                            // Determine inclination, longitudeOfAscendingNode
+
+                            StateScalarType inclination = getValue< StateScalarType >( jsonState, KS::inclination, 0.0 );
+                            StateScalarType longitudeOfAscendingNode = getValue< StateScalarType >( jsonState, KS::longitudeOfAscendingNode, 0.0 );
+
+
+                            // Determine trueAnomaly
+
+                            StateScalarType trueAnomaly;
+                            if ( defined( jsonState, KS::meanAnomaly ) || defined( jsonState, KS::eccentricAnomaly ) )
+                            {
+                                StateScalarType eccentricAnomaly;
+                                if ( defined( jsonState, KS::meanAnomaly ) )
+                                {
+                                    eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                                                eccentricity,
+                                                getValue< StateScalarType >( jsonState, KS::meanAnomaly ) );
+                                }
+                                else
+                                {
+                                    eccentricAnomaly = getValue< StateScalarType >( jsonState, KS::eccentricAnomaly );
+                                }
+                                trueAnomaly = convertEccentricAnomalyToTrueAnomaly( eccentricAnomaly, eccentricity );
+                            }
+                            else
+                            {
+                                trueAnomaly = getValue< StateScalarType >( jsonState, KS::trueAnomaly, 0.0 );
+                            }
+
+
+                            // Full state
+
+                            Eigen::Matrix< StateScalarType, 6, 1 > keplerianElements;
+                            keplerianElements( semiMajorAxisIndex ) = semiMajorAxis;
+                            keplerianElements( eccentricityIndex ) = eccentricity;
+                            keplerianElements( inclinationIndex ) = inclination;
+                            keplerianElements( argumentOfPeriapsisIndex ) = argumentOfPeriapsis;
+                            keplerianElements( longitudeOfAscendingNodeIndex ) = longitudeOfAscendingNode;
+                            keplerianElements( trueAnomalyIndex ) = trueAnomaly;
+
+                            if ( usedAverageRadius && ! boost::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
+                            {
+                                std::cout << "Using average radius of a non-spherical body (" << centralBodyName
+                                          << ") to determine the initial state of " << bodyName << "." << std::endl;
+                            }
 
                             // Convert to Cartesian elements
-                            bodyState = convertKeplerianToCartesianElements(
-                                        keplerianElements,
-                                        centralBody->getGravityFieldModel( )->getGravitationalParameter( ) );
+                            bodyState = convertKeplerianToCartesianElements( keplerianElements, mu );
                             break;
                         }
                         default:
