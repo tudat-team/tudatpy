@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls" );
+    loadSpiceKernelInTudat( kernelsPath + "naif0012.tls" );
 
     // Define names of bodies and frames.
     const std::string earth = "Earth";

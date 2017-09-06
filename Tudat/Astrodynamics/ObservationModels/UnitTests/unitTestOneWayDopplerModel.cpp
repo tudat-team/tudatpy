@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
