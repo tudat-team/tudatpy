@@ -1,0 +1,114 @@
+{
+  "startEpoch": 0,
+  "endEpoch": 1.2096E+6,
+  "globalFrameOrigin": "SSB",
+  "globalFrameOrientation": "J2000",
+  "spice": {
+    "kernels": [
+      "${SPICE_KERNELS_PATH}\/pck00009.tpc",
+      "${SPICE_KERNELS_PATH}\/de-403-masses.tpc",
+      "${SPICE_KERNELS_PATH}\/de421.bsp"
+    ],
+    "preloadKernels": false
+  },
+  "bodies": {
+    "Earth": {
+      "useDefaultSettings": true,
+      "ephemeris": {
+        "constantState": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "type": "constant",
+        "frameOrientation": "J2000"
+      },
+      "gravityField": {
+        "type": "pointMassSpice"
+      }
+    },
+    "vehicle": {
+      "initialState": {
+        "x": 8.0E+6,
+        "vy": 7500,
+        "type": "cartesian"
+      },
+      "mass": 5000
+    }
+  },
+  "propagator": [
+    {
+      "centralBodies": [
+        "Earth"
+      ],
+      "accelerations": {
+        "vehicle": {
+          "Earth": {
+            "type": "pointMassGravity"
+          },
+          "vehicle": {
+            "dataInterpolation": {
+              "data": {
+                "file": "@path(thrustValues.txt)"
+              },
+              "interpolator": {
+                "type": "linear"
+              }
+            },
+            "specificImpulse": 3000,
+            "frame": "lvlh",
+            "centralBody": "Earth",
+            "type": "thrust"
+          }
+        }
+      },
+      "integratedStateType": "translational",
+      "bodiesToPropagate": [
+        "vehicle"
+      ]
+    },
+    {
+      "massRateModels": {
+        "vehicle": {
+          "type": "fromThrust"
+        }
+      },
+      "integratedStateType": "mass",
+      "bodiesToPropagate": [
+        "vehicle"
+      ]
+    }
+  ],
+  "integrator": {
+    "type": "rungeKutta4",
+    "stepSize": 30
+  },
+  "export": [
+    {
+      "file": "@path(temp.results.thrust.txt)",
+      "variables": [
+        {
+          "body": "vehicle",
+          "dependentVariableType": "acceleration",
+          "accelerationType": "thrust",
+          "bodyExertingAcceleration": "vehicle"
+        }
+      ],
+      "epochsInFirstColumn": false
+    },
+    {
+      "file": "@path(temp.results.rotation.txt)",
+      "variables": [
+        {
+          "body": "vehicle",
+          "dependentVariableType": "lvlhToInertialFrameRotation",
+          "relativeToBody": "Earth"
+        }
+      ],
+      "epochsInFirstColumn": false
+    }
+  ]
+}
