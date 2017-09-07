@@ -52,9 +52,9 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
     jsonObject[ K::preloadKernels ] = spiceSettings->preloadKernels_;
     if ( spiceSettings->preloadKernels_ )
     {
+        jsonObject[ K::interpolationStep ] = spiceSettings->interpolationStep_;
         jsonObject[ K::preloadOffsets ] = spiceSettings->preloadOffsets_;
     }
-    jsonObject[ K::interpolationStep ] = spiceSettings->interpolationStep_;
 }
 
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
