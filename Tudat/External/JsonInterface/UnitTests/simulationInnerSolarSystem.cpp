@@ -26,7 +26,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationInnerSolarSystem )
 
-BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystemSSB )
+BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 {
 
     using namespace ephemerides;
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystemSSB )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Simulation< > jsonSimulation( INPUT( "" ) );
+    Simulation< > jsonSimulation( INPUT( "barycentric" ) );
     jsonSimulation.run( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -120,6 +120,190 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystemSSB )
     for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
     {
         centralBodies[ i ] = "SSB";
+    }
+
+    // Create acceleration models and propagation settings.
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////             CREATE PROPAGATION SETTINGS            ///////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Specify initial time
+    double initialEphemerisTime = 1.0E7;
+    double finalEphemerisTime = 1.0E7 + 2.0 * physical_constants::JULIAN_YEAR;
+
+    // Get initial state vector as input to integration.
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
+                bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+
+
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, initialEphemerisTime, 3600.0 );
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////             PROPAGATE ORBIT            //////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Create simulation object and propagate dynamics.
+    const boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
+            boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+    const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////        COMPARE RESULTS           ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector< unsigned int > indeces;
+    std::vector< unsigned int > lengths;
+    for ( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
+    {
+        indeces.push_back( 3 * i );
+        lengths.push_back( 3 );
+    }
+    const double tolerance = 1.0E-12;
+
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////      CHECK CONSISTENCY OF from_json AND to_json FUNCTIONS          //////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
+    // (using from_json functions)
+    jsonSimulation.reset( jsonSimulation.getAsJSON( ) );
+
+    // Get results
+    jsonSimulation.run( );
+    jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+
+}
+
+
+BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
+{
+
+    using namespace ephemerides;
+    using namespace interpolators;
+    using namespace numerical_integrators;
+    using namespace spice_interface;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace basic_mathematics;
+    using namespace orbital_element_conversions;
+    using namespace propagators;
+    using namespace json_interface;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////             JSON SIMULATION              ////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    Simulation< > jsonSimulation( INPUT( "hierarchical" ) );
+    jsonSimulation.run( );
+    std::map< double, Eigen::VectorXd > jsonResults =
+            jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////            MANUAL SIMULATION             ////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////     CREATE ENVIRONMENT AND VEHICLE       ////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Load Spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+
+    // Define bodies in simulation.
+    unsigned int totalNumberOfBodies = 6;
+    std::vector< std::string > bodyNames;
+    bodyNames.resize( totalNumberOfBodies );
+    bodyNames[ 0 ] = "Sun";
+    bodyNames[ 1 ] = "Mercury";
+    bodyNames[ 2 ] = "Venus";
+    bodyNames[ 3 ] = "Earth";
+    bodyNames[ 4 ] = "Moon";
+    bodyNames[ 5 ] = "Mars";
+
+    // Create bodies needed in simulation
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodyNames );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////             CREATE ACCELERATIONS            /////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Set accelerations between bodies that are to be taken into account
+    // (mutual point mass gravity between all bodies).
+    SelectedAccelerationMap accelerationMap;
+    for( unsigned int i = 0; i < bodyNames.size( ); i++ )
+    {
+        SingleSelectedAccelerationMap currentAccelerations;
+        for( unsigned int j = 0; j < bodyNames.size( ); j++ )
+        {
+            // Create central gravity acceleration between each 2 bodies.
+            if( i != j )
+            {
+                currentAccelerations[ bodyNames.at( j ) ].push_back(
+                            boost::make_shared< AccelerationSettings >( central_gravity ) );\
+            }
+        }
+        accelerationMap[ bodyNames.at( i ) ] = currentAccelerations;
+    }
+
+    // Define list of bodies to propagate
+    std::vector< std::string > bodiesToPropagate = bodyNames;
+    unsigned int numberOfNumericalBodies = bodiesToPropagate.size( );
+
+    // Define central bodies to use in propagation.
+    std::vector< std::string > centralBodies;
+    centralBodies.resize( numberOfNumericalBodies );
+
+    // Set central body as Solar System Barycente for each body
+    for( unsigned int i = 0; i < numberOfNumericalBodies; i++ )
+    {
+        if ( bodiesToPropagate.at( i ) == "Sun" )
+        {
+            centralBodies[ i ] = "SSB";
+        }
+        else if ( bodiesToPropagate.at( i ) == "Moon" )
+        {
+            centralBodies[ i ] = "Earth";
+        }
+        else
+        {
+            centralBodies[ i ] = "Sun";
+        }
     }
 
     // Create acceleration models and propagation settings.
