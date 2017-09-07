@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Set simulation end epoch.
-    const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 3600.0;
 
 
     // Create body objects.

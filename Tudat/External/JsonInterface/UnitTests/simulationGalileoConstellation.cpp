@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     const double simulationStartEpoch = 0.0;
 
     // Set simulation end epoch.
-    const double simulationEndEpoch = 1.0 * physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 3600.0;
 
     // Set numerical integration fixed step size.
     const double fixedStepSize = 30.0;

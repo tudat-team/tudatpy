@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
-    const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
+    const double simulationEndEpoch = 3600.0;
 
     // Define body settings for simulation.
     std::vector< std::string > bodiesToCreate;

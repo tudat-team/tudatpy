@@ -129,9 +129,9 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     systemInitialState( 0 ) = 8.0E6;
     systemInitialState( 4 ) = 7.5E3;
 
-    // Define propagation termination conditions (stop after 2 weeks).
+    // Define propagation termination conditions (stop after 1 hour).
     boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-	    boost::make_shared< propagators::PropagationTimeTerminationSettings >( 14.0 * physical_constants::JULIAN_DAY );
+        boost::make_shared< propagators::PropagationTimeTerminationSettings >( 3600.0 );
 
     // Define settings for propagation of translational dynamics.
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
