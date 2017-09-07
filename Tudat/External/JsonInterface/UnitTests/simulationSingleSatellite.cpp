@@ -26,7 +26,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_json_simulationSingleSatellite )
 
-BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
+BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
 {
 
     using namespace simulation_setup;
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Simulation< > jsonSimulation( INPUT( "" ) );
+    Simulation< > jsonSimulation( INPUT( "main" ) );
     jsonSimulation.run( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
