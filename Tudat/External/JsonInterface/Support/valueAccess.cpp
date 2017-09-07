@@ -257,14 +257,18 @@ json getAsArray( const json& jsonObject )
 
     if ( isObjectWithIntConvertibleKeys )
     {
-        jsonArray = json( );
-        for ( unsigned int i = 0; i < indeces.size( ); ++i )
+        if ( values.empty( ) )
         {
-            for ( unsigned int j = jsonArray.size( ); j < indeces.at( i ); ++j )
+            jsonArray = json( );
+        }
+        else
+        {
+            std::vector< json > vector( *std::max_element( indeces.begin( ), indeces.end( ) ) + 1 );
+            for ( unsigned int i = 0; i < indeces.size( ); ++i )
             {
-                jsonArray.push_back( json( ) );
+                vector[ indeces.at( i ) ] = values.at( i );
             }
-            jsonArray.push_back( values.at( i ) );
+            jsonArray = vector;
         }
     }
 
