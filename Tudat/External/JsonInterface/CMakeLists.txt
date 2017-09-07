@@ -128,11 +128,11 @@ add_executable(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINT
 setup_custom_test_program(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_simulationSinglePerturbedSatellite tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-# # simulationInnerSolarSystem
-# add_executable(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationInnerSolarSystem.cpp")
-# setup_custom_test_program(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_simulationInnerSolarSystem tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
+# simulationInnerSolarSystem
+add_executable(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationInnerSolarSystem.cpp")
+setup_custom_test_program(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_simulationInnerSolarSystem tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 # # simulationGalileoConstellation
 # add_executable(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationGalileoConstellation.cpp")
 # setup_custom_test_program(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}")
