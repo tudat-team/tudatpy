@@ -49,7 +49,6 @@ void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ep
         return;
     }
     case direct_spice_ephemeris:
-    case interpolated_spice:
     {
         boost::shared_ptr< DirectSpiceEphemerisSettings > directSpiceEphemerisSettings =
                 boost::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
@@ -60,20 +59,18 @@ void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ep
                 directSpiceEphemerisSettings->getCorrectForLightTimeAbberation( );
         jsonObject[ K::convergeLighTimeAbberation ] =
                 directSpiceEphemerisSettings->getConvergeLighTimeAbberation( );
-
-        if ( ephemerisType == interpolated_spice )
-        {
-            boost::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedSpiceEphemerisSettings =
-                    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( ephemerisSettings );
-            enforceNonNullPointer( interpolatedSpiceEphemerisSettings );
-            jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
-            jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
-            jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
-            jsonObject[ K::interpolator ] = interpolatedSpiceEphemerisSettings->getInterpolatorSettings( );
-            jsonObject[ K::useLongDoubleStates ] = interpolatedSpiceEphemerisSettings->getUseLongDoubleStates( );
-            return;
-        }
-
+        return;
+    }
+    case interpolated_spice:
+    {
+        boost::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedSpiceEphemerisSettings =
+                boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( ephemerisSettings );
+        enforceNonNullPointer( interpolatedSpiceEphemerisSettings );
+        jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
+        jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
+        jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
+        jsonObject[ K::interpolator ] = interpolatedSpiceEphemerisSettings->getInterpolatorSettings( );
+        jsonObject[ K::useLongDoubleStates ] = interpolatedSpiceEphemerisSettings->getUseLongDoubleStates( );
         return;
     }
     case tabulated_ephemeris:
