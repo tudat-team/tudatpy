@@ -98,7 +98,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
 
     const ThrustMagnitudeTypes magnitudeType = magnitudeSettings->thrustMagnitudeGuidanceType_;
     jsonObject[ K::type ] = magnitudeType;
-    jsonObject[ K::originID ] = magnitudeSettings->thrustOriginId_;
+    assignIfNotEmpty( jsonObject, K::originID, magnitudeSettings->thrustOriginId_ );
 
     switch ( magnitudeType ) {
     case constant_thrust_magnitude:
