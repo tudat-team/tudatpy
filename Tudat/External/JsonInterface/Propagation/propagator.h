@@ -135,17 +135,16 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json
     }
 }
 
-//! Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
-//! at the initial time of \p integratorSettings. -DOC
+//! Determine initial states for the propagator object contained in \p jsonObject (if not provided).
 /*!
- * Infer initial states for \p multiTypePropagatorSettings (if not provided) from ephemeris of bodies in \p bodyMap
- * at the initial time of \p integratorSettings. -DOC
+ * Determine initial states for the propagator object contained in \p jsonObject (if not provided).
+ * The initial states can be inferred either from the state properties of the body settings (e.g. body.initialState,
+ * body.mass, etc.) or from the ephemeris of the body objects in \p bodyMap at the initial time determined from
+ * \p integratorSettings. If the initial states cannot be inferred, the initialStates of the propagators in \p
+ * jsonObject won't be updated.
  * \param jsonObject The root `json` object to be updated with the inferred initial states (returned by reference).
  * \param bodyMap Body map containing only bodies to be propagated with valid ephemeris.
  * \param integratorSettings Integrator settings containing the initial epoch for the ephemeris to be used.
- * \throws std::exception If initial states were not provided and could not be inferred. This happens when \p
- * multiTypePropagatorSettings contains more than one propagator, or when it contains no translational propagator,
- * or when some of the bodies to integrate contains no (valid) ephemeris (loaded by Spice). -DOC
  */
 template< typename TimeType, typename StateScalarType >
 void determineInitialStates(
