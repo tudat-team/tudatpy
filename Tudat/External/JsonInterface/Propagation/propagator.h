@@ -229,8 +229,7 @@ void determineInitialStates(
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState( 0 );
 
                     // Instead of a vector, an object can be used to provide initial translational state
-                    if ( integratedStateType == translational_state &&
-                         valueAt( jsonObject, stateKeyPath ).is_object( ) )
+                    if ( integratedStateType == translational_state && ! isConvertibleToArray( jsonState ) )
                     {
                         const StateType stateType = getValue< StateType >( jsonState, KS::type );
                         switch ( stateType ) {

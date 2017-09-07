@@ -1,24 +1,7 @@
 {
-  "initialOrientation": [
-    [
-      1,
-      0,
-      0
-    ],
-    [
-      0,
-      0.70710678118654757,
-      -0.70710678118654757
-    ],
-    [
-      0,
-      -0.70710678118654757,
-      0.70710678118654757
-    ]
-  ],
   "initialTime": 42,
   "rotationRate": 2E-5,
   "type": "simple",
-  "originalFrame": "A",
-  "targetFrame": "B"
+  "originalFrame": "ECLIPJ2000",
+  "targetFrame": "IAU_Earth"
 }

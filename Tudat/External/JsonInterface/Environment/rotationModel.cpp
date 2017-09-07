@@ -65,11 +65,26 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
     switch ( rotationModelType ) {
     case simple_rotation_model:
     {
+        const double initialTime = getEpoch< double >( jsonObject, K::initialTime );
+
+        // Get JSON object for initialOrientation (or create it if not defined)
+        json jsonInitialOrientation;
+        if ( defined( jsonObject, K::initialOrientation ) )
+        {
+            jsonInitialOrientation = getValue< json >( jsonObject, K::initialOrientation );
+        }
+        else
+        {
+            jsonInitialOrientation[ K::originalFrame ] = originalFrame;
+            jsonInitialOrientation[ K::targetFrame ] = targetFrame;
+            jsonInitialOrientation[ K::initialTime ] = initialTime;
+        }
+
         rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
                     originalFrame,
                     targetFrame,
-                    getValue< Eigen::Quaterniond >( jsonObject, K::initialOrientation ),
-                    getEpoch< double >( jsonObject, K::initialTime ),
+                    getAs< Eigen::Quaterniond >( jsonInitialOrientation ),
+                    initialTime,
                     getValue< double >( jsonObject, K::rotationRate ) );
         return;
     }

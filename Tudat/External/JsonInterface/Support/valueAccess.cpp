@@ -120,32 +120,6 @@ std::string getParentKey( const json& jsonObject, const std::string& errorMessag
     }
 }
 
-//! Convert \p j to object if \p j is array.
-void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured )
-{
-    if ( ! j.is_array( ) )
-    {
-        return;
-    }
-    if ( onlyIfElementsAreStructured )
-    {
-        if ( j.empty( ) )
-        {
-            return;
-        }
-        if ( ! j.front( ).is_structured( ) )
-        {
-            return;
-        }
-    }
-    json jsonArray = j;
-    j = json( );
-    for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
-    {
-        j[ std::to_string( i ) ] = jsonArray.at( i );
-    }
-}
-
 //! Get the response type to an event for a `json` object.
 ExceptionResponseType getResponseToEventNamed( const json& jsonObject, const std::string& eventName,
                                                const ExceptionResponseType defaultResponse )
@@ -222,6 +196,85 @@ void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType respon
             throw std::runtime_error( "Validation failed because there are unsued keys." );
         }
     }
+}
+
+
+// JSON ARRAY
+
+//! Convert \p j to object if \p j is array.
+void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured )
+{
+    if ( ! j.is_array( ) )
+    {
+        return;
+    }
+    if ( onlyIfElementsAreStructured )
+    {
+        if ( j.empty( ) )
+        {
+            return;
+        }
+        if ( ! j.front( ).is_structured( ) )
+        {
+            return;
+        }
+    }
+    json jsonArray = j;
+    j = json( );
+    for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
+    {
+        j[ std::to_string( i ) ] = jsonArray.at( i );
+    }
+}
+
+json getAsArray( const json& jsonObject )
+{
+    json jsonArray = jsonObject;
+
+    bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
+    std::vector< unsigned int > indeces;
+    std::vector< json > values;
+    if ( isObjectWithIntConvertibleKeys )
+    {
+        for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        {
+            const std::string key = it.key( );
+            if ( ! contains( SpecialKeys::all, key ) )
+            {
+                try
+                {
+                    indeces.push_back( stoi( key ) );
+                }
+                catch ( ... )
+                {
+                    isObjectWithIntConvertibleKeys = false;
+                    break;
+                }
+                values.push_back( getValue< json >( jsonObject, key ) );
+            }
+        }
+    }
+
+    if ( isObjectWithIntConvertibleKeys )
+    {
+        jsonArray = json( );
+        for ( unsigned int i = 0; i < indeces.size( ); ++i )
+        {
+            for ( unsigned int j = jsonArray.size( ); j < indeces.at( i ); ++j )
+            {
+                jsonArray.push_back( json( ) );
+            }
+            jsonArray.push_back( values.at( i ) );
+        }
+    }
+
+    return jsonArray;
+}
+
+//! Whether \p j is convertible to a json array.
+bool isConvertibleToArray( const json& j )
+{
+    return getAsArray( j ).is_array( );
 }
 
 }  // namespace json_interface
