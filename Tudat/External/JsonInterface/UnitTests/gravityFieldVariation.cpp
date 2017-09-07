@@ -6,20 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    Notes
- *      To run this unit tests, a number of spice kernels need to be placed in the
- *      Spice kernel folder, by default External/SpiceInterface/Kernels or the
- *      SPICE_KERNEL_CUSTOM_FOLDER folder set as an argument to CMake or in UserSetings.txt.
- *      The required kernels are:
- *           de421.bsp
- *           pck00009.tpc
- *           naif0009.tls
- *           de-403-masses.tpc
- *      They can be found in a single zip file on the wiki at
- *      http://tudat.tudelft.nl/projects/tudat/wiki/SpiceInterface/ on the Tudat website or,
- *      alternatively, on the NAIF server at ftp://naif.jpl.nasa.gov/pub/naif/generic_kernels/.
- *
  */
 
 #define BOOST_TEST_MAIN
