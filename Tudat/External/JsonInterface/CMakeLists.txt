@@ -123,11 +123,11 @@ add_executable(test_json_simulationSingleSatellite "${SRCROOT}${JSONINTERFACEDIR
 setup_custom_test_program(test_json_simulationSingleSatellite "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_simulationSingleSatellite tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-# # simulationSinglePerturbedSatellite
-# add_executable(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationSinglePerturbedSatellite.cpp")
-# setup_custom_test_program(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_simulationSinglePerturbedSatellite tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
+# simulationSinglePerturbedSatellite
+add_executable(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationSinglePerturbedSatellite.cpp")
+setup_custom_test_program(test_json_simulationSinglePerturbedSatellite "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_simulationSinglePerturbedSatellite tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 # # simulationInnerSolarSystem
 # add_executable(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationInnerSolarSystem.cpp")
 # setup_custom_test_program(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}")
