@@ -232,6 +232,12 @@ public:
     //! Spice settings (NULL if Spice is not used).
     boost::shared_ptr< SpiceSettings > spiceSettings_;
 
+    //! Global frame origin.
+    std::string globalFrameOrigin_;
+
+    //! Global frame orientation.
+    std::string globalFrameOrientation_;
+
     //! Map of body settings.
     std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
 
@@ -274,7 +280,10 @@ protected:
      */
     virtual void resetBodies( )
     {
-        updateBodiesFromJSON( jsonObject_, bodyMap_, bodySettingsMap_, spiceSettings_, integratorSettings_ );
+        globalFrameOrigin_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
+        globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
+        updateBodiesFromJSON( jsonObject_, bodyMap_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_,
+                              spiceSettings_, integratorSettings_ );
     }
 
     //! Reset propagatorSettings_ from the current jsonObject_
@@ -386,6 +395,8 @@ void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& s
     assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings_ );
 
     // bodies
+    jsonObject[ Keys::globalFrameOrigin ] = simulation.globalFrameOrigin_;
+    jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation_;
     jsonObject[ Keys::bodies ] = simulation.bodySettingsMap_;
 
     // export
