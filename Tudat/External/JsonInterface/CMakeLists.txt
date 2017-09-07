@@ -143,10 +143,10 @@ add_executable(test_json_simulationThrustAlongVelocityVector "${SRCROOT}${JSONIN
 setup_custom_test_program(test_json_simulationThrustAlongVelocityVector "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_simulationThrustAlongVelocityVector tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-# # simulationThrustAccelerationFromFile
-# add_executable(test_json_simulationThrustAccelerationFromFile "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationThrustAccelerationFromFile.cpp")
-# setup_custom_test_program(test_json_simulationThrustAccelerationFromFile "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_simulationThrustAccelerationFromFile tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+# simulationThrustAccelerationFromFile
+add_executable(test_json_simulationThrustAccelerationFromFile "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationThrustAccelerationFromFile.cpp")
+setup_custom_test_program(test_json_simulationThrustAccelerationFromFile "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_simulationThrustAccelerationFromFile tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 
 
