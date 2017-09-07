@@ -51,18 +51,20 @@ boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const js
  */
 void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const json& jsonObject );
 
-//! Update \p bodyMap and \p bodySettingsMap from \p jsonObject using \p spiceSettings for default settings and
-//! initial time from \p integratorSettings.
+//! Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
+//! initial time from \p integratorSettings).
 /*!
- * Update \p bodyMap and \p bodySettingsMap from \p jsonObject using \p spiceSettings for default settings and
- * initial time from \p integratorSettings.
+ * Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
+ * initial time from \p integratorSettings).
  * \param jsonObject The root `json` object containing all the relevant fields ("bodies" mandatory, "endEpoch"
  * mandatory if Spice kernels should be preloaded, "globalFrameOrigin" and "globalFrameOrientation" optional).
  * \param bodyMap The named body map to be updated (returned by reference).
  * \param bodySettingsMap The map of body settings created from \p jsonObject and used to create \p bodyMap
  * (returned by reference).
- * \param spiceSettings The settings for Spice.
- * \param integratorSettings The settings for the integrator.
+ * \param globalFrameOrigin Name of the global frame origin.
+ * \param globalFrameOrientation Name of the global frame orientation.
+ * \param spiceSettings The settings for Spice (NULL if Spice not used).
+ * \param integratorSettings The settings for the integrator (NULL if Spice not used).
  * \throws std::runtime_error If any body is configured to be created using default settings and either
  * \p spiceSettings is `NULL` or \p integratorSettings is `NULL` and Spice is configured to preload kernels.
  */
@@ -71,6 +73,8 @@ void updateBodiesFromJSON(
         const json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
         std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
+        const std::string globalFrameOrigin,
+        const std::string globalFrameOrientation,
         const boost::shared_ptr< SpiceSettings >& spiceSettings,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
@@ -127,11 +131,6 @@ void updateBodiesFromJSON(
         }
     }
 
-    // Global frame origin and orientation
-    const std::string globalFrameOrigin = getValue< std::string >( jsonObject, Keys::globalFrameOrigin, "SSB" );
-    const std::string globalFrameOrientation =
-            getValue< std::string >( jsonObject, Keys::globalFrameOrientation, "ECLIPJ2000" );
-
     // Get body settings from JSON.
     for ( auto entry : jsonBodySettingsMap )
     {
@@ -164,24 +163,6 @@ void updateBodiesFromJSON(
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, globalFrameOrigin, globalFrameOrientation );
-}
-
-//! Update \p bodyMap and \p bodySettingsMap from \p jsonObject without using Spice.
-/*!
- * Update \p bodyMap and \p bodySettingsMap from \p jsonObject without using Spice.
- * \param jsonObject The root `json` object containing all the relevant fields ("bodies" mandatory,
- * "globalFrameOrigin" and "globalFrameOrientation" optional).
- * \param bodyMap The named body map to be updated (returned by reference).
- * \param bodySettingsMap The map of body settings created from \p jsonObject and used to create \p bodyMap
- * (returned by reference).
- * \throws std::runtime_error If any body is configured to be created using default settings.
- */
-inline void updateBodiesFromJSON(
-        const json& jsonObject,
-        simulation_setup::NamedBodyMap& bodyMap,
-        std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap )
-{
-    updateBodiesFromJSON< double >( jsonObject, bodyMap, bodySettingsMap, NULL, NULL );
 }
 
 } // namespace json_interface
