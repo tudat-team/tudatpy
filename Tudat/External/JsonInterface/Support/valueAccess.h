@@ -112,17 +112,6 @@ KeyPath getKeyPath( const json& jsonObject );
 std::string getParentKey( const json& jsonObject,
                           const std::string& errorMessage = "Could not determine parent key: context is missing." );
 
-//! Convert \p j to object if \p j is array.
-/*!
- * @copybrief convertToObjectIfArray This method does nothing if \p j is not an array, if \p is empty, or if \p is
- * an array of primitive elements and \p onlyIfElementsAreStructured is set to `true`.
- * \param j `json` object to be converted.
- * \param onlyIfElementsAreStructured Only perform the conversion if the elements of \p j are either an object or an
- * array, i.e. if they are not primitive. Defualt is `false` (all arrays will be converted regardless of their elements
- * type).
- */
-void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = false );
-
 //! Get the response type to an event for a `json` object.
 /*!
  * @copybrief getResponseToEventNamed
@@ -160,6 +149,39 @@ inline void clearAccessHistory( )
  * was found in \p jsonObject.
  */
 void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType response );
+
+
+// JSON ARRAY
+
+//! Convert \p j to object if \p j is array.
+/*!
+ * @copybrief convertToObjectIfArray This method does nothing if \p j is not an array, if \p is empty, or if \p is
+ * an array of primitive elements and \p onlyIfElementsAreStructured is set to `true`.
+ * \param j `json` object to be converted.
+ * \param onlyIfElementsAreStructured Only perform the conversion if the elements of \p j are either an object or an
+ * array, i.e. if they are not primitive. Defualt is `false` (all arrays will be converted regardless of their elements
+ * type).
+ */
+void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = false );
+
+//! Convert \p jsonObject to a json array.
+/*!
+ * Convert \p jsonObject to a json array. Does nothing if \p jsonObject is already an array.
+ * If \p jsonObject is an object whose (non-special) keys are all convertible to unsigned int, the equivalent `json`
+ * array will be returned. Otherise, the original \p jsonObject is returned.
+ * \param jsonObject The `json` object to be converted.
+ * \return \p jsonObject as a json array, or the original \p jsonObject if it is not convertible to array.
+ */
+json getAsArray( const json& jsonObject );
+
+//! Whether \p j is convertible to a json array.
+/*!
+ * Whether \p j is convertible to a json array. True if \p j is an array or an object whose (non-special) keys are all
+ * convertible to unsigned int.
+ * \param j The `json` object to be checked.
+ * \return Whether \p j is convertible to a json array.
+ */
+bool isConvertibleToArray( const json& j );
 
 
 // GET FROM JSON

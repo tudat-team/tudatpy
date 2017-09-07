@@ -50,20 +50,25 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_types )
 BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
 {
     using namespace simulation_setup;
+    using namespace spice_interface;
     using namespace json_interface;
+
+    // Load spice kernels.  (FIXME: remove kernels that are not needed for computeRotationQuaternionBetweenFrames)
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
+    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
     // Create RotationModelSettings from JSON file
     const boost::shared_ptr< RotationModelSettings > fromFileSettings =
             parseJSONFile< boost::shared_ptr< RotationModelSettings > >( INPUT( "simple" ) );
 
     // Create RotationModelSettings manually
-    const std::string originalFrame = "A";
-    const std::string targetFrame = "B";
-    const Eigen::Quaterniond initialOrientation( ( Eigen::Matrix3d( ) <<
-                                                   1.0,  0.0,  0.0,
-                                                   0.0,  1.0, -1.0,
-                                                   0.0, -1.0,  1.0 ).finished( ) );
+    const std::string originalFrame = "ECLIPJ2000";
+    const std::string targetFrame = "IAU_Earth";
     const double initialTime = 42.0;
+    const Eigen::Quaterniond initialOrientation =
+            spice_interface::computeRotationQuaternionBetweenFrames( originalFrame, targetFrame, initialTime );
     const double rotationRate = 2.0e-5;
     const boost::shared_ptr< RotationModelSettings > manualSettings =
             boost::make_shared< SimpleRotationModelSettings >( originalFrame,

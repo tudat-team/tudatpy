@@ -14,6 +14,8 @@
 #include "json/src/json.hpp"
 using json = nlohmann::json;
 
+#include <Tudat/External/SpiceInterface/spiceInterface.h>
+
 #include "path.h"
 #include "utilities.h"
 #include "valueAccess.h"
@@ -104,58 +106,19 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
 {
     using namespace tudat::json_interface;
 
-    bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
-    std::vector< unsigned int > indeces;
-    std::vector< ValueType > values;
-    if ( isObjectWithIntConvertibleKeys )
-    {
-        for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
-        {
-            const std::string key = it.key( );
-            if ( ! contains( SpecialKeys::all, key ) )
-            {
-                try
-                {
-                    indeces.push_back( stoi( key ) );
-                }
-                catch ( ... )
-                {
-                    isObjectWithIntConvertibleKeys = false;
-                    break;
-                }
-                values.push_back( getValue< ValueType >( jsonObject, key ) );
-            }
-        }
-    }
+    const json jsonArray = getAsArray( jsonObject );
 
-    if ( isObjectWithIntConvertibleKeys )
+    myVector.clear( );
+    if ( jsonArray.is_array( ) )
     {
-        if ( indeces.empty( ) )
+        for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
         {
-            myVector = { };
-        }
-        else
-        {
-            myVector = std::vector< ValueType >( *std::max_element( indeces.begin( ), indeces.end( ) ) + 1 );
-            for ( unsigned int i = 0; i < indeces.size( ); ++i )
-            {
-                myVector[ indeces.at( i ) ] = values.at( i );
-            }
+            myVector.push_back( getAs< ValueType >( jsonArray.at( i ) ) );
         }
     }
     else
     {
-        if ( jsonObject.is_array( ) )
-        {
-            for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
-            {
-                myVector.push_back( getValue< ValueType >( jsonObject, i ) );
-            }
-        }
-        else
-        {
-            myVector.push_back( getAs< ValueType >( jsonObject ) );
-        }
+        myVector.push_back( getAs< ValueType >( jsonArray ) );
     }
 }
 
@@ -261,19 +224,31 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
 
 
 //! Create a `json` object from an `Eigen::Quaternion`.
-template< typename ScalarType >
-void to_json( json& jsonObject, const Quaternion< ScalarType >& quaternion )
+inline void to_json( json& jsonObject, const Quaterniond& quaternion )
 {
     // Get rotation matrix from quaternion and use that to initialise json object
     jsonObject = quaternion.toRotationMatrix( );
 }
 
 //! Create `Eigen::Quaternion` from a `json` object.
-template< typename ScalarType >
-void from_json( const json& jsonObject, Quaternion< ScalarType >& quaternion )
+inline void from_json( const json& jsonObject, Quaterniond& quaternion )
 {
-    // Get rotation matrix from json object and use that to initialise quaternion
-    quaternion = jsonObject.get< Eigen::Matrix< ScalarType, 3, 3 > >( );
+    using namespace tudat;
+    using namespace json_interface;
+    using K = Keys::Body::RotationModel;
+
+    if ( isConvertibleToArray( jsonObject ) )
+    {
+        // Get rotation matrix from json object and use that to initialise quaternion
+        quaternion = jsonObject.get< Eigen::Matrix3d >( );
+    }
+    else
+    {
+        quaternion = tudat::spice_interface::computeRotationQuaternionBetweenFrames(
+                    getValue< std::string >( jsonObject, K::originalFrame ),
+                    getValue< std::string >( jsonObject, K::targetFrame ),
+                    getEpoch< double >( jsonObject, K::initialTime ) );
+    }
 }
 
 }  // namespace Eigen
