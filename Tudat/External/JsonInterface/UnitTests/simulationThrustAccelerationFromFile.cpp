@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
 
     // Define propagation termination conditions (stop after 2 weeks).
     boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-            boost::make_shared< propagators::PropagationTimeTerminationSettings >( 14.0 * physical_constants::JULIAN_DAY );
+            boost::make_shared< propagators::PropagationTimeTerminationSettings >( 4.0E+5 );
 
     // Define settings for propagation of translational dynamics.
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =

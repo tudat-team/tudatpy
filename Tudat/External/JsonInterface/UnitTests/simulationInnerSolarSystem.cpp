@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
-    double finalEphemerisTime = 1.0E7 + 2.0 * physical_constants::JULIAN_YEAR;
+    double finalEphemerisTime = 1.0E7 + 30.0 * physical_constants::JULIAN_DAY;
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
-    double finalEphemerisTime = 1.0E7 + 2.0 * physical_constants::JULIAN_YEAR;
+    double finalEphemerisTime = 1.0E7 + 30.0 * physical_constants::JULIAN_DAY;
 
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
