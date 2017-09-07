@@ -133,11 +133,11 @@ add_executable(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDI
 setup_custom_test_program(test_json_simulationInnerSolarSystem "${SRCROOT}${JSONINTERFACEDIR}")
 target_link_libraries(test_json_simulationInnerSolarSystem tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-# # simulationGalileoConstellation
-# add_executable(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationGalileoConstellation.cpp")
-# setup_custom_test_program(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}")
-# target_link_libraries(test_json_simulationGalileoConstellation tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-#
+# simulationGalileoConstellation
+add_executable(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationGalileoConstellation.cpp")
+setup_custom_test_program(test_json_simulationGalileoConstellation "${SRCROOT}${JSONINTERFACEDIR}")
+target_link_libraries(test_json_simulationGalileoConstellation tudat_json_interface ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 # # simulationThrustAlongVelocityVector
 # add_executable(test_json_simulationThrustAlongVelocityVector "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/simulationThrustAlongVelocityVector.cpp")
 # setup_custom_test_program(test_json_simulationThrustAlongVelocityVector "${SRCROOT}${JSONINTERFACEDIR}")
