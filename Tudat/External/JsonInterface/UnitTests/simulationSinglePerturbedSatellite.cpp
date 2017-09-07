@@ -206,7 +206,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-10 );
+    const std::vector< unsigned int > indeces = { 0, 3 };
+    const std::vector< unsigned int > lengths = { 3, 3 };
+    const double tolerance = 1.0E-10;
+
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
 
 
 
@@ -224,7 +228,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite )
     jsonSimulation.run( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, 1.0E-10 );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
 
 }
 

@@ -86,46 +86,44 @@ void checkConsistentEnum( const std::string& filename,
 
 void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
                                    const std::map< double, Eigen::VectorXd >& results2,
+                                   const std::vector< unsigned int > indeces,
+                                   const std::vector< unsigned int > lengths,
                                    const double tolerance )
 {
     // Check size of maps
     BOOST_CHECK_EQUAL( results1.size( ), results2.size( ) );
 
-    // Results 1
+    // Check initial epochs
     const double initialEpoch1 = results1.begin( )->first;
-    const Eigen::VectorXd initialState1 = results1.begin( )->second;
-    const double initialDistance1 = initialState1.segment( 0, 3 ).norm( );
-    const double initialSpeed1 = initialState1.segment( 3, 3 ).norm( );
-
-    const double finalEpoch1 = ( --results1.end( ) )->first;
-    const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
-    const double finalDistance1 = finalState1.segment( 0, 3 ).norm( );
-    const double finalSpeed1 = finalState1.segment( 3, 3 ).norm( );
-
-    // Results 2
     const double initialEpoch2 = results2.begin( )->first;
-    const Eigen::VectorXd initialState2 = results2.begin( )->second;
-    const double initialDistance2 = initialState2.segment( 0, 3 ).norm( );
-    const double initialSpeed2 = initialState2.segment( 3, 3 ).norm( );
-
-    const double finalEpoch2 = ( --results2.end( ) )->first;
-    const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
-    const double finalDistance2 = finalState2.segment( 0, 3 ).norm( );
-    const double finalSpeed2 = finalState2.segment( 3, 3 ).norm( );
-
-    // Compare initial conditions
     BOOST_CHECK_SMALL( std::fabs( initialEpoch1 - initialEpoch2 ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( initialDistance1, initialDistance2, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( initialSpeed1, initialSpeed2, tolerance );
 
-    // Compare final conditions
+    // Check final epochs
+    const double finalEpoch1 = ( --results1.end( ) )->first;
+    const double finalEpoch2 = ( --results2.end( ) )->first;
     BOOST_CHECK_SMALL( std::fabs( finalEpoch1 - finalEpoch2 ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( finalDistance1, finalDistance2, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( finalSpeed1, finalSpeed2, tolerance );
+
+    // Check norm of requested vector segments
+    const Eigen::VectorXd initialState1 = results1.begin( )->second;
+    const Eigen::VectorXd initialState2 = results2.begin( )->second;
+    const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
+    const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
+    for ( unsigned int i = 0; i < indeces.size( ); ++i )
+    {
+        // Initial step
+        const double initialNorm1 = initialState1.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        const double initialNorm2 = initialState2.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        BOOST_CHECK_CLOSE_FRACTION( initialNorm1, initialNorm2, tolerance );
+
+        // Final step
+        const double finalNorm1 = finalState1.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        const double finalNorm2 = finalState2.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        BOOST_CHECK_CLOSE_FRACTION( finalNorm1, finalNorm2, tolerance );
+    }
 }
 
-#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, tolerance ) \
-    tudat::json_interface::checkCloseIntegrationResults( results1, results2, tolerance )
+#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indeces, lengths, tolerance ) \
+    tudat::json_interface::checkCloseIntegrationResults( results1, results2, indeces, lengths, tolerance )
 
 } // namespace json_interface
 
