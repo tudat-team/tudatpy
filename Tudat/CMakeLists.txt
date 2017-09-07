@@ -111,7 +111,7 @@ endif( )
 
 # Add an option to toggle the generation of the API documentation.
 # If documentation should be built, find Doxygen package and setup config file.
-option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" ON)
+option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 if(BUILD_DOCUMENTATION)
  find_package(Doxygen)
 
