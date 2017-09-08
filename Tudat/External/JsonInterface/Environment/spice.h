@@ -110,7 +110,7 @@ public:
      * Offsets for the interval for which the spice kernels are to be preloaded.
      * <br/>
      * The kernels will be preloaded for the interval:
-     * `[ startEpoch + preloadOffsets_.first, endEpoch + preloadOffsets_.second ]`
+     * `[ initialEpoch + preloadOffsets_.first, finalEpoch + preloadOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
      * \remark If not specified, the used values are 10 * interpolationStep_.
      */

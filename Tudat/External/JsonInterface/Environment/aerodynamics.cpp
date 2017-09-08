@@ -138,9 +138,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
     const AerodynamicCoefficientTypes coefficientsType =
             getValue( jsonObject, K::coefficientsType, constant_aerodynamic_coefficients );
 
-    // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
-    double fallbackReferenceArea = getNumeric< double >(
-                jsonObject, SpecialKeys::up / K::referenceArea, TUDAT_NAN, true );
+    // Reference area (either from the current object or from the current object's parent, i.e. the body)
+    const double referenceArea =
+            getValue< double >( jsonObject, { K::referenceArea, SpecialKeys::up / Keys::Body::referenceArea } );
 
     switch ( coefficientsType )
     {
@@ -162,9 +162,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
             ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
                                                              Eigen::Vector3d( ), Eigen::Vector3d( ) );
             aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                        getNumeric< double >( jsonObject, K::referenceLength ),
-                        getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
-                        getNumeric< double >( jsonObject, K::lateralReferenceLength ),
+                        getValue< double >( jsonObject, K::referenceLength ),
+                        referenceArea,
+                        getValue< double >( jsonObject, K::lateralReferenceLength ),
                         getValue< Eigen::Vector3d >( jsonObject, K::momentReferencePoint ),
                         forceCoefficients,
                         getValue< Eigen::Vector3d >( jsonObject, K::momentCoefficients ),
@@ -177,7 +177,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
         {
             ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, Eigen::Vector3d( ) );
             aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                        getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
+                        referenceArea,
                         forceCoefficients,
                         getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
                                   defaults.getAreCoefficientsInAerodynamicFrame( ) ),
@@ -232,7 +232,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
             }
         }
 
-        const double referenceArea = getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea );
         const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames =
                 getValue< std::vector< AerodynamicCoefficientsIndependentVariables > >(
                     jsonObject, K::independentVariableNames );
@@ -248,9 +247,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
                 aerodynamicSettings = readTabulatedAerodynamicCoefficientsFromFiles(
                             forceCoefficientsFiles,
                             momentCoefficientsFiles,
-                            getNumeric< double >( jsonObject, K::referenceLength ),
+                            getValue< double >( jsonObject, K::referenceLength ),
                             referenceArea,
-                            getNumeric< double >( jsonObject, K::lateralReferenceLength ),
+                            getValue< double >( jsonObject, K::lateralReferenceLength ),
                             getValue< Eigen::Vector3d >( jsonObject, K::momentReferencePoint ),
                             independentVariableNames,
                             areCoefficientsInAerodynamicFrame,
@@ -274,9 +273,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
                             getValue< std::vector< double > >( jsonObject, K::independentVariables ),
                             forceCoefficients,
                             momentCoefficients,
-                            getNumeric< double >( jsonObject, K::referenceLength ),
+                            getValue< double >( jsonObject, K::referenceLength ),
                             referenceArea,
-                            getNumeric< double >( jsonObject, K::lateralReferenceLength ),
+                            getValue< double >( jsonObject, K::lateralReferenceLength ),
                             getValue< Eigen::Vector3d >( jsonObject, K::momentReferencePoint ),
                             independentVariableNames.front( ),
                             getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ),

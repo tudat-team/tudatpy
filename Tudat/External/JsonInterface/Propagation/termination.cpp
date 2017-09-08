@@ -131,14 +131,13 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     case independentVariable:
     {
         terminationSettings = boost::make_shared< PropagationTimeTerminationSettings >(
-                    getEpoch( jsonObject, K::upperLimit,
-                              getEpoch< double >( jsonObject, SpecialKeys::root / Keys::endEpoch, TUDAT_NAN, true ) ) );
+                    getValue< double >( jsonObject, { K::upperLimit, SpecialKeys::root / Keys::finalEpoch } ) );
         return;
     }
     case cpuTimeVariable:
     {
         terminationSettings = boost::make_shared< PropagationCPUTimeTerminationSettings >(
-                    getNumeric< double >( jsonObject, K::upperLimit ) );
+                    getValue< double >( jsonObject, K::upperLimit ) );
         return;
     }
     case dependentVariable:
@@ -174,12 +173,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
         bool useLowerLimit;
         if ( defined( jsonObject, K::lowerLimit ) )
         {
-            limitValue = getNumeric< double >( jsonObject, K::lowerLimit );
+            limitValue = getValue< double >( jsonObject, K::lowerLimit );
             useLowerLimit = true;
         }
         else
         {
-            limitValue = getNumeric< double >( jsonObject, K::upperLimit );
+            limitValue = getValue< double >( jsonObject, K::upperLimit );
             useLowerLimit = false;
         }
 

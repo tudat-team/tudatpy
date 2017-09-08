@@ -56,7 +56,7 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
 /*!
  * Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
  * initial time from \p integratorSettings).
- * \param jsonObject The root `json` object containing all the relevant fields ("bodies" mandatory, "endEpoch"
+ * \param jsonObject The root `json` object containing all the relevant fields ("bodies" mandatory, "finalEpoch"
  * mandatory if Spice kernels should be preloaded, "globalFrameOrigin" and "globalFrameOrientation" optional).
  * \param bodyMap The named body map to be updated (returned by reference).
  * \param bodySettingsMap The map of body settings created from \p jsonObject and used to create \p bodyMap
@@ -107,7 +107,7 @@ void updateBodiesFromJSON(
                     bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
                                                               integratorSettings->initialTime_
                                                               + spiceSettings->getInitialOffset( ),
-                                                              getEpoch< TimeType >( jsonObject, Keys::endEpoch )
+                                                              getValue< TimeType >( jsonObject, Keys::finalEpoch )
                                                               + spiceSettings->getFinalOffset( ),
                                                               spiceSettings->interpolationStep_ );
                 }

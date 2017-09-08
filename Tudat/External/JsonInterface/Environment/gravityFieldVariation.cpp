@@ -81,7 +81,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariation
         variationSettings = boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                     getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
                     getValue< std::vector< std::vector< std::complex< double > > > >( jsonObject, K::loveNumbers ),
-                    getNumeric< double >( jsonObject, K::referenceRadius ),
+                    getValue< double >( jsonObject, K::referenceRadius ),
                     getValue( jsonObject, K::modelInterpolation, defaults.getInterpolatorSettings( ) ) );
         return;
     }

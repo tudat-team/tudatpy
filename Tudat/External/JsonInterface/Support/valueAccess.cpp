@@ -121,7 +121,7 @@ std::string getParentKey( const json& jsonObject, const std::string& errorMessag
 }
 
 //! Get the response type to an event for a `json` object.
-ExceptionResponseType getResponseToEventNamed( const json& jsonObject, const std::string& eventName,
+ExceptionResponseType getResponseToEvent( const json& jsonObject, const std::string& eventName,
                                                const ExceptionResponseType defaultResponse )
 {
     ExceptionResponseType response = defaultResponse;

@@ -82,7 +82,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
     case exponential_atmosphere:
     {
         atmosphereSettings = boost::make_shared< ExponentialAtmosphereSettings >(
-                    getNumeric< double >( jsonObject, K::densityScaleHeight ),
+                    getValue< double >( jsonObject, K::densityScaleHeight ),
                     getValue< double >( jsonObject, K::constantTemperature ),
                     getValue< double >( jsonObject, K::densityAtZeroAltitude ),
                     getValue< double >( jsonObject, K::specificGasConstant ) );

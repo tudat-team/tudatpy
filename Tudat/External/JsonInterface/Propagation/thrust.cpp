@@ -137,8 +137,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings 
     {
         ConstantThrustEngineSettings defaults( TUDAT_NAN, TUDAT_NAN );
         magnitudeSettings = boost::make_shared< ConstantThrustEngineSettings >(
-                    getNumeric< double >( jsonObject, K::constantMagnitude ),
-                    getNumeric< double >( jsonObject, K::specificImpulse ),
+                    getValue< double >( jsonObject, K::constantMagnitude ),
+                    getValue< double >( jsonObject, K::specificImpulse ),
                     getValue( jsonObject, K::bodyFixedDirection, defaults.bodyFixedThrustDirection_ ) );
         return;
     }
@@ -197,7 +197,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSet
         thrustAccelerationSettings = boost::make_shared< ThrustAccelerationSettings >(
                     getValue< boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >(
                         jsonObject, K::dataInterpolation ),
-                    getNumeric< double >( jsonObject, K::specificImpulse ),
+                    getValue< double >( jsonObject, K::specificImpulse ),
                     getValue( jsonObject, K::frame, unspecified_thurst_frame ),
                     getValue( jsonObject, K::centralBody, std::string( ) ) );
     }

@@ -79,7 +79,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
     {
         spiceSettings->preloadOffsets_ = getValue( jsonObject, K::preloadOffsets, spiceSettings->preloadOffsets_ );
         spiceSettings->interpolationStep_ =
-                getNumeric( jsonObject, K::interpolationStep, spiceSettings->interpolationStep_ );
+                getValue( jsonObject, K::interpolationStep, spiceSettings->interpolationStep_ );
     }
     // }
 }

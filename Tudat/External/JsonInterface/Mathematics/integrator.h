@@ -128,13 +128,10 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
     using RungeKuttaCoefficientSet = RungeKuttaCoefficients::CoefficientSets;
     using K = Keys::Integrator;
 
-    // Fallback initial time (retrieved from simulation.startEpoch), to be used if not specified in integrator settings
-    const TimeType fallbackInitialTime =
-            getEpoch< TimeType >( jsonObject, SpecialKeys::root / Keys::startEpoch, TUDAT_NAN, true );
-
     // Read JSON settings shared by all supported integrators
     const AvailableIntegrators integratorType = getValue< AvailableIntegrators >( jsonObject, K::type );
-    const TimeType initialTime = getNumeric( jsonObject, K::initialTime, fallbackInitialTime );
+    const TimeType initialTime =
+            getValue< TimeType >( jsonObject, { K::initialTime, SpecialKeys::root / Keys::initialEpoch } );
 
     // Create IntegratorSettings pointer from JSON settings
     switch ( integratorType )
@@ -146,7 +143,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
         integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >(
                     integratorType,
                     initialTime,
-                    getNumeric< TimeType >( jsonObject, K::stepSize ),
+                    getValue< TimeType >( jsonObject, K::stepSize ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ) );
         return;
     }
@@ -158,12 +155,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
         RungeKuttaVariableStepSizeSettings< TimeType > rkSettings(
                     integratorType,
                     initialTime,
-                    getNumeric< TimeType >( jsonObject, K::initialStepSize ),
+                    getValue< TimeType >( jsonObject, K::initialStepSize ),
                     getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
-                    getNumeric< TimeType >( jsonObject, K::minimumStepSize ),
-                    getNumeric< TimeType >( jsonObject, K::maximumStepSize ),
+                    getValue< TimeType >( jsonObject, K::minimumStepSize ),
+                    getValue< TimeType >( jsonObject, K::maximumStepSize ),
                     getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
-                    getNumeric( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
+                    getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
                     getValue( jsonObject, K::safetyFactorForNextStepSize,
                               defaults.safetyFactorForNextStepSize_ ),

@@ -65,7 +65,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
     switch ( rotationModelType ) {
     case simple_rotation_model:
     {
-        const double initialTime = getEpoch< double >( jsonObject, K::initialTime );
+        const double initialTime = getValue< double >( jsonObject, K::initialTime );
 
         // Get JSON object for initialOrientation (or create it if not defined)
         json jsonInitialOrientation;

@@ -69,7 +69,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< BodyShapeSettings >& 
     case spherical:
     {
         bodyShapeSettings = boost::make_shared< SphericalBodyShapeSettings >(
-                    getNumeric< double >( jsonObject, K::radius ) );
+                    getValue< double >( jsonObject, K::radius ) );
         return;
     }
     case spherical_spice:
@@ -80,7 +80,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< BodyShapeSettings >& 
     case oblate_spheroid:
     {
         bodyShapeSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
-                    getNumeric< double >( jsonObject, K::equatorialRadius ),
+                    getValue< double >( jsonObject, K::equatorialRadius ),
                     getValue< double >( jsonObject, K::flattening ) );
         return;
     }

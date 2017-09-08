@@ -123,13 +123,13 @@ public:
      */
     UndefinedKeyError( const KeyPath& keyPath ) : ValueAccessError( "Undefined key", keyPath ) { }
 
-    //! Rethrow `this` if default values are not allowed.
+    //! Rethrow `this` if default values are not allowed, or print a message if requested by user.
     /*!
-     * @copybrief rethrowIfDefaultValuesNotAllowed
+     * @copybrief handleUseOfDefaultValue
+     * \param defaultValue `json` representation of the dafault value to be used.
      * \param response The response to usage of dafault values.
-     * \param defaultValue `json` representation of the used dafault value.
      */
-    void rethrowIfDefaultValuesNotAllowed( const ExceptionResponseType& response, const json& defaultValue ) const
+    void handleUseOfDefaultValue( const json& defaultValue, const ExceptionResponseType& response ) const
     {
         if ( ! containsAnyOf( keyPath, SpecialKeys::objectRelated ) )
         {

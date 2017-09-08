@@ -159,9 +159,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     {
         InterpolatedSpiceEphemerisSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
         InterpolatedSpiceEphemerisSettings interpolatedSpiceEphemerisSettings(
-                    getEpoch< double >( jsonObject, K::initialTime ),
-                    getEpoch< double >( jsonObject, K::finalTime ),
-                    getNumeric< double >( jsonObject, K::timeStep ),
+                    getValue< double >( jsonObject, K::initialTime ),
+                    getValue< double >( jsonObject, K::finalTime ),
+                    getValue< double >( jsonObject, K::timeStep ),
                     defaults.getFrameOrigin( ),
                     defaults.getFrameOrientation( ),
                     getValue( jsonObject, K::interpolator, defaults.getInterpolatorSettings( ) ) );
@@ -183,8 +183,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
         KeplerEphemerisSettings defaults( Eigen::Vector6d( ), TUDAT_NAN, TUDAT_NAN );
         ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
                     getValue< Eigen::Vector6d >( jsonObject, K::initialStateInKeplerianElements ),
-                    getEpoch< double >( jsonObject, K::epochOfInitialState ),
-                    getNumeric< double >( jsonObject, K::centralBodyGravitationalParameter ),
+                    getValue< double >( jsonObject, K::epochOfInitialState ),
+                    getValue< double >( jsonObject, K::centralBodyGravitationalParameter ),
                     defaults.getFrameOrigin( ),
                     defaults.getFrameOrientation( ),
                     getValue( jsonObject, K::rootFinderAbsoluteTolerance,

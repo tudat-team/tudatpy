@@ -23,10 +23,10 @@
 using json = nlohmann::json;
 
 #include <Tudat/InputOutput/basicInputOutput.h>
+#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "errorHandling.h"
 #include "keys.h"
-#include "units.h"
 #include "utilities.h"
 
 namespace tudat
@@ -121,7 +121,7 @@ std::string getParentKey( const json& jsonObject,
  * \param defaultResponse Default response if the response to the event is not defined. By default, continueSilently.
  * \return Response type to the event.
  */
-ExceptionResponseType getResponseToEventNamed( const json& jsonObject, const std::string& eventName,
+ExceptionResponseType getResponseToEvent( const json& jsonObject, const std::string& eventName,
                                                const ExceptionResponseType defaultResponse = continueSilently );
 
 
@@ -281,7 +281,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         if ( convertedJsonObject.is_array( ) && ! chunkObjectWasArray )
         {
             const ExceptionResponseType response =
-                    getResponseToEventNamed( jsonObject, Keys::Options::unidimensionalArrayInference );
+                    getResponseToEvent( jsonObject, Keys::Options::unidimensionalArrayInference );
             if ( response == throwError )
             {
                 throw illegalValueError;
@@ -349,74 +349,6 @@ ValueType getAs( const json& jsonObject )
     return getValue< ValueType >( jsonObject, { } );
 }
 
-//! Get the numeric value of \p jsonObject at \p keyPath.
-/*!
- * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with units and
- * convert to SI units if it is as string.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \return Numeric value at the requested key path.
- * \throws UndefinedKeyError If the requested key path is not defined.
- * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
- * `NumberType`.
- */
-template< typename NumberType >
-NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath )
-{
-    try
-    {
-        return getValue< NumberType >( jsonObject, keyPath );
-    }
-    catch ( const IllegalValueError& error )
-    {
-        // Could not convert to the requested type
-        try
-        {
-            // Convert to string (with units) and then parse the number and convert to SI
-            return parseMagnitudeWithUnits< NumberType >( error.value.template get< std::string >( ) );
-        }
-        catch ( ... )
-        {
-            // Could not convert to the requested type nor parse the string as a number
-            throw error;
-        }
-    }
-}
-
-//! Get the numeric value of \p jsonObject at \p keyPath.
-/*!
- * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to seconds since
- * J2000 if it is as string.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \return Numeric value at the requested key path.
- * \throws UndefinedKeyError If the requested key path is not defined.
- * \throws IllegalValueError<NumberType> If the obtained value for the requested key path is not convertible to
- * `NumberType`.
- */
-template< typename NumberType >
-NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath )
-{
-    try
-    {
-        return getValue< NumberType >( jsonObject, keyPath );
-    }
-    catch ( const IllegalValueError& error )
-    {
-        // Could not convert to the requested type
-        try
-        {
-            // Convert to string and then parse as a formatted date
-            return convertToSecondsSinceJ2000< NumberType >( error.value.template get< std::string >( ) );
-        }
-        catch ( ... )
-        {
-            // Could not convert to the requested type nor parse the string as a date
-            throw error;
-        }
-    }
-}
-
 //! Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
 /*!
  * Get the value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
@@ -441,77 +373,46 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
     catch ( const UndefinedKeyError& error )
     {
         error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        error.rethrowIfDefaultValuesNotAllowed(
-                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
-                    json( defaultValue ) );
+        error.handleUseOfDefaultValue( json( defaultValue ),
+                                       getResponseToEvent( jsonObject, Keys::Options::defaultValueUsedForMissingKey ) );
         return defaultValue;
     }
 }
 
-//! Get the numeric value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
+//! Get the value of \p jsonObject at the first defined key path in \p keyPaths.
 /*!
- * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a physical magnitude with units and
- * convert to SI units if it is as string, or return \p optionalValue if not defined.
+ * Get the value of \p jsonObject at the first defined key path in \p keyPaths.
  * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \param defaultValue The default value to be returned if the key is not defined.
- * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
- * \return Value at the requested key path, or \p optionalValue if not defined.
- * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
- * is set to `false`.
+ * \param keyPaths Vector of key paths from which the value can be retrieved.
+ * \return Value at the first defined key path in \p keyPaths.
+ * \throws UndefinedKeyError If all the key paths in \p keyPaths are not defined for \p jsonObject. The printed message
+ * will indicate the key path corresponding to the last of \p keyPaths.
+ * \throws UndefinedKeyError If some of the subkeys needed to create the shared pointer of `ValueType` are missing
+ * (only when \p jsonObject at \p keyPaths is of type object).
  * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
  * `ValueType`.
+ * \throws IllegalValueError<SubvalueType> If some of the subkeys needed to create the shared pointer of `ValueType`
+ * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPaths is of type object).
  */
-template< typename NumberType >
-NumberType getNumeric( const json& jsonObject, const KeyPath& keyPath,
-                       const NumberType& defaultValue, bool allowNaN = false )
+template< typename ValueType >
+ValueType getValue( const json& jsonObject, const std::vector< KeyPath >& keyPaths )
 {
-    try
+    for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
     {
-        return getNumeric< NumberType >( jsonObject, keyPath );
+        try
+        {
+            return getValue< json >( jsonObject, keyPaths.at( i ) );
+        }
+        catch ( const UndefinedKeyError& error )
+        {
+            error.rethrowIfNotTriggeredByMissingValueAt( keyPaths.at( i ) );
+            if ( i == keyPaths.size( ) - 1 )
+            {
+                throw error;
+            }
+        }
     }
-    catch ( const UndefinedKeyError& error )
-    {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        error.rethrowIfDefaultValuesNotAllowed(
-                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
-                    json( defaultValue ) );
-        error.rethrowIfNaNNotAllowed( allowNaN, defaultValue );
-        return defaultValue;
-    }
-}
-
-//! Get the numeric value of \p jsonObject at \p keyPath, or return \p optionalValue if not defined.
-/*!
- * Get the numeric value of \p jsonObject at \p keyPath, trying to parse it as a date and convert to seconds since
- * J2000 if it is as string, or return \p optionalValue if not defined.
- * \param jsonObject The `json` object.
- * \param keyPath Key path from which to retrieve the value.
- * \param defaultValue The default value to be returned if the key is not defined.
- * \param allowNaN Whether the returned value is allowed to be NaN. Default is `false` (cannot be NaN).
- * \return Value at the requested key path, or \p optionalValue if not defined.
- * \throws UndefinedKeyError If the requested key path is not defined AND \p optionalValue is NaN AND \p allowNaN
- * is set to `false`.
- * \throws IllegalValueError<ValueType> If the obtained value for the requested key path is not convertible to
- * `ValueType`.
- */
-template< typename NumberType >
-NumberType getEpoch( const json& jsonObject, const KeyPath& keyPath,
-                     const NumberType& defaultValue, bool allowNaN = false )
-{
-    try
-    {
-        return getEpoch< NumberType >( jsonObject, keyPath );
-    }
-    catch ( const UndefinedKeyError& error )
-    {
-        error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        error.rethrowIfDefaultValuesNotAllowed(
-                    getResponseToEventNamed( jsonObject, Keys::Options::defaultValueUsedForMissingKey ),
-                    json( defaultValue ) );
-        error.rethrowIfNaNNotAllowed( allowNaN, defaultValue );
-        return defaultValue;
-    }
+    throw;  // silence warning may reach end of non-void function
 }
 
 

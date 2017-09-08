@@ -11,6 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_VALUECONVERSIONS_H
 #define TUDAT_JSONINTERFACE_VALUECONVERSIONS_H
 
+#include <boost/lexical_cast.hpp>
+
 #include "json/src/json.hpp"
 using json = nlohmann::json;
 
@@ -247,7 +249,7 @@ inline void from_json( const json& jsonObject, Quaterniond& quaternion )
         quaternion = tudat::spice_interface::computeRotationQuaternionBetweenFrames(
                     getValue< std::string >( jsonObject, K::originalFrame ),
                     getValue< std::string >( jsonObject, K::targetFrame ),
-                    getEpoch< double >( jsonObject, K::initialTime ) );
+                    getValue< double >( jsonObject, K::initialTime ) );
     }
 }
 

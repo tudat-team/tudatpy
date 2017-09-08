@@ -1,6 +1,6 @@
 {
-  "startEpoch": 0,
-  "endEpoch": 400000,
+  "initialEpoch": 0,
+  "finalEpoch": 400000,
   "globalFrameOrigin": "SSB",
   "globalFrameOrientation": "J2000",
   "spice": {

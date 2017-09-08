@@ -41,7 +41,6 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/path.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/Support/units.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/utilities.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/valueAccess.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/valueConversions.h"
