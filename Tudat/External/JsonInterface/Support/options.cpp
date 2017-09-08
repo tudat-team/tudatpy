@@ -31,7 +31,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& a
     jsonObject[ K::defaultValueUsedForMissingKey ] = applicationOptions->defaultValueUsedForMissingKey_;
     jsonObject[ K::unusedKey ] = applicationOptions->unusedKey_;
     jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference_;
-    assignIfNotEmpty( jsonObject, K::populatedFile, applicationOptions->populatedFile_ );
+    assignIfNotEmpty( jsonObject, K::fullSettingsFile, applicationOptions->fullSettingsFile_ );
     jsonObject[ K::tagOutputFilesIfPropagationFails ] = applicationOptions->tagOutputFilesIfPropagationFails_;
 }
 
@@ -55,7 +55,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >&
     updateFromJSONIfDefined( applicationOptions->unidimensionalArrayInference_,
                              jsonObject, K::unidimensionalArrayInference );
 
-    updateFromJSONIfDefined( applicationOptions->populatedFile_, jsonObject, K::populatedFile );
+    updateFromJSONIfDefined( applicationOptions->fullSettingsFile_, jsonObject, K::fullSettingsFile );
 
     updateFromJSONIfDefined( applicationOptions->tagOutputFilesIfPropagationFails_,
                              jsonObject, K::tagOutputFilesIfPropagationFails );
