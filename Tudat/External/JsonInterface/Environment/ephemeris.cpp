@@ -147,7 +147,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
     }
     case tabulated_ephemeris:
     {
-        TabulatedEphemerisSettings defaults( { } );
+        TabulatedEphemerisSettings defaults( ( std::map< double, Eigen::Vector6d >( ) ) );
         TabulatedEphemerisSettings tabulatedEphemerisSettings(
                     getValue< std::map< double, Eigen::Vector6d > >( jsonObject, K::bodyStateHistory ) );
         tabulatedEphemerisSettings.setUseLongDoubleStates(
