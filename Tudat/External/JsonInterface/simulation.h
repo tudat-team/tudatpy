@@ -98,10 +98,10 @@ public:
         // Check if any keys in jsonObject_ haven't been used
         checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
 
-        // Export populated JSON file if requested
-        if ( ! applicationOptions_->populatedFile_.empty( ) )
+        // Export full settings JSON file if requested
+        if ( ! applicationOptions_->fullSettingsFile_.empty( ) )
         {
-            exportAsJSON( applicationOptions_->populatedFile_ );
+            exportAsJSON( applicationOptions_->fullSettingsFile_ );
         }
 
         // Print message on propagation start if requested

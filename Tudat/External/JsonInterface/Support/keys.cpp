@@ -368,7 +368,7 @@ const std::string Keys::Options::printInterval = "printInterval";
 const std::string Keys::Options::defaultValueUsedForMissingKey = "defaultValueUsedForMissingKey";
 const std::string Keys::Options::unusedKey = "unusedKey";
 const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalArrayInference";
-const std::string Keys::Options::populatedFile = "populatedFile";
+const std::string Keys::Options::fullSettingsFile = "fullSettingsFile";
 const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFilesIfPropagationFails";
 
 

@@ -399,7 +399,7 @@ struct Keys
         static const std::string defaultValueUsedForMissingKey;
         static const std::string unusedKey;
         static const std::string unidimensionalArrayInference;
-        static const std::string populatedFile;
+        static const std::string fullSettingsFile;
         static const std::string tagOutputFilesIfPropagationFails;
     };
 };
