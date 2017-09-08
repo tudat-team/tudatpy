@@ -127,9 +127,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSet
 
     ModelInterpolationSettings defaults;
     modelInterpolationSettings = boost::make_shared< ModelInterpolationSettings >(
-                getEpoch( jsonObject, K::initialTime, defaults.initialTime_ ),
-                getEpoch( jsonObject, K::finalTime, defaults.finalTime_ ),
-                getNumeric( jsonObject, K::timeStep, defaults.timeStep_ ),
+                getValue( jsonObject, K::initialTime, defaults.initialTime_ ),
+                getValue( jsonObject, K::finalTime, defaults.finalTime_ ),
+                getValue( jsonObject, K::timeStep, defaults.timeStep_ ),
                 getValue( jsonObject, K::interpolator, defaults.interpolatorSettings_ ) );
 }
 

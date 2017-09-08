@@ -126,8 +126,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
         // load coefficients from custom file
         if ( defined( jsonObject, K::file ) )
         {
-            const int gmIndex = getNumeric( jsonObject, K::gravitationalParameterIndex, 0 );
-            const int radiusIndex = getNumeric( jsonObject, K::referenceRadiusIndex, 1 );
+            const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
+            const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
             gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
                         getValue< path >( jsonObject, K::file ).string( ),
                         getValue< std::string >( jsonObject, K::associatedReferenceFrame ),
@@ -135,8 +135,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
                         getValue< int >( jsonObject, K::maximumOrder ),
                         gmIndex,
                         radiusIndex,
-                        getNumeric< double >( jsonObject, K::gravitationalParameter, TUDAT_NAN, gmIndex >= 0 ),
-                        getNumeric< double >( jsonObject, K::referenceRadius, TUDAT_NAN, radiusIndex >= 0 ) );
+                        getValue< double >( jsonObject, K::gravitationalParameter, TUDAT_NAN ),
+                        getValue< double >( jsonObject, K::referenceRadius, TUDAT_NAN ) );
             return;
         }
 
@@ -150,8 +150,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
 
         // user-provided coefficients in JSON object
         gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    getNumeric< double >( jsonObject, K::gravitationalParameter ),
-                    getNumeric< double >( jsonObject, K::referenceRadius ),
+                    getValue< double >( jsonObject, K::gravitationalParameter ),
+                    getValue< double >( jsonObject, K::referenceRadius ),
                     getValue< Eigen::MatrixXd >( jsonObject, K::cosineCoefficients ),
                     getValue< Eigen::MatrixXd >( jsonObject, K::sineCoefficients ),
                     getValue< std::string >( jsonObject, K::associatedReferenceFrame ) );

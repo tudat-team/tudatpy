@@ -48,8 +48,8 @@ const std::vector< std::string > SpecialKeys::all =
 // Keys recognised by json_interface.
 
 // const std::string Keys::simulationType = "simulationType";
-const std::string Keys::startEpoch = "startEpoch";
-const std::string Keys::endEpoch = "endEpoch";
+const std::string Keys::initialEpoch = "initialEpoch";
+const std::string Keys::finalEpoch = "finalEpoch";
 const std::string Keys::globalFrameOrigin = "globalFrameOrigin";
 const std::string Keys::globalFrameOrientation = "globalFrameOrientation";
 

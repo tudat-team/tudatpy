@@ -597,7 +597,7 @@ void from_json( const json& jsonObject,
     using namespace simulation_setup;
     using namespace json_interface;
 
-    // Termination settings. If not provided, stop when epoch > simulation.endEpoch
+    // Termination settings. If not provided, stop when epoch > simulation.finalEpoch
     std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationConditions;
 
     // Find user-defined conditions (and determine if time condition is missing)
@@ -620,12 +620,12 @@ void from_json( const json& jsonObject,
         }
     }
 
-    // If user did not provide conditions, or if endEpoch is defined but the time condition is missing, create it
+    // If user did not provide conditions, or if finalEpoch is defined but the time condition is missing, create it
     if ( ! defined( jsonObject, Keys::termination ) ||
-         ( defined( jsonObject, Keys::endEpoch ) && timeConditionMissing ) )
+         ( defined( jsonObject, Keys::finalEpoch ) && timeConditionMissing ) )
     {
         terminationConditions.push_back( boost::make_shared< PropagationTimeTerminationSettings >(
-                                             getEpoch< double >( jsonObject, Keys::endEpoch ) ) );
+                                             getValue< double >( jsonObject, Keys::finalEpoch ) ) );
     }
 
     // If there's only one condition in total (either user-provided time, user-provided dependent or created time)
@@ -667,7 +667,7 @@ void from_json( const json& jsonObject,
 
     // Print interval
     const double printInterval =
-            getNumeric( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN, true );
+            getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN );
 
     multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
                 getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(

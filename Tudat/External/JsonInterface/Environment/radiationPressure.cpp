@@ -63,9 +63,9 @@ void from_json( const json& jsonObject,
     // Get radiation pressure coefficient type (cannonBall by default)
     const RadiationPressureType radiationPressureType = getValue( jsonObject, K::type, cannon_ball );
 
-    // Reference area (use fallback area if reference area not provided, final value cannont be NaN)
-    double fallbackReferenceArea = getNumeric< double >(
-                jsonObject, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea, TUDAT_NAN, true );
+    // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
+    const double referenceArea = getValue< double >(
+                jsonObject, { K::referenceArea, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea } );
 
     switch ( radiationPressureType )
     {
@@ -88,7 +88,7 @@ void from_json( const json& jsonObject,
         CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
         radiationPressureInterfaceSettings = boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     sourceBody,
-                    getNumeric( jsonObject, K::referenceArea, fallbackReferenceArea ),
+                    referenceArea,
                     getValue< double >( jsonObject, K::radiationPressureCoefficient ),
                     getValue( jsonObject, K::occultingBodies, defaults.getOccultingBodies( ) ) );
         return;

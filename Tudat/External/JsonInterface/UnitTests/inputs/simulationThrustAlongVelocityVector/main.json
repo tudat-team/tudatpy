@@ -1,6 +1,6 @@
 {
-  "startEpoch": 0,
-  "endEpoch": 3600,
+  "initialEpoch": 0,
+  "finalEpoch": 3600,
   "spice": {
     "kernels": [
       "${SPICE_KERNELS_PATH}\/pck00009.tpc",

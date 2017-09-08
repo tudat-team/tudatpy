@@ -38,8 +38,8 @@ struct SpecialKeys
 struct Keys
 {
     // static const std::string simulationType;
-    static const std::string startEpoch;
-    static const std::string endEpoch;
+    static const std::string initialEpoch;
+    static const std::string finalEpoch;
     static const std::string globalFrameOrigin;
     static const std::string globalFrameOrientation;
 
