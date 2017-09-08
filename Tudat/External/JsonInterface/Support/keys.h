@@ -412,18 +412,24 @@ struct Keys
 class KeyPath : public std::vector< std::string >
 {
 public:
-    //! Inherit constructors.
-    using std::vector< std::string >::vector;
+    //! Empty constructor.
+    KeyPath( ) : std::vector< std::string >( ) { }
+
+    //! Constructor from vector.
+    KeyPath( const std::vector< std::string >& vector ) : std::vector< std::string >( )
+    {
+        for ( unsigned int i = 0; i < vector.size( ); ++i )
+        {
+            push_back( vector.at( i ) );
+        }
+    }
 
     //! Constructor with a single string key.
     /*!
      * Constructor with a single string key.
      * \param key The key to be accessed.
      */
-    KeyPath( const std::string& key ) : std::vector< std::string >( )
-    {
-        push_back( key );
-    }
+    KeyPath( const std::string& key ) : KeyPath( std::vector< std::string >( { key } ) ) { }
 
     //! Constructor with a single char key.
     /*!
