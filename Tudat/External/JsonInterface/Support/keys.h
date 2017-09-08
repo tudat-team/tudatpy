@@ -413,7 +413,7 @@ class KeyPath : public std::vector< std::string >
 {
 public:
     //! Inherit constructors.
-    using vector< std::string >::vector;
+    using std::vector< std::string >::vector;
 
     //! Constructor with a single string key.
     /*!
