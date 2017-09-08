@@ -420,7 +420,10 @@ public:
      * Constructor with a single string key.
      * \param key The key to be accessed.
      */
-    KeyPath( const std::string& key ) : KeyPath( std::vector< std::string >( { key } ) ) { }
+    KeyPath( const std::string& key ) : std::vector< std::string >( )
+    {
+        push_back( key );
+    }
 
     //! Constructor with a single char key.
     /*!
