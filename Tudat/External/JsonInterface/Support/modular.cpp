@@ -332,7 +332,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
             }
             else
             {
-                keyPaths = { KeyPath( { } ) };
+                keyPaths = { KeyPath( ) };
             }
             json parsedJsonObject;
             for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
