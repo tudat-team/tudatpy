@@ -67,11 +67,7 @@ executeEarthMoonSimulation(
 {
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define
     std::vector< std::string > bodyNames;
@@ -355,12 +351,7 @@ executeOrbiterSimulation(
     int numberOfParametersToEstimate = 10;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-
+    spice_interface::loadStandardSpiceKernels( );
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -610,7 +601,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 
     // Check results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 2.5E-5 );
+                stateTransitionAndSensitivityMatrixAtEpoch, manualPartial, 5.0E-5 );
 
 }
 

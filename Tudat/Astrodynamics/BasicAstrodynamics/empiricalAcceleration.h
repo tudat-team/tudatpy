@@ -43,9 +43,9 @@ enum EmpiricalAccelerationFunctionalShapes
 //! Enum defining component of empirical accelerations
 enum EmpiricalAccelerationComponents
 {
-    radial_empicial_acceleration_component = 0,
-    along_track_empicial_acceleration_component = 1,
-    across_track_empicial_acceleration_component = 2
+    radial_empirical_acceleration_component = 0,
+    along_track_empirical_acceleration_component = 1,
+    across_track_empirical_acceleration_component = 2
 };
 
 

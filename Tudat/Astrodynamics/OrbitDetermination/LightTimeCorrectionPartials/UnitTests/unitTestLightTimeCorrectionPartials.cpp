@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                         linkEndIterator->first );
 
             // Settings for parameter partial functions.
-            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E16 )( 1.0E8 );
+            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E15 )( 1.0E8 );
             std::vector< boost::function< void( ) > > updateFunctionList;
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );

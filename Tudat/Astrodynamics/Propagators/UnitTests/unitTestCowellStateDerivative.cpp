@@ -60,11 +60,7 @@ BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     unsigned int totalNumberOfBodies = 4;
@@ -345,9 +341,7 @@ template< typename TimeType, typename StateScalarType >
 void testCowellPropagationOfKeplerOrbit( )
 {
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     std::vector< std::string > bodyNames;
