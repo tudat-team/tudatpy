@@ -321,6 +321,22 @@ public:
     //! Type of viability that is to be checked
     ObservationViabilityType observationViabilityType_;
 
+    std::pair< std::string, std::string > getAssociatedLinkEnd( )
+    {
+        return associatedLinkEnd_;
+    }
+
+    std::string getStringParameter( )
+    {
+        return stringParameter_;
+    }
+
+    double getDoubleParameter( )
+    {
+        return doubleParameter_;
+    }
+
+protected:
     //! Link end at which viability is to be checked
     std::pair< std::string, std::string > associatedLinkEnd_;
 
