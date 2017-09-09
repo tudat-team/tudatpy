@@ -40,7 +40,7 @@ inline void to_json( json& jsonObject, const RadiationPressureType& radiationPre
 //! Convert `json` to `RadiationPressureType`.
 inline void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType )
 {
-    radiationPressureType = json_interface::enumFromString( jsonObject.get< std::string >( ), radiationPressureTypes );
+    radiationPressureType = json_interface::enumFromString( jsonObject, radiationPressureTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.

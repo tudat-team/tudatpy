@@ -46,7 +46,7 @@ inline void to_json( json& jsonObject, const AvailableMassRateModels& massRateTy
 //! Convert `json` to `AvailableMassRateModels`.
 inline void from_json( const json& jsonObject, AvailableMassRateModels& massRateType )
 {
-    massRateType = json_interface::enumFromString( jsonObject.get< std::string >( ), massRateTypes );
+    massRateType = json_interface::enumFromString( jsonObject, massRateTypes );
 }
 
 } // namespace basic_astrodynamics

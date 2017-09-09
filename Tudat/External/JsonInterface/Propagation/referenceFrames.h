@@ -45,7 +45,7 @@ inline void to_json( json& jsonObject, const AerodynamicsReferenceFrames& aerody
 inline void from_json( const json& jsonObject, AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
     aerodynamicsReferenceFrame =
-	    json_interface::enumFromString( jsonObject.get< std::string >( ), aerodynamicsReferenceFrames );
+	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
 }
 
 
@@ -73,7 +73,7 @@ inline void to_json( json& jsonObject, const AerodynamicsReferenceFrameAngles& a
 inline void from_json( const json& jsonObject, AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
 {
     aerodynamicsReferenceFrameAngle =
-	    json_interface::enumFromString( jsonObject.get< std::string >( ), aerodynamicsReferenceFrameAngles );
+	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );
 }
 
 } // namespace reference_frames

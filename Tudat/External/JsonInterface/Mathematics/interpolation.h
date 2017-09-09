@@ -47,7 +47,7 @@ inline void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& on
 inline void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
 {
     oneDimensionalInterpolatorType =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), oneDimensionalInterpolatorTypes );
+            json_interface::enumFromString( jsonObject, oneDimensionalInterpolatorTypes );
 }
 
 
@@ -72,7 +72,7 @@ inline void to_json( json& jsonObject, const AvailableLookupScheme& availableLoo
 //! Convert `json` to `AvailableLookupScheme`.
 inline void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme )
 {
-    availableLookupScheme = json_interface::enumFromString( jsonObject.get< std::string >( ), lookupSchemeTypes );
+    availableLookupScheme = json_interface::enumFromString( jsonObject, lookupSchemeTypes );
 }
 
 
@@ -98,7 +98,7 @@ inline void from_json( const json& jsonObject,
                        LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
 {
     lagrangeInterpolatorBoundaryHandling =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), lagrangeInterpolatorBoundaryHandlings );
+            json_interface::enumFromString( jsonObject, lagrangeInterpolatorBoundaryHandlings );
 }
 
 

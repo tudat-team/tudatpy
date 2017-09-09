@@ -51,7 +51,7 @@ inline void to_json( json& jsonObject, const SimulationType& simulationType )
 //! Convert `json` to `SimulationType`.
 inline void from_json( const json& jsonObject, SimulationType& simulationType )
 {
-    simulationType = json_interface::enumFromString( jsonObject.get< std::string >( ), simulationTypes );
+    simulationType = json_interface::enumFromString( jsonObject, simulationTypes );
 }
 */
 

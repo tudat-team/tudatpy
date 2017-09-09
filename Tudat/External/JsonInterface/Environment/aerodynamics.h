@@ -47,7 +47,7 @@ inline void to_json( json& jsonObject, const AerodynamicCoefficientsIndependentV
 //! Convert `json` to `AerodynamicCoefficientsIndependentVariables`.
 inline void from_json( const json& jsonObject, AerodynamicCoefficientsIndependentVariables& aerodynamicVariable )
 {
-    aerodynamicVariable = json_interface::enumFromString( jsonObject.get< std::string >( ), aerodynamicVariables );
+    aerodynamicVariable = json_interface::enumFromString( jsonObject, aerodynamicVariables );
 }
 
 }  // namespace aerodynamics
@@ -81,8 +81,7 @@ inline void to_json( json& jsonObject, const AerodynamicCoefficientTypes& aerody
 //! Convert `json` to `AerodynamicCoefficientTypes`.
 inline void from_json( const json& jsonObject, AerodynamicCoefficientTypes& aerodynamicCoefficientType )
 {
-    aerodynamicCoefficientType =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), aerodynamicCoefficientTypes );
+    aerodynamicCoefficientType = json_interface::enumFromString( jsonObject, aerodynamicCoefficientTypes );
 }
 
 

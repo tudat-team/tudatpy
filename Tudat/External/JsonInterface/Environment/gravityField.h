@@ -44,7 +44,7 @@ inline void to_json( json& jsonObject, const GravityFieldType& gravityFieldType 
 //! Convert `json` to `GravityFieldType`.
 inline void from_json( const json& jsonObject, GravityFieldType& gravityFieldType )
 {
-    gravityFieldType = json_interface::enumFromString( jsonObject.get< std::string >( ), gravityFieldTypes );
+    gravityFieldType = json_interface::enumFromString( jsonObject, gravityFieldTypes );
 }
 
 
@@ -75,7 +75,7 @@ inline void to_json( json& jsonObject, const SphericalHarmonicsModel& sphericalH
 inline void from_json( const json& jsonObject, SphericalHarmonicsModel& sphericalHarmonicsModel )
 {
     sphericalHarmonicsModel =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), sphericalHarmonicsModels );
+            json_interface::enumFromString( jsonObject, sphericalHarmonicsModels );
 }
 
 

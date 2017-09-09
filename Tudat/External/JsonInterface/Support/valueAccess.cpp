@@ -133,7 +133,7 @@ ExceptionResponseType getResponseToEvent( const json& jsonObject, const std::str
             rootObject = valueAt( jsonObject, SpecialKeys::rootObject );
         }
         catch ( ... ) { }
-        response = valueAt( rootObject, Keys::options / eventName ).get< ExceptionResponseType >( );
+        response = valueAt( rootObject, Keys::options / eventName );
     }
     catch ( ... ) { }
     return response;

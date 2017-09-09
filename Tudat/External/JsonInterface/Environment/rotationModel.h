@@ -41,7 +41,7 @@ inline void to_json( json& jsonObject, const RotationModelType& rotationModelTyp
 //! Convert `json` to `RotationModelType`.
 inline void from_json( const json& jsonObject, RotationModelType& rotationModelType )
 {
-    rotationModelType = json_interface::enumFromString( jsonObject.get< std::string >( ), rotationModelTypes );
+    rotationModelType = json_interface::enumFromString( jsonObject, rotationModelTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.

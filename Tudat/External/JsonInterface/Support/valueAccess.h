@@ -274,7 +274,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
     try
     {
         // Try to convert to the requested type
-        const ValueType convertedObject = currentObject.get< ValueType >( );
+        const ValueType convertedObject = currentObject;
 
         // Check if unidimensional array inference was applied
         json convertedJsonObject = json( convertedObject );
@@ -300,7 +300,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
                     std::cerr << "Unidimensional array inferred for key: " << canonicalKeyPath << std::endl;
                 }
 
-                return convertedJsonObject.get< ValueType >( );
+                return convertedJsonObject;
             }
         }
 

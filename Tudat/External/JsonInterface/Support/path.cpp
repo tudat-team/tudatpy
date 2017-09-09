@@ -73,7 +73,7 @@ void to_json( json& j, const path& p )
 //! Create a path from a `json` object.
 void from_json( const json& j, path& p )
 {
-    const path actualPath = tudat::json_interface::pathRemovingPlaceholders( j.get< std::string >( ) );
+    const path actualPath = tudat::json_interface::pathRemovingPlaceholders( j );
     const path absolutePath = actualPath.is_absolute( ) ? actualPath : current_path( ) / actualPath;
     p = weakly_canonical( absolutePath );
 }

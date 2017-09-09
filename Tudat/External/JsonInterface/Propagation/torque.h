@@ -42,7 +42,7 @@ inline void to_json( json& jsonObject, const AvailableTorque& torqueType )
 //! Convert `json` to `AvailableTorque`.
 inline void from_json( const json& jsonObject, AvailableTorque& torqueType )
 {
-    torqueType = json_interface::enumFromString( jsonObject.get< std::string >( ), torqueTypes );
+    torqueType = json_interface::enumFromString( jsonObject, torqueTypes );
 }
 
 } // namespace basic_astrodynamics

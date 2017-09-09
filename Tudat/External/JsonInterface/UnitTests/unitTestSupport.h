@@ -42,7 +42,7 @@ T parseJSONFile( std::string file )
         file += ".json";
     }
     boost::filesystem::current_path( path( file ).parent_path( ) );
-    return readJSON( file ).get< T >( );
+    return readJSON( file );
 }
 
 
