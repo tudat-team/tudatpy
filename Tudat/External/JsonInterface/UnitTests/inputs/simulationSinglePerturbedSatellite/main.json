@@ -5,9 +5,9 @@
   "globalFrameOrientation": "J2000",
   "spice": {
     "kernels": [
-      "${SPICE_KERNELS_PATH}\/pck00009.tpc",
-      "${SPICE_KERNELS_PATH}\/de-403-masses.tpc",
-      "${SPICE_KERNELS_PATH}\/de421.bsp"
+      "${SPICE_KERNELS_PATH}/pck00009.tpc",
+      "${SPICE_KERNELS_PATH}/de-403-masses.tpc",
+      "${SPICE_KERNELS_PATH}/de421.bsp"
     ]
   },
   "bodies": {
