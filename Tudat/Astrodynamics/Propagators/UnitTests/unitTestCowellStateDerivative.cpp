@@ -471,7 +471,7 @@ void testCowellPropagationOfKeplerOrbit( )
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( stateDifference( i ), 1E-3 );
-                BOOST_CHECK_SMALL( stateDifference( i  + 3 ), 1.0E-9 );
+                BOOST_CHECK_SMALL( stateDifference( i  + 3 ), 2.0E-9 );
 
             }
             currentTime += 10000.0;
