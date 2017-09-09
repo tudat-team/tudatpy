@@ -154,12 +154,12 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             if( testCase == 0 )
             {
                 BOOST_CHECK_SMALL( std::fabs( observationTime  - linkEndTimes.at( 0 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL( std::fabs( observationTime + lightTime - linkEndTimes.at( 1 ) ), 1.0E-10 );
             }
             else
             {
                 BOOST_CHECK_SMALL( std::fabs( observationTime - linkEndTimes.at( 1 ) ), 1.0E-15 );
-                BOOST_CHECK_SMALL( std::fabs( observationTime - lightTime - linkEndTimes.at( 0 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL( std::fabs( observationTime - lightTime - linkEndTimes.at( 0 ) ), 1.0E-10 );
             }
         }
 

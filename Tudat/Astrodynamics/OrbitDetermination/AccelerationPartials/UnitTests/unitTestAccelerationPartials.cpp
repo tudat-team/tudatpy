@@ -74,6 +74,7 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 
     // Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
 
@@ -785,11 +786,11 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents, std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >
             empiricalComponentsToEstimate;
-    empiricalComponentsToEstimate[ basic_astrodynamics::radial_empicial_acceleration_component ] = allEmpiricalShapesVector;
-    empiricalComponentsToEstimate[ basic_astrodynamics::along_track_empicial_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ] = allEmpiricalShapesVector;
 
     allEmpiricalShapesVector.push_back( basic_astrodynamics::sine_empirical );
-    empiricalComponentsToEstimate[ basic_astrodynamics::across_track_empicial_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ] = allEmpiricalShapesVector;
 
     // Create time-independent empirical acceleration object.
     boost::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = boost::make_shared<
