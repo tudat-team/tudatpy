@@ -45,7 +45,7 @@ inline void to_json( json& jsonObject, const VariableType& variableType )
 //! Convert `json` to `VariableType`.
 inline void from_json( const json& jsonObject, VariableType& variableType )
 {
-    variableType = json_interface::enumFromString( jsonObject.get< std::string >( ), variableTypes );
+    variableType = json_interface::enumFromString( jsonObject, variableTypes );
 }
 
 
@@ -100,7 +100,7 @@ inline void to_json( json& jsonObject, const PropagationDependentVariables& depe
 //! Convert `json` to `PropagationDependentVariables`.
 inline void from_json( const json& jsonObject, PropagationDependentVariables& dependentVariable )
 {
-    dependentVariable = json_interface::enumFromString( jsonObject.get< std::string >( ), dependentVariableTypes );
+    dependentVariable = json_interface::enumFromString( jsonObject, dependentVariableTypes );
 }
 
 

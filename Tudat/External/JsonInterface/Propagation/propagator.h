@@ -59,7 +59,7 @@ inline void to_json( json& jsonObject, const StateType& stateType )
 //! Convert `json` to `StateType`.
 inline void from_json( const json& jsonObject, StateType& stateType )
 {
-    stateType = json_interface::enumFromString( jsonObject.get< std::string >( ), stateTypes );
+    stateType = json_interface::enumFromString( jsonObject, stateTypes );
 }
 
 
@@ -485,7 +485,7 @@ inline void to_json( json& jsonObject, const IntegratedStateType& integratedStat
 //! Convert `json` to `IntegratedStateType`.
 inline void from_json( const json& jsonObject, IntegratedStateType& integratedStateType )
 {
-    integratedStateType = json_interface::enumFromString( jsonObject.get< std::string >( ), integratedStateTypes );
+    integratedStateType = json_interface::enumFromString( jsonObject, integratedStateTypes );
 }
 
 
@@ -513,7 +513,7 @@ inline void to_json( json& jsonObject, const TranslationalPropagatorType& transl
 inline void from_json( const json& jsonObject, TranslationalPropagatorType& translationalPropagatorType )
 {
     translationalPropagatorType =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), translationalPropagatorTypes );
+            json_interface::enumFromString( jsonObject, translationalPropagatorTypes );
 }
 
 /*

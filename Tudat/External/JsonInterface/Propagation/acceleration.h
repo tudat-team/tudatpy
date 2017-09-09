@@ -63,7 +63,7 @@ inline void to_json( json& jsonObject, const AvailableAcceleration& acceleration
 //! Convert `json` to `AvailableAcceleration`.
 inline void from_json( const json& jsonObject, AvailableAcceleration& accelerationType )
 {
-    accelerationType = json_interface::enumFromString( jsonObject.get< std::string >( ), accelerationTypes );
+    accelerationType = json_interface::enumFromString( jsonObject, accelerationTypes );
 }
 
 } // namespace basic_astrodynamics

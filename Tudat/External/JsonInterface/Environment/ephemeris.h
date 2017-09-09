@@ -51,7 +51,7 @@ inline void to_json( json& jsonObject,
 inline void from_json( const json& jsonObject,
                        ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
 {
-    bodyWithEphemerisData = json_interface::enumFromString( jsonObject.get< std::string >( ), bodiesWithEphemerisData );
+    bodyWithEphemerisData = json_interface::enumFromString( jsonObject, bodiesWithEphemerisData );
 }
 
 } // namespace ephemerides
@@ -87,7 +87,7 @@ inline void to_json( json& jsonObject, const EphemerisType& ephemerisType )
 //! Convert `json` to `EphemerisType`.
 inline void from_json( const json& jsonObject, EphemerisType& ephemerisType )
 {
-    ephemerisType = json_interface::enumFromString( jsonObject.get< std::string >( ), ephemerisTypes );
+    ephemerisType = json_interface::enumFromString( jsonObject, ephemerisTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `EphemerisSettings` object.

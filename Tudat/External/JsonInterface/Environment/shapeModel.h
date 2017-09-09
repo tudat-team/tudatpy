@@ -42,7 +42,7 @@ inline void to_json( json& jsonObject, const BodyShapeTypes& bodyShapeType )
 //! Convert `json` to `BodyShapeTypes`.
 inline void from_json( const json& jsonObject, BodyShapeTypes& bodyShapeType )
 {
-    bodyShapeType = json_interface::enumFromString( jsonObject.get< std::string >( ), bodyShapeTypes );
+    bodyShapeType = json_interface::enumFromString( jsonObject, bodyShapeTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.

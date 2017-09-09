@@ -50,7 +50,7 @@ inline void to_json( json& jsonObject, const ThrustDirectionGuidanceTypes& thrus
 //! Convert `json` to `ThrustDirectionGuidanceTypes`.
 inline void from_json( const json& jsonObject, ThrustDirectionGuidanceTypes& thrustDirectionType )
 {
-    thrustDirectionType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustDirectionTypes );
+    thrustDirectionType = json_interface::enumFromString( jsonObject, thrustDirectionTypes );
 }
 
 
@@ -90,7 +90,7 @@ inline void to_json( json& jsonObject, const ThrustMagnitudeTypes& thrustMagnitu
 //! Convert `json` to `ThrustMagnitudeTypes`.
 inline void from_json( const json& jsonObject, ThrustMagnitudeTypes& thrustMagnitudeType )
 {
-    thrustMagnitudeType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustMagnitudeTypes );
+    thrustMagnitudeType = json_interface::enumFromString( jsonObject, thrustMagnitudeTypes );
 }
 
 
@@ -125,7 +125,7 @@ inline void to_json( json& jsonObject, const ThrustFrames& thrustFrameType )
 //! Convert `json` to `ThrustFrames`.
 inline void from_json( const json& jsonObject, ThrustFrames& thrustFrameType )
 {
-    thrustFrameType = json_interface::enumFromString( jsonObject.get< std::string >( ), thrustFrameTypes );
+    thrustFrameType = json_interface::enumFromString( jsonObject, thrustFrameTypes );
 }
 
 

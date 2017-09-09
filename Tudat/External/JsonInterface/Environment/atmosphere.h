@@ -42,7 +42,7 @@ inline void to_json( json& jsonObject, const AtmosphereTypes& atmosphereType )
 //! Convert `json` to `AtmosphereTypes`.
 inline void from_json( const json& jsonObject, AtmosphereTypes& atmosphereType )
 {
-    atmosphereType = json_interface::enumFromString( jsonObject.get< std::string >( ), atmosphereTypes );
+    atmosphereType = json_interface::enumFromString( jsonObject, atmosphereTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.

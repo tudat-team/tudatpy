@@ -39,7 +39,7 @@ inline void to_json( json& jsonObject, const ExceptionResponseType& exceptionRes
 //! Convert `json` to `ExceptionResponseType`.
 inline void from_json( const json& jsonObject, ExceptionResponseType& exceptionResponseType )
 {
-    exceptionResponseType = json_interface::enumFromString( jsonObject.get< std::string >( ), exceptionResponseTypes );
+    exceptionResponseType = json_interface::enumFromString( jsonObject, exceptionResponseTypes );
 }
 
 

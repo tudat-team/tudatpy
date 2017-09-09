@@ -42,7 +42,7 @@ inline void to_json( json& jsonObject, const AvailableIntegrators& availableInte
 //! Convert `json` to `AvailableIntegrators`.
 inline void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator )
 {
-    availableIntegrator = json_interface::enumFromString( jsonObject.get< std::string >( ), integratorTypes );
+    availableIntegrator = json_interface::enumFromString( jsonObject, integratorTypes );
 }
 
 
@@ -68,7 +68,7 @@ inline void to_json( json& jsonObject, const RungeKuttaCoefficients::Coefficient
 inline void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
 {
     rungeKuttaCoefficientSet =
-            json_interface::enumFromString( jsonObject.get< std::string >( ), rungeKuttaCoefficientSets );
+            json_interface::enumFromString( jsonObject, rungeKuttaCoefficientSets );
 }
 
 

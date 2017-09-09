@@ -41,7 +41,7 @@ inline void to_json( json& jsonObject, const BodyDeformationTypes& bodyDeformati
 //! Convert `json` to `BodyDeformationTypes`.
 inline void from_json( const json& jsonObject, BodyDeformationTypes& bodyDeformationType )
 {
-    bodyDeformationType = json_interface::enumFromString( jsonObject.get< std::string >( ), bodyDeformationTypes );
+    bodyDeformationType = json_interface::enumFromString( jsonObject, bodyDeformationTypes );
 }
 
 } // namespace gravitation

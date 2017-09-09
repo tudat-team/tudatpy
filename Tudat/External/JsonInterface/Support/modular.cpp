@@ -132,7 +132,7 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
     }
     else if ( jsonObject.is_string( ) )
     {
-        std::string str = jsonObject.get< std::string >( );
+        std::string str = jsonObject;
 
         // Replace: ${FILE_DIR}, ${FILE_STEM}, ${FILE_NAME}, etc.
         str = regex_replace( str, boost::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
