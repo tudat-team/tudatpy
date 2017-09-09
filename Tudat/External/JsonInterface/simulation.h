@@ -168,6 +168,10 @@ public:
      */
     void exportAsJSON( const path& exportPath, const unsigned int tabSize = 2 )
     {
+        if ( ! boost::filesystem::exists( exportPath.parent_path( ) ) )
+        {
+            boost::filesystem::create_directories( exportPath.parent_path( ) );
+        }
         std::ofstream outputFile( exportPath.string( ) );
         outputFile << getAsJSON( ).dump( tabSize );
         outputFile.close( );
