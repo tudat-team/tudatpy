@@ -192,7 +192,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSet
     using namespace interpolators;
     using K = Keys::Propagator::Acceleration::Thrust;
 
-    if ( defined( jsonObject, K::dataInterpolation ) )
+    if ( isDefined( jsonObject, K::dataInterpolation ) )
     {
         thrustAccelerationSettings = boost::make_shared< ThrustAccelerationSettings >(
                     getValue< boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >(

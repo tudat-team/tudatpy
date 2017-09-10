@@ -387,7 +387,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
 }
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
-json getParsedModularJSON( const path& filePath )
+json getDeserializedJSON( const path& filePath )
 {
     json jsonObject = readJSON( filePath );
     parseModularJSON( jsonObject, filePath );

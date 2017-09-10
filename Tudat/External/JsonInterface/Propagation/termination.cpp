@@ -44,7 +44,7 @@ void from_json( const json& jsonObject,
     using K = Keys::Termination;
 
     // Not-hybrid
-    if ( ! defined( jsonObject, K::allOf ) && ! defined( jsonObject, K::anyOf ) )
+    if ( ! isDefined( jsonObject, K::allOf ) && ! isDefined( jsonObject, K::anyOf ) )
     {
         hybridTerminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
                     std::vector< boost::shared_ptr< PropagationTerminationSettings > >(
@@ -52,7 +52,7 @@ void from_json( const json& jsonObject,
     }
     else
     {
-        const bool meetAnyCondition = defined( jsonObject, K::anyOf );
+        const bool meetAnyCondition = isDefined( jsonObject, K::anyOf );
         hybridTerminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
                     getValue< std::vector< boost::shared_ptr< PropagationTerminationSettings > > >(
                         jsonObject, meetAnyCondition ? K::anyOf : K::allOf ), meetAnyCondition );
@@ -118,7 +118,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     using K = Keys::Termination;
 
     // Hybrid
-    if ( defined( jsonObject, K::allOf ) || defined( jsonObject, K::anyOf ) )
+    if ( isDefined( jsonObject, K::allOf ) || isDefined( jsonObject, K::anyOf ) )
     {
         terminationSettings = getAs< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject );
         return;
@@ -143,7 +143,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
     case dependentVariable:
     {
         // If both lower limit and upper limit, create hybrid satistying any of the two conditions
-        if ( defined( jsonObject, K::lowerLimit ) && defined( jsonObject, K::upperLimit ) )
+        if ( isDefined( jsonObject, K::lowerLimit ) && isDefined( jsonObject, K::upperLimit ) )
         {
             // Lower limit
             json lowerLimitObject = jsonObject;
@@ -171,7 +171,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
         // Limit value
         double limitValue;
         bool useLowerLimit;
-        if ( defined( jsonObject, K::lowerLimit ) )
+        if ( isDefined( jsonObject, K::lowerLimit ) )
         {
             limitValue = getValue< double >( jsonObject, K::lowerLimit );
             useLowerLimit = true;

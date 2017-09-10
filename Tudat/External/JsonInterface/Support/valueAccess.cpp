@@ -78,7 +78,7 @@ json valueAt( json jsonObject, const KeyPath& keyPath )
 }
 
 //! Whether the key at \p keyPath is defined for \p jsonObject.
-bool defined( const json& jsonObject, const KeyPath& keyPath )
+bool isDefined( const json& jsonObject, const KeyPath& keyPath )
 {
     try
     {

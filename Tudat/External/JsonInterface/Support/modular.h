@@ -59,7 +59,7 @@ path getPathForJSONFile( const std::string& file, const path& basePath = boost::
  * \param inputFilePath Path to the root JSON file.
  * \return Object containing the keys defined in the original file and all the imported files.
  */
-json getParsedModularJSON( const path& inputFilePath );
+json getDeserializedJSON( const path& inputFilePath );
 
 }  // namespace json_interface
 

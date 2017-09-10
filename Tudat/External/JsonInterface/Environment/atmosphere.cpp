@@ -96,7 +96,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >&
     }
     case nrlmsise00:
     {
-        if ( defined( jsonObject, K::spaceWeatherFile ) )
+        if ( isDefined( jsonObject, K::spaceWeatherFile ) )
         {
             atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >(
                         getValue< path >( jsonObject, K::spaceWeatherFile ).string( ) );

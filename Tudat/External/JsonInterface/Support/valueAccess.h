@@ -73,12 +73,12 @@ json valueAt( json jsonObject, const KeyPath& keyPath );
 
 //! Whether the key at \p keyPath is defined for \p jsonObject.
 /*!
- * @copybrief defined
+ * @copybrief isDefined
  * \param jsonObject The `json` object.
  * \param keyPath The key path specifying to key to be checked.
- * \return @copybrief defined
+ * \return @copybrief isDefined
  */
-bool defined( const json& jsonObject, const KeyPath& keyPath );
+bool isDefined( const json& jsonObject, const KeyPath& keyPath );
 
 
 // SPECIAL KEYS ACCESS
@@ -213,7 +213,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
-            if ( defined( currentObject, SpecialKeys::rootObject ) )
+            if ( isDefined( currentObject, SpecialKeys::rootObject ) )
             {
                 rootObject = getValue< json >( currentObject, SpecialKeys::rootObject );
             }

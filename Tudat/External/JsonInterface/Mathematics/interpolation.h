@@ -152,7 +152,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< DataMapSettings< I, D
     using namespace json_interface;
     using K = Keys::Interpolation::DataMap;
 
-    if ( defined( jsonObject, K::dependentVariableFirstDerivativeValues ) )
+    if ( isDefined( jsonObject, K::dependentVariableFirstDerivativeValues ) )
     {
         dataMapSettings = boost::make_shared< HermiteDataSettings< I, D > >(
                     getValue< std::map< I, D > >( jsonObject, K::map ),
@@ -160,14 +160,14 @@ void from_json( const json& jsonObject, boost::shared_ptr< DataMapSettings< I, D
         return;
     }
 
-    if ( defined( jsonObject, K::file ) )
+    if ( isDefined( jsonObject, K::file ) )
     {
         dataMapSettings = boost::make_shared< FromFileDataMapSettings< D > >(
                     getValue< path >( jsonObject, K::file ).string( ) );
         return;
     }
 
-    if ( defined( jsonObject, K::independentVariableValues ) || defined( jsonObject, K::dependentVariableValues ) )
+    if ( isDefined( jsonObject, K::independentVariableValues ) || isDefined( jsonObject, K::dependentVariableValues ) )
     {
         dataMapSettings = boost::make_shared< IndependentDependentDataMapSettings< I, D > >(
                     getValue< std::vector< I > >( jsonObject, K::independentVariableValues ),
