@@ -72,7 +72,7 @@ void from_json( const json& jsonObject,
     case cannon_ball:
     {
         std::string sourceBody;
-        if ( ! defined( jsonObject, K::sourceBody ) )
+        if ( ! isDefined( jsonObject, K::sourceBody ) )
         {
             try
             {

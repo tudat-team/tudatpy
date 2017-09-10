@@ -203,17 +203,17 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
         handleUnimplementedEnumValue( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }
 
-    if ( defined( jsonObject, K::frameOrigin ) )
+    if ( isDefined( jsonObject, K::frameOrigin ) )
     {
         ephemerisSettings->resetFrameOrigin( getValue< std::string >( jsonObject, K::frameOrigin ) );
     }
 
-    if ( defined( jsonObject, K::frameOrientation ) )
+    if ( isDefined( jsonObject, K::frameOrientation ) )
     {
         ephemerisSettings->resetFrameOrientation( getValue< std::string >( jsonObject, K::frameOrientation ) );
     }
 
-    if ( defined( jsonObject, K::makeMultiArc ) )
+    if ( isDefined( jsonObject, K::makeMultiArc ) )
     {
         ephemerisSettings->resetMakeMultiArcEphemeris( getValue< bool >( jsonObject, K::makeMultiArc ) );
     }

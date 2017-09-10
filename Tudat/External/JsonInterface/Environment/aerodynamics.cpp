@@ -148,7 +148,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
     {
         // Read forceCoefficients. If not defined, use [ dragCoefficient, 0, 0 ].
         Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
-        if ( defined( jsonObject, K::forceCoefficients ) )
+        if ( isDefined( jsonObject, K::forceCoefficients ) )
         {
             forceCoefficients = getValue< Eigen::Vector3d >( jsonObject, K::forceCoefficients );
         }
@@ -157,7 +157,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
             forceCoefficients( 0 ) = getValue< double >( jsonObject, K::dragCoefficient );
         }
 
-        if ( defined( jsonObject, K::momentCoefficients ) )  // moments
+        if ( isDefined( jsonObject, K::momentCoefficients ) )  // moments
         {
             ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
                                                              Eigen::Vector3d( ), Eigen::Vector3d( ) );

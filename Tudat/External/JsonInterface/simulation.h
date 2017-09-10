@@ -59,7 +59,7 @@ public:
         inputFilePath_ = getPathForJSONFile( inputFile );
         boost::filesystem::current_path( inputFilePath_.parent_path( ) );
 
-        reset( getParsedModularJSON( inputFilePath_ ) );
+        reset( getDeserializedJSON( inputFilePath_ ) );
     }
 
     //! Reset the `json` object.

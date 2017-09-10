@@ -69,7 +69,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
 
         // Get JSON object for initialOrientation (or create it if not defined)
         json jsonInitialOrientation;
-        if ( defined( jsonObject, K::initialOrientation ) )
+        if ( isDefined( jsonObject, K::initialOrientation ) )
         {
             jsonInitialOrientation = getValue< json >( jsonObject, K::initialOrientation );
         }

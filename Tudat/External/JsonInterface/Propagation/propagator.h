@@ -100,7 +100,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json
     using namespace json_interface;
     using K = Keys::Propagator;
 
-    if ( defined( jsonObject, K::initialStates ) )
+    if ( isDefined( jsonObject, K::initialStates ) )
     {
         return getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
     }
@@ -172,7 +172,7 @@ void determineInitialStates(
     if ( jsonPropagators.size( ) == 1 )
     {
         json& jsonPropagator = jsonPropagators.front( );
-        if ( ! defined( jsonPropagator, KP::initialStates ) )
+        if ( ! isDefined( jsonPropagator, KP::initialStates ) )
         {
             const IntegratedStateType integratedStateType =
                     getValue( jsonPropagator, KP::integratedStateType, translational_state );
@@ -199,7 +199,7 @@ void determineInitialStates(
         // Update propagators at jsonObject with initial states stored at JSON bodies settings
         for ( json& jsonPropagator : jsonPropagators )
         {
-            if ( ! defined( jsonPropagator, KP::initialStates ) )
+            if ( ! isDefined( jsonPropagator, KP::initialStates ) )
             {
                 // Integrated state type
                 const IntegratedStateType integratedStateType =
@@ -247,7 +247,7 @@ void determineInitialStates(
                         {
                             // Get central body
                             std::string centralBodyName;
-                            if ( defined( jsonState, KS::centralBody ) )
+                            if ( isDefined( jsonState, KS::centralBody ) )
                             {
                                 centralBodyName = getValue< std::string >( jsonState, KS::centralBody );
                             }
@@ -267,9 +267,9 @@ void determineInitialStates(
                             StateScalarType eccentricity = TUDAT_NAN;
                             StateScalarType argumentOfPeriapsis = TUDAT_NAN;
 
-                            if ( defined( jsonState, KS::radius ) || defined( jsonState, KS::altitude ) )  // circular
+                            if ( isDefined( jsonState, KS::radius ) || isDefined( jsonState, KS::altitude ) )  // circular
                             {
-                                if ( defined( jsonState, KS::altitude ) )
+                                if ( isDefined( jsonState, KS::altitude ) )
                                 {
                                     semiMajorAxis = R + getValue< StateScalarType >( jsonState, KS::altitude );
                                     usedAverageRadius = true;
@@ -285,27 +285,27 @@ void determineInitialStates(
                             {
                                 argumentOfPeriapsis = getValue< StateScalarType >( jsonState, KS::argumentOfPeriapsis, 0.0 );
 
-                                if ( defined( jsonState, KS::apoapsisDistance ) || defined( jsonState, KS::apoapsisAltitude ) ||
-                                     defined( jsonState, KS::periapsisDistance ) || defined( jsonState, KS::periapsisAltitude ) )
+                                if ( isDefined( jsonState, KS::apoapsisDistance ) || isDefined( jsonState, KS::apoapsisAltitude ) ||
+                                     isDefined( jsonState, KS::periapsisDistance ) || isDefined( jsonState, KS::periapsisAltitude ) )
                                 {
                                     StateScalarType apoapsisDistance = TUDAT_NAN;
-                                    if ( defined( jsonState, KS::apoapsisAltitude ) )
+                                    if ( isDefined( jsonState, KS::apoapsisAltitude ) )
                                     {
                                         apoapsisDistance = R + getValue< StateScalarType >( jsonState, KS::apoapsisAltitude );
                                         usedAverageRadius = true;
                                     }
-                                    else if ( defined( jsonState, KS::apoapsisDistance ) )
+                                    else if ( isDefined( jsonState, KS::apoapsisDistance ) )
                                     {
                                         apoapsisDistance = getValue< StateScalarType >( jsonState, KS::apoapsisDistance );
                                     }
 
                                     StateScalarType periapsisDistance = TUDAT_NAN;
-                                    if ( defined( jsonState, KS::periapsisAltitude ) )
+                                    if ( isDefined( jsonState, KS::periapsisAltitude ) )
                                     {
                                         periapsisDistance = R + getValue< StateScalarType >( jsonState, KS::periapsisAltitude );
                                         usedAverageRadius = true;
                                     }
-                                    else if ( defined( jsonState, KS::periapsisDistance ) )
+                                    else if ( isDefined( jsonState, KS::periapsisDistance ) )
                                     {
                                         periapsisDistance = getValue< StateScalarType >( jsonState, KS::periapsisDistance );
                                     }
@@ -318,7 +318,7 @@ void determineInitialStates(
                                     }
                                     else if ( ! isNaN( apoapsisDistance) )
                                     {
-                                        if ( defined( jsonState, KS::semiMajorAxis ) )
+                                        if ( isDefined( jsonState, KS::semiMajorAxis ) )
                                         {
                                             semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
                                             // r_a, a -> e
@@ -333,7 +333,7 @@ void determineInitialStates(
                                     }
                                     else
                                     {
-                                        if ( defined( jsonState, KS::semiMajorAxis ) )
+                                        if ( isDefined( jsonState, KS::semiMajorAxis ) )
                                         {
                                             semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
                                             // r_p, a -> e
@@ -351,15 +351,15 @@ void determineInitialStates(
                                 {
                                     eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity, 0.0 );
 
-                                    if ( defined( jsonState, KS::semiLatusRectum ) )
+                                    if ( isDefined( jsonState, KS::semiLatusRectum ) )
                                     {
                                         semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiLatusRectum ) /
                                                 ( 1.0 - std::pow( eccentricity, 2.0 ) );
                                     }
-                                    else if ( defined( jsonState, KS::meanMotion ) || defined( jsonState, KS::period ) )
+                                    else if ( isDefined( jsonState, KS::meanMotion ) || isDefined( jsonState, KS::period ) )
                                     {
                                         StateScalarType meanMotion;
-                                        if ( defined( jsonState, KS::meanMotion ) )
+                                        if ( isDefined( jsonState, KS::meanMotion ) )
                                         {
                                             meanMotion = getValue< StateScalarType >( jsonState, KS::meanMotion );
                                         }
@@ -386,10 +386,10 @@ void determineInitialStates(
                             // Determine trueAnomaly
 
                             StateScalarType trueAnomaly;
-                            if ( defined( jsonState, KS::meanAnomaly ) || defined( jsonState, KS::eccentricAnomaly ) )
+                            if ( isDefined( jsonState, KS::meanAnomaly ) || isDefined( jsonState, KS::eccentricAnomaly ) )
                             {
                                 StateScalarType eccentricAnomaly;
-                                if ( defined( jsonState, KS::meanAnomaly ) )
+                                if ( isDefined( jsonState, KS::meanAnomaly ) )
                                 {
                                     eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
                                                 eccentricity,
@@ -602,7 +602,7 @@ void from_json( const json& jsonObject,
 
     // Find user-defined conditions (and determine if time condition is missing)
     bool timeConditionMissing = true;
-    if ( defined( jsonObject, Keys::termination ) )
+    if ( isDefined( jsonObject, Keys::termination ) )
     {
         boost::shared_ptr< PropagationHybridTerminationSettings > userConditions =
                 getValue< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, Keys::termination );
@@ -621,8 +621,8 @@ void from_json( const json& jsonObject,
     }
 
     // If user did not provide conditions, or if finalEpoch is defined but the time condition is missing, create it
-    if ( ! defined( jsonObject, Keys::termination ) ||
-         ( defined( jsonObject, Keys::finalEpoch ) && timeConditionMissing ) )
+    if ( ! isDefined( jsonObject, Keys::termination ) ||
+         ( isDefined( jsonObject, Keys::finalEpoch ) && timeConditionMissing ) )
     {
         terminationConditions.push_back( boost::make_shared< PropagationTimeTerminationSettings >(
                                              getValue< double >( jsonObject, Keys::finalEpoch ) ) );

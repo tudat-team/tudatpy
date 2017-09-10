@@ -124,7 +124,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
     case spherical_harmonic:
     {
         // load coefficients from custom file
-        if ( defined( jsonObject, K::file ) )
+        if ( isDefined( jsonObject, K::file ) )
         {
             const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
             const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
@@ -141,7 +141,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings 
         }
 
         // load coefficients from model included in Tudat
-        if ( defined( jsonObject, K::model ) )
+        if ( isDefined( jsonObject, K::model ) )
         {
             gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
                         getValue< SphericalHarmonicsModel >( jsonObject, K::model ) );
