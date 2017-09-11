@@ -122,7 +122,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         if( nrlmsise00AtmosphereSettings == NULL )
         {
             // Use default space weather file stored in tudatBundle.
-            spaceWeatherFilePath = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt";
+            spaceWeatherFilePath = input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt";
         }
         else
         {

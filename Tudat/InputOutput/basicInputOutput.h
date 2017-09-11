@@ -92,6 +92,16 @@ static inline std::string getGravityModelsPath( )
     return getTudatRootPath( ) + "External/GravityModels/";
 }
 
+//! Get space weather data files path.
+/*!
+ * Returns path in which space weather data files are located.
+ * \return Path containing space weather data files.
+ */
+static inline std::string getSpaceWeatherDataPath( )
+{
+    return getTudatRootPath( ) + "External/SpaceWeatherData/";
+}
+
 //! Print floating-point number in formatted scientific notation.
 /*!
  * Prints floating-point number in formatted scientific notation. The user can specify the

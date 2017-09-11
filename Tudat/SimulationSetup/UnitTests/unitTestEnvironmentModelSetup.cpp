@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
         {
             nrlmsise00AtmosphereSettings =
                     boost::make_shared< NRLMSISE00AtmosphereSettings >(
-                        input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt" );
+                        input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt" );
         }
         boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
                 createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
