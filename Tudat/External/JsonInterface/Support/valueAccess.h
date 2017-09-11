@@ -114,7 +114,7 @@ std::string getParentKey( const json& jsonObject,
 
 //! Get the response type to an event for a `json` object.
 /*!
- * @copybrief getResponseToEventNamed
+ * @copybrief getResponseToEvent
  * \param jsonObject The `json` object in which the type of response to the event is defined, or a `json` object with
  * a root object containing this information.
  * \param eventName The name of the event.

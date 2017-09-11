@@ -104,11 +104,15 @@ void updateBodiesFromJSON(
             {
                 if ( integratorSettings )
                 {
+                    const TimeType initialEpoch = integratorSettings->initialTime_;
+                    const TimeType finalEpoch = getValue< TimeType >( jsonObject, Keys::finalEpoch );
+                    const TimeType earliestInterpolationEpoch = std::min( initialEpoch, finalEpoch ) -
+                            std::fabs( spiceSettings->getInitialOffset( ) );
+                    const TimeType latestInterpolationEpoch = std::max( initialEpoch, finalEpoch ) +
+                            std::fabs( spiceSettings->getFinalOffset( ) );
                     bodySettingsMap = getDefaultBodySettings( defaultBodyNames,
-                                                              integratorSettings->initialTime_
-                                                              + spiceSettings->getInitialOffset( ),
-                                                              getValue< TimeType >( jsonObject, Keys::finalEpoch )
-                                                              + spiceSettings->getFinalOffset( ),
+                                                              earliestInterpolationEpoch,
+                                                              latestInterpolationEpoch,
                                                               spiceSettings->interpolationStep_ );
                 }
                 else

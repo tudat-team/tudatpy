@@ -381,6 +381,9 @@ public:
     UnknownEnumError( ) : runtime_error( "Unknown conversion between enum and string." ) { }
 };
 
+
+// enum <-> std::string
+
 //! Get an `enum` value of type `EnumType` from a `std::string`.
 /*!
  * @copybrief \enumFromString
@@ -404,7 +407,7 @@ EnumType enumFromString( const std::string& stringValue, const std::map< EnumTyp
     std::cerr << "Recognized strings:" << std::endl;
     for ( auto entry : stringValues )
     {
-        std::cerr << "  " << entry.second << " = " << entry.first << std::endl;
+        std::cerr << "  " << entry.second << std::endl;
     }
     throw UnknownEnumError( );
 }
@@ -431,6 +434,7 @@ std::string stringFromEnum( const EnumType enumValue, const std::map< EnumType, 
         throw UnknownEnumError( );
     }
 }
+
 
 //! Class for errors generated when trying to use a value for an `enum` of type `T` that is not supported by
 //! json_interface.
