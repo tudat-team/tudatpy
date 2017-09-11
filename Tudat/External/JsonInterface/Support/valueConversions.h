@@ -28,6 +28,8 @@ namespace tudat
 namespace json_interface
 {
 
+// json <-> std::map, std::unordered_map
+
 //! Template used by to_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >

@@ -110,7 +110,7 @@ public:
      * Offsets for the interval for which the spice kernels are to be preloaded.
      * <br/>
      * The kernels will be preloaded for the interval:
-     * `[ initialEpoch + preloadOffsets_.first, finalEpoch + preloadOffsets_.second ]`
+     * `[ initialEpoch - preloadOffsets_.first, finalEpoch + preloadOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
      * \remark If not specified, the used values are 10 * interpolationStep_.
      */
@@ -125,14 +125,14 @@ public:
     //! Get initial offset for the interpolated Spice ephemeris.
     /*!
      * @copybrief getInitialOffset
-     * \remark If not defined by the user (i.e. is NaN), returns `-10 * interpolationStep_`.
+     * \remark If not defined by the user (i.e. is NaN), returns `10 * interpolationStep_`.
      * \return Initial offset for the interpolated Spice ephemeris.
      */
     double getInitialOffset( )
     {
         if ( isNaN( preloadOffsets_.first ) )
         {
-            return -10.0 * interpolationStep_;
+            return 10.0 * interpolationStep_;
         }
         else
         {
