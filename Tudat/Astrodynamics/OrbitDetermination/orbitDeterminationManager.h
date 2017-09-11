@@ -455,12 +455,7 @@ public:
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
-            boost::make_shared< EstimationConvergenceChecker >( ),
-            const bool reintegrateEquationsOnFirstIteration = 1,
-            const bool reintegrateVariationalEquations = 1,
-            const bool saveInformationmatrix = 1,
-            const bool printOutput = 1,
-            const bool saveResidualsFromFirstIteration = 0  )
+            boost::make_shared< EstimationConvergenceChecker >( ) )
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -479,7 +474,9 @@ public:
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Zero( totalNumberOfObservations );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Zero( parameterVectorSize, parameterVectorSize );
 
-        Eigen::VectorXd firstIterationResiduals = Eigen::VectorXd::Zero( 0 );
+        std::vector< Eigen::VectorXd > residualHistory;
+        std::vector< Eigen::VectorXd > parameterHistory;
+        std::vector< std::vector< std::map< double, Eigen::VectorXd > > > dynamicsHistoryPerIteration;
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -499,13 +496,19 @@ public:
         do
         {
             // Re-integrate equations of motion and variational equations with new parameter estimate.
-            if( ( numberOfIterations > 0 ) ||( reintegrateEquationsOnFirstIteration ) )
+            if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
             {
-                resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
+                resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
             }
+
+            if( podInput->getSaveStateHistoryForEachIteration( ) )
+            {
+                throw std::runtime_error( "Error, saving of propagation history not yet supported." );
+            }
+
             oldParameterEstimate = newParameterEstimate;
 
-            if( printOutput )
+            if( podInput->getPrintOutput( ) )
             {
                 std::cout<<"Calculating residuals and partials "<<totalNumberOfObservations<<std::endl;
             }
@@ -539,16 +542,24 @@ public:
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
-            if( numberOfIterations == 0 && saveResidualsFromFirstIteration )
-            {
-                firstIterationResiduals = residualsAndPartials.first;
-            }
 
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
+
+            if( podInput->getSaveResidualsAndParametersFromEachIteration( ) )
+            {
+                residualHistory.push_back( residualsAndPartials.first );
+                if( numberOfIterations == 0 )
+                {
+                    parameterHistory.push_back( oldParameterEstimate );
+                }
+                parameterHistory.push_back( newParameterEstimate );
+            }
+
             oldParameterEstimate = newParameterEstimate;
 
-            if( printOutput )
+
+            if( podInput->getPrintOutput( ) )
             {
                 std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
             }
@@ -557,7 +568,7 @@ public:
             residualRms = linear_algebra::getVectorEntryRootMeanSquare( residualsAndPartials.first );
 
             rmsResidualHistory.push_back( residualRms );
-            if( printOutput )
+            if( podInput->getPrintOutput( ) )
             {
                 std::cout<<"Current residual: "<<residualRms<<std::endl;
             }
@@ -568,7 +579,7 @@ public:
                 bestResidual = residualRms;
                 bestParameterEstimate = oldParameterEstimate;
                 bestResiduals = residualsAndPartials.first;
-                if( saveInformationmatrix )
+                if( podInput->getSaveInformationMatrix( ) )
                 {
                     bestInformationMatrix = residualsAndPartials.second;
                 }
@@ -589,7 +600,7 @@ public:
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual, firstIterationResiduals );
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory );
     }
 
     //! Function to reset the current parameter estimate.
