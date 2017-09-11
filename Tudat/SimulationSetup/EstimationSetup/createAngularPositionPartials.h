@@ -146,15 +146,20 @@ createAngularPositionPartials(
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) ) == NULL )
+
+        std::string acceleratedBody;
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+        {
+            acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
+        }
+        else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+        {
+            acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
+        }
+        else
         {
             throw std::runtime_error( "Error when making angular position partials, could not identify parameter" );
         }
-
-        std::string acceleratedBody = boost::dynamic_pointer_cast<
-                estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
 
         // Create position angular position partial for current body
         boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtBodyPosition(

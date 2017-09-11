@@ -277,10 +277,11 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     {
         podInput->setConstantWeightsMatrix( weight );
     }
+    podInput->defineEstimationSettings( true, true, false, false, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ) );
 
     return std::make_pair( podOutput,
                            ( podOutput->parameterEstimate_.template cast< double >( ) -
@@ -594,10 +595,11 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
 
     podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    podInput->defineEstimationSettings( true, true, true, true, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ), true, true, true, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout<<( estimationError ).transpose( )<<std::endl;

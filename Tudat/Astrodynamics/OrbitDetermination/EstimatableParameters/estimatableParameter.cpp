@@ -72,6 +72,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case single_degree_variable_tidal_love_number:
         parameterDescription = " tidal Love number at separate orders of single degree ";
         break;
+    case ppn_parameter_gamma:
+        parameterDescription = "PPN parameter gamma ";
+        break;
+    case ppn_parameter_beta:
+        parameterDescription = "PPN parameter beta ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 boost::lexical_cast< std::string >( parameterType );
@@ -150,6 +156,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case single_degree_variable_tidal_love_number:
          isDoubleParameter = false;
          break;
+    case empirical_acceleration_coefficients:
+         isDoubleParameter = false;
+         break;
+     case arc_wise_empirical_acceleration_coefficients:
+          isDoubleParameter = false;
+          break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );

@@ -61,7 +61,12 @@ public:
               const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0, 1 ) ):
         observationsAndTimes_( observationsAndTimes ), initialParameterDeviationEstimate_( initialParameterDeviationEstimate ),
-        inverseOfAprioriCovariance_( inverseOfAprioriCovariance )
+        inverseOfAprioriCovariance_( inverseOfAprioriCovariance ),
+        reintegrateEquationsOnFirstIteration_( true ),
+        reintegrateVariationalEquations_( true ),
+        saveInformationMatrix_( true ),
+        printOutput_( true ),
+        saveResidualsAndParametersFromEachIteration_( true )
     {
         if( inverseOfAprioriCovariance_.rows( ) == 0 )
         {
@@ -179,6 +184,21 @@ public:
         }
     }
 
+    void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
+                                   const bool reintegrateVariationalEquations = 1,
+                                   const bool saveInformationMatrix = 1,
+                                   const bool printOutput = 1,
+                                   const bool saveResidualsAndParametersFromEachIteration = 1,
+                                   const bool saveStateHistoryForEachIteration = 0 )
+    {
+        reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        saveInformationMatrix_ = saveInformationMatrix;
+        printOutput_ = printOutput;
+        saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
+        saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+    }
+
     //! Function to return the total data structure of observations and associated times/link ends/type (by reference)
     /*!
      * Function to return the total data structure of observations and associated times/link ends/type (by reference)
@@ -221,6 +241,36 @@ public:
         return weightsMatrixDiagonals_;
     }
 
+    bool getReintegrateEquationsOnFirstIteration( )
+    {
+        return reintegrateEquationsOnFirstIteration_;
+    }
+
+    bool getReintegrateVariationalEquations( )
+    {
+        return reintegrateVariationalEquations_;
+    }
+
+    bool getSaveInformationMatrix( )
+    {
+        return saveInformationMatrix_;
+    }
+
+    bool getPrintOutput( )
+    {
+        return printOutput_;
+    }
+
+    bool getSaveResidualsAndParametersFromEachIteration( )
+    {
+        return saveResidualsAndParametersFromEachIteration_;
+    }
+
+    bool getSaveStateHistoryForEachIteration( )
+    {
+        return saveStateHistoryForEachIteration_;
+    }
+
 private:
     //! Total data structure of observations and associated times/link ends/type
     PodInputDataType observationsAndTimes_;
@@ -235,6 +285,17 @@ private:
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
     weightsMatrixDiagonals_;
 
+    bool reintegrateEquationsOnFirstIteration_;
+
+    bool reintegrateVariationalEquations_;
+
+    bool saveInformationMatrix_;
+
+    bool printOutput_;
+
+    bool saveResidualsAndParametersFromEachIteration_;
+
+    bool saveStateHistoryForEachIteration_;
 
 };
 
@@ -264,15 +325,16 @@ struct PodOutput
                const Eigen::VectorXd& informationMatrixTransformationDiagonal,
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
                const double residualStandardDeviation,
-               const Eigen::VectorXd& firstIterationResiduals =
-            Eigen::VectorXd::Zero( 0 ) ):
+               const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
+               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ) ):
 
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         residualStandardDeviation_( residualStandardDeviation ),
-        firstIterationResiduals_( firstIterationResiduals )
+        residualHistory_( residualHistory ),
+        parameterHistory_( parameterHistory )
     { }
 
     //! Function to retrieve the unnormalized inverse estimation covariance matrix
@@ -328,6 +390,42 @@ struct PodOutput
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
+    Eigen::MatrixXd getResidualHistoryMatrix( )
+    {
+        if( residualHistory_.size( ) > 0 )
+        {
+            Eigen::MatrixXd residualHistoryMatrix = Eigen::MatrixXd( residualHistory_.at( 0 ).rows( ), residualHistory_.size( ) );
+            for( unsigned int i = 0; i < residualHistory_.size( ); i++ )
+            {
+                residualHistoryMatrix.block( 0, i, residualHistory_.at( 0 ).rows( ), 1 ) = residualHistory_.at( i );
+            }
+            return residualHistoryMatrix;
+        }
+        else
+        {
+            std::cerr<<"Warning, requesting residual history, but history not saved."<<std::endl;
+            return Eigen::MatrixXd::Zero( 0, 0 );
+        }
+    }
+
+    Eigen::MatrixXd getParameterHistoryMatrix( )
+    {
+        if( parameterHistory_.size( ) > 0 )
+        {
+            Eigen::MatrixXd parameterHistoryMatrix = Eigen::MatrixXd( parameterHistory_.at( 0 ).rows( ), parameterHistory_.size( ) );
+            for( unsigned int i = 0; i < parameterHistory_.size( ); i++ )
+            {
+                parameterHistoryMatrix.block( 0, i, parameterHistory_.at( 0 ).rows( ), 1 ) = parameterHistory_.at( i );
+            }
+            return parameterHistoryMatrix;
+        }
+        else
+        {
+            std::cerr<<"Warning, requesting parameter history, but history not saved."<<std::endl;
+            return Eigen::MatrixXd::Zero( 0, 0 );
+        }
+    }
+
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -349,8 +447,9 @@ struct PodOutput
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
 
-    //! Vector of observation residuals at first iteration
-    Eigen::VectorXd firstIterationResiduals_;
+    std::vector< Eigen::VectorXd > residualHistory_;
+
+    std::vector< Eigen::VectorXd > parameterHistory_;
 };
 
 }
