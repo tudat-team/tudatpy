@@ -34,6 +34,11 @@ namespace numerical_quadrature
 
 
 //! Read Gaussian nodes from text file
+/*!
+ *  Read Gaussian nodes from text file, file name is hard-coded into this function, read nodes are returned by reference
+ *  \param gaussQuadratureNodes Gauss quadrature nodes that are read from the file. Map key denotes the order, map value the list
+ *  of nodes for that order.
+ */
 template< typename IndependentVariableType >
 void readGaussianQuadratureNodes(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureNodes )
@@ -45,6 +50,11 @@ void readGaussianQuadratureNodes(
 }
 
 //! Read Gaussian weight factors from text file
+/*!
+*  Read Gaussian weight factors from text file, file name is hard-coded into this function, read nodes are returned by reference
+*  \param gaussQuadratureWeights Gauss quadrature weights that are read from the file.  Map key denotes the order, map value the
+ *  list of weights for that order.
+*/
 template< typename IndependentVariableType >
 void readGaussianQuadratureWeights(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureWeights )
@@ -54,12 +64,14 @@ void readGaussianQuadratureWeights(
                     input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianWeights.txt" ) );
 }
 
+//! Container object for Gauss quadrature nodes and weights (templated by data variable type, e.g. float, double, long double)
 template< typename IndependentVariableType >
 struct GaussQuadratureNodesAndWeights
 {
-
+    //! Typedef for vector of IndependentVariableType scalar type
     typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
+    //! COnstructor, reads nodes and weights from file
     GaussQuadratureNodesAndWeights( )
     {
         readGaussianQuadratureNodes< IndependentVariableType >( uniqueNodes_ );
@@ -68,62 +80,68 @@ struct GaussQuadratureNodesAndWeights
 
     //! Get the unique nodes for a specified order `n`.
     /*!
-     * \param n The number of nodes or weight factors.
+     * \param numberOfNodes The number of nodes or weight factors.
      * \return `uniqueNodes_[n]`, after reading the text file with the tabulated nodes if necessary.
      */
-    IndependentVariableArray getUniqueNodes( const unsigned int n )
+    IndependentVariableArray getUniqueNodes( const unsigned int numberOfNodes )
     {
-        if ( uniqueNodes_.count( n ) == 0 )
+        if ( uniqueNodes_.count( numberOfNodes ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" +
-                    boost::lexical_cast< std::string >( n );
+                    boost::lexical_cast< std::string >( numberOfNodes );
             throw std::runtime_error( errorMessage );
         }
-        return uniqueNodes_.at( n );
+        return uniqueNodes_.at( numberOfNodes );
     }
 
-    //! Get the unique weight factors for a specified order `n`.
+    //! Get the unique weight factors for a specified order.
     /*!
-     * \param n The number of nodes or weight factors.
-     * \return `uniqueWeights_[n]`, after reading the text file with the tabulated nodes if necessary.
+     * Get the unique weight factors for a specified order.
+     * \param order The number of nodes or weight factors.
+     * \return `uniqueWeights_ at entry order`, after reading the text file with the tabulated nodes if necessary.
      */
-    IndependentVariableArray getUniqueWeights( const unsigned int n )
+    IndependentVariableArray getUniqueWeights( const unsigned int order )
     {
-        if ( uniqueWeights_.count( n ) == 0 )
+        if ( uniqueWeights_.count( order ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" +
-                    boost::lexical_cast< std::string >( n );
+                    boost::lexical_cast< std::string >( order );
             throw std::runtime_error( errorMessage );
         }
-        return uniqueWeights_.at( n );
+        return uniqueWeights_.at( order );
     }
 
-    //! Get all the nodes (i.e. n nodes for nth order) from uniqueNodes_
-    IndependentVariableArray getNodes( const unsigned int n )
+    //! Get all the nodes at given order from uniqueNodes_
+    /*!
+    * Get all the nodes at given order from uniqueNodes_
+    * \param order The number of nodes or weight factors.
+    * \return `uniqueWeights_ at entry order`, after reading the text file with the tabulated nodes if necessary.
+    */
+    IndependentVariableArray getNodes( const unsigned int order )
     {
-        if ( nodes_.count( n ) == 0 )
+        if ( nodes_.count( order ) == 0 )
         {
-            IndependentVariableArray newNodes( n );
+            IndependentVariableArray newNodes( order );
 
-            // Include node 0.0 if n is odd
+            // Include node 0.0 if order is odd
             unsigned int i = 0;
-            if ( n % 2 == 1 )
+            if ( order % 2 == 1 )
             {
                 newNodes.row( i++ ) = 0.0;
             }
 
             // Include ± nodes
-            IndependentVariableArray uniqueNodes_ = getUniqueNodes( n );
+            IndependentVariableArray uniqueNodes_ = getUniqueNodes( order );
             for ( unsigned int j = 0; j < uniqueNodes_.size(); j++ )
             {
                 newNodes.row( i++ ) = -uniqueNodes_[ j ];
                 newNodes.row( i++ ) =  uniqueNodes_[ j ];
             }
 
-            nodes_[ n ] = newNodes;
+            nodes_[ order ] = newNodes;
         }
 
-        return nodes_.at( n );
+        return nodes_.at( order );
     }
 
     //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights_
@@ -132,8 +150,8 @@ struct GaussQuadratureNodesAndWeights
         if ( weights_.count( n ) == 0 )
         {
             IndependentVariableArray newWeights( n );
-
             IndependentVariableArray orderNWeights = getUniqueWeights( n );
+
             // Include non-repeated weight factor if n is odd
             unsigned int i = 0;
             unsigned int j = 0;
@@ -171,15 +189,23 @@ struct GaussQuadratureNodesAndWeights
 
 };
 
+//! Object containing nodes/weights for long double Gauss quadrature
 static const boost::shared_ptr< GaussQuadratureNodesAndWeights< long double > > longDoubleGaussQuadratureNodesAndWeights =
         boost::make_shared< GaussQuadratureNodesAndWeights< long double > >( );
 
+//! Object containing nodes/weights for double Gauss quadrature
 static const boost::shared_ptr< GaussQuadratureNodesAndWeights< double > > doubleGaussQuadratureNodesAndWeights =
         boost::make_shared< GaussQuadratureNodesAndWeights< double > >( );
 
+//! Object containing nodes/weights for float Gauss quadrature
 static const boost::shared_ptr< GaussQuadratureNodesAndWeights< float > > floatGaussQuadratureNodesAndWeights =
         boost::make_shared< GaussQuadratureNodesAndWeights< float > >( );
 
+//! Function to create Gauss quadrature node/weight container
+/*!
+ *  Function to create Gauss quadrature node/weight container, templated by independent variable type
+ *  \return Gauss quadrature node/weight container
+ */
 template< typename IndependentVariableType >
 boost::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > >
 getGaussQuadratureNodesAndWeights( )
@@ -187,6 +213,11 @@ getGaussQuadratureNodesAndWeights( )
     return boost::make_shared< GaussQuadratureNodesAndWeights< IndependentVariableType > >( );
 }
 
+//! Function to create Gauss quadrature node/weight container with long double precision.
+/*!
+ *  Function to create Gauss quadrature node/weight container with long double precision.
+ *  \return Gauss quadrature node/weight container
+ */
 template< >
 boost::shared_ptr< GaussQuadratureNodesAndWeights< long double > >
 getGaussQuadratureNodesAndWeights( )
@@ -194,6 +225,11 @@ getGaussQuadratureNodesAndWeights( )
     return longDoubleGaussQuadratureNodesAndWeights;
 }
 
+//! Function to create Gauss quadrature node/weight container with double precision.
+/*!
+ *  Function to create Gauss quadrature node/weight container with double precision.
+ *  \return Gauss quadrature node/weight container
+ */
 template< >
 boost::shared_ptr< GaussQuadratureNodesAndWeights< double > >
 getGaussQuadratureNodesAndWeights( )
@@ -201,6 +237,11 @@ getGaussQuadratureNodesAndWeights( )
     return doubleGaussQuadratureNodesAndWeights;
 }
 
+//! Function to create Gauss quadrature node/weight container with float precision.
+/*!
+ *  Function to create Gauss quadrature node/weight container with float precision.
+ *  \return Gauss quadrature node/weight container
+ */
 template< >
 boost::shared_ptr< GaussQuadratureNodesAndWeights< float > >
 getGaussQuadratureNodesAndWeights( )
