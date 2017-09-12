@@ -464,7 +464,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         // If so, return immediately the current state (not recomputed yet), which will be discarded.
         if ( this->propagationTerminationFunction_( static_cast< double >( time ) ) )
         {
-            this->propagationTerminationConditionReached_ = true;
+            this->propagationTerminationConditionReachedDuringStep_ = true;
             return this->currentState_;
         }
 
