@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustForce )
     std::vector< std::string > centralBodies;
 
     Eigen::Vector3d thrustDirection;
-    thrustDirection << -1.4, 2.4, 5,6;
+    thrustDirection << -1.4, 2.4, 5.6;
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         std::vector< std::string > centralBodies;
 
         Eigen::Vector3d thrustDirection;
-        thrustDirection << -1.4, 2.4, 5,6;
+        thrustDirection << -1.4, 2.4, 5.6;
 
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         // Define acceleration model settings.
