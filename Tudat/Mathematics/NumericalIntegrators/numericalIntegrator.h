@@ -16,6 +16,7 @@
 #include <limits>
 
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -137,6 +138,28 @@ public:
         return stateDerivativeFunction_;
     }
 
+    //! Function to return the termination condition was reached during the current step
+    /*!
+     *  Function to return the termination condition was reached during the current step
+     * \return  True if the termination condition was reached during the current step
+     */
+    bool getPropagationTerminationConditionReached( )
+    {
+        return propagationTerminationConditionReachedDuringStep_;
+    }
+
+    //! Setter for the (optional) propagation termination function
+    /*!
+     *  Setter for the (optional) propagation termination function, to be evaluated during the intermediate state updates
+     *  performed to compute the quantities necessary to integrate the state to a new epoch (e.g. k1-k4 for RK$).
+     *  \param terminationFunction Function that returns true if termination condition is reached, false if it has not,
+     *  as a function of current time.
+     */
+    void setPropagationTerminationFunction( boost::function< bool( const double ) > terminationFunction )
+    {
+        propagationTerminationFunction_ = terminationFunction;
+    }
+
 protected:
 
     //! Function that returns the state derivative.
@@ -145,6 +168,21 @@ protected:
      */
     StateDerivativeFunction stateDerivativeFunction_;
 
+    //! Boolean to denote whether the propagation termination condition was reached during the evaluation of one of the sub-steps
+    /*! Boolean to denote whether the propagation termination condition was reached during the evaluation of one of the sub-steps
+     *  necessary to perform the last integration step. Parameter is false by default, and when set to true must be accompanied by
+     *  propagationTerminationFunction_ (which is non-active by default)
+     */
+    bool propagationTerminationConditionReachedDuringStep_ = false;
+
+    //! Propagation termination function
+    /*!
+     *  Propagation termination function to be evaluated during the intermediate state updates performed to compute
+     *  the quantities necessary to integrate the state to a new epoch.
+     *  By default, this function evaluates always to false, so the propagation termination conditions will not be
+     *  checked during the integration subteps.
+     */
+    boost::function< bool( const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.
