@@ -103,7 +103,7 @@ std::pair< std::vector< int >, std::map< observation_models::LinkEnds, int > > g
             }
             for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
             {
-                for( unsigned int j = 0; j < currentObservableSize; j++ )
+                for( int j = 0; j < currentObservableSize; j++ )
                 {
                     concatenatedIds.push_back( currentStationId );
                 }
@@ -133,7 +133,7 @@ std::vector< int > getConcatenatedObservableTypes(
         {
             for( unsigned int i = 0; i < dataIterator->second.second.first.size( ); i++ )
             {
-                for( unsigned int j = 0; j < currentObservableSize; j++ )
+                for( int j = 0; j < currentObservableSize; j++ )
                 {
                     concatenatedIds.push_back( currentObservable );
                 }
