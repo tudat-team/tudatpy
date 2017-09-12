@@ -359,11 +359,7 @@ std::vector< double > getDistanceBetweenLineOfSightVectorAndPoint(
 BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
     std::vector< std::string > bodyNames;

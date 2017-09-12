@@ -48,12 +48,22 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
     }
     using K = Keys::Spice;
 
-    jsonObject[ K::kernels ] = spiceSettings->kernels_;
+    jsonObject[ K::useStandardKernels ] = spiceSettings->useStandardKernels_;
+    if ( spiceSettings->useStandardKernels_ )
+    {
+        assignIfNotEmpty( jsonObject, K::alternativeKernels, spiceSettings->alternativeKernels_ );
+    }
+    else
+    {
+        jsonObject[ K::kernels ] = spiceSettings->kernels_;
+    }
+
     jsonObject[ K::preloadKernels ] = spiceSettings->preloadKernels_;
     if ( spiceSettings->preloadKernels_ )
     {
         jsonObject[ K::interpolationStep ] = spiceSettings->interpolationStep_;
-        jsonObject[ K::preloadOffsets ] = spiceSettings->preloadOffsets_;
+        jsonObject[ K::interpolationOffsets ] = { spiceSettings->getInitialOffset( ),
+                                                  spiceSettings->getFinalOffset( ) };
     }
 }
 
@@ -62,39 +72,53 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
 {
     using K = Keys::Spice;
 
-    /*
-    const boost::shared_ptr< SimulationType > simulationType
-            = getOptional< SimulationType >( jsonObject, SpecialKeys::root / Keys::simulationType );
-    if ( simulationType )
+    spiceSettings = boost::make_shared< SpiceSettings >( );
+
+    updateFromJSON( spiceSettings->useStandardKernels_, jsonObject, K::useStandardKernels );
+    if ( spiceSettings->useStandardKernels_ )
     {
-        spiceSettings = boost::make_shared< SpiceSettings >( *simulationType );
+        updateFromJSONIfDefined( spiceSettings->alternativeKernels_, jsonObject, K::alternativeKernels );
     }
     else
     {
-    */
-    spiceSettings = boost::make_shared< SpiceSettings >(
-                getValue< std::vector< path > >( jsonObject, K::kernels ) );
+        updateFromJSON( spiceSettings->kernels_, jsonObject, K::kernels );
+    }
+
     updateFromJSONIfDefined( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels );
     if ( spiceSettings->preloadKernels_ )
     {
-        spiceSettings->preloadOffsets_ = getValue( jsonObject, K::preloadOffsets, spiceSettings->preloadOffsets_ );
+        spiceSettings->interpolationOffsets_ =
+                getValue( jsonObject, K::interpolationOffsets, spiceSettings->interpolationOffsets_ );
         spiceSettings->interpolationStep_ =
                 getValue( jsonObject, K::interpolationStep, spiceSettings->interpolationStep_ );
     }
-    // }
 }
 
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
 void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings )
 {
-    spice_interface::clearSpiceKernels( );
+    using namespace spice_interface;
+
+    clearSpiceKernels( );
 
     if ( spiceSettings )
     {
-        for ( const path kernel : spiceSettings->kernels_ )
+        if ( spiceSettings->useStandardKernels_ )
         {
-            spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
+            std::vector< std::string > alternativeKernelsFiles;
+            for ( path kernel : spiceSettings->alternativeKernels_ )
+            {
+                alternativeKernelsFiles.push_back( kernel.string( ) );
+            }
+            loadStandardSpiceKernels( alternativeKernelsFiles );
+        }
+        else
+        {
+            for ( const path kernel : spiceSettings->kernels_ )
+            {
+                spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
+            }
         }
     }
 }

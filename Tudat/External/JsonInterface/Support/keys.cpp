@@ -56,9 +56,11 @@ const std::string Keys::globalFrameOrientation = "globalFrameOrientation";
 
 //  Spice
 const std::string Keys::spice = "spice";
+const std::string Keys::Spice::useStandardKernels = "useStandardKernels";
+const std::string Keys::Spice::alternativeKernels = "alternativeKernels";
 const std::string Keys::Spice::kernels = "kernels";
 const std::string Keys::Spice::preloadKernels = "preloadKernels";
-const std::string Keys::Spice::preloadOffsets = "preloadOffsets";
+const std::string Keys::Spice::interpolationOffsets = "interpolationOffsets";
 const std::string Keys::Spice::interpolationStep = "interpolationStep";
 
 
@@ -312,6 +314,7 @@ const std::string Keys::Integrator::initialTime = "initialTime";
 const std::string Keys::Integrator::stepSize = "stepSize";
 const std::string Keys::Integrator::initialStepSize = "initialStepSize";
 const std::string Keys::Integrator::saveFrequency = "saveFrequency";
+const std::string Keys::Integrator::assessPropagationTerminationConditionDuringIntegrationSubsteps = "assessPropagationTerminationConditionDuringIntegrationSubsteps";
 const std::string Keys::Integrator::rungeKuttaCoefficientSet = "rungeKuttaCoefficientSet";
 const std::string Keys::Integrator::minimumStepSize = "minimumStepSize";
 const std::string Keys::Integrator::maximumStepSize = "maximumStepSize";

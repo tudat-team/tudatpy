@@ -2,12 +2,8 @@
   "initialEpoch": 0,
   "finalEpoch": 3600,
   "spice": {
-    "kernels": [
-      "${SPICE_KERNELS_PATH}/pck00009.tpc",
-      "${SPICE_KERNELS_PATH}/de-403-masses.tpc",
-      "${SPICE_KERNELS_PATH}/de421.bsp"
-    ],
-    "preloadKernels": false
+    "preloadKernels": false,
+    "useStandardKernels": true
   },
   "bodies": {
     "Sun": {

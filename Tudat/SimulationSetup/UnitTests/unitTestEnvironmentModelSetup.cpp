@@ -167,9 +167,7 @@ Eigen::Vector6d computeCustomState(
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     {
         // Create settings for approximate planet positions.
@@ -297,9 +295,8 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    // Load Spice kernel
+    spice_interface::loadStandardSpiceKernels( );
 
         // Create settings for spice central gravity field model.
     boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
@@ -511,11 +508,8 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
 
     // Settings for spherical harmonic acceleration.
     double gravitationalParameter = 398600.4418E9;
@@ -712,8 +706,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     {
         for( unsigned m = 0; m <=2; m++ )
         {
-            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-20 );
-            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-18 );
+            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-18 );
         }
     }
 }
@@ -769,9 +763,7 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -869,9 +861,7 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;

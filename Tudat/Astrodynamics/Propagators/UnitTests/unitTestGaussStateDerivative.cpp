@@ -46,11 +46,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
 
         //Load spice kernels.
-        std::string kernelsPath = input_output::getSpiceKernelPath( );
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+        spice_interface::loadStandardSpiceKernels( );
 
         // Define bodies in simulation.
         unsigned int totalNumberOfBodies = 7;
@@ -287,9 +283,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
     using namespace numerical_integrators;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;

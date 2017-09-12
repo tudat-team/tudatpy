@@ -58,11 +58,7 @@ BOOST_AUTO_TEST_SUITE( test_position_partials)
 BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;

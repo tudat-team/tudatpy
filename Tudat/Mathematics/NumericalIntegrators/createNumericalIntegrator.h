@@ -58,12 +58,18 @@ public:
      *  for variable step size integrators.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *  time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *  each integration step (`false`).
      */
     IntegratorSettings( const AvailableIntegrators integratorType, const TimeType initialTime,
                         const TimeType initialTimeStep,
-                        const int saveFrequency = 1 ): integratorType_( integratorType ),
+                        const int saveFrequency = 1,
+                        const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false )
+        : integratorType_( integratorType ),
         initialTime_( initialTime ), initialTimeStep_( initialTimeStep ),
-        saveFrequency_( saveFrequency ){ }
+        saveFrequency_( saveFrequency ), assessPropagationTerminationConditionDuringIntegrationSubsteps_(
+                                             assessPropagationTerminationConditionDuringIntegrationSubsteps ){ }
 
     //! Virtual destructor.
     /*!
@@ -96,6 +102,17 @@ public:
      *  time steps, with n = saveFrequency).
      */
     int saveFrequency_;
+
+    //! Whether the propagation termination conditions should be evaluated during the intermediate sub-steps.
+    /*!
+     * Whether the propagation termination conditions should be evaluated during the intermediate updates
+     * performed by the integrator to compute the quantities necessary to integrate the state to a new epoch.
+     * The default value is false, so the propagation termination condition is only checked at the end of each
+     * integration step.
+     */
+    bool assessPropagationTerminationConditionDuringIntegrationSubsteps_;
+
+
 };
 
 //! Class to define settings of variable step RK numerical integrator
@@ -123,10 +140,12 @@ public:
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *  time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *  each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
-
      */
     RungeKuttaVariableStepSizeSettings(
             const AvailableIntegrators integratorType,
@@ -137,10 +156,12 @@ public:
             const TimeType relativeErrorTolerance = 1.0E-12,
             const TimeType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
             const TimeType safetyFactorForNextStepSize = 0.8,
             const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
-        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency ),
+        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency,
+                                        assessPropagationTerminationConditionDuringIntegrationSubsteps ),
         coefficientSet_( coefficientSet ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),

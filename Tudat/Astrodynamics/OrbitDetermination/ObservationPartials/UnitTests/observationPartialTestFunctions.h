@@ -272,6 +272,12 @@ inline void testObservationPartials(
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
+                    std::cout<<"PARTIALS BB: "<<i<<" "<<std::endl<<
+                               currentParameterPartial<<std::endl<<
+                               numericalPartialsWrtDoubleParameters[ i ]<<std::endl<<
+                               ( currentParameterPartial - numericalPartialsWrtDoubleParameters[ i ] ).cwiseQuotient( numericalPartialsWrtDoubleParameters[ i ] )<<" "<<tolerance<<std::endl<<std::endl;
+
+
                 }
             }
 
@@ -311,6 +317,12 @@ inline void testObservationPartials(
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
+                    std::cout<<"PARTIALS B: "<<i<<" "<<std::endl<<
+                               currentParameterPartial<<std::endl<<
+                               numericalPartialsWrtVectorParameters[ i ]<<std::endl<<
+                               ( currentParameterPartial - numericalPartialsWrtVectorParameters[ i ] ).cwiseQuotient( numericalPartialsWrtVectorParameters[ i ] )<<" "<<tolerance<<std::endl<<std::endl;
+
+
                 }
             }
         }

@@ -46,9 +46,11 @@ struct Keys
     static const std::string spice;
     struct Spice
     {
+        static const std::string useStandardKernels;
+        static const std::string alternativeKernels;
         static const std::string kernels;
         static const std::string preloadKernels;
-        static const std::string preloadOffsets;
+        static const std::string interpolationOffsets;
         static const std::string interpolationStep;
     };
 
@@ -333,6 +335,7 @@ struct Keys
         static const std::string stepSize;
         static const std::string initialStepSize;
         static const std::string saveFrequency;
+        static const std::string assessPropagationTerminationConditionDuringIntegrationSubsteps;
         static const std::string rungeKuttaCoefficientSet;
         static const std::string minimumStepSize;
         static const std::string maximumStepSize;

@@ -64,9 +64,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
     std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =

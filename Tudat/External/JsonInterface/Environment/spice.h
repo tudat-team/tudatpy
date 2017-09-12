@@ -22,46 +22,7 @@ namespace tudat
 namespace json_interface
 {
 
-/*
-// SimulationType
-
-//! Frequently-used simulations.
-enum SimulationType
-{
-    customSimulation,
-    singlePerturbedBody
-};
-
-//! Map of `SimulationType` string representations.
-static std::map< SimulationType, std::string > simulationTypes =
-{
-    { customSimulation, "custom" },
-    { singlePerturbedBody, "singlePerturbedBody" }
-};
-
-//! `SimulationType` not supported by `json_interface`.
-static std::vector< SimulationType > unsupportedSimulationTypes = {  };
-
-//! Convert `SimulationType` to `json`.
-inline void to_json( json& jsonObject, const SimulationType& simulationType )
-{
-    jsonObject = json_interface::stringFromEnum( simulationType, simulationTypes );
-}
-
-//! Convert `json` to `SimulationType`.
-inline void from_json( const json& jsonObject, SimulationType& simulationType )
-{
-    simulationType = json_interface::enumFromString( jsonObject, simulationTypes );
-}
-*/
-
-
 // SpiceSettings
-
-/*
-//! Get the set of spice kernels to be used for a SimulationType.
-std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType simulationType );
-*/
 
 //! Class containing the settings for Spice used in a simulation.
 /*!
@@ -70,24 +31,21 @@ std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType sim
 class SpiceSettings
 {
 public:
-    /*
-    //! Constructor.
-    SpiceSettings( const SimulationType simulationType ) :
-        kernels_( getSpiceKernels( simulationType ) ) { }
-    */
 
-    //! Constructor with a vector of Spice kernels to be used.
-    /*!
-     * @copybrief SpiceSettings
-     * \param kernels
-     */
-    SpiceSettings( const std::vector< boost::filesystem::path >& kernels ) : kernels_( kernels ) { }
+    //! Empty constructor.
+    SpiceSettings( ) { }
 
     //! Destructor.
     virtual ~SpiceSettings( ) { }
 
 
-    //! Vector containing the paths to the spice kernel files to be loaded.
+    //! Whether the standard kernel should be preloaded.
+    bool useStandardKernels_ = true;
+
+    //! Vector containing the paths to the additional spice kernel files to be loaded if using standard kernels.
+    std::vector< boost::filesystem::path > alternativeKernels_;
+
+    //! Vector containing the paths to the spice kernel files to be loaded if using standard kernels.
     std::vector< boost::filesystem::path > kernels_;
 
     //! Whether all the data from the Spice kernels should be preloaded before the simulation for the interval start
@@ -109,12 +67,12 @@ public:
     /*!
      * Offsets for the interval for which the spice kernels are to be preloaded.
      * <br/>
-     * The kernels will be preloaded for the interval:
-     * `[ initialEpoch - preloadOffsets_.first, finalEpoch + preloadOffsets_.second ]`
+     * The kernels will be interpolated for the interval:
+     * `[ initialEpoch - interpolationOffsets_.first, finalEpoch + interpolationOffsets_.second ]`
      * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
      * \remark If not specified, the used values are 10 * interpolationStep_.
      */
-    std::pair< double, double > preloadOffsets_ = { TUDAT_NAN, TUDAT_NAN };
+    std::pair< double, double > interpolationOffsets_ = { TUDAT_NAN, TUDAT_NAN };
 
     //! Step-size for the interpolated Spice ephemeris.
     /*!
@@ -130,13 +88,13 @@ public:
      */
     double getInitialOffset( )
     {
-        if ( isNaN( preloadOffsets_.first ) )
+        if ( isNaN( interpolationOffsets_.first ) )
         {
             return 10.0 * interpolationStep_;
         }
         else
         {
-            return preloadOffsets_.first;
+            return interpolationOffsets_.first;
         }
     }
 
@@ -148,13 +106,13 @@ public:
      */
     double getFinalOffset( )
     {
-        if ( isNaN( preloadOffsets_.second ) )
+        if ( isNaN( interpolationOffsets_.second ) )
         {
             return 10.0 * interpolationStep_;
         }
         else
         {
-            return preloadOffsets_.second;
+            return interpolationOffsets_.second;
         }
     }
 };

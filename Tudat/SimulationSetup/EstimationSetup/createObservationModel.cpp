@@ -52,9 +52,9 @@ ObservationViabilitySettingsList filterObservationViabilitySettings(
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( ); linkEndIterator++ )
         {
             // Check if present viabilitytt setting is relevant
-            if( linkEndIterator->second == observationViabilitySettings.at( i )->associatedLinkEnd_ ||
-                    ( ( observationViabilitySettings.at( i )->associatedLinkEnd_.second == "" ) &&
-                      ( observationViabilitySettings.at( i )->associatedLinkEnd_.first == linkEndIterator->second.first ) ) )
+            if( linkEndIterator->second == observationViabilitySettings.at( i )->getAssociatedLinkEnd( ) ||
+                    ( ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).second == "" ) &&
+                      ( observationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first == linkEndIterator->second.first ) ) )
             {
                 filteredViabilitySettings.push_back( observationViabilitySettings.at( i ) );
                 break;
@@ -190,7 +190,8 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName )
 {
     if( observationViabilitySettings->observationViabilityType_ != minimum_elevation_angle )
     {
@@ -198,32 +199,36 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
     }
 
     // If specific link end is specified
-    std::string groundStationName;
-    if( observationViabilitySettings->associatedLinkEnd_.second != "" )
+    std::string groundStationNameToUse;
+    if( observationViabilitySettings->getAssociatedLinkEnd( ).second != "" )
     {
-        groundStationName = observationViabilitySettings->associatedLinkEnd_.second;
+        if( groundStationNameToUse != stationName )
+        {
+            throw std::runtime_error( "Error when making minimum elevation angle calculator, inconsistent station input" );
+        }
+        groundStationNameToUse = observationViabilitySettings->getAssociatedLinkEnd( ).second;
     }
     else
     {
-        throw std::runtime_error( "Error when making minimum elevation angle calculator, not referenced to ground station" );
+        groundStationNameToUse = stationName;
     }
 
-    if( bodyMap.count( observationViabilitySettings->associatedLinkEnd_.first ) == 0 )
+    if( bodyMap.count( observationViabilitySettings->getAssociatedLinkEnd( ).first ) == 0 )
     {
         throw std::runtime_error( "Error when making minimum elevation angle calculator, body " +
-                                  observationViabilitySettings->associatedLinkEnd_.first + " not found." );
+                                  observationViabilitySettings->getAssociatedLinkEnd( ).first + " not found." );
     }
 
     // Retrieve pointing angles calculator
     boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
-            bodyMap.at( observationViabilitySettings->associatedLinkEnd_.first )->
-            getGroundStation( groundStationName )->getPointingAnglesCalculator( );
+            bodyMap.at( observationViabilitySettings->getAssociatedLinkEnd( ).first )->
+            getGroundStation( groundStationNameToUse )->getPointingAnglesCalculator( );
 
     // Create check object
-    double minimumElevationAngle = observationViabilitySettings->doubleParameter_;
+    double minimumElevationAngle = observationViabilitySettings->getDoubleParameter( );
     return boost::make_shared< MinimumElevationAngleCalculator >(
                 getLinkEndIndicesForObservationViability(
-                    linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                    linkEnds,observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
                 minimumElevationAngle, pointingAngleCalculator );
 }
 
@@ -239,23 +244,23 @@ boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalcul
         throw std::runtime_error( "Error when making body avoidance angle calculator, inconsistent input" );
     }
 
-    if( bodyMap.count( observationViabilitySettings->stringParameter_ ) == 0 )
+    if( bodyMap.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
     {
         throw std::runtime_error( "Error when making body avoidance angle calculator, body " +
-                                  observationViabilitySettings->stringParameter_ + " not found." );
+                                  observationViabilitySettings->getStringParameter( ) + " not found." );
     }
 
     // Create state function of body to be avoided.
     boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
             boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
+                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), _1 );
 
     // Create check object
-    double bodyAvoidanceAngle = observationViabilitySettings->doubleParameter_;
+    double bodyAvoidanceAngle = observationViabilitySettings->getDoubleParameter( );
     return boost::make_shared< BodyAvoidanceAngleCalculator >(
                 getLinkEndIndicesForObservationViability(
-                    linkEnds,observationType, observationViabilitySettings->associatedLinkEnd_ ),
-                bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->stringParameter_ );
+                    linkEnds,observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
+                bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->getStringParameter( ) );
 }
 
 //! Function to create an object to check if a body occultation condition is met for an observation
@@ -270,23 +275,23 @@ boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
         throw std::runtime_error( "Error when making occultation calculator, inconsistent input" );
     }
 
-    if( bodyMap.count( observationViabilitySettings->stringParameter_ ) == 0 )
+    if( bodyMap.count( observationViabilitySettings->getStringParameter( ) ) == 0 )
     {
         throw std::runtime_error( "Error when making occultation calculator, body " +
-                                  observationViabilitySettings->stringParameter_ + " not found." );
+                                  observationViabilitySettings->getStringParameter( ) + " not found." );
     }
 
     // Create state function of occulting body.
     boost::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
             boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->stringParameter_ ), _1 );
+                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), _1 );
 
     // Create check object
     double occultingBodyRadius =
-            bodyMap.at( observationViabilitySettings->stringParameter_ )->getShapeModel( )->getAverageRadius( );
+            bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
     return boost::make_shared< OccultationCalculator >(
                 getLinkEndIndicesForObservationViability(
-                    linkEnds, observationType, observationViabilitySettings->associatedLinkEnd_ ),
+                    linkEnds, observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
                 stateOfOccultingBody, occultingBodyRadius );
 }
 
@@ -313,7 +318,7 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
             for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
                  linkEndIterator != linkEnds.end( ); linkEndIterator++ )
             {
-                if( linkEndIterator->second.first == relevantObservationViabilitySettings.at( i )->associatedLinkEnd_.first )
+                if( linkEndIterator->second.first == relevantObservationViabilitySettings.at( i )->getAssociatedLinkEnd( ).first )
                 {
                     if( std::find( listOfGroundStations.begin( ), listOfGroundStations.end( ), linkEndIterator->second.second ) ==
                             listOfGroundStations.end( ) )
@@ -326,10 +331,10 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
             // Create elevation angle check separately for eah ground station: check requires different pointing angles calculator
             for( unsigned int j = 0; j < listOfGroundStations.size( ); j++ )
             {
-                relevantObservationViabilitySettings[ i ]->associatedLinkEnd_.second = listOfGroundStations.at( j );
                 linkViabilityCalculators.push_back(
                             createMinimumElevationAngleCalculator(
-                                bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ) ) );
+                                bodyMap, linkEnds, observationType, relevantObservationViabilitySettings.at( i ),
+                                listOfGroundStations.at( j ) ) );
             }
             break;
         }
