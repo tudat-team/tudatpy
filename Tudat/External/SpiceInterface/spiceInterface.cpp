@@ -14,6 +14,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
@@ -281,5 +282,25 @@ int getTotalCountOfKernelsLoaded( )
 //! Clear all Spice kernels.
 void clearSpiceKernels( ) { kclear_c( ); }
 
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels  )
+{
+    std::string kernelPath = input_output::getSpiceKernelPath( );
+
+    loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
+    loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
+
+    if( alternativeEphemerisKernels.size( ) == 0  )
+    {
+        loadSpiceKernelInTudat( kernelPath + "de430_small.bsp" );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < alternativeEphemerisKernels.size( ); i++ )
+        {
+            loadSpiceKernelInTudat( alternativeEphemerisKernels.at( i ) );
+        }
+    }
+    loadSpiceKernelInTudat( kernelPath + "naif0012.tls" );
+}
 } // namespace spice_interface
 } // namespace tudat

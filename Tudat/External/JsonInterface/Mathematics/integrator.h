@@ -144,7 +144,9 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
                     integratorType,
                     initialTime,
                     getValue< TimeType >( jsonObject, K::stepSize ),
-                    getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ) );
+                    getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
+                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ) );
         return;
     }
     case rungeKuttaVariableStepSize:
@@ -162,6 +164,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< T
                     getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
                     getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
                     getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
+                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
                     getValue( jsonObject, K::safetyFactorForNextStepSize,
                               defaults.safetyFactorForNextStepSize_ ),
                     getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,

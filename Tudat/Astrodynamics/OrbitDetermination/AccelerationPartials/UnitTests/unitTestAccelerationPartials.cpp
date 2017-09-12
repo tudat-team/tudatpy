@@ -73,9 +73,7 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     bodyMap[ "Sun" ] = sun;
 
     // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set current state of sun and earth.
     sun->setState( getBodyCartesianStateAtEpoch( "Sun", "Sun", "J2000", "NONE", 1.0E6 ) );
@@ -187,9 +185,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     bodyMap[ "Sun" ] = sun;
 
     // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set current state of sun and earth.
     sun->setState( getBodyCartesianStateAtEpoch( "Sun", "SSB", "J2000", "NONE", 1.0E6 ) );
@@ -300,9 +296,7 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     bodyMap[ "Moon" ] = moon;
 
     // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set current state of sun and earth.
     sun->setState( getBodyCartesianStateAtEpoch( "Sun", "Sun", "J2000", "NONE", 1.0E6 ) );
@@ -441,9 +435,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 {
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     using namespace tudat;
     // Create Earth object
@@ -597,10 +589,7 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
             boost::bind( &Body::getState, vehicle );
 
     // Load spice kernel.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set vehicle and earth state.
     earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
@@ -727,10 +716,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
             boost::bind( &Body::getState, vehicle );
 
     // Load spice kernel.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set vehicle and earth state.
     earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
@@ -785,11 +771,11 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents, std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > >
             empiricalComponentsToEstimate;
-    empiricalComponentsToEstimate[ basic_astrodynamics::radial_empicial_acceleration_component ] = allEmpiricalShapesVector;
-    empiricalComponentsToEstimate[ basic_astrodynamics::along_track_empicial_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::radial_empirical_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::along_track_empirical_acceleration_component ] = allEmpiricalShapesVector;
 
     allEmpiricalShapesVector.push_back( basic_astrodynamics::sine_empirical );
-    empiricalComponentsToEstimate[ basic_astrodynamics::across_track_empicial_acceleration_component ] = allEmpiricalShapesVector;
+    empiricalComponentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ] = allEmpiricalShapesVector;
 
     // Create time-independent empirical acceleration object.
     boost::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = boost::make_shared<

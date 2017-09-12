@@ -1181,7 +1181,8 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName );
 
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 /*!

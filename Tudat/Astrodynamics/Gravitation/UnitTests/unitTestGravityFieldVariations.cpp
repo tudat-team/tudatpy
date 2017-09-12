@@ -196,13 +196,8 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     // Load spice kernels.
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "gm_de431.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "jup310_small.bsp" );
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( { input_output::getSpiceKernelPath( ) + "de430_jup310_small.bsp" } );
 
     // Define properties of nominal field
     double gravitationalParameter = getBodyGravitationalParameter( "Jupiter" );

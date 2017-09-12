@@ -163,6 +163,29 @@ public:
         return parameterSize_;
     }
 
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription = ", components in RSW frame, functional shapes; ";
+
+        for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
+             indexIterator = accelerationIndices_.begin( ); indexIterator != accelerationIndices_.end( ); indexIterator++ )
+        {
+            parameterDescription += "(";
+            basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
+            for( unsigned int i = 0; i < indexIterator->second.size( ); i++ )
+            {
+                parameterDescription += boost::lexical_cast< std::string >( indexIterator->second.at( i ) );
+                if( i != indexIterator->second.size( ) - 1 )
+                {
+                    parameterDescription += ", ";
+                }
+            }
+            parameterDescription += ")";
+        }
+
+        return parameterDescription;
+    }
+
     //! Function to retrieve list of components in empirical accelerations that are to be estimated.
     /*!
      * Function to retrieve list of components in empirical accelerations that are to be estimated.

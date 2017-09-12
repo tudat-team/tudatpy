@@ -57,13 +57,8 @@ BOOST_AUTO_TEST_SUITE( test_sequential_variational_equation_integration )
 std::pair< boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface >, boost::shared_ptr< Ephemeris > >
 integrateEquations( const bool performIntegrationsSequentially )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );

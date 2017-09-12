@@ -65,9 +65,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     unsigned int totalNumberOfBodies = 6;
@@ -238,9 +236,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     unsigned int totalNumberOfBodies = 6;

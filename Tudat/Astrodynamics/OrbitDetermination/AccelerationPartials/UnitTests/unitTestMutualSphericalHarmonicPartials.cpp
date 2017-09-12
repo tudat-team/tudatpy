@@ -86,12 +86,7 @@ boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 {
     // Load spice kernel.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "satelliteSystemsSmall.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( { input_output::getSpiceKernelPath( ) + "de430_mar097_small.bsp" } );
 
     std::vector< std::string > bodyList;
     bodyList.push_back( "Sun" );
@@ -312,9 +307,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     marsStateSetFunction, accelerationModel, mars->getState( ), velocityPerturbation, 3 );
 
         Eigen::Vector3d testPartialWrtMarsGravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    marsGravitationalParameterObject, accelerationModel, 1.0E12 );
+                    marsGravitationalParameterObject, accelerationModel, 1.0E14 );
         Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    phobosGravitationalParameterObject, accelerationModel, 1.0E12 );
+                    phobosGravitationalParameterObject, accelerationModel, 1.0E14 );
 
         Eigen::Vector3d testPartialWrtMarsRotationRate = calculateAccelerationWrtParameterPartials(
                     marsRotationRate, accelerationModel, 1.0E-9, &emptyFunction, 1.0E6, boost::bind(

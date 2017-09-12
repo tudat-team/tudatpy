@@ -1,0 +1,8 @@
+LEAPSECONDS_KERNEL   = naif0012.tls
+
+SPK_KERNEL           = de430_mar097_small.bsp
+ BEGIN_TIME          = 1999 DEC 15
+ END_TIME            = 2005 JAN 15
+ SOURCE_SPK_KERNEL   = de430.bsp
+ SOURCE_SPK_KERNEL   = mar097.bsp
+
