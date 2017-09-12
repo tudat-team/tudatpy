@@ -476,7 +476,8 @@ public:
 
         std::vector< Eigen::VectorXd > residualHistory;
         std::vector< Eigen::VectorXd > parameterHistory;
-        std::vector< std::vector< std::map< double, Eigen::VectorXd > > > dynamicsHistoryPerIteration;
+        std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration;
+        std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration;
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -503,7 +504,10 @@ public:
 
             if( podInput->getSaveStateHistoryForEachIteration( ) )
             {
-                throw std::runtime_error( "Error, saving of propagation history not yet supported." );
+                dynamicsHistoryPerIteration.push_back(
+                            variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+                dependentVariableHistoryPerIteration.push_back(
+                            variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
             }
 
             oldParameterEstimate = newParameterEstimate;
@@ -551,9 +555,9 @@ public:
                 residualHistory.push_back( residualsAndPartials.first );
                 if( numberOfIterations == 0 )
                 {
-                    parameterHistory.push_back( oldParameterEstimate );
+                    parameterHistory.push_back( oldParameterEstimate.template cast< double >( ) );
                 }
-                parameterHistory.push_back( newParameterEstimate );
+                parameterHistory.push_back( newParameterEstimate.template cast< double >( ) );
             }
 
             oldParameterEstimate = newParameterEstimate;

@@ -40,6 +40,28 @@ enum EmpiricalAccelerationFunctionalShapes
     cosine_empirical = 2
 };
 
+inline std::string getEmpiricalAccelerationFunctionalShapeString(
+        const EmpiricalAccelerationFunctionalShapes functionalShape )
+{
+    std::string parameterDescription = "";
+    switch( functionalShape )
+    {
+    case constant_empirical:
+        parameterDescription = "constant";
+        break;
+    case sine_empirical:
+        parameterDescription = "sine of true anomaly";
+        break;
+    case cosine_empirical:
+        parameterDescription = "cosine of true anomaly";
+        break;
+    default:
+        throw std::runtime_error( "Error when getting functional shape string, type not recognized" );
+    }
+    return parameterDescription;
+}
+
+
 //! Enum defining component of empirical accelerations
 enum EmpiricalAccelerationComponents
 {
