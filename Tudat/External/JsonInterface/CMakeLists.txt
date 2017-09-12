@@ -11,7 +11,7 @@
 # Set the source files.
 set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.cpp"
-    "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/deserialization.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/path.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/valueAccess.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/spice.cpp"
@@ -39,7 +39,7 @@ set(JSONINTERFACE_SOURCES
 set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Support/errorHandling.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/keys.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/Support/modular.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Support/deserialization.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/path.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/utilities.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/valueAccess.h"

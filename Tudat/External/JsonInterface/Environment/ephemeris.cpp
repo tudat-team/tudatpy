@@ -193,12 +193,6 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
                               defaults.getRootFinderMaximumNumberOfIterations( ) ) );
         break;
     }
-        /* FIXME
-    case custom_ephemeris:
-    {
-
-    }
-    */
     default:
         handleUnimplementedEnumValue( ephemerisType, ephemerisTypes, unsupportedEphemerisTypes );
     }

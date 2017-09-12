@@ -13,7 +13,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/External/JsonInterface/Support/modular.h"
+#include "Tudat/External/JsonInterface/Support/deserialization.h"
 #include "Tudat/External/JsonInterface/Support/utilities.h"
 
 #include <Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h>
