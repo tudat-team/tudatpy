@@ -443,7 +443,7 @@ std::string stringFromEnum( const EnumType enumValue, const std::map< EnumType, 
  * json_interface.
  */
 template< typename T >
-class UnsupportedEnumError : public AutoReportableBugError
+class UnsupportedEnumError : public std::runtime_error
 {
 public:
     //! Constructor.
@@ -454,24 +454,11 @@ public:
      * (including \p enumValue).
      */
     UnsupportedEnumError( const T enumValue, const std::map< T, std::string >& stringValues )
-        : AutoReportableBugError( )
-    {
-        const std::string typeName = boost::core::demangled_name( typeid( T ) );
-        const std::string stringValue = stringFromEnum( enumValue, stringValues );
-
-        errorMessage =
-                "The value \"" + stringValue + "\" for " + typeName +
-                "\" is not supported by `json_interface` yet.\n"
-                "If you think that support should be added, use this link to request it: ";
-
-        const std::string title = "Add support for \"" + stringValue + "\" in json_interface";
-        const std::string body =
-                "The value \"" + stringValue + "\" for `" + typeName +
-                "` is currently not supported by `json_interface`.\n\n"
-                "I think that adding support for it would be a nice addition to Tudat.\n";
-
-        setIssue( title, body );
-    }
+        : std::runtime_error( "The value \"" + stringFromEnum( enumValue, stringValues ) + "\" for " +
+                              boost::core::demangled_name( typeid( T ) ) +
+                              "\" is not supported directly by the `json_interface`.\n" +
+                              "Write your own JSON-based C++ application if you want to use this Tudat feature " +
+                              "in combination with JSON input files." ) { }
 };
 
 //! Class for errors generated when trying to use a value for an `enum` of type `EnumType` that is marked as supported
