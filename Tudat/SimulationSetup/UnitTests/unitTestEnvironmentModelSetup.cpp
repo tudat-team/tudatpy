@@ -120,8 +120,8 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
     {
         if( atmosphereTest == 0 )
         {
-        nrlmsise00AtmosphereSettings =
-                boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
         else
         {
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     // Load Spice kernel
     spice_interface::loadStandardSpiceKernels( );
 
-        // Create settings for spice central gravity field model.
+    // Create settings for spice central gravity field model.
     boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
             boost::make_shared< GravityFieldSettings >( central_spice );
 
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
+                                             "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
     BOOST_CHECK_EQUAL(
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
+                                             "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
     BOOST_CHECK_EQUAL(
@@ -955,6 +955,56 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
 }
 #endif
+
+BOOST_AUTO_TEST_CASE( test_groundStationCreation )
+{
+    using namespace unit_conversions;
+    using namespace coordinate_conversions;
+
+    const double flattening = 1.0 / 298.257223563;
+    const double equatorialRadius = 6378137.0;
+
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->shapeModelSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+                equatorialRadius, flattening );
+
+    Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    Eigen::Vector3d testGeodeticPosition(
+                -63.667,  convertDegreesToRadians( -7.26654999 ), convertDegreesToRadians( 72.36312094 ) );
+    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+                testCartesianPosition );
+    testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
+
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station3" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).size( ), 3 );
+
+    Eigen::Vector3d testPosition1 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station1" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition2= bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station2" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition3 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station3" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( testPosition1( i ) - testCartesianPosition( i ) ), 1.0E-9 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition2( i ) - testCartesianPosition( i ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition3( i ) - testCartesianPosition( i ) ), 1.0E-3 );
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 
