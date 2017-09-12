@@ -95,6 +95,9 @@ add_executable(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unit
 setup_custom_test_program(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_CR3BPPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGATORSDIR}/UnitTests/uniTestPropagationTerminationCheckOnFinalStep.cpp")
+setup_custom_test_program(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_PropagationTerminationCheckOnFinalStep ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif( )
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
