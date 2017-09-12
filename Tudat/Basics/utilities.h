@@ -485,6 +485,24 @@ bool doStlVectorContentsMatch(
     return doVectorsMatch;
 }
 
+//! Transform from map of std::vector (output of text file reader) to map of Eigen::Array
+template< typename MapKey, typename ScalarType >
+std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertSTLVectorMapToEigenVectorMap(
+        std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
+{
+    std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
+    for ( auto ent: stlVectorMap )
+    {
+        Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
+        for ( unsigned int i = 0; i < array.rows( ); i++ )
+        {
+            array.row( i ) = ent.second.at( i );
+        }
+        eigenMap[ ent.first ] = array;
+    }
+    return eigenMap;
+}
+
 } // namespace utilities
 
 } // namespace tudat
