@@ -41,6 +41,7 @@ AvailableTorque getTorqueModelType(
     return torqueType;
 }
 
+//! Function to get a string representing a 'named identification' of an torque type
 std::string getTorqueModelName( const AvailableTorque torqueType )
 {
 

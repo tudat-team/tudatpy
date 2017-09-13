@@ -27,13 +27,32 @@ namespace simulation_setup
 
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
-
+//! Function to create an aerodynamic torque model.
+/*!
+ *  Function to create an aerodynamic torque model, automatically creates all required
+ *  links to environment models, vehicle properies and frame conversions
+ *  \param bodyUndergoingTorque Pointer to object of body that is being accelerated.
+ *  \param bodyExertingTorque Pointer to object of body that is exerting the torque,
+ *  i.e. body with the atmosphere through which the accelerated body is flying.
+ *  \param nameOfBodyUndergoingTorque Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingTorque Name of object of body that is exerting the torque.
+ *  \return Pointer to object for calculating aerodynamic torque.
+ */
 boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
+//! Function to create a second-degree gravitational torque.
+/*!
+ * Function to create a second-degree gravitational torque.
+ *  \param bodyUndergoingTorque Pointer to object of body that is being accelerated.
+ *  \param bodyExertingTorque Pointer to object of body that is exerting the gravitational torque.
+ *  \param nameOfBodyUndergoingTorque Name of body that is being accelerated.
+ *  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
+ *  \return Direct gravitational torque model of requested settings.
+ */
 boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,

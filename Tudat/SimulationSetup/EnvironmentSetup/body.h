@@ -1116,8 +1116,15 @@ private:
 
 };
 
+//! Typdef for a list of body objects (as unordered_map for efficiency reasons)
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
 
+//! Function to compute the acceleration of a body, using its ephemeris and finite differences
+/*!
+ *  Function to compute the acceleration of a body, using its ephemeris and 8th order finite difference and 100 s time step
+ *  \param bodyWithAcceleration Body for which acceleration is to be computed
+ *  \param nominalEvalutationTime Time at which acceleration is to be evaluated.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(
         const boost::shared_ptr< Body > bodyWithAcceleration,

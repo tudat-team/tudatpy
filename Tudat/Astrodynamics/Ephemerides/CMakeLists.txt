@@ -44,7 +44,6 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/constantEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
-  "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
 )
 
 # Add static libraries.
