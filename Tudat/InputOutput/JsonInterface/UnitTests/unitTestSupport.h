@@ -87,7 +87,7 @@ void checkConsistentEnum( const std::string& filename,
 void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
                                    const std::map< double, Eigen::VectorXd >& results2,
                                    const std::vector< unsigned int > indeces,
-                                   const std::vector< unsigned int > lengths,
+                                   const std::vector< unsigned int > sizes,
                                    const double tolerance )
 {
     // Check size of maps
@@ -111,19 +111,19 @@ void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& re
     for ( unsigned int i = 0; i < indeces.size( ); ++i )
     {
         // Initial step
-        const double initialNorm1 = initialState1.segment( indeces.at( i ), lengths.at( i ) ).norm( );
-        const double initialNorm2 = initialState2.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        const double initialNorm1 = initialState1.segment( indeces.at( i ), sizes.at( i ) ).norm( );
+        const double initialNorm2 = initialState2.segment( indeces.at( i ), sizes.at( i ) ).norm( );
         BOOST_CHECK_CLOSE_FRACTION( initialNorm1, initialNorm2, tolerance );
 
         // Final step
-        const double finalNorm1 = finalState1.segment( indeces.at( i ), lengths.at( i ) ).norm( );
-        const double finalNorm2 = finalState2.segment( indeces.at( i ), lengths.at( i ) ).norm( );
+        const double finalNorm1 = finalState1.segment( indeces.at( i ), sizes.at( i ) ).norm( );
+        const double finalNorm2 = finalState2.segment( indeces.at( i ), sizes.at( i ) ).norm( );
         BOOST_CHECK_CLOSE_FRACTION( finalNorm1, finalNorm2, tolerance );
     }
 }
 
-#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indeces, lengths, tolerance ) \
-    tudat::json_interface::checkCloseIntegrationResults( results1, results2, indeces, lengths, tolerance )
+#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indeces, sizes, tolerance ) \
+    tudat::json_interface::checkCloseIntegrationResults( results1, results2, indeces, sizes, tolerance )
 
 } // namespace json_interface
 
