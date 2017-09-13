@@ -251,15 +251,15 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     std::vector< unsigned int > indeces;
-    std::vector< unsigned int > lengths;
+    std::vector< unsigned int > sizes;
     for ( unsigned int i = 0; i < numberOfSatellites; ++i )
     {
         indeces.push_back( 3 * i );
-        lengths.push_back( 3 );
+        sizes.push_back( 3 );
     }
     const double tolerance = 1.0E-15;
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
 
 
 
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     jsonSimulation.run( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
 
 }
 

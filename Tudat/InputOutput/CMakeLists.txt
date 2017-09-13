@@ -15,9 +15,6 @@ if(USE_JSON)
     # Add subdirectories.
     add_subdirectory("${SRCROOT}${JSONINTERFACEDIR}")
 
-    # Get target properties for static libraries.
-    get_target_property(JSONINTERFACESOURCES tudat_json_interface SOURCES)
-
 endif( )
 
 

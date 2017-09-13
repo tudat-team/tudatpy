@@ -220,18 +220,18 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     // Check epochs, positions and velocities
 
     const std::vector< unsigned int > indeces = { 0, 3, 6 };
-    const std::vector< unsigned int > lengths = { 3, 3, 1 };
+    const std::vector< unsigned int > sizes = { 3, 3, 1 };
     const double tolerance = 1.0E-15;
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
 
 
     // Check dependent variables
 
     const std::vector< unsigned int > indecesD = { 0, 3 };
-    const std::vector< unsigned int > lengthsD = { 3, 9 };
+    const std::vector< unsigned int > sizesD = { 3, 9 };
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResultsDependent, resultsDependent, indecesD, lengthsD, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResultsDependent, resultsDependent, indecesD, sizesD, tolerance );
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,10 +250,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     jsonResultsDependent = jsonSimulation.getDynamicsSimulator( )->getDependentVariableHistory( );
 
     // Check epochs, positions and velocities
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, lengths, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
 
     // Check dependent variables
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResultsDependent, resultsDependent, indecesD, lengthsD, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResultsDependent, resultsDependent, indecesD, sizesD, tolerance );
 
 }
 
