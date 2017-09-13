@@ -21,7 +21,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include <eigen/Eigen>
+#include <Eigen/Core>
 
 namespace tudat
 {
