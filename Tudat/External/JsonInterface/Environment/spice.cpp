@@ -17,28 +17,6 @@ namespace tudat
 namespace json_interface
 {
 
-/*
-//! Get the set of spice kernels to be used for a SimulationType.
-std::vector< boost::filesystem::path > getSpiceKernels( const SimulationType simulationType )
-{
-    std::vector< std::string > filenames;
-    switch ( simulationType ) {
-    case singlePerturbedBody:
-        filenames = { "pck00009.tpc", "de-403-masses.tpc", "de421.bsp" };
-    default:
-        throw std::runtime_error( "Could not determine Spice kernels for the specified simulation type." );
-    }
-
-    std::vector< boost::filesystem::path > kernels;
-    for ( const std::string filename : filenames )
-    {
-        kernels.push_back( boost::filesystem::path( input_output::getSpiceKernelPath( ) ) / filename );
-    }
-    return kernels;
-}
-*/
-
-
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
 void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings )
 {

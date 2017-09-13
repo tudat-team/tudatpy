@@ -39,11 +39,8 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
     using namespace spice_interface;
     using namespace json_interface;
 
-    // Load spice kernels.  (FIXME: remove kernels that are not needed for computeRotationQuaternionBetweenFrames)
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    // Load spice kernels (needed for computeRotationQuaternionBetweenFrames)
+    loadStandardSpiceKernels( );
 
     // Create RotationModelSettings from JSON file
     const boost::shared_ptr< RotationModelSettings > fromFileSettings =
