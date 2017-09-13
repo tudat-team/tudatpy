@@ -105,7 +105,7 @@ struct Keys
             static const std::string independentVariableNames;
             static const std::string areCoefficientsInAerodynamicFrame;
             static const std::string areCoefficientsInNegativeAxisDirection;
-            static const std::string controlSurfaceSettings;  // FIXME: unimplemented
+            static const std::string controlSurface;  // FIXME: unimplemented
 
             // Constant
             static const std::string dragCoefficient;
