@@ -616,6 +616,16 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
     return listOfSuitableAccelerationModels;
 }
 
+//! Function to retrieve a single given torque model from a list of models
+/*!
+ *  Function to retrieve a single given torque model, determined by
+ *  the body exerting and undergoing the torque, as well as the torque type, from a list of
+ *  state derivative models.
+ *  \param bodyUndergoingTorque Name of body undergoing the torque.
+ *  \param bodyExertingTorque Name of body exerting the torque.
+ *  \param stateDerivativeModels Complete list of state derivativ models
+ *  \param torqueModeType Type of torque model that is to be retrieved.
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetweenBodies(
         const std::string bodyUndergoingTorque,
