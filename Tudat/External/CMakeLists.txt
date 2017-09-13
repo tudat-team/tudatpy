@@ -10,19 +10,6 @@
 
 # Define the main sub-directories.
 
-if(USE_JSON)
-    # Set JSON interface directory.
-    set(JSONINTERFACEDIR "${EXTERNALDIR}/JsonInterface")
-
-    # Add subdirectories.
-    add_subdirectory("${SRCROOT}${JSONINTERFACEDIR}")
-
-    # Get target properties for static libraries.
-    get_target_property(JSONINTERFACESOURCES tudat_json_interface SOURCES)
-
-endif( )
-
-
 if(USE_SOFA)
     # Set SPICE interface directory.
     set(SOFAINTERFACEDIR "${EXTERNALDIR}/SofaInterface")
