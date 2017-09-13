@@ -351,15 +351,23 @@ createStateDerivativeModel(
     return stateDerivativeModel;
 }
 
+//! Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
+/*!
+ *  Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
+ *  \param propagatorSettings Settings for teh numerical propagation
+ *  \param bodyMap List of body objects that comprises the environment
+ */
 template< typename StateScalarType = double >
 void setMultiTypePropagationClosure(
         const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
+    // Cast to multi-type settings, and perform closure if
     boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
             boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
     if( multiTypePropagatorSettings != NULL )
     {
+        // Perform closure for the case where both translational and rotational states are propagated
         if( multiTypePropagatorSettings->propagatorSettingsMap_.count( transational_state ) > 0 &&
                 multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
@@ -368,6 +376,7 @@ void setMultiTypePropagationClosure(
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
 
+            // Iterate over all accelerations, and identify those bodies for which an aerodynamic acceleration is applied
             std::vector< std::string > bodiesWithAerodynamicAcceleration;
             for( unsigned int i = 0; i < translationalStateSettings.size( ); i++ )
             {
@@ -398,6 +407,7 @@ void setMultiTypePropagationClosure(
                 }
             }
 
+            // Iterate over all settings and identify those bodies for which rotational dynamics is propagated.
             std::vector< std::string > bodiesWithPropagatedRotation;
             for( unsigned int i = 0; i < rotationalStateSettings.size( ); i++ )
             {
@@ -415,6 +425,7 @@ void setMultiTypePropagationClosure(
                 }
             }
 
+            // Find bodies for which both aerodynamic acceleration is used and rotational propagation is performed.
             std::vector< std::string > bodiesWithAerodynamicRotationalClosure;
             for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
             {
@@ -425,9 +436,9 @@ void setMultiTypePropagationClosure(
                 }
             }
 
+            // Ensure that vehicle orientation is correctly set for aerodynamic acceleration/torque
             for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
             {
-                std::cout<<"Setting closure "<<std::endl;
                 boost::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(

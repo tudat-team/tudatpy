@@ -127,6 +127,11 @@ public:
         return stateTransitionInterface_;
     }
 
+    //! Pure virtual function to retrieve the dynamics simulator object (as base-class pointer)
+    /*!
+     * Pure virtual function to retrieve the dynamics simulator object (as base-class pointer)
+     * \return Dynamics simulator object (as base-class pointer)
+     */
     virtual boost::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( ) = 0;
 
 
@@ -700,6 +705,11 @@ public:
         return dynamicsSimulator_;
     }
 
+    //! Function to retrieve the dynamics simulator object (as base-class pointer)
+    /*!
+     * Function to retrieve the dynamics simulator object (as base-class pointer)
+     * \return Dynamics simulator object (as base-class pointer)
+     */
     boost::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( )
     {
         return getDynamicsSimulator( );
@@ -1243,11 +1253,21 @@ public:
 
     }
 
+    //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
+    /*!
+     * Function to return object used for numerically propagating and managing the solution of the equations of motion.
+     * \return Object used for numerically propagating and managing the solution of the equations of motion.
+     */
     boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( )
     {
         return dynamicsSimulator_;
     }
 
+    //! Function to retrieve the dynamics simulator object (as base-class pointer)
+    /*!
+     * Function to retrieve the dynamics simulator object (as base-class pointer)
+     * \return Dynamics simulator object (as base-class pointer)
+     */
     boost::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( )
     {
         return getDynamicsSimulator( );

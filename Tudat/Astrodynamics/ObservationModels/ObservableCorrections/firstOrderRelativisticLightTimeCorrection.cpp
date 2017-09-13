@@ -50,6 +50,7 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
     return currentTotalLightTimeCorrection_;
 }
 
+//! Function to compute the partial derivative of the light-time correction w.r.t. link end position
 Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::
 calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
         const Eigen::Vector6d& transmitterState,

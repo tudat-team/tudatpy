@@ -60,6 +60,15 @@ public:
 
 };
 
+//! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+/*!
+ * Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+ * \param minimumDegree Minimum degree of field
+ * \param minimumOrder Minimum order of field
+ * \param maximumDegree Maximum degree of field
+ * \param maximumOrder Maximum order of field
+ * \return List of paird containing (degree,order) of field.
+ */
 inline std::vector< std::pair< int, int > > getSphericalHarmonicBlockIndices(
         const int minimumDegree,
         const int minimumOrder,

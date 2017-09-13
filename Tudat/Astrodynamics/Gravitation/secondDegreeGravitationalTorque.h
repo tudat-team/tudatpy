@@ -26,14 +26,45 @@ namespace tudat
 namespace gravitation
 {
 
+//! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
+/*!
+ * Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field, which is
+ * provided here as an inertia tensor. Higher order terms of the torque are omitted.
+ * \param relativePositionOfBodySubjectToTorque Position of body exerting torque, w.r.t. body undergoing torque (typically
+ * expressed in frame fixed to body undergoing torque).
+ * \param gravitationalParameterOfAttractingBody Tha gravitational parameter of teh body that exerts the torque
+ * \param inertiaTensorOfRotatingBody The inertia tensor of the body undergoing the torqie, in the same frame as
+ * relativePositionOfBodySubjectToTorque (typically frame fixed to body undergoing torque)
+ * \return Gravitational torque of point mass on second-degree body.
+ */
 Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
         const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
         const double gravitationalParameterOfAttractingBody,
         const Eigen::Matrix3d& inertiaTensorOfRotatingBody );
 
+//! Class to compute the second degree gravitational torque
+/*!
+ *  Class to compute the second degree gravitational torque: the gravitational torque exerted by a point mass on a body with
+ *  degree two gravity field (parameterized by inertia tensor).
+ */
 class SecondDegreeGravitationalTorqueModel: public basic_astrodynamics::TorqueModel
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param positionOfBodySubjectToTorqueFunction Function returning the position of the body that is subject to the torque,
+     * in inertial frame.
+     * \param gravitationalParameterOfAttractingBodyFunction Function returning the gravitational parameter of the body that is
+     * exerting the torque.
+     * \param inertiaTensorOfRotatingBodyFunction Function returning the inertia tensor of the body that is subject to the
+     * torque, in the frame fixed to that body.
+     * \param positionOfBodyExertingTorqueFunction Function returning the position of the body that is exerting to the torque,
+     * in inertial frame.
+     * \param rotationToBodyFixedFrameFunction Function returning the rotation from inertial frame to frame fixed to body
+     *  undergoing torque.
+     */
     SecondDegreeGravitationalTorqueModel(
             const boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction,
             const boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
@@ -46,16 +77,29 @@ public:
         gravitationalParameterOfAttractingBodyFunction_( gravitationalParameterOfAttractingBodyFunction ),
         inertiaTensorOfRotatingBodyFunction_( inertiaTensorOfRotatingBodyFunction ),
         positionOfBodyExertingTorqueFunction_( positionOfBodyExertingTorqueFunction ),
-        rotationToBodyFixedFrameFunction_( rotationToBodyFixedFrameFunction )
-    {
+        rotationToBodyFixedFrameFunction_( rotationToBodyFixedFrameFunction ){  }
 
-    }
-
+    //! Get gravitational torque.
+    /*!
+     * Returns the gravitational torque. All data required for the computation is taken
+     * from member variables, which are set to their latest values by the last call of the
+     * updateMembers function.
+     * \return Gravitational torque.
+     * \sa updateMembers().
+     */
     Eigen::Vector3d getTorque( )
     {
         return currentTorque_;
     }
 
+    //! Update member variables used by the gravitational torque model.
+    /*!
+     * Updates member variables used by the gravitational accfeleration model.
+     * Function pointers to retrieve the current values of quantities from which the
+     * torque is to be calculated are set by constructor. This function calls
+     * them to update the associated variables to their current state.
+     * \param currentTime Time at which torque model is to be updated.
+     */
     void updateMembers( const double currentTime )
     {
         currentRelativePositionOfBodySubjectToTorque_ = positionOfBodyExertingTorqueFunction_( ) - positionOfBodySubjectToTorqueFunction_( );
@@ -73,25 +117,38 @@ public:
 protected:
 
 private:
+
+    //! Function returning the position of the body that is subject to the torque, in inertial frame.
     boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction_;
 
+    //! Function returning the gravitational parameter of the body that is exerting the torque.
     boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction_;
 
+    //! Function returning the inertia tensor of the body that is subject to the torque, in the frame fixed to that body.
     boost::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction_;
 
+    //! Function returning the position of the body that is exerting to the torque, in inertial frame.
     boost::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction_;
 
+    //! Function returning the rotation from inertial frame to frame fixed to body undergoing torque.
     const boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction_;
 
 
+    //! Current [osition of body exerting torque, w.r.t. body undergoing torque in frame fixed to body undergoing torque, as set
+    //! by updateMembers function.
     Eigen::Vector3d currentRelativePositionOfBodySubjectToTorque_;
 
+    //! Current gravitational parameter of the body that is exerting the torque, as set by updateMembers function.
     double currentGravitationalParameterOfAttractingBody_;
 
+    //! Current inertia tensor of the body that is subject to the torque, in the frame fixed to that body, as set by updateMembers
+    //! function.
     Eigen::Matrix3d currentInertiaTensorOfRotatingBody_;
 
+    //! Rotation from inertial frame to frame fixed to body undergoing torque, as set by updateMembers function.
     Eigen::Quaterniond currentRotationToBodyFixedFrameFunction_;
 
+    //! Current gravitational torque, as set by updateMembers function.
     Eigen::Vector3d currentTorque_;
 };
 

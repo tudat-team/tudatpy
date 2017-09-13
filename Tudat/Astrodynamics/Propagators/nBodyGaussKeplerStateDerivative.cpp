@@ -83,7 +83,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
                 currentOsculatingKeplerElements( 1 ),
                 currentOsculatingKeplerElements( 0 ),
                 std::numeric_limits< double >::epsilon( ) );
-    double orbitalAngularMomentum = orbital_element_conversions::computeOrbitalAngularMomentum(
+    double orbitalAngularMomentum = orbital_element_conversions::computeOrbitalAngularMomentumPerUnitMass(
                 semiLatusRectum, centralBodyGravitationalParameter );
     double meanMotion = basic_astrodynamics::computeKeplerMeanMotion(
                 currentOsculatingKeplerElements( 0 ), centralBodyGravitationalParameter );
