@@ -113,7 +113,7 @@ const std::string Keys::Body::Aerodynamics::momentReferencePoint = "momentRefere
 const std::string Keys::Body::Aerodynamics::independentVariableNames = "independentVariableNames";
 const std::string Keys::Body::Aerodynamics::areCoefficientsInAerodynamicFrame = "areCoefficientsInAerodynamicFrame";
 const std::string Keys::Body::Aerodynamics::areCoefficientsInNegativeAxisDirection = "areCoefficientsInNegativeAxisDirection";
-const std::string Keys::Body::Aerodynamics::controlSurfaceSettings = "controlSurfaceSettings";
+const std::string Keys::Body::Aerodynamics::controlSurface = "controlSurface";
 // Constant
 const std::string Keys::Body::Aerodynamics::dragCoefficient = "dragCoefficient";
 const std::string Keys::Body::Aerodynamics::forceCoefficients = "forceCoefficients";
