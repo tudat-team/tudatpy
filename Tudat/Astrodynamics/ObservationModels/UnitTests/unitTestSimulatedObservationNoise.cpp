@@ -50,11 +50,7 @@ double ignoreInputeVariable( boost::function< double( ) > inputFreeFunction, con
 BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
@@ -73,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+                ( physical_constants::JULIAN_DAY ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 

@@ -258,6 +258,9 @@ int getTotalCountOfKernelsLoaded( );
  */
 void clearSpiceKernels( );
 
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels =
+        std::vector< std::string >( ) );
+
 } // namespace spice_interface
 } // namespace tudat
 

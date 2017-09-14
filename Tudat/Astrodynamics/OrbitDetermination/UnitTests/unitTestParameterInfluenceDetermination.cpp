@@ -51,9 +51,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
     std::vector< std::string > targetBodies = { "Mercury", "Venus" };
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "satelliteSystemsSmall.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation times
     double simulationStartEpoch = 0.0;
@@ -183,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                     6.0 * 3600.0, boost::assign::list_of( -sunNormalizedJ2 ), boost::assign::list_of( 0 ) );
 
         // Get pre- and postfit residuals with RMS
-        Eigen::VectorXd prefitResiduals = estimationOutput.first->firstIterationResiduals_;
+        Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
         Eigen::VectorXd postfitResiduals = estimationOutput.first->residuals_;
         double prefitRms = linear_algebra::getVectorEntryRootMeanSquare(
                     prefitResiduals );
@@ -235,8 +233,8 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
             {
                 BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 1.0E-1 );
                 BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
-                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 5.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 5.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
             }
         }
 
@@ -362,7 +360,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 1.0, boost::assign::list_of( -earthC20 ), boost::assign::list_of( 0 ) );
 
     // Get pre- and postfit residuals with RMS
-    Eigen::VectorXd prefitResiduals = estimationOutput.first->firstIterationResiduals_;
+    Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
     Eigen::VectorXd postfitResiduals = estimationOutput.first->residuals_;
     double prefitRms = linear_algebra::getVectorEntryRootMeanSquare(
                 prefitResiduals );

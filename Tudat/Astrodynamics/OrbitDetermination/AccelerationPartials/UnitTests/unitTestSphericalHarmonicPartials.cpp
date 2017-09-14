@@ -452,10 +452,7 @@ std::vector< boost::shared_ptr< GravityFieldVariationSettings > > getEarthGravit
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create empty bodies, earth and vehicle.
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );

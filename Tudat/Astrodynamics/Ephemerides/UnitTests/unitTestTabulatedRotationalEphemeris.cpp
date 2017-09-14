@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedRotationalEphemeris )
     const std::string targetFrame = "IAU_Mars";
 
     // Load Spice kernel
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00010.tpc" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define time interval over which rotations are to be generated
     double startTime = 0.0;

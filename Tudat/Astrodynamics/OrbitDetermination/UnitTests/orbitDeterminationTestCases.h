@@ -49,11 +49,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
         const double weight = 1.0 )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
+    spice_interface::loadStandardSpiceKernels( );
 
     //Define setting for total number of bodies and those which need to be integrated numerically.
     //The first numberOfNumericalBodies from the bodyNames vector will be integrated numerically.
@@ -281,10 +277,11 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     {
         podInput->setConstantWeightsMatrix( weight );
     }
+    podInput->defineEstimationSettings( true, true, false, false, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( ), true, true, false, false );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( ) );
 
     return std::make_pair( podOutput,
                            ( podOutput->parameterEstimate_.template cast< double >( ) -
@@ -302,11 +299,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 {
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
@@ -327,7 +320,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+                ( physical_constants::JULIAN_DAY ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
     bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
@@ -602,10 +595,11 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     weightPerObservable[ one_way_doppler ] = 1.0 / ( 1.0E-11 * 1.0E-11 );
 
     podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+    podInput->defineEstimationSettings( true, true, true, true, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ), true, true, true, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout<<( estimationError ).transpose( )<<std::endl;

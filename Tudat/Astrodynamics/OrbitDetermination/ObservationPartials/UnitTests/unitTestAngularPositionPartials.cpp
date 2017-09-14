@@ -58,6 +58,8 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
+    Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 );
+    parameterPerturbationMultipliers( 2 ) = 10.0;
     // Test partials with constant ephemerides (allows test of position partials)
     {
         // Create environment
@@ -81,8 +83,10 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
         boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4, true, true );
+        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+                                 true, true, 1.0, parameterPerturbationMultipliers );
     }
+
 
 //    // Test partials with real ephemerides (without test of position partials)
 //    {
@@ -105,7 +109,9 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 //        boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
 //                createEstimatableParameters( bodyMap, 1.1E7 );
 
-//        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4, false, true );
+//        testObservationPartials( angularPositionModel, bodyMap, fullEstimatableParameterSet, linkEnds, angular_position, 1.0E-4,
+//        false, true, 1.0, parameterPerturbationMultipliers );
+
 //    }
 }
 
