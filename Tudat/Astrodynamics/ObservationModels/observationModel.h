@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
@@ -270,6 +271,36 @@ protected:
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+double getSizeOneObservationAtDoublePrecision(
+        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) > observationFunction,
+        const double currentTime,
+        const LinkEndType referenceLinkEnd )
+{
+    return static_cast< double >( observationFunction( static_cast< TimeType >( currentTime ), referenceLinkEnd )( 0 ) );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecision(
+        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) > observationFunction )
+{
+    return boost::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, _1, _2 );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) > getSizeOneObservationFunction(
+        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+{
+    return boost::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeIdealObservations, observationModel, _1, _2 );
+}
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
+        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+{
+    return getSizeOneObservationFunctionAtDoublePrecision( getSizeOneObservationFunction( observationModel ) );
+}
 
 //! Function to extract a list of observtion bias models from a list of observation models.
 /*!
