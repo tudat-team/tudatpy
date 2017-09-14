@@ -235,11 +235,11 @@ const std::string Keys::propagator = "propagator";
 
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
 const std::string Keys::Propagator::initialStates = "initialStates";
+const std::string Keys::Propagator::bodiesToPropagate = "bodiesToPropagate";
 
 // Translational
 const std::string Keys::Propagator::type = "type";
 const std::string Keys::Propagator::centralBodies = "centralBodies";
-const std::string Keys::Propagator::bodiesToPropagate = "bodiesToPropagate";
 
 // //  Acceleration
 const std::string Keys::Propagator::accelerations = "accelerations";

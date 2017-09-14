@@ -246,11 +246,11 @@ struct Keys
     {
         static const std::string integratedStateType;
         static const std::string initialStates;
+        static const std::string bodiesToPropagate;
 
         // Translational
         static const std::string type;
         static const std::string centralBodies;
-        static const std::string bodiesToPropagate;
 
         static const std::string accelerations;
         struct Acceleration
