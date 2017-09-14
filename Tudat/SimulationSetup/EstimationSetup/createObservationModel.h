@@ -893,13 +893,6 @@ public:
         }
         case n_way_range:
         {
-            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
-                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
-            if( nWayRangeObservationSettings == NULL )
-            {
-                throw std::runtime_error( "Error when making n-way range, input type is inconsistent" );
-            }
-
             // Check consistency input.
             if( linkEnds.size( ) < 2 )
             {
@@ -916,11 +909,6 @@ public:
             if( linkEnds.count( transmitter ) == 0 )
             {
                 throw std::runtime_error( "Error when making n way range model, no transmitter found" );
-            }
-
-            if( linkEnds.size( ) != ( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) + 1 ) )
-            {
-                throw std::runtime_error( "Error when making n way range model, input is inconsistent" );
             }
 
             // Check link end consistency.
@@ -940,7 +928,6 @@ public:
                 }
             }
 
-
             // Create observation bias object
             boost::shared_ptr< ObservationBias< 1 > > observationBias;
             if( observationSettings->biasSettings_ != NULL )
@@ -952,12 +939,14 @@ public:
 
             std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
 
-            bool areSettingsEqualPerLeg;
             boost::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
+
+            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
+                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
+
             if( nWayRangeObservationSettings == NULL )
             {
                 lightTimeCorrectionsList = observationSettings->lightTimeCorrectionsList_;
-                areSettingsEqualPerLeg = true;
             }
             else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
             {
@@ -968,8 +957,6 @@ public:
                 retransmissionTimesFunction_ = nWayRangeObservationSettings->retransmissionTimesFunction_;
             }
 
-
-
             // Define light-time calculator list
             std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
 
@@ -977,18 +964,28 @@ public:
             LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
             LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
             receiverIterator++;
-            for( unsigned int i = 0; i < nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ); i++ )
+            for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
             {
-                if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                if( nWayRangeObservationSettings != NULL )
                 {
-                    throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                    {
+                        throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    }
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
+                                    lightTimeCorrectionsList_ ) );
+                }
+                else
+                {
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, observationSettings->lightTimeCorrectionsList_ ) );
                 }
 
-                lightTimeCalculators.push_back(
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                transmitterIterator->second, receiverIterator->second,
-                                bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )
-                                ->lightTimeCorrectionsList_ ) );
                 transmitterIterator++;
                 receiverIterator++;
             }
@@ -996,7 +993,7 @@ public:
             // Create observation model
             observationModel = boost::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        lightTimeCalculators, nWayRangeObservationSettings->retransmissionTimesFunction_,
+                        lightTimeCalculators, retransmissionTimesFunction_,
                         observationBias );
             break;
         }
