@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
             for( unsigned int i = 0; i < 3; i++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-18 );
+                BOOST_CHECK_SMALL( std::fabs( analyticalUnitVectorDerivative( i ) - numericalUnitVectorDerivative( i ) ), 1.0E-16 );
 
             }
             BOOST_CHECK_SMALL( std::fabs( analyticalProjectedVelocityDerivative / physical_constants::SPEED_OF_LIGHT -
@@ -432,10 +432,10 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                                  linkEndTimes, linkEndStates, referenceLinkEnd );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Earth", bodyMap, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Earth", bodyMap, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtEarthPosition =
                     calculatePartialWrtConstantBodyState(
-                        "Mars", bodyMap, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
+                        "Mars", bodyMap, Eigen::Vector3d::Constant( 10000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );
             Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalReceiverProperTimePartialsWrtMarsVelocity =
                     calculatePartialWrtConstantBodyVelocity(
                         "Earth", bodyMap, Eigen::Vector3d::Constant( 1000.0 ), receiverProperTimeRateFunction, 1.1E7, 1 );

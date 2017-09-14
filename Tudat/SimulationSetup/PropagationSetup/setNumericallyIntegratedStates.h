@@ -192,6 +192,21 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > convertNumericalSol
     return ephemerisTable;
 }
 
+//! Function to extract the numerical solution for the translational dynamics of a single body from full propagation history.
+/*!
+ * Function to extract the numerical solution for the translational dynamics of a single body from full propagation history.
+ * Function can perform frame translation if required.
+ * \param bodiesToIntegrate List of names of bodies which are numericall integrated (in the order in
+ * which they are in the equationsOfMotionNumericalSolution map.
+ * \param translationalStateStartIndex Index in entries of equationsOfMotionNumericalSolution where the translational states start
+ * \param bodyForWhichToRetrieveState Name of body for which the states are to be extracted
+ * \param equationsOfMotionNumericalSolution Numerical solution of dynamics, with translational results in Cartesian elements
+ * w.r.t. integratation origins.
+ * \param ephemerisInput State history of requested body (returned by reference)
+ * \param bodyIndex Index of bodyForWhichToRetrieveState in bodiesToIntegrate (returned by reference)
+ * \param integrationToEphemerisFrameFunctions Function to provide the states of the ephemeris
+ * origins of each body w.r.t. their respective integration origins.
+ */
 template< typename TimeType, typename StateScalarType >
 void getSingleBodyStateHistoryFromPropagationOutpiut(
         const std::vector< std::string >& bodiesToIntegrate,
@@ -215,8 +230,7 @@ void getSingleBodyStateHistoryFromPropagationOutpiut(
     bodyIndex = std::distance( bodiesToIntegrate.begin( ), bodyFindIterator );
 
     // Get frame origin function if applicable
-    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction =
-            NULL;
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = NULL;
     if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
     {
         integrationToEphemerisFrameFunction =
@@ -418,6 +432,14 @@ void resetMultiArcIntegratedEphemerides(
     }
 }
 
+//! Function to reset the tabulated rotational ephemeris of a body
+/*!
+ * Function to reset the tabulatedrotational  ephemeris of a body, this requires the requested body to possess
+ * a rotational ephemeris of type TabulatedRotationalEphemeris< StateScalarType, TimeType >
+ * \param bodyMap List of bodies used in simulations.
+ * \param rotationalEphemerisInterpolator New rotational state history of the body
+ * \param bodyToIntegrate Name of body for which the rotational ephemeris is to be reset.
+ */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedRotationalEphemerisOfBody(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -430,14 +452,15 @@ void resetIntegratedRotationalEphemerisOfBody(
 
     if( bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) == NULL )
     {
-        std::cerr<<"Error, no rotational ephemeris detected for body "<<bodyToIntegrate<<" when resetting ephemeris"<<std::endl;
+        throw std::runtime_error( "Error, no rotational ephemeris detected for body " +
+                                  bodyToIntegrate + " when resetting ephemeris" );
     }
 
     // If current ephemeris is not already a tabulated ephemeris, create new ephemeris.
     else if( boost::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
                  bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == NULL )
     {
-        std::cerr<<"Error B when resetting integrated ephemeris of body "<<std::endl;
+         throw std::runtime_error( "Error when resetting integrated rotational ephemeris of body, rotation model type is incompatible " );
 
     }
     // Else, update existing tabulated ephemeris
@@ -451,7 +474,17 @@ void resetIntegratedRotationalEphemerisOfBody(
     }
 }
 
-// Set state history of current body from integration result for interpolator input.
+//! Function to convert output of rotational motion to input for the rotational ephemeris.
+/*!
+ * Function to convert output of rotational motion from the numerical integrator to the required
+ * input for the rotational ephemeris.  It extracts the state history of a single body from the full list of
+ * integrated states.
+ * \param startIndex Index in entries of equationsOfMotionNumericalSolution where the rotational states start.
+ * \param bodyIndex Index of integrated body for which the state is to be retrieved
+ * \param equationsOfMotionNumericalSolution Full numerical solution of numerical integrator,
+ * already converted to Cartesian states (w.r.t. the integration origin of the body of bodyIndex)
+ * \return State history of body bodyIndex w.r.t. the origin with which its ephemeris is defined.
+*/
 template< typename TimeType, typename StateScalarType >
 std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > convertNumericalSolutionToRotationalEphemerisInput(
         const int startIndex,

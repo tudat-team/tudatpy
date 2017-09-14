@@ -36,6 +36,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 
 }
 
+//! Function to calculate gradient of first order relativistic light time correction due to a gravitating point mass.
 Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
         const double bodyGravitationalParameter,
         const Eigen::Vector3d& transmitterPosition,

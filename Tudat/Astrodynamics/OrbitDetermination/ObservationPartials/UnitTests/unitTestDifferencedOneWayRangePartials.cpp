@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
 {
 
     Eigen::VectorXd parameterPerturbationMultipliers =
-            ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 10.0 ).finished( );
+            ( Eigen::VectorXd( 4 ) << 100.0, 100.0, 1.0, 100.0 ).finished( );
 
     // Define and create ground stations.
     std::vector< std::pair< std::string, std::string > > groundStations;

@@ -175,13 +175,31 @@ public:
      */
     std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
 
+    //! Function to reset identifier for body-fixed reference frame to which the coefficients are referred.
+    /*!
+     *  Function to reset identifier for body-fixed reference frame to which the coefficients are referred.
+     *  \param associatedReferenceFrame Identifier for body-fixed reference frame to which the coefficients are referred.
+     */
     void resetAssociatedReferenceFrame( const std::string& associatedReferenceFrame )
     {
         associatedReferenceFrame_ = associatedReferenceFrame;
     }
 
-    bool getCreateTimeDependentField( ){ return createTimeDependentField_; }
+    //! Function to retrieve boolean that denotes whether the field should be created as time-dependent
+    /*!
+     *  Function to retrieve boolean that denotes whether the field should be created as time-dependent
+     *  \return Boolean that denotes whether the field should be created as time-dependent
+     */
+    bool getCreateTimeDependentField( )
+    {
+        return createTimeDependentField_;
+    }
 
+    //! Function to reset boolean that denotes whether the field should be created as time-dependent
+    /*!
+     *  Function to reset boolean that denotes whether the field should be created as time-dependent
+     *  \param createTimeDependentField Boolean that denotes whether the field should be created as time-dependent
+     */
     void setCreateTimeDependentField( const bool createTimeDependentField )
     {
         createTimeDependentField_ = createTimeDependentField;
@@ -205,6 +223,7 @@ private:
     //! Identifier for body-fixed reference frame to which the coefficients are referred.
     std::string associatedReferenceFrame_;
 
+    //! Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed intially)
     bool createTimeDependentField_;
 
 };

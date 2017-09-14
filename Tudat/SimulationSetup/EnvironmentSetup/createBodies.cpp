@@ -160,6 +160,15 @@ NamedBodyMap createBodies(
         }
 
     }
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
+        {
+            createGroundStation( bodyMap.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).first,
+                     orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+        }
+    }
     return bodyMap;
 
 }

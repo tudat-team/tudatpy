@@ -33,6 +33,7 @@ set(ORBIT_DETERMINATION_HEADERS
   "${SRCROOT}${ORBITDETERMINATIONDIR}/orbitDeterminationManager.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/podProcessing.h"
+  "${SRCROOT}${ORBITDETERMINATIONDIR}/determinePostFitParameterInfluence.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/orbitDeterminationTestCases.h"
 )
 

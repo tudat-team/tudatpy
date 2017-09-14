@@ -80,12 +80,6 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix )
 {
-
-//    std::cout<<" SOLVING************************************************************** "<<std::endl<<std::endl<<
-//               inverseOfAPrioriCovarianceMatrix<<std::endl<<std::endl<<informationMatrix<<std::endl<<std::endl<<
-//               diagonalOfWeightMatrix.transpose( )<<std::endl<<std::endl;
-//    std::cout<<" SOLVED=============================================================== "<<std::endl<<std::endl;
-
     return inverseOfAPrioriCovarianceMatrix + informationMatrix.transpose( ) * multiplyInformationMatrixByDiagonalWeightMatrix(
                 informationMatrix, diagonalOfWeightMatrix );
 }

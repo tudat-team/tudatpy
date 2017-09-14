@@ -207,6 +207,21 @@ public:
     virtual void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates ) = 0;
 
+    //! Pure virtual function that returns the numerical result of the state propagation
+    /*!
+     * Pure virtual function that returns the numerical result of the state propagation.
+     * \return Numerical result of the state propagation. See derived class documentation for precise contents structure.
+     */
+    virtual std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( ) = 0;
+
+    //! Pure virtual function that returns the numerical result of the dependent variable history
+    /*!
+     * Pure virtual function that returns the numerical result of the dependent variable history
+     * \return Numerical result of the  dependent variable history. See derived class documentation for precise contents
+     *  structure.
+     */
+    virtual std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( ) = 0;
 
     //! Function to get the map of named bodies involved in simulation.
     /*!
@@ -417,18 +432,43 @@ public:
         return dependentVariableHistory_;
     }
 
+    //! Function to return the map of state history of numerically integrated bodies (base class interface).
+    /*!
+     * Function to return the map of state history of numerically integrated bodies (base class interface).
+     * \return Vector is size 1, with entry: map of state history of numerically integrated bodies.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( )
+    {
+        return std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >(
+                    { getEquationsOfMotionNumericalSolution( ) } );
+    }
+
+    //! Function to return the map of dependent variable history that was saved during numerical propagation(base class interface)
+    /*!
+     * Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
+     * \return Vector is size 1, with entry: map of dependent variable history that was saved during numerical propagation.
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
+    {
+        return std::vector< std::map< TimeType, Eigen::VectorXd > >(
+                    { getDependentVariableHistory( ) } );
+    }
+
 
     //! Function to reset the environment from an externally generated state history.
     /*!
      * Function to reset the environment from an externally generated state history, the order of the entries in the
      * state vectors are proscribed by propagatorSettings
      * \param equationsOfMotionNumericalSolution Externally generated state history.
+     * \param dependentVariableHistory Externally generated dependent variable history.
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
-            equationsOfMotionNumericalSolution )
+            equationsOfMotionNumericalSolution,
+            const std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory)
     {
         equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
+        dependentVariableHistory_ = dependentVariableHistory;
         processNumericalEquationsOfMotionSolution( );
     }
 
@@ -497,9 +537,9 @@ public:
     }
 
 
-    //! Function to retrieve the Object defining when the propagation is to be terminated.
+    //! Function to retrieve the object defining when the propagation is to be terminated.
     /*!
-     * Function to retrieve the Object defining when the propagation is to be terminated.
+     * Function to retrieve the object defining when the propagation is to be terminated.
      * \return Object defining when the propagation is to be terminated.
      */
     boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
@@ -507,6 +547,12 @@ public:
         return propagationTerminationCondition_;
     }
 
+    //! Function to retrieve the list of object that process the integrated numerical solution by updating the environment
+    /*!
+     * Function to retrieve the List of object (per dynamics type) that process the integrated numerical solution by
+     * updating the environment
+     * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
+     */
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
     IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
     {
@@ -533,6 +579,17 @@ public:
     {
         return this->initialPropagationTime_;
     }
+
+    //! Function to retrieve the functions that compute the dependent variables at each time step
+    /*!
+     * Function to retrieve the functions that compute the dependent variables at each time step
+     * \return Functions that compute the dependent variables at each time step
+     */
+    boost::function< Eigen::VectorXd( ) > getDependentVariablesFunctions( )
+    {
+        return dependentVariablesFunctions_;
+    }
+
 
 
 protected:
@@ -784,6 +841,7 @@ public:
             }
 
             equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
+            dependentVariableHistory_.resize( arcStartTimes.size( ) );
             propagationTerminationReasons_.resize( arcStartTimes.size( ) );
 
             // Integrate equations of motion if required.
@@ -845,6 +903,7 @@ public:
             }
 
             equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
+            dependentVariableHistory_.resize( singleArcSettings.size( ) );
             propagationTerminationReasons_.resize( singleArcSettings.size( ) );
 
             // Integrate equations of motion if required.
@@ -906,6 +965,12 @@ public:
             equationsOfMotionNumericalSolution_.at( i ).clear( );
         }
 
+        for( unsigned int i = 0; i < dependentVariableHistory_.size( ); i++ )
+        {
+            dependentVariableHistory_.at( i ).clear( );
+        }
+
+
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStateList;
         bool updateInitialStates = false;
@@ -934,6 +999,8 @@ public:
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
             equationsOfMotionNumericalSolution_[ i ] =
                     singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
+            dependentVariableHistory_[ i ] =
+                    singleArcDynamicsSimulators_.at( i )->getDependentVariableHistory( );
             propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
@@ -963,19 +1030,59 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
+    //! Function to return the numerical solution of the dependent variables
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableHistory( )
+    {
+        return dependentVariableHistory_;
+    }
+
+    //! Function to return the numerical solution to the equations of motion (base class interface).
+    /*!
+     *  Function to return the numerical solution to the equations of motion for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are full propagated state vectors.
+     *  \return List of maps of history of numerically integrated states.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( )
+    {
+        return getEquationsOfMotionNumericalSolution( );
+    }
+
+    //! Function to return the numerical solution of the dependent variables (base class interface)
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
+    {
+        return getDependentVariableHistory( );
+    }
+
+
     //! Function to reset the environment using an externally provided list of (numerically integrated) states
     /*!
      *  Function to reset the environment using an externally provided list of (numerically integrated) states, for instance
      *  provided by a variational equations solver.
      *  \param equationsOfMotionNumericalSolution Vector of state histories
      *  (externally provided equationsOfMotionNumericalSolution_)
+     *  \param dependentVariableHistory Vector of dependent variable histories
+     *  (externally provided dependentVariableHistory_)
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
-            equationsOfMotionNumericalSolution )
+            equationsOfMotionNumericalSolution,
+            std::vector< std::map< TimeType, Eigen::VectorXd > >&
+            dependentVariableHistory)
     {
         // Set equationsOfMotionNumericalSolution_
         equationsOfMotionNumericalSolution_.resize( equationsOfMotionNumericalSolution.size( ) );
+
         for( unsigned int i = 0; i < equationsOfMotionNumericalSolution.size( ); i++ )
         {
             equationsOfMotionNumericalSolution_[ i ].clear( );
@@ -986,6 +1093,14 @@ public:
 
         // Reset environment with new states.
         processNumericalEquationsOfMotionSolution( );
+
+        dependentVariableHistory_.resize( dependentVariableHistory.size( ) );
+
+        for( unsigned int i = 0; i < dependentVariableHistory.size( ); i++ )
+        {
+            dependentVariableHistory_[ i ].clear( );
+            dependentVariableHistory_[ i ] = dependentVariableHistory[ i ];
+        }
     }
 
     //! Function to get the list of DynamicsStateDerivativeModel objects used for each arc
@@ -1050,10 +1165,13 @@ protected:
 
     //! List of maps of state history of numerically integrated states.
     /*!
-     *   List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
-     *   Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
+     *  List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
+     *  Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
      */
     std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > equationsOfMotionNumericalSolution_;
+
+    //! List of maps of dependent variable history that was saved during numerical propagation.
+    std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableHistory_;
 
     //! Objects used to compute the dynamics of the sepatrate arcs
     std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators_;

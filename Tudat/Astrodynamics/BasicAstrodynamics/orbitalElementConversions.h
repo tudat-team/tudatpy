@@ -44,6 +44,14 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
+//! Function to compute orbit semi-latus rectum.
+/*!
+ * Function to compute orbit semi-latus rectum.
+ * \param eccentricity Eccentricity of orbit
+ * \param semiMajorAxis Semi-major axis of orbit (in Tudat, this input must equal semi-latus rectum for parabolic orbits)
+ * \param tolerance Eccentricity tolerance for which orbit is deemed to be parabolic.
+ * \return Orbit semi-latus rectum
+ */
 template< typename ScalarType = double >
 ScalarType computeSemiLatusRectum(
         const ScalarType eccentricity,
@@ -71,8 +79,15 @@ ScalarType computeSemiLatusRectum(
     return semiLatusRectum;
 }
 
+//! Function to compute orbit angular momentum per unit mass
+/*!
+ * Function to compute orbit angular momentum per unit mass
+ * \param semiLatusRectum Semi-latus rectum of orbit
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body
+ * \return Orbital angular momentum
+ */
 template< typename ScalarType = double >
-ScalarType computeOrbitalAngularMomentum(
+ScalarType computeOrbitalAngularMomentumPerUnitMass(
         const ScalarType semiLatusRectum,
         const ScalarType centralBodyGravitationalParameter )
 {

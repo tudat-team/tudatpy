@@ -20,6 +20,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodyShapeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
@@ -62,6 +63,8 @@ struct BodySettings
 
     //! Settings for variations of the gravity field of the body.
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
+
+    std::vector< boost::shared_ptr< GroundStationSettings > > groundStationSettings;
 
 };
 

@@ -1311,13 +1311,16 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
  * (settings must be compatible with minimum elevation angle check).  Ground station must ve specified by
  * associatedLinkEnd_.second in observationViabilitySettings.
+ * \param stationName Name of the ground station for which calculator is to be computed (if no station is explicitly given in
+ * observationViabilitySettings).
  * \return Object to check if a minimum elevation angle condition is met for an observation
  */
 boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName );
 
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 /*!
