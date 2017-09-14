@@ -30,33 +30,33 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-//    for( int simulationType = 0; simulationType < 5; simulationType++ )
-//    {
+    for( int simulationType = 0; simulationType < 5; simulationType++ )
+    {
 
-//        std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
+        std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
 
-//        // Simulate estimated parameter error.
-//        Eigen::VectorXd totalError;
+        // Simulate estimated parameter error.
+        Eigen::VectorXd totalError;
 
-//        totalError = executePlanetaryParameterEstimation< double, double >( simulationType ).second;
+        totalError = executePlanetaryParameterEstimation< double, double >( simulationType ).second;
 
-//        // Adjust tolerance based on simulation settings
-//        double toleranceMultiplier = 20.0;
+        // Adjust tolerance based on simulation settings
+        double toleranceMultiplier = 20.0;
 
-//        // Check error.
-//        for( unsigned int j = 0; j < 3; j++ )
-//        {
-//            BOOST_CHECK_SMALL( totalError( j ), toleranceMultiplier * 5.0E-3 );
-//        }
+        // Check error.
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( totalError( j ), toleranceMultiplier * 5.0E-3 );
+        }
 
-//        for( unsigned int j = 0; j < 3; j++ )
-//        {
-//            BOOST_CHECK_SMALL( totalError( j + 3 ), toleranceMultiplier * 1.0E-7 );
-//        }
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( totalError( j + 3 ), toleranceMultiplier * 1.0E-7 );
+        }
 
-//        BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-//        std::cout<<totalError.transpose( )<<std::endl;
-//    }
+        BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
+        std::cout<<totalError.transpose( )<<std::endl;
+    }
 
     std::pair< boost::shared_ptr< simulation_setup::PodOutput< double > >,
     boost::shared_ptr< simulation_setup::PodInput< double, double > > > podDataOutput;
