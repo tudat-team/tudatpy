@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayDopplerPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/oneWayRangePartial.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
@@ -41,25 +42,31 @@ public:
      * \param constituentRangeScalings Map of consitutent one-way Doppler scaling objects, with link end index as map key
      * \param numberOfLinkEnds Number of link ends in observable
      */
-    TwoWayDopplerScaling( const std::map< int, boost::shared_ptr< OneWayDopplerScaling > > dopplerScalings )
+    TwoWayDopplerScaling( const std::vector< boost::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
+                          const std::vector< boost::shared_ptr< OneWayRangeScaling > > rangeScalings,
+                          const std::vector< boost::function< double( const double, const observation_models::LinkEndType ) > >
+                          oneWayDopplerModels )
     {
-        if( dopplerScalings.count( 0 ) == 0 )
+        if( dopplerScalings.size( ) != 2 )
         {
-            throw std::runtime_error( "Error when making two-way Doppler scaling, no uplink scaling found" );
+            throw std::runtime_error( "Error when making two-way Doppler scaling, one-way Doppler scaling size is inconsistent" );
         }
-        else
-        {
-            uplinkDopplerScaling_ = dopplerScalings.at( 0 );
-        }
+        uplinkDopplerScaling_ = dopplerScalings.at( 0 );
+        downlinkDopplerScaling_ = dopplerScalings.at( 1 );
 
-        if( dopplerScalings.count( 1 ) == 0 )
+        if( rangeScalings.size( ) != 2 )
         {
-            throw std::runtime_error( "Error when making two-way Doppler scaling, no downlink scaling found" );
+            throw std::runtime_error( "Error when making two-way Doppler scaling, one-way range scaling size is inconsistent" );
         }
-        else
+        uplinkRangeScaling_ = rangeScalings.at( 0 );
+        downlinkRangeScaling_ = rangeScalings.at( 1 );
+
+        if( oneWayDopplerModels.size( ) != 2 )
         {
-            downlinkDopplerScaling_ = dopplerScalings.at( 1 );
+            throw std::runtime_error( "Error when making two-way Doppler scaling, one-way modelg size is inconsistent" );
         }
+        uplinkDopplerModel_ = oneWayDopplerModels.at( 0 );
+        downlinkDopplerModel_ = oneWayDopplerModels.at( 1 );
     }
 
     //! Update the scaling object to the current times and states
@@ -77,6 +84,22 @@ public:
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation );
 
+    double getRelevantOneWayDopplerTimePartial( observation_models::LinkEndType fixedLinkEnd )
+    {
+        if( fixedLinkEnd == observation_models::transmitter )
+        {
+            return downlinkOneWayDopplerTimeDerivative_;
+        }
+        else if( fixedLinkEnd == observation_models::receiver )
+        {
+            return -uplinkOneWayDopplerTimeDerivative_;
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+
     //! Function to get value by which to scale a constituent one-way Doppler partial for it to be put into two-way Doppler partial.
     /*!
      * Function to get value by which to scale a constituent one-way Doppler partial for it to be put into two-way Doppler partial,
@@ -91,13 +114,34 @@ public:
 
 private:
 
+
     boost::shared_ptr< OneWayDopplerScaling > uplinkDopplerScaling_;
 
     boost::shared_ptr< OneWayDopplerScaling > downlinkDopplerScaling_;
 
+
+
+    boost::shared_ptr< OneWayRangeScaling > uplinkRangeScaling_;
+
+    boost::shared_ptr< OneWayRangeScaling > downlinkRangeScaling_;
+
+
+
+    boost::function< double( const double, const observation_models::LinkEndType ) > uplinkDopplerModel_;
+
+    boost::function< double( const double, const observation_models::LinkEndType ) > downlinkDopplerModel_;
+
+
+
+    double uplinkOneWayDopplerTimeDerivative_;
+
+    double downlinkOneWayDopplerTimeDerivative_;
+
+
     //! List of values by which to scale constituent one-way ranges partials for it to be put into two-way range partial.
     std::map< int, double > projectedRelativeVelocityRatios_;
 };
+
 
 //! Class to compute the partial derivatives of an two-way range observation partial.
 class TwoWayDopplerPartial: public ObservationPartial< 1 >
@@ -116,10 +160,11 @@ public:
      */
     TwoWayDopplerPartial( const boost::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler,
                           const std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
+                          const std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
                           const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
                           const int numberOfLinkEnds ):
         ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ), dopplerPartialList_( dopplerPartialList ),
-        numberOfLinkEnds_( numberOfLinkEnds ){ }
+        rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ){ }
 
     //! Destructor
     ~TwoWayDopplerPartial( ) { }
@@ -151,6 +196,14 @@ protected:
 
     //! Predeclared iterator
     std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator dopplerPartialIterator_;
+
+
+    //! List of one-way range partials per link index.
+    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
+
+    //! Predeclared iterator
+    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
+
 
     //! Number of link ends in two-way observable
     int numberOfLinkEnds_;
