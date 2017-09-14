@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticLightTimeCorrection.h"
@@ -26,8 +27,13 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 {
     // Calculate Euclidean geometric distances between transmitter, receiver and gravitating body.
     double distanceToReceiver = ( receiverPosition - centralBodyPosition ).norm( );
-    double distanceToTransmitter = ( transmitterPosition - centralBodyPosition ).norm( );
+    double distanceToTransmitter = ( transmitterPosition - centralBodyPosition ).norm( );    
     double linkEuclideanDistance = ( transmitterPosition - receiverPosition ).norm( );
+
+//    std::cout<<"Distances: "<<distanceToReceiver<<" "<<distanceToTransmitter<<" "<<linkEuclideanDistance<<" "<<
+//               ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * std::log(
+//                              ( distanceToReceiver + distanceToTransmitter + linkEuclideanDistance ) /
+//                              ( distanceToReceiver + distanceToTransmitter - linkEuclideanDistance ) )<<std::endl;
 
     // Calculate and return light time correction.
     return ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT * std::log(
@@ -49,6 +55,8 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
     double receiverDistance = ( receiverPosition - centralBodyPosition ).norm( );
     double transmitterDistance = ( transmitterPosition - centralBodyPosition ).norm( );
     double linkEndDistance = relativePositionVector.norm( );
+
+    //std::cout<<"Distances gradient: "<<receiverDistance<<" "<<transmitterDistance<<" "<<linkEndDistance<<std::endl;
 
     Eigen::Matrix< double, 1, 3 > gradient = ( receiverDistance + transmitterDistance ) *
             ( relativePositionVector.normalized( ) ).transpose( );

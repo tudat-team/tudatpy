@@ -19,9 +19,9 @@ namespace observation_partials
 
 //! Update the scaling object to the current times and states
 void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
-                               const std::vector< double >& times,
-                               const observation_models::LinkEndType fixedLinkEnd,
-                               const Eigen::VectorXd currentObservation )
+                                   const std::vector< double >& times,
+                                   const observation_models::LinkEndType fixedLinkEnd,
+                                   const Eigen::VectorXd currentObservation )
 {
     Eigen::Vector3d currentRangeVector;
     int currentIndex;
@@ -107,7 +107,6 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
 
     double currentPartialMultiplier = TUDAT_NAN;
 
-    std::cout<<parameterIdentifier_.first<<" "<<parameterIdentifier_.second.first<<std::endl;
     for( dopplerPartialIterator_ = dopplerPartialList_.begin( ); dopplerPartialIterator_ != dopplerPartialList_.end( );
          dopplerPartialIterator_++ )
     {
@@ -121,7 +120,6 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
 
         // Compute value by which one-way range should be scaled for inclusion into n-way range
         currentPartialMultiplier = 1.0;
-        std::cout<<"Current link ends "<<dopplerPartialIterator_->first<<" "<<referenceStartLinkEndIndex<<std::endl;
 
         if( dopplerPartialIterator_->first >= referenceStartLinkEndIndex )
         {

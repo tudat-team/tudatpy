@@ -897,7 +897,7 @@ public:
                     boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
             if( nWayRangeObservationSettings == NULL )
             {
-                throw std::runtime_error( "Error when making differenced n-way range, input type is inconsistent" );
+                throw std::runtime_error( "Error when making n-way range, input type is inconsistent" );
             }
 
             // Check consistency input.
