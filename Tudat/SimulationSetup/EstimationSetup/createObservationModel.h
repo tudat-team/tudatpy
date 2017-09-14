@@ -837,7 +837,7 @@ public:
                                     uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
                             boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                                 ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
-                                    downlinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodyMap ) ),
                             observationBias );
             }
 

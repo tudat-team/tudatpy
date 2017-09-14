@@ -186,7 +186,7 @@ inline void testObservationPartials(
 
                 for( unsigned int j = 0; j < expectedPartialTimes[ i ].size( ); j++ )
                 {
-                    std::cout<<i<<" "<<j<<" "<<analyticalObservationPartials[ i ][ j ].second<<" "<<expectedPartialTimes[ i ][ j ]<<std::endl;
+                    //std::cout<<i<<" "<<j<<" "<<analyticalObservationPartials[ i ][ j ].second<<" "<<expectedPartialTimes[ i ][ j ]<<std::endl;
                     BOOST_CHECK_EQUAL( analyticalObservationPartials[ i ][ j ].second, expectedPartialTimes[ i ][ j ] );
                 }
 
@@ -320,7 +320,6 @@ inline void testObservationPartials(
 
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + startIndex ].size( ); j++ )
                     {
-                        std::cout<<"Adding component: "<<analyticalObservationPartials[ i + startIndex ][ j ].first<<std::endl;
                         currentParameterPartial += analyticalObservationPartials[ i + startIndex ][ j ].first;
 
                     }

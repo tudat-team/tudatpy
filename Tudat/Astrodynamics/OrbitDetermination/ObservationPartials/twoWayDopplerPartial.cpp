@@ -61,8 +61,6 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
         uplinkOneWayDopplerTimeDerivative_ = ( upperturbedDoppler - downperturbedDoppler ) / ( 2.0 * finiteDifferenceTimeStep );
         uplinkDoppler = uplinkDopplerModel_( observationTime, referenceLinkEnd );
 
-        std::cout<<"Uplink perturbed: "<<upperturbedDoppler<<" "<<downperturbedDoppler<<" "<<uplinkOneWayDopplerTimeDerivative_<<std::endl;
-
         // Update current one-way range scaling
         uplinkDopplerScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
         uplinkRangeScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
@@ -90,31 +88,27 @@ void TwoWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
         downlinkOneWayDopplerTimeDerivative_ = ( upperturbedDoppler - downperturbedDoppler ) / ( 2.0 * finiteDifferenceTimeStep );
         downlinkDoppler = downlinkDopplerModel_( observationTime, referenceLinkEnd );
 
-        std::cout<<"Downlink perturbed: "<<upperturbedDoppler<<" "<<downperturbedDoppler<<" "<<downlinkOneWayDopplerTimeDerivative_<<std::endl;
-
         // Update current one-way range scaling
         downlinkDopplerScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
         downlinkRangeScaling_->update( singleLinkEndStates, singleLinkTimes, referenceLinkEnd );
     }
 
-    projectedRelativeVelocityRatios_[ 0 ] = uplinkDoppler + 1.0;
-    projectedRelativeVelocityRatios_[ 1 ] = downlinkDoppler + 1.0;
+    projectedRelativeVelocityRatios_[ 0 ] = downlinkDoppler + 1.0;
+    projectedRelativeVelocityRatios_[ 1 ] = uplinkDoppler + 1.0;
 
     // Compute scaling factors by which one-way range partias are to be multiplied before being included in the n-way range
     // partial
-    for( unsigned int i = 0; i < linkEndStates.size( ) - 1; i += 2 )
-    {
-        currentRangeVector = ( linkEndStates[ i + 1 ] - linkEndStates[ i ] ).segment( 0, 3 ).normalized( );
+    //    for( unsigned int i = 0; i < linkEndStates.size( ) - 1; i += 2 )
+    //    {
+    //        currentRangeVector = ( linkEndStates[ i + 1 ] - linkEndStates[ i ] ).segment( 0, 3 ).normalized( );
 
-        projectedRelativeVelocityRatios_[ i / 2 ] =
-                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i ] ).segment( 3, 3 ) ) /
-                  physical_constants::SPEED_OF_LIGHT ) /
-                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i + 1 ] ).segment( 3, 3 ) ) /
-                physical_constants::SPEED_OF_LIGHT );
-        std::cout<<"Proj. vel. "<<i<<" "<<projectedRelativeVelocityRatios_[ i / 2 ] - 1.0 <<std::endl;
-    }
-    std::cout<<"Downlink Doppler "<<downlinkDoppler<<std::endl;
-    std::cout<<"Uplink Doppler "<<uplinkDoppler<<std::endl;
+    //        projectedRelativeVelocityRatios_[ i / 2 ] =
+    //                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i ] ).segment( 3, 3 ) ) /
+    //                  physical_constants::SPEED_OF_LIGHT ) /
+    //                ( 1.0 - currentRangeVector.dot( ( linkEndStates[ i + 1 ] ).segment( 3, 3 ) ) /
+    //                physical_constants::SPEED_OF_LIGHT );
+    //        std::cout<<"Proj. vel. "<<i<<" "<<projectedRelativeVelocityRatios_[ i / 2 ] - 1.0 <<std::endl;
+    //    }
 
 }
 
@@ -150,26 +144,17 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
         subLinkTimes[ 1 ] = times[ 2 * dopplerPartialIterator_->first + 1 ];
 
         // Compute value by which one-way range should be scaled for inclusion into n-way range
-        currentPartialMultiplier = 1.0;
+        currentPartialMultiplier = twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( dopplerPartialIterator_->first );
+
         if( dopplerPartialIterator_->first >= referenceStartLinkEndIndex )
         {
             subLinkReference = observation_models::transmitter;
-            for( int i = dopplerPartialIterator_->first + 1; i < numberOfLinkEnds_ - 1; i++ )
-            {
-                currentPartialMultiplier += twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i ) - 1.0;
-            }
         }
         else
         {
             subLinkReference = observation_models::receiver;
-            for( int i = dopplerPartialIterator_->first; i > 0; i-- )
-            {
-                currentPartialMultiplier += twoWayDopplerScaler_->getProjectedRelativeVelocityRatio( i - 1 ) - 1.0;
-            }
         }
 
-
-        std::cout<<"Partial scaling"<<currentPartialMultiplier<<std::endl;
 
         // Compute one-way range partials
         currentPartialSet = dopplerPartialIterator_->second->calculatePartial( subLinkStates, subLinkTimes, subLinkReference );
@@ -195,7 +180,10 @@ TwoWayDopplerPartial::TwoWayDopplerPartialReturnType TwoWayDopplerPartial::calcu
                     currentPartialSet[ i ].first *= ( currentPartialMultiplier ) *
                             twoWayDopplerScaler_->getRelevantOneWayDopplerTimePartial( linkEndOfFixedTime ) /
                             physical_constants::SPEED_OF_LIGHT;
-                    std::cout<<"Range partial: "<<currentPartialSet[ i ].first<<std::endl;
+                    if( parameterIdentifier_.first == 14 )
+                    {
+                        std::cout<<"Rang. "<<currentPartialSet[ i ].first<<std::endl;
+                    }
                 }
                 completePartialSet.insert( completePartialSet.end( ), currentPartialSet.begin( ), currentPartialSet.end( ) );
             }
