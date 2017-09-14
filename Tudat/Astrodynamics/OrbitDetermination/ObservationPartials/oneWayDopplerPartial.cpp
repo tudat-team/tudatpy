@@ -378,7 +378,6 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
 {
     if( linkEndOfFixedTime != oneWayDopplerScaler_->getCurrentLinkEndType( ) )
     {
-        std::cout<<linkEndOfFixedTime<<" "<<oneWayDopplerScaler_->getCurrentLinkEndType( )<<std::endl;
         throw std::runtime_error( "Error one-way doppler partial and scaling are inconsistent" );
     }
 
@@ -413,9 +412,13 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
     // Add scaled light-time correcion partials.
     for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
     {
+
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
         returnPartial[ returnPartial.size( ) - 1 ].first *=
                 physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );
+//        std::cout<<"Light-time correction partial"<< lighTimeCorrectionPartialsFunctions_.at( i )( states, times ).first<<" "<<
+//                    oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( )<<" "<<
+//                lighTimeCorrectionPartialsFunctions_.at( i )( states, times ).second<<std::endl;
     }
 
     if( addProperTimeParameterPartials_ )

@@ -268,6 +268,7 @@ inline void testObservationPartials(
                     currentParameterPartial.setZero( ObservableSize );
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                     {
+                        //std::cout<<"Adding component: "<<analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first<<std::endl;
                         currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first;
 
                     }
@@ -313,6 +314,7 @@ inline void testObservationPartials(
 
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + startIndex ].size( ); j++ )
                     {
+                        std::cout<<"Adding component: "<<analyticalObservationPartials[ i + startIndex ][ j ].first<<std::endl;
                         currentParameterPartial += analyticalObservationPartials[ i + startIndex ][ j ].first;
 
                     }
@@ -327,6 +329,10 @@ inline void testObservationPartials(
                 }
             }
         }
+//        linkEndIterator++;
+//        linkEndIterator++;
+//        linkEndIterator++;
+//        linkEndIterator++;
     }
 }
 
