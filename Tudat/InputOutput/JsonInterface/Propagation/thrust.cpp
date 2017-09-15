@@ -198,8 +198,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSet
                     getValue< boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > >(
                         jsonObject, K::dataInterpolation ),
                     getValue< double >( jsonObject, K::specificImpulse ),
-                    getValue( jsonObject, K::frame ),
-                    getValue( jsonObject, K::centralBody ) );
+                    getValue< ThrustFrames >( jsonObject, K::frame ),
+                    getValue< std::string >( jsonObject, K::centralBody ) );
     }
     else
     {
