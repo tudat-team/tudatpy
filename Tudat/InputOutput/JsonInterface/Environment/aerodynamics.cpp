@@ -68,7 +68,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientS
                 boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >( aerodynamicSettings );
         if ( tabulated1AerodynamicSettings )  // uni-dimensional
         {
-            jsonObject[ K::independentVariables ] =
+            jsonObject[ K::independentVariableValues ] =
                     getMapKeys< std::map >( tabulated1AerodynamicSettings->getForceCoefficients( ) );
             jsonObject[ K::forceCoefficients ] =
                     getMapValues< std::map >( tabulated1AerodynamicSettings->getForceCoefficients( ) );
@@ -270,7 +270,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
             if ( useMoments )
             {
                 aerodynamicSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
-                            getValue< std::vector< double > >( jsonObject, K::independentVariables ),
+                            getValue< std::vector< double > >( jsonObject, K::independentVariableValues ),
                             forceCoefficients,
                             momentCoefficients,
                             getValue< double >( jsonObject, K::referenceLength ),
@@ -285,7 +285,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
             else
             {
                 aerodynamicSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
-                            getValue< std::vector< double > >( jsonObject, K::independentVariables ),
+                            getValue< std::vector< double > >( jsonObject, K::independentVariableValues ),
                             forceCoefficients,
                             referenceArea,
                             independentVariableNames.front( ),

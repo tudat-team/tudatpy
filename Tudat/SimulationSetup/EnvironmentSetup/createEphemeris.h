@@ -310,7 +310,7 @@ private:
     //! Initial time from which interpolated data from Spice should be created.
     double initialTime_;
 
-    //! Final time from which interpolated data from Spice should be created.
+    //! Final time until which interpolated data from Spice should be created.
     double finalTime_;
 
     //! Time step with which interpolated data from Spice should be created.
