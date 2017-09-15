@@ -82,13 +82,13 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
 //! Function to reset the state transition and sensitivity matrix interpolators
 void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-        stateTransitionMatrixInterpolator,
+        stateTransitionMatrixInterpolators,
         const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-        sensitivityMatrixInterpolator,
+        sensitivityMatrixInterpolators,
         const std::vector< double >& arcStartTimes )
 {
-    stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolator;
-    sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolator;
+    stateTransitionMatrixInterpolators_ = stateTransitionMatrixInterpolators;
+    sensitivityMatrixInterpolators_ = sensitivityMatrixInterpolators;
     arcStartTimes_ =  arcStartTimes;
 
     if( stateTransitionMatrixInterpolators_.size( ) != sensitivityMatrixInterpolators_.size( ) ||

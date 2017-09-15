@@ -257,12 +257,13 @@ public:
      * \param stateTransitionMatrixInterpolators New vector of interpolators returning the state transition matrix as a
      * function of time.
      * \param sensitivityMatrixInterpolators New vector of interpolator returning the sensitivity matrix as a function of time.
+     * \param arcStartTimes Times at which the multiple arcs start.
      */
     void updateMatrixInterpolators(
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-            stateTransitionMatrixInterpolator,
+            stateTransitionMatrixInterpolators,
             const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
-            sensitivityMatrixInterpolator,
+            sensitivityMatrixInterpolators,
             const std::vector< double >& arcStartTimes );
 
     //! Function to get the vector of interpolators returning the state transition matrix as a function of time.
