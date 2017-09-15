@@ -34,7 +34,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ep
     jsonObject[ K::type ] = ephemerisType;
     jsonObject[ K::frameOrigin ] = ephemerisSettings->getFrameOrigin( );
     jsonObject[ K::frameOrientation ] = ephemerisSettings->getFrameOrientation( );
-    jsonObject[ K::makeMultiArc ] = ephemerisSettings->getMakeMultiArcEphemeris( );
+    // jsonObject[ K::makeMultiArc ] = ephemerisSettings->getMakeMultiArcEphemeris( );
 
     switch ( ephemerisType )
     {
@@ -207,10 +207,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
         ephemerisSettings->resetFrameOrientation( getValue< std::string >( jsonObject, K::frameOrientation ) );
     }
 
+    /*
     if ( isDefined( jsonObject, K::makeMultiArc ) )
     {
         ephemerisSettings->resetMakeMultiArcEphemeris( getValue< bool >( jsonObject, K::makeMultiArc ) );
     }
+    */
 }
 
 } // namespace simulation_setup

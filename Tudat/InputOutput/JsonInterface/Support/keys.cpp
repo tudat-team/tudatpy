@@ -119,8 +119,7 @@ const std::string Keys::Body::Aerodynamics::dragCoefficient = "dragCoefficient";
 const std::string Keys::Body::Aerodynamics::forceCoefficients = "forceCoefficients";
 const std::string Keys::Body::Aerodynamics::momentCoefficients = "momentCoefficients";
 // Tabulated< N >
-const std::string Keys::Body::Aerodynamics::numberOfDimensions = "numberOfDimensions";
-const std::string Keys::Body::Aerodynamics::independentVariables = "independentVariables";
+const std::string Keys::Body::Aerodynamics::independentVariableValues = "independentVariableValues";
 // Tabulated< 1 >
 const std::string Keys::Body::Aerodynamics::interpolator = "interpolator";
 
@@ -140,7 +139,7 @@ const std::string Keys::Body::ephemeris = "ephemeris";
 const std::string Keys::Body::Ephemeris::type = "type";
 const std::string Keys::Body::Ephemeris::frameOrigin = "frameOrigin";
 const std::string Keys::Body::Ephemeris::frameOrientation = "frameOrientation";
-const std::string Keys::Body::Ephemeris::makeMultiArc = "makeMultiArc";
+// const std::string Keys::Body::Ephemeris::makeMultiArc = "makeMultiArc";
 const std::string Keys::Body::Ephemeris::correctForStellarAbberation = "correctForStellarAbberation";
 const std::string Keys::Body::Ephemeris::correctForLightTimeAbberation = "correctForLightTimeAbberation";
 const std::string Keys::Body::Ephemeris::convergeLighTimeAbberation = "convergeLighTimeAbberation";

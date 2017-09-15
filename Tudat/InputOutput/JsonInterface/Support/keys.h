@@ -113,8 +113,7 @@ struct Keys
             static const std::string momentCoefficients;
 
             // Tabulated< N >
-            static const std::string numberOfDimensions;
-            static const std::string independentVariables;
+            static const std::string independentVariableValues;
 
             // Tabulated< 1 >
             static const std::string interpolator;
@@ -138,7 +137,7 @@ struct Keys
             static const std::string type;
             static const std::string frameOrigin;
             static const std::string frameOrientation;
-            static const std::string makeMultiArc;
+            // static const std::string makeMultiArc;
             static const std::string correctForStellarAbberation;
             static const std::string correctForLightTimeAbberation;
             static const std::string convergeLighTimeAbberation;

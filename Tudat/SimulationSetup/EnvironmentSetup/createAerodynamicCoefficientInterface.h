@@ -805,7 +805,7 @@ private:
     //! Values of moment coefficients at independent variables defined  by independentVariables_.
     std::map< double, Eigen::Vector3d > momentCoefficients_;
 
-    //! Settings to be used for creating the one-dimensional interpoaltor of data.
+    //! Settings to be used for creating the one-dimensional interpolator of data.
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
