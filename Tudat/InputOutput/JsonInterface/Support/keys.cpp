@@ -178,9 +178,9 @@ const std::string Keys::Body::GravityField::referenceRadiusIndex = "referenceRad
 const std::string Keys::Body::radiationPressure = "radiationPressure";
 const std::string Keys::Body::RadiationPressure::type = "type";
 const std::string Keys::Body::RadiationPressure::sourceBody = "sourceBody";
+const std::string Keys::Body::RadiationPressure::occultingBodies = "occultingBodies";
 const std::string Keys::Body::RadiationPressure::referenceArea = "referenceArea";
 const std::string Keys::Body::RadiationPressure::radiationPressureCoefficient = "radiationPressureCoefficient";
-const std::string Keys::Body::RadiationPressure::occultingBodies = "occultingBodies";
 
 // //  Body::RotationModel
 const std::string Keys::Body::rotationModel = "rotationModel";
@@ -202,14 +202,15 @@ const std::string Keys::Body::ShapeModel::flattening = "flattening";
 // //  Body::GravityFieldVariation
 const std::string Keys::Body::gravityFieldVariation = "gravityFieldVariation";
 const std::string Keys::Body::GravityFieldVariation::bodyDeformationType = "bodyDeformationType";
-const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
 const std::string Keys::Body::GravityFieldVariation::deformingBodies = "deformingBodies";
 const std::string Keys::Body::GravityFieldVariation::loveNumbers = "loveNumbers";
 const std::string Keys::Body::GravityFieldVariation::referenceRadius = "referenceRadius";
+const std::string Keys::Body::GravityFieldVariation::modelInterpolation = "modelInterpolation";
 const std::string Keys::Body::GravityFieldVariation::cosineCoefficientCorrections = "cosineCoefficientCorrections";
 const std::string Keys::Body::GravityFieldVariation::sineCoefficientCorrections = "sineCoefficientCorrections";
 const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDegree";
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
+const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
 
 
 //  Variable

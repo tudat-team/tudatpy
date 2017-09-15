@@ -25,10 +25,8 @@
   },
   "minimumDegree": 4,
   "minimumOrder": 2,
-  "modelInterpolation": {
-    "interpolator": {
-      "type": "cubicSpline"
-    }
+  "interpolator": {
+    "type": "cubicSpline"
   },
   "bodyDeformationType": "tabulatedVariation"
 }
