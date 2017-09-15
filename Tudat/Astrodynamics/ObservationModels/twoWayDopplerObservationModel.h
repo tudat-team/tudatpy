@@ -39,13 +39,10 @@ public:
     //! Constructor.
     /*!
      *  Constructor,
-     *  \param lightTimeCalculator Object to compute the light-time (including any corrections w.r.t. Euclidean case)
+     *  \param uplinkDopplerCalculator Object that computes the one-way Doppler observable for the uplink
+     *  \param downlinkDopplerCalculator Object that computes the one-way Doppler observable for the downlink
      *  \param observationBiasCalculator Object for calculating system-dependent errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
-     *  \param transmitterProperTimeRateFunction Function to compute derivative of deviation between proper and coordinate time
-     *  at transmitter, w.r.t. coordinate time.
-     *  \param receiverProperTimeRateFunction Function to compute derivative of deviation between proper and coordinate time
-     *  at receiver w.r.t. coordinate time.
      */
     TwoWayDopplerObservationModel(
             const boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
@@ -109,7 +106,7 @@ public:
         std::vector< Eigen::Matrix< double, 6, 1 > > downlinkLinkEndStates;
 
         Eigen::Matrix< ObservationScalarType, 1, 1 > uplinkDoppler, downlinkDoppler;
-        // Compute light time
+
         switch( linkEndAssociatedWithTime )
         {
         case receiver:
@@ -159,25 +156,42 @@ public:
                  downlinkDoppler( 0 ) + uplinkDoppler( 0 ) ).finished( );
     }
 
-
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > getUplinkDopplerCalculator( )
+    //! Function to retrieve the object that computes the one-way Doppler observable for the uplink
+    /*!
+     * Function to retrieve the object that computes the one-way Doppler observable for the uplink
+     * \return Object that computes the one-way Doppler observable for the uplink
+     */
+    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    getUplinkDopplerCalculator( )
     {
         return uplinkDopplerCalculator_;
     }
 
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > getDownlinkDopplerCalculator( )
+    //! Function to retrieve the object that computes the one-way Doppler observable for the downlink
+    /*!
+     * Function to retrieve the object that computes the one-way Doppler observable for the downlink
+     * \return Object that computes the one-way Doppler observable for the downlink
+     */
+    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    getDownlinkDopplerCalculator( )
     {
         return downlinkDopplerCalculator_;
     }
 
 private:
 
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerCalculator_;
+    //! Object that computes the one-way Doppler observable for the uplink
+    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    uplinkDopplerCalculator_;
 
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > downlinkDopplerCalculator_;
+    //! Object that computes the one-way Doppler observable for the downlink
+    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    downlinkDopplerCalculator_;
 
+    //! Pre-declared vector of link end times, used for computeIdealObservations function
     std::vector< double > linkEndTimes_;
 
+    //! Pre-declared vector of link end states, used for computeIdealObservations function
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };

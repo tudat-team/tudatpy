@@ -300,10 +300,8 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
-     * (NULL if none)
-     * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
-     * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
+     * \param uplinkOneWayDopplerSettings Settings for the one-way Doppler model of the uplink
+     * \param downlinkOneWayDopplerSettings Settings for the one-way Doppler model of the downlink
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
     TwoWayDopperObservationSettings(
@@ -317,10 +315,10 @@ public:
     //! Destructor
     ~TwoWayDopperObservationSettings( ){ }
 
-    //! Settings for proper time rate at transmitter
+    //! Settings for the one-way Doppler model of the uplink
     boost::shared_ptr< OneWayDopperObservationSettings > uplinkOneWayDopplerSettings_;
 
-    //! Settings for proper time rate at receiver
+    //! Settings for the one-way Doppler model of the downlink
     boost::shared_ptr< OneWayDopperObservationSettings > downlinkOneWayDopplerSettings_;
 };
 

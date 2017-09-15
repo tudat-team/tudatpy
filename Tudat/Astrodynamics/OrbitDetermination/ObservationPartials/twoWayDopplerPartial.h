@@ -39,8 +39,12 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param constituentRangeScalings Map of consitutent one-way Doppler scaling objects, with link end index as map key
-     * \param numberOfLinkEnds Number of link ends in observable
+     * \param dopplerScalings List of consitutent one-way Doppler scaling objects, with entry i indicating link i
+     * (0=transmitter to reflector, etc.)
+     * \param rangeScalings List of consitutent one-way range scaling objects, with entry i indicating link i
+     * (0=transmitter to reflector, etc.)
+     * \param oneWayDopplerModels List of double precision observation functions for one-way Doppler, with entry i indicating
+     * link i (0=transmitter to reflector, etc.)
      */
     TwoWayDopplerScaling( const std::vector< boost::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
                           const std::vector< boost::shared_ptr< OneWayRangeScaling > > rangeScalings,
@@ -84,7 +88,15 @@ public:
                  const observation_models::LinkEndType fixedLinkEnd,
                  const Eigen::VectorXd currentObservation );
 
-    double getRelevantOneWayDopplerTimePartial( observation_models::LinkEndType fixedLinkEnd )
+    //! Funtion to get the relevant derivative of one-way Doppler observation, when setting up tow-way Doppler mode
+    /*!
+     * Funtion to get the relevant derivative of one-way Doppler observation, when setting up tow-way Doppler mode. For a fixed
+     * transmitter, this is the downlink, for a fixed receiver it is the uplink. For a fixed reflector, no derivatives are
+     * relevant and zero is returned
+     * \param fixedLinkEnd Link end that is fixed when computing the two-way observable
+     * \return Relevant one-way link Doppler obervation partial (multiplied by -1 if relevant partial derivative).
+     */
+    double getRelevantOneWayDopplerTimePartial( const observation_models::LinkEndType fixedLinkEnd )
     {
         if( fixedLinkEnd == observation_models::transmitter )
         {
@@ -114,27 +126,31 @@ public:
 
 private:
 
-
+    //! One-way Doppler partial scaling object for uplink
     boost::shared_ptr< OneWayDopplerScaling > uplinkDopplerScaling_;
 
+    //! One-way Doppler partial scaling object for downlink
     boost::shared_ptr< OneWayDopplerScaling > downlinkDopplerScaling_;
 
 
-
+    //! One-way range partial scaling object for uplink
     boost::shared_ptr< OneWayRangeScaling > uplinkRangeScaling_;
 
+    //! One-way range partial scaling object for downlink
     boost::shared_ptr< OneWayRangeScaling > downlinkRangeScaling_;
 
 
-
+    //! Function to return the uplink one-way Doppler observation
     boost::function< double( const double, const observation_models::LinkEndType ) > uplinkDopplerModel_;
 
+    //! Function to return the downlink one-way Doppler observation
     boost::function< double( const double, const observation_models::LinkEndType ) > downlinkDopplerModel_;
 
 
-
+    //! Current partial time derivative of one-way Doppler for uplink.
     double uplinkOneWayDopplerTimeDerivative_;
 
+    //! Current partial time derivative of one-way Doppler for downlink.
     double downlinkOneWayDopplerTimeDerivative_;
 
 
@@ -155,6 +171,7 @@ public:
      * Constructor
      * \param twoWayDopplerScaler Scaling object used for mapping partials of one-way ranges to partials of observable
      * \param dopplerPartialList List of one-way range partials per link index.
+     * \param rangePartialList List of one-way range per link index.
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
      * \param numberOfLinkEnds Number of link ends in two-way observable
      */

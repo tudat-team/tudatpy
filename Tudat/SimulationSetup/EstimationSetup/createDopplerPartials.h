@@ -361,11 +361,12 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
  *  The tow-way Doppler partials are built from one-way Doppler partials of the constituent links
  *  \param twoWayDopplerLinkEnds Link ends (transmitter and receiever) for which tow-way Doppler partials are to be calculated
  *  (i.e. for which tow-way Doppler observations are to be processed).
+ *  \param twoWayObservationModel Observation model for two-way Doppler for which partials are to be created
  *  \param bodyMap List of all bodies, for creating tow-way Doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
- *  index of link in n-way link ends, second vector is list of light-time corrections.
+ *  index of link in 2-way link ends (up and downlink), second vector is list of light-time corrections.
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
  *  representing all  necessary two-way Doppler partials of a single link end, and TwoWayDopplerScaling, object, used for
  *  scaling the position partial members of all TwoWayDopplerPartials in link end.
@@ -539,12 +540,13 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  estimated, as well as the set of link ends (each of which must contain a transmitter and receiever linkEndType)
  *  that are to be used.
  *  The two-way Doppler partials are built from one-way range partials of the constituent links
- *  \param linkEnds List of all n-way link ends sets with observation models for which partials are to be created
+ *  \param observationModelList List of all two-way Doppler models (as a function of LinkEnds) for which partials are to be
+ *  created.
  *  \param bodyMap List of all bodies, for creating two-way Doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
- *  \param lightTimeCorrections List of light time correction partials to be used (empty by default). First vector entry is
- *  index of link in n-way link ends, second vector is list of light-time corrections.
+ *  \param lightTimeCorrections List of light time correction used (empty by default). First vector entry is
+ *  index of link in 2-way link ends (up and downlink), second vector is list of light-time corrections.
  *  \return Map of SingleLinkObservationPartialList, representing all necessary two-way Doppler partials of a single link end,
  *  and TwoWayDopplerScaling, object, used for scaling the position partial members of all TwoWayDopplerPartials in link end.
  */
