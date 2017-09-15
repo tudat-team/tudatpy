@@ -200,23 +200,24 @@ struct Keys
         {
             static const std::string type;
             static const std::string sourceBody;
+            static const std::string occultingBodies;
             static const std::string referenceArea;
             static const std::string radiationPressureCoefficient;
-            static const std::string occultingBodies;
         };
 
         static const std::string gravityFieldVariation;
         struct GravityFieldVariation
         {
             static const std::string bodyDeformationType;
-            static const std::string modelInterpolation;
             static const std::string deformingBodies;
             static const std::string loveNumbers;
             static const std::string referenceRadius;
+            static const std::string modelInterpolation;
             static const std::string cosineCoefficientCorrections;
             static const std::string sineCoefficientCorrections;
             static const std::string minimumDegree;
             static const std::string minimumOrder;
+            static const std::string interpolator;
         };
     };
 

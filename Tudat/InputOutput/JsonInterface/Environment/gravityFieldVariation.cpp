@@ -91,8 +91,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariation
                     getValue< std::map< double, Eigen::MatrixXd > >( jsonObject, K::sineCoefficientCorrections ),
                     getValue< int >( jsonObject, K::minimumDegree ),
                     getValue< int >( jsonObject, K::minimumOrder ),
-                    getValue< boost::shared_ptr< ModelInterpolationSettings > >(
-                        jsonObject, K::modelInterpolation )->interpolatorSettings_ );
+                    getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
         return;
     default:
         handleUnimplementedEnumValue( bodyDeformationType, bodyDeformationTypes, unsupportedBodyDeformationTypes );

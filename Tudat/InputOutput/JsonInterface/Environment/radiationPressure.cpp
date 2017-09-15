@@ -63,34 +63,39 @@ void from_json( const json& jsonObject,
     // Get radiation pressure coefficient type (cannonBall by default)
     const RadiationPressureType radiationPressureType = getValue( jsonObject, K::type, cannon_ball );
 
-    // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
-    const double referenceArea = getValue< double >(
-                jsonObject, { K::referenceArea, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea } );
+    // Get name of source body
+    std::string sourceBody;
+    if ( ! isDefined( jsonObject, K::sourceBody ) )
+    {
+        try
+        {
+            sourceBody = getParentKey( jsonObject );
+        }
+        catch ( ... ) { }
+    }
+    if ( sourceBody.empty( ) )
+    {
+        sourceBody = getValue< std::string >( jsonObject, K::sourceBody );
+    }
+
+    // Get occulting bodies
+    const std::vector< std::string > occultingBodies =
+            getValue( jsonObject, K::occultingBodies, std::vector< std::string >( ) );
 
     switch ( radiationPressureType )
     {
     case cannon_ball:
     {
-        std::string sourceBody;
-        if ( ! isDefined( jsonObject, K::sourceBody ) )
-        {
-            try
-            {
-                sourceBody = getParentKey( jsonObject );
-            }
-            catch ( ... ) { }
-        }
-        if ( sourceBody.empty( ) )
-        {
-            sourceBody = getValue< std::string >( jsonObject, K::sourceBody );
-        }
+        // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
+        const double referenceArea = getValue< double >(
+                    jsonObject, { K::referenceArea, SpecialKeys::up / SpecialKeys::up / Keys::Body::referenceArea } );
 
         CannonBallRadiationPressureInterfaceSettings defaults( "", TUDAT_NAN, TUDAT_NAN );
         radiationPressureInterfaceSettings = boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     sourceBody,
                     referenceArea,
                     getValue< double >( jsonObject, K::radiationPressureCoefficient ),
-                    getValue( jsonObject, K::occultingBodies, defaults.getOccultingBodies( ) ) );
+                    occultingBodies );
         return;
     }
     default:

@@ -114,7 +114,10 @@ static std::map< ThrustFrames, std::string > thrustFrameTypes =
 };
 
 //! `ThrustFrames` not supported by `json_interface`.
-static std::vector< ThrustFrames > unsupportedThrustFrameTypes = { };
+static std::vector< ThrustFrames > unsupportedThrustFrameTypes =
+{
+    unspecified_thurst_frame
+};
 
 //! Convert `ThrustFrames` to `json`.
 inline void to_json( json& jsonObject, const ThrustFrames& thrustFrameType )

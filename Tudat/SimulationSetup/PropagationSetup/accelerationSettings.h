@@ -103,8 +103,8 @@ public:
      * \param maximumOrderOfBodyExertingAcceleration Maximum order of body exerting acceleration.
      * \param maximumDegreeOfBodyUndergoingAcceleration Maximum degree of body undergoing acceleration.
      * \param maximumOrderOfBodyUndergoingAcceleration Maximum order of body undergoing acceleration.
-     * \param maximumDegreeOfCentralBody Maximum degree of central body (only releveant for 3rd body acceleration).
-     * \param maximumOrderOfCentralBody Maximum order of central body (only releveant for 3rd body acceleration).
+     * \param maximumDegreeOfCentralBody Maximum degree of central body (only relevant for 3rd body acceleration).
+     * \param maximumOrderOfCentralBody Maximum order of central body (only relevant for 3rd body acceleration).
      */
     MutualSphericalHarmonicAccelerationSettings( const int maximumDegreeOfBodyExertingAcceleration,
                                                  const int maximumOrderOfBodyExertingAcceleration,
@@ -151,9 +151,9 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param calculateSchwarzschildCorrection Boolean denoting wheter the Schwarzschild term is used.
-     * \param calculateLenseThirringCorrection Boolean denoting wheter the Lense-Thirring term is used.
-     * \param calculateDeSitterCorrection Boolean denoting wheter the de Sitter term is used.
+     * \param calculateSchwarzschildCorrection Boolean denoting whether the Schwarzschild term is used.
+     * \param calculateLenseThirringCorrection Boolean denoting whether the Lense-Thirring term is used.
+     * \param calculateDeSitterCorrection Boolean denoting whether the de Sitter term is used.
      * \param primaryBody Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
      * \param centralBodyAngularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this
      * function is temporary: in the future this will be done consistently with rotation/gravity field.
