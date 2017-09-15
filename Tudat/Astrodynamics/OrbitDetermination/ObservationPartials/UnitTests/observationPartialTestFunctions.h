@@ -167,7 +167,7 @@ inline void testObservationPartials(
 
 
         // Set and test expected partial size and time
-        if( observableType != two_way_doppler )
+        //if( observableType != two_way_doppler )
         {
             std::vector< std::vector< double > > expectedPartialTimes = getAnalyticalPartialEvaluationTimes(
                         linkEnds, observableType, vectorOfTimes, fullEstimatableParameterSet );
@@ -177,19 +177,36 @@ inline void testObservationPartials(
 
             for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
             {
+
+                if( observableType == two_way_doppler )
+                {
+
+                    std::vector< double > currentTimes = expectedPartialTimes.at( i );
+                    if( currentTimes.size( ) == 2  )
+                    {
+                        if( linkEndIterator->first == transmitter )
+                        {
+                            currentTimes.insert( currentTimes.begin( ) + 1, currentTimes.at( 1 ) );
+                        }
+                        else if( linkEndIterator->first == receiver )
+                        {
+                            currentTimes.insert( currentTimes.begin( ) + 1, currentTimes.at( 0 ) );
+                        }
+                        expectedPartialTimes[ i ] = currentTimes;
+                    }
+                }
+
                 // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
                 if( i < 2 )
                 {
+
                     BOOST_CHECK_EQUAL( analyticalObservationPartials[ i ].size( ), expectedPartialTimes[ i ].size( ) );
                 }
 
-
                 for( unsigned int j = 0; j < expectedPartialTimes[ i ].size( ); j++ )
                 {
-                    //std::cout<<i<<" "<<j<<" "<<analyticalObservationPartials[ i ][ j ].second<<" "<<expectedPartialTimes[ i ][ j ]<<std::endl;
                     BOOST_CHECK_EQUAL( analyticalObservationPartials[ i ][ j ].second, expectedPartialTimes[ i ][ j ] );
                 }
-
             }
         }
 
