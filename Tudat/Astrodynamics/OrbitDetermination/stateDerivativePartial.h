@@ -110,8 +110,11 @@ public:
         }
         else
         {
-            partial = Eigen::MatrixXd::Zero( propagators::getSingleIntegrationSize( integratedStateType_ ), 1 );
+            partial = Eigen::MatrixXd::Zero(
+                        propagators::getSingleIntegrationSize( integratedStateType_ ) /
+                        propagators::getSingleIntegrationDifferentialEquationOrder( integratedStateType_ ), 1 );
         }
+
         return partial;
     }
 

@@ -55,7 +55,7 @@ public:
             const boost::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( oneWayRange, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
@@ -120,6 +120,9 @@ public:
                     std::vector< double >& linkEndTimes,
                     std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
+        linkEndTimes.clear( );
+        linkEndStates.clear( );
+
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 

@@ -115,36 +115,61 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
 
 #if USE_NRLMSISE00
-    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings =
-            boost::make_shared< AtmosphereSettings >( nrlmsise00 );
-    boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
-            createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
+    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
+    for( int atmosphereTest = 0; atmosphereTest < 2; atmosphereTest++ )
+    {
+        if( atmosphereTest == 0 )
+        {
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+        }
+        else
+        {
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< NRLMSISE00AtmosphereSettings >(
+                        input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt" );
+        }
+        boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
+                createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
 
-    // Compute properties using NRLMSISE00
-    double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
-            basic_astrodynamics::JULIAN_DAY_ON_J2000;
-    nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
+        // Compute properties using NRLMSISE00
+        double julianDaysSinceJ2000 = convertCalendarDateToJulianDay( 2005, 5, 3, 12, 32, 32.3 ) -
+                basic_astrodynamics::JULIAN_DAY_ON_J2000;
+        nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
 
-    // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
-    aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
-                nrlmsiseAtmosphere )->getNRLMSISE00Input( );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
-    BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
+        // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
+        aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+                    nrlmsiseAtmosphere )->getNRLMSISE00Input( );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
+        BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
 
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
-    BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
+    }
 #endif
+}
+
+Eigen::Vector6d computeCustomState(
+        const double time, const double angularVelocity, const double radius, const double speed )
+{
+    Eigen::Vector6d currentState = Eigen::Vector6d::Zero( );
+    currentState( 0 ) = radius * cos( angularVelocity * time );
+    currentState( 1 ) = radius * sin( angularVelocity * time );
+
+    currentState( 3 ) = -speed * sin( angularVelocity * time );
+    currentState( 4 ) = speed * cos( angularVelocity * time );
+
+    return currentState;
+
 }
 
 #if USE_CSPICE
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     {
         // Create settings for approximate planet positions.
@@ -183,6 +208,35 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
                           "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
                     ( spiceEphemeris->getCartesianState( 1.0E7 ) ),
                     std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create custom ephemeris
+        double angularVelocity = 2.0 * tudat::mathematical_constants::PI / ( 2.0 * 3600.0 );
+        double radius = 8000.0E3;
+        double speed = 5000.0;
+
+        boost::shared_ptr< EphemerisSettings > customEphemerisSettings =
+                boost::make_shared< CustomEphemerisSettings >(
+                    boost::bind( &computeCustomState, _1,  angularVelocity, radius, speed ),
+                    "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > customEphemeris =
+                createBodyEphemeris( customEphemerisSettings, "Satellite" );
+
+        double testTime = 4.0E8;
+
+        Eigen::Vector6d currentState = customEphemeris->getCartesianState(
+                    testTime );
+        Eigen::Vector6d currentTestState = computeCustomState(
+                    testTime, angularVelocity, radius, speed );
+
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 0 ), currentTestState( 0 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 1 ), currentTestState( 1 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 2 ),  2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 3 ), currentTestState( 3 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( currentState( 4 ), currentTestState( 4 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( currentState( 5 ), 2.0 * std::numeric_limits< double >::epsilon( ) );
+
     }
 
     {
@@ -243,11 +297,10 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    // Load Spice kernel
+    spice_interface::loadStandardSpiceKernels( );
 
-        // Create settings for spice central gravity field model.
+    // Create settings for spice central gravity field model.
     boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
             boost::make_shared< GravityFieldSettings >( central_spice );
 
@@ -332,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
+                                             "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
     BOOST_CHECK_EQUAL(
@@ -355,7 +408,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
+                                             "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
     BOOST_CHECK_EQUAL(
@@ -457,11 +510,8 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
 
     // Settings for spherical harmonic acceleration.
     double gravitationalParameter = 398600.4418E9;
@@ -658,8 +708,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     {
         for( unsigned m = 0; m <=2; m++ )
         {
-            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-20 );
-            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-18 );
+            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-18 );
         }
     }
 }
@@ -715,9 +765,7 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -815,9 +863,7 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -909,6 +955,56 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
 }
 #endif
+
+BOOST_AUTO_TEST_CASE( test_groundStationCreation )
+{
+    using namespace unit_conversions;
+    using namespace coordinate_conversions;
+
+    const double flattening = 1.0 / 298.257223563;
+    const double equatorialRadius = 6378137.0;
+
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->shapeModelSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+                equatorialRadius, flattening );
+
+    Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    Eigen::Vector3d testGeodeticPosition(
+                -63.667,  convertDegreesToRadians( -7.26654999 ), convertDegreesToRadians( 72.36312094 ) );
+    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+                testCartesianPosition );
+    testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
+
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station3" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).size( ), 3 );
+
+    Eigen::Vector3d testPosition1 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station1" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition2= bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station2" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition3 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station3" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( testPosition1( i ) - testCartesianPosition( i ) ), 1.0E-9 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition2( i ) - testCartesianPosition( i ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition3( i ) - testCartesianPosition( i ) ), 1.0E-3 );
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

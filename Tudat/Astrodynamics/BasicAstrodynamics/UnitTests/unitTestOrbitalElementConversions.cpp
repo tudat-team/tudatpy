@@ -1590,6 +1590,37 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
 
 }
 
+BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
+{
+    std::cout<<std::endl<<std::endl;
+    using namespace tudat;
+
+    // Define previously offending states and gravitational parameters.
+    Eigen::Vector6d cartesianState;
+    cartesianState<<146378739288.0336,  -32851886854.1209, -14241055658.24648,  6603.183449760695,
+            26444.27948911581,  11463.63694918501;
+    double gravitationalParameterOfCentralBody = 1.327128386237518e+20;
+
+    // Convert to Keplerian state
+    Eigen::Vector6d keplerianState =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                cartesianState, gravitationalParameterOfCentralBody );
+
+    Eigen::Vector6d recomputedCartesianState =
+            orbital_element_conversions::convertKeplerianToCartesianElements(
+                keplerianState, gravitationalParameterOfCentralBody );
+
+    Eigen::Vector6d  recomputedKeplerianState =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                recomputedCartesianState, gravitationalParameterOfCentralBody );
+
+    std::cout<<std::setprecision( 16 )<<cartesianState.transpose( )<<std::endl;
+    std::cout<<std::setprecision( 16 )<<recomputedCartesianState.transpose( )<<std::endl<<std::endl;
+
+    std::cout<<std::setprecision( 16 )<<keplerianState.transpose( )<<std::endl;
+    std::cout<<std::setprecision( 16 )<<recomputedKeplerianState.transpose( )<<std::endl;
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END( )

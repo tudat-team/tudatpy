@@ -16,6 +16,9 @@
 #ifndef TUDAT_ASTRODYNAMICS_FUNCTIONS_H
 #define TUDAT_ASTRODYNAMICS_FUNCTIONS_H
 
+#include <Eigen/Eigen>
+
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 namespace tudat
@@ -89,6 +92,30 @@ double computeKeplerEnergy( const double semiMajorAxis,
  * \return Synodic period.
  */
 double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbitalPeriodBody2 );
+
+
+//! Compute periapsis altitude from Keplerian state for spherical central body.
+/*!
+ * Compute periapsis altitude from Keplerian state for spherical central body.
+ * \param state Keplerian state of the propagated body.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at periapsis.
+ */
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyRadius );
+
+//! Compute periapsis altitude from Cartesian state for spherical central body.
+/*!
+ * Compute periapsis altitude from Cartesian state for spherical central body.
+ * \param state Cartesian state of the propagated body.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
+ * \param centralBodyRadius Radius of the central body (assumed spherical).
+ * \return The distance from the propagated body to the central body's spherical surface at periapsis.
+ */
+double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d& state,
+                                                   const double centralBodyGravitationalParameter,
+                                                   const double centralBodyRadius );
+
 
 } // namespace basic_astrodynamics
 } // namespace tudat

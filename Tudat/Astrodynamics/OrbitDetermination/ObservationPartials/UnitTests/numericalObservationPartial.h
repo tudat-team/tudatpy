@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef NUMERICALOBSERVATIONPARTIAL_H
-#define NUMERICALOBSERVATIONPARTIAL_H
+#ifndef TUDAT_NUMERICALOBSERVATIONPARTIAL_H
+#define TUDAT_NUMERICALOBSERVATIONPARTIAL_H
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
@@ -58,4 +58,4 @@ Eigen::MatrixXd calculateNumericalObservationParameterPartial(
 
 }
 
-#endif // NUMERICALOBSERVATIONPARTIAL_H
+#endif // TUDAT_NUMERICALOBSERVATIONPARTIAL_H

@@ -41,7 +41,8 @@ enum EphemerisType
     tabulated_ephemeris,
     interpolated_spice,
     constant_ephemeris,
-    kepler_ephemeris
+    kepler_ephemeris,
+    custom_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -71,7 +72,8 @@ public:
                        const  std::string& frameOrientation = "ECLIPJ2000" ):
         ephemerisType_( ephemerisType ),
         frameOrigin_( frameOrigin ),
-        frameOrientation_( frameOrientation ){ }
+        frameOrientation_( frameOrientation ),
+        makeMultiArcEphemeris_( false ){ }
 
     //! Destructor
     virtual ~EphemerisSettings( ){ }
@@ -97,6 +99,16 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
+    //! Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
+    double getMakeMultiArcEphemeris( )
+    {
+        return makeMultiArcEphemeris_;
+    }
+
     //! Function to reset the origin of the frame.
     /*!
      * Function to reset the origin of the frame.
@@ -111,6 +123,16 @@ public:
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
+    //! Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     * Function to reset boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     * \param makeMultiArcEphemeris New boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+     */
+    void resetMakeMultiArcEphemeris( const bool makeMultiArcEphemeris )
+    {
+        makeMultiArcEphemeris_ = makeMultiArcEphemeris;
+    }
+
 protected:
 
     //! Type of ephemeris model that is to be created.
@@ -121,6 +143,14 @@ protected:
 
     //! Orientation of frame in which ephemeris data is defined.
     std::string frameOrientation_;
+
+    //! Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
+    /*!
+     *  Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If true, the createEphemeris
+     *  function creates a multi-arc ephemeris with a single arc spanning all time, created according to the contents of the
+     *  EphemerisSettings object.
+     */
+    bool makeMultiArcEphemeris_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris linked directly to Spice.
@@ -389,6 +419,42 @@ private:
     Eigen::Vector6d constantState_;
 };
 
+//! EphemerisSettings derived class for defining settings of an ephemeris producing a custom
+//! state (e.g. arbitrary state as a function of time)
+class CustomEphemerisSettings: public EphemerisSettings
+{
+public:
+
+    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*!
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
+     * \param customStateFunction Function returning the state as a function of time
+     * \param frameOrigin Origin of frame in which ephemeris data is defined.
+     * \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     */
+    CustomEphemerisSettings( const boost::function< Eigen::Vector6d( const double ) > customStateFunction,
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000" ):
+        EphemerisSettings( custom_ephemeris,
+                           frameOrigin,
+                           frameOrientation ), customStateFunction_( customStateFunction ){ }
+
+    //! Function to return the function returning the state as a function of time
+    /*!
+     *  Function to return the function returning the state as a function of time
+     *  \return  Function returning the state as a function of time
+     */
+    boost::function< Eigen::Vector6d( const double ) > getCustomStateFunction( )
+    {
+        return customStateFunction_;
+    }
+
+private:
+
+    //! Function returning the state as a function of time
+    boost::function< Eigen::Vector6d( const double ) > customStateFunction_;
+};
+
 //! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
 //! Kepler orbit.
 class KeplerEphemerisSettings: public EphemerisSettings
@@ -626,6 +692,15 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
+//! Function that retrieves the time interval at which an ephemeris can be safely interrogated
+/*!
+ * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
+ * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
+ * on which the interpolator inside this object is valid is checked and returned
+ * \param ephemerisModel Ephemeris model for which the interval is to be determined.
+ * \return The time interval at which the ephemeris can be safely interrogated
+ */
+std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 } // namespace simulation_setup
 

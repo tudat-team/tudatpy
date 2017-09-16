@@ -1,0 +1,11 @@
+LEAPSECONDS_KERNEL   = naif0012.tls
+
+SPK_KERNEL           = de430_small.bsp
+ BEGIN_TIME          = 1975 JAN 01
+ END_TIME            = 2025 JAN 01
+ SOURCE_SPK_KERNEL   = de430.bsp
+ SOURCE_SPK_KERNEL   = mar097.bsp
+  BODIES = 499
+ SOURCE_SPK_KERNEL   = jup310.bsp
+  BODIES = 599
+

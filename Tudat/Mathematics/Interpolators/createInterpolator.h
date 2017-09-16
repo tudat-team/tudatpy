@@ -19,6 +19,7 @@
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/hermiteCubicSplineInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/piecewiseConstantInterpolator.h"
 
 namespace tudat
 {
@@ -32,7 +33,8 @@ enum OneDimensionalInterpolatorTypes
     linear_interpolator = 1,
     cubic_spline_interpolator = 2,
     lagrange_interpolator = 3,
-    hermite_spline_interpolator = 4
+    hermite_spline_interpolator = 4,
+    piecewise_constant_interpolator = 5
 };
 
 //! Base class for providing settings for creating an interpolator.
@@ -251,7 +253,11 @@ createOneDimensionalInterpolator(
                     interpolatorSettings->getSelectedLookupScheme( ) );
         break;
     }
-
+    case piecewise_constant_interpolator:
+        createdInterpolator = boost::make_shared< PiecewiseConstantInterpolator
+                < IndependentVariableType, DependentVariableType > >(
+                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+        break;
     default:
         throw std::runtime_error(
                     "Error when making interpolator, function cannot be used to create interplator of type " +

@@ -162,9 +162,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
 BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 {
     // Load Spice kernels
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );

@@ -326,8 +326,7 @@ double computeLegendrePolynomialFromCache( const int degree,
                      << order << " is undefined." << std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     // Else if order is greater than degree...
@@ -411,8 +410,7 @@ double computeGeodesyLegendrePolynomialFromCache( const int degree,
                      << order << " is undefined." << std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     // Else if order is greater than degree...
@@ -704,8 +702,7 @@ double computeGeodesyLegendrePolynomialExplicit( const int degree,
                        <<  " and order = "  <<  order  <<  " is not supported."  <<  std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 }
 

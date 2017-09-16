@@ -14,7 +14,7 @@
  *      The required kernels are:
  *           de421.bsp
  *           pck00009.tpc
- *           naif0009.tls
+ *           naif0012.tls
  *           de-403-masses.tpc
  *      They can be found in a single zip file on the wiki at
  *      http://tudat.tudelft.nl/projects/tudat/wiki/SpiceInterface/ on the Tudat website or,
@@ -59,36 +59,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     using namespace input_output;
     using namespace physical_constants;
 
-    // Check if spice kernels exist.
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de421.bsp" ) )
-    {        
-        std::cerr << "SPICE kernel de421.bsp not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "pck00009.tpc" ) )
-    {
-        std::cerr << "SPICE kernel pck00009.tpc not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "naif0009.tls" ) )
-    {
-        std::cerr << "SPICE kernel naif0009.tls not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de-403-masses.tpc" ) )
-    {
-        std::cerr << "SPICE kernel de-403-masses.tpc not found in "<<
-                     getSpiceKernelPath( )<< std::endl;
-    }
-
     // Load spice kernels.
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
@@ -302,7 +274,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
     double sunGravitationalParameterSpice = getBodyGravitationalParameter( "Sun" );
 
     // Set Sun's gravitational parameter as read manually from kernel.
-    const double sunGravitationalParameter = 132712440023.310 * 1.0e9;
+    const double sunGravitationalParameter = 132712440041.9393 * 1.0e9;
 
     // Check if results are the same.
     BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter,
@@ -491,11 +463,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );
 
     // Load Spice kernels.
-    // Load spice kernels.
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Get ammount of loaded Spice kernels.
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );

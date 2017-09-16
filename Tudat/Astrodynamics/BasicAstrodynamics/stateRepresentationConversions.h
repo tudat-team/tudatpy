@@ -26,6 +26,14 @@ namespace coordinate_conversions
 {
 
 //! Enum defining available types of position representations
+enum StateElementTypes
+{
+    cartesian_state,
+    keplerian_state,
+    modified_equinoctial_state
+};
+
+//! Enum defining available types of position representations
 enum PositionElementTypes
 {
     cartesian_position,

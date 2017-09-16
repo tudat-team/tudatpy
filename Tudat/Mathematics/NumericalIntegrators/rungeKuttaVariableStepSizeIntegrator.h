@@ -455,11 +455,18 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         }
 
         // Compute the state derivative.
-        currentStateDerivatives_.push_back(
-                    this->stateDerivativeFunction_(
-                        this->currentIndependentVariable_ +
-                        this->coefficients_.cCoefficients( stage ) * stepSize,
-                        intermediateState ) );
+        const IndependentVariableType time = this->currentIndependentVariable_ +
+                this->coefficients_.cCoefficients( stage ) * stepSize;
+        currentStateDerivatives_.push_back( this->stateDerivativeFunction_( time, intermediateState ) );
+
+        // Check if propagation should terminate because the propagation termination condition has been reached
+        // while computing the intermediate state.
+        // If so, return immediately the current state (not recomputed yet), which will be discarded.
+        if ( this->propagationTerminationFunction_( static_cast< double >( time ) ) )
+        {
+            this->propagationTerminationConditionReachedDuringStep_ = true;
+            return this->currentState_;
+        }
 
         // Update the estimate.
         lowerOrderEstimate += this->coefficients_.bCoefficients( 0, stage ) * stepSize *
@@ -488,9 +495,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
             return this->currentState_;
 
         default: // The default case will never occur because OrderEstimateToIntegrate is an enum.
-            boost::throw_exception(
-                        boost::enable_error_info(
-                            std::runtime_error( "Order estimate to integrate is invalid." ) ) );
+            throw std::runtime_error( "Order estimate to integrate is invalid." );
         }
     }
     else
@@ -541,10 +546,8 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
     // Check if minimum step size is violated and throw exception if necessary.
     if ( std::fabs( this->stepSize_ ) < this->minimumStepSize_ )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        MinimumStepSizeExceededError( this->minimumStepSize_,
-                                                      std::fabs( this->stepSize_ ) ) ) );
+        throw MinimumStepSizeExceededError( this->minimumStepSize_,
+                                                      std::fabs( this->stepSize_ ) );
     }
 
     else if ( std::fabs( this->stepSize_ ) > this->maximumStepSize_ )

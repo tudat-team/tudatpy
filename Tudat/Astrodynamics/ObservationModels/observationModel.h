@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
@@ -142,7 +143,8 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes, linkEndStates ).
+                    this->observationBiasCalculator_->getObservationBias(
+                        linkEndTimes, linkEndStates, currentObservation.template cast< double >( ) ).
                     template cast< ObservationScalarType >( );
         }
     }
@@ -194,7 +196,8 @@ public:
 
             // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes_, linkEndStates_ ).
+                    this->observationBiasCalculator_->getObservationBias(
+                        linkEndTimes_, linkEndStates_, currentObservation.template cast< double >( ) ).
                     template cast< ObservationScalarType >( );
         }
     }
@@ -234,6 +237,17 @@ public:
         return ObservationSize;
     }
 
+    //! Functiomn to return the object for calculating system-dependent errors in the observable.
+    /*!
+     * Functiomn to return the object for calculating system-dependent errors in the observable.
+     * \return Object for calculating system-dependent errors in the observable.
+     */
+    boost::shared_ptr< ObservationBias< ObservationSize > > getObservationBiasCalculator( )
+    {
+        return observationBiasCalculator_;
+    }
+
+
 protected:
 
     //! Type of observable, used for derived class type identification without explicit casts.
@@ -258,6 +272,98 @@ protected:
 
 };
 
+//! Function to compute an observation of size 1 at double precision, with double precision input
+/*!
+ *  Function to compute an observation at double precision, with double precision input, from an observation function
+ *  templated at state scalar and time type.
+ *  \param observationFunction Function that computes the observation as a function of observation time and reference link end
+ *  time, templated by the state and time scalar type.
+ *  \param currentTime Time at which to evaluate the observation function
+ *  \param referenceLinkEnd Reference link end for the observation
+ *  \return Observation computed by observationFunction, cast to double precision, with input time at double precision
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+double getSizeOneObservationAtDoublePrecision(
+        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+        observationFunction, const double currentTime, const LinkEndType referenceLinkEnd )
+{
+    return static_cast< double >( observationFunction( static_cast< TimeType >( currentTime ), referenceLinkEnd )( 0 ) );
+}
+
+//! Function to generate a function that computes a size 1 observation at double precision, from a templated observation function.
+/*!
+ *  Function to generate a function that computes a size 1 observation at double precision, from a templated observation function.
+ *  \param observationFunction Function that computes the observation as a function of observation time and reference link end
+ *  time, templated by the state and time scalar type.
+ *  \return Function that computes the observation as a function of observation time and reference link end time.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecision(
+        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
+            const TimeType, const observation_models::LinkEndType ) > observationFunction )
+{
+    return boost::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, _1, _2 );
+}
+
+//! Function to generate a function that computes an observation  from an ObservationModel
+/*!
+ *  Function to generate a function that produces an observation, only applicable for observation models
+ *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
+ *  of this function.
+ *  \param observationModel Observation model for which teh observation function is to be returned.
+ *  \return Function that computes the observation as a function of observation time and reference link end time.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+getSizeOneObservationFunctionFromObservationModel(
+        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+{
+    return boost::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations, observationModel, _1, _2 );
+}
+
+//! Function to generate a function that computes an observation at double precision from an ObservationModel
+/*!
+ *  Function to generate a function that computes an observation at double precision, only applicable for observation models
+ *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
+ *  of this function, casting in/and output to double precisiono if needed.
+ *  \param observationModel Observation model for which teh observation function is to be returned.
+ *  \return Function that computes the observation as a function of observation time and reference link end time.
+ */
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::function< double( const double, const observation_models::LinkEndType ) >
+getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
+        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+{
+    return getSizeOneObservationFunctionAtDoublePrecision(
+                getSizeOneObservationFunctionFromObservationModel( observationModel ) );
+}
+
+//! Function to extract a list of observtion bias models from a list of observation models.
+/*!
+ *  Function to extract a list of observtion bias models from a list of observation models. Function iterates over input
+ *  map of observationModels, extracts the bias from it and adds it to the list of bias objects if it is not NULL.
+ *  \param observationModels List of observation models (per LinkEnds) from which the bias objects are to be extracted
+ *  \return List of observation bias objects (per LinkEnds), as extracted from observationModels (NULL bias objects not
+ *  added to list).
+ */
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
+std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
+        std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+        observationModels )
+{
+    std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > biasList;
+    for( typename std::map< LinkEnds, boost::shared_ptr<
+         ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
+         observationModelIterator = observationModels.begin( ); observationModelIterator != observationModels.end( );
+         observationModelIterator++ )
+    {
+        if( observationModelIterator->second->getObservationBiasCalculator( ) != NULL )
+        {
+            biasList[ observationModelIterator->first ] = observationModelIterator->second->getObservationBiasCalculator( );
+        }
+    }
+    return biasList;
+}
 
 } // namespace observation_models
 

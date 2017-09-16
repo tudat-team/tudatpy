@@ -54,8 +54,8 @@ void getNominalJupiterGravityField(
     double jupiterc22 = -0.03E-6;
     double jupiters22 = -0.007E-6;
 
-    cosineCoefficients.setZero( 5, 5 );
-    sineCoefficients.setZero( 5, 5 );
+    cosineCoefficients.setZero( 6, 6 );
+    sineCoefficients.setZero( 6, 6 );
 
     // Normalize coefficients and set in matrices.
     cosineCoefficients( 0, 0 ) = 1.0;
@@ -196,13 +196,8 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     // Load spice kernels.
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "gm_de431.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "jup310_small.bsp" );
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( { std::string( "de430_jup310_small.bsp" ) } );
 
     // Define properties of nominal field
     double gravitationalParameter = getBodyGravitationalParameter( "Jupiter" );

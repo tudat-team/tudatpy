@@ -50,9 +50,7 @@ BOOST_AUTO_TEST_SUITE( test_acceleration_model_setup )
 BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 {
     // Load Spice kernel with gravitational parameters.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies with gravitational parameters from Spice and JPL approximane positions
     // as ephemerides
@@ -192,7 +190,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Set constant state for Earth and Vehicle
     Eigen::Vector6d dummyEarthState =
-            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0
+            ( Eigen::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0, 0.0, 0.0
               ).finished( );
     bodyMap[ "Earth" ]->setState( dummyEarthState );
     bodyMap[ "Vehicle" ]->setState(
@@ -296,9 +294,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     using namespace tudat;
 
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Get settings for celestial bodies
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -363,7 +359,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Compare results
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                expectedAcceleration, calculatedAcceleration, ( std::numeric_limits< double >::epsilon( ) ) );
+                expectedAcceleration, calculatedAcceleration, ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
 
 }
@@ -375,9 +371,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
     using namespace tudat;
 
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Test creation with coefficients positive/negative in body/aerodynamic frame (4 cases).
     for( unsigned int testCase = 0; testCase < 4; testCase++ )
@@ -563,10 +557,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     using namespace tudat;
 
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
     // Get settings for Earth.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 86400.0 );

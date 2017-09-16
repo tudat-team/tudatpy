@@ -20,6 +20,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodyShapeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
@@ -63,8 +64,17 @@ struct BodySettings
     //! Settings for variations of the gravity field of the body.
     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
 
+    std::vector< boost::shared_ptr< GroundStationSettings > > groundStationSettings;
+
 };
 
+//! Function that determines the order in which bodies are to be created
+/*!
+ * Function that determines the order in which bodies are to be created, to ensure that any dependency between body models are
+ * correctly handled. Currently, no dependencies exist that force any particular creation order.
+ * \param bodySettings Map of body settings (with map key the body name)
+ * \return List of pairs: name and body settings of that body
+ */
 std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
 
