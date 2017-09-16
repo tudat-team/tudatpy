@@ -35,13 +35,8 @@ BOOST_AUTO_TEST_SUITE( test_frame_manager )
 BOOST_AUTO_TEST_CASE( test_FrameManager )
 {
 
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisList;
 

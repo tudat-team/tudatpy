@@ -135,9 +135,8 @@ protected:
                 va_end( listOfArguments );
 
                 // Not found in map, throw exception.
-                boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                    "One of the types required for extracting this dataLineMap type is not present"
-                                                                      ) ) );
+                throw std::runtime_error(
+                    "One of the types required for extracting this dataLineMap type is not present" );
             }
         }
 

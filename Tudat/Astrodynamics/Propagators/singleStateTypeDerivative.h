@@ -26,8 +26,9 @@ enum IntegratedStateType
 {
     hybrid = 0,
     transational_state = 1,
-    body_mass_state = 2,
-    custom_state = 3
+    rotational_state = 2,
+    body_mass_state = 3,
+    custom_state = 4
 };
 
 

@@ -14,9 +14,10 @@ set(NUMERICAL_QUADRATURE_SOURCES
 )
 
 # Add header files.
-set(NUMERICAL_QUADRATURE_HEADERS 
+set(NUMERICAL_QUADRATURE_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/numericalQuadrature.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/trapezoidQuadrature.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/gaussianQuadrature.h"
 )
 
 # Add static libraries.
@@ -27,4 +28,8 @@ setup_tudat_library_target(tudat_numerical_quadrature "${SRCROOT}${MATHEMATICSDI
 add_executable(test_TrapezoidalIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/UnitTests/unitTestTrapezoidQuadrature.cpp")
 setup_custom_test_program(test_TrapezoidalIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature")
 target_link_libraries(test_TrapezoidalIntegrator tudat_numerical_quadrature ${Boost_LIBRARIES})
+
+add_executable(test_GaussianQuadrature "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/UnitTests/unitTestGaussianQuadrature.cpp")
+setup_custom_test_program(test_GaussianQuadrature "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature")
+target_link_libraries(test_GaussianQuadrature tudat_input_output tudat_numerical_quadrature ${Boost_LIBRARIES})
 

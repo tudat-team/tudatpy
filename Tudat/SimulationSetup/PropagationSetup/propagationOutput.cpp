@@ -86,26 +86,26 @@ double computeEquilibriumFayRiddellHeatFluxFromProperties(
 }
 
 
-//! Function to evaluate a set of double and vector-returning functions and concatenate the results.
-Eigen::VectorXd evaluateListOfFunctions(
-        const std::vector< boost::function< double( ) > >& doubleFunctionList,
+//! Function to return a vector containing only one value given by doubleFunction
+Eigen::VectorXd getVectorFromDoubleFunction( const boost::function< double( ) >& doubleFunction )
+{
+    Eigen::VectorXd vector( 1 );
+    vector << doubleFunction( );
+    return vector;
+}
+
+//! Function to evaluate a set of vector-returning functions and concatenate the results.
+Eigen::VectorXd evaluateListOfVectorFunctions(
         const std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList,
-        const int totalSize)
+        const int totalSize )
 {
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
 
-    for( unsigned int i = 0; i < doubleFunctionList.size( ); i++ )
+    for( std::pair< boost::function< Eigen::VectorXd( ) >, int > vectorFunction: vectorFunctionList )
     {
-        variableList( i ) = doubleFunctionList.at( i )( );
-        currentIndex++;
-    }
-
-    for( unsigned int i = 0; i < vectorFunctionList.size( ); i++ )
-    {
-        variableList.segment( currentIndex, vectorFunctionList.at( i ).second ) =
-                vectorFunctionList.at( i ).first( );
-        currentIndex += vectorFunctionList.at( i ).second;
+        variableList.segment( currentIndex, vectorFunction.second ) = vectorFunction.first( );
+        currentIndex += vectorFunction.second;
     }
 
     // Check consistency with input
@@ -184,6 +184,9 @@ int getDependentVariableSize(
     case body_fixed_airspeed_based_velocity_variable:
         variableSize = 3;
         break;
+    case body_fixed_groundspeed_based_velocity_variable:
+        variableSize = 3;
+        break;
     case total_aerodynamic_g_load_variable:
         variableSize = 1;
         break;
@@ -204,6 +207,21 @@ int getDependentVariableSize(
         break;
     case lvlh_to_inertial_frame_rotation_dependent_variable:
         variableSize = 9;
+        break;
+    case periapsis_altitude_dependent_variable:
+        variableSize = 1;
+        break;
+    case total_torque_dependent_variable:
+        variableSize = 3;
+        break;
+    case single_torque_dependent_variable:
+        variableSize = 3;
+        break;
+    case total_torque_norm_dependent_variable:
+        variableSize = 1;
+        break;
+    case single_torque_norm_dependent_variable:
+        variableSize = 3;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

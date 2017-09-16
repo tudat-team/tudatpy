@@ -11,6 +11,8 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/UnitTests/observationPartialTestFunctions.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 
 namespace tudat
@@ -32,14 +34,11 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double initialEphemerisTime,
                                const double finalEphemerisTime,
                                const double stateEvaluationTime,
-                               const bool useConstantEphemerides )
+                               const bool useConstantEphemerides,
+                               const double gravitationalParameterScaling )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies.
     NamedBodyMap bodyMap;
@@ -82,9 +81,11 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     ( bodyMap[ "Moon" ] )->setGravityFieldModel(
                 boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
     ( bodyMap[ "Mars" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
+                                                         gravitationalParameterScaling ) );
     ( bodyMap[ "Earth" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) ) );
+                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
+                                                         gravitationalParameterScaling ) );
 
 
     ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
@@ -124,7 +125,8 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
 //! Function to create estimated parameters for general observation partial tests.
 boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
-        const NamedBodyMap& bodyMap, const double initialTime )
+        const NamedBodyMap& bodyMap, const double initialTime,
+        const bool useEquivalencePrincipleParameter )
 {
     boost::shared_ptr< RotationRate > earthRotationRate = boost::make_shared< RotationRate >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
@@ -140,11 +142,23 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
             boost::make_shared< ConstantRotationalOrientation >(
                 boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
+    boost::shared_ptr< EstimatableParameter< double > > relativisticParameter;
+    if( useEquivalencePrincipleParameter )
+    {
+        relativisticParameter = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+    }
+    else
+    {
+        relativisticParameter = boost::make_shared< PPNParameterGamma >( );
+    }
+
+
 
 
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
     estimatableDoubleParameters.push_back( earthRotationRate );
     estimatableDoubleParameters.push_back( marsRotationRate );
+    estimatableDoubleParameters.push_back( relativisticParameter );
 
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
     estimatableVectorParameters.push_back( earthRotationOrientation );
@@ -203,6 +217,44 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 
     return numericalPartialWrtBodyPosition;
 }
+
+//! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
+Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
+        const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
+        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const int observableSize )
+{
+    // Calculate numerical partials w.r.t. body state.
+    boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
+                bodyMap.at( bodyName )->getEphemeris( ) );
+    Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
+    Eigen::Vector6d perturbedBodyState;
+
+    Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
+            Eigen::Matrix< double, Eigen::Dynamic, 3 >::Zero( observableSize, 3 );
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedBodyState = bodyUnperturbedState;
+        perturbedBodyState( i + 3 ) += bodyVelocityVariation( i );
+        bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+        Eigen::VectorXd upPerturbedObservation = observationFunction( observationTime );
+
+        perturbedBodyState = bodyUnperturbedState;
+        perturbedBodyState( i + 3 ) -= bodyVelocityVariation( i );
+        bodyEphemeris->updateConstantState( perturbedBodyState );
+        bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+        Eigen::VectorXd downPerturbedObservation = observationFunction( observationTime );
+
+        numericalPartialWrtBodyPosition.block( 0, i, observableSize, 1  ) = ( upPerturbedObservation - downPerturbedObservation ) /
+                ( 2.0 * bodyVelocityVariation( i ) );
+    }
+    bodyEphemeris->updateConstantState( bodyUnperturbedState );
+    bodyMap.at( bodyName )->recomputeStateOnNextCall( );
+
+    return numericalPartialWrtBodyPosition;
+}
+
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
@@ -266,7 +318,8 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             if( linkEndIterator->second.first == bodiesWithEstimatedState.at( i ) )
             {
                 currentPartialTimeIndices =
-                        getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                        getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
+
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
@@ -299,14 +352,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
                     {
                         currentPartialTimeIndices =
-                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                         addContribution = 1;
                     }
                 }
                 else
                 {
                     currentPartialTimeIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                     addContribution = 1;
                 }
                 if( addContribution )
@@ -342,14 +395,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     if( linkEndIterator->second.second == currentAssociatedLinkEndId.second )
                     {
                         currentPartialTimeIndices =
-                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                                getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                         addContribution = 1;
                     }
                 }
                 else
                 {
                     currentPartialTimeIndices =
-                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first );
+                            getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
                     addContribution = 1;
                 }
                 if( addContribution )

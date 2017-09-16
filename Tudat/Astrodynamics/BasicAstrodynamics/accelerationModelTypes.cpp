@@ -50,6 +50,12 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case thrust_acceleration:
         accelerationName = "thrust ";
         break;
+    case relativistic_correction_acceleration:
+        accelerationName  ="relativistic correction";
+        break;
+    case empirical_acceleration:
+        accelerationName  ="empirical correction";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 boost::lexical_cast< std::string >( accelerationType ) +
@@ -87,6 +93,16 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = third_body_central_gravity;
     }
+    else if( boost::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_spherical_harmonic_gravity;
+    }
+    else if( boost::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = third_body_mutual_spherical_harmonic_gravity;
+    }
     else if( boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                  accelerationModel ) != NULL  )
     {
@@ -105,6 +121,15 @@ AvailableAcceleration getAccelerationModelType(
                  accelerationModel ) != NULL )
     {
         accelerationType = thrust_acceleration;
+    }
+    else if( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = relativistic_correction_acceleration;
+    }
+    else if( boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != NULL )
+    {
+        accelerationType = empirical_acceleration;
     }
     else
     {

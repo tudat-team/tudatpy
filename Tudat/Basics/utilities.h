@@ -18,6 +18,7 @@
 
 #include <boost/function.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -131,6 +132,19 @@ S sumFunctionReturn( const boost::function< S( ) > function1, const boost::funct
     return function1( ) + function2( );
 }
 
+//! Function to subtract the return values of two boost function with empty input argument list.
+/*!
+ * Function to subtract the return values of two boost function with empty input argument list.
+ * \param function1 First function to be subtracted from.
+ * \param function2 Second function to be subtracted.
+ * \return Return values of function1 - return value of function2
+ */
+template< typename S >
+S subtractFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+{
+    return function1( ) - function2( );
+}
+
 //! Function to create a vector block history from full matrix history.
 /*!
  *  Function to create a vector matrix block history from full matrix history.
@@ -189,6 +203,28 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
         newTypesMap[ static_cast< U >( mapIterator->first ) ] = mapIterator->second.template cast< V >( );
     }
 }
+
+//! Function to dynamic cast vector of shared pointers of one type to shared pointers of another type.
+/*!
+ *  Function to dynamic cast vector of shared pointers of one type (S) to shared pointers of another type (T). The dynamic cast must be permissible,
+ *  i.e. an S pointer must succesfully dynamic cast to a T pointer (T shoudl typically derive from S).
+ *  \param originalVector Vector of S shared pointers.
+ *  \return Dynamic casted vector of T shared pointers.
+ */
+template< typename S, typename T >
+std::vector< boost::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< boost::shared_ptr< S > >& originalVector )
+{
+    std::vector< boost::shared_ptr< T > > castVector;
+
+    // Iterate over all entries and perform dynamic cast for each entry.
+    for( unsigned int i = 0; i < originalVector.size( ); i++ )
+    {
+        castVector.push_back( boost::dynamic_pointer_cast< T >( originalVector.at( i ) ) );
+    }
+
+    return castVector;
+}
+
 
 template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns = 1 >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedEigenMatrixFromMapValues(
@@ -360,6 +396,150 @@ boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArra
         const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
 
 
+template< typename S, typename T >
+std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )
+{
+    std::vector< S > outputVector;
+
+    for( unsigned int i = 0; i < inputVector.size( ); i++ )
+    {
+        outputVector.push_back( inputVector.at( i ).first );
+    }
+    return outputVector;
+}
+
+template< typename T, typename S >
+T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputFreeFunction, const S dummyInput )
+{
+    return inputFreeFunction( );
+}
+
+//! Function to get the order in which the input vector would be sorted (in ascending order)
+/*!
+ *  Function to get the order in which the input vector would be sorted (in ascending order). Example: for inout vector
+ *  (5,2,6,7,4,0), output would be (5,1,4,0,2,3).
+ *  \param unsortedVector Vector of which the sort order is to be determined
+ *  \return Order in which the input vector would be sorted (in ascending order)
+ */
+template< typename T >
+std::vector< int > getSortOrderOfVector( const std::vector< T > unsortedVector )
+{
+    return getSortOrderOfVectorAndSortedVector( unsortedVector ).first;
+}
+
+//! Function to create a vector from the values of a multimap
+/*!
+ *  Function to create a vector from the values of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
+ *  forward iterator. The multimap keys are not used for the return vector.
+ *  \param inputMap Original multimap from which the vector is to be created
+ *  \return Vector created from the multimap values
+ */
+template< typename VectorArgument, typename KeyType >
+std::vector< VectorArgument > createVectorFromMultiMapValues( const std::multimap< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< VectorArgument > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->second;
+        currentIndex++;
+    }
+
+    return outputVector;
+
+}
+
+//! Function to create a vector from the keys of a multimap
+/*!
+ *  Function to create a vector from the keys of a multimap. The output vector is in the order of the multimap entries, i.e. as provided by a
+ *  forward iterator. The multimap values are not used for the return vector.
+ *  \param inputMap Original multimap from which the vector is to be created
+ *  \return Vector created from the multimap keys
+ */
+template< typename VectorArgument, typename KeyType >
+std::vector< KeyType > createVectorFromMultiMapKeys( const std::multimap< KeyType, VectorArgument >& inputMap )
+{
+    // Create and size return vector.
+    std::vector< KeyType > outputVector;
+    outputVector.resize( inputMap.size( ) );
+
+    // Iterate over all map entries and create vector
+    int currentIndex = 0;
+    for( typename std::multimap< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
+         mapIterator != inputMap.end( ); mapIterator++ )
+    {
+        outputVector[ currentIndex ] = mapIterator->first;
+        currentIndex++;
+    }
+
+    return outputVector;
+}
+
+//! Function to get sorted vector of an input vector, as well as the order in which this input has been be sorted (ascending)
+/*!
+ *  Function to get sorted vector of an input vector, as well as the order in which this input has been be sorted (ascending)).
+ *  Example: for inout vector (5,2,6,7,4,0), output would be [(5,1,4,0,2,3), (0,2,4,5,6,7)].
+ *  \param unsortedVector Vector that is to be sorted
+ *  \return Parit, with first: order in which the input vector is sorted (in ascending order), second: sorted input vector
+ */
+template< typename T >
+std::pair< std::vector< int >, std::vector< T > > getSortOrderOfVectorAndSortedVector( const std::vector< T > unsortedVector )
+{
+    std::multimap< T, int > sortMap;
+    for( unsigned int i = 0; i < unsortedVector.size( ); i++ )
+    {
+        sortMap.insert( std::pair< T, int >( unsortedVector[ i ], i ) );
+    }
+
+    return std::make_pair( createVectorFromMultiMapValues( sortMap ), createVectorFromMultiMapKeys( sortMap ) );
+}
+
+template< typename T >
+bool doStlVectorContentsMatch(
+        const std::vector< T >& vectorA, const std::vector< T >& vectorB )
+{
+    bool doVectorsMatch = true;
+    if( vectorA.size( ) != vectorB.size( ) )
+    {
+        doVectorsMatch = false;
+    }
+    else
+    {
+        for( unsigned int i = 0; i < vectorA.size( ); i++ )
+        {
+            if( std::count( vectorB.begin( ), vectorB.end( ), vectorA.at( i ) ) !=
+                    std::count( vectorA.begin( ), vectorA.end( ), vectorA.at( i ) ))
+            {
+                doVectorsMatch = false;
+            }
+        }
+    }
+
+    return doVectorsMatch;
+}
+
+//! Transform from map of std::vector (output of text file reader) to map of Eigen::Array
+template< typename MapKey, typename ScalarType >
+std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertSTLVectorMapToEigenVectorMap(
+        std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
+{
+    std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
+    for ( auto ent: stlVectorMap )
+    {
+        Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
+        for ( unsigned int i = 0; i < array.rows( ); i++ )
+        {
+            array.row( i ) = ent.second.at( i );
+        }
+        eigenMap[ ent.first ] = array;
+    }
+    return eigenMap;
+}
 
 } // namespace utilities
 

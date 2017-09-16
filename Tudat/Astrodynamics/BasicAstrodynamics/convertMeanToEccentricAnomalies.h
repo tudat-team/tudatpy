@@ -276,12 +276,8 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
     //  Eccentricity is invalid: eccentricity < 0.0 or eccentricity >= 1.0.
     else
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                        boost::str( boost::format(
-                                        "Invalid eccentricity. Valid range is 0.0 <= e < 1.0. "
-                                        "Eccentricity was: '%f'." )
-                                    % eccentricity ) ) );
+        throw std::runtime_error( "Invalid eccentricity. Valid range is 0.0 <= e < 1.0. Eccentricity was: " +
+                            boost::lexical_cast< std::string >( eccentricity ) );
     }
 
     // Return eccentric anomaly.
@@ -424,13 +420,8 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
     // In this case the orbit is not hyperbolic.
     else
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                        boost::str(
-                            boost::format(
-                                "Invalid eccentricity. Valid range is e > 1.0."
-                                "Eccentricity was: '%f'." )
-                            % eccentricity ) ) );
+        throw std::runtime_error( "Invalid eccentricity. Valid range is e > 1.0. Eccentricity was: " +
+                            boost::lexical_cast< std::string >( eccentricity ) );
     }
 
     // Return hyperbolic eccentric anomaly.

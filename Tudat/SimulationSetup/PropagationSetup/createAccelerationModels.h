@@ -21,7 +21,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
-
+#include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 namespace tudat
 {
 
@@ -317,6 +317,47 @@ createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
+
+//! Function to create an orbiter relativistic correction acceleration model
+/*!
+ *  Function to create an orbiter relativistic correction acceleration model (Schwarzschild, Lense-Thirring and/or
+ *  de Sitter terms).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration (e.g. Earth for an orbiter
+ *  around the Earth).
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \param bodyMap List of pointers to bodies that comprise the full environment.
+ *  \return Pointer to object for calculating relativistic correction acceleration.
+ */
+boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap );
+
+//! Function to create empirical acceleration model.
+/*!
+ *  Function to create empirical acceleration model from body undergoing acceleration and body wrt which its orbit is determined
+ *  for setting determining phase of once per orbit empirical accelerations.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body wrt whic orbit of body undergoing the acceleration is calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body wrt whic orbit of body undergoing the acceleration is calculated.
+ *  \param accelerationSettings Object containing additional settings for acceleration model, must be of type EmpiricalAccelerationSettings
+ *  \return Pointer to object for calculating empiricalt acceleration.
+ */
+boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
 
 //! Function to create acceleration model object.
 /*!

@@ -78,8 +78,8 @@ public:
 
     //! Function to simulate observations between specified link ends and associated partials at set of observation times.
     /*!
-     *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
-     *  used the sensitivity and state transition matrix interpolators set in this base class.
+     *  Function(pure virtual)   to simulate observations between specified link ends  and associated partials at set of
+     *  observation times, used the sensitivity and state transition matrix interpolators set in this base class.
      *  \param times Vector of times at which observations are performed
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time
@@ -90,6 +90,14 @@ public:
     computeObservationsWithPartials( const std::vector< TimeType >& times,
                                      const LinkEnds linkEnds,
                                      const LinkEndType linkEndAssociatedWithTime ) = 0;
+
+    //! Function (ṕure virtual) to return the object used to simulate noise-free observations
+    /*!
+     * Function (ṕure virtual) to return the object used to simulate noise-free observations
+     * \return Object used to simulate ideal observations
+     */
+    virtual boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( ) = 0;
+
 
 protected:
 
@@ -104,24 +112,6 @@ protected:
         return stateTransitionMatrixInterface_->getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
     }
 
-    //! Function to perform updates of dependent variables used by (subset of) observation partials.
-    /*!
-     *  Function to perform updates of dependent variables used by (subset of) observation partials, in order
-     *  to decrease redundant computations (i.e. scaling of position partials for range partials).
-     *  is kept constant (to input value)
-     *  \param states List of times at each link end during observation
-     *  \param times List of states at each link end during observation
-     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
-     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
-     */
-    virtual void updatePartials(
-            const std::vector< Eigen::Vector6d >& states,
-            const std::vector< double >& times,
-            const LinkEnds& linkEnds,
-            const LinkEndType linkEndAssociatedWithTime )
-    {
-        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime );
-    }
 
     //! Type of observable for which the instance of this class will compute observations/observation partials
     ObservableType observableType_;
@@ -157,7 +147,7 @@ public:
 
     // Using statements
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixSize_;
-    using ObservationManagerBase< ObservationScalarType, TimeType >::updatePartials;
+    using ObservationManagerBase< ObservationScalarType, TimeType >::observationPartialScalers_;
     using ObservationManagerBase< ObservationScalarType, TimeType >::stateTransitionMatrixInterface_;
 
     //! Constructor
@@ -214,12 +204,12 @@ public:
        return observationSimulator_->getObservationModel( linkEnds );
     }
 
-    //! Function to return the object used to simulate ideal observations
+    //! Function to return the object used to simulate noise-free observations
     /*!
-     * Function to return the object used to simulate ideal observations
+     * Function to return the object used to simulate noise-free observations
      * \return Object used to simulate ideal observations
      */
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > getObservationSimulator( )
+    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( )
     {
         return observationSimulator_;
     }
@@ -227,7 +217,7 @@ public:
     //! Function to simulate observations between specified link ends and associated partials at set of observation times.
     /*!
      *  Function to simulate observations between specified link ends  and associated partials at set of observation times,
-     *  used the sensitivity and state transition matrix interpolators set in this base class.
+     *  used the sensitivity and state transition matrix interpolators set in the base class.
      *  \param times Vector of times at which observations are performed
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
      *  \param linkEndAssociatedWithTime Link end at which input times are valid, i.e. link end for which associated time
@@ -268,7 +258,8 @@ public:
             // Compute observation partial
             currentObservationSize = currentObservation.rows( );
             observationMatrices[ times[ i ] ] = determineObservationPartialMatrix(
-                        currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, linkEndAssociatedWithTime );
+                        currentObservationSize, vectorOfStates, vectorOfTimes, linkEnds, currentObservation,
+                        linkEndAssociatedWithTime );
 
         }
 
@@ -301,6 +292,28 @@ public:
 
 protected:
 
+    //! Function to perform updates of dependent variables used by (subset of) observation partials.
+    /*!
+     *  Function to perform updates of dependent variables used by (subset of) observation partials, in order
+     *  to decrease redundant computations (i.e. scaling of position partials for range partials).
+     *  is kept constant (to input value)
+     *  \param states List of times at each link end during observation
+     *  \param times List of states at each link end during observation
+     *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  \param currentObservation Value of observation for which partial scaling is to be computed
+     */
+    virtual void updatePartials(
+            const std::vector< Eigen::Vector6d >& states,
+            const std::vector< double >& times,
+            const LinkEnds& linkEnds,
+            const LinkEndType linkEndAssociatedWithTime,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation)
+    {
+        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime,
+                                                           currentObservation.template cast< double >( ) );
+    }
+
     //! Function to calculate range partials at given states between link ends and reception and transmission time.
     /*!
      *  Function to calculate range partials at given states of link ends and reception and transmission times.
@@ -310,6 +323,7 @@ protected:
      *  \param times Times at link ends (reception, transmission, reflection, etc. ), order determined by updatePartials( )
      *  and calculatePartial( ) functions expected inputs.
      *  \param linkEnds Set of stations, S/C etc. in link, with specifiers of type of link end.
+     *  \param currentObservation Value of observation for which partials are to be computed
      *  \param linkEndAssociatedWithTime Reference link end for observations
      *  \return Matrix of partial derivative of observation w.r.t. parameter vector.
      */
@@ -318,10 +332,12 @@ protected:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const LinkEnds& linkEnds,
+            const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation,
             const LinkEndType linkEndAssociatedWithTime )
     {
         // Initialize partial vector of observation w.r.t. all parameter.
         int fullParameterVector = stateTransitionMatrixInterface_->getFullParameterVectorSize( );
+
         Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > partialMatrix =
                 Eigen::MatrixXd::Zero( observationSize, fullParameterVector );
 
@@ -329,7 +345,7 @@ protected:
         std::map< double, Eigen::MatrixXd > combinedStateTransitionMatrices;
 
         // Perform updates of dependent variables used by (subset of) observation partials.
-        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime );
+        updatePartials( states, times, linkEnds, linkEndAssociatedWithTime, currentObservation );
 
         currentLinkEndPartials = observationPartials_[ linkEnds ];
 
@@ -345,7 +361,7 @@ protected:
             // Calculate partials of observation w.r.t. parameters, with associated observation times (single partial
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
-                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime );
+                    partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.

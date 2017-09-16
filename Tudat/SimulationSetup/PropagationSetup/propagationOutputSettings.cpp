@@ -79,6 +79,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case body_fixed_airspeed_based_velocity_variable:
         variableName = "Airspeed-based velocity ";
         break;
+    case body_fixed_groundspeed_based_velocity_variable:
+        variableName = "Groundspeed-based velocity ";
+        break;
     case total_aerodynamic_g_load_variable:
         variableName = "Aerodynamic g-load ";
         break;
@@ -92,13 +95,28 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Geodetic latitude ";
         break;
     case control_surface_deflection_dependent_variable:
-        variableName = "Control Surface Deflection";
+        variableName = "Control Surface Deflection ";
         break;
     case total_mass_rate_dependent_variables:
-        variableName = "Body mass rate";
+        variableName = "Body mass rate ";
         break;
     case lvlh_to_inertial_frame_rotation_dependent_variable:
-        variableName = "LVLH to inertial frame rotation matrix";
+        variableName = "LVLH to inertial frame rotation matrix ";
+        break;
+    case periapsis_altitude_dependent_variable:
+        variableName = "Periapsis altitude ";
+        break;
+    case single_torque_dependent_variable:
+        variableName = "Single torque in body-fixed frame of type ";
+        break;
+    case total_torque_dependent_variable:
+        variableName = "Total torque in body-fixed frame ";
+        break;
+    case single_torque_norm_dependent_variable:
+        variableName = "Single torque norm in body-fixed frame of type ";
+        break;
+    case total_torque_norm_dependent_variable:
+        variableName = "Total torque norm in body-fixed frame ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +
@@ -108,6 +126,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     }
     return variableName;
 }
+
 
 //! Function to get a string representing a 'named identification' of a dependent variable
 std::string getDependentVariableId(
@@ -130,6 +149,21 @@ std::string getDependentVariableId(
                         accelerationDependentVariableSettings->accelerationModeType_ );
         }
     }
+    else if( ( dependentVariableSettings->variableType_ == single_torque_dependent_variable ) ||
+             ( dependentVariableSettings->variableType_ == single_torque_norm_dependent_variable ) )
+     {
+         boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
+                 boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
+         if( torqueDependentVariableSettings == NULL )
+         {
+             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (torque type )" );
+         }
+         else
+         {
+             variableId += basic_astrodynamics::getTorqueModelName(
+                         torqueDependentVariableSettings->torqueModeType_ );
+         }
+     }
     else if( dependentVariableSettings->variableType_ == intermediate_aerodynamic_rotation_matrix_variable )
     {
         boost::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationDependentVariableSettings =
@@ -160,8 +194,6 @@ std::string getDependentVariableId(
                     reference_frames::getAerodynamicAngleName( angleDependentVariableSettings->angle_ );
         }
     }
-
-
 
     if( ( dependentVariableSettings->variableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->variableType_ == single_acceleration_norm_dependent_variable )  )

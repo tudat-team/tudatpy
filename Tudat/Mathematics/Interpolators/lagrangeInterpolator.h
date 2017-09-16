@@ -220,6 +220,13 @@ public:
     {
         using std::pow;
 
+        if( targetIndependentVariableValue < independentValues_.at( 0 ) ||
+                targetIndependentVariableValue > independentValues_.at( independentValues_.size( ) -1 ) )
+        {
+            std::cout<<"Warning in Lagrange interpolation, outside range "<<
+                       independentValues_.at( 0 ) <<" "<<independentValues_.at( independentValues_.size( ) -1 )<<" "<<
+                       targetIndependentVariableValue<<std::endl;
+        }
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.
         DependentVariableType interpolatedValue = zeroEntry_;
@@ -304,6 +311,16 @@ public:
         }
 
         return interpolatedValue;
+    }
+
+    //! Function to retrieve the number of stages of interpolator
+    /*!
+     * Function to retrieve the number of stages of interpolator
+     * \return Number of stages of interpolator
+     */
+    int getNumberOfStages( )
+    {
+        return numberOfStages_;
     }
 
 

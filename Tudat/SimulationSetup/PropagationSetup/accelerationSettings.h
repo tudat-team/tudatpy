@@ -42,6 +42,7 @@ namespace simulation_setup
 class AccelerationSettings
 {
 public:
+
     //! Constructor, sets type of acceleration.
     /*!
      *  Constructor, sets type of acceleration.
@@ -135,6 +136,93 @@ public:
 
     //! Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+};
+
+//! Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter.
+/*!
+ *  Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter: the
+ *  Schwarzschild, Lense-Thirring and de Sitter terms. An excellent introduction to
+ *  these models is given in 'General Relativity and Space Geodesy' by L. Combrinck (2012).
+ */
+class RelativisticAccelerationCorrectionSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param calculateSchwarzschildCorrection Boolean denoting wheter the Schwarzschild term is used.
+     * \param calculateLenseThirringCorrection Boolean denoting wheter the Lense-Thirring term is used.
+     * \param calculateDeSitterCorrection Boolean denoting wheter the de Sitter term is used.
+     * \param primaryBody Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
+     * \param centralBodyAngularMomentum Constant angular momentum of central body. NOTE: Passing angular momentum through this
+     * function is temporary: in the future this will be done consistently with rotation/gravity field.
+     */
+    RelativisticAccelerationCorrectionSettings(
+            const bool calculateSchwarzschildCorrection = true,
+            const bool calculateLenseThirringCorrection = false,
+            const bool calculateDeSitterCorrection = false,
+            const std::string primaryBody = "",
+            const Eigen::Vector3d centralBodyAngularMomentum = Eigen::Vector3d::Zero( ) ):
+        AccelerationSettings(  basic_astrodynamics::relativistic_correction_acceleration ),
+        calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
+        calculateLenseThirringCorrection_( calculateLenseThirringCorrection ),
+        calculateDeSitterCorrection_( calculateDeSitterCorrection ),
+        primaryBody_( primaryBody ),
+        centralBodyAngularMomentum_( centralBodyAngularMomentum )
+    {
+        if( calculateDeSitterCorrection_ && primaryBody_ == "" )
+        {
+            throw std::runtime_error(
+                        "Error when making relativistic acceleration correction, deSitter acceleration requested without primary body" );
+        }
+    }
+
+    //! Boolean denoting wheter the Schwarzschild term is used.
+    bool calculateSchwarzschildCorrection_;
+
+    //! Boolean denoting wheter the Lense-Thirring term is used.
+    bool calculateLenseThirringCorrection_;
+
+    //! Boolean denoting wheter the de Sitter term is used.
+    bool calculateDeSitterCorrection_;
+
+    //! Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
+    std::string primaryBody_;
+
+    //! Constant angular momentum of central body
+    Eigen::Vector3d centralBodyAngularMomentum_;
+};
+
+//! Class to define settings for empirical accelerations
+class EmpiricalAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param constantAcceleration Acceleration (in RSW frame) that is constant
+     * \param sineAcceleration Acceleration (in RSW frame) that scales with sine of true anomaly
+     * \param cosineAcceleration Acceleration (in RSW frame) that scales with cosine of true anomaly
+     */
+    EmpiricalAccelerationSettings(
+            const Eigen::Vector3d& constantAcceleration = Eigen::Vector3d::Zero( ),
+            const Eigen::Vector3d& sineAcceleration = Eigen::Vector3d::Zero( ),
+            const Eigen::Vector3d& cosineAcceleration = Eigen::Vector3d::Zero( ) ):
+        AccelerationSettings( basic_astrodynamics::empirical_acceleration ),
+        constantAcceleration_( constantAcceleration ),
+        sineAcceleration_( sineAcceleration ),
+        cosineAcceleration_( cosineAcceleration ){ }
+
+    //! Acceleration (in RSW frame) that is constant
+    Eigen::Vector3d constantAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with sine of true anomaly
+    Eigen::Vector3d sineAcceleration_;
+
+    //! Acceleration (in RSW frame) that scales with cosine of true anomaly
+    Eigen::Vector3d cosineAcceleration_;
 };
 
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
@@ -286,7 +374,7 @@ public:
         thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
                     boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
                     specificImpulseFunction, boost::lambda::constant( true ),
-                    Eigen::Vector3d::UnitX( ),
+                    boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
                     boost::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
     }
 

@@ -96,6 +96,20 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                 nameOfBodyExertingAcceleration, 1,
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 
+    // Add wind model if present
+    if( centralBody->getAtmosphereModel( )->getWindModel( ) != NULL )
+    {
+        if( centralBody->getShapeModel( ) == NULL )
+        {
+            std::cerr<<"Warnning, body "<<nameOfBodyExertingAcceleration<<" has wind model, but no shape model, cannot compute wind as function of altitude "<<std::endl;
+        }
+        else
+        {
+           aerodynamicAngleCalculator->setWindModel(
+                        centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
+        }
+    }
+
 
     // Create flight conditions.
     boost::function< double( const std::string& )> controlSurfaceDeflectionFunction;
