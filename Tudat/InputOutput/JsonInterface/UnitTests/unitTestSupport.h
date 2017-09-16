@@ -31,7 +31,15 @@ path currentDirectory( )
 
 path inputDirectory( )
 {
-    return currentDirectory( ) / "inputs";
+    path userCustomInputDirectory = currentDirectory( ) / "INPUT";
+    if ( boost::filesystem::exists( userCustomInputDirectory ) )
+    {
+        return userCustomInputDirectory;
+    }
+    else
+    {
+        return currentDirectory( ) / "inputs";
+    }
 }
 
 template< typename T = json >
