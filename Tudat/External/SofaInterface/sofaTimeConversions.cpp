@@ -118,9 +118,6 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
     double ut1FractionOfDay = std::fmod( ( ut1 / physical_constants::JULIAN_DAY ) -
             static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY  ) ) + 0.5, 1.0 );
 
-    std::cout<<"Getting TDB minus TT SOFA Interface "<<std::setprecision( 16 )<<ut1<<" "<<ut1FractionOfDay<<" "<<stationLongitude<<" "<<distanceFromSpinAxis<<" "<<
-            distanceFromEquatorialPlane<<std::endl;
-
     // Calculate and return difference (introducing addition approximation if input is in TT, by assuming TDB is equal to TT)
     return getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis,
                           distanceFromEquatorialPlane );

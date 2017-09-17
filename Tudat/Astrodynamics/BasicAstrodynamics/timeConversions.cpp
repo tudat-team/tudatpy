@@ -13,6 +13,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -90,6 +91,14 @@ long double getTTMinusTai< long double >( )
 {
     return TT_MINUS_TAI_LONG;
 }
+
+//! Function to get the offset of TT from TAI (constant by definition), in Time format.
+template< >
+Time getTTMinusTai< Time>( )
+{
+    return Time( TT_MINUS_TAI_LONG );
+}
+
 
 //! Function to convert julian day to gregorian calendar date.
 boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay )

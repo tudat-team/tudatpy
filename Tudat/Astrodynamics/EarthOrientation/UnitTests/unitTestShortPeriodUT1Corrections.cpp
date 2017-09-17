@@ -1,4 +1,18 @@
-#define BOOST_TEST_MAIN #include <iostream> #include <boost/test/unit_test.hpp>
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#define BOOST_TEST_MAIN
+
+#include <iostream>
+#include <boost/test/unit_test.hpp>
 
 #include "Tudat/Basics/testMacros.h"
 
@@ -23,7 +37,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion)
     ShortPeriodEarthOrientationCorrectionCalculator < double > ut1CorrectionCalculator(
                 1.0E-6, 0.0,
     { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt" },
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationDoodsonMultipliers.txt" } );
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationFundamentalArgumentMultipliers.txt" } );
 
 
     double testMjd = 44239.1 ;
@@ -60,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion )
             ShortPeriodEarthOrientationCorrectionCalculator < double >(
                 1.0E-6, 0.0,
     { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt", },
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesDoodsonMultipliers.txt" } );
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     double testMjd = 47100.0;
     double testJulianDay = testMjd + JULIAN_DAY_AT_0_MJD;

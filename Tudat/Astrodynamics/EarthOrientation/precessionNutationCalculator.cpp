@@ -1,9 +1,18 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/EarthOrientation/precessionNutationCalculator.h"
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
@@ -29,34 +38,20 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
 std::pair< Eigen::Vector2d, double > PrecessionNutationCalculator::getPositionOfCipInGcrs(
-        const double terrestrialTime,
-        const double terrestrialTimeDaysEpochShift )
+        const double terrestrialTime )
 {
-    if( terrestrialTimeDaysEpochShift != basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-    {
-        std::cerr<<"Error when getting Cip in Gcrs, epoch shift is not J2000"<<std::endl;
-    }
-
     // Calculate current UTC from SOFA.
     double utc = sofa_interface::convertTTtoUTC( terrestrialTime );
 
-    std::cout<<"testB"<<std::endl;
     // Call function to compte precession-nutation from UTC and TT.
-    return getPositionOfCipInGcrs( terrestrialTime, utc, terrestrialTimeDaysEpochShift );
+    return getPositionOfCipInGcrs( terrestrialTime, utc );
 }
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
 std::pair< Eigen::Vector2d, double > PrecessionNutationCalculator::getPositionOfCipInGcrs(
         const double terrestrialTime,
-        const double utc,
-        const double terrestrialTimeDaysEpochShift )
+        const double utc )
 {
-    // Check if input is consistent with (required) interpolator settings.
-    if( terrestrialTimeDaysEpochShift != basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-    {
-        std::cerr<<"Warning, precession nutation calculation currently only possible for time arguments referenced to J2000."<<std::endl;
-    }
-
     // Calculate nominal precession-nutation values.
     std::pair< Eigen::Vector2d, double > nominalCipPosition = nominalCipPositionFunction_( terrestrialTime );
 

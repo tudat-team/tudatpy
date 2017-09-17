@@ -23,7 +23,7 @@ set(EARTH_ORIENTATION_SOURCES
   "${SRCROOT}${EARTHORIENTATIONDIR}/eopReader.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/polarMotionCalculator.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/precessionNutationCalculator.cpp"
-  "${SRCROOT}${EARTHORIENTATIONDIR}/readAmplitudeAndDoodsonNumber.cpp"
+  "${SRCROOT}${EARTHORIENTATIONDIR}/readAmplitudeAndArgumentMultipliers.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/sofaEarthOrientationCookbookExamples.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/shortPeriodEarthOrientationCorrectionCalculator.cpp"
 )
@@ -35,7 +35,7 @@ set(EARTH_ORIENTATION_HEADERS
   "${SRCROOT}${EARTHORIENTATIONDIR}/eopReader.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/polarMotionCalculator.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/precessionNutationCalculator.h"
-  "${SRCROOT}${EARTHORIENTATIONDIR}/readAmplitudeAndDoodsonNumber.h"
+  "${SRCROOT}${EARTHORIENTATIONDIR}/readAmplitudeAndArgumentMultipliers.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/shortPeriodEarthOrientationCorrectionCalculator.h"
 )
 
@@ -71,9 +71,9 @@ add_executable(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}/U
 setup_custom_test_program(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}")
 target_link_libraries(test_ShortPeriodUT1Correction tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
 
-#add_executable(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/testEarthOrientationInterpolator.cpp")
-#setup_application_executable_target(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}")
-#target_link_libraries(test_EarthOrientationInterpolator tudat_earth_orientation tudat_sofa_interface tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output tudat_input_output sofa ${Boost_LIBRARIES})
+add_executable(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestEarthOrientationInterpolator.cpp")
+setup_custom_test_program(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}")
+target_link_libraries(test_EarthOrientationInterpolator tudat_earth_orientation tudat_sofa_interface tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output tudat_input_output sofa ${Boost_LIBRARIES})
 
 
 

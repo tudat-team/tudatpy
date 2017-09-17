@@ -1,16 +1,25 @@
-#ifndef EARTHORIENTATIONCALCULATOR_H
-#define EARTHORIENTATIONCALCULATOR_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#ifndef TUDAT_EARTHORIENTATIONCALCULATOR_H
+#define TUDAT_EARTHORIENTATIONCALCULATOR_H
 
 #include <Eigen/Core>
-
-#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
+#include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/EarthOrientation/terrestrialTimeScaleConverter.h"
 #include "Tudat/Astrodynamics/EarthOrientation/polarMotionCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/precessionNutationCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/eopReader.h"
-#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -18,34 +27,103 @@ namespace tudat
 namespace earth_orientation
 {
 
-double getApproximateTioLocator( double secondsSinceJ2000 );
+//! Function to get the value of the TIO locator, approximated as described in IERS 2010 conventions
+/*!
+ * Function to get the value of the TIO locator, approximated as described in IERS 2010 conventions, Eq. (5.13), evaluated using
+ * iauSp00 SOFA function.
+ * \param secondsSinceJ2000 Time at which TIO locator is to be computed. Formally, input should be in TT, but may be provided
+ * in any common time scale, as variations in TIO are slow.
+ * \return Value of TIO locator
+ */
+double getApproximateTioLocator( const double secondsSinceJ2000 );
 
-//! Calculate rotation from CIRS to GCRS, i.e. applying CIO-based rotations due to nutation and precession.
-Eigen::Quaterniond calculateRotationFromCirsToGcrs( double X, double Y, double s );
+//! Function to calculate rotation from CIRS to GCRS, i.e. applying CIO-based rotations due to nutation and precession
+/*!
+ * Function to calculate rotation from CIRS to GCRS, i.e. applying CIO-based rotations due to nutation and precession, as
+ * described by IERS Conventions, Eq. (5.10)
+ * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
+ * \return Rotation from CIRS to GCRS
+ */
+Eigen::Quaterniond calculateRotationFromCirsToGcrs(
+        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator );
 
-//! Calculate rotation from TIRS to CIRS, i.e. rotating over earth rotation angle.
-Eigen::Quaterniond calculateRotationFromTirsToCirs( double earthRotationAngle );
+//! Calculate rotation from TIRS to CIRS.
+/*!
+ * Calculate rotation from TIRS to CIRS, i.e. rotating over earth rotation angle. Implementes Eq. (5.5) of IERS 2010
+ * Conventions
+ * \param earthRotationAngle Current Earth Rotation angle
+ * \return Rotation from TIRS to CIRS
+ */
+Eigen::Quaterniond calculateRotationFromTirsToCirs( const double earthRotationAngle );
 
-//! Calculate rotation from ITRS to TIRS, i.e. applying rotations due to polar motion.
-Eigen::Quaterniond calculateRotationFromItrsToTirs( double xPole, double yPole, double tioLocator );
+//! Calculate rotation from ITRS to TIRS,
+/*!
+ * Calculate rotation from ITRS to TIRS, according to Eq. (5.3) of IERS 2010 Conventions. Applies the effect of polar motion.
+ * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
+ * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
+ * \param tioLocator TIO locator.
+ * \return Rotation from ITRS to TIRS
+ */
+Eigen::Quaterniond calculateRotationFromItrsToTirs(
+        const double xPolePosition, const double yPolePosition, const double tioLocator );
 
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( double X, double Y, double cioLocator,
-                                                     double earthRotationAngle,
-                                                     double xPole, double yPole,
-                                                     double tioLocator );
+//! Calculate time-derivative of rotation matrix from ITRS to GCRS
+/*!
+ * Calculate time-derivative of rotation matrix from ITRS to GCRS. Function approximates derivative by only including derivative
+ * of Earth rotation sub-matrix
+ * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
+ * \param earthRotationAngle Current Earth Rotation angle
+ * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
+ * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
+ * \param tioLocator TIO locator.
+ * \return Time-derivative of rotation matrix from ITRS to GCRS
+ */
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
+        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
+        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator );
 
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs( Eigen::Vector6d rotationAngles,
-                                                     double secondsSinceJ2000 );
+//! Calculate time-derivative of rotation matrix from ITRS to GCRS
+/*!
+ * Calculate time-derivative of rotation matrix from ITRS to GCRS. Function approximates derivative by only including derivative
+ * of Earth rotation sub-matrix
+ * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, x, ERA, xp, yp.
+ * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
+ * \return Time-derivative of rotation matrix from ITRS to GCRS
+ */
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
+        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 );
 
-//! Calculate rotation from ITRS to GCRS.
-Eigen::Quaterniond calculateRotationFromItrsToGcrs( double X, double Y, double cioLocator,
-                                                    double earthRotationAngle,
-                                                    double xPole, double yPole,
-                                                    double tioLocator );
+//! Calculate rotation from ITRS to GCRS
+/*!
+ * Calculate rotation from ITRS to GCRS.
+ * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
+ * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
+ * \param earthRotationAngle Current Earth Rotation angle
+ * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
+ * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
+ * \param tioLocator TIO locator.
+ * \return Rotation from ITRS to GCRS
+ */
+Eigen::Quaterniond calculateRotationFromItrsToGcrs(
+        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
+        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator );
 
-//! Calculate rotation from ITRS to GCRS.
-Eigen::Quaterniond calculateRotationFromItrsToGcrs( Eigen::Vector6d rotationAngles,
-                                                    double secondsSinceJ2000 );
+//! Calculate rotation from ITRS to GCRS
+/*!
+ * Calculate rotation from ITRS to GCRS. Function approximates derivative by only including derivative
+ * of Earth rotation sub-matrix
+ * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, x, ERA, xp, yp.
+ * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
+ * \return Rotation from ITRS to GCRS
+ */
+Eigen::Quaterniond calculateRotationFromItrsToGcrs(
+        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 );
+
 
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
 class EarthOrientationAnglesCalculator
@@ -73,16 +151,13 @@ public:
      *  Calculate rotation angles from ITRS to GCRS at given time value. Any time scale combined with any time value
      *  can be used as input. TIO locator is not included in output as its value is minute and cal be easily evaluated, with
      *  no regard for time conversions in input value.
-     *  \param timeValue Number of seconds since julianDayReferenceEpoch at which orientation is to be evaluated.
+     *  \param timeValue Number of seconds since J2000 at which orientation is to be evaluated.
      *  \param timeScale Time scale in which the timeValue is given. To be taken from TimeScales enum.
-     *  \param julianDayReferenceEpoch Number of julian days after JD=0 to be used as reference (i.e zero) epoch for timeValue.
      *  \return Rotation angles for ITRS<->GCRS transformation at given epoch. Order is: X, Y, s, ERA, x_p, y_p
      */
     Eigen::Vector6d getRotationAnglesFromItrsToGcrs(
-            const double& timeValue,
-            basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale,
-            double julianDayReferenceEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double timeValue,
+            basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
 
     //! Function to get object that calculates polar motion.
     /*!
@@ -126,23 +201,50 @@ private:
     boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 };
 
+//! Function to create an EarthOrientationAnglesCalculator object, with default settings
+/*!
+ * Function to create an EarthOrientationAnglesCalculator object, with default settings:
+ * IAU 2006 theory for precession/nutation, all (sub-)diurnal corrections to UTC-UT1 and polar motion according to IERS 2010,
+ * polar motion/nutation/UT1 daily corrections published by IERS (linearly interpolated in time)
+ * \return Default Earth rotation parameter object.
+ */
 boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( );
 
+//! Function to compute the Earth rotation angle, without normalization to [0, 2pi) range.
+/*!
+ * Function to compute the Earth rotation angle, without normalization to [0, 2pi) range, according to IERS Convetions 2019,
+ * Eq. (5.14).
+ * \param ut1SinceEpoch Time since reference Julian day in UT1.
+ * \param referenceJulianDay Reference time for UT1 input
+ * \return Unnormalized Earth rotation at input time.
+ */
 double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,
                                                 const double referenceJulianDay );
 
-boost::shared_ptr< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6,1 > > >
-createInterpolatorForItrsToGcrsTransformation( double intervalStart,
-                                               double intervalEnd,
-                                               double timeStep,
-                                               basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale,
-                                               double julianDayReferenceEpoch =
-        basic_astrodynamics::JULIAN_DAY_ON_J2000,
-                                               boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
-        createStandardEarthOrientationCalculator( ) );
+//! Function to create an interpolator for the Earth orientation angles
+/*!
+ * Function to create an interpolator for the Earth orientation angles, to reduce computation time of Earth rotation during
+ * orbit propagation/estimation
+ * \param intervalStart Start of time interval where interpolation data is to be generated
+ * \param intervalEnd End of time interval where interpolation data is to be generated
+ * \param timeStep Time step between evaluations of rotation data
+ * \param timeScale Time scale for evaluation data
+ * \param earthOrientationCalculator Object from which Earth orientation data is to be retrieved
+ * \param interpolatorSettings Settings for the interpolation proces (default Lagrange 6 point)
+ * \return Interpolator for the Earth orientation angles. Interpolated vector contains quantities (in IERS Conventions 2010
+ * notation): X, Y, x, ERA, xp, yp.
+ */
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
+createInterpolatorForItrsToGcrsAngles(
+        const double intervalStart, const double intervalEnd, const double timeStep,
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
+        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
+        createStandardEarthOrientationCalculator( ),
+        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) );
 
 }
 
 }
 
-#endif // EARTHORIENTATIONCALCULATOR_H
+#endif // TUDAT_EARTHORIENTATIONCALCULATOR_H

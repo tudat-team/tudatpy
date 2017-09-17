@@ -1,5 +1,16 @@
-#ifndef POLARMOTIONCALCULATOR_H
-#define POLARMOTIONCALCULATOR_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#ifndef TUDAT_POLARMOTIONCALCULATOR_H
+#define TUDAT_POLARMOTIONCALCULATOR_H
 
 #include <boost/function.hpp>
 
@@ -7,7 +18,6 @@
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Basics/basicTypedefs.h"
-
 #include "Tudat/Astrodynamics/EarthOrientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 
 namespace tudat
@@ -16,32 +26,27 @@ namespace tudat
 namespace earth_orientation
 {
 
-//! Function to calculate the mean Celestial Intermediate Pole (CIP) position in the ITRS.
+//! Object to compute polar motion variables x_{p} and y_{p}
 /*!
- *  Function to calculate the mean Celestial Intermediate Pole (CIP) position in the ITRS.
- *  The implementation is according to the IERS 2010 conventions, Eq. 7.25 and Table 7.7
- *  \param Number of Julian years since J2000. N.b. due to the very slow variation of the returned quantity,
- *  the time scale that is used for input is generally inconsequential for the output.
- *  \return Vector containing the pole positions, typically denoted as x_{p} and y_{p}
+ * Object to compute polar motion variables x_{p} and y_{p}, describing the motion of the Earth pole in ITRS.
+ * This class combines the  measured daily data as published by the IERS with the short-period variation models due to libration
+ * and ocean tides as described in Sections 5.5.1 and 8.2 of IERS 2010 Conventions.
  */
-Eigen::Vector2d calculateMeanCipPositionInItrs( const double julianYearsSinceJ2000 );
-
 class PolarMotionCalculator
 {
 public:
-    //! Constructor for polar motion (x_{p} and y_{p}; motion of pole in ITRS) calculator.
+    //! Constructor
     /*!
-     *  Constructor for polar motion (motion of pole in ITRS) calculator. This object combines the
-     *  measured daily data as published by the IERS with the short-period variation models
-     *  of the pole position due to libration and ocean tides as described in Sections 5.5.1 and 8.2.
+     *  Constructor
      *  \param dailyIersValueInterpolator Interpolator, with time in UTC since J2000 as input and
      *  interpolated measured daily pole offset values as output.
      *  \param shortPeriodPolarMotionCalculator Object calculating short period polar motion variations.
      */
-    PolarMotionCalculator( const boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                           < double, Eigen::Vector2d > > dailyIersValueInterpolator,
-                           const boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
-                           shortPeriodPolarMotionCalculator ):
+    PolarMotionCalculator(
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
+            dailyIersValueInterpolator,
+            const boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
+            shortPeriodPolarMotionCalculator ):
         dailyIersValueInterpolator_( dailyIersValueInterpolator ),
         shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
     { }
@@ -49,63 +54,57 @@ public:
     //! Calculate the position of the Celestial Intermediate Pole in the ITRS
     /*!
      *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}.
-     *  The doodson arguments are calculated internally in this function. If these are available to
+     *  The fundamental arguments are calculated internally in this function. If these are available to
      *  the user from a more computationally efficient solution (such as an interpolator), the
      *  overloaded version of this function is adviced for use.
-     *  \param ttSinceEpoch Terrestrial time since the epochShift variable.
-     *  \param utcSinceEpoch UTC since the epochShift variable.
-     *  \param epochShift. Shift in epoch t=0 in days from julain day 0.
+     *  \param ttSinceEpoch Terrestrial time since J2000
+     *  \param utcSinceEpoch UTC since the J2000
      */
     Eigen::Vector2d getPositionOfCipInItrs(
             const double ttSinceEpoch,
-            const double utcSinceEpoch,
-            const double epochShift = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double utcSinceEpoch );
 
+    //! Calculate the position of the Celestial Intermediate Pole in the ITRS
+    /*!
+     *  Calculate the position of the Celestial Intermediate Pole in the ITRS, i.e. x_{p} and y_{p}.
+     *  The fundamental arguments are provided as input to this function for computation of short-period variations.
+     *  \param fundamentalArguments Fundamental arguments used for short-period polar motion corrections
+     *  \param utcSinceEpoch UTC since the J2000
+     */
     Eigen::Vector2d getPositionOfCipInItrs(
-            Eigen::Vector6d doodsonArguments,
-            const double utcSinceEpoch,
-            const double epochShift = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            Eigen::Vector6d fundamentalArguments,
+            const double utcSinceEpoch);
 
-    Eigen::Vector2d getPolarMotionWobbleVariables(
-            Eigen::Vector6d doodsonArguments,
-            const double utcSinceEpoch,
-            const double epochShift = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    Eigen::Vector2d getPolarMotionWobbleVariables(
-            const double ttSinceEpoch,
-            const double utcSinceEpoch,
-            const double epochShift );
-
+    //! Function to retrieve interpolator for daily IERS-measured pole offsets
+    /*!
+     * Function to retrieve interpolator for daily IERS-measured pole offsets
+     * \return Interpolator for daily IERS-measured pole offsets
+     */
     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
-        getDailyIersValueInterpolator( )
+    getDailyIersValueInterpolator( )
     {
         return dailyIersValueInterpolator_;
     }
 
+    //! Function to retrieve object calculating short period polar motion variations.
+    /*!
+     * Function to retrieve object calculating short period polar motion variations.
+     * \return Object calculating short period polar motion variations.
+     */
     boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getShortPeriodPolarMotionCalculator( )
     {
         return shortPeriodPolarMotionCalculator_;
     }
 
-    void resetDailyValueInterpolator( boost::shared_ptr< interpolators::OneDimensionalInterpolator
-                                      < double, Eigen::Vector2d > > dailyValueInterpolator )
-    {
-        dailyIersValueInterpolator_ = dailyValueInterpolator;
-    }
-
 private:
     //! Interpolator for daily IERS-measured pole offsets.
     /*!
-     *  Interpolator, with time in UTC since J2000 as input and
-     *  interpolated measured daily pole offset values as output.
+     *  Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output.
      */
     boost::shared_ptr< interpolators::OneDimensionalInterpolator
-        < double, Eigen::Vector2d > > dailyIersValueInterpolator_;
+    < double, Eigen::Vector2d > > dailyIersValueInterpolator_;
 
     //! Object calculating short period polar motion variations.
-    /*!
-     *  Object calculating short period polar motion variations.
-     */
     boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator_;
 };
 
@@ -113,4 +112,4 @@ private:
 
 }
 
-#endif // POLARMOTIONCALCULATOR_H
+#endif // TUDAT_POLARMOTIONCALCULATOR_H
