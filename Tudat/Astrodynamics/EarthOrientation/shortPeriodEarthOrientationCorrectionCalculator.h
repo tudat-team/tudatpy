@@ -55,28 +55,26 @@ public:
      *  \param conversionFactor Conversion factor to be used for amplitudes, used to multiply input values, typically for unit
      *  conversion purposes.
      *  \param minimumAmplitude Minimum amplitude that is read from files and considered in calculations.
-     *  Default is zero, i.e. all corrections are accepted.
-     *  \param amplitudesFiles List of files with amplitudes for corrections, defaults from
-     *  2010 IERS Conventions, Tables 5.1a, 8.2a and 8.2b.
-     *  \param argumentMultipliersFile Fundamental argument multiplier for corrections,defaults from
-     *  2010 IERS Conventions, Tables 5.1a, 8.2a and 8.2b.
+     *  \param amplitudesFiles List of files with amplitudes for corrections
+     *  \param argumentMultipliersFile Fundamental argument multiplier for corrections
      *  \param argumentFunction Fundamental argument functions associated with multipliers, default Delaunay arguments with GMST
      */
     ShortPeriodEarthOrientationCorrectionCalculator(
             const double conversionFactor,
-            const double minimumAmplitude = 0.0,
-            const std::vector< std::string >& amplitudesFiles =
-    { input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-            input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
-            const std::vector< std::string >& argumentMultipliersFile =
-    { input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
-            input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
+            const double minimumAmplitude,
+            const std::vector< std::string >& amplitudesFiles,
+            const std::vector< std::string >& argumentMultipliersFile ,
             const boost::function< Eigen::Vector6d( const double )  > argumentFunction =
             boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) ):
         argumentFunction_( argumentFunction )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > dataFromFile;
+        if( amplitudesFiles.size( ) != argumentMultipliersFile.size( ) )
+        {
+            throw std::runtime_error( "Error when calling ShortPeriodEarthOrientationCorrectionCalculator, input size is inconsistent" );
+        }
 
+        // Read data from files
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > dataFromFile;
         for( unsigned int i = 0; i < amplitudesFiles.size( ); i++ )
         {
             dataFromFile = readAmplitudesAndFundamentalArgumentMultipliers(

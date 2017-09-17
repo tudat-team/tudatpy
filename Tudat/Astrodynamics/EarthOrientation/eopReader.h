@@ -39,26 +39,33 @@
 namespace tudat
 {
 
-struct DailyIersEopCorrections
+namespace earth_orientation
 {
-    std::map< double, Eigen::Vector2d > cipInItrs; // xPole, yPole
-    std::map< double, Eigen::Vector2d > cipInGcrsCorrection; // dX, dY
-    std::map< double, double > ut1MinusUtc;
-    std::map< double, double > lengthOfDayOffset;
-};
 
+//! Class used to read Earth Orientation Parameters (EOP) from file
 class EOPReader
 {
 public:
-    EOPReader( std::string eopFile = tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
-               std::string format = "C04",
-               IAUConventions = iau_2006 );
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param eopFile Name of EOP file that is to be used
+     * \param format Identifier for file format that is provied
+     * \param nutationTheory Nutation theory w.r.t. which the EOP data is given.
+     */
+    EOPReader(
+            const std::string& eopFile = tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
+            const std::string& format = "C04",
+            const IAUConventions nutationTheory = iau_2006 );
+
+    //! Function to retrieve the data of UT1-UTC, as provided in the EOP file.
     std::map< double, double > getUt1MinusUtcMapRaw( )
     {
         return ut1MinusUtc;
     }
 
+    //! Function to retrieve the data of UT1-UTC, with map key seconds since J2000
     std::map< double, double > getUt1MinusUtcMapInSecondsSinceJ2000( )
     {
         return utilities::linearlyScaleKeyOfMap< double, double >
@@ -68,11 +75,21 @@ public:
 
     }
 
+    //! Function to retrieve the data of LOD offset, as provided in the EOP file.
+    /*!
+     * Function to retrieve the data of LOD offset, as provided in the EOP file.
+     * \return Data of LOD offset, as provided in the EOP file.
+     */
     std::map< double, double > getLengthOfDayMapRaw( )
     {
         return lengthOfDayOffset;
     }
 
+    //! Function to retrieve the data of LOD offset, with map key seconds since J2000
+    /*!
+     * Function to retrieve the data of LOD offset, with map key seconds since J2000
+     * \return Data of LOD offset, with map key seconds since J2000
+     */
     std::map< double, double > getLengthOfDayMapInSecondsSinceJ2000( )
     {
         return utilities::linearlyScaleKeyOfMap< double, double >
@@ -82,11 +99,21 @@ public:
 
     }
 
+    //! Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
+    /*!
+    *  Function to retrieve the data of CIP in ITRS correction (polar motion), as provided in the EOP file.
+    *  \return Data of CIP in ITRS correction (polar motion), as provided in the EOP file.
+    */
     std::map< double, Eigen::Vector2d > getCipInItrsMapRaw( )
     {
         return cipInItrs;
     }
 
+    //! Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
+    /*!
+    *  Function to retrieve the data of CIP in ITRS correction (polar motion), with map key seconds since J2000
+    *  \return Data of CIP in ITRS correction (polar motion), with map key seconds since J2000
+    */
     std::map< double, Eigen::Vector2d > getCipInItrsMapInSecondsSinceJ2000( )
     {
         return utilities::linearlyScaleKeyOfMap< double, Eigen::Vector2d >
@@ -96,11 +123,21 @@ public:
 
     }
 
+    //! Function to retrieve the data of CIP in GCRS correction (nutation), as provided in the EOP file.
+    /*!
+    *  Function to retrieve the data of CIP in GCRS correction (nutation), as provided in the EOP file.
+    *  \return Data of CIP in GCRS correction (nutation), as provided in the EOP file.
+    */
     std::map< double, Eigen::Vector2d > getCipInGcrsCorrectionMapRaw( )
     {
         return cipInGcrsCorrection;
     }
 
+    //! Function to retrieve the data of CIP in GCRS correction (nutation), with map key seconds since J2000
+    /*!
+    *  Function to retrieve the data of CIP in GCRS correction (nutation), with map key seconds since J2000
+    *  \return Data of CIP in GCRS correction (nutation), with map key seconds since J2000
+    */
     std::map< double, Eigen::Vector2d > getCipInGcrsCorrectionMapInSecondsSinceJ2000( )
     {
         return utilities::linearlyScaleKeyOfMap< double, Eigen::Vector2d >
@@ -113,17 +150,29 @@ public:
 
 
 private:
-    void readEopFile( std::string fileName );
 
-    std::map< double, Eigen::Vector2d > cipInItrs; // xPole, yPole
+    //! Function to read EOP file
+    /*!
+     * Function to read EOP file
+     * \param fileName EOP file name.
+     */
+    void readEopFile( const std::string& fileName );
 
-    std::map< double, Eigen::Vector2d > cipInGcrsCorrection; // dX, dY
+    //! Terrestrial pole position corrections (CIP in ITRS; polar motion), read from file
+    std::map< double, Eigen::Vector2d > cipInItrs;
 
+    //! Celestial pole position corrections (CIP in GCRS; nutation), read from file
+    std::map< double, Eigen::Vector2d > cipInGcrsCorrection;
+
+    //! Corrections to UT1 - UTC, read from file
     std::map< double, double > ut1MinusUtc;
 
+    //! Corrections to LOD, read from file
     std::map< double, double > lengthOfDayOffset;
 
 };
+
+}
 
 }
 

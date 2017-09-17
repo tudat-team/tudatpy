@@ -73,10 +73,6 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
                        shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).x( ) );
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
                        shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).y( ) );
-
-
-
-
 }
 
 
