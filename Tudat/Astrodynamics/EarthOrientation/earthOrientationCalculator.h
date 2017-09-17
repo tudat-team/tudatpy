@@ -2,16 +2,15 @@
 #define EARTHORIENTATIONCALCULATOR_H
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 
-#include "Tudat/Astrodynamics/EarthOrientation/earthSiderealTimeCalculator.h"
+#include "Tudat/Astrodynamics/EarthOrientation/terrestrialTimeScaleConverter.h"
 #include "Tudat/Astrodynamics/EarthOrientation/polarMotionCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/precessionNutationCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/eopReader.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-
+#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -59,15 +58,15 @@ public:
      *  i.e. polar motion, precession/nutation and conversion between TT,TDB,UTC and UT1.
      *  \param polarMotionCalculator Pointer to object for calcu2012lating position of pole in ITRS (polarm motion).
      *  \param precessionNutationCalculator Pointer to object for calculating position of pole in GCRS (precession/nutation).
-     *  \param earthSiderealTimeCalculator Pointer to object to convert between different time scales.
+     *  \param terrestrialTimeScaleConverter Pointer to object to convert between different time scales.
      */
     EarthOrientationAnglesCalculator(
             const boost::shared_ptr< PolarMotionCalculator > polarMotionCalculator,
             const boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator,
-            const boost::shared_ptr< EarthSiderealTimeCalculator > earthSiderealTimeCalculator ):
+            const boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
         polarMotionCalculator_( polarMotionCalculator ),
         precessionNutationCalculator_( precessionNutationCalculator ),
-        earthSiderealTimeCalculator_( earthSiderealTimeCalculator ) { }
+        terrestrialTimeScaleConverter_( terrestrialTimeScaleConverter ) { }
 
     //! Calculate rotation angles from ITRS to GCRS at given time value.
     /*!
@@ -103,8 +102,8 @@ public:
     /*!
      *  Function to get object that converts between time scales.
      */
-    boost::shared_ptr< EarthSiderealTimeCalculator > getEarthSiderealTimeCalculator( )
-    { return earthSiderealTimeCalculator_; }
+    boost::shared_ptr< TerrestrialTimeScaleConverter > getTerrestrialTimeScaleConverter( )
+    { return terrestrialTimeScaleConverter_; }
 
 
 private:
@@ -124,7 +123,7 @@ private:
     /*!
      *  Pointer to object to convert between different time scales.
      */
-    boost::shared_ptr< EarthSiderealTimeCalculator > earthSiderealTimeCalculator_;
+    boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 };
 
 boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( );

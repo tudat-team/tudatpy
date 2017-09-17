@@ -58,9 +58,16 @@ static inline std::string getTudatRootPath( )
 #endif
 }
 
-static inline std::string getDataFilesRootPath( )
+static inline std::string getEarthOrientationDataFilesPath( )
 {
-    throw std::runtime_error( "Error, data root path not yet defined" );
+    // Declare file path string assigned to filePath.
+    // __FILE__ only gives the absolute path in the header file!
+    std::string filePath_( __FILE__ );
+
+    // Strip filename from temporary string and return root-path string.
+    return ( filePath_.substr( 0, filePath_.length( ) -
+                               std::string( "InputOutput/basicInputOutput.h" ).length( ) ) +
+             "Astrodynamics/EarthOrientation/Data/" );
 }
 
 //! Get Spice kernel path.

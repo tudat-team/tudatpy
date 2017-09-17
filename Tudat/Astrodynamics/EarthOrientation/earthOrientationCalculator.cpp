@@ -88,13 +88,13 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs( Eigen::Vector6d rotationAngl
 Eigen::Vector6d EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs(
         const double& timeValue, basic_astrodynamics::TimeScales timeScale, double julianDayReferenceEpoch )
 {
-    double terrestrialTime = earthSiderealTimeCalculator_->getCurrentTime(
+    double terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime(
                 timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
 
-    double utc = earthSiderealTimeCalculator_->getCurrentTime(
+    double utc = terrestrialTimeScaleConverter_->getCurrentTime(
                 timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
 
-    double ut1 = earthSiderealTimeCalculator_->getCurrentTime(
+    double ut1 = terrestrialTimeScaleConverter_->getCurrentTime(
                 timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
 
     std::pair< Eigen::Vector2d, double > positionOfCipInGcrs =
@@ -140,10 +140,10 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
     boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator =
             boost::make_shared< PrecessionNutationCalculator >( iau_2006, cipInGcrsCorrectionInterpolator );
 
-    boost::shared_ptr< EarthSiderealTimeCalculator > earthSiderealTimeCalculator = createDefaultTimeConverter( eopReader );
+    boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter = createDefaultTimeConverter( eopReader );
 
     return boost::make_shared< EarthOrientationAnglesCalculator >(
-                polarMotionCalculator, precessionNutationCalculator, earthSiderealTimeCalculator );
+                polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
 }
 
 double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,

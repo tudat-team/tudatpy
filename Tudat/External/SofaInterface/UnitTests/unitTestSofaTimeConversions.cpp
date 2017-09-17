@@ -127,8 +127,12 @@ BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
             /* Transform into internal format. */
             iauDtf2d ( "UTC", iy, mo, id, ih, im, sec, &utc1, &utc2 );
 
+            std::cout<<"UTC Sofa "<<utc1<<" "<<utc2<<" "<<( utc1 + utc2 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 86400.0<<std::endl;
+
+
             /* UTC -> UT1. */
             iauUtcut1 ( utc1, utc2, dut, &ut11, &ut12 );
+
 
             /* Extract fraction for TDB-TT calculation, later. */
             ut = fmod ( fmod(ut11,1.0) + fmod(ut12,1.0), 1.0 ) + 0.5;
@@ -186,13 +190,12 @@ BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
             /* TDB-TT (using TT as a substitute for TDB). */
             dtr = iauDtdb ( tt1, tt2, ut, elon, u/1e3, v/1e3 );
 
-
             // Define reference point and
             referencePoint = ( Eigen::Vector3d( )<<xyz[ 0 ], xyz[ 1 ], xyz[ 2 ] ).finished( );
         }
 
-        // Calculate UT1 fraction of day (add 0.5, since J2000 is referenced to noon)
-        double utFractionOfDay = std::fmod( ut1SecondsSinceEpoch / physical_constants::JULIAN_DAY  + 0.5, 1.0 );
+        // Calculate UT1 fraction of day
+        double utFractionOfDay = std::fmod( ut1SecondsSinceEpoch / physical_constants::JULIAN_DAY + 0.5, 1.0 );
 
         // Calculate TDB - TT from Sofa and comapre against cookbook result.
         double tdbMinusTt = getTDBminusTT( ttSecondsSinceJ2000, utFractionOfDay, referencePoint );
@@ -206,8 +209,7 @@ BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
 
         // Check approximate conversion, omitting utc-ut1 correction.
         double tdbMinusTtApproximate = getTDBminusTT( ttSecondsSinceJ2000, referencePoint );
-        BOOST_CHECK_SMALL( tdbMinusTtApproximate - tdbMinusTt, 1.0E-10 );
-    }
+        BOOST_CHECK_SMALL( tdbMinusTtApproximate - tdbMinusTt, 1.0E-10 );    }
 
 }
 

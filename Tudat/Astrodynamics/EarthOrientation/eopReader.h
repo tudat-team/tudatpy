@@ -39,7 +39,7 @@ struct DailyIersEopCorrections
 class EOPReader
 {
 public:
-    EOPReader( std::string eopFile = tudat::input_output::getDataFilesRootPath( ) + "/EarthOrientation/eopc04_08_IAU2000.62-now",
+    EOPReader( std::string eopFile = tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
                std::string format = "C04",
                IAUConventions = iau_2006 );
 

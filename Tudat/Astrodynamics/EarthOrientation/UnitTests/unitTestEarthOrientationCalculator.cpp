@@ -30,6 +30,7 @@
 
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/Astrodynamics/EarthOrientation/UnitTests/sofaEarthOrientationCookbookExamples.cpp"
 
 namespace tudat
@@ -43,7 +44,7 @@ using mathematical_constants::PI;
 BOOST_AUTO_TEST_SUITE( test_earth_orientation )
 
 // Compare to SOFA Cookbook
-BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetup )
+BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 {
     std::cout<<"A: "<<std::endl<<getSofaEarthOrientationExamples( 2 ) - getSofaEarthOrientationExamples( 1 )<<std::endl<<std::endl;
     std::cout<<"B: "<<std::endl<<getSofaEarthOrientationExamples( 4 ) - getSofaEarthOrientationExamples( 3 )<<std::endl;
@@ -119,6 +120,18 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetup )
                                    itrsToGcrsRotation.coeff(row, col), 1.0E-14 );
     }
 }
+
+BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSpice )
+{
+    double testTime = 1.0E1;
+    tudat::spice_interface::loadStandardSpiceKernels( );
+    tudat::spice_interface::loadSpiceKernelInTudat( tudat::input_output::getSpiceKernelPath( ) + "earth_latest_high_prec.bpc" );
+    tudat::spice_interface::loadSpiceKernelInTudat( tudat::input_output::getSpiceKernelPath( ) + "earth_fixed.tf" );
+
+    std::cout<<tudat::spice_interface::computeRotationQuaternionBetweenFrames(
+                 "J2000", "EARTH_FIXED", testTime ).toRotationMatrix( )<<std::endl;
+}
+
 
 //BOOST_AUTO_TEST_CASE( testDefaultEarthOrientationCalculator )
 //{

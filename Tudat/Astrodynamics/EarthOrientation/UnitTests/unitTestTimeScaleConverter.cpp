@@ -91,7 +91,7 @@ SofaTimeOutput getSofaDirectTimes( )
     j = iauUtcut1 ( utc1, utc2, dut, &ut11, &ut12 );
 
     /* Extract fraction for TDB-TT calculation, later. */
-    ut = fmod ( fmod(ut11,1.0) + fmod(ut12,1.0), 1.0 );
+    ut = fmod ( fmod(ut11,1.0) + fmod(ut12,1.0), 1.0 ) + 0.5;
 
     /* UTC -> TAI -> TT -> TCG. */
     j = iauUtctai ( utc1, utc2, &tai1, &tai2 );
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
 
     SofaTimeOutput sofaTimes = getSofaDirectTimes( );
 
-    boost::shared_ptr< EarthSiderealTimeCalculator > timeScaleConverter =
-            createStandardEarthOrientationCalculator( )->getEarthSiderealTimeCalculator( );
+    boost::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
+            createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );
 
     double year = 2006;
     double month = 1;

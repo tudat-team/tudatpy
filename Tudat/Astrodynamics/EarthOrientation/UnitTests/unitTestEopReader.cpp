@@ -46,7 +46,9 @@ BOOST_AUTO_TEST_CASE( testDataAgainstSofaCookbookExamples )
 {
     using namespace tudat::interpolators;
 
-    EOPReader eopReader = EOPReader( tudat::input_output::getDataFilesRootPath( ) + "/EarthOrientation/eopc04_08_IAU2000.62-now",
+    std::cout<< tudat::input_output::getEarthOrientationDataFilesPath( )<<std::endl;
+
+    EOPReader eopReader = EOPReader( tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
             "C04", iau_2000_a );
 
 
@@ -148,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 
     using namespace tudat::interpolators;
 
-    EOPReader eopReader = EOPReader( tudat::input_output::getDataFilesRootPath( ) + "/EarthOrientation/eopc04_08_IAU2000.62-now",
+    EOPReader eopReader = EOPReader( tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
             "C04", iau_2000_a );
 
     boost::shared_ptr< JumpDataLinearInterpolator < double, double > > ut1MinusUtcInterpolator =

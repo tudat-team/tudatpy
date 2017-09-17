@@ -1,5 +1,5 @@
-#ifndef EARTHSIDEREALTIMECALCULATOR_H
-#define EARTHSIDEREALTIMECALCULATOR_H
+#ifndef TUDAT_TERRESTRIALTIMESCALECONVERTER_H
+#define TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 
 #include <boost/function.hpp>
 
@@ -57,7 +57,7 @@ struct CurrentTimes
     }
 };
 
-class EarthSiderealTimeCalculator
+class TerrestrialTimeScaleConverter
 {
 public:
     //! Constructor of time scale conversion object.
@@ -69,7 +69,7 @@ public:
      *  \param groundStationCartesianPositionFunction. Position in geocentric system where conversion is to be performed.
      *  The TDB<-> TT conversion is sensitive to this at the microSecond level.
      */
-    EarthSiderealTimeCalculator(
+    TerrestrialTimeScaleConverter(
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > > dailyUtcUt1CorrectionInterpolator,
             const boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator ):
         dailyUtcUt1CorrectionInterpolator_( dailyUtcUt1CorrectionInterpolator ),
@@ -77,7 +77,7 @@ public:
         previousEarthFixedPosition_( Eigen::Vector3d::Zero( ) ), updateUt1_( 1 )
     { }
 
-    EarthSiderealTimeCalculator( ):
+    TerrestrialTimeScaleConverter( ):
         dailyUtcUt1CorrectionInterpolator_( boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >( ) ),
         shortPeriodUt1CorrectionCalculator_( getDefaultUT1CorrectionCalculator( ) ),
         previousEarthFixedPosition_( Eigen::Vector3d::Zero( ) ), updateUt1_( 0 )
@@ -254,11 +254,11 @@ private:
 
 };
 
-boost::shared_ptr< EarthSiderealTimeCalculator > createDefaultTimeConverter( boost::shared_ptr< EOPReader > eopReader =
+boost::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( boost::shared_ptr< EOPReader > eopReader =
         boost::make_shared< EOPReader >( ) );
 
 }
 
 }
 
-#endif // EARTHSIDEREALTIMECALCULATOR_H
+#endif // TUDAT_TERRESTRIALTIMESCALECONVERTER_H

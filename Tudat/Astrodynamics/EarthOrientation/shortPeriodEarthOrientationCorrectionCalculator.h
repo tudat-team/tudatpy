@@ -56,11 +56,11 @@ public:
             const double conversionFactor,
             const double minimumAmplitude = 0.0,
             const std::vector< std::string >& amplitudesFiles =
-    { tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionLibrationAmplitudes.txt",
-            tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionOceanTidesAmplitudes.txt", },
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
             const std::vector< std::string >& argumentMultipliersFile =
-    { tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionLibrationDoodsonMultipliers.txt",
-            tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionOceanTidesDoodsonMultipliers.txt" },
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationDoodsonMultipliersQuasiDiurnalOnly.txt",
+            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesDoodsonMultipliers.txt" },
             const boost::function< Eigen::Vector6d( const double ) > argumentFunction =
             boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) ):
         argumentFunction_( argumentFunction )

@@ -80,10 +80,10 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > g
 {
     return boost::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                 1.0E-6, minimumAmplitude,
-                std::vector< std::string >{  tudat::input_output::getDataFilesRootPath( ) +  "EarthOrientation/utcLibrationAmplitudes.txt",
-                                             tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/utcOceanTidesAmplitudes.txt" },
-                std::vector< std::string >{  tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/utcLibrationDoodsonMultipliers.txt",
-                                             tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/utcOceanTidesDoodsonMultipliers.txt" },
+                std::vector< std::string >{  tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
+                                             tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
+                std::vector< std::string >{  tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationDoodsonMultipliers.txt",
+                                             tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesDoodsonMultipliers.txt" },
                 boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
 }
 
@@ -92,10 +92,10 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vecto
 {
     return boost::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), minimumAmplitude,
-                std::vector< std::string >{ tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionLibrationAmplitudes.txt",
-                                            tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionOceanTidesAmplitudes.txt", },
-                std::vector< std::string >{ tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionLibrationDoodsonMultipliers.txt",
-                                            tudat::input_output::getDataFilesRootPath( ) + "EarthOrientation/polarMotionOceanTidesDoodsonMultipliers.txt" },
+                std::vector< std::string >{ tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+                                            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
+                std::vector< std::string >{ tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationDoodsonMultipliersQuasiDiurnalOnly.txt",
+                                            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesDoodsonMultipliers.txt" },
                 boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
 
 }
