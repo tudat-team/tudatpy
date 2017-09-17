@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <iostream>
@@ -31,7 +42,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodLibrationalPolarMotion)
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
     { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt" },
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationDoodsonMultipliersQuasiDiurnalOnly.txt" } );
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt" } );
 
     double testMjd = 54335.0;
 
@@ -63,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion)
     ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > polarMotionCalculator(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0,
     { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesDoodsonMultipliers.txt" } );
+    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } );
 
     double testMjd = 47100.0;
 
@@ -84,7 +95,6 @@ BOOST_AUTO_TEST_CASE( testShortPeriodOceanTidePolarMotion)
     // Difference between result and IERS code is due to different implementation (ortho-weights vs. explicit arguments), difference is still at << for Earth stations).
     BOOST_CHECK_SMALL( polarMotionCorrections.x( ) + 162.8386373279636530, 1.0 );
     BOOST_CHECK_SMALL( polarMotionCorrections.y( ) - 117.7907525842668974, 1.0 );
-
 
 }
 

@@ -1,18 +1,11 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -180,6 +173,7 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
 
     for( unsigned int i = 0; i < originScales.size( ); i++ )
     {
+        timeScaleConverter->resetTimes< double >( );
         timeScaleConverter->updateTimes( originScales.at( i ), sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
 
         double ut1 = timeScaleConverter->getCurrentTime( originScales.at( i ), ut1_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
@@ -195,6 +189,28 @@ BOOST_AUTO_TEST_CASE( testDifferentTimeScaleConversions )
         BOOST_CHECK_SMALL( tai -sofaSecondsSinceJ2000[ tai_scale ], std::numeric_limits< double >::epsilon( ) );
 
         double tt = timeScaleConverter->getCurrentTime( originScales.at( i ), tt_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+        BOOST_CHECK_SMALL( tt -sofaSecondsSinceJ2000[ tt_scale ], std::numeric_limits< double >::epsilon( ) );
+
+    }
+
+    for( unsigned int i = 0; i < originScales.size( ); i++ )
+    {
+        timeScaleConverter->resetTimes< Time >( );
+        timeScaleConverter->updateTimes< Time >( originScales.at( i ), sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+
+        double ut1 = timeScaleConverter->getCurrentTime< Time >( originScales.at( i ), ut1_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+        BOOST_CHECK_SMALL( ut1 - sofaSecondsSinceJ2000[ ut1_scale ], std::numeric_limits< double >::epsilon( ) );
+
+        double utc = timeScaleConverter->getCurrentTime< Time >( originScales.at( i ), utc_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+        BOOST_CHECK_SMALL( utc - sofaSecondsSinceJ2000[ utc_scale ], std::numeric_limits< double >::epsilon( ) );
+
+        double tdb = timeScaleConverter->getCurrentTime< Time >( originScales.at( i ), tdb_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+        BOOST_CHECK_SMALL( tdb - sofaSecondsSinceJ2000[ tdb_scale ], std::numeric_limits< double >::epsilon( ) );
+
+        double tai = timeScaleConverter->getCurrentTime< Time >( originScales.at( i ), tai_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
+        BOOST_CHECK_SMALL( tai -sofaSecondsSinceJ2000[ tai_scale ], std::numeric_limits< double >::epsilon( ) );
+
+        double tt = timeScaleConverter->getCurrentTime< Time >( originScales.at( i ), tt_scale, sofaSecondsSinceJ2000[ originScales.at( i ) ], stationCartesianPosition );
         BOOST_CHECK_SMALL( tt -sofaSecondsSinceJ2000[ tt_scale ], std::numeric_limits< double >::epsilon( ) );
 
     }

@@ -1,18 +1,11 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -61,10 +54,10 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
 
     double testUtc = sofa_interface::convertTTtoUTC( testEphemerisTime );
 
-    Eigen::Vector6d doodsonArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
+    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
 
     Eigen::Vector2d totalPolarMotionFromTime = testPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
-    Eigen::Vector2d totalPolarMotionFromArguments = testPolarMotionCalculator->getPositionOfCipInItrs( doodsonArguments, testUtc );
+    Eigen::Vector2d totalPolarMotionFromArguments = testPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
 
     BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
                        shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).x( ) );
@@ -77,9 +70,9 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
                        shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).y( ) );
 
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( doodsonArguments ) ).x( ) );
+                       shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).x( ) );
     BOOST_CHECK_EQUAL( totalPolarMotionFromArguments.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
-                       shortPeriodPolarMotionCalculator->getCorrections( doodsonArguments ) ).y( ) );
+                       shortPeriodPolarMotionCalculator->getCorrections( fundamentalArguments ) ).y( ) );
 
 
 

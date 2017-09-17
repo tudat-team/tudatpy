@@ -1,11 +1,21 @@
-#ifndef PRECESSIONNUTATIONCALCULATOR_H
-#define PRECESSIONNUTATIONCALCULATOR_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#ifndef TUDAT_PRECESSIONNUTATIONCALCULATOR_H
+#define TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
-
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 
 namespace tudat
@@ -14,6 +24,11 @@ namespace tudat
 namespace earth_orientation
 {
 
+//! Function to compute precession/nutation angles,
+/*!
+ *  Function to compute precession/nutation angles, defined by position of CIP in GCRS (X and Y parameters of IERS 2010
+ *  Conventions, Section 5). Computed by combining IAU theory output with daily IERS corrections.
+ */
 class PrecessionNutationCalculator
 {
 public:
@@ -29,8 +44,8 @@ public:
      */
     PrecessionNutationCalculator(
             const IAUConventions precessionNutationTheory,
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator
-            < double, Eigen::Vector2d > > dailyCorrectionInterpolator );
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
+            dailyCorrectionInterpolator );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
@@ -38,12 +53,10 @@ public:
      *  Only TT is taken as input, UTC is calculated internally by using the SOFA wrappers. If UTC is
      *  known when calling this function, use the overloaded version, instead.
      *  \param terrestrialTime TT at which calculation is to be performed.
-     *  \param terrestrialTimeDaysEpochShift Julian days since julian day = 0 at which TT=0 is defined in input.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
     std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
-            const double terrestrialTime,
-            const double terrestrialTimeDaysEpochShift = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double terrestrialTime );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
     /*!
@@ -51,13 +64,11 @@ public:
      *  TT and UTC is taken as input,If UTC is not known when calling this function, use the overloaded version, instead.
      *  \param terrestrialTime TT at which calculation is to be performed.
      *  \param utc UTC at which calculation is to be performed.
-     *  \param terrestrialTimeDaysEpochShift Julian days since julian day = 0 at which TT=0 is defined in input.
      *  \return Pair of CIP position in GCRS (X and Y) and CIO-locator (s).
      */
     std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
             const double terrestrialTime,
-            const double utc,
-            const double terrestrialTimeDaysEpochShift = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double utc );
 
 private:
 
@@ -82,4 +93,4 @@ private:
 
 }
 
-#endif // PRECESSIONNUTATIONCALCULATOR_H
+#endif // TUDAT_PRECESSIONNUTATIONCALCULATOR_H

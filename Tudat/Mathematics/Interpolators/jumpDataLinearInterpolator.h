@@ -80,17 +80,7 @@ public:
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
-    //! Constructor from map of independent/dependent data.
-    /*!
-     *  This constructor initializes the interpolator from a map containing independent variables
-     *  as key and dependent variables as value. A lookup scheme can be provoded to override the
-     *  given default.
-     *  \param dataMap. Map containing independent variables as key and dependent variables as
-     *  value.
-     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
-     *  interpolation.
-     */
+
     JumpDataLinearInterpolator( std::map< IndependentVariableType, DependentVariableType > dataMap,
                                 DependentVariableType maximumAllowableVariation,
                                 DependentVariableType jumpSize,
@@ -118,16 +108,7 @@ public:
     }
 
     //! Constructor from vectors of independent/dependent data.
-    /*!
-     *  This constructor initializes the interpolator from a two vectors containing independent
-     *  variables as key and dependent variables as value. A lookup scheme can be provoded to
-     *  override the given default.
-     *  \param independentValues. Vector of values of independent variables that are used
-     *  \param dependentValues. Vector of values of dependent variables that are used
-     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
-     *  interpolation.
-     */
+
     JumpDataLinearInterpolator( std::vector< IndependentVariableType > independentValues,
                                 std::vector< DependentVariableType > dependentValues,
                                 DependentVariableType maximumAllowableVariation,

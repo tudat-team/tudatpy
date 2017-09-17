@@ -1,5 +1,16 @@
-#ifndef SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
-#define SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
+#ifndef TUDAT_SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
+#define TUDAT_SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
 
 
 #include <string>
@@ -12,56 +23,55 @@
 
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/EarthOrientation/readAmplitudeAndDoodsonNumber.h"
+#include "Tudat/Astrodynamics/EarthOrientation/readAmplitudeAndArgumentMultipliers.h"
+
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 
-//! Object to calculate the short period (2 days and lower) polar motion.
-/*!
- *  Object to calculate the short period (2 days and lower) polar motion, taking into account
- *  variations due to both libration and ocean tides.
- */
+
 namespace tudat
 {
 
 namespace earth_orientation
 {
 
+//! Object to calculate the short period variations in Earth orientaion parameters
+/*!
+ *  Object to calculate the short period  variations in Earth orientaion parameters, e.g. taking into account
+ *  variations due to both libration and ocean tides.
+ */
 template< typename OutputType >
 class ShortPeriodEarthOrientationCorrectionCalculator
 {
 public:
-    //! Constructor, requires files defining the amplitudes and doodson numbers of the variations.
+    //! Constructor, requires files defining the amplitudes and fundamental argument multipliers of the variations.
     /*!
-     *  Constructor, requires files defining the sine and cosine amplitudes and doodson numbers o
+     *  Constructor, requires files defining the sine and cosine amplitudes and fundamental argument multipliers numbers
      *  of the variations for both ocean tide and libration variations. A cut-off amplitude (taken as
      *  the RSS of the amplitudes) below which amplitudes in the files are ignored can be provided.
+     *  \param conversionFactor Conversion factor to be used for amplitudes, used to multiply input values, typically for unit
+     *  conversion purposes.
      *  \param minimumAmplitude Minimum amplitude that is read from files and considered in calculations.
      *  Default is zero, i.e. all corrections are accepted.
-     *  \param librationAmplitudesFile Amplitudes of libration-induced variations, defaults from
-     *  2010 IERS Conventions, Tables 5.1a.
-     *  \param librationDoodsonMultipliersFile Doodson number of libration-induced variations, defaults from
-     *  2010 IERS Conventions, Tables 5.1a
-     *  \param oceanTideAmplitudesFile Amplitudes of ocean tide-induced variations, defaults from
-     *  2010 IERS Conventions, Tables 8.2a and 8.2b.
-     *  \param oceanTideDoodsonMultipliersFile Doodson number of ocean tide-induced variations, defaults from
-     *  2010 IERS Conventions, Tables 8.2a and 8.2b.
+     *  \param amplitudesFiles List of files with amplitudes for corrections, defaults from
+     *  2010 IERS Conventions, Tables 5.1a, 8.2a and 8.2b.
+     *  \param argumentMultipliersFile Fundamental argument multiplier for corrections,defaults from
+     *  2010 IERS Conventions, Tables 5.1a, 8.2a and 8.2b.
+     *  \param argumentFunction Fundamental argument functions associated with multipliers, default Delaunay arguments with GMST
      */
     ShortPeriodEarthOrientationCorrectionCalculator(
             const double conversionFactor,
             const double minimumAmplitude = 0.0,
             const std::vector< std::string >& amplitudesFiles =
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
-            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
+    { input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+            input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesAmplitudes.txt", },
             const std::vector< std::string >& argumentMultipliersFile =
-    { tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationDoodsonMultipliersQuasiDiurnalOnly.txt",
-            tudat::input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesDoodsonMultipliers.txt" },
-            const boost::function< Eigen::Vector6d( const double ) > argumentFunction =
+    { input_output::getEarthOrientationDataFilesPath( ) + "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+            input_output::getEarthOrientationDataFilesPath( ) + "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
+            const boost::function< Eigen::Vector6d( const double )  > argumentFunction =
             boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) ):
         argumentFunction_( argumentFunction )
     {
@@ -69,64 +79,74 @@ public:
 
         for( unsigned int i = 0; i < amplitudesFiles.size( ); i++ )
         {
-            dataFromFile = readAmplitudesAndDoodsonMultipliers(
+            dataFromFile = readAmplitudesAndFundamentalArgumentMultipliers(
                         amplitudesFiles.at( i ), argumentMultipliersFile.at( i ), minimumAmplitude );
             argumentAmplitudes_.push_back( conversionFactor * dataFromFile.first );
             argumentMultipliers_.push_back( dataFromFile.second );
         }
     }
 
-    //! Function to obtain short period polar motion corrections.
+    //! Function to obtain short period corrections.
     /*!
-     *  Function to obtain short period polar motion corrections, using time as input. Doodson arguments are calculated internally.
+     *  Function to obtain short period corrections, using time as input. Fundamental arguments are calculated internally.
      *  \param ephemerisTime Time (TDB seconds since J2000) at which corretions are to be determined
-     *  \return Short period corrections to x_{p} and y_{p}
+     *  \return Short period corrections
      */
     OutputType getCorrections( const double& ephemerisTime )
     {
         return sumCorrectionTerms( argumentFunction_( ephemerisTime ) );
     }
 
-    //! Function to obtain short period polar motion corrections.
+    //! Function to obtain short period corrections.
     /*!
-     *  Function to obtain short period polar motion corrections, using doodson arguments as input.
-     *  \param doodsonArguments Doodson arguments from which corretions are to be determined
-     *  \return Short period corrections to x_{p} and y_{p}
+     *  Function to obtain short period corrections, using fundamental arguments as input.
+     *  \param fundamentalArguments Fundamental arguments from which corretions are to be determined
+     *  \return Short period corrections
      */
-    OutputType getCorrections( const Eigen::Vector6d& arguments )
+    OutputType getCorrections( const Eigen::Vector6d& fundamentalArguments )
     {
-        return sumCorrectionTerms( arguments );
+        return sumCorrectionTerms( fundamentalArguments );
     }
 
 private:
 
-    //! Function to sum all the corretion terms to the polar motion.
+    //! Function to sum all the corrcetion terms.
     /*!
-     *  Function to sum all the corretion terms to the polar motion.
+     *  Function to sum all the corrcetion terms.
+     * \param arguments Values of fundamental arguments
+     * \return Total correction at current fundamental arguments
      */
     OutputType sumCorrectionTerms( const Eigen::Vector6d& arguments );
 
     //! Amplitudes of libration-induced variations
-    /*!
-     *  Amplitudes of libration-induced variations
-     */
     std::vector< Eigen::MatrixXd > argumentAmplitudes_;
 
-    //! Doodsons number of libration-induced variations.
-    /*!
-     *  Doodsons number of libration-induced variations.
-     */
+    //! Fundamental argument multipliers of libration-induced variations.
     std::vector< Eigen::MatrixXd > argumentMultipliers_;
 
+    //! Fundamental argument functions associated with multipliers.
     boost::function< Eigen::Vector6d( const double ) > argumentFunction_;
 
 
 };
 
-
+//! Function to retrieve the default UT1 short-period correction calculator
+/*!
+ * Function to retrieve the default UT1 short-period correction calculator, from Tables  5.1, 8.2 and 8.2. of IERS 2010
+ * Conventions. An amplitude cutoff may be provided.
+ * \param minimumAmplitude Variation amplitude below which corrections are not taken into account.
+ * \return Default UT1 short-period correction calculator
+ */
 boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
         const double minimumAmplitude = 0.0 );
 
+//! Function to retrieve the default polar motion short-period correction calculator
+/*!
+ * Function to retrieve the default polar motion short-period correction calculator, from Tables  5.1, 8.2 and 8.2. of IERS 2010
+ * Conventions. An amplitude cutoff may be provided.
+ * \param minimumAmplitude Variation amplitude below which corrections are not taken into account.
+ * \return Default polar motion short-period correction calculator
+ */
 boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
         const double minimumAmplitude = 0.0 );
 
@@ -135,4 +155,4 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vecto
 }
 
 
-#endif // SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
+#endif //TUDAT_SHORTPERIODEARTHORIENTATIONCORRECTIONCALCULATOR_H
