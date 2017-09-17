@@ -15,22 +15,27 @@
 namespace tudat
 {
 
-EOPReader::EOPReader( std::string eopFile,
-             std::string format,
-             IAUConventions nutationTheory )
+namespace earth_orientation
+{
+
+//! Constructor
+EOPReader::EOPReader( const std::string& eopFile,
+                      const std::string& format,
+                      const IAUConventions nutationTheory )
 {
     if( format != "C04" )
     {
-        std::cerr<<"Warning, only C04 EOP file format currently supported by reader "<<std::endl;
+        throw std::runtime_error( "Warning, only C04 EOP file format currently supported by reader." );
     }
     if( !( nutationTheory == iau_2000_a || nutationTheory == iau_2006 ) )
     {
-        std::cerr<<"Warning, only IAU2000 nutation theory format currently supported by reader "<<std::endl;
+        throw std::runtime_error( "Warning, only IAU2000 nutation theory format currently supported by reader." );
     }
     readEopFile( eopFile );
 }
 
-void EOPReader::readEopFile( std::string fileName )
+//! Function to read EOP file
+void EOPReader::readEopFile( const std::string& fileName )
 {
     using namespace tudat::unit_conversions;
 
@@ -40,13 +45,11 @@ void EOPReader::readEopFile( std::string fileName )
     // Check if file opened correctly.
     if ( stream.fail( ) )
     {
-        boost::throw_exception( std::runtime_error( boost::str(
-                                                        boost::format( "Data file '%s' could not be opened." ) % fileName.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened." + fileName );
     }
 
     // Initialize boolean that gets set to true once the file header is passed.
     bool isHeaderPassed = 0;
-
 
     // Line based parsing
     std::string line;
@@ -71,11 +74,11 @@ void EOPReader::readEopFile( std::string fileName )
         {
             if( vectorOfIndividualStrings[ 6 ] == "dPsi" )
             {
-                std::cerr<<"Warning, found dPsi, expected dX as CIP offset in GCRS, wrong nutation format requested"<<std::endl;
+                throw std::runtime_error( "Warning, found dPsi, expected dX as CIP offset in GCRS, wrong nutation format requested" );
             }
             else if( vectorOfIndividualStrings[ 7 ] == "dEps" )
             {
-                std::cerr<<"Warning, found dEps, expected dY as CIP offset in GCRS, wrong nutation format requested"<<std::endl;
+                throw std::runtime_error( "Warning, found dEps, expected dY as CIP offset in GCRS, wrong nutation format requested" );
             }
 
             isHeaderPassed = 1;
@@ -105,6 +108,8 @@ void EOPReader::readEopFile( std::string fileName )
 
         }
     }
+}
+
 }
 
 }

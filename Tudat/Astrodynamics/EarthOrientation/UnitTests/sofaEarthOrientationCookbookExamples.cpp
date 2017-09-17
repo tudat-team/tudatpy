@@ -201,9 +201,13 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  CIP and CIO, IAU 2006/2000A.
         iauXys06a ( DJMJD0, TT, &X, &Y, &S );
 
+        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<std::endl;
+
         //  Add CIP corrections.
         X = X + DX06;
         Y = Y + DY06;
+
+        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
 
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
@@ -221,6 +225,12 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Form celestial-terrestrial matrix (including polar motion).
         iauRxr ( RPOM, RC2TI, RC2IT );
 
+        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+                   convertArrayToMatrix( RC2I )<<std::endl;
+        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+                   convertArrayToMatrix( RC2TI )<<std::endl;
+        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+                   convertArrayToMatrix( RC2IT )<<std::endl;
         break;
 
         //  ===========================================
@@ -231,12 +241,19 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         iauXy06 ( DJMJD0, TT, &X, &Y );
         S = iauS06 ( DJMJD0, TT, X, Y );
 
+        //std::cout<<"Corrections B: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<std::endl;
+
         //  Add CIP corrections.
         X = X + DX06;
         Y = Y + DY06;
 
+        //std::cout<<"Corrections B: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
+
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
+
+//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+//                   convertArrayToMatrix( RC2I )<<std::endl;
 
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );

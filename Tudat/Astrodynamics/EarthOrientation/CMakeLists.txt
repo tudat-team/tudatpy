@@ -43,10 +43,6 @@ set(EARTH_ORIENTATION_HEADERS
 add_library(tudat_earth_orientation STATIC ${EARTH_ORIENTATION_SOURCES} ${EARTH_ORIENTATION_HEADERS})
 setup_tudat_library_target(tudat_earth_orientation "${SRCROOT}${EARTHORIENTATIONDIR}")
 
-#add_executable(test_EarthOrientation "${SRCROOT}${EARTHORIENTATIONDIR}/earthOrientationTest.cpp")
-#setup_custom_test_program(test_EarthOrientation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-#target_link_libraries(test_EarthOrientation tudat_earth_orientation tudat_spice_interface tudat_sofa_interface tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_input_output sofa cspice ${Boost_LIBRARIES})
-
 add_executable(test_EarthOrientationCalculator "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestEarthOrientationCalculator.cpp")
 setup_custom_test_program(test_EarthOrientationCalculator "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_EarthOrientationCalculator tudat_earth_orientation tudat_spice_interface tudat_sofa_interface tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output tudat_input_output sofa cspice ${Boost_LIBRARIES})
@@ -70,10 +66,5 @@ target_link_libraries(test_ShortPeriodPolarMotion tudat_earth_orientation tudat_
 add_executable(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestShortPeriodUT1Corrections.cpp")
 setup_custom_test_program(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}")
 target_link_libraries(test_ShortPeriodUT1Correction tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
-
-add_executable(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestEarthOrientationInterpolator.cpp")
-setup_custom_test_program(test_EarthOrientationInterpolator "${SRCROOT}${EARTHORIENTATIONDIR}")
-target_link_libraries(test_EarthOrientationInterpolator tudat_earth_orientation tudat_sofa_interface tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output tudat_input_output sofa ${Boost_LIBRARIES})
-
 
 

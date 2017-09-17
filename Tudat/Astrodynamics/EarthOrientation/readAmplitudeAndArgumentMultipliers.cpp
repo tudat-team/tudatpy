@@ -13,7 +13,6 @@
 #include <boost/exception/all.hpp>
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"
-
 #include "Tudat/Astrodynamics/EarthOrientation/readAmplitudeAndArgumentMultipliers.h"
 
 namespace tudat

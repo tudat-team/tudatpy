@@ -31,8 +31,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace tudat::earth_orientation;
-using mathematical_constants::PI;
+using namespace earth_orientation;
 
 BOOST_AUTO_TEST_SUITE( test_earth_orientation )
 
@@ -41,8 +40,10 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 {
     std::cout<<"A: "<<std::endl<<getSofaEarthOrientationExamples( 2 ) - getSofaEarthOrientationExamples( 1 )<<std::endl<<std::endl;
     std::cout<<"B: "<<std::endl<<getSofaEarthOrientationExamples( 4 ) - getSofaEarthOrientationExamples( 3 )<<std::endl;
-    double terrestrialTimeDaysSinceMjd0 = 54195.500754444445192;
-    double terrestrialTimeSecondsSinceJ2000 = ( 54195.500754444445192 -
+
+
+    double terrestrialTimeDaysSinceMjd0 = 54195.50075444445;
+    double terrestrialTimeSecondsSinceJ2000 = ( terrestrialTimeDaysSinceMjd0-
                                                 ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
                                                   basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
 
@@ -54,28 +55,44 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     double arcSecondToRadian = 4.848136811095359935899141E-6;
 
-    double X = 0.000712264729525;
-    double Y = 0.000044385248875;
+    double uncorrectedX = 0.0007122638811749685;
+    double uncorrectedY = 4.438634561981791e-05;
     double s = -0.002200475 * arcSecondToRadian;
+
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs.first( 0 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs.first( 1 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs.second ), 1.0E-15 );
+
+    //  CIP offsets wrt IAU 2006/2000A (mas->radians).
+    double DX06 =  0.1750 * arcSecondToRadian / 1000.0;
+    double DY06 = -0.2259 * arcSecondToRadian / 1000.0;
+
+    //double X = uncorrectedX + DX06;
+    //double Y = uncorrectedY + DY06;
+
+    double X = 0.0007122647295252042;
+    double Y = 4.43852488746973e-05;
 
     Eigen::Matrix3d cirsToGcrsRotation = calculateRotationFromCirsToGcrs( X, Y, s ).toRotationMatrix( );
 
     Eigen::Matrix3d expectedCirsToGcrsRotation;
-    expectedCirsToGcrsRotation<<0.999999746339445,-0.000000005138822,-0.000712264729999,
-            -0.000000026475226,0.999999999014975,-0.000044385241276,
-            0.000712264729525,0.000044385248875,0.999999745354420;
+    expectedCirsToGcrsRotation<<0.999999746339445, -5.138822464778592e-09, -0.0007122647299987151,
+            -2.647522615722986e-08, 0.9999999990149748, -4.438524127611243e-05,
+            0.0007122647295252042, 4.43852488746973e-05, 0.9999997453544199;
 
+
+    for( unsigned int i = 0; i < 3; i++ )
     {
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCirsToGcrsRotation.transpose( ), cirsToGcrsRotation, 1.0E-7 );
-
-        TUDAT_CHECK_MATRIX_BASE( expectedCirsToGcrsRotation.transpose( ), cirsToGcrsRotation )
-                BOOST_CHECK_SMALL( expectedCirsToGcrsRotation.transpose( ).coeff(row, col) -
-                                   cirsToGcrsRotation.coeff(row, col), 1.0E-15 );
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( expectedCirsToGcrsRotation.transpose( )( i, j ) -
+                                          cirsToGcrsRotation( i, j ) ), 1.0E-15 );
+        }
     }
 
     std::cout<<"Testing: "<<( expectedCirsToGcrsRotation.transpose( )-cirsToGcrsRotation )<<std::endl<<std::endl;
 
-    double era = 13.318492966097 * PI / 180.0;
+    double era = 13.318492966097 * mathematical_constants::PI / 180.0;
     Eigen::Matrix3d tirsToCirsRotation = Eigen::Matrix3d ( calculateRotationFromTirsToCirs( era ) );
 
     double xPole = 0.034928200 * arcSecondToRadian;
@@ -92,6 +109,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( itrsToGcrsRotationDirect, itrsToGcrsRotation, 1.0E-10 );
 
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itrsToGcrsRotationDirect( i, j ) -
+                               itrsToGcrsRotation( i, j ) ), 1.0E-14 );
+        }
+    }
+
     Eigen::Matrix3d expectedGcrsToTirs;
 
     expectedGcrsToTirs<<+0.973104317573127,+0.230363826247709,-0.000703332818416,
@@ -100,6 +126,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     std::cout<<( expectedGcrsToTirs.transpose( ) - cirsToGcrsRotation * tirsToCirsRotation )<<std::endl<<std::endl;
 
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( expectedGcrsToTirs.transpose( )( i, j ) -
+                               ( cirsToGcrsRotation * tirsToCirsRotation )( i, j ) ), 1.0E-14 );
+        }
+    }
+
     Eigen::Matrix3d expectedGcrsToItrs;
     expectedGcrsToItrs<< 0.973104317697536,0.230363826239128,-0.000703163481769,
             -0.230363800456036,0.973104570632801,0.000118545368117,
@@ -107,38 +142,15 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     std::cout<<"Testing total: "<< ( expectedGcrsToItrs.transpose( ) - itrsToGcrsRotation )<<std::endl;
 
+    for( unsigned int i = 0; i < 3; i++ )
     {
-        TUDAT_CHECK_MATRIX_BASE( expectedGcrsToItrs.transpose( ), itrsToGcrsRotation )
-                BOOST_CHECK_SMALL( expectedGcrsToItrs.transpose( ).coeff(row, col) -
-                                   itrsToGcrsRotation.coeff(row, col), 1.0E-14 );
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( expectedGcrsToItrs.transpose( )( i, j ) -
+                               itrsToGcrsRotation( i, j ), 1.0E-14 );
+        }
     }
 }
-
-BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSpice )
-{
-    double testTime = 1.0E1;
-    tudat::spice_interface::loadStandardSpiceKernels( );
-    tudat::spice_interface::loadSpiceKernelInTudat( tudat::input_output::getSpiceKernelPath( ) + "earth_latest_high_prec.bpc" );
-    tudat::spice_interface::loadSpiceKernelInTudat( tudat::input_output::getSpiceKernelPath( ) + "earth_fixed.tf" );
-
-    std::cout<<tudat::spice_interface::computeRotationQuaternionBetweenFrames(
-                 "J2000", "EARTH_FIXED", testTime ).toRotationMatrix( )<<std::endl;
-}
-
-
-//BOOST_AUTO_TEST_CASE( testDefaultEarthOrientationCalculator )
-//{
-//    boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
-//            createStandardEarthOrientationCalculator( );
-//    boost::gregorian::date currentDate( 2002, 04, 05 );
-//    double currentFractionOfDay = 0.2;
-//    double secondsSinceEpoch =
-//            basic_astrodynamics::calculateJulianDaySinceEpoch( currentDate, currentFractionOfDay ) * physical_constants::JULIAN_DAY;
-//    std::cout<<earthOrientationCalculator->getRotationAnglesFromItrsToGcrs( secondsSinceEpoch )<<std::endl<<std::endl;
-//    std::cout<<earthOrientationCalculator->getRotationAnglesFromItrsToGcrs( secondsSinceEpoch ) * 3600.0 * 180.0 / (
-//                   mathematical_constants::PI ) <<std::endl<<std::endl;
-
-//}
 
 
 BOOST_AUTO_TEST_SUITE_END( )
