@@ -19,7 +19,7 @@
 # Set the source files.
 set(EARTH_ORIENTATION_SOURCES
   "${SRCROOT}${EARTHORIENTATIONDIR}/earthOrientationCalculator.cpp"
-  "${SRCROOT}${EARTHORIENTATIONDIR}/earthSiderealTimeCalculator.cpp"
+  "${SRCROOT}${EARTHORIENTATIONDIR}/terrestrialTimeScaleConverter.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/eopReader.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/polarMotionCalculator.cpp"
   "${SRCROOT}${EARTHORIENTATIONDIR}/precessionNutationCalculator.cpp"
@@ -31,7 +31,7 @@ set(EARTH_ORIENTATION_SOURCES
 # Set the header files.
 set(EARTH_ORIENTATION_HEADERS
   "${SRCROOT}${EARTHORIENTATIONDIR}/earthOrientationCalculator.h"
-  "${SRCROOT}${EARTHORIENTATIONDIR}/earthSiderealTimeCalculator.h"
+  "${SRCROOT}${EARTHORIENTATIONDIR}/terrestrialTimeScaleConverter.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/eopReader.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/polarMotionCalculator.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/precessionNutationCalculator.h"
