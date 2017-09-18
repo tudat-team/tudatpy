@@ -4,7 +4,7 @@
   "globalFrameOrigin": "SSB",
   "globalFrameOrientation": "J2000",
   "spice": {
-    "preloadKernels": false,
+    "preloadEphemeris": false,
     "useStandardKernels": true
   },
   "bodies": {

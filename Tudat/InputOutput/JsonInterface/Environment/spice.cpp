@@ -36,8 +36,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
         jsonObject[ K::kernels ] = spiceSettings->kernels_;
     }
 
-    jsonObject[ K::preloadKernels ] = spiceSettings->preloadKernels_;
-    if ( spiceSettings->preloadKernels_ )
+    jsonObject[ K::preloadEphemeris ] = spiceSettings->preloadEphemeris_;
+    if ( spiceSettings->preloadEphemeris_ )
     {
         jsonObject[ K::interpolationStep ] = spiceSettings->interpolationStep_;
         jsonObject[ K::interpolationOffsets ] = { spiceSettings->getInitialOffset( ),
@@ -62,8 +62,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spic
         updateFromJSON( spiceSettings->kernels_, jsonObject, K::kernels );
     }
 
-    updateFromJSONIfDefined( spiceSettings->preloadKernels_, jsonObject, K::preloadKernels );
-    if ( spiceSettings->preloadKernels_ )
+    updateFromJSONIfDefined( spiceSettings->preloadEphemeris_, jsonObject, K::preloadEphemeris );
+    if ( spiceSettings->preloadEphemeris_ )
     {
         spiceSettings->interpolationOffsets_ =
                 getValue( jsonObject, K::interpolationOffsets, spiceSettings->interpolationOffsets_ );
