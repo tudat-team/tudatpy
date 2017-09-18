@@ -67,3 +67,4 @@ Tudat/External/SpiceInterface/Kernels/
 *.autosave
 *.~?~
 *.save
+.DS_Store
