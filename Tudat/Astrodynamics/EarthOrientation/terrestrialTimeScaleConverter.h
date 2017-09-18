@@ -41,7 +41,7 @@ struct CurrentTimes
      */
     TimeType getTimeValue( basic_astrodynamics::TimeScales requestedScale )
     {
-        double valueToReturn = -0.0;
+        TimeType valueToReturn = -0.0;
         switch( requestedScale )
         {
         case basic_astrodynamics::tai_scale:
@@ -183,8 +183,8 @@ public:
         {
         case basic_astrodynamics::tdb_scale:
             timesToUpdate.tdb = inputTimeValue;
-            tdbMinusTt = sofa_interface::getTDBminusTT(
-                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tt = timesToUpdate.tdb - tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
 
@@ -193,8 +193,8 @@ public:
 
         case basic_astrodynamics::tt_scale:
             timesToUpdate.tt = inputTimeValue;
-            tdbMinusTt = sofa_interface::getTDBminusTT(
-                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+                        inputTimeValue, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
             timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
 
@@ -204,8 +204,8 @@ public:
         case basic_astrodynamics::tai_scale:
             timesToUpdate.tai = inputTimeValue;
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = sofa_interface::getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             calculateUniversalTimes< TimeType >( );
@@ -214,29 +214,36 @@ public:
         case basic_astrodynamics::utc_scale:
             timesToUpdate.utc = inputTimeValue;
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
+
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = sofa_interface::getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
-            timesToUpdate.ut1 = dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) + timesToUpdate.utc;
-            timesToUpdate.ut1 += shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb );
+            timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
+                    + timesToUpdate.utc;
+            timesToUpdate.ut1 += static_cast< TimeType >(
+                        shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
 
             break;
         case basic_astrodynamics::ut1_scale:
 
             timesToUpdate.ut1 = inputTimeValue;
-            timesToUpdate.utc = timesToUpdate.ut1 - dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 );
-            timesToUpdate.utc -= shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc );
+            timesToUpdate.utc = timesToUpdate.ut1 -
+                    static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+            timesToUpdate.utc -=
+                    static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc ) );
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
-            tdbMinusTt = sofa_interface::getTDBminusTT(
-                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+            tdbMinusTt = static_cast< TimeType >( sofa_interface::getTDBminusTT(
+                        timesToUpdate.tt, siteLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane ) );
             timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
             // Iterate conversion.
-            timesToUpdate.utc = timesToUpdate.ut1 - dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc );
-            timesToUpdate.utc -= shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt );
+            timesToUpdate.utc = timesToUpdate.ut1 -
+                    static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
+            timesToUpdate.utc -= static_cast< TimeType >(
+                        shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt ) );
             timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
             timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
             tdbMinusTt = sofa_interface::getTDBminusTT(
@@ -284,10 +291,11 @@ private:
         getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >(
                     getCurrentTimeList< TimeType >( ).tai );
 
-        getCurrentTimeList< TimeType >( ).ut1 = dailyUtcUt1CorrectionInterpolator_->interpolate(
-                    getCurrentTimeList< TimeType >( ).utc ) + getCurrentTimeList< TimeType >( ).utc;
-        getCurrentTimeList< TimeType >( ).ut1 += shortPeriodUt1CorrectionCalculator_->getCorrections(
-                    getCurrentTimeList< TimeType >( ).tt );
+        getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+                    getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
+        getCurrentTimeList< TimeType >( ).ut1 +=
+                static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
+                    getCurrentTimeList< TimeType >( ).tt ) );
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -317,7 +325,7 @@ private:
  * \param eopReader Object that reads an Earth Orientation Parameters file.
  * \return Default Earth time scales conversion object
  */
-boost::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( const boost::shared_ptr< EOPReader > eopReader =
+boost::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverter( const boost::shared_ptr< EOPReader > eopReader =
         boost::make_shared< EOPReader >( ) );
 
 }

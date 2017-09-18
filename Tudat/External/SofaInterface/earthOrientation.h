@@ -79,7 +79,7 @@ double calculateGreenwichMeanSiderealTime(
  *  \return Current Earth rotation angle (normalized to [0,2 pi]).
  */
 double calculateEarthRotationAngle(
-        const double ut1, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+        const double ut1, const double referenceJulianDay );
 
 }
 

@@ -215,6 +215,8 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );
 
+        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<ERA<<" "<<13.318492966097 * M_PI / 180.0 << std::endl;
+
         //  Form celestial-terrestrial matrix (no polar motion yet).
         iauCr ( RC2I, RC2TI );
         iauRz ( ERA, RC2TI );

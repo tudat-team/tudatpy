@@ -49,7 +49,6 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs(
     // Add interpolated measured offsets.
     poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
 
-    std::cout<<"Offset: "<<poleOffsetsInItrs<<std::endl;
     // Add short period motion
     poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrections(
                 fundamentalArguments );
