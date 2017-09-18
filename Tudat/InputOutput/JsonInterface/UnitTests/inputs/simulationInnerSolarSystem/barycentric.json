@@ -2,7 +2,7 @@
   "initialEpoch": 1.0E+7,
   "finalEpoch": 1.2592E+7,
   "spice": {
-    "preloadKernels": false,
+    "preloadEphemeris": false,
     "useStandardKernels": true
   },
   "bodies": {

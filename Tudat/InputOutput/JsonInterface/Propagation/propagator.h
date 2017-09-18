@@ -253,7 +253,8 @@ void determineInitialStates(
                             }
                             else
                             {
-                                centralBodyName = getValue< std::string >( jsonPropagator, KP::centralBodies / i );
+                                centralBodyName = getValue< std::vector< std::string > >(
+                                            jsonPropagator, KP::centralBodies ).at( i );
                             }
                             const boost::shared_ptr< Body > centralBody = bodyMap.at( centralBodyName );
                             const double mu = centralBody->getGravityFieldModel( )->getGravitationalParameter( );
@@ -465,14 +466,12 @@ static std::map< IntegratedStateType, std::string > integratedStateTypes =
     { translational_state, "translational" },
     { rotational_state, "rotational" },
     { body_mass_state, "mass" },
-    { relativistic_time_rate, "relativisticTimeRate" },
     { custom_state, "custom" }
 };
 
 //! `IntegratedStateType`s not supported by `json_interface`.
 static std::vector< IntegratedStateType > unsupportedIntegratedStateTypes =
 {
-    relativistic_time_rate,
     custom_state
 };
 

@@ -61,7 +61,7 @@ public:
      *  <li>The integrator step-size is very large (in the order of several hours or days).</li>
      * </ul>
      */
-    bool preloadKernels_ = true;
+    bool preloadEphemeris_ = true;
 
     //! Offsets for the interval for which the spice kernels are to be preloaded.
     /*!
@@ -69,14 +69,14 @@ public:
      * <br/>
      * The kernels will be interpolated for the interval:
      * `[ initialEpoch - interpolationOffsets_.first, finalEpoch + interpolationOffsets_.second ]`
-     * \remark Ignored if SpiceSettings::preloadKernels_ is set to `false`.
+     * \remark Ignored if SpiceSettings::preloadEphemeris_ is set to `false`.
      * \remark If not specified, the used values are 10 * interpolationStep_.
      */
     std::pair< double, double > interpolationOffsets_ = { TUDAT_NAN, TUDAT_NAN };
 
     //! Step-size for the interpolated Spice ephemeris.
     /*!
-     * Step-size for the interpolated Spice ephemeris. Ignored if preloadKernels_ set to false.
+     * Step-size for the interpolated Spice ephemeris. Ignored if preloadEphemeris_ set to false.
      */
     double interpolationStep_ = 300.0;
 

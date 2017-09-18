@@ -49,7 +49,7 @@ struct Keys
         static const std::string useStandardKernels;
         static const std::string alternativeKernels;
         static const std::string kernels;
-        static const std::string preloadKernels;
+        static const std::string preloadEphemeris;
         static const std::string interpolationOffsets;
         static const std::string interpolationStep;
     };

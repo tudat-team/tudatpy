@@ -59,7 +59,7 @@ const std::string Keys::spice = "spice";
 const std::string Keys::Spice::useStandardKernels = "useStandardKernels";
 const std::string Keys::Spice::alternativeKernels = "alternativeKernels";
 const std::string Keys::Spice::kernels = "kernels";
-const std::string Keys::Spice::preloadKernels = "preloadKernels";
+const std::string Keys::Spice::preloadEphemeris = "preloadEphemeris";
 const std::string Keys::Spice::interpolationOffsets = "interpolationOffsets";
 const std::string Keys::Spice::interpolationStep = "interpolationStep";
 

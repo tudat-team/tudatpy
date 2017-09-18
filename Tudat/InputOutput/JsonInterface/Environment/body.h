@@ -100,7 +100,7 @@ void updateBodiesFromJSON(
     {
         if ( spiceSettings )
         {
-            if ( spiceSettings->preloadKernels_ )
+            if ( spiceSettings->preloadEphemeris_ )
             {
                 if ( integratorSettings )
                 {
@@ -119,7 +119,7 @@ void updateBodiesFromJSON(
                 {
                     throw std::runtime_error(
                                 "Could not get default bodies settings because the initial time is not known. "
-                                "Provide a valid IntegratorSettings object or turn Spice's preloadKernels off." );
+                                "Provide a valid IntegratorSettings object or turn Spice's preloadEphemeris off." );
                 }
             }
             else
@@ -129,9 +129,7 @@ void updateBodiesFromJSON(
         }
         else
         {
-            throw std::runtime_error(
-                        "Could not get default bodies settings because no Spice settings were provided. "
-                        "Provide the body settings manually or specify a valid SpiceSettings object." );
+            bodySettingsMap = getDefaultBodySettings( defaultBodyNames );
         }
     }
 
