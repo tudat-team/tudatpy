@@ -83,8 +83,8 @@ createMassRateModel(
                 for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
                 {
                     if( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThroustSource( ) ==
-                            fromThrustMassModelSettings->associatedThroustSource_ )
+                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
+                            fromThrustMassModelSettings->associatedThrustSource_ )
                     {
                         explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
                                                                    thrustAccelerations.at( i ) ) );

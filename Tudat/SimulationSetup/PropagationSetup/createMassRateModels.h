@@ -88,20 +88,20 @@ public:
      * Constructor
      * \param useAllThrustModels Boolean denoting whether all engines of the associated body are to be combined into a
      * single thrust model.
-     * \param associatedThroustSource Name of engine model from which thrust is to be derived (must be empty if
+     * \param associatedThrustSource Name of engine model from which thrust is to be derived (must be empty if
      * useAllThrustModels is set to true)
      */
     FromThrustMassModelSettings(
             const bool useAllThrustModels = 1,
-            const std::string& associatedThroustSource = "" ):
+            const std::string& associatedThrustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
-    associatedThroustSource_( associatedThroustSource ), useAllThrustModels_( useAllThrustModels ){ }
+    associatedThrustSource_( associatedThrustSource ), useAllThrustModels_( useAllThrustModels ){ }
 
     //! Destructor
     ~FromThrustMassModelSettings( ){ }
 
     //! Name of engine model from which thrust is to be derived
-    std::string associatedThroustSource_;
+    std::string associatedThrustSource_;
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust model.
     bool useAllThrustModels_;

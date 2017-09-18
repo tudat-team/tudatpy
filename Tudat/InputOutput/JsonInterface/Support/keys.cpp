@@ -140,9 +140,9 @@ const std::string Keys::Body::Ephemeris::type = "type";
 const std::string Keys::Body::Ephemeris::frameOrigin = "frameOrigin";
 const std::string Keys::Body::Ephemeris::frameOrientation = "frameOrientation";
 // const std::string Keys::Body::Ephemeris::makeMultiArc = "makeMultiArc";
-const std::string Keys::Body::Ephemeris::correctForStellarAbberation = "correctForStellarAbberation";
-const std::string Keys::Body::Ephemeris::correctForLightTimeAbberation = "correctForLightTimeAbberation";
-const std::string Keys::Body::Ephemeris::convergeLighTimeAbberation = "convergeLighTimeAbberation";
+const std::string Keys::Body::Ephemeris::correctForStellarAberration = "correctForStellarAberration";
+const std::string Keys::Body::Ephemeris::correctForLightTimeAberration = "correctForLightTimeAberration";
+const std::string Keys::Body::Ephemeris::convergeLighTimeAberration = "convergeLighTimeAberration";
 const std::string Keys::Body::Ephemeris::initialTime = "initialTime";
 const std::string Keys::Body::Ephemeris::finalTime = "finalTime";
 const std::string Keys::Body::Ephemeris::timeStep = "timeStep";
@@ -289,7 +289,7 @@ const std::string Keys::Propagator::Acceleration::Thrust::centralBody = "central
 const std::string Keys::Propagator::massRateModels = "massRateModels";
 const std::string Keys::Propagator::MassRateModel::type = "type";
 const std::string Keys::Propagator::MassRateModel::useAllThrustModels = "useAllThrustModels";
-const std::string Keys::Propagator::MassRateModel::associatedThroustSource = "associatedThroustSource";
+const std::string Keys::Propagator::MassRateModel::associatedThrustSource = "associatedThrustSource";
 
 
 // //  Torque

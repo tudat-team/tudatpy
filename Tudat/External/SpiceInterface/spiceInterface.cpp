@@ -46,7 +46,7 @@ double convertDateStringToEphemerisTime( const std::string& dateString )
 //! Get Cartesian state of a body, as observed from another body.
 Vector6d getBodyCartesianStateAtEpoch(
         const std::string& targetBodyName, const std::string& observerBodyName,
-        const std::string& referenceFrameName, const std::string& abberationCorrections,
+        const std::string& referenceFrameName, const std::string& aberrationCorrections,
         const double ephemerisTime )
 {
 
@@ -56,7 +56,7 @@ Vector6d getBodyCartesianStateAtEpoch(
 
     // Call Spice function to calculate state and light-time.
     spkezr_c( targetBodyName.c_str( ), ephemerisTime, referenceFrameName.c_str( ),
-              abberationCorrections.c_str( ), observerBodyName.c_str( ), stateAtEpoch,
+              aberrationCorrections.c_str( ), observerBodyName.c_str( ), stateAtEpoch,
               &lightTime );
 
     // Put result in Eigen Vector.
@@ -75,7 +75,7 @@ Vector6d getBodyCartesianStateAtEpoch(
 Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
                                                  const std::string& observerBodyName,
                                                  const std::string& referenceFrameName,
-                                                 const std::string& abberationCorrections,
+                                                 const std::string& aberrationCorrections,
                                                  const double ephemerisTime )
 {
     // Declare variables for cartesian position and light-time to be determined by Spice.
@@ -84,7 +84,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
 
     // Call Spice function to calculate position and light-time.
     spkpos_c( targetBodyName.c_str( ), ephemerisTime, referenceFrameName.c_str( ),
-              abberationCorrections.c_str( ), observerBodyName.c_str( ), positionAtEpoch,
+              aberrationCorrections.c_str( ), observerBodyName.c_str( ), positionAtEpoch,
               &lightTime );
 
     // Put result in Eigen Vector.

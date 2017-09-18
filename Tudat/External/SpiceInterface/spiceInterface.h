@@ -86,19 +86,19 @@ double convertDateStringToEphemerisTime( const std::string& dateString );
  * \param referenceFrameName The spize-revognized name of the reference frame in which the state
  *          is to be returned. Spice kernel(s) required to perform the neccesary conversion from
  *          the states of the target and observer bodies to this frame need to have been loaded.
- * \param abberationCorrections Setting for correction for setting corrections. See Spice
+ * \param aberrationCorrections Setting for correction for setting corrections. See Spice
  *          documentation for extended discussion. Short summary: NONE: none, LT: light time
  *          corrected (one iteration for calculation), CN: light time corrected
- *          (multiple iterations, max 3) for calculation, S: Stellar abberation corrected. XLT and
+ *          (multiple iterations, max 3) for calculation, S: Stellar aberration corrected. XLT and
  *          XCN can be provided to make the ephemerisTime input argument the transmission time,
  *          instead of receptionTime. Arguments can be combined (i.e."LT+S" or "XCN+S").
  * \param ephemerisTime Observation time (or transmission time of observed light, see description
- *          of abberationCorrections).
+ *          of aberrationCorrections).
  * \return Cartesian state vector (x,y,z, position+velocity).
  */
 Eigen::Vector6d getBodyCartesianStateAtEpoch(
         const std::string& targetBodyName, const std::string& observerBodyName,
-        const std::string& referenceFrameName, const std::string& abberationCorrections,
+        const std::string& referenceFrameName, const std::string& aberrationCorrections,
         const double ephemerisTime );
 
 //! Get Cartesian position of a body, as observed from another body.
@@ -116,20 +116,20 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch(
  * \param referenceFrameName The spice-revognized name of the reference frame in which the state
  *          is to be returned. Spice kernel(s) required to perform the neccesary conversion from
  *          the states of the target and observer bodies to this frame need to have been loaded.
- * \param abberationCorrections Setting for correction for setting corrections. See Spice
+ * \param aberrationCorrections Setting for correction for setting corrections. See Spice
  *          documentation for extended discussion. Short summary: NONE: none, LT: light time
  *          corrected (one iteration for calculation), CN: light time corrected
- *          (multiple iterations, max 3) for calculation, S: Stellar abberation corrected. XLT and
+ *          (multiple iterations, max 3) for calculation, S: Stellar aberration corrected. XLT and
  *          XCN can be provided to make the ephemerisTime input argument the transmission time,
  *          instead of receptionTime. Arguments can be combined (i.e."LT+S" or "XCN+S").
  * \param ephemerisTime Observation time (or transmission time of observed light, see description
- *          of abberationCorrections).
+ *          of aberrationCorrections).
  * \return Cartesian position vector (x,y,z, position).
  */
 Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
                                                  const std::string& observerBodyName,
                                                  const std::string& referenceFrameName,
-                                                 const std::string& abberationCorrections,
+                                                 const std::string& aberrationCorrections,
                                                  const double ephemerisTime );
 
 //! Compute quaternion of rotation between two frames.

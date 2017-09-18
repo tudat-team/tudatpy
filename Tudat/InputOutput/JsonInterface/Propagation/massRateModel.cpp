@@ -38,8 +38,8 @@ void to_json( json& jsonObject, const boost::shared_ptr< MassRateModelSettings >
                 boost::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
         enforceNonNullPointer( fromThrustMassModelSettings );
         jsonObject[ K::useAllThrustModels ] = fromThrustMassModelSettings->useAllThrustModels_;
-        assignIfNotEmpty( jsonObject, K::associatedThroustSource,
-                          fromThrustMassModelSettings->associatedThroustSource_ );
+        assignIfNotEmpty( jsonObject, K::associatedThrustSource,
+                          fromThrustMassModelSettings->associatedThrustSource_ );
         return;
     }
     default:
@@ -65,8 +65,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< MassRateModelSettings
         updateFromJSONIfDefined( fromThrustMassModelSettings->useAllThrustModels_, jsonObject, K::useAllThrustModels );
         if ( ! fromThrustMassModelSettings->useAllThrustModels_ )
         {
-            updateFromJSON( fromThrustMassModelSettings->associatedThroustSource_,
-                            jsonObject, K::associatedThroustSource );
+            updateFromJSON( fromThrustMassModelSettings->associatedThrustSource_,
+                            jsonObject, K::associatedThrustSource );
         }
         massRateModelSettings = fromThrustMassModelSettings;
         return;
