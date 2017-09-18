@@ -23,7 +23,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
 
     double AS2R = 4.848136811095359935899141E-6;
 
-    int IY, IM, ID, IH, MIN, J;
+    int IY, IM, ID, IH, MIN;
     double SEC, XP, YP, DUT1,
             DDP80, DDE80, DX00, DY00, DX06, DY06,
             DJMJD0, DATE, TIME, UTC, DAT,
@@ -201,13 +201,11 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  CIP and CIO, IAU 2006/2000A.
         iauXys06a ( DJMJD0, TT, &X, &Y, &S );
 
-        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<std::endl;
-
         //  Add CIP corrections.
         X = X + DX06;
         Y = Y + DY06;
 
-        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
+        std::cout<<"Corrections Nut: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
 
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
@@ -215,7 +213,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );
 
-        std::cout<<"Corrections A: "<<std::setprecision( 16 )<<ERA<<" "<<13.318492966097 * M_PI / 180.0 << std::endl;
+        std::cout<<"Corrections ERA: "<<std::setprecision( 16 )<<ERA<<" "<< DJMJD0+DATE<<" "<<TUT<<std::endl;
 
         //  Form celestial-terrestrial matrix (no polar motion yet).
         iauCr ( RC2I, RC2TI );
@@ -243,19 +241,12 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         iauXy06 ( DJMJD0, TT, &X, &Y );
         S = iauS06 ( DJMJD0, TT, X, Y );
 
-        //std::cout<<"Corrections B: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<std::endl;
-
         //  Add CIP corrections.
         X = X + DX06;
         Y = Y + DY06;
 
-        //std::cout<<"Corrections B: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
-
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
-
-//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-//                   convertArrayToMatrix( RC2I )<<std::endl;
 
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );

@@ -86,6 +86,11 @@ public:
     }
 
 
+    void resetUseLongDoubleTimeStep( const bool useLongDoubleTimeStep )
+    {
+        useLongDoubleTimeStep_ = useLongDoubleTimeStep;
+    }
+
     //! Function to get a boolean denoting whether time step is to be a long double
     /*!
      * Function to get a boolean denoting whether time step is to be a long double

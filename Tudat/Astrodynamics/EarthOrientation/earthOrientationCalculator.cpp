@@ -11,7 +11,6 @@
 
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
-#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -59,58 +58,10 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
                                Eigen::AngleAxisd( -yPolePosition, Eigen::Vector3d::UnitX( ) ) );
 }
 
-//! Calculate time-derivative of rotation matrix from ITRS to GCRS
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator )
-{
-    Eigen::Matrix3d auxiliaryMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
-            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.002737909350795 );
-
-    return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
-              calculateRotationFromTirsToCirs( earthRotationAngle ) ).toRotationMatrix( ) * auxiliaryMatrix *
-            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
-
-}
-
-//! Calculate time-derivative of rotation matrix from ITRS to GCRS
-Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 )
-{
-    return calculateRotationRateFromItrsToGcrs(
-                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
-            rotationAngles[ 3 ], rotationAngles[ 4 ], rotationAngles[ 5 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
-}
-
-//! Calculate rotation from ITRS to GCRS
-Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator )
-{
-    return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-            calculateRotationFromTirsToCirs( earthRotationAngle ) *
-            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
-
-}
-
-//! Calculate rotation from ITRS to GCRS
-Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 )
-{
-    return calculateRotationFromItrsToGcrs(
-                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
-            rotationAngles[ 3 ], rotationAngles[ 4 ], rotationAngles[ 5 ],
-            getApproximateTioLocator( secondsSinceJ2000 ) );
-}
-
-
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
-boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( )
+boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
+        const boost::shared_ptr< EOPReader > eopReader )
 {
-    // Load EOP file
-    boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >( );
-
     // Load polar motion corrections
     boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
@@ -119,7 +70,7 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
     // Load nutation corrections
     boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
             boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ) ); // dX, dY
+                eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ) );
 
     // Load default polar motion correction (sub-diural frequencies) object
     boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
@@ -140,15 +91,6 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
     // Create EarthOrientationAnglesCalculator object
     return boost::make_shared< EarthOrientationAnglesCalculator >(
                 polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
-}
-
-//! Function to compute the Earth rotation angle, without normalization to [0, 2pi) range.
-double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,
-                                                const double referenceJulianDay )
-{
-    return 2.0 * mathematical_constants::PI *
-            ( 0.7790572732640 + 1.00273781191135448 * ( ut1SinceEpoch / physical_constants::JULIAN_DAY +
-                                                        ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) );
 }
 
 ////! Function to create an interpolator for the Earth orientation angles
