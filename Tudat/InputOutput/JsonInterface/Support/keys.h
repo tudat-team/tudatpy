@@ -138,9 +138,9 @@ struct Keys
             static const std::string frameOrigin;
             static const std::string frameOrientation;
             // static const std::string makeMultiArc;
-            static const std::string correctForStellarAbberation;
-            static const std::string correctForLightTimeAbberation;
-            static const std::string convergeLighTimeAbberation;
+            static const std::string correctForStellarAberration;
+            static const std::string correctForLightTimeAberration;
+            static const std::string convergeLighTimeAberration;
             static const std::string initialTime;
             static const std::string finalTime;
             static const std::string timeStep;
@@ -307,7 +307,7 @@ struct Keys
         {
             static const std::string type;
             static const std::string useAllThrustModels;
-            static const std::string associatedThroustSource;
+            static const std::string associatedThrustSource;
         };
 
         static const std::string torques;

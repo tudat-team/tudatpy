@@ -76,15 +76,15 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_directSpice )
     // Create EphemerisSettings manually
     const std::string frameOrigin = "Foo";
     const std::string frameOrientation = "FOO";
-    const bool correctForStellarAbberation = true;
-    const bool correctForLightTimeAbberation = false;
-    const bool convergeLighTimeAbberation = true;
+    const bool correctForStellarAberration = true;
+    const bool correctForLightTimeAberration = false;
+    const bool convergeLighTimeAberration = true;
     const boost::shared_ptr< EphemerisSettings > manualSettings =
             boost::make_shared< DirectSpiceEphemerisSettings >( frameOrigin,
                                                                 frameOrientation,
-                                                                correctForStellarAbberation,
-                                                                correctForLightTimeAbberation,
-                                                                convergeLighTimeAbberation );
+                                                                correctForStellarAberration,
+                                                                correctForLightTimeAberration,
+                                                                convergeLighTimeAberration );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

@@ -53,12 +53,12 @@ void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ep
         boost::shared_ptr< DirectSpiceEphemerisSettings > directSpiceEphemerisSettings =
                 boost::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
         enforceNonNullPointer( directSpiceEphemerisSettings );
-        jsonObject[ K::correctForStellarAbberation ] =
-                directSpiceEphemerisSettings->getCorrectForStellarAbberation( );
-        jsonObject[ K::correctForLightTimeAbberation ] =
-                directSpiceEphemerisSettings->getCorrectForLightTimeAbberation( );
-        jsonObject[ K::convergeLighTimeAbberation ] =
-                directSpiceEphemerisSettings->getConvergeLighTimeAbberation( );
+        jsonObject[ K::correctForStellarAberration ] =
+                directSpiceEphemerisSettings->getCorrectForStellarAberration( );
+        jsonObject[ K::correctForLightTimeAberration ] =
+                directSpiceEphemerisSettings->getCorrectForLightTimeAberration( );
+        jsonObject[ K::convergeLighTimeAberration ] =
+                directSpiceEphemerisSettings->getConvergeLighTimeAberration( );
         return;
     }
     case interpolated_spice:
@@ -137,12 +137,12 @@ void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& 
         ephemerisSettings = boost::make_shared< DirectSpiceEphemerisSettings >(
                     defaults.getFrameOrigin( ),
                     defaults.getFrameOrientation( ),
-                    getValue( jsonObject, K::correctForStellarAbberation,
-                              defaults.getCorrectForStellarAbberation( ) ),
-                    getValue( jsonObject, K::correctForLightTimeAbberation,
-                              defaults.getCorrectForLightTimeAbberation( ) ),
-                    getValue( jsonObject, K::convergeLighTimeAbberation,
-                              defaults.getConvergeLighTimeAbberation( ) ) );
+                    getValue( jsonObject, K::correctForStellarAberration,
+                              defaults.getCorrectForStellarAberration( ) ),
+                    getValue( jsonObject, K::correctForLightTimeAberration,
+                              defaults.getCorrectForLightTimeAberration( ) ),
+                    getValue( jsonObject, K::convergeLighTimeAberration,
+                              defaults.getConvergeLighTimeAberration( ) ) );
         break;
     }
     case tabulated_ephemeris:
