@@ -258,6 +258,12 @@ public:
         }
     }
 
+    //! Interpolator for UT1 corrections, values published daily by IERS
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > > getDailyUtcUt1CorrectionInterpolator( )
+    {
+        return dailyUtcUt1CorrectionInterpolator_;
+    }
+
 private:
 
     //! Function to get current time list at requested numerical precision

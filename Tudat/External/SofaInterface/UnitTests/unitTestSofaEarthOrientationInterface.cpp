@@ -20,6 +20,7 @@
 
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
+#include "Tudat/Basics/timeType.h"
 
 
 namespace tudat
@@ -140,8 +141,36 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
                 testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
     double expectedEarthRotationAngle = 13.318492966097;
 
-
     BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
+                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                 static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
+            180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
+
+
+    // Test ERA for negative time since J2000
+    testUt1 = basic_astrodynamics::JULIAN_DAY_ON_J2000 - 200.0;
+    testUt2 = 0.499999165813831;
+    double directEarthRotationAngle = calculateEarthRotationAngle(
+                testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
+                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                 static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
+            180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 }
 
 

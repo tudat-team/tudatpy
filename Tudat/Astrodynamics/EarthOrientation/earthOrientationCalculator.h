@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/EarthOrientation/precessionNutationCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/eopReader.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
 {
@@ -82,20 +83,38 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
  * \param tioLocator TIO locator.
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
+template< typename TimeType >
 Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
         const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator );
+        const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
+{
+    Eigen::Matrix3d auxiliaryMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
+            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.002737909350795 );
+
+    return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
+              calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) )
+              ).toRotationMatrix( ) * auxiliaryMatrix *
+            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator ).toRotationMatrix( );
+
+}
 
 //! Calculate time-derivative of rotation matrix from ITRS to GCRS
 /*!
  * Calculate time-derivative of rotation matrix from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
- * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, x, ERA, xp, yp.
+ * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
+template< typename TimeType >
 Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
-        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 );
+        const Eigen::Vector5d& rotationAngles, const TimeType ut1, const double secondsSinceJ2000 )
+{
+    return calculateRotationRateFromItrsToGcrs(
+                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
+            ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
 
 //! Calculate rotation from ITRS to GCRS
 /*!
@@ -109,20 +128,35 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * \param tioLocator TIO locator.
  * \return Rotation from ITRS to GCRS
  */
+template< typename TimeType >
 Eigen::Quaterniond calculateRotationFromItrsToGcrs(
         const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
-        const double earthRotationAngle, const double xPolePosition, const double yPolePosition, const double tioLocator );
+        const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
+{
+    return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
+            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) *
+            calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
+
+}
 
 //! Calculate rotation from ITRS to GCRS
 /*!
  * Calculate rotation from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
- * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, x, ERA, xp, yp.
+ * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Rotation from ITRS to GCRS
  */
+template< typename TimeType >
 Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const Eigen::Vector5d& rotationAngles, const double secondsSinceJ2000 );
+        const Eigen::Vector5d& rotationAngles, const TimeType ut1, const double secondsSinceJ2000 )
+{
+    return calculateRotationFromItrsToGcrs(
+                rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
+            ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
+
 
 
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
@@ -238,40 +272,66 @@ private:
  * polar motion/nutation/UT1 daily corrections published by IERS (linearly interpolated in time)
  * \return Default Earth rotation parameter object.
  */
-boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( );
+boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
+        const boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >( ) );
 
-//! Function to compute the Earth rotation angle, without normalization to [0, 2pi) range.
+//! Function to create an interpolator for the Earth orientation angles and UT1
 /*!
- * Function to compute the Earth rotation angle, without normalization to [0, 2pi) range, according to IERS Convetions 2019,
- * Eq. (5.14).
- * \param ut1SinceEpoch Time since reference Julian day in UT1.
- * \param referenceJulianDay Reference time for UT1 input
- * \return Unnormalized Earth rotation at input time.
+ * Function to create an interpolator for the Earth orientation angles and UT1, to reduce computation time of Earth rotation
+ * during  orbit propagation/estimation
+ * \param intervalStart Start of time interval where interpolation data is to be generated
+ * \param intervalEnd End of time interval where interpolation data is to be generated
+ * \param timeStep Time step between evaluations of rotation data
+ * \param timeScale Time scale for evaluation data
+ * \param earthOrientationCalculator Object from which Earth orientation data is to be retrieved
+ * \param interpolatorSettings Settings for the interpolation proces (default Lagrange 6 point)
+ * \return Interpolators for the Earth orientation angles (first) and for UT1 (second). Interpolated angle vector contains
+ * quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
  */
-double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,
-                                                const double referenceJulianDay );
+template< typename UT1ScalarType >
+std::pair< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > >,
+boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > >
+createInterpolatorsForItrsToGcrsAngles(
+        const double intervalStart, const double intervalEnd, const double timeStep,
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
+        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
+        createStandardEarthOrientationCalculator( ),
+        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
+{
+    // Define interpolators
+    std::map< double, Eigen::Matrix< double, 5, 1 > > anglesMap;
+    std::map< double, UT1ScalarType > ut1Map;
 
-////! Function to create an interpolator for the Earth orientation angles
-///*!
-// * Function to create an interpolator for the Earth orientation angles, to reduce computation time of Earth rotation during
-// * orbit propagation/estimation
-// * \param intervalStart Start of time interval where interpolation data is to be generated
-// * \param intervalEnd End of time interval where interpolation data is to be generated
-// * \param timeStep Time step between evaluations of rotation data
-// * \param timeScale Time scale for evaluation data
-// * \param earthOrientationCalculator Object from which Earth orientation data is to be retrieved
-// * \param interpolatorSettings Settings for the interpolation proces (default Lagrange 6 point)
-// * \return Interpolator for the Earth orientation angles. Interpolated vector contains quantities (in IERS Conventions 2010
-// * notation): X, Y, x, ERA, xp, yp.
-// */
-//boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
-//createInterpolatorForItrsToGcrsAngles(
-//        const double intervalStart, const double intervalEnd, const double timeStep,
-//        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
-//        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
-//        createStandardEarthOrientationCalculator( ),
-//        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-//        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) );
+    // Iterate over all times and compute rotation parameters
+    std::pair< Eigen::Vector5d, UT1ScalarType > currentRotationValues;
+    double currentTime = intervalStart;
+    while( currentTime < intervalEnd )
+    {
+        currentRotationValues = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< UT1ScalarType >(
+                    currentTime, timeScale );
+        anglesMap[ currentTime ] = currentRotationValues.first;
+        ut1Map[ currentTime ] = currentRotationValues.second;
+        currentTime += timeStep;
+    }
+
+    // Create interpolator for angles
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > > anglesInterpolator =
+            interpolators::createOneDimensionalInterpolator( anglesMap, interpolatorSettings );
+
+    // Update UT1 interpolation time step scalar
+    if( sizeof( UT1ScalarType ) == 8 )
+    {
+        interpolatorSettings->resetUseLongDoubleTimeStep( true );
+    }
+
+    // Create interpolator for UT1
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > ut1Interpolator =
+            interpolators::createOneDimensionalInterpolator( ut1Map, interpolatorSettings );
+
+    return std::make_pair( anglesInterpolator, ut1Interpolator );
+
+}
 
 }
 

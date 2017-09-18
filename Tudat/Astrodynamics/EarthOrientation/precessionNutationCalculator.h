@@ -70,6 +70,12 @@ public:
             const double terrestrialTime,
             const double utc );
 
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    < double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
+    {
+        return dailyCorrectionInterpolator_;
+    }
+
 private:
 
     //! Interpolator for daily measured values of precession-nutation corrections.

@@ -67,8 +67,17 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
         }
     }
 
+    //getSofaEarthOrientationExamples( 3 );
+
     // Define Earth rotation angle
     double era = 0.2324515536620879;
+
+    double ut1JulianDay = 2454195.5;
+    double ut1FractionOfDay = 0.499999165813831;
+
+    double ut1 = ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 + ut1FractionOfDay ) * physical_constants::JULIAN_DAY;
+    Time ut1Long = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
 
     // Compute TIRS->CIRS rotation matrix in Tudat
     Eigen::Matrix3d tirsToCirsRotation = Eigen::Matrix3d ( calculateRotationFromTirsToCirs( era ) );
@@ -82,10 +91,10 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
                 xPole, yPole, getApproximateTioLocator(
                     terrestrialTimeSecondsSinceJ2000 ) ).toRotationMatrix( );
 
-    // Compute ITRS -> GCRS by concatenation and directly, and compare against each other.
+    // Compute ITRS -> GCRS by concatenation and directly, and compare against each other (accurate UT1 representation).
     Eigen::Matrix3d itrsToGcrsRotation = cirsToGcrsRotation * tirsToCirsRotation * itrsToTirsRotation;
     Eigen::Matrix3d itrsToGcrsRotationDirect = Eigen::Matrix3d(
-                calculateRotationFromItrsToGcrs( X, Y, s, era, xPole, yPole, getApproximateTioLocator(
+                calculateRotationFromItrsToGcrs( X, Y, s, ut1Long, xPole, yPole, getApproximateTioLocator(
                                                      terrestrialTimeSecondsSinceJ2000 ) ) );
     for( unsigned int i = 0; i < 3; i++ )
     {
@@ -93,6 +102,20 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
         {
             BOOST_CHECK_SMALL( std::fabs( itrsToGcrsRotationDirect( i, j ) -
                                           itrsToGcrsRotation( i, j ) ), 1.0E-14 );
+        }
+    }
+
+    // Compute ITRS -> GCRS by directly, and compare against concatenated computation (inaccurate UT1 representation).
+    Eigen::Matrix3d itrsToGcrsRotationDirectInaccurate = Eigen::Matrix3d(
+                calculateRotationFromItrsToGcrs( X, Y, s, ut1, xPole, yPole, getApproximateTioLocator(
+                                                     terrestrialTimeSecondsSinceJ2000 ) ) );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( itrsToGcrsRotationDirectInaccurate( i, j ) -
+                                          itrsToGcrsRotation( i, j ) ), 1.0E-12 );
         }
     }
 
@@ -131,36 +154,73 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     double arcSecondToRadian = 4.848136811095359935899141E-6;
 
     // Define input time.
-    double terrestrialTimeDaysSinceMjd0 = 54195.50075444445;
-    double terrestrialTimeSecondsSinceJ2000 = ( terrestrialTimeDaysSinceMjd0-
+    double terrestrialTimeFullDaysSinceMjd0 = 54195;
+    double terrestrialTimeDayFractionsSinceMjd0 = 0.50075444445;
+
+    double terrestrialTimeDaysSinceMjd0 = terrestrialTimeFullDaysSinceMjd0 + terrestrialTimeDayFractionsSinceMjd0;
+    double terrestrialTimeSecondsSinceJ2000Inaccruate = ( terrestrialTimeDaysSinceMjd0 -
                                                 ( basic_astrodynamics::JULIAN_DAY_ON_J2000 -
                                                   basic_astrodynamics::JULIAN_DAY_AT_0_MJD ) ) * physical_constants::JULIAN_DAY;
 
+    double ut1JulianDay = 2454195.5;
+    double ut1FractionOfDay = 0.499999165813831;
+
+    Time ut1TimeSecondsSinceJ2000 = tudat::Time( ( ut1JulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                                        ut1FractionOfDay * physical_constants::JULIAN_DAY_LONG );
+
     // Set SOFA values
-    double uncorrectedX = 0.0007122638811749685;
-    double uncorrectedY = 4.438634561981791e-05;
+    double sofaXValue = 0.0007122647295989105;
+    double sofaYValue = 4.438525042571229e-05;
+
+    double sofaXCorrection = 8.484239419416879e-10;
+    double sofaYCorrection = -1.095194105626442e-09;
+
+    double uncorrectedX = sofaXValue - sofaXCorrection;
+    double uncorrectedY = sofaYValue - sofaYCorrection;
+
     double s = -0.002200475 * arcSecondToRadian;
     double era = 0.2324515536620879;
 
     // Use Tudat functions to compute precession/nutation parameters
     std::pair< Eigen::Vector2d, double > positionOfCipInGcrs = sofa_interface::getPositionOfCipInGcrs(
-                terrestrialTimeSecondsSinceJ2000, basic_astrodynamics::JULIAN_DAY_ON_J2000, iau_2006 );
+                terrestrialTimeSecondsSinceJ2000Inaccruate, basic_astrodynamics::JULIAN_DAY_ON_J2000, iau_2006 );
 
     // Compare SOFA values against Tudat function output
     BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs.first( 0 ) ), 1.0E-15 );
     BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs.first( 1 ) ), 1.0E-15 );
     BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs.second ), 1.0E-15 );
 
+    Eigen::Vector2d tudatXYCorrection = createStandardEarthOrientationCalculator( )->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
+                terrestrialTimeSecondsSinceJ2000Inaccruate );
+
     // Compute Earth rotation angles from EarthOrientationAnglesCalculator object and compare against SOFA
     boost::shared_ptr< tudat::earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             tudat::earth_orientation::createStandardEarthOrientationCalculator( );
-    std::pair< Eigen::Vector5d, double > rotationAngles = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(
-                terrestrialTimeSecondsSinceJ2000, basic_astrodynamics::tt_scale );
 
-    // Compare SOFA values against EarthOrientationAnglesCalculator output
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedX - positionOfCipInGcrs.first( 0 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( uncorrectedY - positionOfCipInGcrs.first( 1 ) ), 1.0E-15 );
-    BOOST_CHECK_SMALL( std::fabs( s - positionOfCipInGcrs.second ), 1.0E-15 );
+    // Compare SOFA values against EarthOrientationAnglesCalculator  with double input
+    std::pair< Eigen::Vector5d, double > rotationAnglesInaccurate = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(
+                terrestrialTimeSecondsSinceJ2000Inaccruate, basic_astrodynamics::tt_scale );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX + tudatXYCorrection.x( ) - rotationAnglesInaccurate.first( 0 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY + tudatXYCorrection.y( ) - rotationAnglesInaccurate.first( 1 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( s - rotationAnglesInaccurate.first( 2 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( era - tudat::sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesInaccurate.second ) ), 1.0E-9 );
+
+    rotationAnglesInaccurate = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< double >(
+                    ut1TimeSecondsSinceJ2000.getSeconds< double >( ), basic_astrodynamics::ut1_scale );
+    double eraDouble = tudat::sofa_interface::calculateEarthRotationAngleTemplated< double >( rotationAnglesInaccurate.second );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX + tudatXYCorrection.x( ) - rotationAnglesInaccurate.first( 0 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY + tudatXYCorrection.y( ) - rotationAnglesInaccurate.first( 1 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( era - eraDouble ), 1.0E-12 );
+
+    // Compare SOFA values against EarthOrientationAnglesCalculator output with Time input
+    std::pair< Eigen::Vector5d, Time > rotationAngles = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs< Time >(
+                ut1TimeSecondsSinceJ2000, basic_astrodynamics::ut1_scale );
+    double eraTime = tudat::sofa_interface::calculateEarthRotationAngleTemplated< Time >( rotationAngles.second );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedX + tudatXYCorrection.x( ) - rotationAngles.first( 0 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( uncorrectedY + tudatXYCorrection.y( )- rotationAngles.first( 1 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( s - rotationAngles.first( 2 ) ), 1.0E-15 );
+    BOOST_CHECK_SMALL( std::fabs( era - eraTime ), 1.0E-12 );
+
 }
 
 
