@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+                ( physical_constants::JULIAN_DAY ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 

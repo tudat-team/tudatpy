@@ -29,8 +29,7 @@ enum IntegratedStateType
     transational_state = translational_state,  // deprecated (typo)
     rotational_state = 2,
     body_mass_state = 3,
-    relativistic_time_rate = 4,
-    custom_state = 5
+    custom_state = 4
 };
 
 

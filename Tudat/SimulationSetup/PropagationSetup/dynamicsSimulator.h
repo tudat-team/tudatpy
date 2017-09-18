@@ -221,8 +221,20 @@ public:
      */
     virtual bool integrationCompletedSuccessfully( ) const = 0;
 
-    virtual std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( ) = 0;
+    //! Pure virtual function that returns the numerical result of the state propagation
+    /*!
+     * Pure virtual function that returns the numerical result of the state propagation.
+     * \return Numerical result of the state propagation. See derived class documentation for precise contents structure.
+     */
+    virtual std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( ) = 0;
 
+    //! Pure virtual function that returns the numerical result of the dependent variable history
+    /*!
+     * Pure virtual function that returns the numerical result of the dependent variable history
+     * \return Numerical result of the  dependent variable history. See derived class documentation for precise contents
+     *  structure.
+     */
     virtual std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( ) = 0;
 
     virtual std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( ) = 0;
@@ -453,12 +465,22 @@ public:
         return cummulativeComputationTimeHistory_;
     }
 
+    //! Function to return the map of state history of numerically integrated bodies (base class interface).
+    /*!
+     * Function to return the map of state history of numerically integrated bodies (base class interface).
+     * \return Vector is size 1, with entry: map of state history of numerically integrated bodies.
+     */
     std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( )
     {
         return std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >(
                     { getEquationsOfMotionNumericalSolution( ) } );
     }
 
+    //! Function to return the map of dependent variable history that was saved during numerical propagation(base class interface)
+    /*!
+     * Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
+     * \return Vector is size 1, with entry: map of dependent variable history that was saved during numerical propagation.
+     */
     std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
     {
         return std::vector< std::map< TimeType, Eigen::VectorXd > >(
@@ -476,6 +498,7 @@ public:
      * Function to reset the environment from an externally generated state history, the order of the entries in the
      * state vectors are proscribed by propagatorSettings
      * \param equationsOfMotionNumericalSolution Externally generated state history.
+     * \param dependentVariableHistory Externally generated dependent variable history.
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
@@ -551,9 +574,10 @@ public:
         return dynamicsStateDerivative_;
     }
 
-    //! Function to retrieve the Object defining when the propagation is to be terminated.
+
+    //! Function to retrieve the object defining when the propagation is to be terminated.
     /*!
-     * Function to retrieve the Object defining when the propagation is to be terminated.
+     * Function to retrieve the object defining when the propagation is to be terminated.
      * \return Object defining when the propagation is to be terminated.
      */
     boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
@@ -561,7 +585,12 @@ public:
         return propagationTerminationCondition_;
     }
 
-
+    //! Function to retrieve the list of object that process the integrated numerical solution by updating the environment
+    /*!
+     * Function to retrieve the List of object (per dynamics type) that process the integrated numerical solution by
+     * updating the environment
+     * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
+     */
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
     IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
     {
@@ -611,6 +640,11 @@ public:
         return this->initialPropagationTime_;
     }
 
+    //! Function to retrieve the functions that compute the dependent variables at each time step
+    /*!
+     * Function to retrieve the functions that compute the dependent variables at each time step
+     * \return Functions that compute the dependent variables at each time step
+     */
     boost::function< Eigen::VectorXd( ) > getDependentVariablesFunctions( )
     {
         return dependentVariablesFunctions_;
@@ -1071,8 +1105,13 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
-    std::vector< std::map< TimeType, Eigen::VectorXd > >
-    getDependentVariableHistory( )
+    //! Function to return the numerical solution of the dependent variables
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableHistory( )
     {
         return dependentVariableHistory_;
     }
@@ -1082,11 +1121,24 @@ public:
         return cummulativeComputationTimeHistory_;
     }
 
-    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( )
+    //! Function to return the numerical solution to the equations of motion (base class interface).
+    /*!
+     *  Function to return the numerical solution to the equations of motion for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are full propagated state vectors.
+     *  \return List of maps of history of numerically integrated states.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( )
     {
         return getEquationsOfMotionNumericalSolution( );
     }
 
+    //! Function to return the numerical solution of the dependent variables (base class interface)
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
     std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
     {
         return getDependentVariableHistory( );
@@ -1104,6 +1156,8 @@ public:
      *  provided by a variational equations solver.
      *  \param equationsOfMotionNumericalSolution Vector of state histories
      *  (externally provided equationsOfMotionNumericalSolution_)
+     *  \param dependentVariableHistory Vector of dependent variable histories
+     *  (externally provided dependentVariableHistory_)
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
@@ -1214,11 +1268,12 @@ protected:
 
     //! List of maps of state history of numerically integrated states.
     /*!
-     *   List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
-     *   Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
+     *  List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
+     *  Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
      */
     std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > equationsOfMotionNumericalSolution_;
 
+    //! List of maps of dependent variable history that was saved during numerical propagation.
     std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableHistory_;
 
     std::vector< std::map< TimeType, double > > cummulativeComputationTimeHistory_;
