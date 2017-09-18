@@ -104,41 +104,6 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
-//! Calculate rotation angles from ITRS to GCRS at given time value.
-Eigen::Vector6d EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs(
-        const double timeValue, basic_astrodynamics::TimeScales timeScale )
-{
-    // Compute required time values
-    double terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime(
-                timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
-    double utc = terrestrialTimeScaleConverter_->getCurrentTime(
-                timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
-    double ut1 = terrestrialTimeScaleConverter_->getCurrentTime(
-                timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
-
-    // Compute nutation/precession parameters
-    std::pair< Eigen::Vector2d, double > positionOfCipInGcrs =
-            precessionNutationCalculator_->getPositionOfCipInGcrs(
-                terrestrialTime, utc );
-
-    // Compute polar motion values
-    Eigen::Vector2d positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs(
-                terrestrialTime, utc );
-
-    // Compute Earth Rotation Angles
-    double earthRotationAngle = calculateUnnormalizedEarthRotationAngle( ut1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // Return vector of angles.
-    Eigen::Vector6d rotationAngles;
-    rotationAngles[ 0 ] = positionOfCipInGcrs.first.x( );
-    rotationAngles[ 1 ] = positionOfCipInGcrs.first.y( );
-    rotationAngles[ 2 ] = positionOfCipInGcrs.second;
-    rotationAngles[ 3 ] = earthRotationAngle;
-    rotationAngles[ 4 ] = positionOfCipInItrs.x( );
-    rotationAngles[ 5 ] = positionOfCipInItrs.y( );
-    return rotationAngles;
-}
-
 
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
 boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator( )
@@ -186,27 +151,27 @@ double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,
                                                         ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) );
 }
 
-//! Function to create an interpolator for the Earth orientation angles
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
-createInterpolatorForItrsToGcrsAngles(
-        const double intervalStart, const double intervalEnd, const double timeStep,
-        const basic_astrodynamics::TimeScales timeScale,
-        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator,
-        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
-{
-    // Interpolate Earth orientation angles
-    std::map< double, Eigen::Matrix< double, 6,1 > > orientationMap;
-    double currentTime = intervalStart;
-    while( currentTime < intervalEnd )
-    {
-        orientationMap[ currentTime ] = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs(
-                    currentTime, timeScale );
-        currentTime += timeStep;
-    }
+////! Function to create an interpolator for the Earth orientation angles
+//boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
+//createInterpolatorForItrsToGcrsAngles(
+//        const double intervalStart, const double intervalEnd, const double timeStep,
+//        const basic_astrodynamics::TimeScales timeScale,
+//        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator,
+//        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+//{
+//    // Interpolate Earth orientation angles
+//    std::map< double, Eigen::Matrix< double, 6,1 > > orientationMap;
+//    double currentTime = intervalStart;
+//    while( currentTime < intervalEnd )
+//    {
+//        orientationMap[ currentTime ] = earthOrientationCalculator->getRotationAnglesFromItrsToGcrs(
+//                    currentTime, timeScale );
+//        currentTime += timeStep;
+//    }
 
-    return interpolators::createOneDimensionalInterpolator(
-                orientationMap, interpolatorSettings );
-}
+//    return interpolators::createOneDimensionalInterpolator(
+//                orientationMap, interpolatorSettings );
+//}
 
 
 }

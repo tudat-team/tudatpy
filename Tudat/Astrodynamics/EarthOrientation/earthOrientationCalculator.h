@@ -122,7 +122,7 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
  * \return Rotation from ITRS to GCRS
  */
 Eigen::Quaterniond calculateRotationFromItrsToGcrs(
-        const Eigen::Vector6d& rotationAngles, const double secondsSinceJ2000 );
+        const Eigen::Vector5d& rotationAngles, const double secondsSinceJ2000 );
 
 
 //! Class to calculate earth orientation angles, i.e. those used for transforming from ITRS to GCRS
@@ -153,11 +153,41 @@ public:
      *  no regard for time conversions in input value.
      *  \param timeValue Number of seconds since J2000 at which orientation is to be evaluated.
      *  \param timeScale Time scale in which the timeValue is given. To be taken from TimeScales enum.
-     *  \return Rotation angles for ITRS<->GCRS transformation at given epoch. Order is: X, Y, s, ERA, x_p, y_p
+     *  \return Rotation angles for ITRS<->GCRS transformation at given epoch. First pair entry is: X, Y, s, x_p, y_p. Second
+     *  defines UT1.
      */
-    Eigen::Vector6d getRotationAnglesFromItrsToGcrs(
+    template< typename TimeType >
+    std::pair< Eigen::Vector5d, TimeType > getRotationAnglesFromItrsToGcrs(
             const double timeValue,
-            basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale );
+            basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tt_scale )
+    {
+        // Compute required time values
+        TimeType terrestrialTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::tt_scale, timeValue, Eigen::Vector3d::Zero( ) );
+        TimeType utc = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::utc_scale, timeValue, Eigen::Vector3d::Zero( ) );
+        TimeType ut1 = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+                    timeScale, basic_astrodynamics::ut1_scale, timeValue, Eigen::Vector3d::Zero( ) );
+
+        // Compute nutation/precession parameters
+        std::pair< Eigen::Vector2d, double > positionOfCipInGcrs =
+                precessionNutationCalculator_->getPositionOfCipInGcrs(
+                    terrestrialTime, utc );
+
+        // Compute polar motion values
+        Eigen::Vector2d positionOfCipInItrs = polarMotionCalculator_->getPositionOfCipInItrs(
+                    terrestrialTime, utc );
+
+        // Return vector of angles.
+        Eigen::Vector5d rotationAngles;
+        rotationAngles[ 0 ] = positionOfCipInGcrs.first.x( );
+        rotationAngles[ 1 ] = positionOfCipInGcrs.first.y( );
+        rotationAngles[ 2 ] = positionOfCipInGcrs.second;
+        rotationAngles[ 3 ] = positionOfCipInItrs.x( );
+        rotationAngles[ 4 ] = positionOfCipInItrs.y( );
+        return std::make_pair( rotationAngles, ut1 );
+    }
+
 
     //! Function to get object that calculates polar motion.
     /*!
@@ -221,27 +251,27 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
 double calculateUnnormalizedEarthRotationAngle( const double ut1SinceEpoch,
                                                 const double referenceJulianDay );
 
-//! Function to create an interpolator for the Earth orientation angles
-/*!
- * Function to create an interpolator for the Earth orientation angles, to reduce computation time of Earth rotation during
- * orbit propagation/estimation
- * \param intervalStart Start of time interval where interpolation data is to be generated
- * \param intervalEnd End of time interval where interpolation data is to be generated
- * \param timeStep Time step between evaluations of rotation data
- * \param timeScale Time scale for evaluation data
- * \param earthOrientationCalculator Object from which Earth orientation data is to be retrieved
- * \param interpolatorSettings Settings for the interpolation proces (default Lagrange 6 point)
- * \return Interpolator for the Earth orientation angles. Interpolated vector contains quantities (in IERS Conventions 2010
- * notation): X, Y, x, ERA, xp, yp.
- */
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
-createInterpolatorForItrsToGcrsAngles(
-        const double intervalStart, const double intervalEnd, const double timeStep,
-        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
-        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
-        createStandardEarthOrientationCalculator( ),
-        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) );
+////! Function to create an interpolator for the Earth orientation angles
+///*!
+// * Function to create an interpolator for the Earth orientation angles, to reduce computation time of Earth rotation during
+// * orbit propagation/estimation
+// * \param intervalStart Start of time interval where interpolation data is to be generated
+// * \param intervalEnd End of time interval where interpolation data is to be generated
+// * \param timeStep Time step between evaluations of rotation data
+// * \param timeScale Time scale for evaluation data
+// * \param earthOrientationCalculator Object from which Earth orientation data is to be retrieved
+// * \param interpolatorSettings Settings for the interpolation proces (default Lagrange 6 point)
+// * \return Interpolator for the Earth orientation angles. Interpolated vector contains quantities (in IERS Conventions 2010
+// * notation): X, Y, x, ERA, xp, yp.
+// */
+//boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
+//createInterpolatorForItrsToGcrsAngles(
+//        const double intervalStart, const double intervalEnd, const double timeStep,
+//        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
+//        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
+//        createStandardEarthOrientationCalculator( ),
+//        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+//        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) );
 
 }
 

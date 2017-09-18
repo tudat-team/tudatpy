@@ -147,8 +147,6 @@ public:
 
     }
 
-
-
 private:
 
     //! Function to read EOP file

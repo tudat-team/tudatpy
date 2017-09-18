@@ -68,11 +68,9 @@ boost::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( c
 {
     boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator =
             getDefaultUT1CorrectionCalculator( );
-
     boost::shared_ptr< interpolators::JumpDataLinearInterpolator < double, double > > ut1MinusUtcInterpolator =
             boost::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-                eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 ); // d(UT1-
-
+                eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 );
     return boost::make_shared< TerrestrialTimeScaleConverter >
             ( ut1MinusUtcInterpolator, shortPeriodUt1CorrectionCalculator );
 }

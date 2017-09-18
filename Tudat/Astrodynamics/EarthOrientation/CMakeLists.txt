@@ -59,12 +59,8 @@ add_executable(test_TimeScaleConverter "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTes
 setup_custom_test_program(test_TimeScaleConverter "${SRCROOT}${EARTHORIENTATIONDIR}")
 target_link_libraries(test_TimeScaleConverter tudat_earth_orientation tudat_sofa_interface tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
 
-add_executable(test_ShortPeriodPolarMotion "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestShortPeriodPolarMotion.cpp")
-setup_custom_test_program(test_ShortPeriodPolarMotion "${SRCROOT}${EARTHORIENTATIONDIR}")
-target_link_libraries(test_ShortPeriodPolarMotion tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
-
-add_executable(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestShortPeriodUT1Corrections.cpp")
-setup_custom_test_program(test_ShortPeriodUT1Correction "${SRCROOT}${EARTHORIENTATIONDIR}")
-target_link_libraries(test_ShortPeriodUT1Correction tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
+add_executable(test_ShortPeriodEopCorrections "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/unitTestShortPeriodEopCorrections.cpp")
+setup_custom_test_program(test_ShortPeriodEopCorrections "${SRCROOT}${EARTHORIENTATIONDIR}")
+target_link_libraries(test_ShortPeriodEopCorrections tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output sofa ${Boost_LIBRARIES})
 
 

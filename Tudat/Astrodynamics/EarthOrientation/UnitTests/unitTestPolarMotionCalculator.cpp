@@ -31,34 +31,35 @@ using namespace tudat::earth_orientation;
 
 BOOST_AUTO_TEST_SUITE( test_polar_motion_calculator )
 
-// Check correct combination of data from the two contributions of calculation,
-// correctness of these contributions is calculated in other unit tests.
+//! Check correct combination of data from the two contributions of polar motion: short-period terms and IERS daily values.
 BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
 {
+    // Retrieve polar motion calculator
     boost::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel =
             createStandardEarthOrientationCalculator( );
-
     boost::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator =
             standardEarthRotationModel->getPolarMotionCalculator( );
 
+    // Get constituent polar motion calculation objects.
     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
         dailyPolarMotionValueInterpolator = standardPolarMotionCalculator->getDailyIersValueInterpolator( );
-
     boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
             getDefaultPolarMotionCorrectionCalculator( );
 
-    boost::shared_ptr< PolarMotionCalculator > testPolarMotionCalculator =
-            boost::make_shared< PolarMotionCalculator >( dailyPolarMotionValueInterpolator, shortPeriodPolarMotionCalculator );
-
-    double testEphemerisTime = 0.0;
-
+    // Define test time
+    double testEphemerisTime = 1.0E8;
     double testUtc = sofa_interface::convertTTtoUTC( testEphemerisTime );
 
+    // Compute fundamental arguments
     Eigen::Vector6d fundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
 
-    Eigen::Vector2d totalPolarMotionFromTime = testPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
-    Eigen::Vector2d totalPolarMotionFromArguments = testPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
+    // Compute polar motion from both interfaces (time and arguments)
+    Eigen::Vector2d totalPolarMotionFromTime =
+            standardPolarMotionCalculator->getPositionOfCipInItrs( testEphemerisTime, testUtc );
+    Eigen::Vector2d totalPolarMotionFromArguments =
+            standardPolarMotionCalculator->getPositionOfCipInItrs( fundamentalArguments, testUtc );
 
+    // Check combinations fo calculations
     BOOST_CHECK_EQUAL( totalPolarMotionFromTime.x( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
                        shortPeriodPolarMotionCalculator->getCorrections( testEphemerisTime ) ).x( ) );
     BOOST_CHECK_EQUAL( totalPolarMotionFromTime.y( ), ( dailyPolarMotionValueInterpolator->interpolate( testUtc ) +
