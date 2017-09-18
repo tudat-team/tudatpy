@@ -412,6 +412,7 @@ OneWayDopplerPartial::OneWayDopplerPartialReturnType OneWayDopplerPartial::calcu
     // Add scaled light-time correcion partials.
     for( unsigned int i = 0; i < lighTimeCorrectionPartialsFunctions_.size( ); i++ )
     {
+
         returnPartial.push_back( lighTimeCorrectionPartialsFunctions_.at( i )( states, times ) );
         returnPartial[ returnPartial.size( ) - 1 ].first *=
                 physical_constants::SPEED_OF_LIGHT * oneWayDopplerScaler_->getLightTimeCorrectionPartialScaling( );

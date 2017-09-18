@@ -184,6 +184,19 @@ public:
         }
     }
 
+    //! Function to define specific settings for estimation process
+    /*!
+     *  Function to define specific settings for estimation process
+     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
+     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
+     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated during
+     *  estimation
+     *  \param saveInformationMatrix Boolean denoting whether to save the partials matrix in the output
+     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
+     *  \param saveResidualsAndParametersFromEachIteration Boolean denoting whether the residuals and parameters from the each
+     *  iteration are to be saved
+     *  \param saveStateHistoryForEachIteration Boolean denoting whether the state history is to be saved on each iteration
+     */
     void defineEstimationSettings( const bool reintegrateEquationsOnFirstIteration = 1,
                                    const bool reintegrateVariationalEquations = 1,
                                    const bool saveInformationMatrix = 1,
@@ -241,31 +254,62 @@ public:
         return weightsMatrixDiagonals_;
     }
 
+    //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
+    /*!
+     * Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first
+     * iteration
+     * \return Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
+     */
     bool getReintegrateEquationsOnFirstIteration( )
     {
         return reintegrateEquationsOnFirstIteration_;
     }
 
+    //! Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
+    /*!
+     * Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
+     * \return Boolean denoting whether the variational equations are to be reintegrated during estimation
+     */
     bool getReintegrateVariationalEquations( )
     {
         return reintegrateVariationalEquations_;
     }
 
+    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    /*!
+     * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+     * \return Boolean denoting whether to print output to th terminal when running the estimation.
+     */
     bool getSaveInformationMatrix( )
     {
         return saveInformationMatrix_;
     }
 
+    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    /*!
+     * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+     * \return Boolean denoting whether to print output to th terminal when running the estimation.
+     */
     bool getPrintOutput( )
     {
         return printOutput_;
     }
 
+    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    /*!
+     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     */
     bool getSaveResidualsAndParametersFromEachIteration( )
     {
         return saveResidualsAndParametersFromEachIteration_;
     }
 
+    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
+    /*!
+     * Function to return the boolean denoting whether the state history is to be saved on each iteration.
+     * \return Boolean denoting whether the state history is to be saved on each iteration.
+     */
     bool getSaveStateHistoryForEachIteration( )
     {
         return saveStateHistoryForEachIteration_;
@@ -285,16 +329,22 @@ private:
     std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
     weightsMatrixDiagonals_;
 
+    //!  Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
     bool reintegrateEquationsOnFirstIteration_;
 
+    //! Boolean denoting whether the variational equations are to be reintegrated during estimation
     bool reintegrateVariationalEquations_;
 
+    //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool saveInformationMatrix_;
 
+    //! Boolean denoting whether to print output to th terminal when running the estimation.
     bool printOutput_;
 
+    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
+    //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
 
 };
@@ -316,7 +366,8 @@ struct PodOutput
      * matrix were divided to normalize its entries.
      * \param inverseNormalizedCovarianceMatrix Inverse of postfit normalized covariance matrix
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
-     * \param firstIterationResiduals Vector of observation residuals at first iteration
+     * \param residualHistory Vector of residuals per iteration
+     * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
      */
     PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
@@ -390,6 +441,11 @@ struct PodOutput
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
+    //! Function to get residual vectors per iteration concatenated into a matrix
+    /*!
+     * Function to get residual vectors per iteration concatenated into a matrix (one column per iteration).
+     * \return Residual vectors per iteration concatenated into a matrix
+     */
     Eigen::MatrixXd getResidualHistoryMatrix( )
     {
         if( residualHistory_.size( ) > 0 )
@@ -408,6 +464,12 @@ struct PodOutput
         }
     }
 
+    //! Function to get parameter vectors per iteration concatenated into a matrix
+    /*!
+     * Function to get parameter vectors per iteration concatenated into a matrix (one column per iteration). Column 0 contains
+     * pre-estimation values
+     * \return Parameter vectors per iteration concatenated into a matrix
+     */
     Eigen::MatrixXd getParameterHistoryMatrix( )
     {
         if( parameterHistory_.size( ) > 0 )
@@ -447,8 +509,10 @@ struct PodOutput
     //! Standard deviation of postfit residuals vector
     double residualStandardDeviation_;
 
+    //! Vector of residuals per iteration
     std::vector< Eigen::VectorXd > residualHistory_;
 
+    //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
 };
 

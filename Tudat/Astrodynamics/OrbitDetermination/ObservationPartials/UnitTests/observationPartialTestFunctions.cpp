@@ -319,6 +319,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
+
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );

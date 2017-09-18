@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/nWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/twoWayDopplerObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
@@ -288,6 +289,41 @@ public:
     //! Settings for proper time rate at receiver
     boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings_;
 };
+
+
+
+//! Class to define the settings for one-way Doppler observable
+class TwoWayDopperObservationSettings: public ObservationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param uplinkOneWayDopplerSettings Settings for the one-way Doppler model of the uplink
+     * \param downlinkOneWayDopplerSettings Settings for the one-way Doppler model of the downlink
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
+     */
+    TwoWayDopperObservationSettings(
+            const boost::shared_ptr< OneWayDopperObservationSettings > uplinkOneWayDopplerSettings,
+            const boost::shared_ptr< OneWayDopperObservationSettings > downlinkOneWayDopplerSettings,
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( two_way_doppler, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
+        uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
+        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings ){ }
+
+    //! Destructor
+    ~TwoWayDopperObservationSettings( ){ }
+
+    //! Settings for the one-way Doppler model of the uplink
+    boost::shared_ptr< OneWayDopperObservationSettings > uplinkOneWayDopplerSettings_;
+
+    //! Settings for the one-way Doppler model of the downlink
+    boost::shared_ptr< OneWayDopperObservationSettings > downlinkOneWayDopplerSettings_;
+};
+
+
+
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
 class OneWayDifferencedRangeRateObservationSettings: public ObservationSettings
@@ -729,6 +765,83 @@ public:
 
             break;
         }
+
+        case two_way_doppler:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 3 )
+            {
+                std::string errorMessage =
+                        "Error when making 2 way Doppler model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no receiver found" );
+            }
+
+            if( linkEnds.count( reflector1 ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no retransmitter found" );
+            }
+
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no transmitter found" );
+            }
+
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->biasSettings_,bodyMap );
+            }
+
+            // Create observation model
+
+            LinkEnds uplinkLinkEnds;
+            uplinkLinkEnds[ transmitter ] = linkEnds.at( transmitter );
+            uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
+
+            LinkEnds downlinkLinkEnds;
+            downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
+            downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
+
+            boost::shared_ptr< TwoWayDopperObservationSettings > twoWayDopplerSettings =
+                    boost::dynamic_pointer_cast< TwoWayDopperObservationSettings >( observationSettings );
+
+            if( twoWayDopplerSettings == NULL )
+            {
+                observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                        ObservationScalarType, TimeType > >(
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    uplinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    downlinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                            observationBias );
+            }
+            else
+            {
+                observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                        ObservationScalarType, TimeType > >(
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodyMap ) ),
+                            observationBias );
+            }
+
+            break;
+        }
+
         case one_way_differenced_range:
         {
             boost::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
@@ -778,13 +891,6 @@ public:
         }
         case n_way_range:
         {
-            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
-                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
-            if( nWayRangeObservationSettings == NULL )
-            {
-                throw std::runtime_error( "Error when making differenced n-way range, input type is inconsistent" );
-            }
-
             // Check consistency input.
             if( linkEnds.size( ) < 2 )
             {
@@ -801,11 +907,6 @@ public:
             if( linkEnds.count( transmitter ) == 0 )
             {
                 throw std::runtime_error( "Error when making n way range model, no transmitter found" );
-            }
-
-            if( linkEnds.size( ) != ( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) + 1 ) )
-            {
-                throw std::runtime_error( "Error when making n way range model, input is inconsistent" );
             }
 
             // Check link end consistency.
@@ -834,6 +935,26 @@ public:
                             linkEnds, observationSettings->biasSettings_, bodyMap );
             }
 
+            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+
+            boost::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
+
+            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
+                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
+
+            if( nWayRangeObservationSettings == NULL )
+            {
+                lightTimeCorrectionsList = observationSettings->lightTimeCorrectionsList_;
+            }
+            else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
+            {
+                throw std::runtime_error( "Error whaen making n-way range, input data is inconsistent" );
+            }
+            else
+            {
+                retransmissionTimesFunction_ = nWayRangeObservationSettings->retransmissionTimesFunction_;
+            }
+
             // Define light-time calculator list
             std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculators;
 
@@ -841,17 +962,28 @@ public:
             LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
             LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
             receiverIterator++;
-            for( unsigned int i = 0; i < nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ); i++ )
+            for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
             {
-                if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                if( nWayRangeObservationSettings != NULL )
                 {
-                    throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                    {
+                        throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    }
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
+                                    lightTimeCorrectionsList_ ) );
                 }
-                lightTimeCalculators.push_back(
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                transmitterIterator->second, receiverIterator->second,
-                                bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )
-                                ->lightTimeCorrectionsList_ ) );
+                else
+                {
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, observationSettings->lightTimeCorrectionsList_ ) );
+                }
+
                 transmitterIterator++;
                 receiverIterator++;
             }
@@ -859,9 +991,8 @@ public:
             // Create observation model
             observationModel = boost::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        lightTimeCalculators, nWayRangeObservationSettings->retransmissionTimesFunction_,
+                        lightTimeCalculators, retransmissionTimesFunction_,
                         observationBias );
-
             break;
         }
 
@@ -1083,7 +1214,7 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< ObservableType,
-    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+            boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
     // Iterate over all observables
     typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > >
@@ -1175,6 +1306,8 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
  * (settings must be compatible with minimum elevation angle check).  Ground station must ve specified by
  * associatedLinkEnd_.second in observationViabilitySettings.
+ * \param stationName Name of the ground station for which calculator is to be computed (if no station is explicitly given in
+ * observationViabilitySettings).
  * \return Object to check if a minimum elevation angle condition is met for an observation
  */
 boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(

@@ -50,6 +50,13 @@ AvailableTorque getTorqueModelType(
  */
 std::string getTorqueModelName( const AvailableTorque torqueType );
 
+//! Function to get all torque models of a given type from a list of models
+/*!
+ * Function to get all torque models of a given type from a list of models
+ * \param fullList List of torque models
+ * \param modelType Type for which all models are to be retrieved
+ * \return Subset of fullList for which the torque model type is modelType
+ */
 std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
         const std::vector< boost::shared_ptr< TorqueModel > >& fullList,
         const AvailableTorque modelType );

@@ -19,7 +19,7 @@
 
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createDopplerPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createNWayRangePartials.h"
 
@@ -91,6 +91,19 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                         ( observationModelIterator->second );
                 singleObservableCorrectionList = (
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
+            case observation_models::two_way_doppler:
+            {
+                boost::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> > twoWaDopplerModel =
+                        boost::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
             case observation_models::angular_position:
@@ -275,6 +288,11 @@ public:
         case observation_models::one_way_doppler:
             observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModelList, bodyMap, parametersToEstimate );
+            break;
+        case observation_models::two_way_doppler:
+            observationPartialList = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
+                        observationModelList, bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
             break;
         case observation_models::one_way_differenced_range:
             observationPartialList = createDifferencedOneWayRangeRatePartials< ObservationScalarType >(

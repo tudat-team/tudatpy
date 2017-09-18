@@ -17,6 +17,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create an aerodynamic torque model.
 boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
@@ -97,24 +98,26 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
 }
 
+//! Function to create a second-degree gravitational torque.
 boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque )
 {
+    // Retrieve state functions
     boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction =
             boost::bind( &simulation_setup::Body::getPosition, bodyUndergoingTorque );
     boost::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
             boost::bind( &simulation_setup::Body::getPosition, bodyExertingTorque );
 
-
+    // Check model availability
     boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel = bodyExertingTorque->getGravityFieldModel( );
-
     boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction;
     if( gravityFieldModel ==  NULL )
     {
-        std::cerr<<"Error when making second degree gravitational torque, "<<nameOfBodyExertingTorque<<" does not possess a gravity field"<<std::endl;
+        throw std::runtime_error( "Error when making second degree gravitational torque, " + nameOfBodyExertingTorque +
+                                  " does not possess a gravity field" );
     }
     else
     {
@@ -122,15 +125,15 @@ boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSec
                                                                       gravityFieldModel );
     }
 
+    // Retrieve environment parameters
     boost::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction  =
             boost::bind( &simulation_setup::Body::getBodyInertiaTensor, bodyUndergoingTorque );
-
     boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
             boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyUndergoingTorque );
 
     return boost::make_shared<gravitation::SecondDegreeGravitationalTorqueModel >(
-                positionOfBodySubjectToTorqueFunction, gravitationalParameterOfAttractingBodyFunction, inertiaTensorOfRotatingBodyFunction,
-                positionOfBodyExertingTorqueFunction, rotationToBodyFixedFrameFunction );
+                positionOfBodySubjectToTorqueFunction, gravitationalParameterOfAttractingBodyFunction,
+                inertiaTensorOfRotatingBodyFunction, positionOfBodyExertingTorqueFunction, rotationToBodyFixedFrameFunction );
 
 }
 

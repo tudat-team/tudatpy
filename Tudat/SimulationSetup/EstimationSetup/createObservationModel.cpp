@@ -105,6 +105,28 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
             throw std::runtime_error( "Error, parsed irrelevant 1-way doppler viability indices" );
         }
         break;
+    case two_way_doppler:
+        if( ( linkEnds.at( transmitter ) == linkEndToCheck ) || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
+                                                                  ( linkEndToCheck.second == "" ) ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 0, 1 ) );
+        }
+        else if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 2, 3 ) );
+            linkEndIndices.push_back( std::make_pair( 1, 0 ) );
+        }
+        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+                                                                linkEndToCheck.second == "" ) )
+        {
+            linkEndIndices.push_back( std::make_pair( 3, 2 ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, parsed irrelevant 1-way doppler viability indices" );
+        }
+        break;
     case one_way_differenced_range:
         if( linkEnds.at( transmitter ) == linkEndToCheck || ( ( linkEnds.at( transmitter ).first == linkEndToCheck.first ) &&
                                                               linkEndToCheck.second == "" ) )

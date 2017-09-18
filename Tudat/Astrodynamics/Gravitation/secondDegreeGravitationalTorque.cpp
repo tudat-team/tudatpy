@@ -18,12 +18,12 @@ namespace tudat
 namespace gravitation
 {
 
+//! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
 Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
         const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
         const double gravitationalParameterOfAttractingBody,
         const Eigen::Matrix3d& inertiaTensorOfRotatingBody )
 {
-    //std::cout<<"Rel. pos.: "<<relativePositionOfBodySubjectToTorque<<std::endl;
     double distanceBetweenBodies = relativePositionOfBodySubjectToTorque.norm( ) ;
     Eigen::Vector3d multipliedRelativePosition =  inertiaTensorOfRotatingBody * relativePositionOfBodySubjectToTorque;
     return 3.0 * gravitationalParameterOfAttractingBody / std::pow( distanceBetweenBodies, 5.0 ) *

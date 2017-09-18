@@ -68,6 +68,7 @@ protected:
     LightTimeCorrectionType correctionType_;
 };
 
+//! Typedef for a list of list time correction settings per link end
 typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
 
 //! Class to defining settings for first-order relativistic light time correction (Shapiro time delay)  due to a

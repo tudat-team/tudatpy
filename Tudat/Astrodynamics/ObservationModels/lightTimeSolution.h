@@ -80,6 +80,18 @@ public:
                     transmitterState, receiverState, transmissionTime, receptionTime );
     }
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Light-time correction w.r.t. observation time
+     */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -97,6 +109,17 @@ public:
         return 0.0;
     }
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Light-time correction w.r.t. link end position
+     */
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -114,8 +137,11 @@ public:
     }
 
 private:
+
+    //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
     LightTimeCorrectionFunction lightTimeCorrectionFunction_;
 
+    //! Boolean denoting whether a warning has been provided when calling the partial derivative function(s)
     bool isWarningProvided_;
 };
 

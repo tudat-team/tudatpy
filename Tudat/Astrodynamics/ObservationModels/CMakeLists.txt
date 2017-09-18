@@ -36,6 +36,7 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayDifferencedRangeRateObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/simulateObservations.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/twoWayDopplerObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
@@ -65,9 +66,9 @@ if(USE_CSPICE)
     setup_custom_test_program(test_OneWayDifferencedRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_OneWayDifferencedRangeModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-    add_executable(test_OneWayDopplerModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestOneWayDopplerModel.cpp")
-    setup_custom_test_program(test_OneWayDopplerModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
-    target_link_libraries(test_OneWayDopplerModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+    add_executable(test_DopplerModels "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestDopplerModels.cpp")
+    setup_custom_test_program(test_DopplerModels "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_DopplerModels ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
     add_executable(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestPositionObservationModel.cpp")
     setup_custom_test_program(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")

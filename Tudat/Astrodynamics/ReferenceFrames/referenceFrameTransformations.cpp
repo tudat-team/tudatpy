@@ -228,6 +228,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
     return frameTransformationQuaternion;
 }
 
+//! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
         const Eigen::Vector6d bodyState )
 {
@@ -493,6 +494,7 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
     return frameTransformationQuaternion;
 }
 
+//! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )
 {
     return ( Eigen::Matrix3d( ) <<
@@ -501,12 +503,13 @@ Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle )
              0.0, -std::cos( angle ), -std::sin( angle ) ).finished( );
 }
 
+//! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
 {
     return X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
 }
 
-
+//! Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const double angle )
 {
     return ( Eigen::Matrix3d( ) <<
@@ -515,11 +518,13 @@ Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const double angle )
              -std::cos( angle ), 0.0, std::sin( angle ) ).finished( );
 }
 
+//! Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
 {
     return Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
 }
 
+//! Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle )
 {
     return ( Eigen::Matrix3d( ) <<
@@ -528,6 +533,7 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle )
              0.0, 0.0, 0.0 ).finished( );
 }
 
+//! Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
 Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix )
 {
     return Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;

@@ -28,10 +28,10 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Compute the aerodynamic moment in same reference frame as input coefficients.
+//! Compute the aerodynamic moment in same reference frame as input coefficients, with same reference lengths for each axis
 /*!
  * This function calculates the aerodynamic moment. It takes primitive types as arguments to
- * perform the calculations. Therefor, these quantities (dynamic pressure, reference area and
+ * perform the calculations. Therefor, these quantities (dynamic pressure, reference area, reference length and
  * aerodynamic coefficients) have to computed before passing them to this function.
  * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
  * \param referenceArea Reference area of the aerodynamic coefficients.
@@ -46,6 +46,19 @@ Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const do
                                           const double referenceLength,
                                           const Eigen::Vector3d& momentCoefficients );
 
+//! Compute the aerodynamic moment in same reference frame as input coefficients, with different reference lengths for each axis.
+/*!
+ * This function calculates the aerodynamic moment. It takes primitive types as arguments to
+ * perform the calculations. Therefor, these quantities (dynamic pressure, reference area, reference lengths and
+ * aerodynamic coefficients) have to computed before passing them to this function.
+ * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
+ * \param referenceArea Reference area of the aerodynamic coefficients.
+ * \param referenceLengths Reference lengths of the aerodynamic coefficients, used in x, y and z directions.
+ * \param momentCoefficients Aerodynamic moment coefficients in right-handed reference frame.
+ * \return Resultant aerodynamic moment, given in reference frame in which the
+ *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
+ *          coefficient will give a negative force in -x direction (in the aerodynamic frame).
+ */
 Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
                                           const Eigen::Vector3d& referenceLengths,
                                           const Eigen::Vector3d& momentCoefficients );
@@ -66,6 +79,7 @@ Eigen::Vector3d computeAerodynamicMoment(
         const double dynamicPressure,
         AerodynamicCoefficientInterfacePointer coefficientInterface );
 
+//! Class for calculation of aerodynamic torques.
 class AerodynamicTorque : public basic_astrodynamics::TorqueModel
 {
 private:
@@ -78,7 +92,19 @@ private:
 
 public:
 
-
+    //! Acceleration torque constructor.
+    /*!
+     * Acceleration torque constructor, taking function pointers for all member variables.
+     * \param coefficientFunction Function which retrieves current values of aerodynamic moment coefficients.
+     * \param densityFunction Function which retrieves current value of the density.
+     * \param airSpeedFunction Function which retrieves current value of the airspeed.
+     * \param referenceAreaFunction Function which retrieves current value of the aerodynamic coefficient reference area.
+     * \param referenceLengthsFunction Function which retrieves current values of the aerodynamic  coefficient reference lengths.
+     * \param areCoefficientsInNegativeDirection Boolean that determines whether to invert
+     *          direction of aerodynamic coefficients. This is typically done for lift, drag and
+     *          side force coefficients that point in negative direction in the local frame
+     *          (default true).
+     */
     AerodynamicTorque( const CoefficientReturningFunction coefficientFunction,
                        const DoubleReturningFunction densityFunction,
                        const DoubleReturningFunction airSpeedFunction,
@@ -101,7 +127,7 @@ public:
      * updateMembers function.
      * The returned torque is in the same reference frame as the aerodynamic coefficients,
      * with the coefficients assumed to be in  positive direction in the frame.
-     * \return Acceleration.
+     * \return Aerodynamic torque.
      * \sa updateMembers().
      */
     Eigen::Vector3d getTorque( )
@@ -150,21 +176,23 @@ private:
 
     const CoefficientReturningFunction referenceLengthsFunction_;
 
-    //! Current aerodynamic moment coefficients.
+    //! Current aerodynamic moment coefficients, as set by updateMembers function.
     Eigen::Vector3d currentMomentCoefficients_;
 
+    //! Current aerodynamic reference lengths, as set by updateMembers function.
     Eigen::Vector3d currentReferenceLengths_;
 
+    //! Current aerodynamic torque, as set by updateMembers function.
     Eigen::Vector3d currentTorque_;
 
-    //! Current density.
+    //! Current density, as set by updateMembers function.
     double currentDensity_;
 
-    //! Current airspeed.
+    //! Current airspeed, as set by updateMembers function.
     double currentAirspeed_;
 
 
-    //! Current reference area, as set by referenceAreaFunction_.
+    //! Current reference area, as set by updateMembers function.
     double currentReferenceArea_;
 
     //! Multiplier to reverse direction of coefficients.

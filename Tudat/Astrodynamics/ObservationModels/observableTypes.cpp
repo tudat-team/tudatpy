@@ -42,6 +42,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case one_way_differenced_range:
         observableName = "OneWayDifferencedRange";
         break;
+    case two_way_doppler:
+        observableName = "TwoWayDoppler";
+        break;
     case n_way_range:
     {
         std::string numberOfWays = "N";
@@ -102,6 +105,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = one_way_doppler;
     }
+    else if( observableName ==  "TwoWayDoppler" )
+    {
+        observableType = two_way_doppler;
+    }
     else if( observableName ==  "OneWayDifferencedRange" )
     {
         observableType = one_way_differenced_range;
@@ -133,6 +140,9 @@ int getObservableSize( const ObservableType observableType )
         observableSize = 3;
         break;
     case one_way_doppler:
+        observableSize = 1;
+        break;
+    case two_way_doppler:
         observableSize = 1;
         break;
     case one_way_differenced_range:
@@ -182,6 +192,27 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
             break;
         case receiver:
             linkEndIndices.push_back( 1 );
+            break;
+        default:
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
+                    boost::lexical_cast< std::string >( observableType );
+            throw std::runtime_error( errorMessage );
+        }
+        break;
+    case two_way_doppler:
+        switch( linkEndType )
+        {
+        case transmitter:
+            linkEndIndices.push_back( 0 );
+            break;
+        case reflector1:
+            linkEndIndices.push_back( 1 );
+            linkEndIndices.push_back( 2 );
+            break;
+        case receiver:
+            linkEndIndices.push_back( 3 );
             break;
         default:
             std::string errorMessage =
