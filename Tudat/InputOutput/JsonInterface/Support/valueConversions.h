@@ -134,8 +134,8 @@ template< typename V, typename W >
 void from_json( const json& jsonObject, pair< V, W >& myPair )
 {
     using namespace tudat::json_interface;
-    myPair.first = getValue< V >( jsonObject, "0" );
-    myPair.second = getValue< W >( jsonObject, "1" );
+    myPair.first = getValue< V >( jsonObject, "@0" );
+    myPair.second = getValue< W >( jsonObject, "@1" );
 }
 
 

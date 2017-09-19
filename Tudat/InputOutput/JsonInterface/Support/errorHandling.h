@@ -131,7 +131,7 @@ public:
      */
     void handleUseOfDefaultValue( const json& defaultValue, const ExceptionResponseType& response ) const
     {
-        if ( ! containsAnyOf( keyPath, SpecialKeys::objectRelated ) )
+        if ( ! containsAnyOf( keyPath, SpecialKeys::objectContaining ) )
         {
             if ( response != continueSilently )
             {

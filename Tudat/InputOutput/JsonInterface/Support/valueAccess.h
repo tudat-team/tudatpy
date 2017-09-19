@@ -37,28 +37,19 @@ namespace json_interface
 
 // KEY ACCESS
 
-//! Access/modify a key of a `json` object or array.
+//! Access/mutate a key of a `json` object or array.
 /*!
- * Access/modify a key of a `json` object or array. \p jsonObject is passed by reference and the returned value is a
- * reference, so this method can be used to modify a \p jsonObject (e.g. `valueAt( jsonObject, myKey ) = newValue`).
+ * Access/mutate a key of a `json` object or array. \p jsonObject is passed by reference and the returned value is a
+ * reference, so this method can be used to mutate a \p jsonObject (e.g. `valueAt( jsonObject, myKey, true ) = newValue`).
+ * This only works if the third argument is `true`. If it isn't, and the key does not exist, an error will be thrown.
  * Supports json arrays. If the field "key" does not exist, this function will try to convert it to integer and
  * access \p jsonObject at that index.
  * \param jsonObject The `json` object.
  * \param key The key to access.
- * \return A reference to the value of the accessed key.
+ * \param mutator Whether to use mutator or accessor methods.
+ * \return A reference to the value of the accessed key (will be a null `json` if the key did not exist).
  */
-json& valueAt( json& jsonObject, const std::string& key );
-
-//! Access a key of a `json` object or array.
-/*!
- * Access a key of a `json` object or array. \p jsonObject is constant, so the returned value cannot be modified.
- * Supports json arrays. If the field "key" does not exist, this function will try to convert it to integer and
- * access \p jsonObject at that index.
- * \param jsonObject The constant `json` object.
- * \param key The key to access.
- * \return A constant reference to the value of the accessed key.
- */
-const json& valueAt( const json& jsonObject, const std::string& key );
+json& valueAt( json& jsonObject, const std::string& key, const bool mutator = false );
 
 //! Access a key path of a `json` object or array.
 /*!
@@ -222,7 +213,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
             {
                 if ( currentKeyPath.front( ) == SpecialKeys::root || contains( currentKeyPath, SpecialKeys::up ) )
                 {
-                    // Path is absolute or contains ..
+                    // Path is absolute or contains up-key
 
                     // Use absolute key path
                     currentKeyPath = canonicalKeyPath;
