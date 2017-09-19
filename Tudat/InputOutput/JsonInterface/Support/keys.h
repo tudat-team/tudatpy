@@ -25,12 +25,12 @@ namespace json_interface
 struct SpecialKeys
 {
     static const std::string root;
+    static const char dot;
     static const std::string up;
     static const std::string rootObject;
     static const std::string keyPath;
 
-    static const std::vector< std::string > pathRelated;
-    static const std::vector< std::string > objectRelated;
+    static const std::vector< std::string > objectContaining;
     static const std::vector< std::string > all;
 };
 
@@ -408,6 +408,14 @@ struct Keys
 };
 
 
+//! Get the int-value of an int-convertible key.
+/*!
+ * @copybrief indexFromKey
+ * \param key The int-convertible key, of the type "@0", "@1", etc.
+ * \return The array index, or -1 if the key is not convertible to integer.
+ */
+int indexFromKey( const std::string& key );
+
 //! Class for specifying a key pat used to access data from `json` objects.
 /*!
  * Class for specifying a key path (key.subkey.subsubkey ...) used to access data from `json` objects.
@@ -421,18 +429,18 @@ public:
     //! Constructor from vector.
     KeyPath( const std::vector< std::string >& vector ) : std::vector< std::string >( )
     {
-        for ( unsigned int i = 0; i < vector.size( ); ++i )
+        for ( const std::string key : vector )
         {
-            push_back( vector.at( i ) );
+            push_back( key );
         }
     }
 
-    //! Constructor with a single string key.
+    //! Constructor with a single key path string representation.
     /*!
-     * Constructor with a single string key.
+     * Constructor with a single key path string representation.
      * \param key The key to be accessed.
      */
-    KeyPath( const std::string& key ) : KeyPath( std::vector< std::string >( { key } ) ) { }
+    KeyPath( const std::string& keyPathStringRepresentation );
 
     //! Constructor with a single char key.
     /*!
@@ -446,7 +454,7 @@ public:
      * Constructor with an element index.
      * \param vectorIndex The index of the element to be accessed.
      */
-    KeyPath( unsigned int vectorIndex ) : KeyPath( std::to_string( vectorIndex ) ) { }
+    KeyPath( unsigned int vectorIndex ) : KeyPath( "@" + std::to_string( vectorIndex ) ) { }
 
     //! Get whether the key path is absolute.
     /*!
@@ -473,21 +481,7 @@ public:
 };
 
 //! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
-inline std::ostream& operator<< ( std::ostream& stringRepresentation, KeyPath const& keyPath )
-{
-    for ( unsigned int i = 0; i < keyPath.size( ); ++i )
-    {
-        if ( keyPath.at( i ) != SpecialKeys::root )
-        {
-            stringRepresentation << keyPath.at( i );
-            if ( i < keyPath.size() - 1 )
-            {
-                stringRepresentation << ".";
-            }
-        }
-    }
-    return stringRepresentation;
-}
+std::ostream& operator<< ( std::ostream& stringRepresentation, KeyPath const& keyPath );
 
 inline KeyPath operator / ( KeyPath path1, const KeyPath& path2 )
 {

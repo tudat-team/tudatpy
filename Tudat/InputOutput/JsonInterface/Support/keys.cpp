@@ -9,7 +9,13 @@
  *
  */
 
+#include <boost/regex.hpp>
+
+#include "utilities.h"
 #include "keys.h"
+
+#include "json/src/json.hpp"
+using json = nlohmann::json;
 
 namespace tudat
 {
@@ -20,17 +26,12 @@ namespace json_interface
 // Special keys (used internally by json_interface, can't be used in JSON files).
 
 const std::string SpecialKeys::root = "~";
-const std::string SpecialKeys::up = "..";
+const char SpecialKeys::dot = '.';
+const std::string SpecialKeys::up = "<-";
 const std::string SpecialKeys::rootObject = "#root";
 const std::string SpecialKeys::keyPath = "#keypath";
 
-const std::vector< std::string > SpecialKeys::pathRelated =
-{
-    SpecialKeys::root,
-    SpecialKeys::up,
-};
-
-const std::vector< std::string > SpecialKeys::objectRelated =
+const std::vector< std::string > SpecialKeys::objectContaining =
 {
     SpecialKeys::rootObject,
     SpecialKeys::keyPath
@@ -374,6 +375,74 @@ const std::string Keys::Options::unidimensionalArrayInference = "unidimensionalA
 const std::string Keys::Options::fullSettingsFile = "fullSettingsFile";
 const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFilesIfPropagationFails";
 
+
+// KEYPATH
+
+//! Get the int-value of an int-convertible key.
+int indexFromKey( const std::string& key )
+{
+    boost::cmatch groups;
+    boost::regex_match( key.c_str( ), groups, boost::regex( R"(\@(\d+))" ) );
+    if ( groups[ 1 ].matched )
+    {
+        try
+        {
+            return std::stoi( groups[ 1 ] );
+        }
+        catch ( ... ) { }
+    }
+    return -1;
+}
+
+//! Constructor with a single key path string representation.
+KeyPath::KeyPath( const std::string& keyPathStringRepresentation ) : std::vector< std::string >( )
+{
+    const std::vector< std::string > keys = split( keyPathStringRepresentation, SpecialKeys::dot );
+    for ( const std::string key : keys )
+    {
+        boost::cmatch groups;
+        boost::regex_match( key.c_str( ), groups, boost::regex( R"((.+?)\[(\d+?)\])" ) );
+        if ( groups[ 1 ].matched && groups[ 2 ].matched )
+        {
+            const std::string arrayKey( groups[ 1 ] );
+            const std::string arrayIndex( groups[ 2 ] );
+            push_back( arrayKey );
+            push_back( "@" + arrayIndex );
+        }
+        else
+        {
+            push_back( key );
+        }
+    }
+}
+
+//! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
+std::ostream& operator<< ( std::ostream& stringRepresentation, const KeyPath& keyPath )
+{
+    bool somethingAdded = false;
+    for ( unsigned int i = 0; i < keyPath.size( ); ++i )
+    {
+        const std::string key = keyPath.at( i );
+        if ( key != SpecialKeys::root )
+        {
+            const int intKey = indexFromKey( key );
+            if ( intKey >= 0 )
+            {
+                stringRepresentation << '[' << intKey << ']';
+            }
+            else
+            {
+                if ( somethingAdded )
+                {
+                    stringRepresentation << SpecialKeys::dot;
+                }
+                stringRepresentation << key;
+            }
+            somethingAdded = true;
+        }
+    }
+    return stringRepresentation;
+}
 
 //! Get the canonical representation of the key path.
 KeyPath KeyPath::canonical( const KeyPath& basePath ) const

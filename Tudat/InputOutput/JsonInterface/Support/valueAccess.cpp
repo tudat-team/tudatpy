@@ -21,48 +21,31 @@ namespace json_interface
 
 // KEY ACCESS
 
-//! Get an index for a `json` array from a int-convertible key
-/*!
- * @copybrief indexFromKey
- * \remark If \p key is a negative integer, reverse access is used (e.g. -1 = last element).
- * \param key The int-convertible key.
- * \param jsonArray The `json` array.
- * \return The array index.
- * \throws std::exception If \p key is not int-convertible.
- */
-int indexFromKey( const std::string& key, const json& jsonArray )
+//! Access/mutate a key of a `json` object or array.
+json& valueAt( json& jsonObject, const std::string& key, const bool mutator )
 {
-    int arrayIndex = std::stoi( key );
-    if ( arrayIndex < 0 )
+    const int intKey = indexFromKey( key );
+    if ( mutator )
     {
-        arrayIndex += jsonArray.size( );
+        if ( intKey >= 0 && jsonObject.is_array( ) )
+        {
+            return jsonObject[ intKey ];
+        }
+        else
+        {
+            return jsonObject[ key ];
+        }
     }
-    return arrayIndex;
-}
-
-//! Access/modify a key of a `json` object or array.
-json& valueAt( json& jsonObject, const std::string& key )
-{
-    try
+    else
     {
-        return jsonObject[ key ];
-    }
-    catch ( ... )
-    {
-        return jsonObject[ indexFromKey( key, jsonObject ) ];
-    }
-}
-
-//! Access a key of a `json` object or array.
-const json& valueAt( const json& jsonObject, const std::string& key )
-{
-    try
-    {
-        return jsonObject.at( key );
-    }
-    catch ( ... )
-    {
-        return jsonObject.at( indexFromKey( key, jsonObject ) );
+        if ( intKey >= 0 && jsonObject.is_array( )  )
+        {
+            return jsonObject.at( intKey );
+        }
+        else
+        {
+            return jsonObject.at( key );
+        }
     }
 }
 
@@ -71,8 +54,7 @@ json valueAt( json jsonObject, const KeyPath& keyPath )
 {
     for ( const std::string key : keyPath )
     {
-        const json constJsonObject = jsonObject;
-        jsonObject = valueAt( constJsonObject, key );
+        jsonObject = valueAt( jsonObject, key );
     }
     return jsonObject;
 }
@@ -122,7 +104,7 @@ std::string getParentKey( const json& jsonObject, const std::string& errorMessag
 
 //! Get the response type to an event for a `json` object.
 ExceptionResponseType getResponseToEvent( const json& jsonObject, const std::string& eventName,
-                                               const ExceptionResponseType defaultResponse )
+                                          const ExceptionResponseType defaultResponse )
 {
     ExceptionResponseType response = defaultResponse;
     try
@@ -223,7 +205,7 @@ void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured )
     j = json( );
     for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
     {
-        j[ std::to_string( i ) ] = jsonArray.at( i );
+        j[ "@" + std::to_string( i ) ] = jsonArray.at( i );
     }
 }
 
@@ -241,11 +223,12 @@ json getAsArray( const json& jsonObject )
             const std::string key = it.key( );
             if ( ! contains( SpecialKeys::all, key ) )
             {
-                try
+                const int intKey = indexFromKey( key );
+                if ( intKey >= 0 )
                 {
-                    indeces.push_back( stoi( key ) );
+                    indeces.push_back( intKey );
                 }
-                catch ( ... )
+                else
                 {
                     isObjectWithIntConvertibleKeys = false;
                     break;

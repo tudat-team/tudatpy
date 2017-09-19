@@ -18,8 +18,10 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <iostream>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <Eigen/Core>
 
@@ -30,18 +32,15 @@ namespace json_interface
 {
 
 //! Split \p string using \p delimiter.
-/*!
- * Split \p string using \p delimiter.
- */
 template< typename T >
-void split( const std::string& string, char delimiter, T result )
+void split( const std::string& string, const char delimiter, const bool trimSpaces, T result )
 {
     std::stringstream stream;
     stream.str( string );
     std::string item;
     while ( std::getline( stream, item, delimiter ) )
     {
-        *( result++ ) = item;
+        *( result++ ) = trimSpaces ? boost::trim_copy( item ) : item;
     }
 }
 
@@ -50,12 +49,13 @@ void split( const std::string& string, char delimiter, T result )
  * Get a vector containing the parts resulting from splitting \p string using \p delimiter.
  * \param string The string to be splitted.
  * \param delimiter The delimiter to be used.
+ * \param trim Whether to remove leading and trailing spaces from the returned strings.
  * \return Vector containing the parts resulting from splitting \p string using \p delimiter.
  */
-inline std::vector< std::string > split( const std::string& string, char delimiter )
+inline std::vector< std::string > split( const std::string& string, const char delimiter, const bool trim = true )
 {
     std::vector< std::string > parts;
-    split( string, delimiter, std::back_inserter( parts ) );
+    split( string, delimiter, trim, std::back_inserter( parts ) );
     return parts;
 }
 

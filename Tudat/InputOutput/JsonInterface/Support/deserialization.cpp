@@ -218,7 +218,7 @@ void mergeJSON( json& jsonObject, const path& filePath )
             {
                 for ( json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
                 {
-                    const KeyPath keyPath = split( subit.key( ), '.' );
+                    const KeyPath keyPath( subit.key( ) );
                     try
                     {
                         json newValue = subit.value( );
@@ -234,7 +234,7 @@ void mergeJSON( json& jsonObject, const path& filePath )
                                 }
                                 else
                                 {
-                                    valueAt( updatedsonObject, key ) = newValue;
+                                    valueAt( updatedsonObject, key, true ) = newValue;
                                 }
                             }
                             newValue = updatedsonObject;
@@ -335,7 +335,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
                     {
                         keys.push_back( keyVar.front( ) );
                     }
-                    keyPaths.push_back( split( keyVar.back( ), '.' ) );
+                    keyPaths.push_back( KeyPath( keyVar.back( ) ) );
                 }
             }
             else
