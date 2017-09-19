@@ -295,11 +295,19 @@ void parseModularJSON( json& jsonObject, const path& filePath,
     {
         rootFilePath = filePath;
     }
-    if ( jsonObject.is_structured( ) )
+    if ( jsonObject.is_object( ) )
     {
         for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
             json& subjson = it.value( );
+            parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
+        }
+    }
+    else if ( jsonObject.is_array( ) )
+    {
+        for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
+        {
+            json& subjson = jsonObject.at( i );
             parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
@@ -315,7 +323,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
             const std::string file( groups[ 1 ] );
             const std::string vars( groups[ 2 ] );
             const path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
-            const json importedJsonObject = fileMatch ? readJSON( importPath, filePath, rootFilePath ) : parentObject;
+            const json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
             std::vector< std::string > keys;
             std::vector< KeyPath > keyPaths;
             if ( varsMatch )
