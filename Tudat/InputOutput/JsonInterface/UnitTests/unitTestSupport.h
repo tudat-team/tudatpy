@@ -31,10 +31,10 @@ path currentDirectory( )
 
 path inputDirectory( )
 {
-    path userCustomInputDirectory = currentDirectory( ) / "INPUT";
-    if ( boost::filesystem::exists( userCustomInputDirectory ) )
+    path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
+    if ( boost::filesystem::exists( matlabInputDirectory ) )
     {
-        return userCustomInputDirectory;
+        return matlabInputDirectory;
     }
     else
     {
