@@ -266,12 +266,12 @@ void mergeJSON( json& jsonObject, const path& filePath )
  * If the part "{key}" is not provided, the whole `json` object contained in the file at "path" will be used.
  * <br/>
  * "key" can be a single key, or a key path separated by dots (e.g. "key.subkey.subsubkey").
- * Elements of arrays can be accessed by indicating their index, starting from 0 (e.g. "key.2.subkey.0").
+ * Elements of arrays can be accessed by indicating their index, starting from 0 (e.g. "key[2].subkey[0]").
  * <br/>
  * "key" can contain a single key (path) or many, separated by commas (e.g. "key1,key2.subkey"). If the character ","
  * is found in "key", \p jsonObject will be converted to an array. The key "key1," creates an array with one element.
  * <br/>
- * "key" can contain colons, in which case \p jsonObject will be converted to an object/map (e.g. "a:keyA,b:keyB.0").
+ * "key" can contain colons, in which case \p jsonObject will be converted to an object/map (e.g. "a:keyA,b:keyB[0]").
  * <br/>
  * Illegal characters in referenced file paths: (){}
  * <br/>

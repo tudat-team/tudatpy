@@ -507,6 +507,16 @@ inline KeyPath operator / ( const std::string& str1, const std::string& str2 )
     return KeyPath( str1 ) / KeyPath( str2 );
 }
 
+inline KeyPath operator / ( const KeyPath& path, const char* str )
+{
+    return path / KeyPath( str );
+}
+
+inline KeyPath operator / ( const char* str, const KeyPath& path )
+{
+    return KeyPath( str ) / path;
+}
+
 inline KeyPath operator / ( const KeyPath& path, const unsigned int vectorIndex )
 {
     return path / KeyPath( vectorIndex );
@@ -525,6 +535,36 @@ inline KeyPath operator / ( const std::string& str, const unsigned int vectorInd
 inline KeyPath operator / ( const unsigned int vectorIndex, const std::string& str )
 {
     return vectorIndex / KeyPath( str );
+}
+
+inline KeyPath operator / ( const KeyPath& path, const int vectorIndex )
+{
+    return path / KeyPath( vectorIndex );
+}
+
+inline KeyPath operator / ( const int vectorIndex, const KeyPath& path )
+{
+    return KeyPath( vectorIndex ) / path;
+}
+
+inline KeyPath operator / ( const std::string& str, const int vectorIndex )
+{
+    return KeyPath( str ) / vectorIndex;
+}
+
+inline KeyPath operator / ( const int vectorIndex, const std::string& str )
+{
+    return vectorIndex / KeyPath( str );
+}
+
+inline KeyPath operator / ( const char* str1, const std::string& str2 )
+{
+    return KeyPath( str1 ) / str2;
+}
+
+inline KeyPath operator / ( const std::string& str1, const char* str2 )
+{
+    return str1 / KeyPath( str2 );
 }
 
 } // namespace json_interface

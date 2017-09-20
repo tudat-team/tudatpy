@@ -127,18 +127,6 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
 }
 
 
-// STD::PAIR
-
-//! Create a `std::pair` from a `json` object.
-template< typename V, typename W >
-void from_json( const json& jsonObject, pair< V, W >& myPair )
-{
-    using namespace tudat::json_interface;
-    myPair.first = getValue< V >( jsonObject, "@0" );
-    myPair.second = getValue< W >( jsonObject, "@1" );
-}
-
-
 // STD::COMPLEX
 
 //! Create a `json` object from a `std::complex`.
