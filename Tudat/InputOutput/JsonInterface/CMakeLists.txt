@@ -93,6 +93,21 @@ set(JSON_TESTS_DIR "${SRCROOT}${JSONINTERFACEDIR}/UnitTests")
 
 # Add unit tests.
 
+# valueAccess
+add_executable(test_json_valueAccess "${JSON_TESTS_DIR}/valueAccess.cpp")
+setup_custom_test_program(test_json_valueAccess "")
+target_link_libraries(test_json_valueAccess ${JSON_INTERFACE_LIBRARIES})
+
+# # modularFiles
+# add_executable(test_json_modularFiles "${JSON_TESTS_DIR}/modularFiles.cpp")
+# setup_custom_test_program(test_json_modularFiles "")
+# target_link_libraries(test_json_modularFiles ${JSON_INTERFACE_LIBRARIES})
+#
+# # mergeableFiles
+# add_executable(test_json_mergeableFiles "${JSON_TESTS_DIR}/mergeableFiles.cpp")
+# setup_custom_test_program(test_json_mergeableFiles "")
+# target_link_libraries(test_json_mergeableFiles ${JSON_INTERFACE_LIBRARIES})
+
 # aerodynamics
 add_executable(test_json_aerodynamics "${JSON_TESTS_DIR}/aerodynamics.cpp")
 setup_custom_test_program(test_json_aerodynamics "")
