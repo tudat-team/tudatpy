@@ -64,9 +64,10 @@ int main( int argumentCount, char* arguments[ ] )
     // full_path = boost::filesystem::system_complete( boost::filesystem::path( arguments[ 0 ] ) );
     // std::cout << full_path << std::endl;
 
-    tudat::json_interface::Simulation< > simulation( inputPath );
-    simulation.run( );
-    simulation.exportResults( );
+    tudat::json_interface::JsonSimulationManager< > jsonSimulationManager;
+    jsonSimulationManager.setUpFromJSONFile( inputPath );
+    jsonSimulationManager.run( );
+    jsonSimulationManager.exportResults( );
 
     return EXIT_SUCCESS;
 }

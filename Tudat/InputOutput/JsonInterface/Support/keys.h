@@ -437,7 +437,7 @@ public:
     //! Constructor with a single key path string representation.
     /*!
      * Constructor with a single key path string representation.
-     * \param key The key to be accessed.
+     * \param keyPathStringRepresentation The key path string representation, such as "key", "key.subkey", "key[1]".
      */
     KeyPath( const std::string& keyPathStringRepresentation );
 
