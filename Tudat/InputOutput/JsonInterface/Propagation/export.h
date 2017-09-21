@@ -51,7 +51,7 @@ public:
     bool epochsInFirstColumn_ = true;
 
     //! Number of significant digits for the exported results.
-    unsigned int numericalPrecision_ = 16;
+    unsigned int numericalPrecision_ = 15;
 
     //! Whether to print only the values corresponding to the initial integration step.
     bool onlyInitialStep_ = false;
