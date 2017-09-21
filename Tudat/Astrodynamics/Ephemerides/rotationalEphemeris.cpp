@@ -38,8 +38,7 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
             rotationToTargetFrame;
 }
 
-
-
+//! Get rotation quaternion from target frame to base frame.
 template< >
 Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< double >(
             const double timeSinceEpoch )
@@ -47,6 +46,7 @@ Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< double 
     return getRotationToBaseFrame( timeSinceEpoch );
 }
 
+//! Get rotation quaternion from target frame to base frame.
 template< >
 Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< Time >(
             const Time timeSinceEpoch )
@@ -54,8 +54,7 @@ Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< Time >(
     return getRotationToBaseFrameFromExtendedTime( timeSinceEpoch );
 }
 
-
-
+//! Get rotation quaternion to target frame from base frame.
 template< >
 Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< double >(
         const double secondsSinceEpoch )
@@ -63,6 +62,7 @@ Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< doubl
     return getRotationToTargetFrame( secondsSinceEpoch );
 }
 
+//! Get rotation quaternion to target frame from base frame.
 template< >
 Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< Time >(
         const Time secondsSinceEpoch )
@@ -70,8 +70,7 @@ Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< Time 
     return getRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
 }
 
-
-
+//! Function to calculate the derivative of the rotation matrix from target frame to original frame.
 template< >
 Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< double >(
             const double timeSinceEpoch )
@@ -79,6 +78,7 @@ Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated
     return getDerivativeOfRotationToBaseFrame( timeSinceEpoch );
 }
 
+//! Function to calculate the derivative of the rotation matrix from target frame to original frame.
 template< >
 Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< Time >(
             const Time timeSinceEpoch )
@@ -87,7 +87,7 @@ Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated
 }
 
 
-
+//! Function to calculate the derivative of the rotation matrix to target frame from original frame.
 template< >
 Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< double >(
         const double secondsSinceEpoch )
@@ -95,6 +95,7 @@ Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplat
     return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch );
 }
 
+//! Function to calculate the derivative of the rotation matrix to target frame from original frame.
 template< >
 Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< Time >(
         const Time secondsSinceEpoch )
@@ -102,9 +103,7 @@ Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplat
     return getDerivativeOfRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
 }
 
-
-
-
+//! Function to calculate the full rotational state at given time
 template< >
 void RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< double >(
         Eigen::Quaterniond& currentRotationToLocalFrame,
@@ -117,6 +116,7 @@ void RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< dou
                 timeSinceEpoch );
 }
 
+//! Function to calculate the full rotational state at given time
 template< >
 void  RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< Time >(
         Eigen::Quaterniond& currentRotationToLocalFrame,
@@ -132,5 +132,6 @@ void  RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< Ti
 
 
 } // namespace tudat
+
 } // namespace ephemerides
 

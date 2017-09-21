@@ -38,8 +38,8 @@
  *
  */
 
-#ifndef LINEARINTERPOLATION_H
-#define LINEARINTERPOLATION_H
+#ifndef TUDAT_JUMPLINEARINTERPOLATOR_H
+#define TUDAT_JUMPLINEARINTERPOLATOR_H
 
 #include <map>
 #include <vector>
@@ -64,27 +64,42 @@ namespace tudat
 namespace interpolators
 {
 
-//! Linear interpolation class.
+//! Linear interpolation class with discrete jumps in data.
 /*!
- *  This class is used to perform lienar interpolation in a single dimension from a set of
- *  data in independent and dependent variables.
+ *  This class is used to perform linear interpolation in a single dimension from a set of
+ *  data in independent and dependent variables. The dependent variables contain discrete jumps at specified locations.
+ *  The jumps are identified by a maximum allowed deviation between two dependent variable data points. The jump in data is
+ *  fixed to a user-supplied value when a jump is identified.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class JumpDataLinearInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
 {
 public:
 
-    // Using statements to prevent having to put 'this' everywhere in the code.
+    //! Using statements to prevent having to put 'this' everywhere in the code.
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
-
-    JumpDataLinearInterpolator( std::map< IndependentVariableType, DependentVariableType > dataMap,
-                                DependentVariableType maximumAllowableVariation,
-                                DependentVariableType jumpSize,
-                                AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+    //! Constructor from map of independent/dependent data.
+    /*!
+     * This constructor initializes the interpolator from a map containing independent variables
+     * as key and dependent variables as value. A look-up scheme can be provided to override the
+     * given default.
+     * \param dataMap Map containing independent variables as key and dependent variables as
+     *          value.
+     * \param maximumAllowableVariation Maximum allowable deviation between two dependent variable values, above which a jump is
+     *          identified.
+     * \param jumpSize Magnitude of jumps in dependent variable data.
+     * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     *          to find the nearest lower data point in the independent variables when requesting
+     *          interpolation.
+     */
+    JumpDataLinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
+                                const DependentVariableType maximumAllowableVariation,
+                                const DependentVariableType jumpSize,
+                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -108,12 +123,25 @@ public:
     }
 
     //! Constructor from vectors of independent/dependent data.
-
-    JumpDataLinearInterpolator( std::vector< IndependentVariableType > independentValues,
-                                std::vector< DependentVariableType > dependentValues,
-                                DependentVariableType maximumAllowableVariation,
-                                DependentVariableType jumpSize,
-                                AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+    /*!
+     *  This constructor initializes the interpolator from two vectors containing the independent
+     *  variables and dependent variables. A look-up scheme can be provided to
+     *  override the given default.
+     *  \param independentValues Vector of values of independent variables that are used, must be
+     *  sorted in ascending order.
+     *  \param dependentValues Vector of values of dependent variables that are used.
+     *  \param maximumAllowableVariation Maximum allowable deviation between two dependent variable values, above which a jump is
+     *          identified.
+     *  \param jumpSize Magnitude of jumps in dependent variable data.
+     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     *  to find the nearest lower data point in the independent variables when requesting
+     *  interpolation.
+     */
+    JumpDataLinearInterpolator( const std::vector< IndependentVariableType > independentValues,
+                                const std::vector< DependentVariableType > dependentValues,
+                                const DependentVariableType maximumAllowableVariation,
+                                const DependentVariableType jumpSize,
+                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -127,9 +155,6 @@ public:
     }
 
     //! Destructor.
-    /*!
-     * Destructor
-     */
     ~JumpDataLinearInterpolator( ) { }
 
     //! Function interpolates dependent variable value at given independent variable value.
@@ -146,6 +171,7 @@ public:
 
         DependentVariableType interpolatedValue;
 
+        // Check if jump occurs
         if( std::abs( dependentValues_[ newNearestLowerIndex ] - dependentValues_[ newNearestLowerIndex + 1 ] ) >
                 maximumAllowableVariation_ )
         {
@@ -169,8 +195,11 @@ public:
     }
 
 private:
+
+    //! Maximum allowable deviation between two dependent variable values, above which a jump is identified.
     DependentVariableType maximumAllowableVariation_;
 
+    //! Magnitude of jumps in dependent variable data.
     DependentVariableType jumpSize_;
 };
 
@@ -178,6 +207,6 @@ private:
 
 } // Namespace tudat.
 
-#endif // LINEARINTERPOLATION_H
+#endif // TUDAT_JUMPLINEARINTERPOLATOR_H
 
 
