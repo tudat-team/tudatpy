@@ -118,10 +118,10 @@ public:
 };
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings );
 
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings );
 
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.

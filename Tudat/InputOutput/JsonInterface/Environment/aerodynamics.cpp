@@ -20,7 +20,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
     if ( ! aerodynamicSettings )
     {
@@ -127,7 +127,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientS
 }
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
     using namespace aerodynamics;
     using namespace interpolators;
@@ -188,8 +188,8 @@ void from_json( const json& jsonObject, boost::shared_ptr< AerodynamicCoefficien
     }
     case tabulated_coefficients:
     {
-        const json jsonForceCoefficients = getValue< json >( jsonObject, K::forceCoefficients );
-        const json jsonMomentCoefficients = getValue( jsonObject, K::momentCoefficients, json( ) );
+        const nlohmann::json jsonForceCoefficients = getValue< nlohmann::json >( jsonObject, K::forceCoefficients );
+        const nlohmann::json jsonMomentCoefficients = getValue( jsonObject, K::momentCoefficients, nlohmann::json( ) );
         const bool useMoments = ! jsonMomentCoefficients.is_null( );
 
         bool readFromFiles = true;

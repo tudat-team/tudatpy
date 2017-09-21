@@ -34,13 +34,13 @@ static std::map< AvailableTorque, std::string > torqueTypes =
 static std::vector< AvailableTorque > unsupportedTorqueTypes = { };
 
 //! Convert `AvailableTorque` to `json`.
-inline void to_json( json& jsonObject, const AvailableTorque& torqueType )
+inline void to_json( nlohmann::json& jsonObject, const AvailableTorque& torqueType )
 {
     jsonObject = json_interface::stringFromEnum( torqueType, torqueTypes );
 }
 
 //! Convert `json` to `AvailableTorque`.
-inline void from_json( const json& jsonObject, AvailableTorque& torqueType )
+inline void from_json( const nlohmann::json& jsonObject, AvailableTorque& torqueType )
 {
     torqueType = json_interface::enumFromString( jsonObject, torqueTypes );
 }
@@ -52,10 +52,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `TorqueSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqueSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqueSettings );
 
 //! Create a shared pointer to a `TorqueSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< TorqueSettings >& torqueSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< TorqueSettings >& torqueSettings );
 
 } // namespace simulation_setup
 

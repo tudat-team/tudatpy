@@ -14,9 +14,6 @@
 #include "utilities.h"
 #include "keys.h"
 
-#include "json/src/json.hpp"
-using json = nlohmann::json;
-
 namespace tudat
 {
 

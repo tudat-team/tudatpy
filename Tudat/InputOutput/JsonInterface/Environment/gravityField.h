@@ -36,13 +36,13 @@ static std::map< GravityFieldType, std::string > gravityFieldTypes =
 static std::vector< GravityFieldType > unsupportedGravityFieldTypes = { };
 
 //! Convert `GravityFieldType` to `json`.
-inline void to_json( json& jsonObject, const GravityFieldType& gravityFieldType )
+inline void to_json( nlohmann::json& jsonObject, const GravityFieldType& gravityFieldType )
 {
     jsonObject = json_interface::stringFromEnum( gravityFieldType, gravityFieldTypes );
 }
 
 //! Convert `json` to `GravityFieldType`.
-inline void from_json( const json& jsonObject, GravityFieldType& gravityFieldType )
+inline void from_json( const nlohmann::json& jsonObject, GravityFieldType& gravityFieldType )
 {
     gravityFieldType = json_interface::enumFromString( jsonObject, gravityFieldTypes );
 }
@@ -66,13 +66,13 @@ static std::map< SphericalHarmonicsModel, std::string > sphericalHarmonicsModels
 static std::vector< SphericalHarmonicsModel > unsupportedSphericalHarmonicsModels = { };
 
 //! Convert `SphericalHarmonicsModel` to `json`.
-inline void to_json( json& jsonObject, const SphericalHarmonicsModel& sphericalHarmonicsModel )
+inline void to_json( nlohmann::json& jsonObject, const SphericalHarmonicsModel& sphericalHarmonicsModel )
 {
     jsonObject = json_interface::stringFromEnum( sphericalHarmonicsModel, sphericalHarmonicsModels );
 }
 
 //! Convert `json` to `SphericalHarmonicsModel`.
-inline void from_json( const json& jsonObject, SphericalHarmonicsModel& sphericalHarmonicsModel )
+inline void from_json( const nlohmann::json& jsonObject, SphericalHarmonicsModel& sphericalHarmonicsModel )
 {
     sphericalHarmonicsModel =
             json_interface::enumFromString( jsonObject, sphericalHarmonicsModels );
@@ -82,10 +82,10 @@ inline void from_json( const json& jsonObject, SphericalHarmonicsModel& spherica
 // GravityFieldSettings
 
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
 
 //! Create a shared pointer to a `GravityFieldSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
 
 } // namespace simulation_setup
 

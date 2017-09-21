@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
 {
     if ( ! gravityFieldSettings )
     {
@@ -101,7 +101,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldSettings >&
 }
 
 //! Create a shared pointer to a `GravityFieldSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::GravityField;

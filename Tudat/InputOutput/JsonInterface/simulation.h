@@ -67,7 +67,7 @@ public:
      * Reset the `json` object.
      * \param jsonObject The new `json` object to be used for creating the simulation settings.
      */
-    void reset( const json& jsonObject )
+    void reset( const nlohmann::json& jsonObject )
     {
         jsonObject_ = jsonObject;
         originalJsonObject_ = jsonObject_;
@@ -153,7 +153,7 @@ public:
      * @copybrief getAsJSON
      * \return JSON representation of `this`.
      */
-    json getAsJSON( )
+    nlohmann::json getAsJSON( )
     {
         updateJSONObjectFromSettings( );
         return jsonObject_;
@@ -185,7 +185,7 @@ public:
      * values have been loaded or unit conversions have been applied.
      * \return The original JSON object.
      */
-    json getOriginalJSONObject( )
+    nlohmann::json getOriginalJSONObject( )
     {
         return originalJsonObject_;
     }
@@ -307,7 +307,7 @@ protected:
         updateFromJSON( propagatorSettings_, jsonObject_ );
 
         // Create integrated state models (acceleration, mass-rate, rotational models)
-        propagatorSettings_->createIntegratedStateModels( bodyMap_ );
+        propagatorSettings_->resetIntegratedStateModels( bodyMap_ );
     }
 
     //! Reset exportSettingsVector_ from the current jsonObject_.
@@ -370,10 +370,10 @@ private:
     path inputFilePath_;
 
     //! Original JSON object with all the settings read directly from the input file.
-    json originalJsonObject_;
+    nlohmann::json originalJsonObject_;
 
     //! JSON object with the current settings.
-    json jsonObject_;
+    nlohmann::json jsonObject_;
 
     //! Body map.
     simulation_setup::NamedBodyMap bodyMap_;
@@ -386,7 +386,7 @@ private:
 
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
-void to_json( json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
+void to_json( nlohmann::json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
 {
     jsonObject.clear( );
 

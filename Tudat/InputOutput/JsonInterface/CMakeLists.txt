@@ -74,7 +74,7 @@ set(JSONINTERFACE_HEADERS
 add_library(json_interface_library STATIC ${JSONINTERFACE_SOURCES} ${JSONINTERFACE_HEADERS})
 setup_tudat_library_target(json_interface_library "")
 
-list(APPEND JSON_INTERFACE_LIBRARIES json_interface_library ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 # Set the global macros for setting up targets.
 macro(setup_executable_target target_name)
@@ -87,7 +87,7 @@ endmacro(setup_custom_test_program)
 
 add_executable(json_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp")
 setup_executable_target(json_interface)
-target_link_libraries(json_interface ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(json_interface ${JSON_PROPAGATION_LIBRARIES})
 
 set(JSON_TESTS_DIR "${SRCROOT}${JSONINTERFACEDIR}/UnitTests")
 
@@ -96,87 +96,87 @@ set(JSON_TESTS_DIR "${SRCROOT}${JSONINTERFACEDIR}/UnitTests")
 # valueAccess
 add_executable(test_json_valueAccess "${JSON_TESTS_DIR}/valueAccess.cpp")
 setup_custom_test_program(test_json_valueAccess "")
-target_link_libraries(test_json_valueAccess ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_valueAccess ${JSON_PROPAGATION_LIBRARIES})
 
 # # modularFiles
 # add_executable(test_json_modularFiles "${JSON_TESTS_DIR}/modularFiles.cpp")
 # setup_custom_test_program(test_json_modularFiles "")
-# target_link_libraries(test_json_modularFiles ${JSON_INTERFACE_LIBRARIES})
+# target_link_libraries(test_json_modularFiles ${JSON_PROPAGATION_LIBRARIES})
 #
 # # mergeableFiles
 # add_executable(test_json_mergeableFiles "${JSON_TESTS_DIR}/mergeableFiles.cpp")
 # setup_custom_test_program(test_json_mergeableFiles "")
-# target_link_libraries(test_json_mergeableFiles ${JSON_INTERFACE_LIBRARIES})
+# target_link_libraries(test_json_mergeableFiles ${JSON_PROPAGATION_LIBRARIES})
 
 # aerodynamics
 add_executable(test_json_aerodynamics "${JSON_TESTS_DIR}/aerodynamics.cpp")
 setup_custom_test_program(test_json_aerodynamics "")
-target_link_libraries(test_json_aerodynamics ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_aerodynamics ${JSON_PROPAGATION_LIBRARIES})
 
 # atmosphere
 add_executable(test_json_atmosphere "${JSON_TESTS_DIR}/atmosphere.cpp")
 setup_custom_test_program(test_json_atmosphere "")
-target_link_libraries(test_json_atmosphere ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_atmosphere ${JSON_PROPAGATION_LIBRARIES})
 
 # ephemeris
 add_executable(test_json_ephemeris "${JSON_TESTS_DIR}/ephemeris.cpp")
 setup_custom_test_program(test_json_ephemeris "")
-target_link_libraries(test_json_ephemeris ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_ephemeris ${JSON_PROPAGATION_LIBRARIES})
 
 # gravityField
 add_executable(test_json_gravityField "${JSON_TESTS_DIR}/gravityField.cpp")
 setup_custom_test_program(test_json_gravityField "")
-target_link_libraries(test_json_gravityField ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_gravityField ${JSON_PROPAGATION_LIBRARIES})
 
 # gravityFieldVariation
 add_executable(test_json_gravityFieldVariation "${JSON_TESTS_DIR}/gravityFieldVariation.cpp")
 setup_custom_test_program(test_json_gravityFieldVariation "")
-target_link_libraries(test_json_gravityFieldVariation ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_gravityFieldVariation ${JSON_PROPAGATION_LIBRARIES})
 
 # radiationPressure
 add_executable(test_json_radiationPressure "${JSON_TESTS_DIR}/radiationPressure.cpp")
 setup_custom_test_program(test_json_radiationPressure "")
-target_link_libraries(test_json_radiationPressure ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_radiationPressure ${JSON_PROPAGATION_LIBRARIES})
 
 # rotationModel
 add_executable(test_json_rotationModel "${JSON_TESTS_DIR}/rotationModel.cpp")
 setup_custom_test_program(test_json_rotationModel "")
-target_link_libraries(test_json_rotationModel ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_rotationModel ${JSON_PROPAGATION_LIBRARIES})
 
 # shapeModel
 add_executable(test_json_shapeModel "${JSON_TESTS_DIR}/shapeModel.cpp")
 setup_custom_test_program(test_json_shapeModel "")
-target_link_libraries(test_json_shapeModel ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_shapeModel ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationSingleSatellite
 add_executable(test_json_simulationSingleSatellite "${JSON_TESTS_DIR}/simulationSingleSatellite.cpp")
 setup_custom_test_program(test_json_simulationSingleSatellite "")
-target_link_libraries(test_json_simulationSingleSatellite ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationSingleSatellite ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationSinglePerturbedSatellite
 add_executable(test_json_simulationSinglePerturbedSatellite "${JSON_TESTS_DIR}/simulationSinglePerturbedSatellite.cpp")
 setup_custom_test_program(test_json_simulationSinglePerturbedSatellite "")
-target_link_libraries(test_json_simulationSinglePerturbedSatellite ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationSinglePerturbedSatellite ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationInnerSolarSystem
 add_executable(test_json_simulationInnerSolarSystem "${JSON_TESTS_DIR}/simulationInnerSolarSystem.cpp")
 setup_custom_test_program(test_json_simulationInnerSolarSystem "")
-target_link_libraries(test_json_simulationInnerSolarSystem ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationInnerSolarSystem ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationGalileoConstellation
 add_executable(test_json_simulationGalileoConstellation "${JSON_TESTS_DIR}/simulationGalileoConstellation.cpp")
 setup_custom_test_program(test_json_simulationGalileoConstellation "")
-target_link_libraries(test_json_simulationGalileoConstellation ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationGalileoConstellation ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationThrustAlongVelocityVector
 add_executable(test_json_simulationThrustAlongVelocityVector "${JSON_TESTS_DIR}/simulationThrustAlongVelocityVector.cpp")
 setup_custom_test_program(test_json_simulationThrustAlongVelocityVector "")
-target_link_libraries(test_json_simulationThrustAlongVelocityVector ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationThrustAlongVelocityVector ${JSON_PROPAGATION_LIBRARIES})
 
 # simulationThrustAccelerationFromFile
 add_executable(test_json_simulationThrustAccelerationFromFile "${JSON_TESTS_DIR}/simulationThrustAccelerationFromFile.cpp")
 setup_custom_test_program(test_json_simulationThrustAccelerationFromFile "")
-target_link_libraries(test_json_simulationThrustAccelerationFromFile ${JSON_INTERFACE_LIBRARIES})
+target_link_libraries(test_json_simulationThrustAccelerationFromFile ${JSON_PROPAGATION_LIBRARIES})
 
 
 

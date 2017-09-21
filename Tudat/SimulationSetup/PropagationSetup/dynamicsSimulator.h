@@ -250,6 +250,12 @@ public:
         return bodyMap_;
     }
 
+    //! -DOC
+    void resetNamedBodyMap( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        bodyMap_ = bodyMap;
+    }
+
     void resetSetIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;

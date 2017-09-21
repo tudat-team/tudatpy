@@ -17,7 +17,6 @@
 #include <boost/core/demangle.hpp>
 
 #include "json/src/json.hpp"
-using json = nlohmann::json;
 
 #include "keys.h"
 #include "utilities.h"
@@ -129,7 +128,7 @@ public:
      * \param defaultValue `json` representation of the dafault value to be used.
      * \param response The response to usage of dafault values.
      */
-    void handleUseOfDefaultValue( const json& defaultValue, const ExceptionResponseType& response ) const
+    void handleUseOfDefaultValue( const nlohmann::json& defaultValue, const ExceptionResponseType& response ) const
     {
         if ( ! containsAnyOf( keyPath, SpecialKeys::objectContaining ) )
         {
@@ -177,12 +176,12 @@ public:
      * \param value The `json` object that was going to be converted to the expected type.
      * \param expectedTypeInfo Type id info of the expected type.
      */
-    IllegalValueError( const KeyPath& keyPath, const json& value, const std::type_info& expectedTypeInfo ) :
+    IllegalValueError( const KeyPath& keyPath, const nlohmann::json& value, const std::type_info& expectedTypeInfo ) :
         ValueAccessError( "Illegal value for key", keyPath ), value( value ),
         expectedTypeName( boost::core::demangled_name( expectedTypeInfo ) ) { }
 
     //! Associated (illegal) value.
-    json value;
+    nlohmann::json value;
 
     //! Expected type name.
     std::string expectedTypeName;

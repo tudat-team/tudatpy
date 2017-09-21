@@ -110,11 +110,11 @@ public:
      * actual models and assign them to the corresponding model map members.
      *
      * The implementation for MultiArc and MultiType (hybrid state) propagations will call the
-     * `createIntegratedStateModels` method of each of the fundamental propagators that they contain.
+     * `resetIntegratedStateModels` method of each of the fundamental propagators that they contain.
      *
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap ) = 0;
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap ) = 0;
 
 
 protected:
@@ -364,14 +364,14 @@ public:
      * each fo the propagators existing in each propagation arc.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         for ( boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings :
               singleArcSettings_ )
         {
             if ( singleArcSettings )
             {
-                singleArcSettings->createIntegratedStateModels( bodyMap );
+                singleArcSettings->resetIntegratedStateModels( bodyMap );
             }
         }
     }
@@ -619,7 +619,7 @@ public:
      * Function to create the acceleration models.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
                     bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
@@ -698,7 +698,7 @@ public:
      * Function to create the torque models.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_ );
     }
@@ -814,7 +814,7 @@ public:
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      * \param accelerationMap Map of accelerations in the propagation.
      */
-    void createIntegratedStateModels(
+    void resetIntegratedStateModels(
             const simulation_setup::NamedBodyMap& bodyMap,
             const basic_astrodynamics::AccelerationMap& accelerationMap )
     {
@@ -826,9 +826,9 @@ public:
      * Function to create the mass-rate models.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
-        createIntegratedStateModels( bodyMap, basic_astrodynamics::AccelerationMap( ) );
+        resetIntegratedStateModels( bodyMap, basic_astrodynamics::AccelerationMap( ) );
     }
 };
 
@@ -929,7 +929,7 @@ public:
      * the integrated state models cannot be created automatically for `CustomStatePropagatorSettings`.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         throw std::runtime_error( "Could not create integrated state models for custom state propagator." );
     }
@@ -1127,7 +1127,7 @@ public:
      * each fo the propagators state types contained in `propagatorSettingsMap_`.
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
-    virtual void createIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         std::vector< boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > >
                 vectorOfTranslationalSettings;
@@ -1165,12 +1165,12 @@ public:
                                                       "propagator settings for each mass rate propagator settings, "
                                                       "or provide no translational propagator settings at all." );
                         }
-                        massPropagatorSettings->createIntegratedStateModels(
+                        massPropagatorSettings->resetIntegratedStateModels(
                                     bodyMap, vectorOfTranslationalSettings.at( i )->accelerationsMap_ );
                     }
                     else
                     {
-                        singleArcSettings->createIntegratedStateModels( bodyMap );
+                        singleArcSettings->resetIntegratedStateModels( bodyMap );
                     }
                 }
             }

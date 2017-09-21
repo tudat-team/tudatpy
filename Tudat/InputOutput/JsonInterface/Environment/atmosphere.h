@@ -34,22 +34,22 @@ static std::map< AtmosphereTypes, std::string > atmosphereTypes =
 static std::vector< AtmosphereTypes > unsupportedAtmosphereTypes = { };
 
 //! Convert `AtmosphereTypes` to `json`.
-inline void to_json( json& jsonObject, const AtmosphereTypes& atmosphereType )
+inline void to_json( nlohmann::json& jsonObject, const AtmosphereTypes& atmosphereType )
 {
     jsonObject = json_interface::stringFromEnum( atmosphereType, atmosphereTypes );
 }
 
 //! Convert `json` to `AtmosphereTypes`.
-inline void from_json( const json& jsonObject, AtmosphereTypes& atmosphereType )
+inline void from_json( const nlohmann::json& jsonObject, AtmosphereTypes& atmosphereType )
 {
     atmosphereType = json_interface::enumFromString( jsonObject, atmosphereTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
 
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
 
 } // namespace simulation_setup
 

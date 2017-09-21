@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `TorqueSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqueSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqueSettings )
 {
     if ( ! torqueSettings )
     {
@@ -42,7 +42,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqu
 }
 
 //! Create a shared pointer to a `TorqueSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< TorqueSettings >& torqueSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< TorqueSettings >& torqueSettings )
 {
     using namespace json_interface;
     using namespace basic_astrodynamics;

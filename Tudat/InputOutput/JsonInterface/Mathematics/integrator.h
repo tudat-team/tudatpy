@@ -34,13 +34,13 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 static std::vector< AvailableIntegrators > unsupportedIntegratorTypes = { };
 
 //! Convert `AvailableIntegrators` to `json`.
-inline void to_json( json& jsonObject, const AvailableIntegrators& availableIntegrator )
+inline void to_json( nlohmann::json& jsonObject, const AvailableIntegrators& availableIntegrator )
 {
     jsonObject = json_interface::stringFromEnum( availableIntegrator, integratorTypes );
 }
 
 //! Convert `json` to `AvailableIntegrators`.
-inline void from_json( const json& jsonObject, AvailableIntegrators& availableIntegrator )
+inline void from_json( const nlohmann::json& jsonObject, AvailableIntegrators& availableIntegrator )
 {
     availableIntegrator = json_interface::enumFromString( jsonObject, integratorTypes );
 }
@@ -59,13 +59,13 @@ static std::map< RungeKuttaCoefficients::CoefficientSets, std::string > rungeKut
 static std::vector< RungeKuttaCoefficients::CoefficientSets > unsupportedRungeKuttaCoefficientSets = { };
 
 //! Convert `RungeKuttaCoefficients::CoefficientSets` to `json`.
-inline void to_json( json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+inline void to_json( nlohmann::json& jsonObject, const RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
 {
     jsonObject = json_interface::stringFromEnum( rungeKuttaCoefficientSet, rungeKuttaCoefficientSets );
 }
 
 //! Convert `json` to `RungeKuttaCoefficients::CoefficientSets`.
-inline void from_json( const json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
+inline void from_json( const nlohmann::json& jsonObject, RungeKuttaCoefficients::CoefficientSets& rungeKuttaCoefficientSet )
 {
     rungeKuttaCoefficientSet =
             json_interface::enumFromString( jsonObject, rungeKuttaCoefficientSets );
@@ -74,7 +74,7 @@ inline void from_json( const json& jsonObject, RungeKuttaCoefficients::Coefficie
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 template< typename TimeType >
-void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     if ( ! integratorSettings )
     {
@@ -122,7 +122,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< IntegratorSettings< Tim
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 template< typename TimeType >
-void from_json( const json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace json_interface;
     using RungeKuttaCoefficientSet = RungeKuttaCoefficients::CoefficientSets;

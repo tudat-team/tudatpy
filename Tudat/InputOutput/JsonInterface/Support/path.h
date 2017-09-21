@@ -14,7 +14,6 @@
 #include <boost/filesystem.hpp>
 
 #include "json/src/json.hpp"
-using json = nlohmann::json;
 
 #include <Tudat/InputOutput/basicInputOutput.h>
 
@@ -65,10 +64,10 @@ namespace filesystem
 {
 
 //! Create a `json` object from a `path`.
-void to_json( json& j, const path& p );
+void to_json( nlohmann::json& j, const path& p );
 
 //! Create a path from a `json` object.
-void from_json( const json& j, path& p );
+void from_json( const nlohmann::json& j, path& p );
 
 }  // namespace filesystem
 

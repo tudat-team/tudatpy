@@ -120,13 +120,13 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application.
  * (equal to \p filePath if \p jsonObject was defined at \p rootFilePath).
  */
-void updatePaths( json& jsonObject, const path& filePath, const path& parentFilePath, const path& rootFilePath )
+void updatePaths( nlohmann::json& jsonObject, const path& filePath, const path& parentFilePath, const path& rootFilePath )
 {
     if ( jsonObject.is_structured( ) )
     {
-        for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        for ( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
-            json& subjson = it.value( );
+            nlohmann::json& subjson = it.value( );
             updatePaths( subjson, filePath, parentFilePath, rootFilePath );
         }
     }
@@ -168,13 +168,13 @@ void updatePaths( json& jsonObject, const path& filePath, const path& parentFile
 }
 
 //! Read a JSON file into a `json` object.
-json readJSON( const path& filePath, const path& parentFilePath, const path& rootFilePath )
+nlohmann::json readJSON( const path& filePath, const path& parentFilePath, const path& rootFilePath )
 {
     std::ifstream stream( filePath.string( ) );
-    json jsonObject;
+    nlohmann::json jsonObject;
     try
     {
-        jsonObject = json::parse( stream );
+        jsonObject = nlohmann::json::parse( stream );
     }
     catch ( const nlohmann::detail::parse_error& error )
     {
@@ -201,14 +201,14 @@ json readJSON( const path& filePath, const path& parentFilePath, const path& roo
  * (the elements will be merged).
  * \param filePath The file from which \p jsonObject was retrieved.
  */
-void mergeJSON( json& jsonObject, const path& filePath )
+void mergeJSON( nlohmann::json& jsonObject, const path& filePath )
 {
     if ( jsonObject.is_array( ) )
     {
-        json jsonArray = jsonObject;
-        for ( json::iterator it = jsonArray.begin( ); it != jsonArray.end( ); ++it )
+        nlohmann::json jsonArray = jsonObject;
+        for ( nlohmann::json::iterator it = jsonArray.begin( ); it != jsonArray.end( ); ++it )
         {
-            json subjson = it.value( );
+            nlohmann::json subjson = it.value( );
             mergeJSON( subjson, filePath );
             if ( it == jsonArray.begin( ) )
             {
@@ -216,15 +216,15 @@ void mergeJSON( json& jsonObject, const path& filePath )
             }
             else
             {
-                for ( json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
+                for ( nlohmann::json::iterator subit = subjson.begin( ); subit != subjson.end( ); ++subit )
                 {
                     const KeyPath keyPath( subit.key( ) );
                     try
                     {
-                        json newValue = subit.value( );
+                        nlohmann::json newValue = subit.value( );
                         for ( unsigned int j = 0; j < keyPath.size( ); ++j )
                         {
-                            json updatedsonObject = jsonObject;
+                            nlohmann::json updatedsonObject = jsonObject;
                             for ( unsigned int i = 0; i < keyPath.size( ) - j; ++i )
                             {
                                 const std::string key = keyPath.at( i );
@@ -284,8 +284,8 @@ void mergeJSON( json& jsonObject, const path& filePath )
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application
  * (empty if \p filePath is equal to \p rootFilePath).
  */
-void parseModularJSON( json& jsonObject, const path& filePath,
-                       json parentObject = json( ), path rootFilePath = path( ) )
+void parseModularJSON( nlohmann::json& jsonObject, const path& filePath,
+                       nlohmann::json parentObject = nlohmann::json( ), path rootFilePath = path( ) )
 {
     if ( parentObject.is_null( ) )
     {
@@ -297,9 +297,9 @@ void parseModularJSON( json& jsonObject, const path& filePath,
     }
     if ( jsonObject.is_object( ) )
     {
-        for ( json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+        for ( nlohmann::json::iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
         {
-            json& subjson = it.value( );
+            nlohmann::json& subjson = it.value( );
             parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
@@ -307,7 +307,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
     {
         for ( unsigned int i = 0; i < jsonObject.size( ); ++i )
         {
-            json& subjson = jsonObject.at( i );
+            nlohmann::json& subjson = jsonObject.at( i );
             parseModularJSON( subjson, filePath, jsonObject, rootFilePath );
         }
     }
@@ -323,7 +323,7 @@ void parseModularJSON( json& jsonObject, const path& filePath,
             const std::string file( groups[ 1 ] );
             const std::string vars( groups[ 2 ] );
             const path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
-            const json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
+            const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
             std::vector< std::string > keys;
             std::vector< KeyPath > keyPaths;
             if ( varsMatch )
@@ -342,11 +342,11 @@ void parseModularJSON( json& jsonObject, const path& filePath,
             {
                 keyPaths = { KeyPath( ) };
             }
-            json parsedJsonObject;
+            nlohmann::json parsedJsonObject;
             for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
             {
                 const KeyPath keyPath = keyPaths.at( i );
-                json subJsonObject = importedJsonObject;
+                nlohmann::json subJsonObject = importedJsonObject;
                 if ( keyPath.empty( ) )
                 {
                     parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
@@ -395,9 +395,9 @@ void parseModularJSON( json& jsonObject, const path& filePath,
 }
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
-json getDeserializedJSON( const path& filePath )
+nlohmann::json getDeserializedJSON( const path& filePath )
 {
-    json jsonObject = readJSON( filePath );
+    nlohmann::json jsonObject = readJSON( filePath );
     parseModularJSON( jsonObject, filePath );
     mergeJSON( jsonObject, filePath );
     return jsonObject;

@@ -24,7 +24,7 @@ namespace propagators
 // VariableSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings )
 {
     if ( ! variableSettings )
     {
@@ -55,7 +55,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& var
 }
 
 //! Create a shared pointer to a `VariableSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings )
 {
     using namespace basic_astrodynamics;
     using namespace reference_frames;
@@ -87,7 +87,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& v
 // SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings )
 {
     if ( ! dependentVariableSettings )
@@ -157,7 +157,7 @@ void to_json( json& jsonObject,
 }
 
 //! Create a shared pointer to a `SingleDependentVariableSaveSettings` object from a `json` object.
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings )
 {
     using namespace basic_astrodynamics;

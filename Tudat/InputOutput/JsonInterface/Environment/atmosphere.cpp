@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
     if ( ! atmosphereSettings )
     {
@@ -70,7 +70,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& a
 }
 
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::Atmosphere;

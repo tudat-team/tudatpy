@@ -42,7 +42,7 @@ path inputDirectory( )
     }
 }
 
-template< typename T = json >
+template< typename T = nlohmann::json >
 T parseJSONFile( std::string file )
 {
     if ( path( file ).extension( ).empty( ) )
@@ -57,8 +57,8 @@ T parseJSONFile( std::string file )
 template< typename T >
 void checkJsonEquivalent( const T& left, const T& right )
 {
-    const std::string fromFile = json( left ).dump( 2 );
-    const std::string manual = json( right ).dump( 2 );
+    const std::string fromFile = nlohmann::json( left ).dump( 2 );
+    const std::string manual = nlohmann::json( right ).dump( 2 );
     BOOST_CHECK_EQUAL( fromFile, manual );
 }
 

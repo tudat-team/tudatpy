@@ -61,10 +61,10 @@ public:
 };
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& saveSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ExportSettings >& saveSettings );
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& saveSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSettings >& saveSettings );
 
 
 //! Export results of \p dynamicsSimulator according to the settings specified in \p exportSettingsVector.

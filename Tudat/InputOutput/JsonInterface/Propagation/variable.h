@@ -37,13 +37,13 @@ static std::map< VariableType, std::string > variableTypes =
 static std::vector< VariableType > unsupportedVariableTypes = { };
 
 //! Convert `VariableType` to `json`.
-inline void to_json( json& jsonObject, const VariableType& variableType )
+inline void to_json( nlohmann::json& jsonObject, const VariableType& variableType )
 {
     jsonObject = json_interface::stringFromEnum( variableType, variableTypes );
 }
 
 //! Convert `json` to `VariableType`.
-inline void from_json( const json& jsonObject, VariableType& variableType )
+inline void from_json( const nlohmann::json& jsonObject, VariableType& variableType )
 {
     variableType = json_interface::enumFromString( jsonObject, variableTypes );
 }
@@ -92,13 +92,13 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
 // static std::vector< PropagationDependentVariables > unsupportedDependentVariables = { };
 
 //! Convert `PropagationDependentVariables` to `json`.
-inline void to_json( json& jsonObject, const PropagationDependentVariables& dependentVariable )
+inline void to_json( nlohmann::json& jsonObject, const PropagationDependentVariables& dependentVariable )
 {
     jsonObject = json_interface::stringFromEnum( dependentVariable, dependentVariableTypes );
 }
 
 //! Convert `json` to `PropagationDependentVariables`.
-inline void from_json( const json& jsonObject, PropagationDependentVariables& dependentVariable )
+inline void from_json( const nlohmann::json& jsonObject, PropagationDependentVariables& dependentVariable )
 {
     dependentVariable = json_interface::enumFromString( jsonObject, dependentVariableTypes );
 }
@@ -107,20 +107,20 @@ inline void from_json( const json& jsonObject, PropagationDependentVariables& de
 // VariableSettings
 
 //! Create a `json` object from a shared pointer to a `VariableSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings );
 
 //! Create a shared pointer to a `VariableSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings );
 
 
 // SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 //! Create a shared pointer to a `SingleDependentVariableSaveSettings` object from a `json` object.
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 } // namespace propagators

@@ -19,9 +19,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
-#include "json/src/json.hpp"
-using json = nlohmann::json;
-
 #include <Tudat/InputOutput/basicInputOutput.h>
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
@@ -49,7 +46,7 @@ namespace json_interface
  * \param mutator Whether to use mutator or accessor methods.
  * \return A reference to the value of the accessed key (will be a null `json` if the key did not exist).
  */
-json& valueAt( json& jsonObject, const std::string& key, const bool mutator = false );
+nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, const bool mutator = false );
 
 //! Access a key path of a `json` object or array.
 /*!
@@ -60,7 +57,7 @@ json& valueAt( json& jsonObject, const std::string& key, const bool mutator = fa
  * \param keyPath The key path to access.
  * \return The value at the accessed key path.
  */
-json valueAt( json jsonObject, const KeyPath& keyPath );
+nlohmann::json valueAt( nlohmann::json jsonObject, const KeyPath& keyPath );
 
 //! Whether the key at \p keyPath is defined for \p jsonObject.
 /*!
@@ -69,7 +66,7 @@ json valueAt( json jsonObject, const KeyPath& keyPath );
  * \param keyPath The key path specifying to key to be checked.
  * \return @copybrief isDefined
  */
-bool isDefined( const json& jsonObject, const KeyPath& keyPath );
+bool isDefined( const nlohmann::json& jsonObject, const KeyPath& keyPath );
 
 
 // SPECIAL KEYS ACCESS
@@ -81,7 +78,7 @@ bool isDefined( const json& jsonObject, const KeyPath& keyPath );
  * \return JSON representation of the root object of \p jsonObject.
  * \throws UndefinedKeyError If the key SpecialKeys::rootObject is not defined for \p jsonObject.
  */
-json getRootObject( const json& jsonObject );
+nlohmann::json getRootObject( const nlohmann::json& jsonObject );
 
 //! Get the absolute key path from which \p jsonObject was retrieved.
 /*!
@@ -90,7 +87,7 @@ json getRootObject( const json& jsonObject );
  * \return Absolute key path from which \p jsonObject was retrieved.
  * \throws UndefinedKeyError If the key SpecialKeys::keyPath is not defined for \p jsonObject.
  */
-KeyPath getKeyPath( const json& jsonObject );
+KeyPath getKeyPath( const nlohmann::json& jsonObject );
 
 //! Get the key at which \p jsonObject was obtained.
 /*!
@@ -100,7 +97,7 @@ KeyPath getKeyPath( const json& jsonObject );
  * \return Key at which \p jsonObject was obtained.
  * \throws UndefinedKeyError If the key SpecialKeys::keyPath is not defined for \p jsonObject.
  */
-std::string getParentKey( const json& jsonObject,
+std::string getParentKey( const nlohmann::json& jsonObject,
                           const std::string& errorMessage = "Could not determine parent key: context is missing." );
 
 //! Get the response type to an event for a `json` object.
@@ -112,7 +109,7 @@ std::string getParentKey( const json& jsonObject,
  * \param defaultResponse Default response if the response to the event is not defined. By default, continueSilently.
  * \return Response type to the event.
  */
-ExceptionResponseType getResponseToEvent( const json& jsonObject, const std::string& eventName,
+ExceptionResponseType getResponseToEvent( const nlohmann::json& jsonObject, const std::string& eventName,
                                                const ExceptionResponseType defaultResponse = continueSilently );
 
 
@@ -139,7 +136,7 @@ inline void clearAccessHistory( )
  * \throws std::runtime_error If \p response is set to ExceptionResponseType::throwError and at least one unsued key
  * was found in \p jsonObject.
  */
-void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType response );
+void checkUnusedKeys( const nlohmann::json& jsonObject, const ExceptionResponseType response );
 
 
 // JSON ARRAY
@@ -153,7 +150,7 @@ void checkUnusedKeys( const json& jsonObject, const ExceptionResponseType respon
  * array, i.e. if they are not primitive. Defualt is `false` (all arrays will be converted regardless of their elements
  * type).
  */
-void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = false );
+void convertToObjectIfArray( nlohmann::json& j, const bool onlyIfElementsAreStructured = false );
 
 //! Convert \p jsonObject to a json array.
 /*!
@@ -163,7 +160,7 @@ void convertToObjectIfArray( json& j, const bool onlyIfElementsAreStructured = f
  * \param jsonObject The `json` object to be converted.
  * \return \p jsonObject as a json array, or the original \p jsonObject if it is not convertible to array.
  */
-json getAsArray( const json& jsonObject );
+nlohmann::json getAsArray( const nlohmann::json& jsonObject );
 
 //! Whether \p j is convertible to a json array.
 /*!
@@ -172,7 +169,7 @@ json getAsArray( const json& jsonObject );
  * \param j The `json` object to be checked.
  * \return Whether \p j is convertible to a json array.
  */
-bool isConvertibleToArray( const json& j );
+bool isConvertibleToArray( const nlohmann::json& j );
 
 
 // GET FROM JSON
@@ -192,10 +189,10 @@ bool isConvertibleToArray( const json& j );
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename ValueType >
-ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
+ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
 {
-    json rootObject;
-    json currentObject = jsonObject;
+    nlohmann::json rootObject;
+    nlohmann::json currentObject = jsonObject;
     KeyPath currentKeyPath = keyPath;
     KeyPath canonicalKeyPath = keyPath;
 
@@ -206,7 +203,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         {
             if ( isDefined( currentObject, SpecialKeys::rootObject ) )
             {
-                rootObject = getValue< json >( currentObject, SpecialKeys::rootObject );
+                rootObject = getValue< nlohmann::json >( currentObject, SpecialKeys::rootObject );
             }
 
             if ( currentKeyPath.size( ) > 0 )
@@ -268,7 +265,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
         const ValueType convertedObject = currentObject;
 
         // Check if unidimensional array inference was applied
-        json convertedJsonObject = json( convertedObject );
+        nlohmann::json convertedJsonObject = nlohmann::json( convertedObject );
         if ( convertedJsonObject.is_array( ) && ! chunkObjectWasArray )
         {
             const ExceptionResponseType response =
@@ -335,7 +332,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath )
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename ValueType >
-ValueType getAs( const json& jsonObject )
+ValueType getAs( const nlohmann::json& jsonObject )
 {
     return getValue< ValueType >( jsonObject, { } );
 }
@@ -355,7 +352,7 @@ ValueType getAs( const json& jsonObject )
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename ValueType >
-ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueType& defaultValue )
+ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath, const ValueType& defaultValue )
 {
     try
     {
@@ -364,7 +361,7 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
     catch ( const UndefinedKeyError& error )
     {
         error.rethrowIfNotTriggeredByMissingValueAt( keyPath );
-        error.handleUseOfDefaultValue( json( defaultValue ),
+        error.handleUseOfDefaultValue( nlohmann::json( defaultValue ),
                                        getResponseToEvent( jsonObject, Keys::Options::defaultValueUsedForMissingKey ) );
         return defaultValue;
     }
@@ -386,13 +383,13 @@ ValueType getValue( const json& jsonObject, const KeyPath& keyPath, const ValueT
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPaths is of type object).
  */
 template< typename ValueType >
-ValueType getValue( const json& jsonObject, const std::vector< KeyPath >& keyPaths )
+ValueType getValue( const nlohmann::json& jsonObject, const std::vector< KeyPath >& keyPaths )
 {
     for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
     {
         try
         {
-            return getValue< json >( jsonObject, keyPaths.at( i ) );
+            return getValue< nlohmann::json >( jsonObject, keyPaths.at( i ) );
         }
         catch ( const UndefinedKeyError& error )
         {
@@ -424,7 +421,7 @@ ValueType getValue( const json& jsonObject, const std::vector< KeyPath >& keyPat
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath = { } )
+void updateFromJSON( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = { } )
 {
     value = getValue< T >( jsonObject, keyPath );
 }
@@ -444,7 +441,7 @@ void updateFromJSON( T& value, const json& jsonObject, const KeyPath& keyPath = 
  * are not convertible to `SubvalueType` (only when \p jsonObject at \p keyPath is of type object).
  */
 template< typename T >
-void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& keyPath = { } )
+void updateFromJSONIfDefined( T& value, const nlohmann::json& jsonObject, const KeyPath& keyPath = { } )
 {
     try
     {
@@ -469,7 +466,7 @@ void updateFromJSONIfDefined( T& value, const json& jsonObject, const KeyPath& k
  * \param value The value to be used for updating `jsonObject[ key ]`.
  */
 template< typename EquatableType >
-void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableType& value )
+void assignIfNotNaN( nlohmann::json& jsonObject, const std::string& key, const EquatableType& value )
 {
     if ( ! isNaN( value ) )
     {
@@ -486,7 +483,7 @@ void assignIfNotNaN( json& jsonObject, const std::string& key, const EquatableTy
  * \param object Shared pointer to the object that is being to be used to update `jsonObject[ key ]`.
  */
 template< typename T >
-void assignIfNotNull( json& jsonObject, const std::string& key, const boost::shared_ptr< T >& object )
+void assignIfNotNull( nlohmann::json& jsonObject, const std::string& key, const boost::shared_ptr< T >& object )
 {
     if ( object )
     {
@@ -505,7 +502,7 @@ void assignIfNotNull( json& jsonObject, const std::string& key, const boost::sha
  * used to update `jsonObject[ key ]`.
  */
 template< typename ContainerType >
-void assignIfNotEmpty( json& jsonObject, const std::string& key, const ContainerType& container )
+void assignIfNotEmpty( nlohmann::json& jsonObject, const std::string& key, const ContainerType& container )
 {
     if ( ! container.empty( ) )
     {

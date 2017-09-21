@@ -26,7 +26,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings );
 
 } // namespace simulation_setup
 
@@ -40,7 +40,7 @@ namespace json_interface
  * \param jsonObject The `json` object containing the settings for one body.
  * \return Body settings object.
  */
-boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const json& jsonObject );
+boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const nlohmann::json& jsonObject );
 
 //! Update \p bodySettings with the settings from \p jsonObject.
 /*!
@@ -49,7 +49,7 @@ boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const js
  * \param bodySettings Body settings object to be updated.
  * \param jsonObject The `json` object containing only the settings for one body.
  */
-void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const json& jsonObject );
+void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const nlohmann::json& jsonObject );
 
 //! Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
 //! initial time from \p integratorSettings).
@@ -70,7 +70,7 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
  */
 template< typename TimeType >
 void updateBodiesFromJSON(
-        const json& jsonObject,
+        const nlohmann::json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
         std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
         const std::string globalFrameOrigin,
@@ -82,8 +82,8 @@ void updateBodiesFromJSON(
 
     bodySettingsMap.clear( );
 
-    std::map< std::string, json > jsonBodySettingsMap =
-            getValue< std::map< std::string, json > >( jsonObject, Keys::bodies );
+    std::map< std::string, nlohmann::json > jsonBodySettingsMap =
+            getValue< std::map< std::string, nlohmann::json > >( jsonObject, Keys::bodies );
 
     std::vector< std::string > defaultBodyNames;
     for ( auto entry : jsonBodySettingsMap )
@@ -137,7 +137,7 @@ void updateBodiesFromJSON(
     for ( auto entry : jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
-        const json jsonBodySettings = jsonBodySettingsMap[ bodyName ];
+        const nlohmann::json jsonBodySettings = jsonBodySettingsMap[ bodyName ];
         if ( bodySettingsMap.count( bodyName ) )
         {
             boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];

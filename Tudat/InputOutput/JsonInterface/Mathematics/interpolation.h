@@ -38,13 +38,13 @@ static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalIn
 static std::vector< OneDimensionalInterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
 
 //! Convert `OneDimensionalInterpolatorTypes` to `json`.
-inline void to_json( json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+inline void to_json( nlohmann::json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
 {
     jsonObject = json_interface::stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes );
 }
 
 //! Convert `json` to `OneDimensionalInterpolatorTypes`.
-inline void from_json( const json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+inline void from_json( const nlohmann::json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
 {
     oneDimensionalInterpolatorType =
             json_interface::enumFromString( jsonObject, oneDimensionalInterpolatorTypes );
@@ -64,13 +64,13 @@ static std::map< AvailableLookupScheme, std::string > lookupSchemeTypes =
 static std::vector< AvailableLookupScheme > unsupportedLookupSchemeTypes = { };
 
 //! Convert `AvailableLookupScheme` to `json`.
-inline void to_json( json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
+inline void to_json( nlohmann::json& jsonObject, const AvailableLookupScheme& availableLookupScheme )
 {
     jsonObject = json_interface::stringFromEnum( availableLookupScheme, lookupSchemeTypes );
 }
 
 //! Convert `json` to `AvailableLookupScheme`.
-inline void from_json( const json& jsonObject, AvailableLookupScheme& availableLookupScheme )
+inline void from_json( const nlohmann::json& jsonObject, AvailableLookupScheme& availableLookupScheme )
 {
     availableLookupScheme = json_interface::enumFromString( jsonObject, lookupSchemeTypes );
 }
@@ -86,7 +86,7 @@ static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInt
 };
 
 //! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.
-inline void to_json( json& jsonObject,
+inline void to_json( nlohmann::json& jsonObject,
                      const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
 {
     jsonObject = json_interface::stringFromEnum( lagrangeInterpolatorBoundaryHandling,
@@ -94,7 +94,7 @@ inline void to_json( json& jsonObject,
 }
 
 //! Convert `json` to `LagrangeInterpolatorBoundaryHandling`.
-inline void from_json( const json& jsonObject,
+inline void from_json( const nlohmann::json& jsonObject,
                        LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
 {
     lagrangeInterpolatorBoundaryHandling =
@@ -106,7 +106,7 @@ inline void from_json( const json& jsonObject,
 
 //! Create a `json` object from a shared pointer to a `DataMapSettings` object.
 template< typename I, typename D >
-void to_json( json& jsonObject, const boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
 {
     if ( ! dataMapSettings )
     {
@@ -147,7 +147,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< DataMapSettings< I, D >
 
 //! Create a shared pointer to a `DataMapSettings` object from a `json` object.
 template< typename I, typename D >
-void from_json( const json& jsonObject, boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< DataMapSettings< I, D > >& dataMapSettings )
 {
     using namespace json_interface;
     using K = Keys::Interpolation::DataMap;
@@ -184,17 +184,17 @@ void from_json( const json& jsonObject, boost::shared_ptr< DataMapSettings< I, D
 // InterpolatorSettings
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
 
 //! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings );
 
 
 // DataInterpolationSettings
 
 //! Create a `json` object from a shared pointer to a `DataInterpolationSettings` object.
 template< typename I, typename D >
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< DataInterpolationSettings< I, D > >& dataInterpolationSettings )
 {
     if ( ! dataInterpolationSettings )
@@ -210,7 +210,7 @@ void to_json( json& jsonObject,
 
 //! Create a shared pointer to a `DataInterpolationSettings` object from a `json` object.
 template< typename I, typename D >
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< DataInterpolationSettings< I, D > >& dataInterpolationSettings )
 {
     using namespace json_interface;
@@ -230,10 +230,10 @@ namespace simulation_setup
 // ModelInterpolationSettings
 
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
 
 //! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings );
 
 } // namespace simulation_setup
 

@@ -55,13 +55,13 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes =
 static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { };
 
 //! Convert `AvailableAcceleration` to `json`.
-inline void to_json( json& jsonObject, const AvailableAcceleration& accelerationType )
+inline void to_json( nlohmann::json& jsonObject, const AvailableAcceleration& accelerationType )
 {
     jsonObject = json_interface::stringFromEnum( accelerationType, accelerationTypes );
 }
 
 //! Convert `json` to `AvailableAcceleration`.
-inline void from_json( const json& jsonObject, AvailableAcceleration& accelerationType )
+inline void from_json( const nlohmann::json& jsonObject, AvailableAcceleration& accelerationType )
 {
     accelerationType = json_interface::enumFromString( jsonObject, accelerationTypes );
 }
@@ -73,10 +73,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< AccelerationSettings >& accelerationSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationSettings >& accelerationSettings );
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< AccelerationSettings >& accelerationSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AccelerationSettings >& accelerationSettings );
 
 } // namespace simulation_setup
 

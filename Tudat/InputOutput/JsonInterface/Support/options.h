@@ -31,13 +31,13 @@ static std::map< ExceptionResponseType, std::string > exceptionResponseTypes =
 };
 
 //! Convert `ExceptionResponseType` to `json`.
-inline void to_json( json& jsonObject, const ExceptionResponseType& exceptionResponseType )
+inline void to_json( nlohmann::json& jsonObject, const ExceptionResponseType& exceptionResponseType )
 {
     jsonObject = json_interface::stringFromEnum( exceptionResponseType, exceptionResponseTypes );
 }
 
 //! Convert `json` to `ExceptionResponseType`.
-inline void from_json( const json& jsonObject, ExceptionResponseType& exceptionResponseType )
+inline void from_json( const nlohmann::json& jsonObject, ExceptionResponseType& exceptionResponseType )
 {
     exceptionResponseType = json_interface::enumFromString( jsonObject, exceptionResponseTypes );
 }
@@ -77,10 +77,10 @@ public:
 };
 
 //! Create a `json` object from a shared pointer to a `ApplicationOptions` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ApplicationOptions >& spiceSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ApplicationOptions >& spiceSettings );
 
 //! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ApplicationOptions >& spiceSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ApplicationOptions >& spiceSettings );
 
 } // namespace json_interface
 

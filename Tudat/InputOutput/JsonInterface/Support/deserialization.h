@@ -14,7 +14,6 @@
 #include <boost/filesystem.hpp>
 
 #include "json/src/json.hpp"
-using json = nlohmann::json;
 
 namespace tudat
 {
@@ -36,7 +35,7 @@ typedef boost::filesystem::path path;
  * (empty if \p filePath is equal to \p rootFilePath).
  * \return Read `json` object.
  */
-json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) );
+nlohmann::json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) );
 
 //! Get the path for a JSON file.
 /*!
@@ -59,7 +58,7 @@ path getPathForJSONFile( const std::string& file, const path& basePath = boost::
  * \param inputFilePath Path to the root JSON file.
  * \return Object containing the keys defined in the original file and all the imported files.
  */
-json getDeserializedJSON( const path& inputFilePath );
+nlohmann::json getDeserializedJSON( const path& inputFilePath );
 
 }  // namespace json_interface
 
