@@ -434,6 +434,36 @@ void resetDependentVariableSaveSettings(
                 boost::make_shared< DependentVariableSaveSettings >( dependentVariables, false ) );
 }
 
+//! Get end epoch for propagator. Returns `TUDAT_NAN` if there is no time termination condition.
+template< typename TimeType >
+TimeType getTerminationEpoch(
+        const boost::shared_ptr< propagators::PropagationTerminationSettings >& terminationSettings )
+{
+    using namespace propagators;
+
+    boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
+            boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
+    if ( timeTerminationSettings )
+    {
+        return timeTerminationSettings->terminationTime_;
+    }
+
+    boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+            boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+    if ( hybridTerminationSettings )
+    {
+        for ( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); ++i )
+        {
+            const TimeType endEpoch =
+                    getTerminationEpoch< TimeType >( hybridTerminationSettings->terminationSettings_.at( i ) );
+            if ( ! isNaN( endEpoch ) )
+            {
+                return endEpoch;
+            }
+        }
+    }
+}
+
 } // namespace json_interface
 
 

@@ -46,7 +46,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Simulation< > jsonSimulation( INPUT( "barycentric" ) );
+    JsonSimulationManager< > jsonSimulation;
+    jsonSimulation.setUpFromJSONFile( INPUT( "barycentric" ) );
     jsonSimulation.run( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -186,7 +187,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
 
     // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
     // (using from_json functions)
-    jsonSimulation.reset( jsonSimulation.getAsJSON( ) );
+    jsonSimulation.setUpFromJSONObject( jsonSimulation.getAsJSON( ) );
 
     // Get results
     jsonSimulation.run( );
@@ -217,7 +218,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    Simulation< > jsonSimulation( INPUT( "hierarchical" ) );
+    JsonSimulationManager< > jsonSimulation;
+    jsonSimulation.setUpFromJSONFile( INPUT( "hierarchical" ) );
     jsonSimulation.run( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
@@ -368,7 +370,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
 
     // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
     // (using from_json functions)
-    jsonSimulation.reset( jsonSimulation.getAsJSON( ) );
+    jsonSimulation.setUpFromJSONObject( jsonSimulation.getAsJSON( ) );
 
     // Get results
     jsonSimulation.run( );

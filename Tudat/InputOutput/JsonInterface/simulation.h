@@ -30,9 +30,9 @@ namespace tudat
 namespace json_interface
 {
 
-//! Class for JSON-based simulations.
+//! Class for managing JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
-class Simulation
+class JsonSimulationManager
 {
 public:
     bool profiling = false;
@@ -40,28 +40,23 @@ public:
     //! Constructor.
     /*!
      * Constructor.
-     * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
      * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    Simulation( const std::string& inputFile,
-                const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : initialClockTime_( initialClockTime )
-    {
-        reset( inputFile );
-    }
+    JsonSimulationManager( const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
+        : initialClockTime_( initialClockTime ) { }
 
     //! Reset the root JSON input file.
     /*!
      * Reset the root JSON input file.
      * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
      */
-    void reset( const std::string& inputFile )
+    void setUpFromJSONFile( const std::string& inputFile )
     {
         inputFilePath_ = getPathForJSONFile( inputFile );
         boost::filesystem::current_path( inputFilePath_.parent_path( ) );
 
-        reset( getDeserializedJSON( inputFilePath_ ) );
+        setUpFromJSONObject( getDeserializedJSON( inputFilePath_ ) );
     }
 
     //! Reset the `json` object.
@@ -69,7 +64,7 @@ public:
      * Reset the `json` object.
      * \param jsonObject The new `json` object to be used for creating the simulation settings.
      */
-    void reset( const nlohmann::json& jsonObject )
+    void setUpFromJSONObject( const nlohmann::json& jsonObject )
     {
         jsonObject_ = jsonObject;
         originalJsonObject_ = jsonObject_;
@@ -215,74 +210,89 @@ public:
      * values have been loaded or unit conversions have been applied.
      * \return The original JSON object.
      */
-    nlohmann::json getOriginalJSONObject( )
+    nlohmann::json getOriginalJSONObject( ) const
     {
         return originalJsonObject_;
     }
 
-    //! Get the body map.
-    /*!
-     * @copybrief getBodyMap
-     * \return The body map.
-     */
-    simulation_setup::NamedBodyMap getBodyMap( )
+
+    //! Get simulation start epoch.
+    TimeType getStartEpoch( ) const
+    {
+        return integratorSettings_->initialTime_;
+    }
+
+    //! Get maximum simulation end epoch. Returns `TUDAT_NAN` if there is no time termination condition.
+    TimeType getEndEpoch( ) const
+    {
+        return getTerminationEpoch< TimeType >( propagatorSettings_ );
+    }
+
+    //! Get integrator settings.
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > getIntegratorSettings( ) const
+    {
+        return integratorSettings_;
+    }
+
+    //! Get Spice settings (NULL if Spice is not used).
+    boost::shared_ptr< SpiceSettings > getSpiceSettings( ) const
+    {
+        return spiceSettings_;
+    }
+
+    //! Get global frame origin.
+    std::string getGlobalFrameOrigin( ) const
+    {
+        return globalFrameOrigin_;
+    }
+
+    //! Get global frame orientation.
+    std::string getGlobalFrameOrientation( ) const
+    {
+        return globalFrameOrientation_;
+    }
+
+    //! Get map of body settings.
+    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > getBodySettingsMap( ) const
+    {
+        return bodySettingsMap_;
+    }
+
+    //! Get body map.
+    simulation_setup::NamedBodyMap getBodyMap( ) const
     {
         return bodyMap_;
     }
 
-    //! Get the dynamics simulator.
-    /*!
-     * @copybrief getDynamicsSimulator
-     * \return The dynamics simulator.
-     */
-    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( )
+    //! Get body named \p bodyName.
+    boost::shared_ptr< simulation_setup::Body > getBody( const std::string& bodyName ) const
+    {
+        return bodyMap_.at( bodyName );
+    }
+
+    //! Get propagation settings.
+    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > getPropagatorSettings( ) const
+    {
+        return propagatorSettings_;
+    }
+
+    //! Get vector of export settings (each element corresponds to an output file).
+    std::vector< boost::shared_ptr< ExportSettings > > getExportSettingsVector( ) const
+    {
+        return exportSettingsVector_;
+    }
+
+    //! Get application options.
+    boost::shared_ptr< ApplicationOptions > getApplicationOptions( ) const
+    {
+        return applicationOptions_;
+    }
+
+    //! Get dynamics simulator.
+    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( ) const
     {
         return dynamicsSimulator_;
     }
-
-    //! Synchronize JSON object and class members.
-    /*!
-     * @copybrief sync
-     * <br/>
-     * Call this method after modifying any of the public members manually and before:
-     * <ul>
-     *   <li>Accessing any specific setting that may depend on the modified settings.</li>
-     *   <li>Calling the method run.</li>
-     *   <li>Calling the method exportResults.</li>
-     *   <li>Converting `this` to `json` by calling getAsJSON, exportAsJSON or using the `json()` constructor.</li>
-     * </ul>
-     */
-    void sync( )
-    {
-        updateJSONObjectFromSettings( );
-        updateSettingsFromJSONObject( );
-    }
-
-    // Settings read from the JSON file:
-
-    //! Integrator settings.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
-
-    //! Spice settings (NULL if Spice is not used).
-    boost::shared_ptr< SpiceSettings > spiceSettings_;
-
-    //! Global frame origin.
-    std::string globalFrameOrigin_;
-
-    //! Global frame orientation.
-    std::string globalFrameOrientation_;
-
-    //! Map of body settings.
-    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
-
-    //! Propagation settings.
-    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
-
-    //! Vector of export settings (each element corresponds to an output file).
-    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
-
-    //! Application options.
-    boost::shared_ptr< ApplicationOptions > applicationOptions_;
 
 
 protected:
@@ -445,16 +455,47 @@ protected:
     }
 
 
+    //! Integrator settings.
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+
+    //! Spice settings (NULL if Spice is not used).
+    boost::shared_ptr< SpiceSettings > spiceSettings_;
+
+    //! Global frame origin.
+    std::string globalFrameOrigin_;
+
+    //! Global frame orientation.
+    std::string globalFrameOrientation_;
+
+    //! Map of body settings.
+    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
+
+    //! Body map.
+    simulation_setup::NamedBodyMap bodyMap_;
+
+    //! Propagation settings.
+    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
+
+    //! Vector of export settings (each element corresponds to an output file).
+    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
+
+    //! Application options.
+    boost::shared_ptr< ApplicationOptions > applicationOptions_;
+
+    //! Dynamics simulator.
+    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
+
+
 private:
 
     //! Update the JSON object with all the data from the current settings (objests).
     void updateJSONObjectFromSettings( )
     {
-        jsonObject_ = *this;
+        jsonObject_ = boost::make_shared< JsonSimulationManager< TimeType, StateScalarType > >( *this );
     }
 
     //! Update all the settings (objects) from the JSON object.
-    void updateSettingsFromJSONObject( )
+    virtual void updateSettingsFromJSONObject( )
     {
         resetIntegratorSettings( );  // must be called before resetSpice, resetBodies, resetPropagatorSettings
         resetSpice( );
@@ -477,42 +518,38 @@ private:
     //! JSON object with the current settings.
     nlohmann::json jsonObject_;
 
-    //! Body map.
-    simulation_setup::NamedBodyMap bodyMap_;
-
-    //! Dynamics simulator.
-    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
-
 };
 
 
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
-void to_json( nlohmann::json& jsonObject, const Simulation< TimeType, StateScalarType >& simulation )
+void to_json( nlohmann::json& jsonObject,
+              const boost::shared_ptr< JsonSimulationManager< TimeType, StateScalarType > >& jsonSimulationManager )
 {
-    jsonObject.clear( );
-
-    // assignIfNot( jsonObject, Keys::simulationType, simulation.type, customSimulation );
+    if ( ! jsonSimulationManager )
+    {
+        return;
+    }
 
     // integrator
-    jsonObject[ Keys::integrator ] = simulation.integratorSettings_;
+    jsonObject[ Keys::integrator ] = jsonSimulationManager->getIntegratorSettings( );
 
     // spice
-    assignIfNotNull( jsonObject, Keys::spice, simulation.spiceSettings_ );
+    assignIfNotNull( jsonObject, Keys::spice, jsonSimulationManager->getSpiceSettings( ) );
 
     // bodies
-    jsonObject[ Keys::globalFrameOrigin ] = simulation.globalFrameOrigin_;
-    jsonObject[ Keys::globalFrameOrientation ] = simulation.globalFrameOrientation_;
-    jsonObject[ Keys::bodies ] = simulation.bodySettingsMap_;
+    jsonObject[ Keys::globalFrameOrigin ] = jsonSimulationManager->getGlobalFrameOrigin( );
+    jsonObject[ Keys::globalFrameOrientation ] = jsonSimulationManager->getGlobalFrameOrientation( );
+    jsonObject[ Keys::bodies ] = jsonSimulationManager->getBodySettingsMap( );
 
     // export
-    assignIfNotEmpty( jsonObject, Keys::xport, simulation.exportSettingsVector_ );
+    assignIfNotEmpty( jsonObject, Keys::xport, jsonSimulationManager->getExportSettingsVector( ) );
 
     // options
-    jsonObject[ Keys::options ] = simulation.applicationOptions_;
+    jsonObject[ Keys::options ] = jsonSimulationManager->getApplicationOptions( );
 
     // propagation + termination + options.printInterval
-    propagators::to_json( jsonObject, simulation.propagatorSettings_ );
+    propagators::to_json( jsonObject, jsonSimulationManager->getPropagatorSettings( ) );
 }
 
 } // namespace json_interface
