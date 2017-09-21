@@ -22,9 +22,6 @@
 #ifndef TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 #define TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 
-#include <iostream>
-#include <iomanip>
-
 #include <boost/random/mersenne_twister.hpp>
 
 namespace tudat
@@ -63,14 +60,6 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
     return dividend - divisor * std::floor( dividend / divisor );
 }
 
-template< typename ScalarType = double >
-ScalarType computeModuloWithLongDoubleRatio( const ScalarType dividend, const ScalarType divisor )
-{
-    std::cout<<"Output: "<<std::setprecision( 19 )<<dividend - divisor * std::floor( static_cast< long double >( dividend / divisor ) )<<std::endl;
-    return dividend - divisor * std::floor( static_cast< long double >( dividend / divisor ) );
-}
-
-
 //! Compute modulo of floating-point number (default double).
 /*!
  * Computes the remainder of division of one floating-point number by another. The modulo
@@ -84,9 +73,9 @@ ScalarType computeModuloWithLongDoubleRatio( const ScalarType dividend, const Sc
  * \param moduloValue Remainder of division of dividend by divisor (returned by reference).
  * \param numberOfDivisors Number of times divisor goes into dividend (returned by reference).
  */
-template< typename ScalarType, typename DivisorType = int >
+template< typename ScalarType >
 inline void computeModuloAndRemainder( const ScalarType dividend, const ScalarType divisor,
-                                       ScalarType& moduloValue, DivisorType& numberOfDivisors )
+                                       ScalarType& moduloValue, int& numberOfDivisors )
 {
     numberOfDivisors = std::floor( dividend / divisor );
     moduloValue = dividend - divisor * static_cast< ScalarType >( numberOfDivisors );
