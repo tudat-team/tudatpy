@@ -77,7 +77,7 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
  * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
- * \param earthRotationAngle Current Earth Rotation angle
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
  * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
  * \param tioLocator TIO locator.
@@ -103,6 +103,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * Calculate time-derivative of rotation matrix from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
  * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
@@ -122,7 +123,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
- * \param earthRotationAngle Current Earth Rotation angle
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
  * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
  * \param tioLocator TIO locator.
@@ -144,6 +145,7 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
  * Calculate rotation from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
  * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Rotation from ITRS to GCRS
  */
