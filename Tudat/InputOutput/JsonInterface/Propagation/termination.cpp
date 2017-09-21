@@ -22,7 +22,7 @@ namespace propagators
 // PropagationHybridTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationHybridTerminationSettings` object.
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
 {
     if ( ! hybridTerminationSettings )
@@ -37,7 +37,7 @@ void to_json( json& jsonObject,
 }
 
 //! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings )
 {
     using namespace json_interface;
@@ -63,7 +63,7 @@ void from_json( const json& jsonObject,
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
     if ( ! terminationSettings )
     {
@@ -112,7 +112,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< PropagationTerminationS
 }
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
     using namespace json_interface;
     using K = Keys::Termination;
@@ -146,13 +146,13 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagationTerminatio
         if ( isDefined( jsonObject, K::lowerLimit ) && isDefined( jsonObject, K::upperLimit ) )
         {
             // Lower limit
-            json lowerLimitObject = jsonObject;
+            nlohmann::json lowerLimitObject = jsonObject;
             lowerLimitObject.erase( K::upperLimit );
             boost::shared_ptr< PropagationTerminationSettings > lowerLimitCondition =
                     getAs< boost::shared_ptr< PropagationTerminationSettings > >( lowerLimitObject );
 
             // Upper limit
-            json upperLimitObject = jsonObject;
+            nlohmann::json upperLimitObject = jsonObject;
             upperLimitObject.erase( K::lowerLimit );
             boost::shared_ptr< PropagationTerminationSettings > upperLimitCondition =
                     getAs< boost::shared_ptr< PropagationTerminationSettings > >( upperLimitObject );

@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess_object )
 {
     using namespace json_interface;
 
-    const json dog = parseJSONFile( INPUT( "object" ) );
+    const nlohmann::json dog = parseJSONFile( INPUT( "object" ) );
 
     // Numbers
     BOOST_CHECK_EQUAL( getValue< unsigned int >( dog, "age" ), 11 );
@@ -49,8 +49,8 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess_object )
     BOOST_CHECK_EQUAL( getValue< std::string >( dog, hobbiesKey / 1 ), hobbies.at( 1 ) );
 
     // Unidimensional array inference
-    const json enemy = getValue< json >( dog, "enemies" );
-    const std::vector< json > enemies = getValue< std::vector< json > >( dog, "enemies" );
+    const nlohmann::json enemy = getValue< nlohmann::json >( dog, "enemies" );
+    const std::vector< nlohmann::json > enemies = getValue< std::vector< nlohmann::json > >( dog, "enemies" );
     BOOST_CHECK_EQUAL( enemies.size( ), 1 );
     BOOST_CHECK_EQUAL( enemy.at( "name" ), enemies.at( 0 ).at( "name" ) );
 
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess_object )
     BOOST_CHECK_EQUAL( getValue< double >( enemy, SpecialKeys::root / "mass" ), 19.5 );
 
     // Context: several levels
-    const json valencia = getValue< json >( enemy, std::string( "mother" ) / "birthplace" / "city" );
+    const nlohmann::json valencia = getValue< nlohmann::json >( enemy, std::string( "mother" ) / "birthplace" / "city" );
     BOOST_CHECK_EQUAL( valencia.at( "name" ), "Valencia" );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::root / "mass" ), 19.5 );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / SpecialKeys::up /

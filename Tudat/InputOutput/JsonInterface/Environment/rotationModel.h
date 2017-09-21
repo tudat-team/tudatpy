@@ -33,22 +33,22 @@ static std::map< RotationModelType, std::string > rotationModelTypes =
 static std::vector< RotationModelType > unsupportedRotationModelTypes = { };
 
 //! Convert `RotationModelType` to `json`.
-inline void to_json( json& jsonObject, const RotationModelType& rotationModelType )
+inline void to_json( nlohmann::json& jsonObject, const RotationModelType& rotationModelType )
 {
     jsonObject = json_interface::stringFromEnum( rotationModelType, rotationModelTypes );
 }
 
 //! Convert `json` to `RotationModelType`.
-inline void from_json( const json& jsonObject, RotationModelType& rotationModelType )
+inline void from_json( const nlohmann::json& jsonObject, RotationModelType& rotationModelType )
 {
     rotationModelType = json_interface::enumFromString( jsonObject, rotationModelTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
 
 //! Create a shared pointer to a `RotationModelSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings );
 
 } // namespace simulation_setup
 

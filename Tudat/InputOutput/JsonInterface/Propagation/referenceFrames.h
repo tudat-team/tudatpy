@@ -36,13 +36,13 @@ static std::map< AerodynamicsReferenceFrames, std::string > aerodynamicsReferenc
 };
 
 //! Convert `AerodynamicsReferenceFrames` to `json`.
-inline void to_json( json& jsonObject, const AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
+inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
     jsonObject = json_interface::stringFromEnum( aerodynamicsReferenceFrame, aerodynamicsReferenceFrames );
 }
 
 //! Convert `json` to `AerodynamicsReferenceFrames`.
-inline void from_json( const json& jsonObject, AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
+inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
     aerodynamicsReferenceFrame =
 	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
@@ -64,13 +64,13 @@ static std::map< AerodynamicsReferenceFrameAngles, std::string > aerodynamicsRef
 };
 
 //! Convert `AerodynamicsReferenceFrameAngles` to `json`.
-inline void to_json( json& jsonObject, const AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
+inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
 {
     jsonObject = json_interface::stringFromEnum( aerodynamicsReferenceFrameAngle, aerodynamicsReferenceFrameAngles );
 }
 
 //! Convert `json` to `AerodynamicsReferenceFrameAngles`.
-inline void from_json( const json& jsonObject, AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
+inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
 {
     aerodynamicsReferenceFrameAngle =
 	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );

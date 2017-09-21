@@ -41,14 +41,14 @@ bodiesWithEphemerisData =
 static std::vector< ApproximatePlanetPositionsBase::BodiesWithEphemerisData > unsupportedBodiesWithEphemerisData = { };
 
 //! Convert `ApproximatePlanetPositionsBase::BodiesWithEphemerisData` to `json`.
-inline void to_json( json& jsonObject,
+inline void to_json( nlohmann::json& jsonObject,
                      const ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
 {
     jsonObject = json_interface::stringFromEnum( bodyWithEphemerisData, bodiesWithEphemerisData );
 }
 
 //! Convert `json` to `ApproximatePlanetPositionsBase::BodiesWithEphemerisData`.
-inline void from_json( const json& jsonObject,
+inline void from_json( const nlohmann::json& jsonObject,
                        ApproximatePlanetPositionsBase::BodiesWithEphemerisData& bodyWithEphemerisData )
 {
     bodyWithEphemerisData = json_interface::enumFromString( jsonObject, bodiesWithEphemerisData );
@@ -79,22 +79,22 @@ static std::vector< EphemerisType > unsupportedEphemerisTypes =
 };
 
 //! Convert `EphemerisType` to `json`.
-inline void to_json( json& jsonObject, const EphemerisType& ephemerisType )
+inline void to_json( nlohmann::json& jsonObject, const EphemerisType& ephemerisType )
 {
     jsonObject = json_interface::stringFromEnum( ephemerisType, ephemerisTypes );
 }
 
 //! Convert `json` to `EphemerisType`.
-inline void from_json( const json& jsonObject, EphemerisType& ephemerisType )
+inline void from_json( const nlohmann::json& jsonObject, EphemerisType& ephemerisType )
 {
     ephemerisType = json_interface::enumFromString( jsonObject, ephemerisTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `EphemerisSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
 
 //! Create a shared pointer to a `EphemerisSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< EphemerisSettings >& ephemerisSettings );
 
 } // namespace simulation_setup
 

@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
     if ( ! rotationModelSettings )
     {
@@ -52,7 +52,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< RotationModelSettings >
 }
 
 //! Create a shared pointer to a `RotationModelSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::RotationModel;
@@ -68,10 +68,10 @@ void from_json( const json& jsonObject, boost::shared_ptr< RotationModelSettings
         const double initialTime = getValue< double >( jsonObject, K::initialTime );
 
         // Get JSON object for initialOrientation (or create it if not defined)
-        json jsonInitialOrientation;
+        nlohmann::json jsonInitialOrientation;
         if ( isDefined( jsonObject, K::initialOrientation ) )
         {
-            jsonInitialOrientation = getValue< json >( jsonObject, K::initialOrientation );
+            jsonInitialOrientation = getValue< nlohmann::json >( jsonObject, K::initialOrientation );
         }
         else
         {

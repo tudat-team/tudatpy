@@ -64,14 +64,14 @@ namespace filesystem
 {
 
 //! Create a `json` object from a `path`.
-void to_json( json& j, const path& p )
+void to_json( nlohmann::json& j, const path& p )
 {
     const path absolutePath = p.is_absolute( ) ? p : current_path( ) / p;
     j = tudat::json_interface::pathAddingPlaceholders( weakly_canonical( absolutePath ).string( ) );
 }
 
 //! Create a path from a `json` object.
-void from_json( const json& j, path& p )
+void from_json( const nlohmann::json& j, path& p )
 {
     const path actualPath = tudat::json_interface::pathRemovingPlaceholders( j );
     const path absolutePath = actualPath.is_absolute( ) ? actualPath : current_path( ) / actualPath;

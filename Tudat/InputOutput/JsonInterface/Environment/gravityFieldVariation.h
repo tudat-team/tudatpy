@@ -33,13 +33,13 @@ static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes =
 static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes = { };
 
 //! Convert `BodyDeformationTypes` to `json`.
-inline void to_json( json& jsonObject, const BodyDeformationTypes& bodyDeformationType )
+inline void to_json( nlohmann::json& jsonObject, const BodyDeformationTypes& bodyDeformationType )
 {
     jsonObject = json_interface::stringFromEnum( bodyDeformationType, bodyDeformationTypes );
 }
 
 //! Convert `json` to `BodyDeformationTypes`.
-inline void from_json( const json& jsonObject, BodyDeformationTypes& bodyDeformationType )
+inline void from_json( const nlohmann::json& jsonObject, BodyDeformationTypes& bodyDeformationType )
 {
     bodyDeformationType = json_interface::enumFromString( jsonObject, bodyDeformationTypes );
 }
@@ -50,10 +50,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `GravityFieldVariationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
 //! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
 } // namespace simulation_setup
 

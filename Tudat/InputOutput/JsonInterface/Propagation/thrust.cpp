@@ -23,7 +23,7 @@ namespace simulation_setup
 // ThrustDirectionGuidanceSettings
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
     if ( ! directionSettings )
     {
@@ -56,7 +56,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidance
 }
 
 //! Create a shared pointer to a `ThrustDirectionGuidanceSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings )
 {
     using namespace json_interface;
     using K = Keys::Propagator::Acceleration::Thrust::Direction;
@@ -87,7 +87,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustDirectionGuidan
 // ThrustEngineSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
 {
     if ( ! magnitudeSettings )
     {
@@ -125,7 +125,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >&
 }
 
 //! Create a shared pointer to a `ThrustEngineSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
 {
     using namespace json_interface;
     using K = Keys::Propagator::Acceleration::Thrust::Magnitude;
@@ -159,7 +159,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< ThrustEngineSettings 
 // Thrust
 
 //! Create a `json` object from a shared pointer to a `ThrustAccelerationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
 {
     if ( ! thrustAccelerationSettings )
     {
@@ -186,7 +186,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ThrustAccelerationSetti
 }
 
 //! Create a shared pointer to a `ThrustAccelerationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings )
 {
     using namespace json_interface;
     using namespace interpolators;

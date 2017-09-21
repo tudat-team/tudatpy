@@ -18,7 +18,7 @@ namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings )
 {
     if ( ! spiceSettings )
     {
@@ -46,7 +46,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceS
 }
 
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings )
 {
     using K = Keys::Spice;
 

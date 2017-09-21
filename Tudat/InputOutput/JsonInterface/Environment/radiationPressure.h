@@ -32,23 +32,23 @@ static std::map< RadiationPressureType, std::string > radiationPressureTypes =
 static std::vector< RadiationPressureType > unsupportedRadiationPressureTypes = { };
 
 //! Convert `RadiationPressureType` to `json`.
-inline void to_json( json& jsonObject, const RadiationPressureType& radiationPressureType )
+inline void to_json( nlohmann::json& jsonObject, const RadiationPressureType& radiationPressureType )
 {
     jsonObject = json_interface::stringFromEnum( radiationPressureType, radiationPressureTypes );
 }
 
 //! Convert `json` to `RadiationPressureType`.
-inline void from_json( const json& jsonObject, RadiationPressureType& radiationPressureType )
+inline void from_json( const nlohmann::json& jsonObject, RadiationPressureType& radiationPressureType )
 {
     radiationPressureType = json_interface::enumFromString( jsonObject, radiationPressureTypes );
 }
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
 
 } // namespace simulation_setup

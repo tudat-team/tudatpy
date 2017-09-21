@@ -38,13 +38,13 @@ static std::vector< AvailableMassRateModels > unsupportedMassRateType =
 };
 
 //! Convert `AvailableMassRateModels` to `json`.
-inline void to_json( json& jsonObject, const AvailableMassRateModels& massRateType )
+inline void to_json( nlohmann::json& jsonObject, const AvailableMassRateModels& massRateType )
 {
     jsonObject = json_interface::stringFromEnum( massRateType, massRateTypes );
 }
 
 //! Convert `json` to `AvailableMassRateModels`.
-inline void from_json( const json& jsonObject, AvailableMassRateModels& massRateType )
+inline void from_json( const nlohmann::json& jsonObject, AvailableMassRateModels& massRateType )
 {
     massRateType = json_interface::enumFromString( jsonObject, massRateTypes );
 }
@@ -56,10 +56,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `MassRateModelSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
 
 //! Create a shared pointer to a `MassRateModelSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
 
 } // namespace simulation_setup
 

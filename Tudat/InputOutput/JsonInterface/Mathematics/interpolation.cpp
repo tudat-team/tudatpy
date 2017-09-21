@@ -20,7 +20,7 @@ namespace interpolators
 // InterpolatorSettings
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     if ( ! interpolatorSettings )
     {
@@ -57,7 +57,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< InterpolatorSettings >&
 }
 
 //! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     using namespace json_interface;
     using K = Keys::Interpolation::Interpolator;
@@ -104,7 +104,7 @@ namespace simulation_setup
 // ModelInterpolationSettings
 
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     if ( ! modelInterpolationSettings )
     {
@@ -120,7 +120,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ModelInterpolationSetti
 }
 
 //! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     using namespace json_interface;
     using K = Keys::Interpolation::ModelInterpolation;

@@ -13,9 +13,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "json/src/json.hpp"
-using json = nlohmann::json;
-
 #include <Tudat/External/SpiceInterface/spiceInterface.h>
 
 #include "path.h"
@@ -33,9 +30,9 @@ namespace json_interface
 //! Template used by to_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
-json jsonFromMap( const MapType< KeyType, ValueType >& map )
+nlohmann::json jsonFromMap( const MapType< KeyType, ValueType >& map )
 {
-    json jsonObject;
+    nlohmann::json jsonObject;
     for ( auto entry : map )
     {
         jsonObject[ boost::lexical_cast< std::string >( entry.first ) ] = entry.second;
@@ -46,10 +43,10 @@ json jsonFromMap( const MapType< KeyType, ValueType >& map )
 //! Template used by from_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
 template< template < typename ... > class MapType, typename KeyType, typename ValueType >
-MapType< KeyType, ValueType > mapFromJson( const json& jsonObject )
+MapType< KeyType, ValueType > mapFromJson( const nlohmann::json& jsonObject )
 {
     MapType< KeyType, ValueType > map;
-    for ( json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
+    for ( nlohmann::json::const_iterator it = jsonObject.begin( ); it != jsonObject.end( ); ++it )
     {
         const std::string key = it.key( );
         if ( ! contains( SpecialKeys::all, key ) )
@@ -72,14 +69,14 @@ namespace std
 
 //! Create a `json` object from a `std::unordered_map` with arbitrary key type.
 template< typename KeyType, typename ValueType >
-void to_json( json& jsonObject, const unordered_map< KeyType, ValueType >& unorderedMap )
+void to_json( nlohmann::json& jsonObject, const unordered_map< KeyType, ValueType >& unorderedMap )
 {
     jsonObject = tudat::json_interface::jsonFromMap< unordered_map, KeyType, ValueType >( unorderedMap );
 }
 
 //! Create a `std::map` with arbitrary key type from a `json` object.
 template< typename KeyType, typename ValueType >
-void from_json( const json& jsonObject, unordered_map< KeyType, ValueType >& unorderedMap )
+void from_json( const nlohmann::json& jsonObject, unordered_map< KeyType, ValueType >& unorderedMap )
 {
     unorderedMap = tudat::json_interface::mapFromJson< unordered_map, KeyType, ValueType >( jsonObject );
 }
@@ -89,14 +86,14 @@ void from_json( const json& jsonObject, unordered_map< KeyType, ValueType >& uno
 
 //! Create a `json` object from a `std::map` with arbitrary key type.
 template< typename KeyType, typename ValueType >
-void to_json( json& jsonObject, const map< KeyType, ValueType >& orderedMap )
+void to_json( nlohmann::json& jsonObject, const map< KeyType, ValueType >& orderedMap )
 {
     jsonObject = tudat::json_interface::jsonFromMap< map, KeyType, ValueType >( orderedMap );
 }
 
 //! Create a `std::map` with arbitrary key type from a `json` object.
 template< typename KeyType, typename ValueType >
-void from_json( const json& jsonObject, map< KeyType, ValueType >& orderedMap )
+void from_json( const nlohmann::json& jsonObject, map< KeyType, ValueType >& orderedMap )
 {
     orderedMap = tudat::json_interface::mapFromJson< map, KeyType, ValueType >( jsonObject );
 }
@@ -106,11 +103,11 @@ void from_json( const json& jsonObject, map< KeyType, ValueType >& orderedMap )
 
 //! Create a `std::vector` from a `json` object.
 template< typename ValueType >
-void from_json( const json& jsonObject, vector< ValueType >& myVector )
+void from_json( const nlohmann::json& jsonObject, vector< ValueType >& myVector )
 {
     using namespace tudat::json_interface;
 
-    const json jsonArray = getAsArray( jsonObject );
+    const nlohmann::json jsonArray = getAsArray( jsonObject );
 
     myVector.clear( );
     if ( jsonArray.is_array( ) )
@@ -131,10 +128,10 @@ void from_json( const json& jsonObject, vector< ValueType >& myVector )
 
 //! Create a `std::pair` from a `json` object.
 template< typename V, typename W >
-void from_json( const json& jsonObject, pair< V, W >& myPair )
+void from_json( const nlohmann::json& jsonObject, pair< V, W >& myPair )
 {
     using namespace tudat::json_interface;
-    const json jsonArray = getAsArray( jsonObject );
+    const nlohmann::json jsonArray = getAsArray( jsonObject );
     myPair.first = jsonArray.at( 0 );
     myPair.second = jsonArray.at( 1 );
 }
@@ -144,14 +141,14 @@ void from_json( const json& jsonObject, pair< V, W >& myPair )
 
 //! Create a `json` object from a `std::complex`.
 template< typename T >
-void to_json( json& jsonObject, const complex< T >& complexNumber )
+void to_json( nlohmann::json& jsonObject, const complex< T >& complexNumber )
 {
     jsonObject = boost::lexical_cast< string >( complexNumber );
 }
 
 //! Create a `std::complex` from a `json` object.
 template< typename T >
-void from_json( const json& jsonObject, complex< T >& complexNumber )
+void from_json( const nlohmann::json& jsonObject, complex< T >& complexNumber )
 {
     complexNumber = boost::lexical_cast< complex< T > >( jsonObject.get< string >( ) );
 }
@@ -164,7 +161,7 @@ namespace Eigen
 
 //! Create a `json` object from an `Eigen::Matrix`.
 template< typename ScalarType, int rows, int cols >
-void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
+void to_json( nlohmann::json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 {
     // Convert to std::vector of std::vector's and use that to initialise json object
     jsonObject = tudat::json_interface::stdVectorOfVectorsFromEigenMatrix( matrix );
@@ -172,7 +169,7 @@ void to_json( json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 
 //! Create `Eigen::Matrix` from a `json` object.
 template< typename ScalarType, int rows, int cols >
-void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix )
+void from_json( const nlohmann::json& jsonObject, Matrix< ScalarType, rows, cols >& matrix )
 {
     bool transposed = false;
     // Get as std::vector of std::vector's and then convert to Eigen matrix
@@ -229,14 +226,14 @@ void from_json( const json& jsonObject, Matrix< ScalarType, rows, cols >& matrix
 
 
 //! Create a `json` object from an `Eigen::Quaternion`.
-inline void to_json( json& jsonObject, const Quaterniond& quaternion )
+inline void to_json( nlohmann::json& jsonObject, const Quaterniond& quaternion )
 {
     // Get rotation matrix from quaternion and use that to initialise json object
     jsonObject = quaternion.toRotationMatrix( );
 }
 
 //! Create `Eigen::Quaternion` from a `json` object.
-inline void from_json( const json& jsonObject, Quaterniond& quaternion )
+inline void from_json( const nlohmann::json& jsonObject, Quaterniond& quaternion )
 {
     using namespace tudat;
     using namespace json_interface;

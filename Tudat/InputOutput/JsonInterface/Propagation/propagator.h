@@ -51,13 +51,13 @@ static std::map< StateType, std::string > stateTypes =
 static std::vector< StateType > unsupportedStateTypes = { };
 
 //! Convert `StateType` to `json`.
-inline void to_json( json& jsonObject, const StateType& stateType )
+inline void to_json( nlohmann::json& jsonObject, const StateType& stateType )
 {
     jsonObject = json_interface::stringFromEnum( stateType, stateTypes );
 }
 
 //! Convert `json` to `StateType`.
-inline void from_json( const json& jsonObject, StateType& stateType )
+inline void from_json( const nlohmann::json& jsonObject, StateType& stateType )
 {
     stateType = json_interface::enumFromString( jsonObject, stateTypes );
 }
@@ -94,7 +94,7 @@ std::string getAssociatedKey( const propagators::IntegratedStateType integratedS
  * \return Initial cobined state for the bodies to be propagated.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json& jsonObject )
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const nlohmann::json& jsonObject )
 {
     using namespace propagators;
     using namespace json_interface;
@@ -148,7 +148,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const json
  */
 template< typename TimeType, typename StateScalarType >
 void determineInitialStates(
-        json& jsonObject,
+        nlohmann::json& jsonObject,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
@@ -160,10 +160,10 @@ void determineInitialStates(
     using KS = Keys::Body::State;
 
     // Get propagators as an array of json (even if only one object is provided)
-    json jsonPropagators = jsonObject.at( Keys::propagator );
+    nlohmann::json jsonPropagators = jsonObject.at( Keys::propagator );
     if ( jsonPropagators.is_object( ) )
     {
-        jsonPropagators = json( );
+        jsonPropagators = nlohmann::json( );
         jsonPropagators[ 0 ] = jsonObject.at( Keys::propagator );
     }
 
@@ -171,7 +171,7 @@ void determineInitialStates(
     bool usedEphemeris = false;
     if ( jsonPropagators.size( ) == 1 )
     {
-        json& jsonPropagator = jsonPropagators.front( );
+        nlohmann::json& jsonPropagator = jsonPropagators.front( );
         if ( ! isDefined( jsonPropagator, KP::initialStates ) )
         {
             const IntegratedStateType integratedStateType =
@@ -197,7 +197,7 @@ void determineInitialStates(
     if ( ! usedEphemeris )
     {
         // Update propagators at jsonObject with initial states stored at JSON bodies settings
-        for ( json& jsonPropagator : jsonPropagators )
+        for ( nlohmann::json& jsonPropagator : jsonPropagators )
         {
             if ( ! isDefined( jsonPropagator, KP::initialStates ) )
             {
@@ -223,7 +223,7 @@ void determineInitialStates(
                 {
                     const std::string bodyName = bodiesToPropagate.at( i );
                     const KeyPath stateKeyPath = Keys::bodies / bodyName / stateKey;
-                    const json jsonState = getValue< json >( jsonObject, stateKeyPath );
+                    const nlohmann::json jsonState = getValue< nlohmann::json >( jsonObject, stateKeyPath );
 
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState( 0 );
 
@@ -476,13 +476,13 @@ static std::vector< IntegratedStateType > unsupportedIntegratedStateTypes =
 };
 
 //! Convert `IntegratedStateType` to `json`.
-inline void to_json( json& jsonObject, const IntegratedStateType& integratedStateType )
+inline void to_json( nlohmann::json& jsonObject, const IntegratedStateType& integratedStateType )
 {
     jsonObject = json_interface::stringFromEnum( integratedStateType, integratedStateTypes );
 }
 
 //! Convert `json` to `IntegratedStateType`.
-inline void from_json( const json& jsonObject, IntegratedStateType& integratedStateType )
+inline void from_json( const nlohmann::json& jsonObject, IntegratedStateType& integratedStateType )
 {
     integratedStateType = json_interface::enumFromString( jsonObject, integratedStateTypes );
 }
@@ -503,13 +503,13 @@ static std::map< TranslationalPropagatorType, std::string > translationalPropaga
 static std::vector< TranslationalPropagatorType > unsupportedTranslationalPropagatorTypes = { };
 
 //! Convert `TranslationalPropagatorType` to `json`.
-inline void to_json( json& jsonObject, const TranslationalPropagatorType& translationalPropagatorType )
+inline void to_json( nlohmann::json& jsonObject, const TranslationalPropagatorType& translationalPropagatorType )
 {
     jsonObject = json_interface::stringFromEnum( translationalPropagatorType, translationalPropagatorTypes );
 }
 
 //! Convert `json` to `TranslationalPropagatorType`.
-inline void from_json( const json& jsonObject, TranslationalPropagatorType& translationalPropagatorType )
+inline void from_json( const nlohmann::json& jsonObject, TranslationalPropagatorType& translationalPropagatorType )
 {
     translationalPropagatorType =
             json_interface::enumFromString( jsonObject, translationalPropagatorTypes );
@@ -568,7 +568,7 @@ void from_json( const json& jsonObject, boost::shared_ptr< PropagatorSettings< S
 
 //! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
 template< typename StateScalarType >
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
 {
     if ( ! multiTypePropagatorSettings )
@@ -590,7 +590,7 @@ void to_json( json& jsonObject,
 
 //! Create a shared pointer to a `MultiTypePropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
 {
     using namespace simulation_setup;
@@ -681,7 +681,7 @@ void from_json( const json& jsonObject,
 
 //! Create a `json` object from a shared pointer to a `SingleArcPropagatorSettings` object.
 template< typename StateScalarType >
-void to_json( json& jsonObject,
+void to_json( nlohmann::json& jsonObject,
               const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
 {
     if ( ! singleArcPropagatorSettings )
@@ -746,7 +746,7 @@ void to_json( json& jsonObject,
 
 //! Create a shared pointer to a `SingleArcPropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
-void from_json( const json& jsonObject,
+void from_json( const nlohmann::json& jsonObject,
                 boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
 {
     using namespace simulation_setup;

@@ -18,7 +18,7 @@ namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
-void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& exportSettings )
+void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ExportSettings >& exportSettings )
 {
     if ( ! exportSettings )
     {
@@ -36,7 +36,7 @@ void to_json( json& jsonObject, const boost::shared_ptr< ExportSettings >& expor
 }
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
-void from_json( const json& jsonObject, boost::shared_ptr< ExportSettings >& exportSettings )
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSettings >& exportSettings )
 {
     using namespace propagators;
     using K = Keys::Export;
