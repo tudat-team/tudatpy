@@ -64,9 +64,6 @@ public:
     //! Response to a "unused key" event.
     ExceptionResponseType unusedKey_ = printWarning;
 
-    //! Response to a "unidimensional array inference" event.
-    ExceptionResponseType unidimensionalArrayInference_ = continueSilently;
-
     //! Path where the full settings file (containing the json with all the settings actually used for the simulation)
     //! is going to be saved. Empty string if the file should not be saved.
     path fullSettingsFile_ = "";

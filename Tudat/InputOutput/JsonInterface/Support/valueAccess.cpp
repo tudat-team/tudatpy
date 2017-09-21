@@ -145,7 +145,7 @@ std::set< KeyPath > getKeyPaths( const nlohmann::json& jsonObject, const KeyPath
         nlohmann::json subObject = it.value( );
         KeyPath keyPath = baseKeyPath / key;
         keyPaths.insert( keyPath );
-        convertToObjectIfArray( subObject, true );
+        convertToObjectIfContainsObjects( subObject );
         if ( subObject.is_object( ) )
         {
             const std::set< KeyPath > subkeyPaths = getKeyPaths( subObject, keyPath );
@@ -183,24 +183,39 @@ void checkUnusedKeys( const nlohmann::json& jsonObject, const ExceptionResponseT
 
 // JSON ARRAY
 
-//! Convert \p j to object if \p j is array.
-void convertToObjectIfArray( nlohmann::json& j, const bool onlyIfElementsAreStructured )
+//! Returns whether any of the elements in \p jsonArray (and their subelements) are of type object.
+bool arrayContainsObjects( nlohmann::json& jsonArray )
 {
-    if ( ! j.is_array( ) )
+    for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
+    {
+        nlohmann::json element = jsonArray.at( i );
+        if ( element.is_object( ) )
+        {
+            return true;
+        }
+        else if ( element.is_array( ) )
+        {
+            if ( arrayContainsObjects( element ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//! Convert \p j to object if \p j is an array containing objects.
+void convertToObjectIfContainsObjects( nlohmann::json& j )
+{
+    if ( ! j.is_array( ) || j.empty( ) )
     {
         return;
     }
-    if ( onlyIfElementsAreStructured )
+    if ( ! arrayContainsObjects( j ) )
     {
-        if ( j.empty( ) )
-        {
-            return;
-        }
-        if ( ! j.front( ).is_structured( ) )
-        {
-            return;
-        }
+        return;
     }
+
     nlohmann::json jsonArray = j;
     j = nlohmann::json( );
     for ( unsigned int i = 0; i < jsonArray.size( ); ++i )
@@ -209,6 +224,7 @@ void convertToObjectIfArray( nlohmann::json& j, const bool onlyIfElementsAreStru
     }
 }
 
+//! Convert \p jsonObject to a json array.
 nlohmann::json getAsArray( const nlohmann::json& jsonObject )
 {
     nlohmann::json jsonArray = jsonObject;

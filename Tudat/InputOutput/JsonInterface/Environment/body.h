@@ -137,7 +137,7 @@ void updateBodiesFromJSON(
     for ( auto entry : jsonBodySettingsMap )
     {
         const std::string bodyName = entry.first;
-        const nlohmann::json jsonBodySettings = jsonBodySettingsMap[ bodyName ];
+        const nlohmann::json jsonBodySettings = jsonBodySettingsMap.at( bodyName );
         if ( bodySettingsMap.count( bodyName ) )
         {
             boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];

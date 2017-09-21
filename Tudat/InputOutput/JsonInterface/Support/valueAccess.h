@@ -141,16 +141,13 @@ void checkUnusedKeys( const nlohmann::json& jsonObject, const ExceptionResponseT
 
 // JSON ARRAY
 
-//! Convert \p j to object if \p j is array.
+//! Convert \p j to object if \p j is an array containing objects.
 /*!
- * @copybrief convertToObjectIfArray This method does nothing if \p j is not an array, if \p is empty, or if \p is
- * an array of primitive elements and \p onlyIfElementsAreStructured is set to `true`.
- * \param j `json` object to be converted.
- * \param onlyIfElementsAreStructured Only perform the conversion if the elements of \p j are either an object or an
- * array, i.e. if they are not primitive. Defualt is `false` (all arrays will be converted regardless of their elements
- * type).
+ * @copybrief convertToObjectIfContainsObjects This method does nothing if \p j is not an array, if \p j is empty, or if
+ * the elements (and subelements) of \p j are not of type object.
+ * \param j `json` object to be converted, or the original \p j.
  */
-void convertToObjectIfArray( nlohmann::json& j, const bool onlyIfElementsAreStructured = false );
+void convertToObjectIfContainsObjects( nlohmann::json& j );
 
 //! Convert \p jsonObject to a json array.
 /*!
@@ -244,11 +241,10 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
         throw UndefinedKeyError( canonicalKeyPath );
     }
 
-    const bool chunkObjectWasArray = currentObject.is_array( );
     if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
     {
-        // If jsonObject is an array, convert to object
-        convertToObjectIfArray( currentObject );
+        // If jsonObject is an array containing objects, convert to object
+        convertToObjectIfContainsObjects( currentObject );
 
         if ( currentObject.is_object( ) )
         {
@@ -258,51 +254,21 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
         }
     }
 
-    const IllegalValueError illegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     try
     {
         // Try to convert to the requested type
         const ValueType convertedObject = currentObject;
-
-        // Check if unidimensional array inference was applied
-        nlohmann::json convertedJsonObject = nlohmann::json( convertedObject );
-        if ( convertedJsonObject.is_array( ) && ! chunkObjectWasArray )
-        {
-            const ExceptionResponseType response =
-                    getResponseToEvent( jsonObject, Keys::Options::unidimensionalArrayInference );
-            if ( response == throwError )
-            {
-                throw illegalValueError;
-            }
-            else
-            {
-                if ( ! containsAnyOf( currentKeyPath, SpecialKeys::all ) )
-                {
-                    convertToObjectIfArray( convertedJsonObject );
-                    convertedJsonObject[ SpecialKeys::rootObject ] = rootObject.is_null( ) ? jsonObject : rootObject;
-                    convertedJsonObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
-                }
-
-                if ( response == printWarning )
-                {
-                    std::cerr << "Unidimensional array inferred for key: " << canonicalKeyPath << std::endl;
-                }
-
-                return convertedJsonObject;
-            }
-        }
-
         return convertedObject;
     }
     catch ( const nlohmann::detail::type_error& )
     {
         // Could not convert to the requested type
-        throw illegalValueError;
+        throw IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     }
     catch ( const UnknownEnumError& )
     {
         // Could not convert string to enum
-        throw illegalValueError;
+        throw IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     }
     catch ( const UndefinedKeyError& error )
     {
@@ -314,12 +280,6 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
         // Some of the values for the keys needed during creation of object of type ValueType were illegal
         throw error;
     }
-    /*
-    catch ( ... )
-    {
-        throw UnrecognizedValueAccessError( canonicalKeyPath, typeid( ValueType ) );
-    }
-    */
 }
 
 //! Convert \p jsonObject to `ValueType`.

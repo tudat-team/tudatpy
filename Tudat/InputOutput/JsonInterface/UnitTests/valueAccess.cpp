@@ -47,12 +47,8 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess_object )
     BOOST_CHECK( getValue< std::vector< std::string > >( dog, hobbiesKey ) == hobbies );
     BOOST_CHECK_EQUAL( getValue< std::string >( dog, hobbiesKey / 0 ), hobbies.at( 0 ) );
     BOOST_CHECK_EQUAL( getValue< std::string >( dog, hobbiesKey / 1 ), hobbies.at( 1 ) );
-
-    // Unidimensional array inference
-    const nlohmann::json enemy = getValue< nlohmann::json >( dog, "enemies" );
     const std::vector< nlohmann::json > enemies = getValue< std::vector< nlohmann::json > >( dog, "enemies" );
-    BOOST_CHECK_EQUAL( enemies.size( ), 1 );
-    BOOST_CHECK_EQUAL( enemy.at( "name" ), enemies.at( 0 ).at( "name" ) );
+    const nlohmann::json enemy = enemies.front( );
 
     // Context: one level
     BOOST_CHECK_EQUAL( getRootObject( enemy ), dog );

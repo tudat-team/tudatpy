@@ -201,6 +201,17 @@ public:
         return dependentVariablesToSave_;
     }
 
+    //! Function to reset settings for the dependent variables that are to be saved during propagation
+    /*!
+     * Function to reset settings for the dependent variables that are to be saved during propagation.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation.
+     */
+    void resetDependentVariablesToSave(
+            const boost::shared_ptr< DependentVariableSaveSettings >& dependentVariablesToSave )
+    {
+        dependentVariablesToSave_ = dependentVariablesToSave;
+    }
+
     //! Function to retrieve how often the current state and time are to be printed to console
     /*!
      * Function to retrieve how often the current state and time are to be printed to console
