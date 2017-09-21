@@ -195,12 +195,26 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
+    //! Get rotation quaternion from target frame to base frame in Time precision.
+    /*!
+     * Pure virtual function to calculate and return the rotation quaternion from target frame to
+     * base frame at specified time.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \return Rotation quaternion computed.
+     */
     virtual Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime(
             const Time timeSinceEpoch )
     {
         return getRotationToBaseFrame( timeSinceEpoch.getSeconds< double >( ) );
     }
 
+    //! Get rotation quaternion from target frame to base frame in templated precision.
+    /*!
+     * Pure virtual function to calculate and return the rotation quaternion from target frame to
+     * base frame at specified time.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \return Rotation quaternion computed.
+     */
     template< typename TimeType >
     Eigen::Quaterniond getRotationToBaseFrameTemplated(
                 const TimeType timeSinceEpoch );
@@ -215,12 +229,26 @@ public:
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
 
+    //! Get rotation quaternion to target frame from base frame in Time precision.
+    /*!
+     * Pure virtual function to calculate and return the rotation quaternion to target frame from
+     * base frame at specified time.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \return Rotation quaternion computed.
+     */
     virtual Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime(
             const Time timeSinceEpoch )
     {
         return getRotationToTargetFrame( timeSinceEpoch.getSeconds< double >( ) );
     }
 
+    //! Get rotation quaternion to target frame from base frame in templated precision
+    /*!
+     * Pure virtual function to calculate and return the rotation quaternion to target frame from
+     * base frame at specified time.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \return Rotation quaternion computed.
+     */
     template< typename TimeType >
     Eigen::Quaterniond getRotationToTargetFrameTemplated(
             const TimeType secondsSinceEpoch );
@@ -236,12 +264,28 @@ public:
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
+    //! Function to calculate the derivative of the rotation matrix from target frame to original frame in Time precision.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from target frame to original
+     *  frame at specified time, to be implemented by derived class.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     *  \return Derivative of rotation from target (typically local) to original (typically global)
+     *          frame at specified time.
+     */
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime(
             const Time timeSinceEpoch )
     {
         return getDerivativeOfRotationToBaseFrame( timeSinceEpoch.getSeconds< double >( ) );
     }
 
+    //! Function to calculate the derivative of the rotation matrix from target frame to original frame in templated precision
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from target frame to original
+     *  frame at specified time, to be implemented by derived class.
+     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     *  \return Derivative of rotation from target (typically local) to original (typically global)
+     *          frame at specified time.
+     */
     template< typename TimeType >
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrameTemplated(
                 const TimeType timeSinceEpoch );
@@ -257,12 +301,28 @@ public:
     virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
 
+    //! Function to calculate the derivative of the rotation matrix from original frame to target frame in Time precision.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from original frame to target
+     *  frame at specified time, to be implemented by derived class.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     *  \return Derivative of rotation from original (typically global) to target (typically local)
+     *          frame at specified time.
+     */
     virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrameFromExtendedTime(
             const Time timeSinceEpoch )
     {
         return getDerivativeOfRotationToTargetFrame( timeSinceEpoch.getSeconds< double >( ) );
     }
 
+    //! Function to calculate the derivative of the rotation matrix from original frame to target frame in templated precision
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from original frame to target
+     *  frame at specified time, to be implemented by derived class.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     *  \return Derivative of rotation from original (typically global) to target (typically local)
+     *          frame at specified time.
+     */
     template< typename TimeType >
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrameTemplated(
             const TimeType secondsSinceEpoch );
@@ -321,6 +381,17 @@ public:
                     Eigen::Matrix3d( currentRotationToLocalFrame ), currentRotationToLocalFrameDerivative.transpose( ) );
     }
 
+    //! Function to calculate the full rotational state at given time
+    /*!
+     * Function to calculate the full rotational state at given time (rotation matrix, derivative of rotation matrix
+     * and angular velocity vector).
+     * \param currentRotationToLocalFrame Current rotation to local frame (returned by reference)
+     * \param currentRotationToLocalFrameDerivative Current derivative of rotation matrix to local frame
+     * (returned by reference)
+     * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed in global frame
+     * (returned by reference)
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     */
     virtual void getFullRotationalQuantitiesToTargetFrameFromExtendedTime(
             Eigen::Quaterniond& currentRotationToLocalFrame,
             Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
@@ -333,6 +404,17 @@ public:
                     Eigen::Matrix3d( currentRotationToLocalFrame ), currentRotationToLocalFrameDerivative.transpose( ) );
     }
 
+    //! Function to calculate the full rotational state at given time
+    /*!
+     * Function to calculate the full rotational state at given time (rotation matrix, derivative of rotation matrix
+     * and angular velocity vector).
+     * \param currentRotationToLocalFrame Current rotation to local frame (returned by reference)
+     * \param currentRotationToLocalFrameDerivative Current derivative of rotation matrix to local frame
+     * (returned by reference)
+     * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed in global frame
+     * (returned by reference)
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     */
     template< typename TimeType >
     void getFullRotationalQuantitiesToTargetFrameTemplated(
             Eigen::Quaterniond& currentRotationToLocalFrame,

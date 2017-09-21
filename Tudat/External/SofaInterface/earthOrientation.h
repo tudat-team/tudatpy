@@ -81,6 +81,15 @@ double calculateGreenwichMeanSiderealTime(
 double calculateEarthRotationAngle(
         const double ut1, const double referenceJulianDay );
 
+//! Function to calculate ERA (earth rotation angle) in templated precision
+/*!
+ *  Function to calculate ERA (earth rotation angle) from current UT1 in templated precision.
+ *  The ERA represents one of the Euler angles (between CIO and TIO) for transforming from ITRS to GCRS,
+ *  see Petit et al. chap. 5
+ *  \param ut1 Time in UT1 in seconds since referenceJulianDay julianDay.
+ *  \param referenceJulianDay Julian day wrt which ut1 is referenced (default = J2000)
+ *  \return Current Earth rotation angle (normalized to [0,2 pi]).
+ */
 template< typename TimeType >
 double calculateEarthRotationAngleTemplated( const TimeType currentUt1 );
 
