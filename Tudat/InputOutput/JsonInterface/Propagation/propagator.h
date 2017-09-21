@@ -85,56 +85,6 @@ std::string getAssociatedKey( const propagators::IntegratedStateType integratedS
     }
 }
 
-//! Get the system initial state for a \p jsonObject containing the settings for a propagator.
-/*!
- * @copybrief getInitialStates If the property "initialStates" is defined, this value will be returned.
- * If it is not defined, the function will try to look for the states in the properties defined in the root object at
- * "bodies". If this process fails, an empty matrix of size 0x1 will be returned.
- * \param jsonObject The `json` object containing the settings for a propagator (and optionally the root object).
- * \return Initial cobined state for the bodies to be propagated.
- */
-template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( const nlohmann::json& jsonObject )
-{
-    using namespace propagators;
-    using namespace json_interface;
-    using K = Keys::Propagator;
-
-    if ( isDefined( jsonObject, K::initialStates ) )
-    {
-        return getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
-    }
-    else
-    {
-        // Integrated state type
-        const IntegratedStateType integratedStateType =
-                getValue( jsonObject, K::integratedStateType, translational_state );
-
-        // State size and associated stateKey
-        const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
-        const std::string stateKey = getAssociatedKey( integratedStateType );
-
-        // Bodies to propagate
-        const std::vector< std::string > bodiesToPropagate =
-                getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate );
-
-        // System initial state
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                    stateSize * bodiesToPropagate.size( ), 1 );
-
-        // Get state for each body
-        for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
-        {
-            initialStates.segment( i * stateSize, stateSize ) =
-                    getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
-                        jsonObject, SpecialKeys::root / Keys::bodies / bodiesToPropagate.at( i ) / stateKey );
-        }
-
-        return initialStates;
-    }
-}
-
 //! Determine initial states for the propagator object contained in \p jsonObject (if not provided).
 /*!
  * Determine initial states for the propagator object contained in \p jsonObject (if not provided).
@@ -420,7 +370,7 @@ void determineInitialStates(
 
                             if ( usedAverageRadius && ! boost::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
                             {
-                                std::cout << "Using average radius of a non-spherical body (" << centralBodyName
+                                std::cerr << "Using average radius of a non-spherical body (" << centralBodyName
                                           << ") to determine the initial state of " << bodyName << "." << std::endl;
                             }
 
@@ -449,6 +399,39 @@ void determineInitialStates(
     }
 
     jsonObject[ Keys::propagator ] = jsonPropagators;
+}
+
+//! -DOC
+template< typename StateScalarType >
+void resetDependentVariableSaveSettings(
+        boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
+        const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
+{
+    using namespace propagators;
+
+    // Determine save settings from variables to be exported
+    std::vector< std::string > addedVariablesIDs;
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    for ( const boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+    {
+        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
+        {
+            boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
+                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+            if ( dependentVariable )
+            {
+                const std::string variableID = getVariableId( dependentVariable );
+                if ( ! contains( addedVariablesIDs, variableID ) )
+                {
+                    addedVariablesIDs.push_back( variableID );
+                    dependentVariables.push_back( dependentVariable );
+                }
+            }
+        }
+    }
+
+    propagatorSettings->resetDependentVariablesToSave(
+                boost::make_shared< DependentVariableSaveSettings >( dependentVariables, false ) );
 }
 
 } // namespace json_interface
@@ -515,54 +498,6 @@ inline void from_json( const nlohmann::json& jsonObject, TranslationalPropagator
             json_interface::enumFromString( jsonObject, translationalPropagatorTypes );
 }
 
-/*
-// PropagatorSettings
-
-//! Create a `json` object from a shared pointer to a `PropagatorSettings` object.
-template< typename StateScalarType >
-void to_json( json& jsonObject, const boost::shared_ptr< PropagatorSettings< StateScalarType > >& propagatorSettings )
-{
-    if ( ! propagatorSettings )
-    {
-        return;
-    }
-    using namespace json_interface;
-    using K = Keys::Propagator;
-
-    const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings =
-            boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-    if ( multiArcPropagatorSettings )  // return an array, each element is a SingleArc
-    {
-        jsonObject = multiArcPropagatorSettings->getSingleArcSettings( );
-    }
-    else  // assume SingleArc: return an object
-    {
-        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings =
-                boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        jsonObject = singleArcPropagatorSettings;
-    }
-}
-
-//! Create a shared pointer to a `PropagatorSettings` object from a `json` object.
-template< typename StateScalarType >
-void from_json( const json& jsonObject, boost::shared_ptr< PropagatorSettings< StateScalarType > >& propagatorSettings )
-{
-    using namespace simulation_setup;
-    using namespace json_interface;
-    using K = Keys::Propagator;
-
-    if ( jsonObject.is_array( ) )  // MultiArc: each element is a SingleArc
-    {
-        propagatorSettings = boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
-                    getAs< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
-                        jsonObject ) );
-    }
-    else  // assume is_object -> SingleArc
-    {
-        propagatorSettings = getAs< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >( jsonObject );
-    }
-}
-*/
 
 // MultiTypePropagatorSettings
 
@@ -641,40 +576,14 @@ void from_json( const nlohmann::json& jsonObject,
         terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >( terminationConditions, true );
     }
 
-    // Determine save settings from variables to be exported
-    std::vector< std::string > addedVariablesIDs;
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector;
-    updateFromJSONIfDefined( exportSettingsVector, jsonObject, Keys::xport );
-    for ( const boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
-    {
-        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
-        {
-            boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
-                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-            if ( dependentVariable )
-            {
-                const std::string variableID = getVariableId( dependentVariable );
-                if ( ! contains( addedVariablesIDs, variableID ) )
-                {
-                    addedVariablesIDs.push_back( variableID );
-                    dependentVariables.push_back( dependentVariable );
-                }
-            }
-        }
-    }
-
-    // Print interval
-    const double printInterval =
-            getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN );
-
     multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
                 getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
                     jsonObject, Keys::propagator ),
                 terminationSettings,
-                boost::make_shared< DependentVariableSaveSettings >( dependentVariables, false ),
-                printInterval );
+                boost::shared_ptr< DependentVariableSaveSettings >( ),
+                getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN ) );
 }
+
 
 
 // SingleArcPropagatorSettings
@@ -757,10 +666,6 @@ void from_json( const nlohmann::json& jsonObject,
     const IntegratedStateType integratedStateType =
             getValue( jsonObject, K::integratedStateType, translational_state );
 
-    // No termination settings ( epoch > TUDAT_NAN will always be false )
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            boost::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
-
     // Named of bodies to propagate
     const std::vector< std::string > bodiesToPropagate =
             getValue< std::vector< std::string > >( jsonObject, K::bodiesToPropagate );
@@ -768,6 +673,10 @@ void from_json( const nlohmann::json& jsonObject,
     // Initial states
     const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
             getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
+
+    // No termination settings ( epoch > TUDAT_NAN will always be false )
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            boost::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
 
     switch ( integratedStateType )
     {

@@ -30,7 +30,6 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ApplicationOp
     jsonObject[ K::notifyOnPropagationTermination ] = applicationOptions->notifyOnPropagationTermination_;
     jsonObject[ K::defaultValueUsedForMissingKey ] = applicationOptions->defaultValueUsedForMissingKey_;
     jsonObject[ K::unusedKey ] = applicationOptions->unusedKey_;
-    jsonObject[ K::unidimensionalArrayInference ] = applicationOptions->unidimensionalArrayInference_;
     assignIfNotEmpty( jsonObject, K::fullSettingsFile, applicationOptions->fullSettingsFile_ );
     jsonObject[ K::tagOutputFilesIfPropagationFails ] = applicationOptions->tagOutputFilesIfPropagationFails_;
 }
@@ -51,9 +50,6 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Application
                              jsonObject, K::defaultValueUsedForMissingKey );
 
     updateFromJSONIfDefined( applicationOptions->unusedKey_, jsonObject, K::unusedKey );
-
-    updateFromJSONIfDefined( applicationOptions->unidimensionalArrayInference_,
-                             jsonObject, K::unidimensionalArrayInference );
 
     updateFromJSONIfDefined( applicationOptions->fullSettingsFile_, jsonObject, K::fullSettingsFile );
 

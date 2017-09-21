@@ -84,12 +84,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
-    const double interpolationStep = 300.0;
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings( { "Earth" },
-                                    simulationStartEpoch - 10.0 * interpolationStep,
-                                    simulationEndEpoch + 10.0 * interpolationStep,
-                                    interpolationStep );
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( { "Earth" } );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );

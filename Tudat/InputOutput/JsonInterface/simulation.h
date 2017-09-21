@@ -35,6 +35,8 @@ template< typename TimeType = double, typename StateScalarType = double >
 class Simulation
 {
 public:
+    bool profiling = false;
+
     //! Constructor.
     /*!
      * Constructor.
@@ -78,6 +80,13 @@ public:
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
 
+        if ( profiling )
+        {
+            std::cout << "parse: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+
         updateSettingsFromJSONObject( );
     }
 
@@ -97,6 +106,13 @@ public:
     {
         // Check if any keys in jsonObject_ haven't been used
         checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
+
+        if ( profiling )
+        {
+            std::cout << "checkUnusedKeys: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
 
         // Export full settings JSON file if requested
         if ( ! applicationOptions_->fullSettingsFile_.empty( ) )
@@ -127,6 +143,13 @@ public:
                           << std::endl;
             }
         }
+
+        if ( profiling )
+        {
+            std::cout << "run: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Export the results of the dynamics simulation according to the export settings.
@@ -146,6 +169,13 @@ public:
         }
 
         exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_ );
+
+        if ( profiling )
+        {
+            std::cout << "exportResults: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Export `this` as a `json` object.
@@ -264,6 +294,13 @@ protected:
     virtual void resetIntegratorSettings( )
     {
         updateFromJSON( integratorSettings_, jsonObject_, Keys::integrator );
+
+        if ( profiling )
+        {
+            std::cout << "resetIntegratorSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset spiceSettings_ from the current jsonObject_.
@@ -276,6 +313,13 @@ protected:
         spiceSettings_ = NULL;
         updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
         loadSpiceKernels( spiceSettings_ );
+
+        if ( profiling )
+        {
+            std::cout << "resetSpice: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset bodySettingsMap_ and bodyMap_ from the current jsonObject_.
@@ -288,6 +332,30 @@ protected:
         globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
         updateBodiesFromJSON( jsonObject_, bodyMap_, bodySettingsMap_, globalFrameOrigin_, globalFrameOrientation_,
                               spiceSettings_, integratorSettings_ );
+
+        if ( profiling )
+        {
+            std::cout << "resetBodies: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+    }
+
+    //! Reset exportSettingsVector_ from the current jsonObject_.
+    /*!
+     * @copybrief resetExportSettings
+     */
+    virtual void resetExportSettings( )
+    {
+        exportSettingsVector_.clear( );
+        updateFromJSONIfDefined( exportSettingsVector_, jsonObject_, Keys::xport );
+
+        if ( profiling )
+        {
+            std::cout << "resetExportSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset propagatorSettings_ from the current jsonObject_
@@ -303,21 +371,42 @@ protected:
         // * By infering initial states from body ephemeris
         determineInitialStates< TimeType, StateScalarType >( jsonObject_, bodyMap_, integratorSettings_ );
 
+        if ( profiling )
+        {
+            std::cout << "resetPropagatorSettings@determineInitialStates: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
 
+        if ( profiling )
+        {
+            std::cout << "resetPropagatorSettings@updateFromJSON: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+
         // Create integrated state models (acceleration, mass-rate, rotational models)
         propagatorSettings_->resetIntegratedStateModels( bodyMap_ );
-    }
 
-    //! Reset exportSettingsVector_ from the current jsonObject_.
-    /*!
-     * @copybrief resetExportSettings
-     */
-    virtual void resetExportSettings( )
-    {
-        exportSettingsVector_.clear( );
-        updateFromJSONIfDefined( exportSettingsVector_, jsonObject_, Keys::xport );
+        if ( profiling )
+        {
+            std::cout << "resetPropagatorSettings@resetIntegratedStateModels: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+
+        // Update dependent variables to save
+        resetDependentVariableSaveSettings( propagatorSettings_, exportSettingsVector_ );
+
+        if ( profiling )
+        {
+            std::cout << "resetPropagatorSettings@resetDependentVariableSaveSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset applicationOptions_ from the current jsonObject_.
@@ -328,6 +417,13 @@ protected:
     {
         applicationOptions_ = boost::make_shared< ApplicationOptions >( );
         updateFromJSONIfDefined( applicationOptions_, jsonObject_, Keys::options );
+
+        if ( profiling )
+        {
+            std::cout << "resetApplicationOptions: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset dynamicsSimulator_ for the current bodyMap_, integratorSettings_ and propagatorSettings_.
@@ -339,6 +435,13 @@ protected:
         dynamicsSimulator_ =
                 boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
+
+        if ( profiling )
+        {
+            std::cout << "resetDynamicsSimulator: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
 
@@ -353,12 +456,11 @@ private:
     //! Update all the settings (objects) from the JSON object.
     void updateSettingsFromJSONObject( )
     {
-        // Integrator settings first, because then integratorSettings_->initialTime is used by other methods
-        resetIntegratorSettings( );
+        resetIntegratorSettings( );  // must be called before resetSpice, resetBodies, resetPropagatorSettings
         resetSpice( );
         resetBodies( );
+        resetExportSettings( );      // must be called before resetPropagatorSettings
         resetPropagatorSettings( );
-        resetExportSettings( );
         resetApplicationOptions( );
         resetDynamicsSimulator( );
     }
