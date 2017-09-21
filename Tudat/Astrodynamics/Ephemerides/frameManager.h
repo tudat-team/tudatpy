@@ -157,7 +157,7 @@ public:
             // Create composite ephemeris
             ephemerisBetweenFrames = boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
                         totalEphemerisList,
-                        std::map< int, boost::function< StateType( const double, const StateType& ) > >( ),
+                        std::map< int, boost::function< StateType( const TimeType, const StateType& ) > >( ),
                         origin );
         }
 

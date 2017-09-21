@@ -104,6 +104,13 @@ public:
         return getRotationToTargetFrame( secondsSinceEpoch ).inverse( );
     }
 
+    Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getRotationToTargetFrameFromExtendedTime( timeSinceEpoch ).inverse( );
+    }
+
+
     //! Get rotation quaternion to target frame from base frame.
     /*!
      * Returns the rotation quaternion to target frame from base frame at specified time.
@@ -112,6 +119,9 @@ public:
      */
     Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch );
+
+    Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime(
+            const Time timeSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original
     //! frame.
@@ -129,6 +139,14 @@ public:
                 transpose( );
     }
 
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getDerivativeOfRotationToTargetFrameFromExtendedTime( timeSinceEpoch ).
+                transpose( );
+    }
+
+
     //! Function to calculate the derivative of the rotation matrix from original frame to target
     //! frame.
     /*!
@@ -140,6 +158,9 @@ public:
      */
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
             const double secondsSinceEpoch );
+
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrameFromExtendedTime(
+            const Time secondsSinceEpoch );
 
     //! Get rotation from target to base frame at initial time.
     /*!

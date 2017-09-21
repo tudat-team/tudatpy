@@ -23,13 +23,25 @@ namespace ephemerides
 Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
         const double secondsSinceEpoch )
 {
-    // Determine number of seconds since initial rotational state, as set by constructor.
-    double inputSecondsSinceEpoch = secondsSinceEpoch;
-
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
-                ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
+                ( secondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
                 2.0 * mathematical_constants::PI );
+
+    // Calculate and return rotation to base frame.
+    return reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+                rotationAngle ) * initialRotationToTargetFrame_;
+}
+
+Eigen::Quaterniond  SimpleRotationalEphemeris::getRotationToTargetFrameFromExtendedTime(
+        const Time timeSinceEpoch )
+{
+    long double rotationPeriod = 2.0L * mathematical_constants::LONG_PI /
+            static_cast< long double >( rotationRate_ );
+    long double timeIntoCurrentRotation = basic_mathematics::computeModuloWithLongDoubleRatio(
+                ( timeSinceEpoch -  Time( initialSecondsSinceEpoch_ ) ), Time( rotationPeriod ) );
+    long double rotationAngle =
+                2.0L * mathematical_constants::LONG_PI * timeIntoCurrentRotation / rotationPeriod;
 
     // Calculate and return rotation to base frame.
     return reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
@@ -40,13 +52,26 @@ Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
 Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
         const double secondsSinceEpoch )
 {
-    // Determine number of seconds since initial rotational state, as set by constructor.
-    double inputSecondsSinceEpoch = secondsSinceEpoch;
-
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
-                ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
+                ( secondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
                 2.0 * mathematical_constants::PI );
+
+    // Calculate derivative of rotation matrix.
+    return rotationRate_ * reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * tudat::reference_frames::
+            getInertialToPlanetocentricFrameTransformationQuaternion( rotationAngle )
+            * Eigen::Matrix3d( initialRotationToTargetFrame_ );
+}
+
+Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrameFromExtendedTime(
+        const Time timeSinceEpoch )
+{
+    long double rotationPeriod = 2.0L * mathematical_constants::LONG_PI /
+            static_cast< long double >( rotationRate_ );
+    long double timeIntoCurrentRotation = basic_mathematics::computeModuloWithLongDoubleRatio(
+                ( timeSinceEpoch -  Time( initialSecondsSinceEpoch_ ) ),
+                Time( rotationPeriod ) );
+    double rotationAngle =  2.0L * mathematical_constants::LONG_PI * timeIntoCurrentRotation / rotationPeriod;
 
     // Calculate derivative of rotation matrix.
     return rotationRate_ * reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * tudat::reference_frames::

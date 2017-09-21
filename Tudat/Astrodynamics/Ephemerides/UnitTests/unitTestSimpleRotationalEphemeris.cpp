@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-  
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
     SimpleRotationalEphemeris venusRotationalEphemerisFromAngles(
                 venusPoleRightAscension, venusPoleDeclination, venusPrimeMeridianAtJ2000,
                 venusRotationRate, 0.0, baseFrame, targetFrame );
-    SimpleRotationalEphemeris venusRotationalEphemerisFromInitialState(
+    tudat::ephemerides::SimpleRotationalEphemeris venusRotationalEphemerisFromInitialState(
                 initialRotationToTargetFrame,
                 venusRotationRate, 0.0, baseFrame, targetFrame );
 
@@ -317,6 +317,61 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
                 BOOST_CHECK_SMALL( productOfOppositeRotations( i, j ) -
                                    Eigen::Matrix3d::Identity( )( i, j ), 1.0E-15 );
             }
+        }
+    }
+
+    {
+        double earthRotationRate = 2.0 * mathematical_constants::PI / 86400.0;
+        tudat::ephemerides::SimpleRotationalEphemeris earthRotationalEphemerisFromInitialState(
+                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
+                    earthRotationRate, 0.0, baseFrame, targetFrame );
+
+        double rotationPeriodFraction = 0.1394321;
+        double earthRotationPeriod = 2.0 * mathematical_constants::PI / std::fabs( earthRotationRate );
+        Time earthRotationPeriodExtended = Time( earthRotationPeriod );
+
+        double testTime;
+        Time testExtendedTime;
+
+        std::vector< Eigen::Matrix3d > rotationMatricesFromDouble;
+        std::vector< Eigen::Matrix3d > rotationMatricesFromTime;
+        std::vector< Eigen::Matrix3d > rotationMatrixDifferences;
+
+        std::vector< Eigen::Matrix3d > rotationMatricesFromDoubleDifferences;
+        std::vector< Eigen::Matrix3d > rotationMatricesFromTimeDifferences;
+
+        for( unsigned int i = 0; i < 15; i++ )
+        {
+            long double currentMultiplier = std::pow( 10.0L, mathematical_constants::getFloatingInteger< long double >( i ) );
+            testTime = earthRotationPeriod * ( currentMultiplier + rotationPeriodFraction );
+            testExtendedTime = earthRotationPeriodExtended * ( currentMultiplier + rotationPeriodFraction );
+
+//            std::cout<<currentMultiplier<<" "<<testTime - testExtendedTime.getSeconds< long double >( )<<" "<<
+//                       testTime<<" "<<testExtendedTime.getSeconds< long double >( )<<" "<<
+//                       ( currentMultiplier + rotationPeriodFraction )<<" "<<( Time( currentMultiplier ) + rotationPeriodFraction )<<std::endl;
+
+            rotationMatricesFromDouble.push_back(
+                        earthRotationalEphemerisFromInitialState.getRotationToTargetFrame( testTime ).toRotationMatrix( ) );
+            rotationMatricesFromTime.push_back(
+                    earthRotationalEphemerisFromInitialState.getRotationToTargetFrameFromExtendedTime( testExtendedTime ).toRotationMatrix( ) );
+            rotationMatrixDifferences.push_back(
+                        rotationMatricesFromTime.at( i ) - rotationMatricesFromDouble.at( i ) );
+
+            //std::cout<<i<<std::endl<<rotationMatrixDifferences.at( i )<<std::endl;
+
+            if( i > 0 )
+            {
+                rotationMatricesFromDoubleDifferences.push_back(
+                            rotationMatricesFromTime.at( i ) - rotationMatricesFromTime.at( 0 ) );
+                rotationMatricesFromTimeDifferences.push_back(
+                            rotationMatricesFromDouble.at( i ) - rotationMatricesFromDouble.at( 0 ) );
+                std::cout<<"Diff double: "<<std::endl<<rotationMatricesFromDoubleDifferences.at( i - 1 ).maxCoeff( )<<std::endl;
+                std::cout<<"Diff Time:   "<<std::endl<<rotationMatricesFromTimeDifferences.at( i - 1 ).maxCoeff( )<<std::endl<<std::endl;
+
+
+            }
+
+            std::cout<<std::endl;
         }
     }
 }

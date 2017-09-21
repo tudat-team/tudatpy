@@ -38,6 +38,99 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
             rotationToTargetFrame;
 }
 
+
+
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< double >(
+            const double timeSinceEpoch )
+{
+    return getRotationToBaseFrame( timeSinceEpoch );
+}
+
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< Time >(
+            const Time timeSinceEpoch )
+{
+    return getRotationToBaseFrameFromExtendedTime( timeSinceEpoch );
+}
+
+
+
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< double >(
+        const double secondsSinceEpoch )
+{
+    return getRotationToTargetFrame( secondsSinceEpoch );
+}
+
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< Time >(
+        const Time secondsSinceEpoch )
+{
+    return getRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
+}
+
+
+
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< double >(
+            const double timeSinceEpoch )
+{
+    return getDerivativeOfRotationToBaseFrame( timeSinceEpoch );
+}
+
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< Time >(
+            const Time timeSinceEpoch )
+{
+    return getDerivativeOfRotationToBaseFrameFromExtendedTime( timeSinceEpoch );
+}
+
+
+
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< double >(
+        const double secondsSinceEpoch )
+{
+    return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch );
+}
+
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< Time >(
+        const Time secondsSinceEpoch )
+{
+    return getDerivativeOfRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
+}
+
+
+
+
+template< >
+void RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< double >(
+        Eigen::Quaterniond& currentRotationToLocalFrame,
+        Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+        Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+        const double timeSinceEpoch )
+{
+    getFullRotationalQuantitiesToTargetFrame(
+                currentRotationToLocalFrame, currentRotationToLocalFrameDerivative, currentAngularVelocityVectorInGlobalFrame,
+                timeSinceEpoch );
+}
+
+template< >
+void  RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< Time >(
+        Eigen::Quaterniond& currentRotationToLocalFrame,
+        Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+        Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+        const Time timeSinceEpoch )
+{
+    getFullRotationalQuantitiesToTargetFrameFromExtendedTime(
+                currentRotationToLocalFrame, currentRotationToLocalFrameDerivative, currentAngularVelocityVectorInGlobalFrame,
+                timeSinceEpoch );
+}
+
+
+
 } // namespace tudat
 } // namespace ephemerides
 
