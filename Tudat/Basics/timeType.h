@@ -17,6 +17,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -28,9 +29,9 @@ static const long double TIME_NORMALIZATION_TERM = 3600.0L;
  *  Class for defining time with a resolution that is sub-fs for very long periods of time. Using double or long double
  *  precision as a representation of time, the issue of reduced quality will occur that over long time-period. For instance,
  *  over a period of 10^8 seconds (about 3 years), double and long double representations have resolution of about 10^-8 and
- *  10^-11 s respectively, which is insufficient for various applications. This type uses an int to represent the number of
+ *  10^-11 s respectively, which is insufficient for various applications. This type uses a long long to represent the number of
  *  hours since an epoch, and long double to represent the number of seconds into the present hour. This provides a
- *  resulution of < 1 femtosecond, over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for
+ *  resulution of < 1 femtosecond, which is more than sufficient for
  *  practical applications.
  */
 class Time
@@ -48,7 +49,7 @@ public:
      * between 0 and 3600: the time representation is normalized upon construction to ensure that the internal representation
      * is in this range.
      */
-    Time( const int fullPeriods, const long double secondsIntoFullPeriod ):
+    Time( const long long fullPeriods, const long double secondsIntoFullPeriod ):
         fullPeriods_( fullPeriods ), secondsIntoFullPeriod_( secondsIntoFullPeriod )
     {
         normalizeMembers( );
@@ -76,12 +77,12 @@ public:
         normalizeMembers( );
     }
 
-    //! Constructor, sets number of seconds sicne epoch (with int representation as input)
+    //! Constructor, sets number of seconds sicne epoch (with long long representation as input)
     /*!
-     * Constructor, sets number of seconds sicne epoch (with int representation as input)
+     * Constructor, sets number of seconds sicne epoch (with long long representation as input)
      * \param secondsIntoFullPeriod Number of seconds since epoch.
      */
-    Time( const int secondsIntoFullPeriod ):
+    Time( const long long secondsIntoFullPeriod ):
         fullPeriods_( 0 ), secondsIntoFullPeriod_( static_cast< long double >( secondsIntoFullPeriod ) )
     {
         normalizeMembers( );
@@ -260,7 +261,7 @@ public:
         long double newPeriods = timeToMultiply1 * static_cast< long double >( timeToMultiply2.fullPeriods_ );
         long double roundedNewPeriods = static_cast< long double >( std::floor( newPeriods ) );
 
-        int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
+        long long newfullPeriods = static_cast< long long >( std::round( roundedNewPeriods ) );
         long double newSecondsIntoFullPeriod_ = timeToMultiply2.secondsIntoFullPeriod_ * timeToMultiply1;
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
@@ -292,7 +293,7 @@ public:
                 static_cast< long double >( timeToMultiply2.fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
+        long long newfullPeriods = static_cast< long long >( std::round( roundedNewPeriods ) );
         long double newSecondsIntoFullPeriod_ = timeToMultiply2.secondsIntoFullPeriod_ *
                 static_cast< long double >( timeToMultiply1 );
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
@@ -326,12 +327,33 @@ public:
 
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
+        long long newfullPeriods = static_cast< long long >( std::round( roundedNewPeriods ) );
         long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ /
                 static_cast< long double >( doubleToDivideBy );
         newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
+    }
+
+    friend const Time operator/( const Time& original, const Time& timeToDivideBy )
+    {
+        long double divisionTerm = static_cast< long double >( timeToDivideBy.getFullPeriods( ) *
+                                         TIME_NORMALIZATION_TERM + timeToDivideBy.getSecondsIntoFullPeriod( ) );
+        long double newPeriods =
+               static_cast< long double >( original.getFullPeriods( ) ) / divisionTerm;
+        long double newSecondsIntoPeriod =
+               original.getSecondsIntoFullPeriod( ) / divisionTerm;
+
+        long double roundedNewPeriods = std::floor( newPeriods );
+
+        long long fullPeriods = static_cast< long long >( std::round( roundedNewPeriods ) );
+
+        newSecondsIntoPeriod += ( static_cast< long double >( newPeriods ) - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
+
+        std::cout<<original<<" "<<timeToDivideBy<<" "<<Time( fullPeriods, newSecondsIntoPeriod )<<" "<<
+                original / timeToDivideBy.getSeconds< long double >( )<<std::endl;
+
+        return original / timeToDivideBy.getSeconds< long double >( );// Time( fullPeriods, newSecondsIntoPeriod );
     }
 
 
@@ -348,9 +370,9 @@ public:
 
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        int newfullPeriods = static_cast< int >( std::round( roundedNewPeriods ) );
+        long long newfullPeriods = static_cast< long long >( std::round( roundedNewPeriods ) );
         long double newSecondsIntoFullPeriod_ = original.secondsIntoFullPeriod_ /  doubleToDivideBy;
-        newSecondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
+        newSecondsIntoFullPeriod_ += ( static_cast< long double >( newPeriods ) - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
         return Time( newfullPeriods, newSecondsIntoFullPeriod_ );
     }
@@ -434,7 +456,7 @@ public:
         long double newPeriods = static_cast< long double >( timeToMultiply ) * static_cast< long double >( fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
+        fullPeriods_ = static_cast< long long >( std::round( roundedNewPeriods ) );
         secondsIntoFullPeriod_ *= static_cast< long double >( timeToMultiply );
         secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
@@ -451,7 +473,7 @@ public:
         long double newPeriods = timeToMultiply * static_cast< long double >( fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
+        fullPeriods_ = static_cast< long long >( std::round( roundedNewPeriods ) );
         secondsIntoFullPeriod_ *= timeToMultiply;
         secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods ) * TIME_NORMALIZATION_TERM;
 
@@ -468,7 +490,7 @@ public:
         long double newPeriods = static_cast< long double >( timeToDivide ) / static_cast< long double >( fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
+        fullPeriods_ = static_cast< long long >( std::round( roundedNewPeriods ) );
         secondsIntoFullPeriod_ *= timeToDivide;
         secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods );
 
@@ -485,7 +507,7 @@ public:
         long double newPeriods = timeToDivide / static_cast< long double >( fullPeriods_ );
         long double roundedNewPeriods = std::floor( newPeriods );
 
-        fullPeriods_ = static_cast< int >( std::round( roundedNewPeriods ) );
+        fullPeriods_ = static_cast< long long >( std::round( roundedNewPeriods ) );
         secondsIntoFullPeriod_ *= timeToDivide;
         secondsIntoFullPeriod_ += ( newPeriods - roundedNewPeriods );
 
@@ -939,20 +961,20 @@ public:
         return getSeconds< int >( );
     }
 
-    //! Function to get the total seconds since epoch, in int precision (cast of Time to double)
+    //! Function to get the total seconds since epoch, in double precision (cast of Time to double)
     /*!
-     *  Function to get the total seconds since epoch, in int precision (cast of Time to double)
-     *  \return Total seconds int epoch.
+     *  Function to get the total seconds since epoch, in double precision (cast of Time to double)
+     *  \return Total seconds double epoch.
      */
     operator double( ) const
     {
         return getSeconds< double >( );
     }
 
-    //! Function to get the total seconds since epoch, in int precision (cast of Time to long sdouble)
+    //! Function to get the total seconds since epoch, in long double precision (cast of Time to long sdouble)
     /*!
-     *  Function to get the total seconds since epoch, in int precision (cast of Time to long double)
-     *  \return Total seconds int epoch.
+     *  Function to get the total seconds since epoch, in long double precision (cast of Time to long double)
+     *  \return Total seconds long double epoch.
      */
     operator long double( ) const
     {
@@ -978,24 +1000,23 @@ public:
     {
         return secondsIntoFullPeriod_;
     }
-
 protected:
     //! Function to renormalize the members of the Time object, so that secondsIntoFullPeriod_ is between 0 and 3600
     void normalizeMembers( )
     {
         if( secondsIntoFullPeriod_ < 0.0L || secondsIntoFullPeriod_ >= TIME_NORMALIZATION_TERM )
         {
-            basic_mathematics::computeModuloAndRemainder< long double >(
-                        secondsIntoFullPeriod_,TIME_NORMALIZATION_TERM, secondsIntoFullPeriod_, daysToAdd );
+            basic_mathematics::computeModuloAndRemainder< long double, long long >(
+                        secondsIntoFullPeriod_, TIME_NORMALIZATION_TERM, secondsIntoFullPeriod_, daysToAdd );
             fullPeriods_ += daysToAdd;
         }
     }
 
     //! Pre-declared variable used in often-called normalizeMembers function
-    int daysToAdd;
+    long long daysToAdd;
 
     //! Number of full hours since epoch
-    int fullPeriods_;
+    long long fullPeriods_;
 
     //! Number of seconds into current hour
     long double secondsIntoFullPeriod_;

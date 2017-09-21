@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -144,12 +145,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
  *   matrix from base to target frame.
  *  \return State (Cartesian position and velocity) in target frame.
  */
-template< typename StateScalarType >
+template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationTimeFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const double currentTime,
-        const boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction )
+        const boost::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction )
 {
     return transformStateToFrameFromRotations(
                 stateInBaseFrame, rotationToFrameFunction( currentTime ),
@@ -194,6 +195,16 @@ public:
     virtual Eigen::Quaterniond getRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
+    virtual Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getRotationToBaseFrame( timeSinceEpoch.getSeconds< double >( ) );
+    }
+
+    template< typename TimeType >
+    Eigen::Quaterniond getRotationToBaseFrameTemplated(
+                const TimeType timeSinceEpoch );
+
     //! Get rotation quaternion to target frame from base frame.
     /*!
      * Pure virtual function to calculate and return the rotation quaternion to target frame from
@@ -203,6 +214,16 @@ public:
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
+
+    virtual Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getRotationToTargetFrame( timeSinceEpoch.getSeconds< double >( ) );
+    }
+
+    template< typename TimeType >
+    Eigen::Quaterniond getRotationToTargetFrameTemplated(
+            const TimeType secondsSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original frame.
     /*!
@@ -215,6 +236,16 @@ public:
     virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
             const double secondsSinceEpoch ) = 0;
 
+    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getDerivativeOfRotationToBaseFrame( timeSinceEpoch.getSeconds< double >( ) );
+    }
+
+    template< typename TimeType >
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrameTemplated(
+                const TimeType timeSinceEpoch );
+
     //! Function to calculate the derivative of the rotation matrix from original frame to target frame.
     /*!
      *  Function to calculate the derivative of the rotation matrix from original frame to target
@@ -225,6 +256,16 @@ public:
      */
     virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
             const double secondsSinceEpoch ) = 0;
+
+    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrameFromExtendedTime(
+            const Time timeSinceEpoch )
+    {
+        return getDerivativeOfRotationToTargetFrame( timeSinceEpoch.getSeconds< double >( ) );
+    }
+
+    template< typename TimeType >
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrameTemplated(
+            const TimeType secondsSinceEpoch );
 
     //! Function to retrieve the angular velocity vector, expressed in base frame.
     /*!
@@ -280,6 +321,25 @@ public:
                     Eigen::Matrix3d( currentRotationToLocalFrame ), currentRotationToLocalFrameDerivative.transpose( ) );
     }
 
+    virtual void getFullRotationalQuantitiesToTargetFrameFromExtendedTime(
+            Eigen::Quaterniond& currentRotationToLocalFrame,
+            Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+            Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+            const Time timeSinceEpoch )
+    {
+        currentRotationToLocalFrame = getRotationToTargetFrameFromExtendedTime( timeSinceEpoch );
+        currentRotationToLocalFrameDerivative = getDerivativeOfRotationToTargetFrameFromExtendedTime( timeSinceEpoch );
+        currentAngularVelocityVectorInGlobalFrame = getRotationalVelocityVectorInBaseFrameFromMatrices(
+                    Eigen::Matrix3d( currentRotationToLocalFrame ), currentRotationToLocalFrameDerivative.transpose( ) );
+    }
+
+    template< typename TimeType >
+    void getFullRotationalQuantitiesToTargetFrameTemplated(
+            Eigen::Quaterniond& currentRotationToLocalFrame,
+            Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+            Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+            const TimeType timeSinceEpoch );
+
     //! Get base reference frame orientation.
     /*!
      * Function to retrieve the base reference frame orientation.
@@ -325,8 +385,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
         const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
-                stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrame( currentTime ),
-                rotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
+                stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrameTemplated< TimeType >( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToBaseFrameTemplated< TimeType >( currentTime ) );
 
 }
 
@@ -345,8 +405,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToTargetFrame(
         const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
-                stateInGlobalFrame, rotationalEphemeris->getRotationToTargetFrame( currentTime ),
-                rotationalEphemeris->getDerivativeOfRotationToTargetFrame( currentTime ) );
+                stateInGlobalFrame, rotationalEphemeris->getRotationToTargetFrameTemplated< TimeType >( currentTime ),
+                rotationalEphemeris->getDerivativeOfRotationToTargetFrameTemplated< TimeType >( currentTime ) );
 
 }
 

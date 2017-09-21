@@ -102,7 +102,6 @@ public:
     Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch )
     {
         updateInterpolator( secondsSinceEpoch );
-
         return currentRotationToBaseFrame_.template cast< double >( );
     }
 
