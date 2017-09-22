@@ -498,11 +498,11 @@ private:
     //! Update all the settings (objects) from the JSON object.
     virtual void updateSettingsFromJSONObject( )
     {
-        resetIntegratorSettings( );  // must be called before resetSpice, resetBodies, resetPropagatorSettings
+        resetIntegratorSettings( );
         resetSpice( );
-        resetBodies( );
-        resetExportSettings( );      // must be called before resetPropagatorSettings
-        resetPropagatorSettings( );
+        resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
+        resetExportSettings( );
+        resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
         resetApplicationOptions( );
         resetDynamicsSimulator( );
     }
