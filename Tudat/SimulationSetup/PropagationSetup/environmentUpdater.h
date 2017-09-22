@@ -341,7 +341,7 @@ private:
                         if( centralRotationalUpdateIndexSet )
                         {
                             indices.push_back( centralRotationalUpdateIndex );
-                            updatesToMove.push_back( updateFunctionVector_.at( centralTranslationalUpdateIndex ) );
+                            updatesToMove.push_back( updateFunctionVector_.at( centralRotationalUpdateIndex ) );
                         }
 
                         if( vehicleTranslationalUpdateIndexSet )
