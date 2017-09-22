@@ -47,22 +47,19 @@ BOOST_AUTO_TEST_CASE( test_json_valueAccess_object )
     BOOST_CHECK( getValue< std::vector< std::string > >( dog, hobbiesKey ) == hobbies );
     BOOST_CHECK_EQUAL( getValue< std::string >( dog, hobbiesKey / 0 ), hobbies.at( 0 ) );
     BOOST_CHECK_EQUAL( getValue< std::string >( dog, hobbiesKey / 1 ), hobbies.at( 1 ) );
-    const std::vector< nlohmann::json > enemies = getValue< std::vector< nlohmann::json > >( dog, "enemies" );
-    const nlohmann::json enemy = enemies.front( );
 
     // Context: one level
+    const nlohmann::json enemy = getValue< std::vector< nlohmann::json > >( dog, "enemies" ).front( );
     BOOST_CHECK_EQUAL( getRootObject( enemy ), dog );
-    BOOST_CHECK_EQUAL( getRootObject( enemies.at( 0 ) ), dog );
-    BOOST_CHECK_EQUAL( getParentKey( enemy ), "enemies" );
     BOOST_CHECK_EQUAL( getValue< double >( enemy, "mass" ), 2.6 );
-    BOOST_CHECK_EQUAL( getValue< double >( enemy, SpecialKeys::up / "mass" ), 19.5 );
+    BOOST_CHECK_EQUAL( getValue< double >( enemy, SpecialKeys::up / SpecialKeys::up / "mass" ), 19.5 );
     BOOST_CHECK_EQUAL( getValue< double >( enemy, SpecialKeys::root / "mass" ), 19.5 );
 
     // Context: several levels
     const nlohmann::json valencia = getValue< nlohmann::json >( enemy, std::string( "mother" ) / "birthplace" / "city" );
     BOOST_CHECK_EQUAL( valencia.at( "name" ), "Valencia" );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::root / "mass" ), 19.5 );
-    BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / SpecialKeys::up /
+    BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / SpecialKeys::up / SpecialKeys::up /
                                            SpecialKeys::up / SpecialKeys::up / "mass" ), 19.5 );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / "continent" / "temperatureRange" / 0 ), -15 );
     BOOST_CHECK_EQUAL( getValue< double >( valencia, SpecialKeys::up / "continent" / "temperatureRange" / 1 ), 45 );

@@ -109,13 +109,8 @@ void determineInitialStates(
     using KP = Keys::Propagator;
     using KS = Keys::Body::State;
 
-    // Get propagators as an array of json (even if only one object is provided)
-    nlohmann::json jsonPropagators = jsonObject.at( Keys::propagator );
-    if ( jsonPropagators.is_object( ) )
-    {
-        jsonPropagators = nlohmann::json( );
-        jsonPropagators[ 0 ] = jsonObject.at( Keys::propagator );
-    }
+    // Get propagators
+    nlohmann::json jsonPropagators = jsonObject.at( Keys::propagators );
 
     // Update propagators at jsonObject with initial states retrieved from bodies ephemeris
     bool usedEphemeris = false;
@@ -174,11 +169,10 @@ void determineInitialStates(
                     const std::string bodyName = bodiesToPropagate.at( i );
                     const KeyPath stateKeyPath = Keys::bodies / bodyName / stateKey;
                     const nlohmann::json jsonState = getValue< nlohmann::json >( jsonObject, stateKeyPath );
-
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState( 0 );
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState;
 
                     // Instead of a vector, an object can be used to provide initial translational state
-                    if ( integratedStateType == translational_state && ! isConvertibleToArray( jsonState ) )
+                    if ( integratedStateType == translational_state && jsonState.is_object( ) )
                     {
                         const StateType stateType = getValue< StateType >( jsonState, KS::type );
                         switch ( stateType ) {
@@ -382,9 +376,7 @@ void determineInitialStates(
                             handleUnimplementedEnumValue( stateType, stateTypes, unsupportedStateTypes );
                         }
                     }
-
-                    // Could not get the state as Cartesian, Keplerian components... then try to convert directly
-                    if ( bodyState.rows( ) == 0 )
+                    else  // could not get the state as Cartesian, Keplerian components... then try to convert directly
                     {
                         bodyState = getAs< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonState );
                     }
@@ -398,7 +390,7 @@ void determineInitialStates(
         }
     }
 
-    jsonObject[ Keys::propagator ] = jsonPropagators;
+    jsonObject[ Keys::propagators ] = jsonPropagators;
 }
 
 //! -DOC
@@ -543,7 +535,7 @@ void to_json( nlohmann::json& jsonObject,
     using namespace simulation_setup;
     using namespace json_interface;
 
-    jsonObject[ Keys::propagator ] = getFlattenedMapValues< std::map, IntegratedStateType,
+    jsonObject[ Keys::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
             boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
                 multiTypePropagatorSettings->propagatorSettingsMap_ );
     jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
@@ -608,7 +600,7 @@ void from_json( const nlohmann::json& jsonObject,
 
     multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
                 getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
-                    jsonObject, Keys::propagator ),
+                    jsonObject, Keys::propagators ),
                 terminationSettings,
                 boost::shared_ptr< DependentVariableSaveSettings >( ),
                 getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN ) );
