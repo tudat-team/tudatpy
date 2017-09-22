@@ -184,6 +184,12 @@ else()
  else( )
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${JSON_INCLUDE_DIR}\"")
  endif( )
+
+ # Set JSON interface directory.
+ set(JSONINTERFACEDIR "/JsonInterface")
+
+ # Add subdirectories.
+ add_subdirectory("${SRCROOT}${JSONINTERFACEDIR}")
 endif()
 
 

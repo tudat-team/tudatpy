@@ -8,16 +8,6 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
-if(USE_JSON)
-    # Set JSON interface directory.
-    set(JSONINTERFACEDIR "${INPUTOUTPUTDIR}/JsonInterface")
-
-    # Add subdirectories.
-    add_subdirectory("${SRCROOT}${JSONINTERFACEDIR}")
-
-endif( )
-
-
 # Add source files.
 set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.cpp"
