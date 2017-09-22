@@ -184,12 +184,6 @@ else()
  else( )
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${JSON_INCLUDE_DIR}\"")
  endif( )
-
- # Set JSON interface directory.
- set(JSONINTERFACEDIR "/JsonInterface")
-
- # Add subdirectories.
- add_subdirectory("${SRCROOT}${JSONINTERFACEDIR}")
 endif()
 
 
@@ -309,7 +303,15 @@ list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_observation_
 # Set sub-directories.
 set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})
 
+if(USE_JSON)
+  # Set JSON interface directory.
+  set(JSONINTERFACEDIR "/JsonInterface")
+
+  # Add subdirectories.
+  list(APPEND SUBDIRS ${JSONINTERFACEDIR})
+endif()
+
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})
-add_subdirectory("${SRCROOT}${CURRENT_SUBDIR}")
+  add_subdirectory("${SRCROOT}${CURRENT_SUBDIR}")
 endforeach(CURRENT_SUBDIR)

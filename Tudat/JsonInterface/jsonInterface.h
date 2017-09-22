@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_JSONINTERFACE_SIMULATION_H
-#define TUDAT_JSONINTERFACE_SIMULATION_H
+#ifndef TUDAT_JSONINTERFACE_H
+#define TUDAT_JSONINTERFACE_H
 
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
@@ -557,4 +557,4 @@ void to_json( nlohmann::json& jsonObject,
 
 } // namespace tudat
 
-#endif // TUDAT_JSONINTERFACE_SIMULATION_H
+#endif // TUDAT_JSONINTERFACE_H

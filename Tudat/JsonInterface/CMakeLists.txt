@@ -67,7 +67,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/export.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/options.h"
     "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/unitTestSupport.h"
-    "${SRCROOT}${JSONINTERFACEDIR}/simulation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.h"
 )
 
 # Add static libraries.
