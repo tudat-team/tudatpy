@@ -229,7 +229,7 @@ const std::string Keys::Variable::angle = "angle";
 
 
 //  Propagator
-const std::string Keys::propagator = "propagator";
+const std::string Keys::propagators = "propagators";
 
 const std::string Keys::Propagator::integratedStateType = "integratedStateType";
 const std::string Keys::Propagator::initialStates = "initialStates";

@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
     // Create GravityFieldVariationSettings manually
     const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections =
     {
-        { 0.0, ( Eigen::Vector3d( ) << 0.0, 1.0, 2.0 ).finished( ) },
-        { 1.0, ( Eigen::Vector3d( ) << 0.0, 0.0, -1.0 ).finished( ) }
+        { 0.0, ( Eigen::Matrix2d( ) << 0.0, 1.0, -2.0, 1.0 ).finished( ) },
+        { 1.0, ( Eigen::Matrix2d( ) << 3.0, 2.5, -1.0, 0.0 ).finished( ) }
     };
     const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections =
     {
-        { 0.0, ( Eigen::Vector3d( ) << -1.0, 4.0, 5.0 ).finished( ) },
-        { 1.0, ( Eigen::Vector3d( ) << 3.0, 2.0, 0.5 ).finished( ) }
+        { 0.0, ( Eigen::Matrix2d( ) << -1.0, 4.0, 0.0, 1.0 ).finished( ) },
+        { 1.0, ( Eigen::Matrix2d( ) << 3.0, 0.5, -1.0, -2.0 ).finished( ) }
     };
     const int minimumDegree = 4;
     const int minimumOrder = 2;

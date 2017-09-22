@@ -241,7 +241,7 @@ struct Keys
     };
 
 
-    static const std::string propagator;
+    static const std::string propagators;
     struct Propagator
     {
         static const std::string integratedStateType;

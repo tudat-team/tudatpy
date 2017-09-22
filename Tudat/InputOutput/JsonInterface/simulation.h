@@ -34,9 +34,10 @@ namespace json_interface
 template< typename TimeType = double, typename StateScalarType = double >
 class JsonSimulationManager
 {
-public:
+private:
     bool profiling = false;
 
+public:
     //! Constructor.
     /*!
      * Constructor.
