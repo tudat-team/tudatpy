@@ -21,7 +21,8 @@ namespace sofa_interface
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
-        const double terrestrialTime, const double julianDaysEpochShift, const IAUConventions precessionNutationTheory )
+        const double terrestrialTime, const double julianDaysEpochShift,
+        const basic_astrodynamics::IAUConventions precessionNutationTheory )
 {
     // Declare Sofa function return arguments (by reference)
     double xAngle, yAngle;
@@ -30,17 +31,17 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
     // Check for IAU convention and retrieve requested values.
     switch( precessionNutationTheory )
     {
-    case iau_2000_a:
+    case basic_astrodynamics::iau_2000_a:
         iauXys00a( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
 
-    case iau_2000_b:
+    case basic_astrodynamics::iau_2000_b:
         iauXys00b( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
 
-    case iau_2006:
+    case basic_astrodynamics::iau_2006:
         iauXys06a( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
@@ -58,7 +59,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
 //! Function to calculate GMST according to requested IAU conventions
 double calculateGreenwichMeanSiderealTime(
         const double terrestrialTime, const double universalTime1,
-        const double referenceJulianDay, const IAUConventions iauConvention )
+        const double referenceJulianDay, const basic_astrodynamics::IAUConventions iauConvention )
 {
     // Declare GMST variable
     double gmst = TUDAT_NAN;
@@ -66,17 +67,17 @@ double calculateGreenwichMeanSiderealTime(
     // Check for IAU convention and retrieve requested GMST
     switch( iauConvention )
     {
-    case iau_2000_a:
+    case basic_astrodynamics::iau_2000_a:
         gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
-    case iau_2000_b:
+    case basic_astrodynamics::iau_2000_b:
         gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
-    case iau_2006:
+    case basic_astrodynamics::iau_2006:
         gmst = iauGmst06( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;

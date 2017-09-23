@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
         double expectedCioLocator = 0.0;
         double dXTest = 0.0;
         double dYTest = 0.0;
-        IAUConventions iauConventions;
+        basic_astrodynamics::IAUConventions iauConventions;
         if( i == 0 )
         {
-            iauConventions = iau_2000_a;
+            iauConventions = basic_astrodynamics::iau_2000_a;
 
             expectedPolePosition.x( ) = 0.000712264729599;
             expectedPolePosition.y( ) = 0.000044385250426;
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
         }
         else
         {
-            iauConventions = iau_2006;
+            iauConventions = basic_astrodynamics::iau_2006;
 
             expectedPolePosition.x( ) = 0.000712264729525;
             expectedPolePosition.y( ) = 0.000044385248875;
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     double expectedGmst = iauGmst00( testUt1, testUt2, testJulianDay1, testJulianDay2 );
     double calculatedGmst = calculateGreenwichMeanSiderealTime(
                 testJulianDay2 * physical_constants::JULIAN_DAY, testUt2 * physical_constants::JULIAN_DAY,
-                testJulianDay1, iau_2000_a );
+                testJulianDay1, basic_astrodynamics::iau_2000_a );
 
     BOOST_CHECK_CLOSE_FRACTION( expectedGmst, calculatedGmst, std::numeric_limits< double >::epsilon( ) );
 

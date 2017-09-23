@@ -1,6 +1,8 @@
 #ifndef TUDAT_GCRSTOITRSROTATIONMODEL_H
 #define TUDAT_GCRSTOITRSROTATIONMODEL_H
 
+#if USE_SOFA
+
 #include <boost/bind.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -144,5 +146,7 @@ private:
 }
 
 }
+
+#endif
 
 #endif // TUDAT_GCRSTOITRSROTATIONMODEL_H

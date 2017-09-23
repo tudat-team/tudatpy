@@ -43,7 +43,7 @@ public:
      * interpolated daily measured values of precession-nutation corrections.
      */
     PrecessionNutationCalculator(
-            const IAUConventions precessionNutationTheory,
+            const basic_astrodynamics::IAUConventions precessionNutationTheory,
             const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
             dailyCorrectionInterpolator );
 

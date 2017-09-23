@@ -92,7 +92,7 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > g
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
                 std::vector< std::string >{
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationFundamentalArgumentMultipliers.txt",
-                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt"},
+                    tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
                 boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
 }
 
