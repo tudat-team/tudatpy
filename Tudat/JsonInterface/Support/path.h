@@ -23,8 +23,6 @@ namespace tudat
 namespace json_interface
 {
 
-typedef boost::filesystem::path path;
-
 //! Names for replacable paths in JSON files.
 //! E.g., the text "${TUDAT_ROOT_PATH}" will be replaced with the actual path when reading JSON files.
 static std::vector< std::pair< std::string, std::string > > pathPlaceholders =

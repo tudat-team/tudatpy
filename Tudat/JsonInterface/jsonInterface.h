@@ -192,7 +192,7 @@ public:
      * \param tabSize Size of tabulations in the exported file (default = 2, i.e. 2 spaces). If set to 0, no
      * indentantion or line breaks will be used, so the exported file will contain just one line.
      */
-    void exportAsJSON( const path& exportPath, const unsigned int tabSize = 2 )
+    void exportAsJSON( const boost::filesystem::path& exportPath, const unsigned int tabSize = 2 )
     {
         if ( ! boost::filesystem::exists( exportPath.parent_path( ) ) )
         {
@@ -220,13 +220,29 @@ public:
     //! Get simulation start epoch.
     TimeType getStartEpoch( ) const
     {
-        return integratorSettings_->initialTime_;
+        if ( integratorSettings_ )
+        {
+            return integratorSettings_->initialTime_;
+        }
+        else
+        {
+            return getValue< TimeType >( jsonObject_, { Keys::initialEpoch,
+                                                        Keys::integrator / Keys::Integrator::initialTime } );
+        }
     }
 
     //! Get maximum simulation end epoch. Returns `TUDAT_NAN` if there is no time termination condition.
     TimeType getEndEpoch( ) const
     {
-        return getTerminationEpoch< TimeType >( propagatorSettings_ );
+        TimeType endEpoch = getTerminationEpoch< TimeType >( propagatorSettings_ );
+        if ( ! isNaN( endEpoch ) )
+        {
+            return endEpoch;
+        }
+        else
+        {
+            return getValue< TimeType >( jsonObject_, Keys::finalEpoch, TUDAT_NAN );
+        }
     }
 
     //! Get integrator settings.
@@ -265,13 +281,19 @@ public:
         return bodyMap_;
     }
 
+    //! Add a body named \p bodyName.
+    void addBody( const std::string& bodyName )
+    {
+        bodyMap_[ bodyName ] = boost::make_shared< simulation_setup::Body >( );
+    }
+
     //! Get body named \p bodyName.
     boost::shared_ptr< simulation_setup::Body > getBody( const std::string& bodyName ) const
     {
         return bodyMap_.at( bodyName );
     }
 
-    //! Get propagation settings.
+    //! Get propagator settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > getPropagatorSettings( ) const
     {
         return propagatorSettings_;
@@ -281,6 +303,12 @@ public:
     std::vector< boost::shared_ptr< ExportSettings > > getExportSettingsVector( ) const
     {
         return exportSettingsVector_;
+    }
+
+    //! Get export settings at \p index.
+    boost::shared_ptr< ExportSettings > getExportSettings( const unsigned int index ) const
+    {
+        return exportSettingsVector_.at( index );
     }
 
     //! Get application options.
@@ -511,7 +539,7 @@ private:
     std::chrono::steady_clock::time_point initialClockTime_;
 
     //! Absolute path to the input file.
-    path inputFilePath_;
+    boost::filesystem::path inputFilePath_;
 
     //! Original JSON object with all the settings read directly from the input file.
     nlohmann::json originalJsonObject_;

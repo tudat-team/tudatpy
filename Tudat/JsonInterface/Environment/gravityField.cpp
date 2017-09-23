@@ -57,7 +57,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldS
             const SphericalHarmonicsModel model = shModelGravityFieldSettings->getSphericalHarmonicsModel( );
             if ( model == customModel )
             {
-                jsonObject[ K::file ] = path( shModelGravityFieldSettings->getFilePath( ) );
+                jsonObject[ K::file ] = boost::filesystem::path( shModelGravityFieldSettings->getFilePath( ) );
                 jsonObject[ K::associatedReferenceFrame ] = shModelGravityFieldSettings->getAssociatedReferenceFrame( );
                 jsonObject[ K::maximumDegree ] = shModelGravityFieldSettings->getMaximumDegree( );
                 jsonObject[ K::maximumOrder ] = shModelGravityFieldSettings->getMaximumOrder( );
@@ -129,7 +129,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFiel
             const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
             const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
             gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
-                        getValue< path >( jsonObject, K::file ).string( ),
+                        getValue< boost::filesystem::path >( jsonObject, K::file ).string( ),
                         getValue< std::string >( jsonObject, K::associatedReferenceFrame ),
                         getValue< int >( jsonObject, K::maximumDegree ),
                         getValue< int >( jsonObject, K::maximumOrder ),

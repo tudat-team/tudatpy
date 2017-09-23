@@ -23,12 +23,12 @@ namespace json_interface
 {
 
 //! Get the path for a JSON file.
-path getPathForJSONFile( const std::string& file, const path& basePath )
+boost::filesystem::path getPathForJSONFile( const std::string& file, const boost::filesystem::path& basePath )
 {
     try
     {
         // Get absolute path to input file
-        path filePath = boost::filesystem::canonical( file, basePath );
+        boost::filesystem::path filePath = boost::filesystem::canonical( file, basePath );
         if ( boost::filesystem::is_directory( filePath ) )
         {
             // If it's a directory, try to find a "main.json" file in that directory
@@ -45,7 +45,7 @@ path getPathForJSONFile( const std::string& file, const path& basePath )
         try
         {
             // Add .json extension if no extension found
-            if ( path( file ).extension( ).empty( ) )
+            if ( boost::filesystem::path( file ).extension( ).empty( ) )
             {
                 fileWithExtension += ".json";
                 return boost::filesystem::canonical( fileWithExtension, basePath );
@@ -120,7 +120,7 @@ std::pair< unsigned int, unsigned int > getLineAndCol( std::ifstream& stream, co
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application.
  * (equal to \p filePath if \p jsonObject was defined at \p rootFilePath).
  */
-void updatePaths( nlohmann::json& jsonObject, const path& filePath, const path& parentFilePath, const path& rootFilePath )
+void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath, const boost::filesystem::path& rootFilePath )
 {
     if ( jsonObject.is_structured( ) )
     {
@@ -150,15 +150,15 @@ void updatePaths( nlohmann::json& jsonObject, const path& filePath, const path& 
         boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.*)\))" ) );
         if ( groups[ 1 ].matched )
         {
-            const path providedPath = std::string( groups[ 1 ] );
+            const boost::filesystem::path providedPath = std::string( groups[ 1 ] );
             if ( providedPath.is_relative( ) )
             {
-                const path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
+                const boost::filesystem::path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
                 str = ( rel.filename_is_dot( ) ? providedPath : rel / providedPath ).string( );
             }
             else
             {
-                const path rel = boost::filesystem::relative( providedPath, rootFilePath.parent_path( ) );
+                const boost::filesystem::path rel = boost::filesystem::relative( providedPath, rootFilePath.parent_path( ) );
                 str = ( ( ! rel.empty( ) && rel.size( ) < providedPath.size( ) ) ? rel : providedPath ).string( );
             }
         }
@@ -168,7 +168,7 @@ void updatePaths( nlohmann::json& jsonObject, const path& filePath, const path& 
 }
 
 //! Read a JSON file into a `json` object.
-nlohmann::json readJSON( const path& filePath, const path& parentFilePath, const path& rootFilePath )
+nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath, const boost::filesystem::path& rootFilePath )
 {
     std::ifstream stream( filePath.string( ) );
     nlohmann::json jsonObject;
@@ -201,7 +201,7 @@ nlohmann::json readJSON( const path& filePath, const path& parentFilePath, const
  * (the elements will be merged).
  * \param filePath The file from which \p jsonObject was retrieved.
  */
-void mergeJSON( nlohmann::json& jsonObject, const path& filePath )
+void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& filePath )
 {
     if ( jsonObject.is_array( ) )
     {
@@ -284,8 +284,8 @@ void mergeJSON( nlohmann::json& jsonObject, const path& filePath )
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application
  * (empty if \p filePath is equal to \p rootFilePath).
  */
-void parseModularJSON( nlohmann::json& jsonObject, const path& filePath,
-                       nlohmann::json parentObject = nlohmann::json( ), path rootFilePath = path( ) )
+void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path& filePath,
+                       nlohmann::json parentObject = nlohmann::json( ), boost::filesystem::path rootFilePath = boost::filesystem::path( ) )
 {
     if ( parentObject.is_null( ) )
     {
@@ -322,7 +322,7 @@ void parseModularJSON( nlohmann::json& jsonObject, const path& filePath,
         {
             const std::string file( groups[ 1 ] );
             const std::string vars( groups[ 2 ] );
-            const path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
+            const boost::filesystem::path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
             const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
             std::vector< std::string > keys;
             std::vector< KeyPath > keyPaths;
@@ -395,7 +395,7 @@ void parseModularJSON( nlohmann::json& jsonObject, const path& filePath,
 }
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
-nlohmann::json getDeserializedJSON( const path& filePath )
+nlohmann::json getDeserializedJSON( const boost::filesystem::path& filePath )
 {
     nlohmann::json jsonObject = readJSON( filePath );
     parseModularJSON( jsonObject, filePath );

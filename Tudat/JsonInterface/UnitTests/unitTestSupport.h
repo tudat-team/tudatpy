@@ -24,14 +24,14 @@ namespace tudat
 namespace json_interface
 {
 
-path currentDirectory( )
+boost::filesystem::path currentDirectory( )
 {
-    return path( __FILE__ ).parent_path( );
+    return boost::filesystem::path( __FILE__ ).parent_path( );
 }
 
-path inputDirectory( )
+boost::filesystem::path inputDirectory( )
 {
-    path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
+    boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
     if ( boost::filesystem::exists( matlabInputDirectory ) )
     {
         return matlabInputDirectory;
@@ -45,11 +45,11 @@ path inputDirectory( )
 template< typename T = nlohmann::json >
 T parseJSONFile( std::string file )
 {
-    if ( path( file ).extension( ).empty( ) )
+    if ( boost::filesystem::path( file ).extension( ).empty( ) )
     {
         file += ".json";
     }
-    boost::filesystem::current_path( path( file ).parent_path( ) );
+    boost::filesystem::current_path( boost::filesystem::path( file ).parent_path( ) );
     return readJSON( file );
 }
 

@@ -85,7 +85,7 @@ void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings )
         if ( spiceSettings->useStandardKernels_ )
         {
             std::vector< std::string > alternativeKernelsFiles;
-            for ( path kernel : spiceSettings->alternativeKernels_ )
+            for ( boost::filesystem::path kernel : spiceSettings->alternativeKernels_ )
             {
                 alternativeKernelsFiles.push_back( kernel.string( ) );
             }
@@ -93,7 +93,7 @@ void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings )
         }
         else
         {
-            for ( const path kernel : spiceSettings->kernels_ )
+            for ( const boost::filesystem::path kernel : spiceSettings->kernels_ )
             {
                 spice_interface::loadSpiceKernelInTudat( kernel.string( ) );
             }
