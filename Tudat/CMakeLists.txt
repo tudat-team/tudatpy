@@ -239,6 +239,7 @@ else()
 endif()
 
 option(COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." ON)
+option(COMPILE_PROPAGATION_TESTS "Compiling unit tests involving long (> 30 s) propagations. Total unit test run time may be > 5-10 minutes." ON)
 
 # Create lists of static libraries for ease of use
 list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
