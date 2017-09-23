@@ -108,11 +108,14 @@ template< >
 double calculateEarthRotationAngleTemplated< Time >(
         const Time currentUt1 )
 {
+
     int hoursSinceEpoch = currentUt1.getFullPeriods( );
     int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) / 24;
     int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
+
+
     return calculateEarthRotationAngle( currentUt1.getSecondsIntoFullPeriod( ) + hoursIntoCurrentDay * 3600.0,
-                                        basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
+                                      basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
 }
 
 

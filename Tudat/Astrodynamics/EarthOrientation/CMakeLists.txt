@@ -37,6 +37,7 @@ set(EARTH_ORIENTATION_HEADERS
   "${SRCROOT}${EARTHORIENTATIONDIR}/precessionNutationCalculator.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/readAmplitudeAndArgumentMultipliers.h"
   "${SRCROOT}${EARTHORIENTATIONDIR}/shortPeriodEarthOrientationCorrectionCalculator.h"
+  "${SRCROOT}${EARTHORIENTATIONDIR}/UnitTests/sofaEarthOrientationCookbookExamples.h"
 )
 
 # Add static libraries.
