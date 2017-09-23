@@ -66,7 +66,7 @@ public:
 
     //! Path where the full settings file (containing the json with all the settings actually used for the simulation)
     //! is going to be saved. Empty string if the file should not be saved.
-    path fullSettingsFile_ = "";
+    boost::filesystem::path fullSettingsFile_ = "";
 
     //! Whether the generated output files should contain the line "FAILURE" if the propagation terminates before
     //! reaching the termination condition.

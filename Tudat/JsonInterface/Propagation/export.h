@@ -35,6 +35,11 @@ public:
     //! Destructor.
     virtual ~ExportSettings( ) { }
 
+    //! Set the path of the output file the results will be written to.
+    void setOutputFile( const boost::filesystem::path& outputFile )
+    {
+        outputFile_ = outputFile;
+    }
 
     //! Path of the output file the results will be written to.
     boost::filesystem::path outputFile_;

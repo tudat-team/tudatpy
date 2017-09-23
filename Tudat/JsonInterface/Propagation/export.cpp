@@ -42,7 +42,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSetti
     using K = Keys::Export;
 
     exportSettings = boost::make_shared< ExportSettings >(
-                getValue< path >( jsonObject, K::file ),
+                getValue< boost::filesystem::path >( jsonObject, K::file ),
                 getValue< std::vector< boost::shared_ptr< VariableSettings > > >( jsonObject, K::variables ) );
     updateFromJSONIfDefined( exportSettings->header_, jsonObject, K::header );
     updateFromJSONIfDefined( exportSettings->epochsInFirstColumn_, jsonObject, K::epochsInFirstColumn );

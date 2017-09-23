@@ -88,7 +88,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
             jsonObject[ K::forceCoefficients ] = { "", "", "" };
             for ( auto entry : forceCoefficientsFilesMap )
             {
-                jsonObject[ K::forceCoefficients ][ entry.first ] = path( entry.second );
+                jsonObject[ K::forceCoefficients ][ entry.first ] = boost::filesystem::path( entry.second );
             }
 
             if ( hasMoments )
@@ -98,7 +98,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
                 jsonObject[ K::momentCoefficients ] = { "", "", "" };
                 for ( auto entry : momentCoefficientsFilesMap )
                 {
-                    jsonObject[ K::momentCoefficients ][ entry.first ] = path( entry.second );
+                    jsonObject[ K::momentCoefficients ][ entry.first ] = boost::filesystem::path( entry.second );
                 }
             }
         }
@@ -199,8 +199,8 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
         std::vector< Eigen::Vector3d > momentCoefficients;
         try
         {
-            const std::vector< path > forceCoefficientsFilesVector =
-                    getAs< std::vector< path > >( jsonForceCoefficients );
+            const std::vector< boost::filesystem::path > forceCoefficientsFilesVector =
+                    getAs< std::vector< boost::filesystem::path > >( jsonForceCoefficients );
             for ( unsigned int i = 0; i < forceCoefficientsFilesVector.size( ); ++i )
             {
                 if ( ! jsonObject.at( K::forceCoefficients ).at( i ).get< std::string >( ).empty( ) )
@@ -211,8 +211,8 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
 
             if ( useMoments )
             {
-                const std::vector< path > momentCoefficientsFilesVector =
-                        getAs< std::vector< path > >( jsonMomentCoefficients );
+                const std::vector< boost::filesystem::path > momentCoefficientsFilesVector =
+                        getAs< std::vector< boost::filesystem::path > >( jsonMomentCoefficients );
                 for ( unsigned int i = 0; i < momentCoefficientsFilesVector.size( ); ++i )
                 {
                     if ( ! jsonObject.at( K::momentCoefficients ).at( i ).get< std::string >( ).empty( ) )

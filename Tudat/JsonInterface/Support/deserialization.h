@@ -21,9 +21,6 @@ namespace tudat
 namespace json_interface
 {
 
-typedef boost::filesystem::path path;
-
-
 //! Read a JSON file into a `json` object.
 /*!
  * @copybrief readJSON If \p inclusionFile is not empty, the strings matching the expression "#path(relativePath)"
@@ -35,7 +32,7 @@ typedef boost::filesystem::path path;
  * (empty if \p filePath is equal to \p rootFilePath).
  * \return Read `json` object.
  */
-nlohmann::json readJSON( const path& filePath, const path& parentFilePath = path( ), const path& rootFilePath = path( ) );
+nlohmann::json readJSON( const boost::filesystem::path& filePath, const boost::filesystem::path& parentFilePath = boost::filesystem::path( ), const boost::filesystem::path& rootFilePath = boost::filesystem::path( ) );
 
 //! Get the path for a JSON file.
 /*!
@@ -49,7 +46,7 @@ nlohmann::json readJSON( const path& filePath, const path& parentFilePath = path
  * \return Path for the JSON file.
  * \throws Error if the file does not exist.
  */
-path getPathForJSONFile( const std::string& file, const path& basePath = boost::filesystem::current_path( ) );
+boost::filesystem::path getPathForJSONFile( const std::string& file, const boost::filesystem::path& basePath = boost::filesystem::current_path( ) );
 
 //! Read and parse a (normal) `json` object from a file, and then parse its imported modular files.
 /*!
@@ -58,7 +55,7 @@ path getPathForJSONFile( const std::string& file, const path& basePath = boost::
  * \param inputFilePath Path to the root JSON file.
  * \return Object containing the keys defined in the original file and all the imported files.
  */
-nlohmann::json getDeserializedJSON( const path& inputFilePath );
+nlohmann::json getDeserializedJSON( const boost::filesystem::path& inputFilePath );
 
 }  // namespace json_interface
 

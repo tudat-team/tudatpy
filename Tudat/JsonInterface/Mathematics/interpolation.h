@@ -129,7 +129,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< DataMapSettin
             boost::dynamic_pointer_cast< FromFileDataMapSettings< D > >( dataMapSettings );
     if ( fromFileDataMapSettings )
     {
-        jsonObject[ K::file ] = path( fromFileDataMapSettings->relativeFilePath_ );
+        jsonObject[ K::file ] = boost::filesystem::path( fromFileDataMapSettings->relativeFilePath_ );
         return;
     }
 
@@ -163,7 +163,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< DataMapSett
     if ( isDefined( jsonObject, K::file ) )
     {
         dataMapSettings = boost::make_shared< FromFileDataMapSettings< D > >(
-                    getValue< path >( jsonObject, K::file ).string( ) );
+                    getValue< boost::filesystem::path >( jsonObject, K::file ).string( ) );
         return;
     }
 

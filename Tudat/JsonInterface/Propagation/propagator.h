@@ -454,6 +454,8 @@ TimeType getTerminationEpoch(
             }
         }
     }
+
+    return TUDAT_NAN;
 }
 
 } // namespace json_interface

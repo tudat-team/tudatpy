@@ -49,7 +49,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
         boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         enforceNonNullPointer( tabulatedAtmosphereSettings );
-        jsonObject[ K::file ] = path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+        jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
         return;
     }
     case nrlmsise00:
@@ -58,7 +58,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
                 boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
         if ( nrlmsise00AtmosphereSettings )
         {
-            jsonObject[ K::spaceWeatherFile ] = path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
+            jsonObject[ K::spaceWeatherFile ] = boost::filesystem::path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
             return;
         }
         // If not a NRLMSISE00AtmosphereSettings, it is a AtmosphereSettings with default space weather file.
@@ -91,7 +91,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereS
     case tabulated_atmosphere:
     {
         atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
-                    getValue< path >( jsonObject, K::file ).string( ) );
+                    getValue< boost::filesystem::path >( jsonObject, K::file ).string( ) );
         return;
     }
     case nrlmsise00:
@@ -99,7 +99,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereS
         if ( isDefined( jsonObject, K::spaceWeatherFile ) )
         {
             atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >(
-                        getValue< path >( jsonObject, K::spaceWeatherFile ).string( ) );
+                        getValue< boost::filesystem::path >( jsonObject, K::spaceWeatherFile ).string( ) );
         }
         else
         {
