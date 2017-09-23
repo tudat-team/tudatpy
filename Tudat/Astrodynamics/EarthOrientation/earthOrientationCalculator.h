@@ -89,7 +89,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
     Eigen::Matrix3d auxiliaryMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
-            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.002737909350795 );
+            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
               calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) )
@@ -117,6 +117,16 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
+template< typename TimeType >
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
+        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+{
+    return calculateRotationRateFromItrsToGcrs(
+                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
+            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
+
 //! Calculate rotation from ITRS to GCRS
 /*!
  * Calculate rotation from ITRS to GCRS.
@@ -134,8 +144,9 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
         const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
+    double currentEra = sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 );
     return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) *
+            calculateRotationFromTirsToCirs( currentEra ) *
             calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
 
 }
@@ -156,6 +167,16 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
     return calculateRotationFromItrsToGcrs(
                 rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
             ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
+
+template< typename TimeType >
+Eigen::Quaterniond calculateRotationFromItrsToGcrs(
+        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+{
+    return calculateRotationFromItrsToGcrs(
+                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
+            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
