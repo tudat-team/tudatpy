@@ -16,8 +16,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/External/SofaInterface/earthOrientation.h"
+
 
 
 namespace tudat
@@ -34,7 +38,8 @@ namespace simulation_setup
 enum RotationModelType
 {
     simple_rotation_model,
-    spice_rotation_model
+    spice_rotation_model,
+    gcrs_to_itrs_rotation_model
 };
 
 //! Class for providing settings for rotation model.
@@ -165,6 +170,111 @@ private:
     //! Rotation rate of body about its local z-axis.
     double rotationRate_;
 };
+
+struct EopCorrectionSettings
+{
+    EopCorrectionSettings(
+            const double conversionFactor,
+            const double minimumAmplitude,
+            const std::vector< std::string >& amplitudesFiles,
+            const std::vector< std::string >& argumentMultipliersFile ):
+        conversionFactor_( conversionFactor ), minimumAmplitude_( minimumAmplitude ),
+        amplitudesFiles_( amplitudesFiles ), argumentMultipliersFile_( argumentMultipliersFile ){ }
+
+    double conversionFactor_;
+
+    double minimumAmplitude_;
+
+    std::vector< std::string > amplitudesFiles_;
+
+    std::vector< std::string > argumentMultipliersFile_;
+};
+
+#if USE_SOFA
+class GcrsToItrsRotationModelSettings: public RotationModelSettings
+{
+public:
+
+    GcrsToItrsRotationModelSettings(
+            const std::string targetFrameName = "ITRS",
+            const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
+            const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
+            const std::string& eopFile = input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
+            const std::string& eopFileFormat = "C04",
+            const boost::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
+            boost::make_shared< EopCorrectionSettings >(
+                1.0E-6, 0.0, std::vector< std::string >{
+                    input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
+                    input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
+                std::vector< std::string >{
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "utcLibrationFundamentalArgumentMultipliers.txt",
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "utcOceanTidesFundamentalArgumentMultipliers.txt" } ),
+            const boost::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings =
+            boost::make_shared< EopCorrectionSettings >(
+                1.0E-6, 0.0, std::vector< std::string >{
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "polarMotionOceanTidesAmplitudes.txt", },
+                std::vector< std::string >{
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
+                    input_output::getEarthOrientationDataFilesPath( ) +
+                    "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } ) ):
+        RotationModelSettings( gcrs_to_itrs_rotation_model, "GCRS", targetFrameName ),
+        inputTimeScale_( inputTimeScale ), nutationTheory_( nutationTheory ), eopFile_( eopFile ),
+        eopFileFormat_( eopFileFormat ), ut1CorrectionSettings_( ut1CorrectionSettings ),
+        polarMotionCorrectionSettings_( polarMotionCorrectionSettings ){ }
+
+    ~GcrsToItrsRotationModelSettings( ){ }
+
+    basic_astrodynamics::TimeScales getInputTimeScale( )
+    {
+        return inputTimeScale_;
+    }
+
+    basic_astrodynamics::IAUConventions getNutationTheory( )
+    {
+        return nutationTheory_;
+    }
+
+    std::string getEopFile( )
+    {
+        return eopFile_;
+    }
+
+    std::string getEopFileFormat( )
+    {
+        return eopFileFormat_;
+    }
+
+    boost::shared_ptr< EopCorrectionSettings > getUt1CorrectionSettings( )
+    {
+        return ut1CorrectionSettings_;
+    }
+
+    boost::shared_ptr< EopCorrectionSettings > getPolarMotionCorrectionSettings( )
+    {
+        return polarMotionCorrectionSettings_;
+    }
+
+private:
+    basic_astrodynamics::TimeScales inputTimeScale_;
+
+    basic_astrodynamics::IAUConventions nutationTheory_;
+
+    std::string eopFile_;
+
+    std::string eopFileFormat_;
+
+    boost::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings_;
+
+    boost::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings_;
+
+};
+#endif
 
 //! Function to create a rotation model.
 /*!

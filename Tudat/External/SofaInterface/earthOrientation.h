@@ -23,10 +23,13 @@ extern "C"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
-
 namespace tudat
 {
 
+namespace basic_astrodynamics
+{
+
+//! Enum of IAU conventions for Earth rotation.
 enum IAUConventions
 {
     iau_2000_a,
@@ -34,6 +37,7 @@ enum IAUConventions
     iau_2006
 };
 
+}
 namespace sofa_interface
 {
 
@@ -51,7 +55,7 @@ namespace sofa_interface
  */
 std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
         const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
-        const IAUConventions precessionNutationTheory = iau_2000_b );
+        const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2000_b );
 
 //! Function to calculate GMST according to requested IAU conventions
 /*!
@@ -67,7 +71,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
 double calculateGreenwichMeanSiderealTime(
         const double terrestrialTime, const double universalTime1,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
-        const IAUConventions iauConvention = iau_2000_b );
+        const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b );
 
 //! Function to calculate ERA (earth rotation angle)
 /*!

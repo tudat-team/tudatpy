@@ -41,7 +41,6 @@ namespace tudat
 namespace physical_constants
 {
 
-
 //! Standard gravitational acceleration at sea-level.
 const static double SEA_LEVEL_GRAVITATIONAL_ACCELERATION = 9.80665;
 

@@ -25,7 +25,7 @@ namespace earth_orientation
 
 //! Constructor for (CIO-based) precession-nutation calculation object.
 PrecessionNutationCalculator::PrecessionNutationCalculator(
-        IAUConventions precessionNutationTheory,
+        basic_astrodynamics::IAUConventions precessionNutationTheory,
         boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
         dailyCorrectionInterpolator ):
     dailyCorrectionInterpolator_( dailyCorrectionInterpolator )

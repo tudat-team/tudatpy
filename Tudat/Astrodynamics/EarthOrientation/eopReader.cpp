@@ -21,13 +21,13 @@ namespace earth_orientation
 //! Constructor
 EOPReader::EOPReader( const std::string& eopFile,
                       const std::string& format,
-                      const IAUConventions nutationTheory )
+                      const basic_astrodynamics::IAUConventions nutationTheory )
 {
     if( format != "C04" )
     {
         throw std::runtime_error( "Warning, only C04 EOP file format currently supported by reader." );
     }
-    if( !( nutationTheory == iau_2000_a || nutationTheory == iau_2006 ) )
+    if( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ) )
     {
         throw std::runtime_error( "Warning, only IAU2000 nutation theory format currently supported by reader." );
     }
