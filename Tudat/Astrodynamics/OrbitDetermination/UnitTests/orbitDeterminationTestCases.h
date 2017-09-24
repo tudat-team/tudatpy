@@ -135,7 +135,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
             ( centralBodies, accelerationModelMap, bodiesToIntegrate,
               getInitialStateVectorOfBodiesToEstimate( parametersToEstimate ),
               TimeType( finalEphemerisTime + 4.0 * maximumTimeStep ),
-              cowell, boost::shared_ptr< DependentVariableSaveSettings >( ), 600.0 );
+              cowell, boost::shared_ptr< DependentVariableSaveSettings >( ) );
 
 
     // Define link ends

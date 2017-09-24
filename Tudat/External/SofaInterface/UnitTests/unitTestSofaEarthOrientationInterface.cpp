@@ -20,6 +20,7 @@
 
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
+#include "Tudat/Basics/timeType.h"
 
 
 namespace tudat
@@ -86,11 +87,11 @@ BOOST_AUTO_TEST_CASE( testSofaPrecessionNutation )
 BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 {
 
-    double testJulianDay1 = 2400000.5;
-    double testJulianDay2 = 54195.500754444444444;
+    double testJulianDay1 = 2400000.5 + 54195;
+    double testJulianDay2 = 0.500754444444444;
 
-    double testUt1 = 2400000.5;
-    double testUt2 = 54195.499999165813831;
+    double testUt1 = 2400000.5 + 54195;
+    double testUt2 = 0.499999165813831;
 
     // Test correct copy/translation of Sofa fortran test from cookbook (GMST not directly given in cookbook).
     {
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
 
         // Check if test data is correctly reprodcued
         double expectedAngle = 13.412417084674;
-        BOOST_CHECK_SMALL( gst - expectedAngle, 1.0E-9 );
+        BOOST_CHECK_SMALL( std::fabs( gst - expectedAngle ), 1.0E-12 );
     }
 
     // Compare direct against indirect GMST calculation.
@@ -140,10 +141,36 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
                 testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
     double expectedEarthRotationAngle = 13.318492966097;
 
-    std::cout<<expectedEarthRotationAngle<<" "<<earthRotationAngle<<" "<<
-               expectedEarthRotationAngle - earthRotationAngle<<std::endl;
+    BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedEarthRotationAngle, earthRotationAngle, 1.0E-10 );
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
+                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                 static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
+            180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( expectedEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
+
+
+    // Test ERA for negative time since J2000
+    testUt1 = basic_astrodynamics::JULIAN_DAY_ON_J2000 - 200.0;
+    testUt2 = 0.499999165813831;
+    double directEarthRotationAngle = calculateEarthRotationAngle(
+                testUt2 * physical_constants::JULIAN_DAY, testUt1 ) * 180.0 / mathematical_constants::PI;
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< double >(
+                    ( testUt2 + testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY ) * 180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-7 );
+
+    earthRotationAngle = calculateEarthRotationAngleTemplated< Time >(
+                    tudat::Time( ( testUt1 - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * 24,
+                                 static_cast< long double >( testUt2 ) * physical_constants::JULIAN_DAY_LONG ) ) *
+            180.0 / mathematical_constants::PI;
+    BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 }
 
 

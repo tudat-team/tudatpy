@@ -10,6 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
+#include "Tudat/Basics/timeType.h"
 
 
 namespace tudat
@@ -93,6 +94,27 @@ double calculateEarthRotationAngle( const double ut1, const double julianDaysEpo
 {
     return iauEra00( julianDaysEpochShift, ut1 / physical_constants::JULIAN_DAY );
 }
+
+//! Function to calculate ERA (earth rotation angle) in double precision
+template< >
+double calculateEarthRotationAngleTemplated< double >(
+        const double currentUt1 )
+{
+    return calculateEarthRotationAngle( currentUt1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+}
+
+//! Function to calculate ERA (earth rotation angle) in Time precision
+template< >
+double calculateEarthRotationAngleTemplated< Time >(
+        const Time currentUt1 )
+{
+    int hoursSinceEpoch = currentUt1.getFullPeriods( );
+    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) / 24;
+    int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
+    return calculateEarthRotationAngle( currentUt1.getSecondsIntoFullPeriod( ) + hoursIntoCurrentDay * 3600.0,
+                                        basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
+}
+
 
 }
 

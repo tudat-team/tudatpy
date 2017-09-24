@@ -62,8 +62,12 @@ double getDeltaAtFromTai( const double taiInJulianDays );
 template< typename TimeType >
 TimeType convertTAItoUTC( const TimeType taiSeconds )
 {
-    // Retrieve number of leap seconds from Sofa
+    // Retrieve number of leap seconds from Sofa, assuming TAI=UTC
     double deltaAt = getDeltaAtFromUtc( static_cast< double >( taiSeconds ) / physical_constants::JULIAN_DAY );
+
+    // Update correction in case conversion is close to leap second introduction.
+    TimeType utc = taiSeconds - static_cast< TimeType >( deltaAt );
+    deltaAt = getDeltaAtFromUtc( static_cast< double >( utc ) / physical_constants::JULIAN_DAY );
 
     // Return converted time
     return taiSeconds - static_cast< TimeType >( deltaAt );

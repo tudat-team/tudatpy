@@ -46,7 +46,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
                                                < StateScalarType, TimeType >, bodyWithReferencePoint, _1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
-    std::map< int, boost::function< StateType( const double, const StateType& ) > > stationRotationVector;
+    std::map< int, boost::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
     stationRotationVector[ 1 ] =  boost::bind( &ephemerides::transformStateToGlobalFrame
                                                < StateScalarType, TimeType >, _2, _1, bodyRotationModel );
 
