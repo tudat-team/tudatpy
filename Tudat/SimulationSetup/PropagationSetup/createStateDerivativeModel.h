@@ -96,8 +96,25 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
                         Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
         }
     }
+
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricFunction;
+    std::string globalFrameOrigin = simulation_setup::getGlobalFrameOrigin( bodyMap );
+
+    if( globalFrameOrigin == "SSB" )
+    {
+        globalFrameOriginBarycentricFunction = boost::lambda::constant(
+                    Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
+    }
+    else
+    {
+        globalFrameOriginBarycentricFunction =
+                boost::bind( &simulation_setup::Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
+                             bodyMap.at( globalFrameOrigin ), _1 );
+    }
+
     return boost::make_shared< CentralBodyData< StateScalarType, TimeType > >(
-                centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions );
+                centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions,
+                globalFrameOriginBarycentricFunction, globalFrameOrigin );
 }
 
 //! Function to create a translational state derivative model.

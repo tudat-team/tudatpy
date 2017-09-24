@@ -132,9 +132,10 @@ public:
      */
     BaseStateInterfaceImplementation(
             const std::string baseFrameId,
-            const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction ):
+            const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
+            const bool addStateFunction = 0 ):
         BaseStateInterface( baseFrameId ),
-        stateFunction_( stateFunction ){ }
+        stateFunction_( stateFunction ), stateMultiplier_( ( addStateFunction == 0 ) ? 1.0 : -1.0 ){ }
 
     //! Destructor
     ~BaseStateInterfaceImplementation( ){ }
@@ -151,7 +152,7 @@ protected:
      */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
     {
-        return stateFunction_( time ).template cast< double >( );
+        return static_cast< double >( stateMultiplier_ ) * stateFunction_( time ).template cast< double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -163,7 +164,7 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
     {
-        return stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -175,7 +176,7 @@ protected:
      */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const Time& time )
     {
-        return stateFunction_( time ).template cast< double >( );
+        return static_cast< double >( stateMultiplier_ ) * stateFunction_( time ).template cast< double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -187,13 +188,15 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
     {
-        return stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
     }
 
 private:
 
     //! Function returning frame's inertial state as a function of time.
     boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
+
+    int stateMultiplier_;
 };
 
 //! Body class representing the properties of a celestial body (natural or artificial).
@@ -216,7 +219,7 @@ public:
      */
     Body( const Eigen::Vector6d& state =
             Eigen::Vector6d::Zero( ) )
-        : currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
+        : bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
           ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
                                           "", boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
@@ -295,21 +298,44 @@ public:
     {
         if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
         {
-            if( sizeof( StateScalarType ) == 8 )
+            if( bodyIsGlobalFrameOrigin_ )
             {
-                currentState_ =
-                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
-                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
-                        template cast< double >( );
-                currentLongState_ = currentState_.template cast< long double >( );
+                if( sizeof( StateScalarType ) == 8 )
+                {
+                    currentState_ =
+                            ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                              ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                            template cast< double >( );
+                    currentLongState_ = currentState_.template cast< long double >( );
+                }
+                else
+                {
+                    currentLongState_ =
+                            ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                              ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
+                            template cast< long double >( );
+                    currentState_ = currentLongState_.template cast< double >( );
+                }
             }
             else
             {
-                currentLongState_ =
-                        ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
-                          ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
-                        template cast< long double >( );
-                currentState_ = currentLongState_.template cast< double >( );
+                currentState_.setZero( );
+                currentLongState_.setZero( );
+
+                if( sizeof( StateScalarType ) == 8 )
+                {
+                    currentBarycentricState_ =
+                            ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).
+                            template cast< double >( );
+                    currentBarycentricLongState_ = currentState_.template cast< long double >( );
+                }
+                else
+                {
+                    currentBarycentricLongState_ =
+                            ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).
+                            template cast< long double >( );
+                    currentBarycentricState_ = currentLongState_.template cast< double >( );
+                }
             }
 
             timeOfCurrentState_ = static_cast< TimeType >( time );
@@ -336,8 +362,27 @@ public:
        {
            return currentLongState_.template cast< StateScalarType >( );
        }
-
     }
+
+    template< typename StateScalarType = double, typename TimeType = double >
+    Eigen::Matrix< StateScalarType, 6, 1 > getGlobalFrameOriginBarycentricStateFromEphemeris( const TimeType time )
+    {
+        if( bodyIsGlobalFrameOrigin_ != 1 )
+        {
+            throw std::runtime_error( "Error, calling global frame origin barycentric state on body that is not global frame origin" );
+        }
+        setStateFromEphemeris< StateScalarType, TimeType >( time );
+        if( sizeof( StateScalarType ) == 8 )
+        {
+            return currentBarycentricState_.template cast< StateScalarType >( );
+        }
+        else
+        {
+            return currentBarycentricLongState_.template cast< StateScalarType >( );
+        }
+    }
+
+
 
     //! Get current state.
     /*!
@@ -1032,15 +1077,36 @@ public:
         timeOfCurrentState_ = Time( TUDAT_NAN );
     }
 
+    int getIsBodyGlobalFrameOrigin( )
+    {
+        return bodyIsGlobalFrameOrigin_;
+    }
+
+    void setIsBodyGlobalFrameOrigin( const int bodyIsGlobalFrameOrigin )
+    {
+        bodyIsGlobalFrameOrigin_ = bodyIsGlobalFrameOrigin;
+    }
+
 protected:
 
 private:
+
+    int bodyIsGlobalFrameOrigin_;
 
     //! Current state.
     Eigen::Vector6d currentState_;
 
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentLongState_;
+
+    //! Current state.
+    Eigen::Vector6d currentBarycentricState_;
+
+    //! Current state with long double precision.
+    Eigen::Matrix< long double, 6, 1 > currentBarycentricLongState_;
+
+
+
 
     //! Time at which state was last set from ephemeris
     Time timeOfCurrentState_;
@@ -1119,6 +1185,8 @@ private:
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+
+std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap );
 
 //! Function to compute the acceleration of a body, using its ephemeris and finite differences
 /*!
