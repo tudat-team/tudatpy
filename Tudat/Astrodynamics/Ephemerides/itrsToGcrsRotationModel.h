@@ -28,26 +28,26 @@ class GcrsToItrsRotationModel: public RotationalEphemeris
 {
 public:
 
-//    //! Constructor taking interpolator providing the earth orientation angles.
-//    /*!
-//     *  Constructor taking interpolator providing the earth orientation angles.
-//     *  \param anglesInterpolator Interpolator providing the earth orientation angles (dependent variable) as a function of time (independent
-//     *  variable) The return vector of the interpolator provides the values for X-nutation correction, Y-nutation correction,
-//     *  CIO-locator, earth orientation angle, x-component polar motion, y-component polar motion.
-//     */
-//    GcrsToItrsRotationModel( const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >
-//                        anglesInterpolator,
-//                        const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
-//        RotationalEphemeris( "GCRS", "ITRS" ), anglesCalculator_( NULL ), inputTimeScale_( inputTimeScale )
-//    {
-//        using namespace interpolators;
+    //    //! Constructor taking interpolator providing the earth orientation angles.
+    //    /*!
+    //     *  Constructor taking interpolator providing the earth orientation angles.
+    //     *  \param anglesInterpolator Interpolator providing the earth orientation angles (dependent variable) as a function of time (independent
+    //     *  variable) The return vector of the interpolator provides the values for X-nutation correction, Y-nutation correction,
+    //     *  CIO-locator, earth orientation angle, x-component polar motion, y-component polar motion.
+    //     */
+    //    GcrsToItrsRotationModel( const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >
+    //                        anglesInterpolator,
+    //                        const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
+    //        RotationalEphemeris( "GCRS", "ITRS" ), anglesCalculator_( NULL ), inputTimeScale_( inputTimeScale )
+    //    {
+    //        using namespace interpolators;
 
-//        // Set function binding to interpolator.
-//        functionToGetRotationAngles = boost::bind(
-//                    static_cast< Eigen::Vector6d(
-//                        interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::* )( const double )>
-//                    ( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::interpolate ), anglesInterpolator, _1 );
-//    }
+    //        // Set function binding to interpolator.
+    //        functionToGetRotationAngles = boost::bind(
+    //                    static_cast< Eigen::Vector6d(
+    //                        interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::* )( const double )>
+    //                    ( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::interpolate ), anglesInterpolator, _1 );
+    //    }
 
     //! Constructor taking class calculating earth orientation angles directly
     /*!
@@ -57,7 +57,7 @@ public:
      *  needed for correct input to EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs.
      */
     GcrsToItrsRotationModel( const boost::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator,
-                        const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
+                             const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
         RotationalEphemeris( "GCRS", "ITRS" ), anglesCalculator_( anglesCalculator ), inputTimeScale_( inputTimeScale )
 
     {
@@ -109,7 +109,7 @@ public:
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
     {
         return earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
-                                                    ephemerisTime );
+                                                                                 ephemerisTime );
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )

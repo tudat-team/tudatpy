@@ -25,11 +25,11 @@ EOPReader::EOPReader( const std::string& eopFile,
 {
     if( format != "C04" )
     {
-        throw std::runtime_error( "Warning, only C04 EOP file format currently supported by reader." );
+        throw std::runtime_error( "Error, only C04 EOP file format currently supported by reader." );
     }
     if( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ) )
     {
-        throw std::runtime_error( "Warning, only IAU2000 nutation theory format currently supported by reader." );
+        std::cerr<<( "Warning, only IAU2000 nutation theory format currently supported by reader." )<<std::endl;
     }
     readEopFile( eopFile );
 }

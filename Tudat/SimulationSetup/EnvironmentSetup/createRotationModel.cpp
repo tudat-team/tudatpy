@@ -12,10 +12,13 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #endif
+
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
+
 #if USE_SOFA
 #include "Tudat/Astrodynamics/Ephemerides/itrsToGcrsRotationModel.h"
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
@@ -137,6 +140,7 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             rotationalEphemeris = boost::make_shared< ephemerides::GcrsToItrsRotationModel >(
                         earthOrientationCalculator, gcrsToItrsRotationSettings->getInputTimeScale( ) );
 
+            break;
         }
 
     }
