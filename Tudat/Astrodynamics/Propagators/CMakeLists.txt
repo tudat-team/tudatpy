@@ -122,3 +122,8 @@ add_executable(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGAT
 setup_custom_test_program(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationCheckOnFinalStep ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif( )
+
+add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
+setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_mission_segments tudat_root_finders tudat_propagators tudat_basic_astrodynamics tudat_input_output ${Boost_LIBRARIES})
+

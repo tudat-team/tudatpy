@@ -73,8 +73,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
         {
-            boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                    "The vectors used in the linear interpolator initialization are empty." ) ) );
+            throw std::runtime_error(
+                    "The vectors used in the linear interpolator initialization are empty." );
         }
 
         // Resize data vectors of independent/dependent values.
@@ -114,8 +114,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
         {
-            boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                    "The vectors used in the linear interpolator initialization are empty." ) ) );
+            throw std::runtime_error(
+                    "The vectors used in the linear interpolator initialization are empty." );
         }
 
         // Set data vectors.
