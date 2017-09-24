@@ -444,7 +444,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
 
     for( unsigned testCase = 0; testCase < testEccentricities.size( ); testCase++ )
     {
-        std::cout<<"Testint with eccentricity "<<testEccentricities.at( testCase );
         // Set simulation end epoch.
         const double simulationEndEpoch = 2.0 * tudat::physical_constants::JULIAN_DAY;
 

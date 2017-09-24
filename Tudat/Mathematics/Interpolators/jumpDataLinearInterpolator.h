@@ -110,11 +110,10 @@ public:
 
         // Fill data vectors with data from map.
         int counter = 0;
-        for( typename std::map< IndependentVariableType, DependentVariableType >::iterator mapIterator = dataMap.begin( );
-             mapIterator != dataMap.end( ); mapIterator++ )
+        for( auto entry : dataMap )
         {
-            independentValues_[ counter ] = mapIterator->first;
-            dependentValues_[ counter ] = mapIterator->second;
+            independentValues_[ counter ] = entry.first;
+            dependentValues_[ counter ] = entry.second;
             counter++;
         }
 

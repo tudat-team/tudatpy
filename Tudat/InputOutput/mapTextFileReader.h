@@ -28,7 +28,6 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
 
 #include "Eigen/Core"
 
@@ -111,11 +110,7 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile(
     std::fstream file( relativePath.c_str( ), std::ios::in );
     if ( file.fail( ) )
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                        boost::str(
-                            boost::format( "Data file '%s' could not be opened." )
-                            % relativePath.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + relativePath );
     }
 
     std::stringstream filteredStream( std::ios::in | std::ios::out );
