@@ -28,6 +28,44 @@ namespace tudat
 namespace utilities
 {
 
+//! Function to recalculate map keys as a linear function of original map keys.
+/*!
+ *  Function to recalculate map keys as a linear function of original map keys, i.e. new map key is constant * old key - offset or
+ *  ( old key - offset ) * constant, where the choise between these two is provided by an input boolean.
+ *  \param originalMap Orignal, unscaled map
+ *  \param offset Offset that is to be applied to (subtracted from) map keys
+ *  \param scale Value by which existing map keys are to be scaled (either before or agter application of offset variabled, depending on value
+ *  of isOffsetAppliedFirst input variable)
+ *  \param isOffsetAppliedFirst Boolean denoting order in which offset and scale are to be applied to existing map keys.
+ */
+template< typename S, typename T >
+std::map< S, T > linearlyScaleKeyOfMap(
+        const std::map< S, T >& originalMap, S offset, S scale, bool isOffsetAppliedFirst = true )
+{
+    // Declare new map
+    std::map< S, T > scaledMap;
+    double newKey;
+
+    // Iterate over old map and calculate new key values.
+    for( typename std::map< S, T >::const_iterator mapIterator = originalMap.begin( ); mapIterator != originalMap.end( ); mapIterator++ )
+    {
+        // Determine order in which modifications are to be applied
+        if( isOffsetAppliedFirst )
+        {
+            newKey = ( mapIterator->first - offset ) * scale;
+        }
+        else
+        {
+            newKey = mapIterator->first * scale - offset;
+
+        }
+
+        // Set scalted map key with corresponding value in new map
+        scaledMap[ newKey ] = mapIterator->second;
+    }
+    return scaledMap;
+}
+
 //! Function to create a vector from the values of a map
 /*!
  *  Function to create a vector from the values of a map. The output vector is in the order of the map entries, i.e. as provided by a forward iterator.

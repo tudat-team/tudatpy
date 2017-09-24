@@ -225,7 +225,7 @@ private:
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->setCurrentRotationalStateToLocalFrameFromEphemeris(
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
                                 currentTime );
                 }
                 break;
@@ -489,7 +489,7 @@ private:
                             {
                                 boost::function< void( const TimeType ) > rotationalStateSetFunction =
                                         boost::bind( &simulation_setup::Body
-                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris,
+                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >,
                                                      bodyList_.at( currentBodies.at( i ) ), _1 );
                                 updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                             std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );

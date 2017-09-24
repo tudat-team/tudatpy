@@ -468,11 +468,12 @@ public:
      * global frame) at given time, using the rotationalEphemeris_ member object.
      * \param time Time at which the angular velocity vector in the global frame is to be retrieved.
      */
-    void setCurrentRotationalStateToLocalFrameFromEphemeris( const double time )
+    template< typename TimeType >
+    void setCurrentRotationalStateToLocalFrameFromEphemeris( const TimeType time )
     {
         if( rotationalEphemeris_!= NULL )
         {
-            rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrame(
+            rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
                         currentAngularVelocityVectorInGlobalFrame_, time );
         }
