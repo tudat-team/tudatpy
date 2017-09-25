@@ -4,6 +4,7 @@
   "globalFrameOrigin": "SSB",
   "globalFrameOrientation": "J2000",
   "spice": {
+    "preloadEphemeris": false,
     "useStandardKernels": true
   },
   "bodies": {
@@ -293,285 +294,347 @@
       }
     }
   },
-  "propagator": {
-    "centralBodies": [
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth",
-      "Earth"
-    ],
-    "accelerations": {
-      "Satellite1": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
+  "propagators": [
+    {
+      "centralBodies": [
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth",
+        "Earth"
+      ],
+      "accelerations": {
+        "Satellite1": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite2": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite3": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite4": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite5": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite6": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite7": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite8": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite9": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite10": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite11": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite12": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite13": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite14": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite15": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite16": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite17": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite18": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite19": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite20": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite21": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite22": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite23": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite24": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite25": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite26": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite27": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite28": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite29": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
+        },
+        "Satellite30": {
+          "Earth": [
+            {
+              "maximumDegree": 4,
+              "maximumOrder": 0,
+              "type": "sphericalHarmonicGravity"
+            }
+          ]
         }
       },
-      "Satellite2": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite3": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite4": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite5": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite6": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite7": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite8": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite9": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite10": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite11": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite12": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite13": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite14": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite15": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite16": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite17": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite18": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite19": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite20": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite21": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite22": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite23": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite24": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite25": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite26": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite27": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite28": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite29": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      },
-      "Satellite30": {
-        "Earth": {
-          "maximumDegree": 4,
-          "maximumOrder": 0,
-          "type": "sphericalHarmonicGravity"
-        }
-      }
-    },
-    "integratedStateType": "translational",
-    "bodiesToPropagate": [
-      "Satellite1",
-      "Satellite2",
-      "Satellite3",
-      "Satellite4",
-      "Satellite5",
-      "Satellite6",
-      "Satellite7",
-      "Satellite8",
-      "Satellite9",
-      "Satellite10",
-      "Satellite11",
-      "Satellite12",
-      "Satellite13",
-      "Satellite14",
-      "Satellite15",
-      "Satellite16",
-      "Satellite17",
-      "Satellite18",
-      "Satellite19",
-      "Satellite20",
-      "Satellite21",
-      "Satellite22",
-      "Satellite23",
-      "Satellite24",
-      "Satellite25",
-      "Satellite26",
-      "Satellite27",
-      "Satellite28",
-      "Satellite29",
-      "Satellite30"
-    ]
-  },
+      "integratedStateType": "translational",
+      "bodiesToPropagate": [
+        "Satellite1",
+        "Satellite2",
+        "Satellite3",
+        "Satellite4",
+        "Satellite5",
+        "Satellite6",
+        "Satellite7",
+        "Satellite8",
+        "Satellite9",
+        "Satellite10",
+        "Satellite11",
+        "Satellite12",
+        "Satellite13",
+        "Satellite14",
+        "Satellite15",
+        "Satellite16",
+        "Satellite17",
+        "Satellite18",
+        "Satellite19",
+        "Satellite20",
+        "Satellite21",
+        "Satellite22",
+        "Satellite23",
+        "Satellite24",
+        "Satellite25",
+        "Satellite26",
+        "Satellite27",
+        "Satellite28",
+        "Satellite29",
+        "Satellite30"
+      ]
+    }
+  ],
   "integrator": {
     "type": "rungeKutta4",
     "stepSize": 30

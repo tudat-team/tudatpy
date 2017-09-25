@@ -51,46 +51,54 @@
       }
     }
   },
-  "propagator": {
-    "centralBodies": [
-      "Earth"
-    ],
-    "accelerations": {
-      "asterix": {
-        "Earth": [
-          {
-            "maximumDegree": 5,
-            "maximumOrder": 5,
-            "type": "sphericalHarmonicGravity"
-          },
-          {
-            "type": "aerodynamic"
-          }
-        ],
-        "Sun": [
-          {
-            "type": "pointMassGravity"
-          },
-          {
-            "type": "cannonBallRadiationPressure"
-          }
-        ],
-        "Moon": {
-          "type": "pointMassGravity"
-        },
-        "Mars": {
-          "type": "pointMassGravity"
-        },
-        "Venus": {
-          "type": "pointMassGravity"
+  "propagators": [
+    {
+      "centralBodies": [
+        "Earth"
+      ],
+      "accelerations": {
+        "asterix": {
+          "Earth": [
+            {
+              "maximumDegree": 5,
+              "maximumOrder": 5,
+              "type": "sphericalHarmonicGravity"
+            },
+            {
+              "type": "aerodynamic"
+            }
+          ],
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            },
+            {
+              "type": "cannonBallRadiationPressure"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
         }
-      }
-    },
-    "integratedStateType": "translational",
-    "bodiesToPropagate": [
-      "asterix"
-    ]
-  },
+      },
+      "integratedStateType": "translational",
+      "bodiesToPropagate": [
+        "asterix"
+      ]
+    }
+  ],
   "integrator": {
     "type": "rungeKutta4",
     "stepSize": 10

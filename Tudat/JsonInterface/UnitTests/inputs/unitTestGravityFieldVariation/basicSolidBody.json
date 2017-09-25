@@ -1,5 +1,7 @@
 {
-  "deformingBodies": "Moon",
+  "deformingBodies": [
+    "Moon"
+  ],
   "loveNumbers": [
     [
       "(1,2)",
