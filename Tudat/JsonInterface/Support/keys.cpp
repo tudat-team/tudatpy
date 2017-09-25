@@ -81,7 +81,8 @@ const std::string Keys::Body::State::vx = "vx";
 const std::string Keys::Body::State::vy = "vy";
 const std::string Keys::Body::State::vz = "vz";
 // Keplerian
-const std::string Keys::Body::State::centralBody = "centralBody";
+const std::string Keys::Body::State::centralBodyGravitationalParameter = "centralBodyGravitationalParameter";
+const std::string Keys::Body::State::centralBodyAverageRadius = "centralBodyAverageRadius";
 const std::string Keys::Body::State::semiMajorAxis = "semiMajorAxis";
 const std::string Keys::Body::State::eccentricity = "eccentricity";
 const std::string Keys::Body::State::inclination = "inclination";
