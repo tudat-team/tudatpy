@@ -35,30 +35,34 @@
       "mass": 5000
     }
   },
-  "propagator": [
+  "propagators": [
     {
       "centralBodies": [
         "Earth"
       ],
       "accelerations": {
         "vehicle": {
-          "Earth": {
-            "type": "pointMassGravity"
-          },
-          "vehicle": {
-            "dataInterpolation": {
-              "data": {
-                "file": "@path(thrustValues.txt)"
+          "Earth": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "vehicle": [
+            {
+              "dataInterpolation": {
+                "data": {
+                  "file": "@path(thrustValues.txt)"
+                },
+                "interpolator": {
+                  "type": "linear"
+                }
               },
-              "interpolator": {
-                "type": "linear"
-              }
-            },
-            "specificImpulse": 3000,
-            "frame": "lvlh",
-            "centralBody": "Earth",
-            "type": "thrust"
-          }
+              "specificImpulse": 3000,
+              "frame": "lvlh",
+              "centralBody": "Earth",
+              "type": "thrust"
+            }
+          ]
         }
       },
       "integratedStateType": "translational",
@@ -68,9 +72,11 @@
     },
     {
       "massRateModels": {
-        "vehicle": {
-          "type": "fromThrust"
-        }
+        "vehicle": [
+          {
+            "type": "fromThrust"
+          }
+        ]
       },
       "integratedStateType": "mass",
       "bodiesToPropagate": [
