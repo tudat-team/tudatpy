@@ -52,7 +52,12 @@ static std::map< AvailableAcceleration, std::string > accelerationTypes =
 };
 
 //! `AvailableAcceleration`s not supported by `json_interface`.
-static std::vector< AvailableAcceleration > unsupportedAccelerationTypes = { };
+static std::vector< AvailableAcceleration > unsupportedAccelerationTypes =
+{
+    third_body_point_mass_gravity,
+    third_body_spherical_harmonic_gravity,
+    third_body_mutual_spherical_harmonic_gravity
+};
 
 //! Convert `AvailableAcceleration` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableAcceleration& accelerationType )

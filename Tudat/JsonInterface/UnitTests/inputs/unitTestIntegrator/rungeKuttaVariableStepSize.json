@@ -1,0 +1,13 @@
+{
+  "initialStepSize": 1.4,
+  "rungeKuttaCoefficientSet": "rungeKuttaFehlberg78",
+  "minimumStepSize": 0.4,
+  "maximumStepSize": 2.4,
+  "relativeErrorTolerance": 0.0001,
+  "absoluteErrorTolerance": 0.01,
+  "safetyFactorForNextStepSize": 2,
+  "maximumFactorIncreaseForNextStepSize": 10,
+  "minimumFactorDecreaseForNextStepSize": 0.1,
+  "type": "rungeKuttaVariableStepSize",
+  "initialTime": -0.3
+}

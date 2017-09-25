@@ -88,6 +88,8 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
     jsonObject[ K::type ] = integratorType;
     jsonObject[ K::initialTime ] = integratorSettings->initialTime_;
     jsonObject[ K::saveFrequency ] = integratorSettings->saveFrequency_;
+    jsonObject[ K::assessPropagationTerminationConditionDuringIntegrationSubsteps ] =
+            integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_;
 
     switch ( integratorType )
     {
@@ -154,7 +156,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
         RungeKuttaVariableStepSizeSettings< TimeType > defaults(
                     integratorType, 0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
 
-        RungeKuttaVariableStepSizeSettings< TimeType > rkSettings(
+        integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
                     integratorType,
                     initialTime,
                     getValue< TimeType >( jsonObject, K::initialStepSize ),
@@ -172,8 +174,6 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
                               defaults.maximumFactorIncreaseForNextStepSize_ ),
                     getValue( jsonObject, K::minimumFactorDecreaseForNextStepSize,
                               defaults.minimumFactorDecreaseForNextStepSize_ ) );
-
-        integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >( rkSettings );
         return;
     }
     default:

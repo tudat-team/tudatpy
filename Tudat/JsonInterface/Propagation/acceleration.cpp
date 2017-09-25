@@ -128,33 +128,16 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     // Get acceleration type
     const AvailableAcceleration accelerationType = getValue< AvailableAcceleration >( jsonObject, K::type );
 
-    if ( accelerationType == third_body_point_mass_gravity ||
-         accelerationType == third_body_spherical_harmonic_gravity ||
-         accelerationType == third_body_mutual_spherical_harmonic_gravity )
-    {
-        std::cerr << "Whether a body will cause a third-body acceleration is determined internally "
-                  << "by Tudat based on the propagation settings.\nRemove \"thirdBody\" from \""
-                  << stringFromEnum( accelerationType, accelerationTypes )
-                  << "\" at key " << getKeyPath( jsonObject )
-                  << " to silence this warning." << std::endl;
-    }
-
     switch ( accelerationType ) {
     case undefined_acceleration:
+    case point_mass_gravity:
     case aerodynamic:
     case cannon_ball_radiation_pressure:
     {
         accelerationSettings = boost::make_shared< AccelerationSettings >( accelerationType );
         return;
     }
-    case point_mass_gravity:
-    case third_body_point_mass_gravity:
-    {
-        accelerationSettings = boost::make_shared< AccelerationSettings >( point_mass_gravity );
-        return;
-    }
     case spherical_harmonic_gravity:
-    case third_body_spherical_harmonic_gravity:
     {
         accelerationSettings = boost::make_shared< SphericalHarmonicAccelerationSettings >(
                     getValue< int >( jsonObject, K::maximumDegree ),
@@ -162,7 +145,6 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
         return;
     }
     case mutual_spherical_harmonic_gravity:
-    case third_body_mutual_spherical_harmonic_gravity:
     {
         MutualSphericalHarmonicAccelerationSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
         accelerationSettings = boost::make_shared< MutualSphericalHarmonicAccelerationSettings >(
@@ -175,8 +157,10 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
         return;
     }
     case thrust_acceleration:
+    {
         accelerationSettings = getAs< boost::shared_ptr< ThrustAccelerationSettings > >( jsonObject );
         return;
+    }
     case relativistic_correction_acceleration:
     {
         RelativisticAccelerationCorrectionSettings defaults;
@@ -200,7 +184,16 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
         return;
     }
     default:
+    {
+        if ( accelerationType == third_body_point_mass_gravity ||
+             accelerationType == third_body_spherical_harmonic_gravity ||
+             accelerationType == third_body_mutual_spherical_harmonic_gravity )
+        {
+            std::cerr << "Whether a body will cause a third-body acceleration is determined internally "
+                      << "by Tudat based on the propagation settings." << std::endl;
+        }
         handleUnimplementedEnumValue( accelerationType, accelerationTypes, unsupportedAccelerationTypes );
+    }
     }
 }
 

@@ -11,14 +11,13 @@
 #ifndef TUDAT_JSONINTERFACE_PROPAGATOR_H
 #define TUDAT_JSONINTERFACE_PROPAGATOR_H
 
-#include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
 #include <Tudat/SimulationSetup/PropagationSetup/propagationSettings.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h>
 
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 
 #include "termination.h"
+#include "state.h"
 #include "variable.h"
 #include "acceleration.h"
 #include "massRateModel.h"
@@ -30,38 +29,6 @@ namespace tudat
 
 namespace json_interface
 {
-
-// StateType
-
-//! Possible ways of providing initial translational states.
-enum StateType
-{
-    cartesianComponents,
-    keplerianComponents
-};
-
-//! Map of `StateType` string representations.
-static std::map< StateType, std::string > stateTypes =
-{
-    { cartesianComponents, "cartesian" },
-    { keplerianComponents, "keplerian" }
-};
-
-//! `StateType` not supported by `json_interface`.
-static std::vector< StateType > unsupportedStateTypes = { };
-
-//! Convert `StateType` to `json`.
-inline void to_json( nlohmann::json& jsonObject, const StateType& stateType )
-{
-    jsonObject = json_interface::stringFromEnum( stateType, stateTypes );
-}
-
-//! Convert `json` to `StateType`.
-inline void from_json( const nlohmann::json& jsonObject, StateType& stateType )
-{
-    stateType = json_interface::enumFromString( jsonObject, stateTypes );
-}
-
 
 //! Get the associated key (defined in a body JSON object) for an integrated state.
 /*!
@@ -104,10 +71,8 @@ void determineInitialStates(
 {
     using namespace propagators;
     using namespace basic_astrodynamics;
-    using namespace orbital_element_conversions;
     using namespace simulation_setup;
-    using KP = Keys::Propagator;
-    using KS = Keys::Body::State;
+    using K = Keys::Propagator;
 
     // Get propagators
     nlohmann::json jsonPropagators = jsonObject.at( Keys::propagators );
@@ -117,10 +82,10 @@ void determineInitialStates(
     if ( jsonPropagators.size( ) == 1 )
     {
         nlohmann::json& jsonPropagator = jsonPropagators.front( );
-        if ( ! isDefined( jsonPropagator, KP::initialStates ) )
+        if ( ! isDefined( jsonPropagator, K::initialStates ) )
         {
             const IntegratedStateType integratedStateType =
-                    getValue( jsonPropagator, KP::integratedStateType, translational_state );
+                    getValue( jsonPropagator, K::integratedStateType, translational_state );
 
             if ( integratedStateType == translational_state )
             {
@@ -128,11 +93,11 @@ void determineInitialStates(
                 {
                     const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
                             getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                getValue< std::vector< std::string > >( jsonPropagator, KP::bodiesToPropagate ),
-                                getValue< std::vector< std::string > >( jsonPropagator, KP::centralBodies ),
+                                getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate ),
+                                getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ),
                                 bodyMap,
                                 integratorSettings->initialTime_ );
-                    jsonPropagator[ KP::initialStates ] = initialStates;
+                    jsonPropagator[ K::initialStates ] = initialStates;
                     usedEphemeris = true;
                 } catch ( ... ) { }
             }
@@ -144,11 +109,11 @@ void determineInitialStates(
         // Update propagators at jsonObject with initial states stored at JSON bodies settings
         for ( nlohmann::json& jsonPropagator : jsonPropagators )
         {
-            if ( ! isDefined( jsonPropagator, KP::initialStates ) )
+            if ( ! isDefined( jsonPropagator, K::initialStates ) )
             {
                 // Integrated state type
                 const IntegratedStateType integratedStateType =
-                        getValue( jsonPropagator, KP::integratedStateType, translational_state );
+                        getValue( jsonPropagator, K::integratedStateType, translational_state );
 
                 // State size and associated stateKey
                 const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
@@ -156,7 +121,7 @@ void determineInitialStates(
 
                 // Bodies to propagate
                 const std::vector< std::string > bodiesToPropagate =
-                        getValue< std::vector< std::string > >( jsonPropagator, KP::bodiesToPropagate );
+                        getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate );
 
                 // System initial state
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
@@ -166,226 +131,28 @@ void determineInitialStates(
                 // Get state for each body
                 for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
                 {
-                    const std::string bodyName = bodiesToPropagate.at( i );
-                    const KeyPath stateKeyPath = Keys::bodies / bodyName / stateKey;
-                    const nlohmann::json jsonState = getValue< nlohmann::json >( jsonObject, stateKeyPath );
+                    const KeyPath stateKeyPath = Keys::bodies / bodiesToPropagate.at( i ) / stateKey;
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState;
-
-                    // Instead of a vector, an object can be used to provide initial translational state
-                    if ( integratedStateType == translational_state && jsonState.is_object( ) )
+                    if ( integratedStateType == translational_state )
                     {
-                        const StateType stateType = getValue< StateType >( jsonState, KS::type );
-                        switch ( stateType ) {
-                        case cartesianComponents:
-                        {
-                            bodyState = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( stateSize );
-                            updateFromJSONIfDefined( bodyState( xCartesianPositionIndex ), jsonState, KS::x );
-                            updateFromJSONIfDefined( bodyState( yCartesianPositionIndex ), jsonState, KS::y );
-                            updateFromJSONIfDefined( bodyState( zCartesianPositionIndex ), jsonState, KS::z );
-                            updateFromJSONIfDefined( bodyState( xCartesianVelocityIndex ), jsonState, KS::vx );
-                            updateFromJSONIfDefined( bodyState( yCartesianVelocityIndex ), jsonState, KS::vy );
-                            updateFromJSONIfDefined( bodyState( zCartesianVelocityIndex ), jsonState, KS::vz );
-                            break;
-                        }
-                        case keplerianComponents:
-                        {
-                            // Get central body
-                            std::string centralBodyName;
-                            if ( isDefined( jsonState, KS::centralBody ) )
-                            {
-                                centralBodyName = getValue< std::string >( jsonState, KS::centralBody );
-                            }
-                            else
-                            {
-                                centralBodyName = getValue< std::vector< std::string > >(
-                                            jsonPropagator, KP::centralBodies ).at( i );
-                            }
-                            const boost::shared_ptr< Body > centralBody = bodyMap.at( centralBodyName );
-                            const double mu = centralBody->getGravityFieldModel( )->getGravitationalParameter( );
-                            const double R = centralBody->getShapeModel( )->getAverageRadius( );
-                            bool usedAverageRadius = false;
-
-
-                            // Detemrine semiMajorAxis, eccentricity, argumentOfPeriapsis
-
-                            StateScalarType semiMajorAxis = TUDAT_NAN;
-                            StateScalarType eccentricity = TUDAT_NAN;
-                            StateScalarType argumentOfPeriapsis = TUDAT_NAN;
-
-                            if ( isDefined( jsonState, KS::radius ) || isDefined( jsonState, KS::altitude ) )  // circular
-                            {
-                                if ( isDefined( jsonState, KS::altitude ) )
-                                {
-                                    semiMajorAxis = R + getValue< StateScalarType >( jsonState, KS::altitude );
-                                    usedAverageRadius = true;
-                                }
-                                else
-                                {
-                                    semiMajorAxis = getValue< StateScalarType >( jsonState, KS::radius );
-                                }
-                                eccentricity = 0.0;
-                                argumentOfPeriapsis = 0.0;
-                            }
-                            else  // generic
-                            {
-                                argumentOfPeriapsis = getValue< StateScalarType >( jsonState, KS::argumentOfPeriapsis, 0.0 );
-
-                                if ( isDefined( jsonState, KS::apoapsisDistance ) || isDefined( jsonState, KS::apoapsisAltitude ) ||
-                                     isDefined( jsonState, KS::periapsisDistance ) || isDefined( jsonState, KS::periapsisAltitude ) )
-                                {
-                                    StateScalarType apoapsisDistance = TUDAT_NAN;
-                                    if ( isDefined( jsonState, KS::apoapsisAltitude ) )
-                                    {
-                                        apoapsisDistance = R + getValue< StateScalarType >( jsonState, KS::apoapsisAltitude );
-                                        usedAverageRadius = true;
-                                    }
-                                    else if ( isDefined( jsonState, KS::apoapsisDistance ) )
-                                    {
-                                        apoapsisDistance = getValue< StateScalarType >( jsonState, KS::apoapsisDistance );
-                                    }
-
-                                    StateScalarType periapsisDistance = TUDAT_NAN;
-                                    if ( isDefined( jsonState, KS::periapsisAltitude ) )
-                                    {
-                                        periapsisDistance = R + getValue< StateScalarType >( jsonState, KS::periapsisAltitude );
-                                        usedAverageRadius = true;
-                                    }
-                                    else if ( isDefined( jsonState, KS::periapsisDistance ) )
-                                    {
-                                        periapsisDistance = getValue< StateScalarType >( jsonState, KS::periapsisDistance );
-                                    }
-
-                                    if ( ! isNaN( apoapsisDistance) && ! isNaN( periapsisDistance ) )
-                                    {
-                                        // r_a, r_p -> a, e
-                                        semiMajorAxis = ( apoapsisDistance + periapsisDistance ) / 2.0;
-                                        eccentricity = ( apoapsisDistance - periapsisDistance ) / ( 2.0 * semiMajorAxis );
-                                    }
-                                    else if ( ! isNaN( apoapsisDistance) )
-                                    {
-                                        if ( isDefined( jsonState, KS::semiMajorAxis ) )
-                                        {
-                                            semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
-                                            // r_a, a -> e
-                                            eccentricity = apoapsisDistance / semiMajorAxis - 1.0;
-                                        }
-                                        else
-                                        {
-                                            eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity );
-                                            // r_a, e -> a
-                                            semiMajorAxis = apoapsisDistance / ( 1.0 + eccentricity );
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ( isDefined( jsonState, KS::semiMajorAxis ) )
-                                        {
-                                            semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
-                                            // r_p, a -> e
-                                            eccentricity = 1.0 - periapsisDistance / semiMajorAxis;
-                                        }
-                                        else
-                                        {
-                                            eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity );
-                                            // r_p, e -> a
-                                            semiMajorAxis = periapsisDistance / ( 1.0 - eccentricity );
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    eccentricity = getValue< StateScalarType >( jsonState, KS::eccentricity, 0.0 );
-
-                                    if ( isDefined( jsonState, KS::semiLatusRectum ) )
-                                    {
-                                        semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiLatusRectum ) /
-                                                ( 1.0 - std::pow( eccentricity, 2.0 ) );
-                                    }
-                                    else if ( isDefined( jsonState, KS::meanMotion ) || isDefined( jsonState, KS::period ) )
-                                    {
-                                        StateScalarType meanMotion;
-                                        if ( isDefined( jsonState, KS::meanMotion ) )
-                                        {
-                                            meanMotion = getValue< StateScalarType >( jsonState, KS::meanMotion );
-                                        }
-                                        else
-                                        {
-                                            meanMotion = 2.0 * M_PI / getValue< StateScalarType >( jsonState, KS::period );
-                                        }
-                                        semiMajorAxis = std::pow( ( mu / std::pow( meanMotion, 2.0 ) ), 1.0/3.0 );
-                                    }
-                                    else
-                                    {
-                                        semiMajorAxis = getValue< StateScalarType >( jsonState, KS::semiMajorAxis );
-                                    }
-                                }
-                            }
-
-
-                            // Determine inclination, longitudeOfAscendingNode
-
-                            StateScalarType inclination = getValue< StateScalarType >( jsonState, KS::inclination, 0.0 );
-                            StateScalarType longitudeOfAscendingNode = getValue< StateScalarType >( jsonState, KS::longitudeOfAscendingNode, 0.0 );
-
-
-                            // Determine trueAnomaly
-
-                            StateScalarType trueAnomaly;
-                            if ( isDefined( jsonState, KS::meanAnomaly ) || isDefined( jsonState, KS::eccentricAnomaly ) )
-                            {
-                                StateScalarType eccentricAnomaly;
-                                if ( isDefined( jsonState, KS::meanAnomaly ) )
-                                {
-                                    eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
-                                                eccentricity,
-                                                getValue< StateScalarType >( jsonState, KS::meanAnomaly ) );
-                                }
-                                else
-                                {
-                                    eccentricAnomaly = getValue< StateScalarType >( jsonState, KS::eccentricAnomaly );
-                                }
-                                trueAnomaly = convertEccentricAnomalyToTrueAnomaly( eccentricAnomaly, eccentricity );
-                            }
-                            else
-                            {
-                                trueAnomaly = getValue< StateScalarType >( jsonState, KS::trueAnomaly, 0.0 );
-                            }
-
-
-                            // Full state
-
-                            Eigen::Matrix< StateScalarType, 6, 1 > keplerianElements;
-                            keplerianElements( semiMajorAxisIndex ) = semiMajorAxis;
-                            keplerianElements( eccentricityIndex ) = eccentricity;
-                            keplerianElements( inclinationIndex ) = inclination;
-                            keplerianElements( argumentOfPeriapsisIndex ) = argumentOfPeriapsis;
-                            keplerianElements( longitudeOfAscendingNodeIndex ) = longitudeOfAscendingNode;
-                            keplerianElements( trueAnomalyIndex ) = trueAnomaly;
-
-                            if ( usedAverageRadius && ! boost::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
-                            {
-                                std::cerr << "Using average radius of a non-spherical body (" << centralBodyName
-                                          << ") to determine the initial state of " << bodyName << "." << std::endl;
-                            }
-
-                            // Convert to Cartesian elements
-                            bodyState = convertKeplerianToCartesianElements( keplerianElements, mu );
-                            break;
-                        }
-                        default:
-                            handleUnimplementedEnumValue( stateType, stateTypes, unsupportedStateTypes );
-                        }
+                        const std::string centralBodyName = getValue< std::vector< std::string > >(
+                                    jsonPropagator, K::centralBodies ).at( i );
+                        bodyState = getCartesianState< StateScalarType >(
+                                    jsonObject,
+                                    stateKeyPath,
+                                    bodyMap.at( centralBodyName )->getGravityFieldModel( )->getGravitationalParameter( ),
+                                    bodyMap.at( centralBodyName )->getShapeModel( )->getAverageRadius( ) );
                     }
-                    else  // could not get the state as Cartesian, Keplerian components... then try to convert directly
+                    else
                     {
-                        bodyState = getAs< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonState );
+                        bodyState = getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
+                                    jsonObject, stateKeyPath );
                     }
-
-                    // Update initial states segment for current body
                     initialStates.segment( i * stateSize, stateSize ) = bodyState;
                 }
 
-                jsonPropagator[ KP::initialStates ] = initialStates;
+                // Update system initial states
+                jsonPropagator[ K::initialStates ] = initialStates;
             }
         }
     }

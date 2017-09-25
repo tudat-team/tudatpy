@@ -85,7 +85,7 @@ void checkConsistentEnum( const std::string& filename,
 
     // Check that values and supportedValues are equivalent
     const std::vector< Enum > values = parseJSONFile< std::vector< Enum > >( filename );
-    BOOST_CHECK_EQUAL_JSON( values, supportedValues );
+    BOOST_CHECK( containsAllOf( values, supportedValues ) && containsAllOf( supportedValues, values ) );
 }
 
 #define BOOST_CHECK_EQUAL_ENUM( filename, stringValues, usupportedValues ) \

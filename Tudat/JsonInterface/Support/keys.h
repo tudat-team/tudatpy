@@ -74,7 +74,8 @@ struct Keys
             static const std::string vy;
             static const std::string vz;
             // Keplerian
-            static const std::string centralBody;
+            static const std::string centralBodyGravitationalParameter;
+            static const std::string centralBodyAverageRadius;
             static const std::string semiMajorAxis;
             static const std::string eccentricity;
             static const std::string inclination;
