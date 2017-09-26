@@ -122,9 +122,12 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
+            //std::cout<<"Updating 3rd body per."<<std::endl;
             // Update two constituent acceleration models.
             accelerationModelForBodyUndergoingAcceleration_->updateMembers( currentTime );
             accelerationModelForCentralBody_->updateMembers( currentTime );
+            //std::cout<<"Finished updating 3rd body per."<<std::endl<<std::endl;
+
         }
     }
 

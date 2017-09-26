@@ -210,11 +210,11 @@ public:
         this->convertToOutputSolution( internalSolution, time, currentCartesianLocalSoluton );
 
         centralBodyData_->getReferenceFrameOriginInertialStates(
-                    currentCartesianLocalSoluton, time, centralBodyInertialStates_, true );
+                    currentCartesianLocalSoluton, time, centralBodyStatesWrtGlobalOrigin_, true );
 
-        for( unsigned int i = 0; i < centralBodyInertialStates_.size( ); i++ )
+        for( unsigned int i = 0; i < centralBodyStatesWrtGlobalOrigin_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyInertialStates_[ i ];
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyStatesWrtGlobalOrigin_[ i ];
         }
     }
 
@@ -386,6 +386,7 @@ protected:
             {
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
+                    //std::cout<<"Getting acceleration "<<outerAccelerationIterator->first<<" "<<innerAccelerationIterator->first<<std::endl;
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
                                 innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
@@ -437,7 +438,7 @@ protected:
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
     //! List of states of teh central bodies of the propagated bodies.
-    std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates_;
+    std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 };
 
 } // namespace propagators

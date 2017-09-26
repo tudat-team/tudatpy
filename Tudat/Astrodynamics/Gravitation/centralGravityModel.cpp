@@ -9,6 +9,7 @@
  *
  */
 
+#include <iomanip>
 #include <cmath>
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
@@ -37,6 +38,11 @@ Eigen::Vector3d computeGravitationalAcceleration(
         const double gravitationalParameterOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
+//    std::cout<<"Calculating gravity "<<std::endl<<std::setprecision( 8 )<<
+//              positionOfBodySubjectToAcceleration.transpose( )<<" "<<std::endl<<
+//                positionOfBodyExertingAcceleration.transpose( )<<" "<<std::endl<<
+//                ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).transpose( )<<" "<<std::endl<<
+//               gravitationalParameterOfBodyExertingAcceleration<<std::endl<<std::endl;
     double distance = ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( );
     return -gravitationalParameterOfBodyExertingAcceleration
             * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )

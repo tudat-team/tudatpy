@@ -63,6 +63,8 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;

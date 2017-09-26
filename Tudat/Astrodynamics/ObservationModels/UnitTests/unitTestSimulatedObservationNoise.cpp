@@ -73,6 +73,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
