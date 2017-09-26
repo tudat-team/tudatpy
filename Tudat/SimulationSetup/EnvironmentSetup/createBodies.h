@@ -116,6 +116,8 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
     std::string rotationModelFrame;
 
     std::vector< std::string > globalFrameOriginChain;
+
+    // Get chain of ephemeris frame origins of global frame origin (if it is not SSB
     if( globalFrameOrigin != "SSB" )
     {
         if( bodyMap.count( globalFrameOrigin ) == 0 )
@@ -178,6 +180,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
             // Check if ephemeris origin differs from global origin.
             if( ephemerisFrameOrigin != globalFrameOrigin )
             {
+                // Make correction to SSB if it is global frame origin
                 if( globalFrameOrigin == "SSB" )
                 {
                     // Check if correction can be made
@@ -199,8 +202,10 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                         bodyIterator->second->setEphemerisFrameToBaseFrame( baseStateInterface );
                     }
                 }
+                // Make correction to global frame origin (if not SSB)
                 else
                 {
+                    // Set barycentric state function of global frame origin
                     if( globalFrameOrigin == bodyIterator->first )
                     {
                         boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager =
@@ -217,11 +222,12 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                         bodyIterator->second->setEphemerisFrameToBaseFrame( baseStateInterface );
 
                     }
+                    // Set correction function if ephemeris origin is SSB
                     else if( ephemerisFrameOrigin == "SSB" )
                     {
 
                         boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
-                                boost::bind( &Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
+                               boost::bind( &Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
                                              bodyMap.at( globalFrameOrigin ), _1 );
                         boost::shared_ptr< BaseStateInterface > baseStateInterface =
                                 boost::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
@@ -240,6 +246,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                         }
                         else
                         {
+                            // Set correction function from ephemeris origin to global frame origin
                             boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                     boost::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                                  bodyMap.at( ephemerisFrameOrigin ), _1 );
@@ -266,6 +273,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
 
         }
 
+        // Set global frame origin identifiers
         if( globalFrameOrigin == bodyIterator->first )
         {
             bodyIterator->second->setIsBodyGlobalFrameOrigin( 1 );
@@ -278,8 +286,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
         // Check if body has rotational ephemeris.
         if( bodyIterator->second->getRotationalEphemeris( ) != NULL )
         {
-            // Check if rotational ephemeris base frame orienatation is equal to to global
-            // orientation.
+            // Check if rotational ephemeris base frame orienatation is equal to to global orientation.
             rotationModelFrame = bodyIterator->second->getRotationalEphemeris( )->getBaseFrameOrientation( );
 
             // Throw error if two frames are not equal.
@@ -293,6 +300,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
         }
     }
 
+    // Set body state-dependent environment variables
     for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
          bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
