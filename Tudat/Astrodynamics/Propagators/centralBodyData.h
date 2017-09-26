@@ -284,7 +284,7 @@ private:
         switch( bodyOriginType_[ bodyIndex ] )
         {
         case global_frame_origin:
-            originState = -globalFrameOriginBarycentricStateFunction_( time );
+            originState.setZero( );
             break;
         case from_ephemeris:
             originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );

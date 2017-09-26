@@ -133,9 +133,10 @@ public:
     BaseStateInterfaceImplementation(
             const std::string baseFrameId,
             const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
-            const bool addStateFunction = 0 ):
+            const bool subtractStateFunction = 0 ):
         BaseStateInterface( baseFrameId ),
-        stateFunction_( stateFunction ), stateMultiplier_( ( addStateFunction == 0 ) ? 1.0 : -1.0 ){ }
+        stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 )
+    { }
 
     //! Destructor
     ~BaseStateInterfaceImplementation( ){ }
@@ -298,7 +299,7 @@ public:
     {
         if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
         {
-            if( bodyIsGlobalFrameOrigin_ )
+            if( bodyIsGlobalFrameOrigin_  == 0 )
             {
                 if( sizeof( StateScalarType ) == 8 )
                 {
@@ -306,6 +307,7 @@ public:
                             ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
                               ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) ).
                             template cast< double >( );
+//                    std::cout<<"Setting state: "<<currentState_.transpose( )<<std::endl<<std::endl;
                     currentLongState_ = currentState_.template cast< long double >( );
                 }
                 else
@@ -317,7 +319,7 @@ public:
                     currentState_ = currentLongState_.template cast< double >( );
                 }
             }
-            else
+            else if( bodyIsGlobalFrameOrigin_  == 1 )
             {
                 currentState_.setZero( );
                 currentLongState_.setZero( );
@@ -327,19 +329,27 @@ public:
                     currentBarycentricState_ =
                             ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).
                             template cast< double >( );
-                    currentBarycentricLongState_ = currentState_.template cast< long double >( );
+                    currentBarycentricLongState_ = currentBarycentricState_.template cast< long double >( );
+
+//                    std::cout<<"Setting barycentric state: "<<currentBarycentricState_.transpose( )<<std::endl<<std::endl<<
+//                               currentState_.transpose( )<<std::endl;
                 }
                 else
                 {
                     currentBarycentricLongState_ =
                             ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).
                             template cast< long double >( );
-                    currentBarycentricState_ = currentLongState_.template cast< double >( );
+                    currentBarycentricState_ = currentBarycentricLongState_.template cast< double >( );
                 }
+            }
+            else
+            {
+                throw std::runtime_error( "Error when setting body state, global origin not yet defined." );
             }
 
             timeOfCurrentState_ = static_cast< TimeType >( time );
         }
+//        std::cout<<"Current state: "<<currentState_.transpose( )<<std::endl;
     }
 
     //! Templated function to get the current state of the body from its ephemeris and

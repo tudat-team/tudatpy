@@ -84,9 +84,7 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
     }
 
     boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) )
-            ->setFieldVariationSettings( fieldVariationsSet, 1 );
-
+                bodyMap.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
 
     return fieldVariationsSet;
 }

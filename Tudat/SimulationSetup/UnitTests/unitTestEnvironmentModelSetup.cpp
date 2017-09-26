@@ -574,6 +574,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update states.
@@ -649,12 +650,14 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
         earthGravityField->update( testTime );
 
         // Retrieve corrections.
@@ -818,12 +821,6 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
             }
         }
     }
-    std::cout<<rotationMatrix.toRotationMatrix( )<<std::endl<<std::endl;
-    std::cout<<rotationMatrix.toRotationMatrix( ) - rotationMatrix2000a.toRotationMatrix( )<<std::endl<<std::endl;
-    std::cout<<rotationMatrix.toRotationMatrix( ) - rotationMatrix2000b.toRotationMatrix( )<<std::endl<<std::endl;
-    std::cout<<rotationMatrix.toRotationMatrix( ) - defaultRotationMatrix.toRotationMatrix( )<<std::endl<<std::endl;
-    std::cout<<"B"<<std::endl;
-
 }
 #endif
 
@@ -1052,6 +1049,8 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
