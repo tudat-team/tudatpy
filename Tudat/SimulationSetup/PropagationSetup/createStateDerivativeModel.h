@@ -97,9 +97,9 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
         }
     }
 
+    // Get state function of global frame origin w.r.t. barycenter
     boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricFunction;
     std::string globalFrameOrigin = simulation_setup::getGlobalFrameOrigin( bodyMap );
-
     if( globalFrameOrigin == "SSB" )
     {
         globalFrameOriginBarycentricFunction = boost::lambda::constant(

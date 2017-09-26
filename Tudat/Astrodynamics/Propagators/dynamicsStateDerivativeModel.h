@@ -271,10 +271,6 @@ public:
             }
         }
 
-//        std::cout<<"Converting from output solution: "<<std::endl<<
-//                   outputState.transpose( )<<std::endl<<
-//                   internalState.transpose( )<<std::endl<<std::endl;
-
         return internalState;
     }
 

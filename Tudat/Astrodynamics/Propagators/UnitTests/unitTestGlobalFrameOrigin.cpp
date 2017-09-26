@@ -90,7 +90,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
                     bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
-    // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
+    // Change ephemeris origins to test full functionality
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( moonEphemerisOrigin );
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Earth" ]->ephemerisSettings )->
@@ -151,7 +151,10 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
     origins.push_back( "Venus" );
     origins.push_back( "Sun" );
 
+    // Get final state with Earth ephemeris origin and SSB global frame origin
     Eigen::Vector6d benchmarkFinalState = testGlobalFrameOrigin< double, double >( "SSB", "Earth" );
+
+    // Iterate over all combinations of ephemeris/global frame origins
     for( unsigned int i = 0; i < origins.size( ); i++ )
     {
         for( unsigned int j = 0; j < origins.size( ); j++ )

@@ -53,6 +53,8 @@ public:
      *         bodiesToIntegrate vector of same index.
      *  \param bodiesToIntegrate Names of bodies that are to be integrated numerically.
      *  \param bodyStateFunctions List of functions for the origins of selected bodies.
+     *  \param globalFrameOriginBarycentricStateFunction State function of global frame origin w.r.t. barycenter
+     *  \param globalFrameOrigin Origin of global frame.
      */
     CentralBodyData( const std::vector< std::string >& centralBodies,
                      const std::vector< std::string >& bodiesToIntegrate,

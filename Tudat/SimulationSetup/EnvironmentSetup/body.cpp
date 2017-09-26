@@ -75,6 +75,7 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
     setLongState( state );
 }
 
+//! Function ot retrieve the common global translational state origin of the environment
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
 {
     std::string globalFrameOrigin = "SSB";
