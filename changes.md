@@ -4,36 +4,6 @@
 
       .gitignore
     
-* Typedef for `std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >` as `SingleSelectedAccelerationMap`
-
-      Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestAerodynamicCoefficientsFromFile.cpp
-      Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp
-      Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestControlSurfaceIncrements.cpp
-      Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp
-      Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestWindModel.cpp
-      Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/unitTestEmpiricalAcceleration.cpp
-      Tudat/Astrodynamics/OrbitDetermination/UnitTests/orbitDeterminationTestCases.h
-      Tudat/Astrodynamics/OrbitDetermination/UnitTests/unitTestMultiArcStateEstimation.cpp
-      Tudat/Astrodynamics/OrbitDetermination/UnitTests/unitTestParameterInfluenceDetermination.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/uniTestPropagationTerminationCheckOnFinalStep.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestCowellStateDerivative.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestCustomStatePropagation.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestDependentVariableOutput.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestEnckeStateDerivative.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestGaussStateDerivative.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestMultiArcDynamics.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestMultiArcVariationalEquationPropagation.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestMultiTypeStatePropagation.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestPropagationTerminationReason.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestRotationalDynamicsPropagator.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestSequentialVariationalEquationIntegration.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestStoppingConditions.cpp
-      Tudat/Astrodynamics/Propagators/UnitTests/unitTestVariationalEquationPropagation.cpp
-      Tudat/Astrodynamics/Propulsion/UnitTests/unitTestThrustAcceleration.cpp
-      Tudat/Astrodynamics/Relativity/UnitTests/unitTestRelativisticAccelerationCorrection.cpp
-      Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h
-      Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.cpp
-      
 * Function `getAtmosphereTablesPath`
 
       Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestNRLMSISE00Atmosphere.cpp
