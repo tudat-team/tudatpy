@@ -38,26 +38,46 @@ private:
     bool profiling = false;
 
 public:
-    //! Constructor.
+    //! Constructor from JSON file.
     /*!
      * Constructor.
+     * \param inputFilePath Path to the root JSON input file. Can be absolute or relative (to the working directory).
      * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
-    JsonSimulationManager( const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : initialClockTime_( initialClockTime ) { }
+    JsonSimulationManager(
+            const std::string& inputFilePath,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
+        : initialClockTime_( initialClockTime )
+    {
+        resetInputFile( inputFilePath );
+    }
+
+    //! Constructor from JSON object.
+    /*!
+     * Constructor.
+     * \param jsonObject The root JSON object.
+     * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
+     * computed. Default is the moment at which the constructor was called.
+     */
+    JsonSimulationManager(
+            const nlohmann::json& jsonObject,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
+        : initialClockTime_( initialClockTime )
+    {
+        resetJsonObject( jsonObject );
+    }
 
     //! Reset the root JSON input file.
     /*!
      * Reset the root JSON input file.
-     * \param inputFile Path to the root JSON input file. Can be absolute or relative (to the working directory).
+     * \param inputFilePath Path to the root JSON input file. Can be absolute or relative (to the working directory).
      */
-    void setUpFromJSONFile( const std::string& inputFile )
+    void resetInputFile( const std::string& inputFilePath )
     {
-        inputFilePath_ = getPathForJSONFile( inputFile );
+        inputFilePath_ = getPathForJSONFile( inputFilePath );
         boost::filesystem::current_path( inputFilePath_.parent_path( ) );
-
-        setUpFromJSONObject( getDeserializedJSON( inputFilePath_ ) );
+        resetJsonObject( getDeserializedJSON( inputFilePath_ ) );
     }
 
     //! Reset the `json` object.
@@ -65,14 +85,15 @@ public:
      * Reset the `json` object.
      * \param jsonObject The new `json` object to be used for creating the simulation settings.
      */
-    void setUpFromJSONObject( const nlohmann::json& jsonObject )
+    void resetJsonObject( const nlohmann::json& jsonObject )
     {
         jsonObject_ = jsonObject;
         originalJsonObject_ = jsonObject_;
+    }
 
-        // std::cout << jsonObject_.dump( 2 ) << std::endl;
-        // throw;
-
+    //! Update all the settings (objects) from the JSON object.
+    virtual void updateSettingsFromJsonObject( )
+    {
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
 
@@ -83,7 +104,13 @@ public:
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
-        updateSettingsFromJSONObject( );
+        resetIntegratorSettings( );
+        resetSpice( );
+        resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
+        resetExportSettings( );
+        resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
+        resetApplicationOptions( );
+        resetDynamicsSimulator( );
     }
 
     //! Run the simulation.
@@ -113,7 +140,7 @@ public:
         // Export full settings JSON file if requested
         if ( ! applicationOptions_->fullSettingsFile_.empty( ) )
         {
-            exportAsJSON( applicationOptions_->fullSettingsFile_ );
+            exportAsJson( applicationOptions_->fullSettingsFile_ );
         }
 
         // Print message on propagation start if requested
@@ -176,46 +203,67 @@ public:
 
     //! Export `this` as a `json` object.
     /*!
-     * @copybrief getAsJSON
+     * @copybrief getAsJson
      * \return JSON representation of `this`.
      */
-    nlohmann::json getAsJSON( )
+    nlohmann::json getAsJson( )
     {
-        updateJSONObjectFromSettings( );
+        updateJsonObjectFromSettings( );
         return jsonObject_;
     }
 
     //! Export `this` as a `json` object to the file \p exportPath.
     /*!
-     * @copybrief exportAsJSON
+     * @copybrief exportAsJson
      * \param exportPath Path to which the contents of the JSON object are to be exported.
      * \param tabSize Size of tabulations in the exported file (default = 2, i.e. 2 spaces). If set to 0, no
      * indentantion or line breaks will be used, so the exported file will contain just one line.
      */
-    void exportAsJSON( const boost::filesystem::path& exportPath, const unsigned int tabSize = 2 )
+    void exportAsJson( const boost::filesystem::path& exportPath, const unsigned int tabSize = 2 )
     {
         if ( ! boost::filesystem::exists( exportPath.parent_path( ) ) )
         {
             boost::filesystem::create_directories( exportPath.parent_path( ) );
         }
         std::ofstream outputFile( exportPath.string( ) );
-        outputFile << getAsJSON( ).dump( tabSize );
+        outputFile << getAsJson( ).dump( tabSize );
         outputFile.close( );
     }
 
     //! Get original JSON object (defined at construction or last time setInputFile was called).
     /*!
-     * @copybrief getOriginalJSONObject
+     * @copybrief getOriginalJsonObject
      * \remark The returned JSON object is the result of combining all the JSON files that
      * may be included in the root JSON file into one single object containing all the settings, but before default
      * values have been loaded or unit conversions have been applied.
      * \return The original JSON object.
      */
-    nlohmann::json getOriginalJSONObject( ) const
+    nlohmann::json getOriginalJsonObject( ) const
     {
         return originalJsonObject_;
     }
 
+    //! Get the JSON object.
+    /*!
+     * @copybrief getJsonObject
+     * \remark The returned JSON object is the result of combining all the JSON files that
+     * may be included in the root JSON file into one single object containing all the settings.
+     * \return The JSON object.
+     */
+    nlohmann::json getJsonObject( ) const
+    {
+        return jsonObject_;
+    }
+
+    nlohmann::json at( const std::string& key ) const
+    {
+        return valueAt( jsonObject_, KeyPath( key ) );
+    }
+
+    nlohmann::json& operator[] ( const std::string& key )
+    {
+        return valueAt( jsonObject_, key, true );
+    }
 
     //! Get simulation start epoch.
     TimeType getStartEpoch( ) const
@@ -518,21 +566,9 @@ protected:
 private:
 
     //! Update the JSON object with all the data from the current settings (objests).
-    void updateJSONObjectFromSettings( )
+    void updateJsonObjectFromSettings( )
     {
         jsonObject_ = boost::make_shared< JsonSimulationManager< TimeType, StateScalarType > >( *this );
-    }
-
-    //! Update all the settings (objects) from the JSON object.
-    virtual void updateSettingsFromJSONObject( )
-    {
-        resetIntegratorSettings( );
-        resetSpice( );
-        resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
-        resetExportSettings( );
-        resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
-        resetApplicationOptions( );
-        resetDynamicsSimulator( );
     }
 
     //! Absolute path to the input file.
