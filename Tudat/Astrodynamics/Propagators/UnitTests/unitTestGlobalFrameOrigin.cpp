@@ -105,7 +105,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    SingleSelectedAccelerationMap accelerationsOfMoon;
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
