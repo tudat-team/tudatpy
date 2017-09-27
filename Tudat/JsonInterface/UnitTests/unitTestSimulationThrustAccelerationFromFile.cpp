@@ -46,8 +46,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
-    jsonSimulation.updateSettingsFromJsonObject( );
-    jsonSimulation.run( );
+    jsonSimulation.updateSettings( );
+    jsonSimulation.runPropagation( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > jsonResultsDependent =
@@ -244,10 +244,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
     // (using from_json functions)
     jsonSimulation.resetJsonObject( jsonSimulation.getAsJson( ) );
-    jsonSimulation.updateSettingsFromJsonObject( );
+    jsonSimulation.updateSettings( );
 
     // Get results
-    jsonSimulation.run( );
+    jsonSimulation.runPropagation( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     jsonResultsDependent = jsonSimulation.getDynamicsSimulator( )->getDependentVariableHistory( );
 

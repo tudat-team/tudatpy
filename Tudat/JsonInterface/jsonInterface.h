@@ -92,7 +92,7 @@ public:
     }
 
     //! Update all the settings (objects) from the JSON object.
-    virtual void updateSettingsFromJsonObject( )
+    virtual void updateSettings( )
     {
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
@@ -113,9 +113,9 @@ public:
         resetDynamicsSimulator( );
     }
 
-    //! Run the simulation.
+    //! Run the propagation.
     /*!
-     * @copybrief run
+     * @copybrief runPropagation
      * <br/>
      * Before running the simulation, the JSON representation of `this` will be exported if requested in
      * applicationOptions_, and a message will be printed if requested in applicationOptions_.
@@ -125,7 +125,7 @@ public:
      * <br/>
      * After running the simulation, a message will be printed if requested in applicationOptions_.
      */
-    virtual void run( )
+    virtual void runPropagation( )
     {
         // Check if any keys in jsonObject_ haven't been used
         checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );

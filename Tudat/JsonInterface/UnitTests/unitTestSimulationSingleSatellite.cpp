@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
-    jsonSimulation.updateSettingsFromJsonObject( );
-    jsonSimulation.run( );
+    jsonSimulation.updateSettings( );
+    jsonSimulation.runPropagation( );
     std::map< double, Eigen::VectorXd > jsonResults =
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
@@ -169,10 +169,10 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatellite_main )
     // Convert jsonSimulation to JSON (using to_json functions) and use that to reset the simulation
     // (using from_json functions)
     jsonSimulation.resetJsonObject( jsonSimulation.getAsJson( ) );
-    jsonSimulation.updateSettingsFromJsonObject( );
+    jsonSimulation.updateSettings( );
 
     // Get results
-    jsonSimulation.run( );
+    jsonSimulation.runPropagation( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
