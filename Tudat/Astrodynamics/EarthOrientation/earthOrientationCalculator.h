@@ -77,7 +77,7 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
  * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
- * \param earthRotationAngle Current Earth Rotation angle
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
  * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
  * \param tioLocator TIO locator.
@@ -89,7 +89,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
     Eigen::Matrix3d auxiliaryMatrix = reference_frames::Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER *
-            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.002737909350795 );
+            ( -2.0 * mathematical_constants::PI / 86400.0 * 1.00273781191135448 );
 
     return  ( calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator )  *
               calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) )
@@ -103,6 +103,7 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
  * Calculate time-derivative of rotation matrix from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
  * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Time-derivative of rotation matrix from ITRS to GCRS
  */
@@ -116,13 +117,23 @@ Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 
+template< typename TimeType >
+Eigen::Matrix3d calculateRotationRateFromItrsToGcrs(
+        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+{
+    return calculateRotationRateFromItrsToGcrs(
+                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
+            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
+
 //! Calculate rotation from ITRS to GCRS
 /*!
  * Calculate rotation from ITRS to GCRS.
  * \param celestialPoleXPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param celestialPoleYPosition Parameter X in  IERS Conventions 2010, Section 5.4.4
  * \param cioLocator Celestial intermediate origin locator; parameter s in  IERS Conventions 2010, Section 5.4.4
- * \param earthRotationAngle Current Earth Rotation angle
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param xPolePosition Polar motion parameter in x-direction (typically denoted x_{p})
  * \param yPolePosition Polar motion parameter in y-direction (typically denoted x_{p})
  * \param tioLocator TIO locator.
@@ -133,8 +144,9 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
         const double celestialPoleXPosition, const double celestialPoleYPosition, const double cioLocator,
         const TimeType ut1, const double xPolePosition, const double yPolePosition, const double tioLocator )
 {
+    double currentEra = sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 );
     return  calculateRotationFromCirsToGcrs( celestialPoleXPosition, celestialPoleYPosition, cioLocator ) *
-            calculateRotationFromTirsToCirs( sofa_interface::calculateEarthRotationAngleTemplated< TimeType >( ut1 ) ) *
+            calculateRotationFromTirsToCirs( currentEra ) *
             calculateRotationFromItrsToTirs( xPolePosition, yPolePosition, tioLocator );
 
 }
@@ -144,6 +156,7 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
  * Calculate rotation from ITRS to GCRS. Function approximates derivative by only including derivative
  * of Earth rotation sub-matrix
  * \param rotationAngles Vector containing quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
+ * \param ut1 Current UT1 time, used to compute Earth Rotation angle
  * \param secondsSinceJ2000 Current time in seconds since J2000, used for computing TIO locator.
  * \return Rotation from ITRS to GCRS
  */
@@ -154,6 +167,16 @@ Eigen::Quaterniond calculateRotationFromItrsToGcrs(
     return calculateRotationFromItrsToGcrs(
                 rotationAngles[ 0 ], rotationAngles[ 1 ], rotationAngles[ 2 ],
             ut1, rotationAngles[ 3 ], rotationAngles[ 4 ],
+            getApproximateTioLocator( secondsSinceJ2000 ) );
+}
+
+template< typename TimeType >
+Eigen::Quaterniond calculateRotationFromItrsToGcrs(
+        const std::pair< Eigen::Vector5d, TimeType > rotationAnglesAndUt1, const double secondsSinceJ2000 )
+{
+    return calculateRotationFromItrsToGcrs(
+                rotationAnglesAndUt1.first[ 0 ], rotationAnglesAndUt1.first[ 1 ], rotationAnglesAndUt1.first[ 2 ],
+            rotationAnglesAndUt1.second, rotationAnglesAndUt1.first[ 3 ], rotationAnglesAndUt1.first[ 4 ],
             getApproximateTioLocator( secondsSinceJ2000 ) );
 }
 

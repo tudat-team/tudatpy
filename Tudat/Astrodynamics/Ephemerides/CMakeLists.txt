@@ -40,6 +40,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/itrsToGcrsRotationModel.h"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/constantEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
@@ -78,7 +79,7 @@ target_link_libraries(test_SimpleRotationalEphemeris tudat_ephemerides tudat_ref
 if(USE_CSPICE)
 add_executable(test_FrameManager "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestFrameManager.cpp")
 setup_custom_test_program(test_FrameManager "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_FrameManager tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_EXTERNAL_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_FrameManager tudat_ephemerides tudat_reference_frames ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_EXTERNAL_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCompositeEphemeris.cpp")
 setup_custom_test_program(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
@@ -93,3 +94,10 @@ endif()
 add_executable(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerEphemeris.cpp")
 setup_custom_test_program(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_KeplerEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+if(USE_SOFA)
+add_executable(test_GcrsToItrsRotation "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestItrsToGcrsRotationModel.cpp")
+setup_custom_test_program(test_GcrsToItrsRotation "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_GcrsToItrsRotation tudat_ephemerides tudat_spice_interface tudat_reference_frames tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output cspice sofa ${Boost_LIBRARIES})
+
+endif( )

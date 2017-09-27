@@ -57,7 +57,7 @@ public:
     EOPReader(
             const std::string& eopFile = tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
             const std::string& format = "C04",
-            const IAUConventions nutationTheory = iau_2006 );
+            const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006 );
 
     //! Function to retrieve the data of UT1-UTC, as provided in the EOP file.
     std::map< double, double > getUt1MinusUtcMapRaw( )

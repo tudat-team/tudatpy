@@ -23,6 +23,7 @@
 
 namespace tudat
 {
+
 namespace basic_astrodynamics
 {
 

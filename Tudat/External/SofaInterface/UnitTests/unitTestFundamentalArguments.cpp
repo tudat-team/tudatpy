@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
     double expectedGmst = calculateGreenwichMeanSiderealTime(
                 testSecondsSinceJ2000,
                 convertTTtoUTC( testSecondsSinceJ2000 ),
-                basic_astrodynamics::JULIAN_DAY_ON_J2000, iau_2006 );
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, basic_astrodynamics::iau_2006 );
 
     BOOST_CHECK_SMALL( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ), 1.0E-15  );
 

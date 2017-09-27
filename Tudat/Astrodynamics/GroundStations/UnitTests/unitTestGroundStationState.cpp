@@ -22,6 +22,7 @@
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -182,6 +183,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
                              "Earth", "SSB", false, true, true, "ECLIPJ2000" ) );
     earth->setRotationalEphemeris( boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
                                        "ECLIPJ2000", "IAU_Earth" ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define ground station state
     const Eigen::Vector3d groundStationPosition( 1917032.190, 6029782.349, -801376.113 );

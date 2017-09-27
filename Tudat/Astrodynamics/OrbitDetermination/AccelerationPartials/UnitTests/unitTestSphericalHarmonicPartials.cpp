@@ -517,6 +517,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     "Earth", bodyMap, gravityFieldVariationSettings ) );
 
 
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
     // Set current state of vehicle and earth.

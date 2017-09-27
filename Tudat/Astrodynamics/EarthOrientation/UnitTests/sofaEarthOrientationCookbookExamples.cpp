@@ -2,6 +2,12 @@
 
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 
+namespace tudat
+{
+
+namespace unit_tests
+{
+
 Eigen::Matrix3d convertArrayToMatrix(
         const double array[3][3] )
 {
@@ -17,9 +23,15 @@ Eigen::Matrix3d convertArrayToMatrix(
 }
 
 Eigen::Matrix3d getSofaEarthOrientationExamples(
-        const int calculationCase )
+        const int calculationCase,
+        const double dXInMas,
+        const double dYInMas,
+        const double xPInAs,
+        const double yPInAs,
+        const double ut1Correction )
 {
 
+//    std::cout<<"Angles: "<<calculationCase<<" "<<dXInMas<<" "<<dYInMas<<" "<<xPInAs<<" "<<yPInAs<<" "<<ut1Correction<<std::endl;
 
     double AS2R = 4.848136811095359935899141E-6;
 
@@ -44,11 +56,11 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
     SEC = 0.0;
 
     //  Polar motion (arcsec->radians).
-    XP = 0.0349282 * AS2R;
-    YP = 0.4833163 * AS2R;
+    XP = xPInAs * AS2R;
+    YP = yPInAs * AS2R;
 
     //  UT1-UTC (s).
-    DUT1 = -0.072073685;
+    DUT1 = ut1Correction;
 
     //  Nutation corrections wrt IAU 1976/1980 (mas->radians).
     DDP80 = -55.0655 * AS2R/1000.0;
@@ -59,8 +71,8 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
     DY00 = -0.2650 * AS2R/1000.0;
 
     //  CIP offsets wrt IAU 2006/2000A (mas->radians).
-    DX06 =  0.1750 * AS2R/1000.0;
-    DY06 = -0.2259 * AS2R/1000.0;
+    DX06 =  dXInMas * AS2R/1000.0;
+    DY06 =  dYInMas * AS2R/1000.0;
 
     //  TT (MJD).
     iauCal2jd ( IY, IM, ID, &DJMJD0, &DATE );
@@ -205,7 +217,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         X = X + DX06;
         Y = Y + DY06;
 
-        std::cout<<"Corrections Nut: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
+        //std::cout<<"Corrections Nut: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
 
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
@@ -213,7 +225,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );
 
-        std::cout<<"Corrections ERA: "<<std::setprecision( 16 )<<ERA<<" "<< DJMJD0+DATE<<" "<<TUT<<std::endl;
+        //std::cout<<"Corrections ERA: "<<std::setprecision( 16 )<<ERA<<" "<< DJMJD0+DATE<<" "<<TUT<<std::endl;
 
         //  Form celestial-terrestrial matrix (no polar motion yet).
         iauCr ( RC2I, RC2TI );
@@ -225,12 +237,12 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Form celestial-terrestrial matrix (including polar motion).
         iauRxr ( RPOM, RC2TI, RC2IT );
 
-        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-                   convertArrayToMatrix( RC2I )<<std::endl;
-        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-                   convertArrayToMatrix( RC2TI )<<std::endl;
-        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-                   convertArrayToMatrix( RC2IT )<<std::endl;
+//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+//                   convertArrayToMatrix( RC2I )<<std::endl;
+//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+//                   convertArrayToMatrix( RC2TI )<<std::endl;
+//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
+//                   convertArrayToMatrix( RC2IT )<<std::endl;
         break;
 
         //  ===========================================
@@ -267,5 +279,9 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
     }
 
     return convertArrayToMatrix( RC2IT );
+
+}
+
+}
 
 }

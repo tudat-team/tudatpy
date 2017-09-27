@@ -82,7 +82,7 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
 
     // Create IAU 2006 precession/nutation calculator
     boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator =
-            boost::make_shared< PrecessionNutationCalculator >( iau_2006, cipInGcrsCorrectionInterpolator );
+            boost::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cipInGcrsCorrectionInterpolator );
 
     // Create default time scale converter
     boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =

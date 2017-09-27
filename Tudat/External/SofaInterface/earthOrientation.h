@@ -23,10 +23,13 @@ extern "C"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
-
 namespace tudat
 {
 
+namespace basic_astrodynamics
+{
+
+//! Enum of IAU conventions for Earth rotation.
 enum IAUConventions
 {
     iau_2000_a,
@@ -34,6 +37,7 @@ enum IAUConventions
     iau_2006
 };
 
+}
 namespace sofa_interface
 {
 
@@ -51,7 +55,7 @@ namespace sofa_interface
  */
 std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
         const double terrestrialTime, const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
-        const IAUConventions precessionNutationTheory = iau_2000_b );
+        const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2000_b );
 
 //! Function to calculate GMST according to requested IAU conventions
 /*!
@@ -67,7 +71,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
 double calculateGreenwichMeanSiderealTime(
         const double terrestrialTime, const double universalTime1,
         const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000,
-        const IAUConventions iauConvention = iau_2000_b );
+        const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b );
 
 //! Function to calculate ERA (earth rotation angle)
 /*!
@@ -86,8 +90,7 @@ double calculateEarthRotationAngle(
  *  Function to calculate ERA (earth rotation angle) from current UT1 in templated precision.
  *  The ERA represents one of the Euler angles (between CIO and TIO) for transforming from ITRS to GCRS,
  *  see Petit et al. chap. 5
- *  \param ut1 Time in UT1 in seconds since referenceJulianDay julianDay.
- *  \param referenceJulianDay Julian day wrt which ut1 is referenced (default = J2000)
+ *  \param currentUt1 Time in UT1
  *  \return Current Earth rotation angle (normalized to [0,2 pi]).
  */
 template< typename TimeType >

@@ -119,7 +119,7 @@ public:
     template< typename TimeType >
     TimeType getCurrentTime(
             const basic_astrodynamics::TimeScales inputScale, const basic_astrodynamics::TimeScales outputScale,
-            const TimeType& inputTimeValue, const Eigen::Vector3d& earthFixedPosition )
+            const TimeType& inputTimeValue, const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
     {
         TimeType convertedTime;
 
@@ -222,6 +222,7 @@ public:
 
             timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) )
                     + timesToUpdate.utc;
+
             timesToUpdate.ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
 
@@ -256,6 +257,19 @@ public:
             throw std::runtime_error( "Error when performing Earth time scales, input time not recognized" );
             break;
         }
+    }
+
+    template< typename TimeType >
+    double getUt1Correction(
+            const basic_astrodynamics::TimeScales inputScale, const TimeType& inputTimeValue,
+            const Eigen::Vector3d currentPosition = Eigen::Vector3d::Zero( ) )
+    {
+        TimeType currentUtc = getCurrentTime( inputScale, basic_astrodynamics::utc_scale, inputTimeValue, currentPosition );
+        TimeType currentTt = getCurrentTime( inputScale, basic_astrodynamics::tt_scale, inputTimeValue, currentPosition );
+
+        return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
+                shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
+
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -299,6 +313,7 @@ private:
 
         getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
                     getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
+
         getCurrentTimeList< TimeType >( ).ut1 +=
                 static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections(
                     getCurrentTimeList< TimeType >( ).tt ) );

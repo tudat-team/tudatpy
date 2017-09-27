@@ -30,6 +30,8 @@
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/itrsToGcrsRotationModel.h"
+//#include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
@@ -570,6 +572,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update states.
@@ -645,12 +648,14 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
         earthGravityField->update( testTime );
 
         // Retrieve corrections.
@@ -755,6 +760,65 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
                                        4.0E7) ) ),
                 std::numeric_limits< double >::epsilon( ) );
 
+}
+#endif
+
+#if USE_SOFA
+//! Test set up of GCRS<->ITRS rotation model
+BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
+{
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( );
+
+    // Create rotation model using setup function
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel =
+            createRotationModel( rotationSettings, "Earth" );
+
+    double testTime = 5.0E7;
+
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000a =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_a );
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000b =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_b );
+
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000a =
+            createRotationModel( gcrsToItrsRotationSettings2000a, "Earth" );
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000b =
+            createRotationModel( gcrsToItrsRotationSettings2000b, "Earth" );
+
+    Eigen::Quaterniond rotationMatrix = earthRotationModel->getRotationToBaseFrame( testTime );
+
+    Eigen::Quaterniond rotationMatrix2000a = earthRotationModel2000a->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation2000a = rotationMatrix2000a.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    Eigen::Quaterniond rotationMatrix2000b = earthRotationModel2000b->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation2000b = rotationMatrix2000b.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    boost::shared_ptr< tudat::ephemerides::GcrsToItrsRotationModel >  defaultEarthModel =
+            boost::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                tudat::earth_orientation::createStandardEarthOrientationCalculator( ) );
+
+    Eigen::Quaterniond defaultRotationMatrix = defaultEarthModel->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation = defaultRotationMatrix.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            if( i < 2 && j < 2 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000a( i, j ) ), 1.0E-13 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000b( i, j ) ), 1.0E-12 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation( i, j ) ), std::numeric_limits< double >::epsilon( ) );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000a( i, j ) ), 1.0E-10 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000b( i, j ) ), 1.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation( i, j ) ), std::numeric_limits< double >::epsilon( ) );
+            }
+        }
+    }
 }
 #endif
 
@@ -983,6 +1047,8 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
     BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
