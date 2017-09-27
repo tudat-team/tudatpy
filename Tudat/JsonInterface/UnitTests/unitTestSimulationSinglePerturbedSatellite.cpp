@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSinglePerturbedSatellite_main )
     std::vector< std::string > centralBodies;
 
     // Define propagation settings.
-    SingleSelectedAccelerationMap accelerationsOfAsterix;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(

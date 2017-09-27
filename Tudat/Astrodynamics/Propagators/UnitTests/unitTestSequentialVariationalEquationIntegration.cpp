@@ -100,7 +100,7 @@ integrateEquations( const bool performIntegrationsSequentially )
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
 
-    SingleSelectedAccelerationMap accelerationsOfLageos;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfLageos;
     //accelerationsOfLageos[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     //accelerationsOfLageos[ "Earth" ].push_back( boost::make_shared< RelativisticCorrectionSettings >( ) );
     //accelerationsOfLageos[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );

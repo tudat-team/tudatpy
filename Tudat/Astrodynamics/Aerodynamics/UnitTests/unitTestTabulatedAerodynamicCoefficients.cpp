@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     std::vector< std::string > centralBodies;
 
     // Define propagation settings.
-    SingleSelectedAccelerationMap accelerationsOfVehicle;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
     accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::central_gravity ) );

@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     SelectedAccelerationMap accelerationMap;
     for( unsigned int i = 0; i < bodyNames.size( ); i++ )
     {
-        SingleSelectedAccelerationMap currentAccelerations;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > currentAccelerations;
         for( unsigned int j = 0; j < bodyNames.size( ); j++ )
         {
             // Create central gravity acceleration between each 2 bodies.
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     SelectedAccelerationMap accelerationMap;
     for( unsigned int i = 0; i < bodyNames.size( ); i++ )
     {
-        SingleSelectedAccelerationMap currentAccelerations;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > currentAccelerations;
         for( unsigned int j = 0; j < bodyNames.size( ); j++ )
         {
             // Create central gravity acceleration between each 2 bodies.

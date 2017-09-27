@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     double massRate = thrustMagnitude / ( specificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION );
 
     // Define acceleration model settings.
-    SingleSelectedAccelerationMap accelerationsOfVehicle;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                        boost::make_shared< CustomThrustDirectionSettings >(
                                                            boost::lambda::constant( thrustDirection ) ),
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         Eigen::Vector3d thrustDirection;
         thrustDirection << -1.4, 2.4, 5.6;
 
-        SingleSelectedAccelerationMap accelerationsOfVehicle;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         // Define acceleration model settings.
         switch( i )
         {
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         }
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfVehicle;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                            boost::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", isThurstInVelocityDirection, 1  ),
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     // Define acceleration model settings.
     Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
 
-    SingleSelectedAccelerationMap accelerationsOfVehicle;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                        boost::make_shared< ThrustDirectionGuidanceSettings >(
                                                            thrust_direction_from_existing_body_orientation, "Earth" ),
@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         std::vector< std::string > centralBodies;
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfApollo;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
@@ -1059,7 +1059,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::vector< std::string > centralBodies;
 
         // Define propagation settings.
-        SingleSelectedAccelerationMap accelerationsOfAsterix;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
 
@@ -1302,7 +1302,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
         std::vector< std::string > centralBodies;
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfApollo;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
@@ -1647,7 +1647,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     std::vector< std::string > centralBodies;
 
     // Define acceleration model settings.
-    SingleSelectedAccelerationMap accelerationsOfApollo;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );

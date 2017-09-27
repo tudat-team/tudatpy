@@ -382,7 +382,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::vector< std::string > centralBodies;
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfVehicle;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
         accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
         if( swapCreationOrder )
