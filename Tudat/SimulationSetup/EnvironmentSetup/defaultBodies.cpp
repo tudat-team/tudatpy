@@ -77,15 +77,15 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 {
     if( bodyName == "Earth" )
     {
-        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( egm96 );
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 );
     }
     else if( bodyName == "Moon" )
     {
-        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( lpe200 );
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 );
     }
     else if( bodyName == "Mars" )
     {
-        return boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( jgmro120d );
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
     }
     else
     {
