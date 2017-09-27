@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::vector< std::string > centralBodies;
 
         // Define propagation settings.
-        SingleSelectedAccelerationMap accelerationsOfAsterix;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
 

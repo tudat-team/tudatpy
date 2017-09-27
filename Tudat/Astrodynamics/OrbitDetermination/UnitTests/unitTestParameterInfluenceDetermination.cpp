@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     std::vector< std::string > centralBodies;
 
     // Define acceleration model settings.
-    SingleSelectedAccelerationMap accelerationsOfApollo;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;

@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfSpacePlane;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSpacePlane;
         accelerationsOfSpacePlane[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
         accelerationsOfSpacePlane[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
 

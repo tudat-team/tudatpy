@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         std::vector< std::string > centralBodies;
 
         // Define acceleration model settings.
-        SingleSelectedAccelerationMap accelerationsOfApollo;
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
         accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );

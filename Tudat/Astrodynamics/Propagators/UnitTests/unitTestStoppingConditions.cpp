@@ -174,7 +174,7 @@ void performSimulation( const int testType )
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Define acceleration model settings.
-    SingleSelectedAccelerationMap accelerationsOfApollo;
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationMap[  "Apollo" ] = accelerationsOfApollo;
