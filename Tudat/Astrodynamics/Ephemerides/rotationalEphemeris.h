@@ -199,7 +199,7 @@ public:
     /*!
      * Pure virtual function to calculate and return the rotation quaternion from target frame to
      * base frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \param timeSinceEpoch Seconds since Julian day reference epoch.
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime(
@@ -212,7 +212,7 @@ public:
     /*!
      * Pure virtual function to calculate and return the rotation quaternion from target frame to
      * base frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \param timeSinceEpoch Seconds since Julian day reference epoch.
      * \return Rotation quaternion computed.
      */
     template< typename TimeType >
@@ -233,7 +233,7 @@ public:
     /*!
      * Pure virtual function to calculate and return the rotation quaternion to target frame from
      * base frame at specified time.
-     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \param timeSinceEpoch Seconds since Julian day reference epoch.
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime(
@@ -268,7 +268,7 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time, to be implemented by derived class.
-     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \param timeSinceEpoch Seconds since Julian day reference epoch.
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
@@ -282,7 +282,7 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from target frame to original
      *  frame at specified time, to be implemented by derived class.
-     * \param secondsSinceEpoch Seconds since Julian day reference epoch.
+     * \param timeSinceEpoch Seconds since Julian day reference epoch.
      *  \return Derivative of rotation from target (typically local) to original (typically global)
      *          frame at specified time.
      */
@@ -305,7 +305,7 @@ public:
     /*!
      *  Function to calculate the derivative of the rotation matrix from original frame to target
      *  frame at specified time, to be implemented by derived class.
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param timeSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
@@ -390,7 +390,7 @@ public:
      * (returned by reference)
      * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed in global frame
      * (returned by reference)
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param timeSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      */
     virtual void getFullRotationalQuantitiesToTargetFrameFromExtendedTime(
             Eigen::Quaterniond& currentRotationToLocalFrame,
@@ -413,7 +413,7 @@ public:
      * (returned by reference)
      * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed in global frame
      * (returned by reference)
-     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param timeSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      */
     template< typename TimeType >
     void getFullRotationalQuantitiesToTargetFrameTemplated(

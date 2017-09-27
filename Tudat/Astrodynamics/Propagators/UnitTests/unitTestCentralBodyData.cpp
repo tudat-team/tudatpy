@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
 
     // Create central bodies object.
     boost::shared_ptr< CentralBodyData< double > > centralBodyData
-        = boost::make_shared< CentralBodyData< double > >( centralBodies, bodiesToIntegrate,
-                                                           stateFunctions );
+        = boost::make_shared< CentralBodyData< double > >(
+                centralBodies, bodiesToIntegrate, stateFunctions, boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "SSB" );
 
     // Get update order.
     std::vector< int > updateOrder = centralBodyData->getUpdateOrder( );
