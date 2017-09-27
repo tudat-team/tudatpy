@@ -69,7 +69,7 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
 }
 
 //! Constructor with custom model.
-SphericalHarmonicsModelGravityFieldSettings::SphericalHarmonicsModelGravityFieldSettings(
+FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravityFieldSettings(
         const std::string& filePath, const std::string& associatedReferenceFrame,
         const int maximumDegree, const int maximumOrder,
         const int gravitationalParameterIndex, const int referenceRadiusIndex,
@@ -93,9 +93,9 @@ SphericalHarmonicsModelGravityFieldSettings::SphericalHarmonicsModelGravityField
 }
 
 //! Constructor with model included in Tudat.
-SphericalHarmonicsModelGravityFieldSettings::SphericalHarmonicsModelGravityFieldSettings(
+FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravityFieldSettings(
         const SphericalHarmonicsModel sphericalHarmonicsModel ) :
-    SphericalHarmonicsModelGravityFieldSettings( getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+    FromFileSphericalHarmonicsGravityFieldSettings( getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
                                                  getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
                                                  50, 50, 0, 1 )
 {

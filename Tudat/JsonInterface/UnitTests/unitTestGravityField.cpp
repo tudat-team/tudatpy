@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_model )
 
     // Create GravityFieldSettings manually
     const boost::shared_ptr< GravityFieldSettings > manualSettings =
-            boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( ggm02c );
+            boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( ggm02c );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file )
     const int gravitationalParameterIndex = 0;
     const int referenceRadiusIndex = 1;
     const boost::shared_ptr< GravityFieldSettings > manualSettings =
-            boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( file,
+            boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( file,
                                                                                associatedReferenceFrame,
                                                                                maximumDegree,
                                                                                maximumOrder,
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_sphericalHarmonic_file_manualparam 
     const double gravitationalParameter = 4.0e14;
     const double referenceRadius = 6.4e6;
     const boost::shared_ptr< GravityFieldSettings > manualSettings =
-            boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >( file,
+            boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( file,
                                                                                associatedReferenceFrame,
                                                                                maximumDegree,
                                                                                maximumOrder,

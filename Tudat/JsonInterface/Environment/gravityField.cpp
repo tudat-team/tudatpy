@@ -49,9 +49,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldS
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
         enforceNonNullPointer( shGravityFieldSettings );
 
-        // SphericalHarmonicsModelGravityFieldSettings
-        boost::shared_ptr< SphericalHarmonicsModelGravityFieldSettings > shModelGravityFieldSettings =
-                boost::dynamic_pointer_cast< SphericalHarmonicsModelGravityFieldSettings >( gravityFieldSettings );
+        // FromFileSphericalHarmonicsGravityFieldSettings
+        boost::shared_ptr< FromFileSphericalHarmonicsGravityFieldSettings > shModelGravityFieldSettings =
+                boost::dynamic_pointer_cast< FromFileSphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
         if ( shModelGravityFieldSettings )
         {
             const SphericalHarmonicsModel model = shModelGravityFieldSettings->getSphericalHarmonicsModel( );
@@ -128,7 +128,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFiel
         {
             const int gmIndex = getValue( jsonObject, K::gravitationalParameterIndex, 0 );
             const int radiusIndex = getValue( jsonObject, K::referenceRadiusIndex, 1 );
-            gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
+            gravityFieldSettings = boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
                         getValue< boost::filesystem::path >( jsonObject, K::file ).string( ),
                         getValue< std::string >( jsonObject, K::associatedReferenceFrame ),
                         getValue< int >( jsonObject, K::maximumDegree ),
@@ -143,7 +143,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFiel
         // load coefficients from model included in Tudat
         if ( isDefined( jsonObject, K::model ) )
         {
-            gravityFieldSettings = boost::make_shared< SphericalHarmonicsModelGravityFieldSettings >(
+            gravityFieldSettings = boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
                         getValue< SphericalHarmonicsModel >( jsonObject, K::model ) );
             return;
         }

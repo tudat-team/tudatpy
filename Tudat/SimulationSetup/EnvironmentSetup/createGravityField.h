@@ -259,7 +259,7 @@ std::string getReferenceFrameForSphericalHarmonicsModel( const SphericalHarmonic
 
 //! Derived class of SphericalHarmonicsGravityFieldSettings defining settings of spherical harmonic gravity
 //! field representation to be loaded from a spherical harmonics model file.
-class SphericalHarmonicsModelGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
+class FromFileSphericalHarmonicsGravityFieldSettings: public SphericalHarmonicsGravityFieldSettings
 {
 public:
     //! Constructor with custom model.
@@ -276,7 +276,7 @@ public:
      * \param gravitationalParameter Gravitational parameter of gravity field to be used if file has no header.
      * \param referenceRadius Reference radius of gravity field to be used if file has no header.
      */
-    SphericalHarmonicsModelGravityFieldSettings( const std::string& filePath,
+    FromFileSphericalHarmonicsGravityFieldSettings( const std::string& filePath,
                                                  const std::string& associatedReferenceFrame,
                                                  const int maximumDegree,
                                                  const int maximumOrder,
@@ -290,7 +290,7 @@ public:
      * Constructor with model included in Tudat.
      * \param sphericalHarmonicsModel Spherical harmonics model to be used.
      */
-    SphericalHarmonicsModelGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
+    FromFileSphericalHarmonicsGravityFieldSettings( const SphericalHarmonicsModel sphericalHarmonicsModel );
 
     //! Get the sphericals harmonics model.
     /*!
