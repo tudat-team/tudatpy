@@ -65,8 +65,8 @@ int main( int argumentCount, char* arguments[ ] )
     // std::cout << full_path << std::endl;
 
     tudat::json_interface::JsonSimulationManager< > jsonSimulationManager( inputPath );
-    jsonSimulationManager.updateSettingsFromJsonObject( );
-    jsonSimulationManager.run( );
+    jsonSimulationManager.updateSettings( );
+    jsonSimulationManager.runPropagation( );
     jsonSimulationManager.exportResults( );
 
     return EXIT_SUCCESS;
