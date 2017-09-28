@@ -131,7 +131,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
     using K = Keys::Integrator;
 
     // Read JSON settings shared by all supported integrators
-    const AvailableIntegrators integratorType = getValue< AvailableIntegrators >( jsonObject, K::type );
+    const AvailableIntegrators integratorType = getValue( jsonObject, K::type, rungeKutta4 );
     const TimeType initialTime =
             getValue< TimeType >( jsonObject, { K::initialTime, SpecialKeys::root / Keys::initialEpoch } );
 
