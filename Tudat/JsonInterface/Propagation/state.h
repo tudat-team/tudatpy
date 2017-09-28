@@ -206,7 +206,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
                         }
                         else
                         {
-                            meanMotion = 2.0 * M_PI / getValue< StateScalarType >( jsonState, K::period );
+                            meanMotion = 2.0 * mathematical_constants::PI /
+                                    getValue< StateScalarType >( jsonState, K::period );
                         }
                         semiMajorAxis = std::pow( ( centralBodyGravitationalParameter /
                                                     std::pow( meanMotion, 2.0 ) ), 1.0/3.0 );
