@@ -215,7 +215,8 @@ inline std::string url_encode( const std::string &value )
 
         // Any other characters are percent-encoded
         escaped << std::uppercase;
-        escaped << '%' << std::setw( 2 ) << int( ( unsigned char ) c );
+        unsigned char uc = c;
+        escaped << '%' << std::setw( 2 ) << int( uc );
         escaped << std::nouppercase;
     }
 

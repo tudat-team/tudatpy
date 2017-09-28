@@ -154,7 +154,7 @@ void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& fil
             if ( providedPath.is_relative( ) )
             {
                 const boost::filesystem::path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
-                str = ( rel.filename_is_dot( ) ? providedPath : rel / providedPath ).string( );
+                str = ( *rel.filename( ).c_str( ) == '.' ? providedPath : rel / providedPath ).string( );
             }
             else
             {

@@ -163,10 +163,10 @@ namespace Eigen
 template< typename ScalarType, int rows, int cols >
 void to_json( nlohmann::json& jsonObject, const Matrix< ScalarType, rows, cols >& matrix )
 {
-    for ( unsigned int r = 0; r < matrix.rows( ); ++r )
+    for ( int r = 0; r < matrix.rows( ); ++r )
     {
         nlohmann::json jsonArray;
-        for ( unsigned int c = 0; c < matrix.cols( ); ++c )
+        for ( int c = 0; c < matrix.cols( ); ++c )
         {
             jsonArray.push_back( matrix( r, c ) );
         }
