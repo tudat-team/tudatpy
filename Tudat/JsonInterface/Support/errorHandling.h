@@ -192,8 +192,6 @@ public:
         std::cerr << "Could not convert value to expected type " << expectedTypeName << std::endl;
         std::ostringstream stream;
         stream << ValueAccessError::what( );
-        // stream << ValueAccessError::what( ) << " = " << value.dump( 2 );
-        // std::cerr << stream.str( ).c_str( ) << std::endl;  // FIXME
         return stream.str( ).c_str( );
     }
 };
