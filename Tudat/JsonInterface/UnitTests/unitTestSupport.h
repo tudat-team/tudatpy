@@ -94,7 +94,7 @@ void checkConsistentEnum( const std::string& filename,
 
 void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
                                    const std::map< double, Eigen::VectorXd >& results2,
-                                   const std::vector< unsigned int > indeces,
+                                   const std::vector< unsigned int > indices,
                                    const std::vector< unsigned int > sizes,
                                    const double tolerance )
 {
@@ -116,22 +116,22 @@ void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& re
     const Eigen::VectorXd initialState2 = results2.begin( )->second;
     const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
     const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
-    for ( unsigned int i = 0; i < indeces.size( ); ++i )
+    for ( unsigned int i = 0; i < indices.size( ); ++i )
     {
         // Initial step
-        const double initialNorm1 = initialState1.segment( indeces.at( i ), sizes.at( i ) ).norm( );
-        const double initialNorm2 = initialState2.segment( indeces.at( i ), sizes.at( i ) ).norm( );
+        const double initialNorm1 = initialState1.segment( indices.at( i ), sizes.at( i ) ).norm( );
+        const double initialNorm2 = initialState2.segment( indices.at( i ), sizes.at( i ) ).norm( );
         BOOST_CHECK_CLOSE_FRACTION( initialNorm1, initialNorm2, tolerance );
 
         // Final step
-        const double finalNorm1 = finalState1.segment( indeces.at( i ), sizes.at( i ) ).norm( );
-        const double finalNorm2 = finalState2.segment( indeces.at( i ), sizes.at( i ) ).norm( );
+        const double finalNorm1 = finalState1.segment( indices.at( i ), sizes.at( i ) ).norm( );
+        const double finalNorm2 = finalState2.segment( indices.at( i ), sizes.at( i ) ).norm( );
         BOOST_CHECK_CLOSE_FRACTION( finalNorm1, finalNorm2, tolerance );
     }
 }
 
-#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indeces, sizes, tolerance ) \
-    tudat::json_interface::checkCloseIntegrationResults( results1, results2, indeces, sizes, tolerance )
+#define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indices, sizes, tolerance ) \
+    tudat::json_interface::checkCloseIntegrationResults( results1, results2, indices, sizes, tolerance )
 
 } // namespace json_interface
 

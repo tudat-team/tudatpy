@@ -166,16 +166,16 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    std::vector< unsigned int > indeces;
+    std::vector< unsigned int > indices;
     std::vector< unsigned int > sizes;
     for ( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
     {
-        indeces.push_back( 3 * i );
+        indices.push_back( 3 * i );
         sizes.push_back( 3 );
     }
     const double tolerance = 1.0E-12;
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
 
 
 
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_barycentric )
     jsonSimulation.runPropagation( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
 
 }
 
@@ -350,16 +350,16 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    std::vector< unsigned int > indeces;
+    std::vector< unsigned int > indices;
     std::vector< unsigned int > sizes;
     for ( unsigned int i = 0; i < numberOfNumericalBodies; ++i )
     {
-        indeces.push_back( 3 * i );
+        indices.push_back( 3 * i );
         sizes.push_back( 3 );
     }
     const double tolerance = 1.0E-12;
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
 
 
 
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationInnerSolarSystem_hierarchical )
     jsonSimulation.runPropagation( );
     jsonResults = jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
 
-    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indeces, sizes, tolerance );
+    BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonResults, results, indices, sizes, tolerance );
 
 }
 
