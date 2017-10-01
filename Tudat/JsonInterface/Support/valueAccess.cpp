@@ -230,7 +230,7 @@ nlohmann::json getAsArray( const nlohmann::json& jsonObject )
     nlohmann::json jsonArray = jsonObject;
 
     bool isObjectWithIntConvertibleKeys = jsonObject.is_object( );
-    std::vector< unsigned int > indeces;
+    std::vector< unsigned int > indices;
     std::vector< nlohmann::json > values;
     if ( isObjectWithIntConvertibleKeys )
     {
@@ -242,7 +242,7 @@ nlohmann::json getAsArray( const nlohmann::json& jsonObject )
                 const int intKey = indexFromKey( key );
                 if ( intKey >= 0 )
                 {
-                    indeces.push_back( intKey );
+                    indices.push_back( intKey );
                 }
                 else
                 {
@@ -262,10 +262,10 @@ nlohmann::json getAsArray( const nlohmann::json& jsonObject )
         }
         else
         {
-            std::vector< nlohmann::json > vector( *std::max_element( indeces.begin( ), indeces.end( ) ) + 1 );
-            for ( unsigned int i = 0; i < indeces.size( ); ++i )
+            std::vector< nlohmann::json > vector( *std::max_element( indices.begin( ), indices.end( ) ) + 1 );
+            for ( unsigned int i = 0; i < indices.size( ); ++i )
             {
-                vector[ indeces.at( i ) ] = values.at( i );
+                vector[ indices.at( i ) ] = values.at( i );
             }
             jsonArray = vector;
         }
