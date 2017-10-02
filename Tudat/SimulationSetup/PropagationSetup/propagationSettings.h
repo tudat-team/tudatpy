@@ -357,7 +357,7 @@ public:
     int getNmberOfArcs( )
     {
         return singleArcSettings_.size( );
-     }
+    }
 
     //! Function get the list of initial states for each arc in propagation.
     /*!
@@ -553,8 +553,9 @@ public:
             transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
             dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationsMap_( accelerationsMap ) { }
 
 
     //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
@@ -588,8 +589,9 @@ public:
             transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
             dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationSettingsMap_( accelerationSettingsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationSettingsMap_( accelerationSettingsMap ) { }
 
 
 
@@ -598,6 +600,51 @@ public:
 
     //! List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
     std::vector< std::string > centralBodies_;
+
+    //! List of bodies for which the translational state is to be propagated.
+    std::vector< std::string > bodiesToIntegrate_;
+
+    //! Type of translational state propagator to be used
+    TranslationalPropagatorType propagator_;
+
+    //! Function to create the acceleration models.
+    /*!
+     * Function to create the acceleration models.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
+                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
+    }
+
+    //! Function to get the acceleration settings map.
+    /*!
+     * Function to get the acceleration settings map.
+     * \return The acceleration settings map.
+     */
+    simulation_setup::SelectedAccelerationMap getAccelerationSettingsMap( ) const
+    {
+        return accelerationSettingsMap_;
+    }
+
+    //! Function to get the accelerations map.
+    /*!
+     * Function to get the accelerations map.
+     * \return The accelerations map.
+     */
+    basic_astrodynamics::AccelerationMap getAccelerationsMap( ) const
+    {
+        if ( accelerationsMap_.size( ) == 0 && accelerationSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of aceleration settings and map of acceleration models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return accelerationsMap_;
+    }
+
+
+private:
 
     //! A map containing the list of settings for the accelerations acting on each body
     /*!
@@ -617,24 +664,7 @@ public:
      *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
      *  a pointer to an acceleration model.
      */
-    basic_astrodynamics::AccelerationMap accelerationsMap_;  // FIXME: private, check size in getter
-
-    //! List of bodies for which the translational state is to be propagated.
-    std::vector< std::string > bodiesToIntegrate_;
-
-    //! Type of translational state propagator to be used
-    TranslationalPropagatorType propagator_;
-
-    //! Function to create the acceleration models.
-    /*!
-     * Function to create the acceleration models.
-     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
-     */
-    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
-    {
-        accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
-                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
-    }
+    basic_astrodynamics::AccelerationMap accelerationsMap_;
 
 };
 
@@ -666,7 +696,7 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        torqueModelMap_( torqueModelMap ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueModelMap_( torqueModelMap ) { }
 
     //! Constructor with settings for torque models.
     /*!
@@ -690,16 +720,10 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        torqueSettingsMap_( torqueSettingsMap ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueSettingsMap_( torqueSettingsMap ) { }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
-
-    //! List of torque settings that are to be used to create the torque models
-    simulation_setup::SelectedTorqueMap torqueSettingsMap_;
-
-    //! List of torque models that are to be used in propagation
-    basic_astrodynamics::TorqueModelMap torqueModelMap_;
 
     //! List of bodies that are to be propagated numerically.
     std::vector< std::string > bodiesToIntegrate_;
@@ -713,6 +737,41 @@ public:
     {
         torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_ );
     }
+
+    //! Function to get the torque settings map.
+    /*!
+     * Function to get the torque settings map.
+     * \return The torque settings map.
+     */
+    simulation_setup::SelectedTorqueMap getTorqueSettingsMap( ) const
+    {
+        return torqueSettingsMap_;
+    }
+
+    //! Function to get the torque models map.
+    /*!
+     * Function to get the torque models map.
+     * \return The torque models map.
+     */
+    basic_astrodynamics::TorqueModelMap getTorqueModelsMap( ) const
+    {
+        if ( torqueModelMap_.size( ) == 0 && torqueSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of torque settings and map of torque models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return torqueModelMap_;
+    }
+
+
+private:
+
+    //! List of torque settings that are to be used to create the torque models
+    simulation_setup::SelectedTorqueMap torqueSettingsMap_;
+
+    //! List of torque models that are to be used in propagation
+    basic_astrodynamics::TorqueModelMap torqueModelMap_;
+
 };
 
 
@@ -781,8 +840,7 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
-    { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels ) { }
 
     //! Constructor of mass state propagator settings, with settings for mass rate models.
     /*!
@@ -806,17 +864,10 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings )
-    { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings ) { }
 
     //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
-
-    //! List of mass rate settings per propagated body.
-    simulation_setup::SelectedMassRateModelMap massRateSettingsMap_;
-
-    //! List of mass rate models per propagated body.
-    basic_astrodynamics::MassRateModelMap massRateModels_;
 
     //! Function to create the mass-rate models with support for thrust-acceleration-based mass-rate models.
     /*!
@@ -841,6 +892,41 @@ public:
     {
         resetIntegratedStateModels( bodyMap, basic_astrodynamics::AccelerationMap( ) );
     }
+
+    //! Function to get the mass-rate settings map.
+    /*!
+     * Function to get the mass-rate settings map.
+     * \return The mass-rate settings map.
+     */
+    simulation_setup::SelectedMassRateModelMap getMassRateSettingsMap( ) const
+    {
+        return massRateSettingsMap_;
+    }
+
+    //! Function to get the mass-rate models map.
+    /*!
+     * Function to get the mass-rate models map.
+     * \return The mass-rate models map.
+     */
+    basic_astrodynamics::MassRateModelMap getMassRateModelsMap( ) const
+    {
+        if ( massRateModels_.size( ) == 0 && massRateSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of mass-rate settings and map of mass-rate models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return massRateModels_;
+    }
+
+
+private:
+
+    //! List of mass rate settings per propagated body.
+    simulation_setup::SelectedMassRateModelMap massRateSettingsMap_;
+
+    //! List of mass rate models per propagated body.
+    basic_astrodynamics::MassRateModelMap massRateModels_;
+
 };
 
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
@@ -1177,7 +1263,7 @@ public:
                                                       "or provide no translational propagator settings at all." );
                         }
                         massPropagatorSettings->resetIntegratedStateModels(
-                                    bodyMap, vectorOfTranslationalSettings.at( i )->accelerationsMap_ );
+                                    bodyMap, vectorOfTranslationalSettings.at( i )->getAccelerationsMap( ) );
                     }
                     else
                     {

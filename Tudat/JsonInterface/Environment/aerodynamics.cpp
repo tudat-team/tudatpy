@@ -59,8 +59,8 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
     }
     case tabulated_coefficients:
     {
-        boost::shared_ptr< FromFileAerodynamicCoefficientSettings > fromFileAerodynamicCoefficientSettings =
-                boost::dynamic_pointer_cast< FromFileAerodynamicCoefficientSettings >( aerodynamicSettings );
+        boost::shared_ptr< TabulatedAerodynamicCoefficientSettingsBase > fromFileAerodynamicCoefficientSettings =
+                boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettingsBase >( aerodynamicSettings );
         enforceNonNullPointer( fromFileAerodynamicCoefficientSettings );
         const bool hasMoments = ! isNaN( fromFileAerodynamicCoefficientSettings->getReferenceLength( ) );
 

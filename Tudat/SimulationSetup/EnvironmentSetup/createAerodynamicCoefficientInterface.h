@@ -323,11 +323,11 @@ private:
     Eigen::Vector3d constantMomentCoefficient_;
 };
 
-//! Base class (non-functional) for AerodynamicCoefficientSettings that can (but not necessarily) be loaded from files.
+//! Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
 /*!
- * Base class (non-functional) for AerodynamicCoefficientSettings that can (but not necessarily) be loaded from files.
+ * Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.
  */
-class FromFileAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+class TabulatedAerodynamicCoefficientSettingsBase: public AerodynamicCoefficientSettings
 {
 public:
     // Inherit constructors
@@ -389,7 +389,7 @@ private:
  *  define the physical meaning of each of the independent variables.
  */
 template< unsigned int NumberOfDimensions >
-class TabulatedAerodynamicCoefficientSettings: public FromFileAerodynamicCoefficientSettings
+class TabulatedAerodynamicCoefficientSettings: public TabulatedAerodynamicCoefficientSettingsBase
 {
 public:
 
@@ -431,7 +431,7 @@ public:
             independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -466,7 +466,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -540,7 +540,7 @@ private:
  *  define the physical meaning of the independent variables.
  */
 template< >
-class TabulatedAerodynamicCoefficientSettings< 1 >: public FromFileAerodynamicCoefficientSettings
+class TabulatedAerodynamicCoefficientSettings< 1 >: public TabulatedAerodynamicCoefficientSettingsBase
 {
 public:
 
@@ -583,7 +583,7 @@ public:
             const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
@@ -644,7 +644,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
             independentVariableName, areCoefficientsInAerodynamicFrame,
@@ -697,7 +697,7 @@ public:
             const boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
@@ -742,7 +742,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
-        FromFileAerodynamicCoefficientSettings(
+        TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
             independentVariableNames, areCoefficientsInAerodynamicFrame,
