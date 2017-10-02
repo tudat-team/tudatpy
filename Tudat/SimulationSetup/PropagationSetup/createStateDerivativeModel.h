@@ -151,7 +151,7 @@ createTranslationalStateDerivativeModel(
     {
         stateDerivativeModel = boost::make_shared<
                 NBodyCowellStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
         break;
     }
@@ -177,7 +177,7 @@ createTranslationalStateDerivativeModel(
 
         // Create Encke state derivative object.
         stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
                   initialKeplerElements, propagationStartTime );
 
         break;
@@ -186,7 +186,7 @@ createTranslationalStateDerivativeModel(
     {
         // Create Encke state derivative object.
         stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
 
         break;
@@ -211,7 +211,7 @@ createTranslationalStateDerivativeModel(
 
         // Create Encke state derivative object.:
         stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
 
         break;
@@ -245,7 +245,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                                  bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
     }
     return boost::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
-                rotationPropagatorSettings->torqueModelMap_, rotationPropagatorSettings->bodiesToIntegrate_,
+                rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
                 momentOfInertiaFunctions );
 }
 
@@ -264,7 +264,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
         const  simulation_setup::NamedBodyMap& bodyMap )
 {
     return boost::make_shared< propagators::BodyMassStateDerivative< StateScalarType, TimeType > >(
-                massPropagatorSettings->massRateModels_,
+                massPropagatorSettings->getMassRateModelsMap( ),
                 massPropagatorSettings->bodiesWithMassToPropagate_ );
 }
 
@@ -400,7 +400,7 @@ void setMultiTypePropagationClosure(
                 boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > currentTranslationalState =
                         boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                             translationalStateSettings.at( i ) );
-                basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->accelerationsMap_;
+                basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
                 for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = currentAccelerationsMap.begin( );
                      accelerationIterator != currentAccelerationsMap.end( ); accelerationIterator++ )
                 {

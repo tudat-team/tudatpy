@@ -133,14 +133,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     TranslationalStatePropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->accelerationsMap_,
+                        propagatorSettings )->getAccelerationsMap( ),
                     bodyMap );
         break;
     }
     case rotational_state:
     {
         environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->torqueModelMap_,
+                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->getTorqueModelsMap( ),
                     bodyMap );
         break;
     }
@@ -150,7 +150,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     MassPropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->massRateModels_, bodyMap );
+                        propagatorSettings )->getMassRateModelsMap( ), bodyMap );
         break;
     }
     case custom_state:
