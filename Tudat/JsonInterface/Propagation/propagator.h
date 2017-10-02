@@ -411,7 +411,7 @@ void to_json( nlohmann::json& jsonObject,
         jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
         jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
         jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
-        jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->accelerationSettingsMap_;
+        jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->getAccelerationsMap( );
         return;
     }
     case body_mass_state:
@@ -420,7 +420,7 @@ void to_json( nlohmann::json& jsonObject,
                 boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
         enforceNonNullPointer( massPropagatorSettings );
         jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
-        jsonObject[ K::massRateModels ] = massPropagatorSettings->massRateSettingsMap_;
+        jsonObject[ K::massRateModels ] = massPropagatorSettings->getMassRateSettingsMap( );
         return;
     }
     case rotational_state:
@@ -430,7 +430,7 @@ void to_json( nlohmann::json& jsonObject,
                     singleArcPropagatorSettings );
         enforceNonNullPointer( rotationalStatePropagatorSettings );
         jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
-        jsonObject[ K::torques ] = rotationalStatePropagatorSettings->torqueSettingsMap_;
+        jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
         return;
     }
     case hybrid:
