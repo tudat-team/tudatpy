@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
+#include "Tudat/Astrodynamics/Gravitation/directTidalDissipationAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
@@ -51,7 +52,8 @@ enum AvailableAcceleration
     third_body_mutual_spherical_harmonic_gravity,
     thrust_acceleration,
     relativistic_correction_acceleration,
-    empirical_acceleration
+    empirical_acceleration,
+    direct_tidal_dissipation_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type

@@ -22,6 +22,8 @@
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
+#include "Tudat/Astrodynamics/Gravitation/directTidalDissipationAcceleration.h"
+
 namespace tudat
 {
 
@@ -317,6 +319,13 @@ createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
+
+boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an orbiter relativistic correction acceleration model
 /*!

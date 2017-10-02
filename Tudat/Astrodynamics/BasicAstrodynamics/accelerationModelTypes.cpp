@@ -56,6 +56,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case empirical_acceleration:
         accelerationName  ="empirical correction";
         break;
+    case direct_tidal_dissipation_acceleration:
+        accelerationName  ="direct tidal dissipation";
+        break;
     default:
         std::string errorMessage = "Error, acceleration type " +
                 boost::lexical_cast< std::string >( accelerationType ) +
@@ -130,6 +133,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( boost::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >( accelerationModel ) != NULL )
     {
         accelerationType = empirical_acceleration;
+    }
+    else if( boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != NULL )
+    {
+        accelerationType = direct_tidal_dissipation_acceleration;
     }
     else
     {

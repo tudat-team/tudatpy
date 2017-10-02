@@ -361,6 +361,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     }
                     break;
                 }
+                case direct_tidal_dissipation_acceleration:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
+                            push_back( accelerationModelIterator->first );
+                    break;
                 case empirical_acceleration:
                     break;
                 default:
