@@ -411,7 +411,7 @@ void to_json( nlohmann::json& jsonObject,
         jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
         jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
         jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
-        jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->getAccelerationsMap( );
+        jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->getAccelerationSettingsMap( );
         return;
     }
     case body_mass_state:
