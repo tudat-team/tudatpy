@@ -486,8 +486,9 @@ public:
         SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationsMap_( accelerationsMap ) { }
 
     //! Constructor for generic stopping conditions, providing settings to create accelerations map.
     /*!
@@ -519,8 +520,9 @@ public:
         SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationSettingsMap_( accelerationSettingsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationSettingsMap_( accelerationSettingsMap ) { }
 
     //! Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
     /*!
