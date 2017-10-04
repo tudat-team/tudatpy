@@ -36,7 +36,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSett
     {
         boost::shared_ptr< SphericalBodyShapeSettings > sphericalBodyShapeSettings =
                 boost::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
-        enforceNonNullPointer( sphericalBodyShapeSettings );
+        assertNonNullPointer( sphericalBodyShapeSettings );
         jsonObject[ K::radius ] = sphericalBodyShapeSettings->getRadius( );
         return;
     }
@@ -46,7 +46,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSett
     {
         boost::shared_ptr< OblateSphericalBodyShapeSettings > oblateSphericalBodyShapeSettings =
                 boost::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
-        enforceNonNullPointer( oblateSphericalBodyShapeSettings );
+        assertNonNullPointer( oblateSphericalBodyShapeSettings );
         jsonObject[ K::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
         jsonObject[ K::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
         return;

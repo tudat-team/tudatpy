@@ -125,7 +125,7 @@ void exportResultsOfDynamicsSimulator(
             {
                 const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
                         boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                enforceNonNullPointer( dependentVar );
+                assertNonNullPointer( dependentVar );
                 try
                 {
                     const std::string variableID = getDependentVariableId( dependentVar );

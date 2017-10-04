@@ -110,6 +110,11 @@ add_executable(test_JsonInterfaceAtmosphere "${JSON_TESTS_DIR}/unitTestAtmospher
 setup_custom_test_program(test_JsonInterfaceAtmosphere "")
 target_link_libraries(test_JsonInterfaceAtmosphere ${JSON_PROPAGATION_LIBRARIES})
 
+# Body
+add_executable(test_JsonInterfaceBody "${JSON_TESTS_DIR}/unitTestBody.cpp")
+setup_custom_test_program(test_JsonInterfaceBody "")
+target_link_libraries(test_JsonInterfaceBody ${JSON_PROPAGATION_LIBRARIES})
+
 # Deserialization
 add_executable(test_JsonInterfaceDeserialization "${JSON_TESTS_DIR}/unitTestDeserialization.cpp")
 setup_custom_test_program(test_JsonInterfaceDeserialization "")
@@ -119,6 +124,11 @@ target_link_libraries(test_JsonInterfaceDeserialization ${JSON_PROPAGATION_LIBRA
 add_executable(test_JsonInterfaceEphemeris "${JSON_TESTS_DIR}/unitTestEphemeris.cpp")
 setup_custom_test_program(test_JsonInterfaceEphemeris "")
 target_link_libraries(test_JsonInterfaceEphemeris ${JSON_PROPAGATION_LIBRARIES})
+
+# Export
+add_executable(test_JsonInterfaceExport "${JSON_TESTS_DIR}/unitTestExport.cpp")
+setup_custom_test_program(test_JsonInterfaceExport "")
+target_link_libraries(test_JsonInterfaceExport ${JSON_PROPAGATION_LIBRARIES})
 
 # GravityField
 add_executable(test_JsonInterfaceGravityField "${JSON_TESTS_DIR}/unitTestGravityField.cpp")
@@ -135,10 +145,30 @@ add_executable(test_JsonInterfaceIntegrator "${JSON_TESTS_DIR}/unitTestIntegrato
 setup_custom_test_program(test_JsonInterfaceIntegrator "")
 target_link_libraries(test_JsonInterfaceIntegrator ${JSON_PROPAGATION_LIBRARIES})
 
+# Interpolation
+add_executable(test_JsonInterfaceInterpolation "${JSON_TESTS_DIR}/unitTestInterpolation.cpp")
+setup_custom_test_program(test_JsonInterfaceInterpolation "")
+target_link_libraries(test_JsonInterfaceInterpolation ${JSON_PROPAGATION_LIBRARIES})
+
+# MassRateModel
+add_executable(test_JsonInterfaceMassRateModel "${JSON_TESTS_DIR}/unitTestMassRateModel.cpp")
+setup_custom_test_program(test_JsonInterfaceMassRateModel "")
+target_link_libraries(test_JsonInterfaceMassRateModel ${JSON_PROPAGATION_LIBRARIES})
+
+# Propagator
+add_executable(test_JsonInterfacePropagator "${JSON_TESTS_DIR}/unitTestPropagator.cpp")
+setup_custom_test_program(test_JsonInterfacePropagator "")
+target_link_libraries(test_JsonInterfacePropagator ${JSON_PROPAGATION_LIBRARIES})
+
 # RadiationPressure
 add_executable(test_JsonInterfaceRadiationPressure "${JSON_TESTS_DIR}/unitTestRadiationPressure.cpp")
 setup_custom_test_program(test_JsonInterfaceRadiationPressure "")
 target_link_libraries(test_JsonInterfaceRadiationPressure ${JSON_PROPAGATION_LIBRARIES})
+
+# ReferenceFrames
+add_executable(test_JsonInterfaceReferenceFrames "${JSON_TESTS_DIR}/unitTestReferenceFrames.cpp")
+setup_custom_test_program(test_JsonInterfaceReferenceFrames "")
+target_link_libraries(test_JsonInterfaceReferenceFrames ${JSON_PROPAGATION_LIBRARIES})
 
 # RotationModel
 add_executable(test_JsonInterfaceRotationModel "${JSON_TESTS_DIR}/unitTestRotationModel.cpp")
@@ -180,15 +210,35 @@ add_executable(test_JsonInterfaceSimulationThrustAccelerationFromFile "${JSON_TE
 setup_custom_test_program(test_JsonInterfaceSimulationThrustAccelerationFromFile "")
 target_link_libraries(test_JsonInterfaceSimulationThrustAccelerationFromFile ${JSON_PROPAGATION_LIBRARIES})
 
+# Spice
+add_executable(test_JsonInterfaceSpice "${JSON_TESTS_DIR}/unitTestSpice.cpp")
+setup_custom_test_program(test_JsonInterfaceSpice "")
+target_link_libraries(test_JsonInterfaceSpice ${JSON_PROPAGATION_LIBRARIES})
+
 # State
 add_executable(test_JsonInterfaceState "${JSON_TESTS_DIR}/unitTestState.cpp")
 setup_custom_test_program(test_JsonInterfaceState "")
 target_link_libraries(test_JsonInterfaceState ${JSON_PROPAGATION_LIBRARIES})
 
+# Termination
+add_executable(test_JsonInterfaceTermination "${JSON_TESTS_DIR}/unitTestTermination.cpp")
+setup_custom_test_program(test_JsonInterfaceTermination "")
+target_link_libraries(test_JsonInterfaceTermination ${JSON_PROPAGATION_LIBRARIES})
+
 # Thrust
 add_executable(test_JsonInterfaceThrust "${JSON_TESTS_DIR}/unitTestThrust.cpp")
 setup_custom_test_program(test_JsonInterfaceThrust "")
 target_link_libraries(test_JsonInterfaceThrust ${JSON_PROPAGATION_LIBRARIES})
+
+# Torque
+add_executable(test_JsonInterfaceTorque "${JSON_TESTS_DIR}/unitTestTorque.cpp")
+setup_custom_test_program(test_JsonInterfaceTorque "")
+target_link_libraries(test_JsonInterfaceTorque ${JSON_PROPAGATION_LIBRARIES})
+
+# Variable
+add_executable(test_JsonInterfaceVariable "${JSON_TESTS_DIR}/unitTestVariable.cpp")
+setup_custom_test_program(test_JsonInterfaceVariable "")
+target_link_libraries(test_JsonInterfaceVariable ${JSON_PROPAGATION_LIBRARIES})
 
 
 

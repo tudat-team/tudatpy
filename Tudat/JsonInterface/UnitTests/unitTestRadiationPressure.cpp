@@ -11,7 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include "unitTestSupport.h"
-#include <Tudat/JsonInterface/Environment/radiationPressure.h>
+#include "Tudat/JsonInterface/Environment/radiationPressure.h"
 
 namespace tudat
 {

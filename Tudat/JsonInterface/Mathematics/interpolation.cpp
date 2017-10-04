@@ -45,7 +45,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorS
     {
         boost::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
                 boost::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
-        enforceNonNullPointer( lagrangeInterpolatorSettings );
+        assertNonNullPointer( lagrangeInterpolatorSettings );
         jsonObject[ K::order ] = lagrangeInterpolatorSettings->getInterpolatorOrder( );
         jsonObject[ K::boundaryHandling ] = lagrangeInterpolatorSettings->getBoundaryHandling( );
         return;

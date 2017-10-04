@@ -85,6 +85,9 @@ static std::map< LagrangeInterpolatorBoundaryHandling, std::string > lagrangeInt
     { lagrange_no_boundary_interpolation, "noBoundary" }
 };
 
+//! `LagrangeInterpolatorBoundaryHandling`s not supported by `json_interface`.
+static std::vector< LagrangeInterpolatorBoundaryHandling > unsupportedLagrangeInterpolatorBoundaryHandlings = { };
+
 //! Convert `LagrangeInterpolatorBoundaryHandling` to `json`.
 inline void to_json( nlohmann::json& jsonObject,
                      const LagrangeInterpolatorBoundaryHandling& lagrangeInterpolatorBoundaryHandling )
@@ -142,7 +145,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< DataMapSettin
         return;
     }
 
-    jsonObject[ K::map ] = fromFileDataMapSettings->getDataMap( );
+    jsonObject[ K::map ] = dataMapSettings->getDataMap( );
 }
 
 //! Create a shared pointer to a `DataMapSettings` object from a `json` object.

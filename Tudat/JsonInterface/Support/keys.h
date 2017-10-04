@@ -93,6 +93,13 @@ struct Keys
             static const std::string apoapsisDistance;
             static const std::string periapsisAltitude;
             static const std::string apoapsisAltitude;
+            // Spherical
+            static const std::string epoch;
+            static const std::string latitude;
+            static const std::string longitude;
+            static const std::string speed;
+            static const std::string flightPathAngle;
+            static const std::string headingAngle;
         };
 
         static const std::string aerodynamics;

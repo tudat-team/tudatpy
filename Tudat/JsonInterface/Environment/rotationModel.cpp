@@ -38,7 +38,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModel
     {
         boost::shared_ptr< SimpleRotationModelSettings > simpleRotationModelSettings =
                 boost::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
-        enforceNonNullPointer( simpleRotationModelSettings );
+        assertNonNullPointer( simpleRotationModelSettings );
         jsonObject[ K::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
         jsonObject[ K::initialTime ] = simpleRotationModelSettings->getInitialTime( );
         jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );

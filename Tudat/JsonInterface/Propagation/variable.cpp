@@ -113,7 +113,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationVariableSettings =
                 boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >(
                     dependentVariableSettings );
-        enforceNonNullPointer( accelerationVariableSettings );
+        assertNonNullPointer( accelerationVariableSettings );
         jsonObject[ K::accelerationType ] = accelerationVariableSettings->accelerationModeType_;
         jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         return;
@@ -124,7 +124,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueVariableSettings =
                 boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >(
                     dependentVariableSettings );
-        enforceNonNullPointer( torqueVariableSettings );
+        assertNonNullPointer( torqueVariableSettings );
         jsonObject[ K::torqueType ] = torqueVariableSettings->torqueModeType_;
         jsonObject[ K::bodyExertingTorque ] = dependentVariableSettings->secondaryBody_;
         return;
@@ -134,7 +134,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > aerodynamicRotationVariableSettings =
                 boost::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >(
                     dependentVariableSettings );
-        enforceNonNullPointer( aerodynamicRotationVariableSettings );
+        assertNonNullPointer( aerodynamicRotationVariableSettings );
         jsonObject[ K::baseFrame ] = aerodynamicRotationVariableSettings->baseFrame_;
         jsonObject[ K::targetFrame ] = aerodynamicRotationVariableSettings->targetFrame_;
         return;
@@ -144,7 +144,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > aerodynamicAngleVariableSettings =
                 boost::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >(
                     dependentVariableSettings );
-        enforceNonNullPointer( aerodynamicAngleVariableSettings );
+        assertNonNullPointer( aerodynamicAngleVariableSettings );
         jsonObject[ K::angle ] = aerodynamicAngleVariableSettings->angle_;
         return;
     }

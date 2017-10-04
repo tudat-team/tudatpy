@@ -100,6 +100,13 @@ const std::string Keys::Body::State::periapsisDistance = "periapsisDistance";
 const std::string Keys::Body::State::apoapsisDistance = "apoapsisDistance";
 const std::string Keys::Body::State::periapsisAltitude = "periapsisAltitude";
 const std::string Keys::Body::State::apoapsisAltitude = "apoapsisAltitude";
+// Spherical
+const std::string Keys::Body::State::epoch = "epoch";
+const std::string Keys::Body::State::latitude = "latitude";
+const std::string Keys::Body::State::longitude = "longitude";
+const std::string Keys::Body::State::speed = "speed";
+const std::string Keys::Body::State::flightPathAngle = "flightPathAngle";
+const std::string Keys::Body::State::headingAngle = "headingAngle";
 
 
 // //  Body::Aerodynamics

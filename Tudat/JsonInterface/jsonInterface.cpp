@@ -10,7 +10,7 @@
 
 #include <getopt.h>
 
-#include <Tudat/JsonInterface/jsonInterface.h>
+#include "Tudat/JsonInterface/jsonInterface.h"
 
 void printHelp( )
 {

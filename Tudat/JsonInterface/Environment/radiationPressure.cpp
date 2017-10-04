@@ -39,7 +39,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
                 boost::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
                     radiationPressureInterfaceSettings );
-        enforceNonNullPointer( cannonBallRadiationPressureInterfaceSettings );
+        assertNonNullPointer( cannonBallRadiationPressureInterfaceSettings );
         jsonObject[ K::referenceArea ] = cannonBallRadiationPressureInterfaceSettings->getArea( );
         jsonObject[ K::radiationPressureCoefficient ] =
                 cannonBallRadiationPressureInterfaceSettings->getRadiationPressureCoefficient( );

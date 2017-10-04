@@ -250,7 +250,11 @@ public:
         return bodyMap_;
     }
 
-    //! -DOC
+    //! Function to reset the named body map.
+    /*!
+     *  Function to reset the named body map.
+     *  \param bodyMap The new named body map.
+     */
     void resetNamedBodyMap( const simulation_setup::NamedBodyMap& bodyMap )
     {
         bodyMap_ = bodyMap;
