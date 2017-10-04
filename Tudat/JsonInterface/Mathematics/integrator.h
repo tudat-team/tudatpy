@@ -101,7 +101,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
     {
         boost::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
                 boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
-        enforceNonNullPointer( rungeKuttaVariableStepSizeSettings );
+        assertNonNullPointer( rungeKuttaVariableStepSizeSettings );
         jsonObject[ K::rungeKuttaCoefficientSet ] =
                 stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
         jsonObject[ K::initialStepSize ] = rungeKuttaVariableStepSizeSettings->initialTimeStep_;

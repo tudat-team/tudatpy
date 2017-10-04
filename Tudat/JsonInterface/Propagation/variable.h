@@ -88,8 +88,8 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
     { body_fixed_groundspeed_based_velocity_variable, "bodyFixedGroundspeedBasedVelocity" }
 };
 
-// //! `PropagationDependentVariables` not supported by `json_interface`.
-// static std::vector< PropagationDependentVariables > unsupportedDependentVariables = { };
+//! `PropagationDependentVariables` not supported by `json_interface`.
+static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes = { };
 
 //! Convert `PropagationDependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const PropagationDependentVariables& dependentVariable )

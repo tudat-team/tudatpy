@@ -10,8 +10,10 @@
 
 #define BOOST_TEST_MAIN
 
+#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.cpp>
+
 #include "unitTestSupport.h"
-#include <Tudat/JsonInterface/Propagation/state.h>
+#include "Tudat/JsonInterface/Propagation/state.h"
 
 namespace tudat
 {
@@ -203,6 +205,59 @@ BOOST_AUTO_TEST_CASE( test_json_state_keplerian )
 
     BOOST_CHECK_EQUAL( fromFileState9, manualState9 );
 
+}
+
+// Test 5: Spherical state
+BOOST_AUTO_TEST_CASE( test_json_state_spherical )
+{
+    using namespace tudat::simulation_setup;
+    using namespace tudat::orbital_element_conversions;
+    using namespace tudat::json_interface;
+
+    // Central body
+
+    spice_interface::loadStandardSpiceKernels( );
+    boost::shared_ptr< Body > centralBody = createBodies( getDefaultBodySettings( { "Earth" } ) ).at( "Earth" );
+
+
+    // From radius
+
+    const Eigen::Vector6d fromFileState = getCartesianState< double >(
+                parseJSONFile( INPUT( "spherical" ) ), KeyPath( ), centralBody );
+
+    Eigen::Vector6d manualState;
+    manualState( radiusIndex ) = 2.0;
+    manualState( latitudeIndex ) = 0.5;
+    manualState( longitudeIndex ) = -1.4;
+    manualState( speedIndex ) = 5.0;
+    manualState( flightPathIndex ) = 0.08;
+    manualState( headingAngleIndex ) = 0.0;
+
+    manualState = tudat::ephemerides::transformStateToGlobalFrame(
+                convertSphericalOrbitalToCartesianState( manualState ),
+                666.0, centralBody->getRotationalEphemeris( ) );
+
+    BOOST_CHECK_EQUAL( fromFileState, manualState );
+
+
+    // From altitude
+
+    const Eigen::Vector6d fromFileStateAltitude = getCartesianState< double >(
+                parseJSONFile( INPUT( "spherical_altitude" ) ), KeyPath( ), centralBody );
+
+    Eigen::Vector6d manualStateAltitude;
+    manualStateAltitude( radiusIndex ) = 2.0;
+    manualStateAltitude( latitudeIndex ) = 0.5;
+    manualStateAltitude( longitudeIndex ) = -1.4;
+    manualStateAltitude( speedIndex ) = 5.0;
+    manualStateAltitude( flightPathIndex ) = 0.08;
+    manualStateAltitude( headingAngleIndex ) = -0.12;
+
+    manualStateAltitude = tudat::ephemerides::transformStateToGlobalFrame(
+                convertSphericalOrbitalToCartesianState( manualStateAltitude ),
+                -8.0E+5, centralBody->getRotationalEphemeris( ) );
+
+    BOOST_CHECK_EQUAL( fromFileStateAltitude, manualStateAltitude );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

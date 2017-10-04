@@ -1,0 +1,14 @@
+{
+  "file": "@path(partial.txt)",
+  "variables": [
+    {
+      "body": "body",
+      "dependentVariableType": "altitude",
+      "relativeToBody": "Earth"
+    }
+  ],
+  "epochsInFirstColumn": true,
+  "numericalPrecision": 6,
+  "onlyInitialStep": true,
+  "onlyFinalStep": true
+}

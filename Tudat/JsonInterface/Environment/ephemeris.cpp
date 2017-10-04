@@ -42,7 +42,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< ApproximatePlanetPositionSettings > approximatePlanetPositionSettings =
                 boost::dynamic_pointer_cast< ApproximatePlanetPositionSettings >( ephemerisSettings );
-        enforceNonNullPointer( approximatePlanetPositionSettings );
+        assertNonNullPointer( approximatePlanetPositionSettings );
         jsonObject[ K::bodyIdentifier ] = approximatePlanetPositionSettings->getBodyIdentifier( );
         jsonObject[ K::useCircularCoplanarApproximation ] =
                 approximatePlanetPositionSettings->getUseCircularCoplanarApproximation( );
@@ -52,7 +52,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< DirectSpiceEphemerisSettings > directSpiceEphemerisSettings =
                 boost::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
-        enforceNonNullPointer( directSpiceEphemerisSettings );
+        assertNonNullPointer( directSpiceEphemerisSettings );
         jsonObject[ K::correctForStellarAberration ] =
                 directSpiceEphemerisSettings->getCorrectForStellarAberration( );
         jsonObject[ K::correctForLightTimeAberration ] =
@@ -65,7 +65,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedSpiceEphemerisSettings =
                 boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( ephemerisSettings );
-        enforceNonNullPointer( interpolatedSpiceEphemerisSettings );
+        assertNonNullPointer( interpolatedSpiceEphemerisSettings );
         jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
         jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
         jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
@@ -77,7 +77,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< TabulatedEphemerisSettings > tabulatedEphemerisSettings =
                 boost::dynamic_pointer_cast< TabulatedEphemerisSettings >( ephemerisSettings );
-        enforceNonNullPointer( tabulatedEphemerisSettings );
+        assertNonNullPointer( tabulatedEphemerisSettings );
         jsonObject[ K::bodyStateHistory ] = tabulatedEphemerisSettings->getBodyStateHistory( );
         jsonObject[ K::useLongDoubleStates ] = tabulatedEphemerisSettings->getUseLongDoubleStates( );
         return;
@@ -86,7 +86,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
                 boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
-        enforceNonNullPointer( constantEphemerisSettings );
+        assertNonNullPointer( constantEphemerisSettings );
         jsonObject[ K::constantState ] = constantEphemerisSettings->getConstantState( );
         return;
     }
@@ -94,7 +94,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< EphemerisSett
     {
         boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
                 boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
-        enforceNonNullPointer( keplerEphemerisSettings );
+        assertNonNullPointer( keplerEphemerisSettings );
         jsonObject[ K::initialStateInKeplerianElements ] =
                 keplerEphemerisSettings->getInitialStateInKeplerianElements( );
         jsonObject[ K::epochOfInitialState ] =

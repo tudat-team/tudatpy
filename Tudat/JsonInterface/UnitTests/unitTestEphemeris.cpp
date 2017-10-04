@@ -11,7 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include "unitTestSupport.h"
-#include <Tudat/JsonInterface/Environment/ephemeris.h>
+#include "Tudat/JsonInterface/Environment/ephemeris.h"
 
 namespace tudat
 {

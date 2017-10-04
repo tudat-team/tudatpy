@@ -36,7 +36,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModel
     {
         boost::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
                 boost::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
-        enforceNonNullPointer( fromThrustMassModelSettings );
+        assertNonNullPointer( fromThrustMassModelSettings );
         jsonObject[ K::useAllThrustModels ] = fromThrustMassModelSettings->useAllThrustModels_;
         assignIfNotEmpty( jsonObject, K::associatedThrustSource,
                           fromThrustMassModelSettings->associatedThrustSource_ );

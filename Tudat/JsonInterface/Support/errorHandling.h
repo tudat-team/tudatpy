@@ -348,7 +348,7 @@ public:
  * \throws NullPointerError<T> If \p pointer is `NULL`.
  */
 template< typename T >
-void enforceNonNullPointer( const boost::shared_ptr< T >& pointer )
+void assertNonNullPointer( const boost::shared_ptr< T >& pointer )
 {
     if ( pointer )
     {

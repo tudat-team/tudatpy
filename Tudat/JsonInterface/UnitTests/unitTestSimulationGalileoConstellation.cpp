@@ -13,7 +13,7 @@
 #include <Tudat/SimulationSetup/tudatSimulationHeader.h>
 
 #include "unitTestSupport.h"
-#include <Tudat/JsonInterface/jsonInterface.h>
+#include "Tudat/JsonInterface/jsonInterface.h"
 
 namespace tudat
 {

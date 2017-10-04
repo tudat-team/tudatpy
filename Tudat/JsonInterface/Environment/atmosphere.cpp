@@ -37,7 +37,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
     {
         boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
                 boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
-        enforceNonNullPointer( exponentialAtmosphereSettings );
+        assertNonNullPointer( exponentialAtmosphereSettings );
         jsonObject[ K::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
         jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
         jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
@@ -48,7 +48,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
     {
         boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
-        enforceNonNullPointer( tabulatedAtmosphereSettings );
+        assertNonNullPointer( tabulatedAtmosphereSettings );
         jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
         return;
     }

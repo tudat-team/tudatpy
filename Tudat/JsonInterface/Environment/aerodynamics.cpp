@@ -39,7 +39,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
     {
         boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicSettings =
                 boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicSettings );
-        enforceNonNullPointer( constantAerodynamicSettings );
+        assertNonNullPointer( constantAerodynamicSettings );
         jsonObject[ K::forceCoefficients ] = constantAerodynamicSettings->getConstantForceCoefficient( );
 
         // Moments
@@ -61,7 +61,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
     {
         boost::shared_ptr< TabulatedAerodynamicCoefficientSettingsBase > fromFileAerodynamicCoefficientSettings =
                 boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettingsBase >( aerodynamicSettings );
-        enforceNonNullPointer( fromFileAerodynamicCoefficientSettings );
+        assertNonNullPointer( fromFileAerodynamicCoefficientSettings );
         const bool hasMoments = ! isNaN( fromFileAerodynamicCoefficientSettings->getReferenceLength( ) );
 
         boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulated1AerodynamicSettings =

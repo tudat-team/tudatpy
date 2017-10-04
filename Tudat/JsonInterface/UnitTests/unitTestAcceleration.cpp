@@ -11,7 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include "unitTestSupport.h"
-#include <Tudat/JsonInterface/Propagation/acceleration.h>
+#include "Tudat/JsonInterface/Propagation/acceleration.h"
 
 namespace tudat
 {

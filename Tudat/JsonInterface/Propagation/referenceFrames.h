@@ -35,6 +35,9 @@ static std::map< AerodynamicsReferenceFrames, std::string > aerodynamicsReferenc
     { body_frame, "body" }
 };
 
+//! `AerodynamicsReferenceFrames` not supported by `json_interface`.
+static std::vector< AerodynamicsReferenceFrames > unsupportedAerodynamicsReferenceFrames = { };
+
 //! Convert `AerodynamicsReferenceFrames` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
@@ -62,6 +65,9 @@ static std::map< AerodynamicsReferenceFrameAngles, std::string > aerodynamicsRef
     { angle_of_sideslip, "sideslip" },
     { bank_angle, "bank" }
 };
+
+//! `AerodynamicsReferenceFrameAngles` not supported by `json_interface`.
+static std::vector< AerodynamicsReferenceFrameAngles > unsupportedAerodynamicsReferenceFrameAngles = { };
 
 //! Convert `AerodynamicsReferenceFrameAngles` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )

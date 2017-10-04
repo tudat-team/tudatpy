@@ -1,0 +1,23 @@
+{
+  "massRateModels": {
+    "a": [
+      {
+        "type": "fromThrust"
+      }
+    ],
+    "b": [
+      {
+        "type": "fromThrust"
+      }
+    ]
+  },
+  "integratedStateType": "mass",
+  "bodiesToPropagate": [
+    "a",
+    "b"
+  ],
+  "initialStates": [
+    100,
+    200
+  ]
+}

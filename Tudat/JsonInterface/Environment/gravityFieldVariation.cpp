@@ -40,7 +40,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldV
     {
         boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodySettings =
                 boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationSettings );
-        enforceNonNullPointer( basicSolidBodySettings );
+        assertNonNullPointer( basicSolidBodySettings );
         jsonObject[ K::deformingBodies ] = basicSolidBodySettings->getDeformingBodies( );
         jsonObject[ K::loveNumbers ] = basicSolidBodySettings->getLoveNumbers( );
         jsonObject[ K::referenceRadius ] = basicSolidBodySettings->getBodyReferenceRadius( );
@@ -50,7 +50,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldV
     {
         boost::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedSettings =
                 boost::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( variationSettings );
-        enforceNonNullPointer( tabulatedSettings );
+        assertNonNullPointer( tabulatedSettings );
         jsonObject[ K::cosineCoefficientCorrections ] = tabulatedSettings->getCosineCoefficientCorrections( );
         jsonObject[ K::sineCoefficientCorrections ] = tabulatedSettings->getSineCoefficientCorrections( );
         jsonObject[ K::minimumDegree ] = tabulatedSettings->getMinimumDegree( );

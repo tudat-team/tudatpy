@@ -36,10 +36,12 @@ void from_json( const nlohmann::json& jsonObject,
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+void to_json( nlohmann::json& jsonObject,
+              const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+void from_json( const nlohmann::json& jsonObject,
+                boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 } // namespace propagators
 

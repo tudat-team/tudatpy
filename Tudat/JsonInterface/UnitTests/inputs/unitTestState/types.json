@@ -1,4 +1,5 @@
 [
   "cartesian",
-  "keplerian"
+  "keplerian",
+  "spherical"
 ]

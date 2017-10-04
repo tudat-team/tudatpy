@@ -63,7 +63,8 @@ void from_json( const nlohmann::json& jsonObject,
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void to_json( nlohmann::json& jsonObject,
+              const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
     if ( ! terminationSettings )
     {
@@ -105,14 +106,15 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< PropagationTe
     boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
             boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >(
                 terminationSettings );
-    enforceNonNullPointer( dependentVariableTerminationSettings );
+    assertNonNullPointer( dependentVariableTerminationSettings );
     jsonObject[ K::variable ] = dependentVariableTerminationSettings->dependentVariableSettings_;
     jsonObject[ dependentVariableTerminationSettings->useAsLowerLimit_ ? K::lowerLimit : K::upperLimit ] =
             dependentVariableTerminationSettings->limitValue_;
 }
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
+void from_json( const nlohmann::json& jsonObject,
+                boost::shared_ptr< PropagationTerminationSettings >& terminationSettings )
 {
     using namespace json_interface;
     using K = Keys::Termination;
@@ -166,7 +168,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Propagation
 
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
                 boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-        enforceNonNullPointer( dependentVar );
+        assertNonNullPointer( dependentVar );
 
         // Limit value
         double limitValue;

@@ -11,8 +11,10 @@
 #ifndef TUDAT_JSONINTERFACE_STATE_H
 #define TUDAT_JSONINTERFACE_STATE_H
 
+#include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h>
 
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
@@ -28,15 +30,17 @@ namespace json_interface
 //! Possible ways of providing initial translational states.
 enum StateType
 {
-    cartesianComponents,
-    keplerianComponents
+    cartesianElements,
+    keplerianElements,
+    sphericalElements
 };
 
 //! Map of `StateType` string representations.
 static std::map< StateType, std::string > stateTypes =
 {
-    { cartesianComponents, "cartesian" },
-    { keplerianComponents, "keplerian" }
+    { cartesianElements, "cartesian" },
+    { keplerianElements, "keplerian" },
+    { sphericalElements, "spherical" }
 };
 
 //! `StateType` not supported by `json_interface`.
@@ -54,14 +58,28 @@ inline void from_json( const nlohmann::json& jsonObject, StateType& stateType )
     stateType = json_interface::enumFromString( jsonObject, stateTypes );
 }
 
-//! -DOC
+//! Get a Cartesian state from a JSON object.
+/*!
+ * Get a Cartesian state from a JSON object. The \p jsonObject can be either an array of 6 numbers (in which case it
+ * is assumed to be directly the Cartesian state) or an object with different keys (such as vx, eccentricity, etc.)
+ * and different possible types (Cartesian, Keplerian, spherical).
+ * \param jsonObject The JSON object.
+ * \param keyPath The key path at which the state array/object can be retrieved from \p jsonObject.
+ * Empty if \p jsonObject is already the array/object (default value).
+ * \param centralBody Associated central body from which the central gravitational parameter, average radius, ephemeris,
+ * etc. are retrieved when converting certain elements types to Cartesian. This information can also be provided in the
+ * \p jsonObject, in which case this can be set to `NULL` (default value).
+ * \param epoch The associated epoch for converting from spherical to Cartesian elements. This information can also be
+ * provided in the \p jsonObject, in which case this can be set to `TUDAT_NAN` (default value).
+ */
 template< typename StateScalarType >
 Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
         const nlohmann::json& jsonObject,
         const KeyPath& keyPath = KeyPath( ),
-        double centralBodyGravitationalParameter = TUDAT_NAN,
-        double centralBodyAverageRadius = TUDAT_NAN )
+        const boost::shared_ptr< simulation_setup::Body >& centralBody = NULL,
+        double epoch = TUDAT_NAN )
 {
+    using namespace basic_astrodynamics;
     using namespace orbital_element_conversions;
     using K = Keys::Body::State;
 
@@ -71,9 +89,14 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
     // Instead of a vector, an object can be used to provide initial translational state
     if ( jsonState.is_object( ) )
     {
+        const double centralBodyAverageRadius = ! isDefined( jsonState, K::centralBodyAverageRadius ) && centralBody ?
+                    centralBody->getShapeModel( )->getAverageRadius( ) :
+                    getValue< double >( jsonState, K::centralBodyAverageRadius, TUDAT_NAN );
+        bool usedCentralBodyAverageRadius = false;
+
         const StateType stateType = getValue< StateType >( jsonState, K::type );
         switch ( stateType ) {
-        case cartesianComponents:
+        case cartesianElements:
         {
             updateFromJSONIfDefined( bodyState( xCartesianPositionIndex ), jsonState, K::x );
             updateFromJSONIfDefined( bodyState( yCartesianPositionIndex ), jsonState, K::y );
@@ -83,13 +106,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             updateFromJSONIfDefined( bodyState( zCartesianVelocityIndex ), jsonState, K::vz );
             break;
         }
-        case keplerianComponents:
+        case keplerianElements:
         {
-            if ( isNaN( centralBodyGravitationalParameter ) )
-            {
-                centralBodyGravitationalParameter =
+            const double centralBodyGravitationalParameter =
+                    ! isDefined( jsonState, K::centralBodyGravitationalParameter ) && centralBody ?
+                        centralBody->getGravityFieldModel( )->getGravitationalParameter( ) :
                         getValue< double >( jsonState, K::centralBodyGravitationalParameter );
-            }
 
             // Detemrine semiMajorAxis, eccentricity, argumentOfPeriapsis
 
@@ -101,11 +123,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             {
                 if ( isDefined( jsonState, K::altitude ) )
                 {
-                    if ( isNaN( centralBodyAverageRadius ) )
-                    {
-                        centralBodyAverageRadius = getValue< double >( jsonState, K::centralBodyAverageRadius );
-                    }
                     semiMajorAxis = centralBodyAverageRadius + getValue< StateScalarType >( jsonState, K::altitude );
+                    usedCentralBodyAverageRadius = true;
                 }
                 else
                 {
@@ -124,12 +143,9 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
                     StateScalarType apoapsisDistance = TUDAT_NAN;
                     if ( isDefined( jsonState, K::apoapsisAltitude ) )
                     {
-                        if ( isNaN( centralBodyAverageRadius ) )
-                        {
-                            centralBodyAverageRadius = getValue< double >( jsonState, K::centralBodyAverageRadius );
-                        }
                         apoapsisDistance = centralBodyAverageRadius +
                                 getValue< StateScalarType >( jsonState, K::apoapsisAltitude );
+                        usedCentralBodyAverageRadius = true;
                     }
                     else if ( isDefined( jsonState, K::apoapsisDistance ) )
                     {
@@ -139,12 +155,9 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
                     StateScalarType periapsisDistance = TUDAT_NAN;
                     if ( isDefined( jsonState, K::periapsisAltitude ) )
                     {
-                        if ( isNaN( centralBodyAverageRadius ) )
-                        {
-                            centralBodyAverageRadius = getValue< double >( jsonState, K::centralBodyAverageRadius );
-                        }
                         periapsisDistance = centralBodyAverageRadius +
                                 getValue< StateScalarType >( jsonState, K::periapsisAltitude );
+                        usedCentralBodyAverageRadius = true;
                     }
                     else if ( isDefined( jsonState, K::periapsisDistance ) )
                     {
@@ -219,16 +232,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
                 }
             }
 
-
             // Determine inclination, longitudeOfAscendingNode
-
             StateScalarType inclination = getValue< StateScalarType >( jsonState, K::inclination, 0.0 );
             StateScalarType longitudeOfAscendingNode =
                     getValue< StateScalarType >( jsonState, K::longitudeOfAscendingNode, 0.0 );
 
-
             // Determine trueAnomaly
-
             StateScalarType trueAnomaly;
             if ( isDefined( jsonState, K::meanAnomaly ) || isDefined( jsonState, K::eccentricAnomaly ) )
             {
@@ -250,9 +259,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
                 trueAnomaly = getValue< StateScalarType >( jsonState, K::trueAnomaly, 0.0 );
             }
 
-
             // Full state
-
             Eigen::Matrix< StateScalarType, 6, 1 > keplerianElements;
             keplerianElements( semiMajorAxisIndex ) = semiMajorAxis;
             keplerianElements( eccentricityIndex ) = eccentricity;
@@ -261,15 +268,64 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             keplerianElements( longitudeOfAscendingNodeIndex ) = longitudeOfAscendingNode;
             keplerianElements( trueAnomalyIndex ) = trueAnomaly;
 
+            // Convert to Cartesian elements
+            bodyState = convertKeplerianToCartesianElements( keplerianElements, centralBodyGravitationalParameter );
+
+            break;
+        }
+        case sphericalElements:
+        {
+            assertNonNullPointer( centralBody );
+
+            double radius;
+            if ( isDefined( jsonState, K::altitude ) )
+            {
+                radius = centralBodyAverageRadius + getValue< StateScalarType >( jsonState, K::altitude );
+                usedCentralBodyAverageRadius = true;
+            }
+            else
+            {
+                radius = getValue< StateScalarType >( jsonState, K::radius );
+            }
+
+            Eigen::Matrix< StateScalarType, 6, 1 > sphericalElements;
+            sphericalElements( radiusIndex ) = radius;
+            sphericalElements( latitudeIndex ) = getValue< StateScalarType >( jsonState, K::latitude, 0.0 );
+            sphericalElements( longitudeIndex ) = getValue< StateScalarType >( jsonState, K::longitude, 0.0 );
+            sphericalElements( speedIndex ) = getValue< StateScalarType >( jsonState, K::speed );
+            sphericalElements( flightPathIndex ) = getValue< StateScalarType >( jsonState, K::flightPathAngle, 0.0 );
+            sphericalElements( headingAngleIndex ) = getValue< StateScalarType >( jsonState, K::headingAngle, 0.0 );
 
             // Convert to Cartesian elements
-
-            bodyState = convertKeplerianToCartesianElements( keplerianElements, centralBodyGravitationalParameter );
+            if ( isDefined( jsonState, K::epoch ) || isNaN( epoch ) )
+            {
+                epoch = getValue< StateScalarType >( jsonState, K::epoch );
+            }
+            bodyState = tudat::ephemerides::transformStateToGlobalFrame(
+                        convertSphericalOrbitalToCartesianState( sphericalElements ),
+                        epoch, centralBody->getRotationalEphemeris( ) );
 
             break;
         }
         default:
             handleUnimplementedEnumValue( stateType, stateTypes, unsupportedStateTypes );
+        }
+
+        if ( usedCentralBodyAverageRadius )
+        {
+            if ( isNaN( centralBodyAverageRadius ) )
+            {
+                // Print error saying that key centralBodyAverageRadius is missing
+                getValue< double >( jsonState, K::centralBodyAverageRadius );
+            }
+            else if ( centralBody )
+            {
+                if ( ! boost::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
+                {
+                    std::cerr << "Using average radius of a non-spherical body "
+                                 "to determine the initial Cartesian state of body." << std::endl;
+                }
+            }
         }
     }
     else  // could not get the state as Cartesian, Keplerian components... then try to convert directly

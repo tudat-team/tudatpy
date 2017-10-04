@@ -138,10 +138,8 @@ void determineInitialStates(
                         const std::string centralBodyName = getValue< std::vector< std::string > >(
                                     jsonPropagator, K::centralBodies ).at( i );
                         bodyState = getCartesianState< StateScalarType >(
-                                    jsonObject,
-                                    stateKeyPath,
-                                    bodyMap.at( centralBodyName )->getGravityFieldModel( )->getGravitationalParameter( ),
-                                    bodyMap.at( centralBodyName )->getShapeModel( )->getAverageRadius( ) );
+                                    jsonObject, stateKeyPath, bodyMap.at( centralBodyName ),
+                                    integratorSettings->initialTime_ );
                     }
                     else
                     {
@@ -160,7 +158,12 @@ void determineInitialStates(
     jsonObject[ Keys::propagators ] = jsonPropagators;
 }
 
-//! -DOC
+//! Update dependent variable save settings of propagator from export settings object.
+/*!
+ * Update dependent variable save settings of propagator from export settings object.
+ * \param propagatorSettings The propagator settings object to be updated (passed by reference).
+ * \param exportSettingsVector The export settings settings object containing the variables to be saved.
+ */
 template< typename StateScalarType >
 void resetDependentVariableSaveSettings(
         boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
@@ -246,6 +249,7 @@ static std::map< IntegratedStateType, std::string > integratedStateTypes =
 //! `IntegratedStateType`s not supported by `json_interface`.
 static std::vector< IntegratedStateType > unsupportedIntegratedStateTypes =
 {
+    hybrid,         // propagators contained in a multi-type propagator cannot be hybrid
     custom_state
 };
 
@@ -407,7 +411,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalStatePropagatorSettings = boost::dynamic_pointer_cast<
                 TranslationalStatePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        enforceNonNullPointer( translationalStatePropagatorSettings );
+        assertNonNullPointer( translationalStatePropagatorSettings );
         jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
         jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
         jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
@@ -418,7 +422,7 @@ void to_json( nlohmann::json& jsonObject,
     {
         boost::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
                 boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        enforceNonNullPointer( massPropagatorSettings );
+        assertNonNullPointer( massPropagatorSettings );
         jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
         jsonObject[ K::massRateModels ] = massPropagatorSettings->getMassRateSettingsMap( );
         return;
@@ -428,7 +432,7 @@ void to_json( nlohmann::json& jsonObject,
         boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
                 boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
                     singleArcPropagatorSettings );
-        enforceNonNullPointer( rotationalStatePropagatorSettings );
+        assertNonNullPointer( rotationalStatePropagatorSettings );
         jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
         jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
         return;

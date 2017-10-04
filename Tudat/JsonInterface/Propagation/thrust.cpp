@@ -41,7 +41,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustDirecti
     {
         boost::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionFromStateGuidanceSettings
                 = boost::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( directionSettings );
-        enforceNonNullPointer( directionFromStateGuidanceSettings );
+        assertNonNullPointer( directionFromStateGuidanceSettings );
         jsonObject[ K::colinearWithVelocity ] = directionFromStateGuidanceSettings->isColinearWithVelocity_;
         jsonObject[ K::towardsRelativeBody ] = directionFromStateGuidanceSettings->directionIsOppositeToVector_;
         return;
@@ -105,7 +105,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustEngineS
     {
         boost::shared_ptr< ConstantThrustEngineSettings > contantMagnitudeSettings
                 = boost::dynamic_pointer_cast< ConstantThrustEngineSettings >( magnitudeSettings );
-        enforceNonNullPointer( contantMagnitudeSettings );
+        assertNonNullPointer( contantMagnitudeSettings );
         jsonObject[ K::constantMagnitude ] = contantMagnitudeSettings->thrustMagnitude_;
         jsonObject[ K::specificImpulse ] = contantMagnitudeSettings->specificImpulse_;
         jsonObject[ K::bodyFixedDirection ] = contantMagnitudeSettings->bodyFixedThrustDirection_;
@@ -115,7 +115,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustEngineS
     {
         boost::shared_ptr< FromBodyThrustEngineSettings > fromBodyMagnitudeSettings
                 = boost::dynamic_pointer_cast< FromBodyThrustEngineSettings >( magnitudeSettings );
-        enforceNonNullPointer( fromBodyMagnitudeSettings );
+        assertNonNullPointer( fromBodyMagnitudeSettings );
         jsonObject[ K::useAllEngines ] = fromBodyMagnitudeSettings->useAllEngines_;
         return;
     }

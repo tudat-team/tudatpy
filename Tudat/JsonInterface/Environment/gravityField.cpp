@@ -37,7 +37,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldS
     {
         boost::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
                 boost::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
-        enforceNonNullPointer( centralGravityFieldSettings );
+        assertNonNullPointer( centralGravityFieldSettings );
         jsonObject[ K::gravitationalParameter ] = centralGravityFieldSettings->getGravitationalParameter( );
         return;
     }
@@ -47,7 +47,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldS
     {
         boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        enforceNonNullPointer( shGravityFieldSettings );
+        assertNonNullPointer( shGravityFieldSettings );
 
         // FromFileSphericalHarmonicsGravityFieldSettings
         boost::shared_ptr< FromFileSphericalHarmonicsGravityFieldSettings > shModelGravityFieldSettings =
