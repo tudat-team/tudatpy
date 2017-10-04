@@ -149,6 +149,10 @@ public:
         }
 
         radiationPressureCoefficients_ = utilities::convertEigenVectorToStlVector( parameterValue );
+        for( unsigned int i = 0; i < radiationPressureCoefficients_.size( ); i++ )
+        {
+            fullRadiationPressureCoefficients_[ i ] = radiationPressureCoefficients_[ i ];
+        }
         fullRadiationPressureCoefficients_[ radiationPressureCoefficients_.size( ) ] =
                     radiationPressureCoefficients_.at( radiationPressureCoefficients_.size( ) - 1 );
         coefficientInterpolator_->resetDependentValues( fullRadiationPressureCoefficients_ );
