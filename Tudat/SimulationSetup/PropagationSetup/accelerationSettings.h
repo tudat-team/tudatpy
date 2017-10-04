@@ -410,16 +410,20 @@ public:
 class DirectTidalDissipationAccelerationSettings: public AccelerationSettings
 {
 public:
-   DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
-                                               const bool includeDirectRadialComponent = true ):
-       AccelerationSettings( basic_astrodynamics::direct_tidal_dissipation_acceleration ),
-       k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ){ }
+    DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
+                                                const bool includeDirectRadialComponent = true,
+                                                const bool useTideRaisedOnPlanet = true ):
+        AccelerationSettings( basic_astrodynamics::direct_tidal_dissipation_acceleration ),
+        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
+        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
 
-   double k2LoveNumber_;
+    double k2LoveNumber_;
 
-   double timeLag_;
+    double timeLag_;
 
-   bool includeDirectRadialComponent_;
+    bool includeDirectRadialComponent_;
+
+    bool useTideRaisedOnPlanet_;
 };
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
