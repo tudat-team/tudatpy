@@ -182,6 +182,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     break;
                 case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
                     break;
+                case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
+                    break;
                 case estimatable_parameters::ground_station_position:
 
                     // Check if current link end station is same station as that of which position is to be estimated.

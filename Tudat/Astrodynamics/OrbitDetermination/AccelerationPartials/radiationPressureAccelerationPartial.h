@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 
 namespace tudat
 {
@@ -187,6 +188,25 @@ public:
         partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
                     radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
                     ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
+    }
+
+    void wrtArcWiseRadiationPressureCoefficient(
+            Eigen::MatrixXd& partial,
+            const boost::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter )
+    {
+        Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+        this->wrtRadiationPressureCoefficient( partialWrtSingleParameter );
+
+        boost::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
+                parameter->getArcTimeLookupScheme( );
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= partial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+        }
+        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+
     }
 
     //! Function for updating partial w.r.t. the bodies' positions
