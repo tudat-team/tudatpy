@@ -19,30 +19,53 @@ namespace tudat
 namespace gravitation
 {
 
-Eigen::Vector3d computeDirectTidalDissipationAcceleration(
-        const Eigen::Vector6d satelliteRelativeState, const Eigen::Vector3d planetAngularVelocityVector,
-        const double satelliteMass, const double k2LoveNumber, const double timeLag, const double planetReferenceRadius,
+Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnPlanet(
+        const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d planetAngularVelocityVector,
+        const double massOfBodyExertingTide, const double k2LoveNumber, const double timeLag, const double referenceRadius,
         const bool includeDirectRadialComponent )
 {
-    Eigen::Vector3d relativePosition = satelliteRelativeState.segment( 0, 3 );
-    Eigen::Vector3d relativeVelocity = satelliteRelativeState.segment( 3, 3 );
+    Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
+    Eigen::Vector3d relativeVelocity = relativeStateOfBodyExertingTide.segment( 3, 3 );
 
     double distance = relativePosition.norm( );
 
     double distanceSquared = distance * distance;
     double distanceToEighthPower = distanceSquared * distanceSquared * distanceSquared * distanceSquared;
-    double referenceRadiusToFifthPower = planetReferenceRadius *  planetReferenceRadius *  planetReferenceRadius *
-            planetReferenceRadius *  planetReferenceRadius;
+    double referenceRadiusToFifthPower = referenceRadius *  referenceRadius *  referenceRadius *
+            referenceRadius *  referenceRadius;
 
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
-    return - 3.0 * satelliteMass * referenceRadiusToFifthPower / distanceToEighthPower * (
+    return - 3.0 * massOfBodyExertingTide * referenceRadiusToFifthPower / distanceToEighthPower * (
                  radialComponentMultiplier * k2LoveNumber * relativePosition + k2LoveNumber * timeLag * (
                     2.0 * ( relativePosition.dot( relativeVelocity ) * relativePosition / distanceSquared ) +
                     ( relativePosition.cross( planetAngularVelocityVector ) + relativeVelocity ) ) );
 
 }
 
+Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
+        const Eigen::Vector6d relativeStateOfBodyExertingTide,
+        const double massOfBodyExertingTide, const double k2LoveNumber, const double timeLag, const double referenceRadius,
+        const bool includeDirectRadialComponent )
+{
+
+    Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
+    Eigen::Vector3d relativeVelocity = relativeStateOfBodyExertingTide.segment( 3, 3 );
+
+    double distance = relativePosition.norm( );
+
+    double distanceSquared = distance * distance;
+    double distanceToEighthPower = distanceSquared * distanceSquared * distanceSquared * distanceSquared;
+    double referenceRadiusToFifthPower = referenceRadius *  referenceRadius *  referenceRadius *
+            referenceRadius *  referenceRadius;
+
+    double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
+
+    return - 3.0 * massOfBodyExertingTide * referenceRadiusToFifthPower / distanceToEighthPower * (
+                 radialComponentMultiplier * k2LoveNumber * relativePosition + k2LoveNumber * timeLag * (
+                    14.0 / 3.0 * relativePosition.dot( relativeVelocity ) * relativePosition / distanceSquared ) );
+
+}
 
 } // namespace gravitation
 
