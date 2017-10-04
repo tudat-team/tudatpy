@@ -39,6 +39,7 @@ enum EstimatebleParametersEnum
     gravitational_parameter,
     constant_drag_coefficient,
     radiation_pressure_coefficient,
+    arc_wise_radiation_pressure_coefficient,
     spherical_harmonics_cosine_coefficient_block,
     spherical_harmonics_sine_coefficient_block,
     constant_rotation_rate,

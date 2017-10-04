@@ -352,6 +352,31 @@ public:
 
 };
 
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseRadiationPressureCoefficientEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     * \param arcStartTimeList List of times at which empirical acceleration arcs are to start
+     */
+    ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
+        arcStartTimeList_( arcStartTimeList ){ }
+
+    //! List of times at which empirical acceleration arcs are to start
+    std::vector< double > arcStartTimeList_;
+
+
+};
+
 //! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.

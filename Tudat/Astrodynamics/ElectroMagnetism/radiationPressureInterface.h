@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -73,7 +74,9 @@ public:
             const double sourceRadius = 0.0 ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
-        radiationPressureCoefficient_( radiationPressureCoefficient ), area_( area ),
+        radiationPressureCoefficient_( radiationPressureCoefficient ),
+        radiationPressureCoefficientFunction_( boost::lambda::constant( radiationPressureCoefficient ) ),
+        area_( area ),
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ),
@@ -162,6 +165,11 @@ public:
         radiationPressureCoefficient_ = radiationPressureCoefficient;
     }
 
+    void resetRadiationPressureCoefficientFunction( const boost::function< double( const double ) > radiationPressureCoefficientFunction )
+    {
+        radiationPressureCoefficientFunction_ = radiationPressureCoefficientFunction;
+    }
+
     //! Function to return the function returning the current total power (in W) emitted by the
     //! source body.
     /*!
@@ -231,6 +239,8 @@ protected:
 
     //! Radiation pressure coefficient of the target body.
     double radiationPressureCoefficient_;
+
+    boost::function< double( const double ) > radiationPressureCoefficientFunction_;
 
     //! Reflecting area of the target body.
     double area_;
