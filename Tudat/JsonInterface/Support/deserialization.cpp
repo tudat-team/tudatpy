@@ -25,10 +25,15 @@ namespace json_interface
 //! Get the path for a JSON file.
 boost::filesystem::path getPathForJSONFile( const std::string& file, const boost::filesystem::path& basePath )
 {
-    try
+    // Get absolute path to input file
+    boost::filesystem::path filePath = file;
+    if ( ! filePath.is_absolute( ) )
     {
-        // Get absolute path to input file
-        boost::filesystem::path filePath = boost::filesystem::canonical( file, basePath );
+        filePath = basePath / filePath;
+    }
+
+    if ( boost::filesystem::exists( filePath ) )
+    {
         if ( boost::filesystem::is_directory( filePath ) )
         {
             // If it's a directory, try to find a "main.json" file in that directory
@@ -39,25 +44,17 @@ boost::filesystem::path getPathForJSONFile( const std::string& file, const boost
             return filePath;
         }
     }
-    catch ( ... )
+    else
     {
-        std::string fileWithExtension = file;
-        try
+        // Try appending extension
+        filePath += ".json";
+        if ( boost::filesystem::exists( filePath ) )
         {
-            // Add .json extension if no extension found
-            if ( boost::filesystem::path( file ).extension( ).empty( ) )
-            {
-                fileWithExtension += ".json";
-                return boost::filesystem::canonical( fileWithExtension, basePath );
-            }
-            else
-            {
-                throw;
-            }
+            return filePath;
         }
-        catch ( ... )
+        else
         {
-            std::cerr << "The file " << basePath / fileWithExtension << " does not exist." << std::endl;
+            std::cerr << "The file " << filePath << " does not exist." << std::endl;
             throw;
         }
     }
