@@ -10,6 +10,6 @@
       "relativeToBody": "Earth"
     }
   ],
-  "header": "Foo",
+  "header": "Foo\n",
   "epochsInFirstColumn": false
 }
