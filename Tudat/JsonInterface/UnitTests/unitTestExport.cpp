@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_json_export_full_result )
     };
     boost::shared_ptr< ExportSettings > manualSettings =
             boost::make_shared< ExportSettings >( outputFile, variables );
-    manualSettings->header_ = "Foo";
+    manualSettings->header_ = "Foo\n";
     manualSettings->epochsInFirstColumn_ = false;
 
     // Compare
