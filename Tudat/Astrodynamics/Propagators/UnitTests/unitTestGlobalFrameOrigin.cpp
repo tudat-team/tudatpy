@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
             for( unsigned int k = 0; k < 3 ; k++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( benchmarkFinalState( i ) - currentFinalState( i ) ), 1.0E-4 );
-                BOOST_CHECK_SMALL( std::fabs( benchmarkFinalState( i + 3 ) - currentFinalState( i + 3 ) ), 1.0E-10 );
+                BOOST_CHECK_SMALL( std::fabs( benchmarkFinalState( i + 3 ) - currentFinalState( i + 3 ) ), 1.0E-9 );
             }
 
 
