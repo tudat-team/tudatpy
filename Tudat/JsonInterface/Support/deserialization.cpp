@@ -47,6 +47,7 @@ boost::filesystem::path getPathForJSONFile( const std::string& file, const boost
     else
     {
         // Try appending extension
+        const boost::filesystem::path originalFilePath = filePath;
         filePath += ".json";
         if ( boost::filesystem::exists( filePath ) )
         {
@@ -54,7 +55,7 @@ boost::filesystem::path getPathForJSONFile( const std::string& file, const boost
         }
         else
         {
-            std::cerr << "The file " << filePath << " does not exist." << std::endl;
+            std::cerr << "The file " << originalFilePath << " does not exist." << std::endl;
             throw;
         }
     }
