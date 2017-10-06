@@ -251,6 +251,7 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
     }
 }
 
+unsigned int t = 0;
 //! Parse a modular `json` object.
 /*!
  * Parse a modular `json` object containing strings (or being equal to a string) of matching the expression
@@ -318,7 +319,13 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
         const bool varsMatch = groups[ 2 ].matched;
         if ( fileMatch || varsMatch )
         {
+            for ( unsigned int i = 0; i < t; ++i )
+            {
+                std::cout << "  ";
+            }
             const std::string file( groups[ 1 ] );
+            std::cout << jsonObject.get< std::string >( ).c_str( ) << " -> " << file << std::endl;
+            t += 1;
             const std::string vars( groups[ 2 ] );
             const boost::filesystem::path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
             const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
@@ -388,6 +395,7 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
             {
                 jsonObject = parsedJsonObject;
             }
+            t -= 1;
         }
     }
 }
