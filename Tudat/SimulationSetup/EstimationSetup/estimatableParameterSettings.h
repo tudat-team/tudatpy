@@ -361,9 +361,7 @@ public:
     /*!
      * Constructor
      * \param associatedBody Name of body undergoing acceleration
-     * \param centralBody Name of central body
-     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
-     * \param arcStartTimeList List of times at which empirical acceleration arcs are to start
+     * \param arcStartTimeList List of times at which radiation pressure coefficient arcs are to start
      */
     ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
             const std::string associatedBody,
@@ -371,7 +369,7 @@ public:
         EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
         arcStartTimeList_( arcStartTimeList ){ }
 
-    //! List of times at which empirical acceleration arcs are to start
+    //! List of times at which radiation pressure coefficient arcs are to start
     std::vector< double > arcStartTimeList_;
 
 

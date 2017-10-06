@@ -155,17 +155,24 @@ public:
         return radiationPressureCoefficient_;
     }
 
-    //! Function to reset the radiation pressure coefficient of the target body.
+    //! Function to reset a constant radiation pressure coefficient of the target body.
     /*!
-     *  Function to reset the radiation pressure coefficient of the target body.
+     *  Function to reset a constant radiation pressure coefficient of the target body.
      *  \param radiationPressureCoefficient The new radiation pressure coefficient of the target body.
      */
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
+        radiationPressureCoefficientFunction_ = boost::lambda::constant( radiationPressureCoefficient );
     }
 
-    void resetRadiationPressureCoefficientFunction( const boost::function< double( const double ) > radiationPressureCoefficientFunction )
+    //! Function to reset the function to obtain the radiation pressure coefficient of the target body.
+    /*!
+     *  Function to reset the function to obtain the radiation pressure coefficient of the target body.
+     *  \param radiationPressureCoefficientFunction New function to obtain the radiation pressure coefficient of the target body.
+     */
+    void resetRadiationPressureCoefficientFunction(
+            const boost::function< double( const double ) > radiationPressureCoefficientFunction )
     {
         radiationPressureCoefficientFunction_ = radiationPressureCoefficientFunction;
     }
@@ -240,6 +247,7 @@ protected:
     //! Radiation pressure coefficient of the target body.
     double radiationPressureCoefficient_;
 
+    //! Function to reset a constant radiation pressure coefficient of the target body.
     boost::function< double( const double ) > radiationPressureCoefficientFunction_;
 
     //! Reflecting area of the target body.

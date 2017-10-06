@@ -83,7 +83,7 @@ private:
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 };
 
-//! Interface class for the estimation of a radiation pressure coefficient
+//! Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient
 class ArcWiseRadiationPressureCoefficient: public EstimatableParameter< Eigen::VectorXd >
 {
 
@@ -92,6 +92,7 @@ public:
     /*!
      * Constructor
      * \param radiationPressureInterface Object containing the radiation pressure coefficient to be estimated.
+     * \param timeLimits Times at which the arcs are to start.
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     ArcWiseRadiationPressureCoefficient(
@@ -178,12 +179,16 @@ private:
     //! Object containing the radiation pressure coefficient to be estimated.
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 
+    //! Times at which the arcs are to start (including end time at maximum double value).
     std::vector< double > timeLimits_;
 
+    //! Values of radiation pressure coefficients in each arc.
     std::vector< double > radiationPressureCoefficients_;
 
+    //! Values of radiation pressure coefficients in each arc, with additional value copied at end.
     std::vector< double > fullRadiationPressureCoefficients_;
 
+    //! Interpolator that returns the radiation pressure coefficient as a function of time.
     boost::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, double > > coefficientInterpolator_;
 };
 
