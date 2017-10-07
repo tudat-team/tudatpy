@@ -251,7 +251,6 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
     }
 }
 
-unsigned int t = 0;
 //! Parse a modular `json` object.
 /*!
  * Parse a modular `json` object containing strings (or being equal to a string) of matching the expression
@@ -312,26 +311,22 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
     }
     else if ( jsonObject.is_string( ) )
     {
-        boost::cmatch groups;
-        boost::regex_match( jsonObject.get< std::string >( ).c_str( ), groups,
-                            boost::regex( R"(\$(?:\((.+?)\))?(?:\{(.+?)\})?)" ) );
-        const bool fileMatch = groups[ 1 ].matched;
-        const bool varsMatch = groups[ 2 ].matched;
-        if ( fileMatch || varsMatch )
+        boost::smatch groups;
+        if ( boost::regex_match( jsonObject.get< std::string >( ), groups,
+                                 boost::regex( R"(\$(?:\((.+)\))?(?:\{(.+)\})?)" ) ) )
         {
-            for ( unsigned int i = 0; i < t; ++i )
-            {
-                std::cout << "  ";
-            }
-            const std::string file( groups[ 1 ] );
-            std::cout << jsonObject.get< std::string >( ).c_str( ) << " -> " << file << std::endl;
-            t += 1;
-            const std::string vars( groups[ 2 ] );
-            const boost::filesystem::path importPath = fileMatch ? getPathForJSONFile( file, filePath.parent_path( ) ) : filePath;
+            const std::string file = groups.str( 1 );
+            const std::string vars = groups.str( 2 );
+            const boost::filesystem::path importPath =
+                    file.empty( ) ? filePath : getPathForJSONFile( file, filePath.parent_path( ) );
             const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
             std::vector< std::string > keys;
             std::vector< KeyPath > keyPaths;
-            if ( varsMatch )
+            if ( vars.empty( ) )
+            {
+                keyPaths = { KeyPath( ) };
+            }
+            else
             {
                 for ( const std::string variable : split( vars, ',' ) )
                 {
@@ -342,10 +337,6 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
                     }
                     keyPaths.push_back( KeyPath( keyVar.back( ) ) );
                 }
-            }
-            else
-            {
-                keyPaths = { KeyPath( ) };
             }
             nlohmann::json parsedJsonObject;
             for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
@@ -395,7 +386,6 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
             {
                 jsonObject = parsedJsonObject;
             }
-            t -= 1;
         }
     }
 }
