@@ -45,8 +45,8 @@ Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnPlanet(
 
 Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
         const Eigen::Vector6d relativeStateOfBodyExertingTide,
-        const double massOfBodyExertingTide, const double k2LoveNumber, const double timeLag, const double referenceRadius,
-        const bool includeDirectRadialComponent )
+        const double massOfBodyExertingTide, const double massOfBodyUndergoingTide, const double k2LoveNumber,
+        const double timeLag, const double referenceRadius, const bool includeDirectRadialComponent )
 {
 
     Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
@@ -59,11 +59,14 @@ Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
     double referenceRadiusToFifthPower = referenceRadius *  referenceRadius *  referenceRadius *
             referenceRadius *  referenceRadius;
 
+    // std::cout<<referenceRadius<<" "<<massOfBodyExertingTide<<std::endl;
+
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
-    return - 3.0 * massOfBodyExertingTide * referenceRadiusToFifthPower / distanceToEighthPower * (
+    return -3.0 * massOfBodyExertingTide * massOfBodyExertingTide / massOfBodyUndergoingTide *
+            referenceRadiusToFifthPower / distanceToEighthPower * (
                  radialComponentMultiplier * k2LoveNumber * relativePosition + k2LoveNumber * timeLag * (
-                    14.0 / 3.0 * relativePosition.dot( relativeVelocity ) * relativePosition / distanceSquared ) );
+                   7.0 * relativePosition.dot( relativeVelocity ) * relativePosition / distanceSquared ) );
 
 }
 
