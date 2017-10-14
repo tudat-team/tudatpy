@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/aerodynamicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/empiricalAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -112,6 +113,22 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
+    case direct_tidal_dissipation_acceleration:
+    {
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (direct_tidal_dissipation_acceleration) when making acceleration partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = boost::make_shared< DirectTidalDissipationAccelerationPartial  >
+                    ( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ),
+                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
 
     case third_body_central_gravity:
         // Check if identifier is consistent with type.

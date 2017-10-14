@@ -113,9 +113,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         }
     }
 
-    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
-                                          "keplerElements_"  + boost::lexical_cast< std::string >( usePlanetDissipation ) +
-                                          satelliteToPropagate + ".dat" );
+//    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+//                                          "keplerElements_"  + boost::lexical_cast< std::string >( usePlanetDissipation ) +
+//                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, boost::assign::list_of( 0 )( 1 ) );
@@ -130,7 +130,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     return std::make_pair( semiMajorAxisFit.at( 1 ), eccentricityFit.at( 1 ) );
 }
 
-BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
+BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -164,13 +164,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                 "ECLIPJ2000", "IAU_Jupiter", Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
                 0.0, 2.0 * mathematical_constants::PI / ( 9.925 * 3600.0 ) );
 
-
     for( unsigned int i = 0; i < galileanSatellites.size( ); i++ )
     {
         bodySettings[ galileanSatellites.at( i ) ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
                 ( getBodyGravitationalParameter( galileanSatellites.at( i ) ), getAverageRadius( galileanSatellites.at( i ) ),
-                  cosineCoefficients, sineCoefficients, "IAU_Io" );
+                  cosineCoefficients, sineCoefficients, "IAU_" + galileanSatellites.at( i )  );
     }
+
     bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( )<< 1.0 * 421.8E6, 1.0 * 0.004, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ), "Jupiter", "ECLIPJ2000" );
