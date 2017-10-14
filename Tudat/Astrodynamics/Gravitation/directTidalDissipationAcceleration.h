@@ -29,13 +29,14 @@ namespace gravitation
 {
 
 Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnPlanet(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d angularVelocityVectorOfBodyUndergoingTide,
-        const double massOfBodyExertingTide, const double k2LoveNumber, const double timeLag, const double referenceRadius,
+        const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d planetAngularVelocityVector,
+        const double currentTidalAccelerationMultiplier, const double timeLag,
         const bool includeDirectRadialComponent = true );
 
 Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
-        const Eigen::Vector6d relativeStateOfBodyExertingTide,         const double massOfBodyExertingTide, const double massOfBodyUndergoingTide,
-        const double k2LoveNumber,  const double timeLag, const double referenceRadius, const bool includeDirectRadialComponent = true );
+        const Eigen::Vector6d relativeStateOfBodyExertingTide,
+        const double currentTidalAccelerationMultiplier,
+        const double timeLag,const bool includeDirectRadialComponent );
 
 class DirectTidalDissipationAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
@@ -49,12 +50,17 @@ public:
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
             const bool includeDirectRadialComponent ):
-        stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ), stateFunctionOfBodyUndergoingTide__( stateFunctionOfBodyUndergoingTide_ ),
+        stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ), stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide_ ),
         massFunctionOfBodyExertingTide_( massFunctionOfBodyExertingTide ),
         angularVelocityVectorOfBodyUndergoingTide_( angularVelocityVectorOfBodyUndergoingTide ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
-        includeDirectRadialComponent_( includeDirectRadialComponent ), useBodyRotationTerm_( true )
-    { }
+        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( true )
+    {
+        equatorialRadiusToFifthPower_ =
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_;
+    }
 
     DirectTidalDissipationAcceleration(
             const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
@@ -65,12 +71,19 @@ public:
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
             const bool includeDirectRadialComponent ):
-        stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ), stateFunctionOfBodyUndergoingTide__( stateFunctionOfBodyUndergoingTide_ ),
+        stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ), stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide_ ),
         massFunctionOfBodyExertingTide_( massFunctionOfBodyExertingTide ), massFunctionOfBodyUndergoingTide_( massFunctionOfBodyUndergoingTide ),
         angularVelocityVectorOfBodyUndergoingTide_( boost::lambda::constant( Eigen::Vector3d::Constant( TUDAT_NAN ) ) ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
-        includeDirectRadialComponent_( includeDirectRadialComponent ), useBodyRotationTerm_( false )
-    { }
+        includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false )
+    {
+        equatorialRadiusToFifthPower_ =
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_ * equatorialRadiusOfBodyUndergoingTide_ *
+                equatorialRadiusOfBodyUndergoingTide_;
+    }
+
+    ~DirectTidalDissipationAcceleration( ){ }
 
     Eigen::Vector3d getAcceleration( )
     {
@@ -89,30 +102,107 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            if( useBodyRotationTerm_ )
+            currentRelativeState_ = stateFunctionOfBodyExertingTide_( ) - stateFunctionOfBodyUndergoingTide_( );
+            double distance = currentRelativeState_.segment( 0, 3 ).norm( );
+            double distanceSquared = distance * distance;
+            double distanceToEighthPower = distanceSquared * distanceSquared * distanceSquared * distanceSquared;
+            currentTidalAccelerationMultiplier_ =
+                    - 3.0 * massFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ / distanceToEighthPower * k2LoveNumber_;
+
+            if( modelTideOnPlanet_ )
             {
+                currentAngularVelocityVectorOfBodyUndergoingTide_ = angularVelocityVectorOfBodyUndergoingTide_( );
+
+
                 currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnPlanet(
-                            stateFunctionOfBodyExertingTide_( ) - stateFunctionOfBodyUndergoingTide__( ), angularVelocityVectorOfBodyUndergoingTide_( ),
-                            massFunctionOfBodyExertingTide_( ),
-                            k2LoveNumber_, timeLag_, equatorialRadiusOfBodyUndergoingTide_, includeDirectRadialComponent_ );
+                            currentRelativeState_, currentAngularVelocityVectorOfBodyUndergoingTide_,
+                            currentTidalAccelerationMultiplier_, timeLag_, includeDirectRadialComponent_ );
             }
             else
             {
+                currentTidalAccelerationMultiplier_ *= massFunctionOfBodyExertingTide_( ) / massFunctionOfBodyUndergoingTide_( );
+
                 currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnSatellite(
-                            stateFunctionOfBodyExertingTide_( ) - stateFunctionOfBodyUndergoingTide__( ),
-                            massFunctionOfBodyExertingTide_( ), massFunctionOfBodyUndergoingTide_( ),
-                            k2LoveNumber_, timeLag_, equatorialRadiusOfBodyUndergoingTide_, includeDirectRadialComponent_ );
+                            currentRelativeState_, currentTidalAccelerationMultiplier_,
+                            timeLag_, includeDirectRadialComponent_ );
             }
 
             currentTime_ = currentTime;
         }
     }
 
+
+    Eigen::Vector6d getCurrentRelativeState( )
+    {
+        return currentRelativeState_;
+    }
+
+    Eigen::Vector3d getCurrentAngularVelocityVectorOfBodyUndergoingTide( )
+    {
+        return currentAngularVelocityVectorOfBodyUndergoingTide_;
+    }
+
+
+
+    boost::function< double( ) > getMassFunctionOfBodyExertingTide( )
+    {
+        return massFunctionOfBodyExertingTide_;
+    }
+
+    boost::function< double( ) > getMassFunctionOfBodyUndergoingTide( )
+    {
+        return massFunctionOfBodyUndergoingTide_;
+    }
+
+
+
+
+    double getK2LoveNumber( )
+    {
+        return k2LoveNumber_;
+    }
+
+    double getTimeLag( )
+    {
+        return timeLag_;
+    }
+
+    double getEquatorialRadiusOfBodyUndergoingTide( )
+    {
+        return equatorialRadiusOfBodyUndergoingTide_;
+    }
+
+    bool getIncludeDirectRadialComponent( )
+    {
+        return includeDirectRadialComponent_;
+    }
+
+    bool getModelTideOnPlanet( )
+    {
+        return modelTideOnPlanet_;
+    }
+
+
+    Eigen::Vector3d getCurrentAcceleration( )
+    {
+        return currentAcceleration_;
+    }
+
+    double getCurrentTidalAccelerationMultiplier( )
+    {
+        return currentTidalAccelerationMultiplier_;
+    }
+
 private:
+
+    Eigen::Vector6d currentRelativeState_;
+
+    Eigen::Vector3d currentAngularVelocityVectorOfBodyUndergoingTide_;
+
 
     boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide_;
 
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide__;
+    boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide_;
 
     boost::function< double( ) > massFunctionOfBodyExertingTide_;
 
@@ -120,17 +210,23 @@ private:
 
     boost::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide_;
 
+
     double k2LoveNumber_;
 
     double timeLag_;
 
     double equatorialRadiusOfBodyUndergoingTide_;
 
+    double equatorialRadiusToFifthPower_;
+
     bool includeDirectRadialComponent_;
 
-    bool useBodyRotationTerm_;
+    bool modelTideOnPlanet_;
+
 
     Eigen::Vector3d currentAcceleration_;
+
+    double currentTidalAccelerationMultiplier_;
 };
 
 } // namespace gravitation
