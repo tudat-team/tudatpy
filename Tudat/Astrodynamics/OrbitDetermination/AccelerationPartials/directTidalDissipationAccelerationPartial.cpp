@@ -39,8 +39,10 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
                 timeLag * ( -20.0 * positionVelocityInnerProduct *
                             relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared + 2.0 / distanceSquared * (
                                 Eigen::Matrix3d::Identity( ) * positionVelocityInnerProduct +
-                                relativePosition * relativeVelocity.transpose( ) ) ) - linear_algebra::getCrossProductMatrix(
-                   planetAngularVelocityVector ) );
+                                relativePosition * relativeVelocity.transpose( ) ) -
+                            8.0 / distance * ( relativePosition.cross( planetAngularVelocityVector) + relativeVelocity ) *
+                            relativePositionUnitVector.transpose( ) -
+                            linear_algebra::getCrossProductMatrix( planetAngularVelocityVector ) ) );
 }
 
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
@@ -68,10 +70,6 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
     double distanceSquared = distance * distance;
 
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
-
-
-    std::cout<<"Radial multiplier: "<<radialComponentMultiplier<<std::endl;
-    std::cout<<"Total multiplier: "<<currentTidalAccelerationMultiplier<<std::endl;
 
     return currentTidalAccelerationMultiplier * (
                 2.0 * radialComponentMultiplier * (
@@ -149,8 +147,6 @@ void DirectTidalDissipationAccelerationPartial::update( const double currentTime
     {
         currentRelativeBodyState_ = tidalAcceleration_->getCurrentRelativeState( );
 
-        std::cout<<"Planet tide: "<<tidalAcceleration_->getModelTideOnPlanet( )<<std::endl;
-
         if( tidalAcceleration_->getModelTideOnPlanet( ) )
         {
             currentPartialWrtPosition_ = computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
@@ -214,13 +210,15 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
 //! Function to calculate central gravity partial w.r.t. central body gravitational parameter
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet( Eigen::MatrixXd& gravitationalParameterPartial )
 {
+    std::cout<<"Exerting: "<<tidalAcceleration_->getMassFunctionOfBodyExertingTide( )( )<<std::endl;
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = tidalAcceleration_->getAcceleration( ) *
             2.0 / tidalAcceleration_->getMassFunctionOfBodyExertingTide( )( );
 }
 
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite( Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -1.0 * tidalAcceleration_->getAcceleration( ) /
+    std::cout<<"Undergoing: "<<tidalAcceleration_->getMassFunctionOfBodyUndergoingTide( )( )<<std::endl;
+    gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -tidalAcceleration_->getAcceleration( ) /
             tidalAcceleration_->getMassFunctionOfBodyUndergoingTide( )( );
 }
 

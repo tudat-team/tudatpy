@@ -990,7 +990,7 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 
     double loveNumber = 0.1;
     double timeLag = 100.0;
-    for( unsigned int useRadialTerm = 0; useRadialTerm < 1; useRadialTerm++ )
+    for( unsigned int useRadialTerm = 0; useRadialTerm < 2; useRadialTerm++ )
     {
         for( unsigned int usePlanetTide = 0; usePlanetTide < 2; usePlanetTide++ )
         {
@@ -1007,6 +1007,13 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                     boost::make_shared< acceleration_partials::DirectTidalDissipationAccelerationPartial >(
                         accelerationModel, "Io", "Jupiter" );
 
+            // Create gravitational parameter object.
+            boost::shared_ptr< EstimatableParameter< double > > jupiterGravitationalParameterParameter = boost::make_shared<
+                    GravitationalParameter >( jupiterGravityField, "Jupiter" );
+            boost::shared_ptr< EstimatableParameter< double > > ioGravitationalParameterParameter = boost::make_shared<
+                    GravitationalParameter >( ioGravityField, "Io" );
+
+
            {
                 // Calculate analytical partials.
                 accelerationModel->updateMembers( );
@@ -1019,17 +1026,18 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                 accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtIoPosition.block( 0, 0, 3, 3 ) );
                 Eigen::MatrixXd partialWrtIoVelocity = Eigen::Matrix3d::Zero( );
                 accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtIoVelocity.block( 0, 0, 3, 3 ) );
-//                Eigen::MatrixXd partialWrtEmpiricalCoefficients;
-//                accelerationPartial->wrtEmpiricalAccelerationCoefficient(
-//                            empiricalAccelerationParameter, partialWrtEmpiricalCoefficients );
+                Eigen::MatrixXd partialWrtJupiterGravitationalParameter = accelerationPartial->wrtParameter(
+                            jupiterGravitationalParameterParameter );
+                Eigen::MatrixXd partialWrtIoGravitationalParameter = accelerationPartial->wrtParameter(
+                            ioGravitationalParameterParameter );
 
                 // Declare perturbations in position for numerical partial
                 Eigen::Vector3d positionPerturbation;
                 positionPerturbation<< 10.0, 10.0, 10.0;
                 Eigen::Vector3d velocityPerturbation;
                 velocityPerturbation<< 1.0E-1, 1.0E-1, 1.0E-1;
-//                int parameterSize = empiricalAccelerationParameter->getParameterSize( );
-//                Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Constant( parameterSize, 1.0E-5 );
+                double jupiterGravityFieldPerturbation = 1.0E8;
+                double ioGravityFieldPerturbation = 1.0E8;
 
                 // Calculate numerical partials.
                 Eigen::MatrixXd testPartialWrtIoPosition = calculateAccelerationWrtStatePartials(
@@ -1040,32 +1048,39 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                             jupiterStateSetFunction, accelerationModel, jupiter->getState( ), positionPerturbation, 0 );
                 Eigen::MatrixXd testPartialWrtJupiterVelocity = calculateAccelerationWrtStatePartials(
                             jupiterStateSetFunction, accelerationModel, jupiter->getState( ), velocityPerturbation, 3 );
-//                Eigen::MatrixXd testPartialWrtEmpiricalCoefficients = calculateAccelerationWrtParameterPartials(
-//                            empiricalAccelerationParameter, accelerationModel, parameterPerturbation );
+                Eigen::MatrixXd testPartialWrtJupiterGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                            jupiterGravitationalParameterParameter, accelerationModel, jupiterGravityFieldPerturbation );
+                Eigen::MatrixXd testPartialWrtIoGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                            ioGravitationalParameterParameter, accelerationModel, ioGravityFieldPerturbation );
 
                 // Compare numerical and analytical results.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterPosition,
-                                                   partialWrtJupiterPosition, 1.0e-3 );
+                                                   partialWrtJupiterPosition, 1.0e-5 );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterVelocity,
-                                                   partialWrtJupiterVelocity, 1.0e-3 );
+                                                   partialWrtJupiterVelocity, 1.0e-5 );
 
-                std::cout<<testPartialWrtJupiterPosition<<std::endl<<std::endl<<partialWrtJupiterPosition
-                        <<std::endl<<std::endl<<( partialWrtJupiterPosition  - testPartialWrtJupiterPosition ).cwiseQuotient(
-                              testPartialWrtJupiterPosition )<<std::endl<<std::endl<<std::endl;
 
-                std::cout<<testPartialWrtJupiterVelocity<<std::endl<<std::endl<<partialWrtJupiterVelocity
-                        <<std::endl<<std::endl<<( partialWrtJupiterVelocity  - testPartialWrtJupiterVelocity ).cwiseQuotient(
-                              testPartialWrtJupiterVelocity )<<std::endl<<std::endl<<std::endl;
+//                std::cout<<testPartialWrtJupiterVelocity<<std::endl<<std::endl<<partialWrtJupiterVelocity
+//                        <<std::endl<<std::endl<<( partialWrtJupiterVelocity  - testPartialWrtJupiterVelocity ).cwiseQuotient(
+//                              testPartialWrtJupiterVelocity )<<std::endl<<std::endl<<std::endl;
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoPosition,
-                                                   partialWrtIoPosition, 1.0e-3 );
+                                                   partialWrtIoPosition, 1.0e-5 );
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoVelocity,
-                                                   partialWrtIoVelocity, 1.0e-3 );
+                                                   partialWrtIoVelocity, 1.0e-5 );
 
-//                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmpiricalCoefficients,
-//                                                   partialWrtEmpiricalCoefficients, 1.0e-3 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterGravitationalParameter,
+                                                   partialWrtJupiterGravitationalParameter, 1.0e-6 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoGravitationalParameter,
+                                                   partialWrtIoGravitationalParameter, 1.0e-6 );
+
+                std::cout<<"Jup: "<<testPartialWrtJupiterGravitationalParameter.transpose( )<<std::endl<<
+                           partialWrtJupiterGravitationalParameter.transpose( )<<std::endl<<std::endl;
+                std::cout<<"Io:  "<<testPartialWrtIoGravitationalParameter.transpose( )<<std::endl<<
+                           partialWrtIoGravitationalParameter.transpose( )<<std::endl<<std::endl;
             }
 
 //            // Define arc split times of arc-wise empirical accelerations
