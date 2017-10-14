@@ -33,10 +33,11 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
 
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
+
     return currentTidalAccelerationMultiplier * (
                 radialComponentMultiplier * ( Eigen::Matrix3d::Identity( ) - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
                 timeLag * ( -20.0 * positionVelocityInnerProduct *
-                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) + 2.0 / distanceSquared * (
+                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared + 2.0 / distanceSquared * (
                                 Eigen::Matrix3d::Identity( ) * positionVelocityInnerProduct +
                                 relativePosition * relativeVelocity.transpose( ) ) ) - linear_algebra::getCrossProductMatrix(
                    planetAngularVelocityVector ) );
@@ -68,11 +69,15 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
 
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
+
+    std::cout<<"Radial multiplier: "<<radialComponentMultiplier<<std::endl;
+    std::cout<<"Total multiplier: "<<currentTidalAccelerationMultiplier<<std::endl;
+
     return currentTidalAccelerationMultiplier * (
                 2.0 * radialComponentMultiplier * (
                     Eigen::Matrix3d::Identity( ) - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
                 timeLag * 3.5 * ( -20.0 * positionVelocityInnerProduct *
-                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) +
+                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared +
                                   2.0 / distanceSquared * ( Eigen::Matrix3d::Identity( ) * positionVelocityInnerProduct +
                                 relativePosition * relativeVelocity.transpose( ) ) ) );
 }
@@ -84,8 +89,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
     Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
     Eigen::Vector3d relativePositionUnitVector = relativePosition.normalized( );
     return currentTidalAccelerationMultiplier * timeLag * 3.5 *
-                 ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) +
-                   Eigen::Matrix3d::Identity( ) );
+                 ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) );
 }
 
 //! Constructor
@@ -144,6 +148,8 @@ void DirectTidalDissipationAccelerationPartial::update( const double currentTime
     if( !( currentTime_ == currentTime ) )
     {
         currentRelativeBodyState_ = tidalAcceleration_->getCurrentRelativeState( );
+
+        std::cout<<"Planet tide: "<<tidalAcceleration_->getModelTideOnPlanet( )<<std::endl;
 
         if( tidalAcceleration_->getModelTideOnPlanet( ) )
         {
