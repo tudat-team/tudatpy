@@ -44,14 +44,14 @@ public:
     DirectTidalDissipationAcceleration(
             const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
             const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide_,
-            const boost::function< double( ) > massFunctionOfBodyExertingTide,
+            const boost::function< double( ) > massFunctionOfBodyUndergoingTide,
             const boost::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide,
             const double k2LoveNumber,
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
             const bool includeDirectRadialComponent ):
         stateFunctionOfBodyExertingTide_( stateFunctionOfBodyExertingTide ), stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide_ ),
-        massFunctionOfBodyExertingTide_( massFunctionOfBodyExertingTide ),
+        massFunctionOfBodyUndergoingTide_( massFunctionOfBodyUndergoingTide ),
         angularVelocityVectorOfBodyUndergoingTide_( angularVelocityVectorOfBodyUndergoingTide ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
         includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( true )
@@ -106,11 +106,12 @@ public:
             double distance = currentRelativeState_.segment( 0, 3 ).norm( );
             double distanceSquared = distance * distance;
             double distanceToEighthPower = distanceSquared * distanceSquared * distanceSquared * distanceSquared;
-            currentTidalAccelerationMultiplier_ =
-                    - 3.0 * massFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ / distanceToEighthPower * k2LoveNumber_;
 
             if( modelTideOnPlanet_ )
             {
+                currentTidalAccelerationMultiplier_ =
+                        - 3.0 * massFunctionOfBodyUndergoingTide_( ) * equatorialRadiusToFifthPower_ / distanceToEighthPower * k2LoveNumber_;
+
                 currentAngularVelocityVectorOfBodyUndergoingTide_ = angularVelocityVectorOfBodyUndergoingTide_( );
 
 
@@ -120,6 +121,8 @@ public:
             }
             else
             {
+                currentTidalAccelerationMultiplier_ =
+                        - 3.0 * massFunctionOfBodyExertingTide_( ) * equatorialRadiusToFifthPower_ / distanceToEighthPower * k2LoveNumber_;
                 currentTidalAccelerationMultiplier_ *= massFunctionOfBodyExertingTide_( ) / massFunctionOfBodyUndergoingTide_( );
 
                 currentAcceleration_ = computeDirectTidalAccelerationDueToTideOnSatellite(
@@ -166,6 +169,12 @@ public:
     {
         return timeLag_;
     }
+
+    void resetTimeLag( const double timeLag )
+    {
+        timeLag_ = timeLag;
+    }
+
 
     double getEquatorialRadiusOfBodyUndergoingTide( )
     {
@@ -228,6 +237,11 @@ private:
 
     double currentTidalAccelerationMultiplier_;
 };
+
+std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
+        const basic_astrodynamics::AccelerationMap accelerationModelList, const std::string bodyBeingDeformed,
+        const std::vector< std::string >& bodiesCausingDeformation );
+
 
 } // namespace gravitation
 

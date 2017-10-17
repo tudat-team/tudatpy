@@ -32,6 +32,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/equivalencePrincipleViolationParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/empiricalAccelerationCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/tidalLoveNumber.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/directTidalTimeLag.h"
 )
 
 # Add static libraries.

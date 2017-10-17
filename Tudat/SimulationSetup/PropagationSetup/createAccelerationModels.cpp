@@ -1072,7 +1072,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
         }
         else
         {
-            gravitationalParaterFunctionOfBodyExertingTide = boost::bind(
+            gravitationalParaterFunctionOfBodyUndergoingTide = boost::bind(
                         &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
         }
     }
@@ -1142,7 +1142,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
         return boost::make_shared< DirectTidalDissipationAcceleration >(
                     boost::bind( &Body::getState, bodyUndergoingAcceleration ),
                     boost::bind( &Body::getState, bodyExertingAcceleration ),
-                    gravitationalParaterFunctionOfBodyExertingTide,
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
                     planetAngularVelocityVectorFunction,
                     tidalAccelerationSettings->k2LoveNumber_,
                     tidalAccelerationSettings->timeLag_,

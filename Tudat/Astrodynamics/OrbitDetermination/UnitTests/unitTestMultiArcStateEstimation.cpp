@@ -20,7 +20,7 @@ namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_clock_parameter_estimation )
+BOOST_AUTO_TEST_SUITE( test_multi_arc_state_estimation )
 
 //Using declarations.
 using namespace tudat::observation_models;

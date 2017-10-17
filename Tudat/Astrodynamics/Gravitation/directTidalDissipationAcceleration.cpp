@@ -60,6 +60,52 @@ Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
 
 }
 
+std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
+        const basic_astrodynamics::AccelerationMap accelerationModelList, const std::string bodyBeingDeformed,
+        const std::vector< std::string >& bodiesCausingDeformation )
+{
+    std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > selectedDissipationModels;
+    for( basic_astrodynamics::AccelerationMap::const_iterator modelIterator1 = accelerationModelList.begin( );
+         modelIterator1 != accelerationModelList.end( ); modelIterator1++ )
+    {
+        std::string bodyUndergoingAcceleration = modelIterator1->first;
+        basic_astrodynamics::SingleBodyAccelerationMap singleBodyAccelerationList = modelIterator1->second;
+        for( basic_astrodynamics::SingleBodyAccelerationMap::const_iterator modelIterator2 = singleBodyAccelerationList.begin( );
+             modelIterator2 != singleBodyAccelerationList.end( ); modelIterator2++ )
+        {
+            std::string bodyExertingAcceleration = modelIterator2->first;
+            for( unsigned int i = 0; i < modelIterator2->second.size( ); i++ )
+            {
+                boost::shared_ptr< DirectTidalDissipationAcceleration > currentDissipationAcceleration =
+                    boost::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( modelIterator2->second.at( i ) );
+                if( currentDissipationAcceleration != NULL )
+                {
+                    if( currentDissipationAcceleration->getModelTideOnPlanet( ) &&
+                            ( bodyExertingAcceleration == bodyBeingDeformed ) )
+                    {
+                        if( ( std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ),
+                                       bodyUndergoingAcceleration ) != bodiesCausingDeformation.end( ) ) ||
+                                bodiesCausingDeformation.size( ) == 0 )
+                        {
+                            selectedDissipationModels.push_back( currentDissipationAcceleration );
+                        }
+                    }
+                    else if( !currentDissipationAcceleration->getModelTideOnPlanet( ) &&
+                             ( bodyUndergoingAcceleration == bodyBeingDeformed ) )
+                    {
+                        if( ( std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ),
+                                       bodyExertingAcceleration ) != bodiesCausingDeformation.end( ) ) ||
+                                bodiesCausingDeformation.size( ) == 0 )
+                        {
+                            selectedDissipationModels.push_back( currentDissipationAcceleration );
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return selectedDissipationModels;
+}
 
 
 } // namespace gravitation
