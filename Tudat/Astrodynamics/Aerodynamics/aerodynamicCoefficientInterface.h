@@ -56,11 +56,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along tyhe positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction (default true).
      */
     AerodynamicCoefficientInterface(
@@ -425,7 +425,7 @@ protected:
 
     //! Boolean to denote whether coefficients are defined in aerodynamic or body frame
     /*! Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      */
     bool areCoefficientsInAerodynamicFrame_;
@@ -433,7 +433,7 @@ protected:
     //! Boolean to denote whether coefficients are positive along frame axes
     /*! Boolean to define whether the aerodynamic coefficients are
       *  positive along tyhe positive axes of the body or aerodynamic frame
-      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+      *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
       *  coefficients are typically defined in negative direction.
      */
     bool areCoefficientsInNegativeAxisDirection_;

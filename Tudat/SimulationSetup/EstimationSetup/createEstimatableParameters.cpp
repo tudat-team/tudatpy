@@ -512,6 +512,44 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             break;
         }
+
+        case arc_wise_radiation_pressure_coefficient:
+        {
+            // Check input consistency
+            boost::shared_ptr< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings > radiationPressureCoefficientSettings =
+                    boost::dynamic_pointer_cast< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( vectorParameterName );
+            if( radiationPressureCoefficientSettings == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make arc-wise radiation pressure coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
+                {
+                    std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                            boost::lexical_cast< std::string >( currentBodyName) +
+                            " when making Cr parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
+                {
+                    std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
+                            boost::lexical_cast< std::string >( currentBodyName) +
+                            " when making Cr parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = boost::make_shared< ArcWiseRadiationPressureCoefficient >(
+                                currentBody->getRadiationPressureInterfaces( ).begin( )->second,
+                                radiationPressureCoefficientSettings->arcStartTimeList_,
+                                currentBodyName );
+                }
+                break;
+            }
+            break;
+        }
         case arc_wise_empirical_acceleration_coefficients:
         {
             // Check input consistency

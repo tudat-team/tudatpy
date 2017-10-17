@@ -230,8 +230,19 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     boost::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
             boost::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
 
+    std::vector< double > timeLimits;
+    timeLimits.push_back( 0.0 );
+    timeLimits.push_back( 3600.0 );
+    timeLimits.push_back( 7200.0 );
+    timeLimits.push_back( 10800.0 );
+
+    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcWiseRadiationPressureCoefficient =
+            boost::make_shared< ArcWiseRadiationPressureCoefficient >( radiationPressureInterface, timeLimits, vehicleName );
+
+
     // Calculate analytical partials.
-    accelerationPartial->update( 0.0 );
+    double currentTime = 0.0;
+    accelerationPartial->update( currentTime );
     Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
@@ -242,6 +253,83 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::Vector3d partialWrtRadiationPressureCoefficient = accelerationPartial->wrtParameter(
                 radiationPressureCoefficient );
+
+    // Get arc-wise radiation pressure coefficient partials
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+    currentTime = 1000.0;
+    accelerationPartial->update( currentTime );
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise2 = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+    currentTime = 4000.0;
+    accelerationPartial->update( currentTime );
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise3 = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+    currentTime = 7000.0;
+    accelerationPartial->update( currentTime );
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise4 = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+    currentTime = 10000.0;
+    accelerationPartial->update( currentTime );
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise5 = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+    currentTime = 12000.0;
+    accelerationPartial->update( currentTime );
+    Eigen::MatrixXd partialWrtRadiationPressureCoefficientArcwise6 = accelerationPartial->wrtParameter(
+                arcWiseRadiationPressureCoefficient );
+
+    // Check whether arc-wise radiation pressure partials are properly segmented
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 4; j++ )
+        {
+            if( j != 0 )
+            {
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise2( i, j ), 0.0 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise2( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+            }
+
+            if( j != 1 )
+            {
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise3( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise4( i, j ), 0.0 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise3( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise4( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+            }
+
+            if( j != 2 )
+            {
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise5( i, j ), 0.0 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise5( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+            }
+
+            if( j != 3 )
+            {
+                BOOST_CHECK_EQUAL( partialWrtRadiationPressureCoefficientArcwise6( i, j ), 0.0 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( partialWrtRadiationPressureCoefficientArcwise6( i, j ) -
+                                              partialWrtRadiationPressureCoefficient( i ) ), 1.0E-24 );
+            }
+        }
+    }
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
