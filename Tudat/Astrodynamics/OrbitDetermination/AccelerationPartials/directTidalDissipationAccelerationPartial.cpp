@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -53,8 +54,8 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
     Eigen::Vector3d relativePositionUnitVector = relativePosition.normalized( );
 
     return currentTidalAccelerationMultiplier * timeLag *
-                 ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) +
-                   Eigen::Matrix3d::Identity( ) );
+            ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) +
+              Eigen::Matrix3d::Identity( ) );
 }
 
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
@@ -75,9 +76,9 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
                 2.0 * radialComponentMultiplier * (
                     Eigen::Matrix3d::Identity( ) - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
                 timeLag * 3.5 * ( -20.0 * positionVelocityInnerProduct *
-                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared +
+                                  relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared +
                                   2.0 / distanceSquared * ( Eigen::Matrix3d::Identity( ) * positionVelocityInnerProduct +
-                                relativePosition * relativeVelocity.transpose( ) ) ) );
+                                                            relativePosition * relativeVelocity.transpose( ) ) ) );
 }
 
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
@@ -87,7 +88,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
     Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
     Eigen::Vector3d relativePositionUnitVector = relativePosition.normalized( );
     return currentTidalAccelerationMultiplier * timeLag * 3.5 *
-                 ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) );
+            ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) );
 }
 
 //! Constructor
@@ -120,14 +121,47 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
         if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) &&
                 tidalAcceleration_->getModelTideOnPlanet( ) )
         {
-            partialFunctionPair = std::make_pair(
-                        boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+            boost::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
+            if( timeLagParameter == NULL )
+            {
+                throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. DirectTidalTimeLag, models are inconsistent" );
+            }
+            else
+            {
+                std::vector< std::string > bodiesCausingDeformation = timeLagParameter->getBodiesCausingDeformation( );
+                if( bodiesCausingDeformation.size( ) == 0 || (
+                            std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ), acceleratedBody_ ) !=
+                            bodiesCausingDeformation.end( ) ) )
+                {
+                    partialFunctionPair = std::make_pair(
+                                boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                }
+            }
+
         }
         else if( ( parameter->getParameterName( ).second.first == acceleratedBody_ ) &&
-                !tidalAcceleration_->getModelTideOnPlanet( ) )
+                 !tidalAcceleration_->getModelTideOnPlanet( ) )
         {
-            partialFunctionPair = std::make_pair(
-                        boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+            boost::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
+            if( timeLagParameter == NULL )
+            {
+                throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. DirectTidalTimeLag, models are inconsistent" );
+            }
+            else
+            {
+                std::vector< std::string > bodiesCausingDeformation = timeLagParameter->getBodiesCausingDeformation( );
+                if( bodiesCausingDeformation.size( ) == 0 || (
+                            std::find( bodiesCausingDeformation.begin( ), bodiesCausingDeformation.end( ), acceleratingBody_ ) !=
+                            bodiesCausingDeformation.end( ) ) )
+                {
+                    partialFunctionPair = std::make_pair(
+                                boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                }
+            }
+
+
         }
     }
     else
@@ -186,21 +220,22 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
         // Check if parameter body is central body.
         if( parameterId.second.first == acceleratingBody_ )
         {
-            partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet,
-                                           this, _1 );
-            numberOfColumns = 1;
+            if( !tidalAcceleration_->getModelTideOnPlanet( ) )
+            {
+                partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet,
+                                               this, _1 );
+                numberOfColumns = 1;
+            }
 
         }
 
         // Check if parameter body is accelerated body, and if the mutual acceleration is used.
         if( parameterId.second.first == acceleratedBody_ )
         {
-            if( !tidalAcceleration_->getModelTideOnPlanet( ) )
-            {
-                partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite,
-                                               this, _1 );
-                numberOfColumns = 1;
-            }
+
+            partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite,
+                                           this, _1 );
+            numberOfColumns = 1;
         }
     }
 
@@ -210,16 +245,19 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
 //! Function to calculate central gravity partial w.r.t. central body gravitational parameter
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet( Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    std::cout<<"Exerting: "<<tidalAcceleration_->getMassFunctionOfBodyExertingTide( )( )<<std::endl;
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = tidalAcceleration_->getAcceleration( ) *
             2.0 / tidalAcceleration_->getMassFunctionOfBodyExertingTide( )( );
 }
 
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite( Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    std::cout<<"Undergoing: "<<tidalAcceleration_->getMassFunctionOfBodyUndergoingTide( )( )<<std::endl;
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -tidalAcceleration_->getAcceleration( ) /
             tidalAcceleration_->getMassFunctionOfBodyUndergoingTide( )( );
+
+    if( tidalAcceleration_->getModelTideOnPlanet( ) )
+    {
+        gravitationalParameterPartial *= -1.0;
+    }
 }
 
 void DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag( Eigen::MatrixXd& gravitationalParameterPartial )
@@ -228,17 +266,12 @@ void DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag( Eigen::MatrixXd
             tidalAcceleration_->getCurrentTidalAccelerationMultiplier( );
     if( tidalAcceleration_->getIncludeDirectRadialComponent( ) )
     {
-        tidalAccelerationWithoutScaling -= tidalAcceleration_->getCurrentRelativeState( ).segment( 0, 3 );
+        tidalAccelerationWithoutScaling -= ( 1.0 + static_cast< double >( !tidalAcceleration_->getModelTideOnPlanet( ) ) ) *
+                tidalAcceleration_->getCurrentRelativeState( ).segment( 0, 3 );
     }
-    gravitationalParameterPartial.block( 0, 0, 3, 1 ) = tidalAccelerationWithoutScaling / tidalAcceleration_->getTimeLag( );
+    gravitationalParameterPartial.block( 0, 0, 3, 1 ) =  tidalAcceleration_->getCurrentTidalAccelerationMultiplier( ) *
+            tidalAccelerationWithoutScaling / tidalAcceleration_->getTimeLag( );
 }
-
-void DirectTidalDissipationAccelerationPartial::wrtTidalLoveNumber( Eigen::MatrixXd& gravitationalParameterPartial )
-{
-
-}
-
-
 
 
 }

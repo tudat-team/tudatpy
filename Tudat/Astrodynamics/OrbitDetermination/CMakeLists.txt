@@ -52,6 +52,11 @@ add_executable(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTest
 setup_custom_test_program(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_EstimationInput ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+
+add_executable(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestTidalPropertyEstimation.cpp")
+setup_custom_test_program(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_TidalPropertyEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
 
     add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")

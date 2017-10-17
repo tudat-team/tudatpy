@@ -193,8 +193,6 @@ protected:
 
     void wrtTidalTimeLag( Eigen::MatrixXd& gravitationalParameterPartial );
 
-    void wrtTidalLoveNumber( Eigen::MatrixXd& gravitationalParameterPartial );
-
     boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration_;
 
     Eigen::Vector6d currentRelativeBodyState_;

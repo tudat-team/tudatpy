@@ -178,7 +178,7 @@ public:
 
 };
 //! Class to define settings for estimating an initial translational state.
-template< typename InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
@@ -313,7 +313,7 @@ public:
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
 };
 
@@ -344,7 +344,7 @@ public:
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
     //! List of times at which empirical acceleration arcs are to start
     std::vector< double > arcStartTimeList_;
@@ -477,6 +477,32 @@ public:
     bool useComplexValue_;
 
 };
+
+class DirectTidalTimeLagEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::string deformingBody ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::vector< std::string >& deformingBodies ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ),
+        deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
 
 } // namespace estimatable_parameters
 
