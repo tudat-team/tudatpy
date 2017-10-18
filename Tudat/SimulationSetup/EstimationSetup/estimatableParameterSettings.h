@@ -501,10 +501,23 @@ public:
 
 };
 
+//! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
 class DirectTidalTimeLagEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
     DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
                                                     const std::string deformingBody ):
         EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
@@ -515,6 +528,12 @@ public:
         }
     }
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
     DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
                                                     const std::vector< std::string >& deformingBodies ):
         EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ),

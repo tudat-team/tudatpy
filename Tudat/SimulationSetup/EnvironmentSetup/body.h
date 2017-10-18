@@ -636,6 +636,11 @@ public:
         return currentRotationToLocalFrameDerivative_;
     }
 
+    //! Get current angular velocity vector for body's rotation, expressed in the global frame.
+    /*!
+     *  Get current angular velocity vector for body's rotation, expressed in the global frame
+     *  \return Current angular velocity vector for body's rotation, expressed in the global frame.
+     */
     Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( )
     {
         return currentAngularVelocityVectorInGlobalFrame_;
