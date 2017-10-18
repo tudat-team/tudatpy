@@ -311,80 +311,151 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
     }
     else if ( jsonObject.is_string( ) )
     {
-        boost::smatch groups;
-        if ( boost::regex_match( jsonObject.get< std::string >( ), groups,
-                                 boost::regex( R"(\$(?:\((.+)\))?(?:\{(.+)\})?)" ) ) )
+        std::string objectString = jsonObject.get< std::string >( );
+        if( objectString.size( ) > 3 )
         {
-            const std::string file = groups.str( 1 );
-            const std::string vars = groups.str( 2 );
-            const boost::filesystem::path importPath =
-                    file.empty( ) ? filePath : getPathForJSONFile( file, filePath.parent_path( ) );
-            const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
-            std::vector< std::string > keys;
-            std::vector< KeyPath > keyPaths;
-            if ( vars.empty( ) )
+            if( objectString.at( 0 ) == '$' )
             {
-                keyPaths = { KeyPath( ) };
-            }
-            else
-            {
-                for ( const std::string variable : split( vars, ',' ) )
+                int fileStartIndex = -1;
+                int fileStringSize = 0;
+
+                int variableStartIndex = -1;
+                int variableStringSize = 0;
+
+                if( objectString.at( 1 ) == '(' )
                 {
-                    const std::vector< std::string > keyVar = split( variable, ':' );
-                    if ( keyVar.size( ) == 2 )
-                    {
-                        keys.push_back( keyVar.front( ) );
-                    }
-                    keyPaths.push_back( KeyPath( keyVar.back( ) ) );
+                    fileStartIndex = 2;
                 }
-            }
-            nlohmann::json parsedJsonObject;
-            for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
-            {
-                const KeyPath keyPath = keyPaths.at( i );
-                nlohmann::json subJsonObject = importedJsonObject;
-                if ( keyPath.empty( ) )
+                else if( objectString.at( 1 ) == '{' )
                 {
-                    parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
+                    variableStartIndex = 2;
                 }
-                else
+                for( unsigned int i = 2; i < objectString.size( ); i++ )
                 {
-                    try
+                    if( objectString.at( i ) == '{' )
                     {
-                        // Recursively update jsonObject for every key in keyPath
-                        for ( const std::string key : keyPath )
+                        if( variableStartIndex == -1 )
                         {
-                            subJsonObject = valueAt( subJsonObject, key );
+                            variableStartIndex = i + 1;
+                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error in JSON file deserialization, found '{' twice" );
+                        }
+                    }
+                    else if( objectString.at( i ) == '}' )
+                    {
+                        if( variableStartIndex != -1 )
+                        {
+                            variableStringSize = i - variableStartIndex;
+                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error in JSON file deserialization, found '}' before '{'" );
+                        }
+                    }
+                    else if( objectString.at( i ) == ')' )
+                    {
+                        if( fileStartIndex != -1 )
+                        {
+                            fileStringSize = i - fileStartIndex;
+                        }
+                        else
+                        {
+                            throw std::runtime_error( "Error in JSON file deserialization, found ')' before '('" );
+                        }
+                    }
+                }
+
+                if( fileStringSize > 0 || variableStringSize > 0 )
+                {
+                    std::string file = "";
+                    std::string vars = "";
+
+                    if( fileStringSize > 0 )
+                    {
+                        file = objectString.substr( fileStartIndex, fileStringSize );
+                    }
+
+                    if( variableStringSize > 0 )
+                    {
+                        vars = objectString.substr( variableStartIndex, variableStringSize );
+                    }
+
+                    const boost::filesystem::path importPath =
+                            file.empty( ) ? filePath : getPathForJSONFile( file, filePath.parent_path( ) );
+                    const nlohmann::json importedJsonObject = readJSON( importPath, filePath, rootFilePath );
+                    std::vector< std::string > keys;
+                    std::vector< KeyPath > keyPaths;
+                    if ( vars.empty( ) )
+                    {
+                        keyPaths = { KeyPath( ) };
+                    }
+                    else
+                    {
+                        for ( const std::string variable : split( vars, ',' ) )
+                        {
+                            const std::vector< std::string > keyVar = split( variable, ':' );
+                            if ( keyVar.size( ) == 2 )
+                            {
+                                keys.push_back( keyVar.front( ) );
+                            }
+                            keyPaths.push_back( KeyPath( keyVar.back( ) ) );
+                        }
+                    }
+                    nlohmann::json parsedJsonObject;
+                    for ( unsigned int i = 0; i < keyPaths.size( ); ++i )
+                    {
+                        const KeyPath keyPath = keyPaths.at( i );
+                        nlohmann::json subJsonObject = importedJsonObject;
+                        if ( keyPath.empty( ) )
+                        {
                             parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
                         }
-                    }
-                    catch ( ... )
-                    {
-                        std::cerr << "Could not load ";
-                        if ( ! keyPath.empty( ) )
+                        else
                         {
-                            std::cerr << "value for " << keyPath << " from ";
+                            try
+                            {
+                                // Recursively update jsonObject for every key in keyPath
+                                for ( const std::string key : keyPath )
+                                {
+                                    subJsonObject = valueAt( subJsonObject, key );
+                                    parseModularJSON( subJsonObject, importPath, parentObject, rootFilePath );
+                                }
+                            }
+                            catch ( ... )
+                            {
+                                std::cerr << "Could not load ";
+                                if ( ! keyPath.empty( ) )
+                                {
+                                    std::cerr << "value for " << keyPath << " from ";
+                                }
+                                std::cerr << "file " << importPath << " referenced from file " << filePath << std::endl;
+                                throw;
+                            }
                         }
-                        std::cerr << "file " << importPath << " referenced from file " << filePath << std::endl;
-                        throw;
+                        if ( keys.size( ) > 0 )
+                        {
+                            parsedJsonObject[ keys.at( i ) ] = subJsonObject;
+                        }
+                        else
+                        {
+                            parsedJsonObject[ i ] = subJsonObject;
+                        }
                     }
-                }
-                if ( keys.size( ) > 0 )
-                {
-                    parsedJsonObject[ keys.at( i ) ] = subJsonObject;
+                    if ( keyPaths.size( ) == 1 && keys.size( ) == 0 && vars.find( ',' ) == std::string::npos )
+                    {
+                        jsonObject = parsedJsonObject.front( );
+                    }
+                    else
+                    {
+                        jsonObject = parsedJsonObject;
+                    }
                 }
                 else
                 {
-                    parsedJsonObject[ i ] = subJsonObject;
+                    throw std::runtime_error( "Error in JSON file deserialization, found none of '(', ')' '{'  or '}' in string starting with '$' " );
                 }
-            }
-            if ( keyPaths.size( ) == 1 && keys.size( ) == 0 && vars.find( ',' ) == std::string::npos )
-            {
-                jsonObject = parsedJsonObject.front( );
-            }
-            else
-            {
-                jsonObject = parsedJsonObject;
             }
         }
     }
