@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -170,6 +171,35 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         case equivalence_principle_lpi_violation_parameter:
         {
             doubleParameterToEstimate = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+            break;
+        }
+        case direct_dissipation_tidal_time_lag:
+        {
+            // Check input consistency
+            boost::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationTimeLagSettings =
+                    boost::dynamic_pointer_cast< DirectTidalTimeLagEstimatableParameterSettings >( doubleParameterName );
+            if( dissipationTimeLagSettings == NULL )
+            {
+                throw std::runtime_error( "Error, expected dissipation time lag parameter settings." );
+            }
+            else
+            {
+                std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > assiciatedTidalAccelerationModels =
+                        getTidalDissipationAccelerationModels(
+                            accelerationModelMap, currentBodyName, dissipationTimeLagSettings->deformingBodies_ );
+
+                // Create parameter object
+                if( assiciatedTidalAccelerationModels.size( ) != 0 )
+                {
+                    doubleParameterToEstimate = boost::make_shared< DirectTidalTimeLag >(
+                                assiciatedTidalAccelerationModels, currentBodyName, dissipationTimeLagSettings->deformingBodies_ );
+                }
+                else
+                {
+                    throw std::runtime_error(
+                                "Error, expected DirectTidalDissipationAcceleration list for tidal time lag" );
+                }
+            }
             break;
         }
         default:
@@ -678,6 +708,12 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                     // Create parameter object
                     if( gravityFieldVariation != NULL )
                     {
+                        std::vector< int > orders = tidalLoveNumberSettings->orders_;
+                        if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
+                                tidalLoveNumberSettings->useComplexValue_ )
+                        {
+                            std::cerr<<"Warning, creating parameter to estimate complex Love number at order 0, but imaginary part has no influence on dynamcis"<<std::endl;
+                        }
                         vectorParameterToEstimate = boost::make_shared< SingleDegreeVariableTidalLoveNumber >(
                                     gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
                                     tidalLoveNumberSettings->orders_, tidalLoveNumberSettings->useComplexValue_ );

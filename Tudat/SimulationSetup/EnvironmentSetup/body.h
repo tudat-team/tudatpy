@@ -636,6 +636,17 @@ public:
         return currentRotationToLocalFrameDerivative_;
     }
 
+    //! Get current angular velocity vector for body's rotation, expressed in the global frame.
+    /*!
+     *  Get current angular velocity vector for body's rotation, expressed in the global frame
+     *  \return Current angular velocity vector for body's rotation, expressed in the global frame.
+     */
+    Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( )
+    {
+        return currentAngularVelocityVectorInGlobalFrame_;
+    }
+
+
     //! Function to set the ephemeris of the body.
     /*!
      *  Function to set the ephemeris of the body, which is used to represent the (a priori)

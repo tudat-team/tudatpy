@@ -918,7 +918,7 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
     if( empiricalSettings == NULL )
     {
         throw std::runtime_error( "Error, expected empirical acceleration settings when making acceleration model on " +
-                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
     }
     else
     {
@@ -927,8 +927,8 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
 
         if( gravityField == NULL )
         {
-             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
-                       "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
+            throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
+                                      "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
         }
         else
         {
@@ -1044,6 +1044,124 @@ createThrustAcceleratioModel(
                 updateFunction, timeResetFunction, totalUpdateSettings );
 }
 
+//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
+boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Check input consistency
+    boost::shared_ptr< DirectTidalDissipationAccelerationSettings > tidalAccelerationSettings =
+            boost::dynamic_pointer_cast< DirectTidalDissipationAccelerationSettings >( accelerationSettings );
+    if( tidalAccelerationSettings == NULL )
+    {
+        throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, input is inconsistent" );
+    }
+
+    boost::function< double( ) > gravitationalParaterFunctionOfBodyExertingTide;
+    boost::function< double( ) > gravitationalParaterFunctionOfBodyUndergoingTide;
+
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+                                      nameOfBodyUndergoingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyUndergoingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
+        }
+    }
+    else
+    {
+        if( bodyExertingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+                                      nameOfBodyExertingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyExertingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
+        }
+
+
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+                                      nameOfBodyUndergoingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyUndergoingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
+        }
+    }
+
+    double referenceRadius = TUDAT_NAN;
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                    bodyExertingAcceleration->getGravityFieldModel( ) ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet "+
+                                      nameOfBodyExertingAcceleration + " has no s.h. gravity field" );
+        }
+        else
+        {
+            referenceRadius = boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        bodyExertingAcceleration->getGravityFieldModel( ) )->getReferenceRadius( );
+        }
+    }
+    else
+    {
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet "+
+                                      nameOfBodyUndergoingAcceleration + " has no s.h. gravity field" );
+        }
+        else
+        {
+            referenceRadius = boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        bodyUndergoingAcceleration->getGravityFieldModel( ) )->getReferenceRadius( );
+        }
+    }
+    
+
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        boost::function< Eigen::Vector3d( ) > planetAngularVelocityVectorFunction =
+                boost::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
+
+
+        return boost::make_shared< DirectTidalDissipationAcceleration >(
+                    boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    boost::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
+                    planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_,
+                    referenceRadius,
+                    tidalAccelerationSettings->includeDirectRadialComponent_);
+    }
+    else
+    {
+        return boost::make_shared< DirectTidalDissipationAcceleration >(
+                    boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    boost::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyExertingTide,
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_,
+                    referenceRadius,
+                    tidalAccelerationSettings->includeDirectRadialComponent_);
+    }
+}
 
 //! Function to create acceleration model object.
 boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
@@ -1115,7 +1233,14 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
         break;
-
+    case direct_tidal_dissipation_acceleration:
+        accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +

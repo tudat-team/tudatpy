@@ -20,6 +20,7 @@ set(ACCELERATION_PARTIALS_SOURCES
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/tidalLoveNumberPartialInterface.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/directTidalDissipationAccelerationPartial.cpp"
 )
 
 # Set the header files.
@@ -36,6 +37,7 @@ set(ACCELERATION_PARTIALS_HEADERS
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/tidalLoveNumberPartialInterface.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/directTidalDissipationAccelerationPartial.h"
 )
 
 # Add static libraries.
