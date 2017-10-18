@@ -1044,7 +1044,7 @@ createThrustAcceleratioModel(
                 updateFunction, timeResetFunction, totalUpdateSettings );
 }
 
-//! Function to create a thrust acceleration model.
+//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
 boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,

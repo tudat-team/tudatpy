@@ -521,7 +521,7 @@ public:
             calculateObservationMatrixAndResiduals(
                         podInput->getObservationsAndTimes( ), parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
 
-            input_output::writeMatrixToFile( residualsAndPartials.second, "currentPartials.dat" );
+            //input_output::writeMatrixToFile( residualsAndPartials.second, "currentPartials.dat" );
 
             Eigen::VectorXd transformationData = normalizeObservationMatrix( residualsAndPartials.second );
 

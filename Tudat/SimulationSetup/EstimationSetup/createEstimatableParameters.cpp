@@ -708,6 +708,12 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                     // Create parameter object
                     if( gravityFieldVariation != NULL )
                     {
+                        std::vector< int > orders = tidalLoveNumberSettings->orders_;
+                        if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
+                                tidalLoveNumberSettings->useComplexValue_ )
+                        {
+                            std::cerr<<"Warning, creating parameter to estimate complex Love number at order 0, but imaginary part has no influence on dynamcis"<<std::endl;
+                        }
                         vectorParameterToEstimate = boost::make_shared< SingleDegreeVariableTidalLoveNumber >(
                                     gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
                                     tidalLoveNumberSettings->orders_, tidalLoveNumberSettings->useComplexValue_ );

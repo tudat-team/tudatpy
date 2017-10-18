@@ -18,27 +18,26 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
+//! Function to compute partial derivative of direct tidal acceleration due to tide on planet w.r.t. position of satellite
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
         const Eigen::Vector6d relativeStateOfBodyExertingTide, const Eigen::Vector3d planetAngularVelocityVector,
         const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent )
 {
     Eigen::Vector3d relativePosition = relativeStateOfBodyExertingTide.segment( 0, 3 );
     Eigen::Vector3d relativePositionUnitVector = relativePosition.normalized( );
-
     Eigen::Vector3d relativeVelocity = relativeStateOfBodyExertingTide.segment( 3, 3 );
 
     double positionVelocityInnerProduct = relativePosition.dot( relativeVelocity );
     double distance = relativePosition.norm( );
     double distanceSquared = distance * distance;
-
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
-
     return currentTidalAccelerationMultiplier * (
-                radialComponentMultiplier * ( Eigen::Matrix3d::Identity( ) - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
+                radialComponentMultiplier * ( Eigen::Matrix3d::Identity( )
+                                              - 8.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) ) +
                 timeLag * ( -20.0 * positionVelocityInnerProduct *
-                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) / distanceSquared + 2.0 / distanceSquared * (
+                            relativePositionUnitVector * relativePositionUnitVector.transpose( ) /
+                            distanceSquared + 2.0 / distanceSquared * (
                                 Eigen::Matrix3d::Identity( ) * positionVelocityInnerProduct +
                                 relativePosition * relativeVelocity.transpose( ) ) -
                             8.0 / distance * ( relativePosition.cross( planetAngularVelocityVector) + relativeVelocity ) *
@@ -46,6 +45,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtPosition(
                             linear_algebra::getCrossProductMatrix( planetAngularVelocityVector ) ) );
 }
 
+//! Function to compute partial derivative of direct tidal acceleration due to tide on planet w.r.t. velocity of satellite/
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
         const Eigen::Vector6d relativeStateOfBodyExertingTide, const double currentTidalAccelerationMultiplier,
         const double timeLag )
@@ -58,6 +58,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnPlanetWrtVelocity(
               Eigen::Matrix3d::Identity( ) );
 }
 
+//! Function to compute partial derivative of direct tidal acceleration due to tide on satellite w.r.t. position of satellite
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
         const Eigen::Vector6d relativeStateOfBodyExertingTide,
         const double currentTidalAccelerationMultiplier, const double timeLag, const bool includeDirectRadialComponent )
@@ -69,7 +70,6 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
     double positionVelocityInnerProduct = relativePosition.dot( relativeVelocity );
     double distance = relativePosition.norm( );
     double distanceSquared = distance * distance;
-
     double radialComponentMultiplier = ( includeDirectRadialComponent == true ) ? 1.0 : 0.0;
 
     return currentTidalAccelerationMultiplier * (
@@ -81,6 +81,7 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtPosition(
                                                             relativePosition * relativeVelocity.transpose( ) ) ) );
 }
 
+//! Function to compute partial derivative of direct tidal acceleration due to tide on satellite w.r.t. velocity of satellite
 Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
         const Eigen::Vector6d relativeStateOfBodyExertingTide, const double currentTidalAccelerationMultiplier,
         const double timeLag )
@@ -89,17 +90,6 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
     Eigen::Vector3d relativePositionUnitVector = relativePosition.normalized( );
     return currentTidalAccelerationMultiplier * timeLag * 3.5 *
             ( 2.0 * relativePositionUnitVector * relativePositionUnitVector.transpose( ) );
-}
-
-//! Constructor
-DirectTidalDissipationAccelerationPartial::DirectTidalDissipationAccelerationPartial(
-        const boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
-        const std::string acceleratedBody,
-        const std::string acceleratingBody ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::direct_tidal_dissipation_acceleration ),
-    tidalAcceleration_( tidalAcceleration )
-{
-
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -246,13 +236,14 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet( Eigen::MatrixXd& gravitationalParameterPartial )
 {
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = tidalAcceleration_->getAcceleration( ) *
-            2.0 / tidalAcceleration_->getMassFunctionOfBodyExertingTide( )( );
+            2.0 / tidalAcceleration_->getGravitationalParameterFunctionOfBodyExertingTide( )( );
 }
 
+//! Function to compute derivative w.r.t. gravitational parameter of satellite
 void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite( Eigen::MatrixXd& gravitationalParameterPartial )
 {
     gravitationalParameterPartial.block( 0, 0, 3, 1 ) = -tidalAcceleration_->getAcceleration( ) /
-            tidalAcceleration_->getMassFunctionOfBodyUndergoingTide( )( );
+            tidalAcceleration_->getGravitationalParameterFunctionOfBodyUndergoingTide( )( );
 
     if( tidalAcceleration_->getModelTideOnPlanet( ) )
     {
@@ -260,6 +251,7 @@ void DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatel
     }
 }
 
+//! Function to compute derivative w.r.t. tidal time lag parameter.
 void DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag( Eigen::MatrixXd& gravitationalParameterPartial )
 {
     Eigen::Vector3d tidalAccelerationWithoutScaling = tidalAcceleration_->getAcceleration( ) /
