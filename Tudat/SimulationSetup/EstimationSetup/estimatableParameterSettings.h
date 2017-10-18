@@ -178,7 +178,7 @@ public:
 
 };
 //! Class to define settings for estimating an initial translational state.
-template< typename InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
@@ -313,7 +313,7 @@ public:
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
 };
 
@@ -344,7 +344,7 @@ public:
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
     //! List of times at which empirical acceleration arcs are to start
     std::vector< double > arcStartTimeList_;
@@ -500,6 +500,51 @@ public:
     bool useComplexValue_;
 
 };
+
+//! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class DirectTidalTimeLagEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::string deformingBody ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::vector< std::string >& deformingBodies ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ),
+        deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
 
 } // namespace estimatable_parameters
 

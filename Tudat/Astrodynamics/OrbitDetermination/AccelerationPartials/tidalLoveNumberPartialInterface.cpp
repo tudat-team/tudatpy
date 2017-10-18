@@ -59,11 +59,11 @@ std::vector< int > TidalLoveNumberPartialInterface::getSelectedDeformingBodyIds(
         {
             selectedBodyIds.push_back( std::distance( deformingBodies_.begin( ), findIterator ) );
         }
-        else
-        {
-            throw std::runtime_error( "Error when looking for deforming body " + selectedBodyNames.at( i ) +
-                                      " in TidalLoveNumberPartialInterface, body not found." );
-        }
+//        else
+//        {
+//            throw std::runtime_error( "Error when looking for deforming body " + selectedBodyNames.at( i ) +
+//                                      " in TidalLoveNumberPartialInterface, body not found." );
+//        }
     }
     return selectedBodyIds;
 }

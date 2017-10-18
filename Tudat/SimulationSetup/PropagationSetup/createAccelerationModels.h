@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
+#include "Tudat/Astrodynamics/Gravitation/directTidalDissipationAcceleration.h"
 
 namespace tudat
 {
@@ -319,6 +320,23 @@ createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
+
+//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
+/*!
+ *  Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \return Pointer to object for calculating acceleration.
+ */
+boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an orbiter relativistic correction acceleration model
 /*!

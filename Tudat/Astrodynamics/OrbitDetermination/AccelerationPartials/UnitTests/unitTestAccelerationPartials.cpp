@@ -31,6 +31,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/ppnParameters.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
@@ -1010,6 +1011,178 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmpiricalCoefficients,
                                            partialWrtEmpiricalCoefficients, 1.0e-6 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
+{
+
+    // Create bodies
+    boost::shared_ptr< Body > jupiter = boost::make_shared< Body >( );
+    boost::shared_ptr< Body > io = boost::make_shared< Body >( );
+
+    // Create links to set and get state functions of bodies.
+    boost::function< void( Eigen::Vector6d ) > ioStateSetFunction =
+            boost::bind( &Body::setState, io, _1  );
+    boost::function< void( Eigen::Vector6d ) > jupiterStateSetFunction =
+            boost::bind( &Body::setState, jupiter, _1  );
+    boost::function< Eigen::Vector6d( ) > ioStateGetFunction =
+            boost::bind( &Body::getState, io );
+    boost::function< Eigen::Vector6d( ) > jupiterStateGetFunction =
+            boost::bind( &Body::getState, jupiter );
+
+    // Load spice kernel.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set state.
+    jupiter->setState( Eigen::Vector6d::Zero( ) );
+    Eigen::Vector6d ioKeplerElements =
+            ( Eigen::Vector6d( )<< 1.0 * 421.8E6, 1.0 * 0.004, 0.001, 2.0, 3.0, 0.4 ).finished( );
+    io->setState( convertKeplerianToCartesianElements(
+                      ioKeplerElements,
+                      getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ) ) );
+
+
+    NamedBodyMap bodyMap;
+    bodyMap[ "Io" ] = io;
+    bodyMap[ "Jupiter" ] = jupiter;
+
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
+
+    // Create jupiter gravity field.
+    boost::shared_ptr< GravityFieldSettings > jupiterGravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+            ( getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ),
+              cosineCoefficients, sineCoefficients, "IAU_Jupiter" );
+    boost::shared_ptr< gravitation::GravityFieldModel > jupiterGravityField =
+            createGravityFieldModel( jupiterGravityFieldSettings, "Jupiter", bodyMap );
+    jupiter->setGravityFieldModel( jupiterGravityField );
+
+    // Create io gravity field.
+    boost::shared_ptr< GravityFieldSettings > ioGravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+            ( getBodyGravitationalParameter( "Io" ), getAverageRadius( "Io" ),
+              cosineCoefficients, sineCoefficients, "IAU_Io" );
+    boost::shared_ptr< gravitation::GravityFieldModel > ioGravityField =
+            createGravityFieldModel( ioGravityFieldSettings, "Io", bodyMap );
+    io->setGravityFieldModel( ioGravityField );
+
+    // Create rotation model
+    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+            boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
+                2.0 * mathematical_constants::PI / ( 9.925 * 3600.0 ), 0.0,
+                "ECLIPJ2000" , "IAU_Jupiter" );
+    jupiter->setRotationalEphemeris( simpleRotationalEphemeris );
+    jupiter->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
+
+    double loveNumber = 0.1;
+    double timeLag = 100.0;
+    for( unsigned int useRadialTerm = 0; useRadialTerm < 2; useRadialTerm++ )
+    {
+        for( unsigned int usePlanetTide = 0; usePlanetTide < 2; usePlanetTide++ )
+        {
+
+            // Create acceleration model.
+            boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > accelerationModel =
+                    boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >(
+                        simulation_setup::createAccelerationModel(
+                            io, jupiter, boost::make_shared< simulation_setup::DirectTidalDissipationAccelerationSettings >(
+                                loveNumber, timeLag, useRadialTerm, usePlanetTide ) , "Io", "Jupiter" ) );
+
+            // Create acceleration partial object.
+            boost::shared_ptr< acceleration_partials::DirectTidalDissipationAccelerationPartial > accelerationPartial =
+                    boost::make_shared< acceleration_partials::DirectTidalDissipationAccelerationPartial >(
+                        accelerationModel, "Io", "Jupiter" );
+
+            // Create gravitational parameter object.
+            boost::shared_ptr< EstimatableParameter< double > > jupiterGravitationalParameterParameter = boost::make_shared<
+                    GravitationalParameter >( jupiterGravityField, "Jupiter" );
+            boost::shared_ptr< EstimatableParameter< double > > ioGravitationalParameterParameter = boost::make_shared<
+                    GravitationalParameter >( ioGravityField, "Io" );
+            boost::shared_ptr< EstimatableParameter< double > > tidalTimeLagParameter = boost::make_shared<
+                    DirectTidalTimeLag >( boost::assign::list_of( accelerationModel ), ( usePlanetTide ) ? "Jupiter" : "Io" );
+
+
+            {
+                // Calculate analytical partials.
+                accelerationModel->updateMembers( );
+
+                std::cout<<"Current acceleration: "<<useRadialTerm<<" "<<usePlanetTide<<" "<<
+                           accelerationModel->getAcceleration( ).transpose( )<<std::endl;
+
+                accelerationPartial->update( );
+                Eigen::MatrixXd partialWrtJupiterPosition = Eigen::Matrix3d::Zero( );
+                accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtJupiterPosition.block( 0, 0, 3, 3 ) );
+                Eigen::MatrixXd partialWrtJupiterVelocity = Eigen::Matrix3d::Zero( );
+                accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtJupiterVelocity.block( 0, 0, 3, 3 ) );
+                Eigen::MatrixXd partialWrtIoPosition = Eigen::Matrix3d::Zero( );
+                accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtIoPosition.block( 0, 0, 3, 3 ) );
+                Eigen::MatrixXd partialWrtIoVelocity = Eigen::Matrix3d::Zero( );
+                accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtIoVelocity.block( 0, 0, 3, 3 ) );
+                Eigen::MatrixXd partialWrtJupiterGravitationalParameter = accelerationPartial->wrtParameter(
+                            jupiterGravitationalParameterParameter );
+                Eigen::MatrixXd partialWrtIoGravitationalParameter = accelerationPartial->wrtParameter(
+                            ioGravitationalParameterParameter );
+                Eigen::MatrixXd partialWrtTidalTimeLag = accelerationPartial->wrtParameter(
+                            tidalTimeLagParameter );
+
+                // Declare perturbations in position for numerical partial
+                Eigen::Vector3d positionPerturbation;
+                positionPerturbation<< 10.0, 10.0, 10.0;
+                Eigen::Vector3d velocityPerturbation;
+                velocityPerturbation<< 1.0E-1, 1.0E-1, 1.0E-1;
+                double jupiterGravityFieldPerturbation = 1.0E8;
+                double ioGravityFieldPerturbation = 1.0E8;
+                double timelagPerturbation = 1.0;;
+
+                // Calculate numerical partials.
+                Eigen::MatrixXd testPartialWrtIoPosition = calculateAccelerationWrtStatePartials(
+                            ioStateSetFunction, accelerationModel, io->getState( ), positionPerturbation, 0 );
+                Eigen::MatrixXd testPartialWrtIoVelocity = calculateAccelerationWrtStatePartials(
+                            ioStateSetFunction, accelerationModel, io->getState( ), velocityPerturbation, 3 );
+                Eigen::MatrixXd testPartialWrtJupiterPosition = calculateAccelerationWrtStatePartials(
+                            jupiterStateSetFunction, accelerationModel, jupiter->getState( ), positionPerturbation, 0 );
+                Eigen::MatrixXd testPartialWrtJupiterVelocity = calculateAccelerationWrtStatePartials(
+                            jupiterStateSetFunction, accelerationModel, jupiter->getState( ), velocityPerturbation, 3 );
+                Eigen::MatrixXd testPartialWrtJupiterGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                            jupiterGravitationalParameterParameter, accelerationModel, jupiterGravityFieldPerturbation );
+                Eigen::MatrixXd testPartialWrtIoGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                            ioGravitationalParameterParameter, accelerationModel, ioGravityFieldPerturbation );
+                Eigen::MatrixXd testPartialWrtTidalTimeLag = calculateAccelerationWrtParameterPartials(
+                            tidalTimeLagParameter, accelerationModel, timelagPerturbation );
+
+                // Compare numerical and analytical results.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterPosition,
+                                                   partialWrtJupiterPosition, 1.0e-5 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterVelocity,
+                                                   partialWrtJupiterVelocity, 1.0e-5 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoPosition,
+                                                   partialWrtIoPosition, 1.0e-5 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoVelocity,
+                                                   partialWrtIoVelocity, 1.0e-5 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtJupiterGravitationalParameter,
+                                                   partialWrtJupiterGravitationalParameter, 1.0e-6 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtIoGravitationalParameter,
+                                                   partialWrtIoGravitationalParameter, 1.0e-6 );
+
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtTidalTimeLag,
+                                                   partialWrtTidalTimeLag, 1.0e-6 );
+
+
+//                std::cout<<testPartialWrtTidalTimeLag<<std::endl<<std::endl<<partialWrtTidalTimeLag
+//                        <<std::endl<<std::endl<<( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
+//                              testPartialWrtTidalTimeLag )<<std::endl<<std::endl<<std::endl;
+
+
+            }
+        }
     }
 }
 

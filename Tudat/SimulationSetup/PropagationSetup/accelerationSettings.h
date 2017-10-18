@@ -452,6 +452,45 @@ public:
 
 };
 
+//! Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
+/*!
+ *  Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..).
+ *  Using this approach does includes the effect of tides raised by/on a planetary satelltie on the orbit of the satellite by
+ *  a dedicated acceleration model, instead of modifying the gravity field coefficients of the satellite/host planet/
+ */
+class DirectTidalDissipationAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param k2LoveNumber Static k2 Love number of the satellite
+     * \param timeLag Time lag of tidal bulge on satellite
+     * \param includeDirectRadialComponent  True if term independent of time lag is to be included, false otherwise
+     * \param useTideRaisedOnPlanet True if acceleration model is to model tide raised on planet by satellite, false if vice
+     * versa
+     */
+    DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
+                                                const bool includeDirectRadialComponent = true,
+                                                const bool useTideRaisedOnPlanet = true ):
+        AccelerationSettings( basic_astrodynamics::direct_tidal_dissipation_acceleration ),
+        k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
+        useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
+
+    //! Static k2 Love number of the satellite
+    double k2LoveNumber_;
+
+    //! Time lag of tidal bulge on satellite
+    double timeLag_;
+
+    //! True if term independent of time lag is to be included, false otherwise
+    bool includeDirectRadialComponent_;
+
+    //! True if acceleration model is to model tide raised on planet by satellite, false if vice versa
+    bool useTideRaisedOnPlanet_;
+};
+
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > >

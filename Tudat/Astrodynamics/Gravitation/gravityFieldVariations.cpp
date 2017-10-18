@@ -280,7 +280,7 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
         // Check consistency
         if( tidalGravityFieldVariation == NULL )
         {
-            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model identified, but type does not match" );
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model found, but type does not match" );
         }
         // Check if consistency with input needs to be determined
         else if( namesOfBodiesCausingDeformation.size( ) != 0 )
@@ -291,7 +291,7 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
             if( !doBodiesMatch )
             {
                 throw std::runtime_error(
-                            "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
+                            "Error when getting direct tidal gravity field variation, one model found, but deforming bodies do not match" );
             }
         }
     }
@@ -319,12 +319,6 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
                 bool doBodiesMatch = utilities::doStlVectorContentsMatch(
                             boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
                                 variationObjects_.at( i ) )->getDeformingBodies( ), namesOfBodiesCausingDeformation );
-
-                if( !doBodiesMatch )
-                {
-                    throw std::runtime_error(
-                                "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
-                }
 
                 if( doBodiesMatch )
                 {
