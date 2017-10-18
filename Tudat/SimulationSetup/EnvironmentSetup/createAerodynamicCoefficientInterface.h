@@ -53,11 +53,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     AerodynamicCoefficientSettings(
@@ -205,7 +205,7 @@ private:
     //! Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame.
     /*!
      *  Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
-     *  (lift, drag, side force) or in the body frame (typically denoted as Cx, Cy, Cz).
+     *  (drag, side, lift force) or in the body frame (typically denoted as Cx, Cy, Cz).
      */
     bool areCoefficientsInAerodynamicFrame_;
 
@@ -213,7 +213,7 @@ private:
     /*!
      *  Boolean to define whether the aerodynamic coefficients are positive along the positive
      *  axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame).
-     *  Note that for (lift, drag, side force), the coefficients are typically defined in
+     *  Note that for (drag, side, lift force), the coefficients are typically defined in
      *  negative direction.
      */
     bool areCoefficientsInNegativeAxisDirection_;
@@ -241,11 +241,11 @@ public:
      * (about y-axis) is non-dimensionalized.
      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     ConstantAerodynamicCoefficientSettings(
@@ -255,7 +255,7 @@ public:
             const Eigen::Vector3d& momentReferencePoint,
             const Eigen::Vector3d& constantForceCoefficient,
             const Eigen::Vector3d& constantMomentCoefficient = Eigen::Vector3d::Zero( ),
-            const bool areCoefficientsInAerodynamicFrame = 0,
+            const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1  ):
         AerodynamicCoefficientSettings(
             constant_aerodynamic_coefficients, referenceLength, referenceArea,
@@ -273,17 +273,17 @@ public:
     *  \param referenceArea Reference area with which aerodynamic forces and moments are
     *  non-dimensionalized.
     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-    *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+    *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
     *  frame (typically denoted as Cx, Cy, Cz).
     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
-    *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+    *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
     *  coefficients are typically defined in negative direction.
     */
     ConstantAerodynamicCoefficientSettings(
             const double referenceArea,
             const Eigen::Vector3d& constantForceCoefficient,
-            const bool areCoefficientsInAerodynamicFrame = 0,
+            const bool areCoefficientsInAerodynamicFrame = 1,
             const bool areCoefficientsInNegativeAxisDirection = 1 ):
         AerodynamicCoefficientSettings(
             constant_aerodynamic_coefficients, TUDAT_NAN, referenceArea,
@@ -412,11 +412,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings(
@@ -452,11 +452,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings(
@@ -564,11 +564,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param interpolationSettings Settings to be used for creating the one-dimensional interpoaltor of data.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
@@ -626,11 +626,11 @@ public:
      *  \param independentVariableName Identifiers the of physical meaning of the
      *  independent variable of the aerodynamic coefficients  (size 1).
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
@@ -682,11 +682,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param interpolationSettings Settings to be used for creating the one-dimensional interpoaltor of data.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
@@ -728,11 +728,11 @@ public:
      *  \param independentVariableNames Identifiers the of physical meaning of the
      *  independent variable of the aerodynamic coefficients (size 1).
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along the positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
@@ -826,11 +826,11 @@ private:
  *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
  *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positive along the positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
@@ -889,11 +889,11 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  \param referenceArea Reference area of aerodynamic coefficients
  *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positive along the positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
@@ -942,11 +942,11 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
  *  \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positive along the positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
@@ -971,11 +971,11 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
  * \param referenceArea Reference area of aerodynamic coefficients
  * \param independentVariableNames Physical meaning of the independent variables of the aerodynamic coefficients
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positive along the positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Settings for creation of aerodynamic coefficient interface, based on contents read from files defined in
  *  forceCoefficientFiles and reference data given as input
@@ -1003,11 +1003,11 @@ readTabulatedAerodynamicCoefficientsFromFiles(
  *  is non-dimensionalized.
  *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Aerodynamic coefficient interface with constant coefficients.
  */
@@ -1041,11 +1041,11 @@ createConstantCoefficientAerodynamicCoefficientInterface(
  *  \param independentVariableNames Vector with identifiers the physical meaning of each
  *  independent variable of the aerodynamic coefficients.
  *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
  *  frame (typically denoted as Cx, Cy, Cz).
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positive along the positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
  *  coefficients are typically defined in negative direction.
  *  \return Tabulated aerodynamic coefficient interface pointer.
  */

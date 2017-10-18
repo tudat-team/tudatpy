@@ -59,6 +59,8 @@ void RadiationPressureInterface::updateInterface(
     }
 
     currentRadiationPressure_ *= shadowFunction;
+
+    radiationPressureCoefficient_ = radiationPressureCoefficientFunction_( currentTime );
 }
 
 } // namespace electro_magnetism
