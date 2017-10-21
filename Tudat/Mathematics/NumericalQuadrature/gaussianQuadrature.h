@@ -132,7 +132,7 @@ struct GaussQuadratureNodesAndWeights
 
             // Include ± nodes
             IndependentVariableArray uniqueNodes_ = getUniqueNodes( order );
-            for ( unsigned int j = 0; j < uniqueNodes_.size(); j++ )
+            for ( int j = 0; j < uniqueNodes_.size( ); j++ )
             {
                 newNodes.row( i++ ) = -uniqueNodes_[ j ];
                 newNodes.row( i++ ) =  uniqueNodes_[ j ];
@@ -154,7 +154,7 @@ struct GaussQuadratureNodesAndWeights
 
             // Include non-repeated weight factor if n is odd
             unsigned int i = 0;
-            unsigned int j = 0;
+            int j = 0;
             if ( n % 2 == 1 )
             {
                 newWeights.row( i++ ) = orderNWeights[ j++ ];

@@ -242,7 +242,8 @@ Eigen::VectorXd  executeParameterEstimation(
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
     }
-    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( ); i < initialParameterEstimate.rows( ); i++ )
+    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( );
+         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
     {
         initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
     }

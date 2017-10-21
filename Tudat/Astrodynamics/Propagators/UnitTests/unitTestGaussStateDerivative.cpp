@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Gauss)
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, gauss_modified_equinoctial );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, translationalPropagatorType );
 
         // Propagate orbit with Gauss method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
