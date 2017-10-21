@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
             currentTestTime += testTimeStep;
         }
 
-        TranslationalPropagatorType translationalPropagatorType;
+        TranslationalPropagatorType translationalPropagatorType = undefined_propagator;
         if( propagatorType == 0 )
         {
             translationalPropagatorType = gauss_modified_equinoctial;
