@@ -532,7 +532,7 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertSTLVect
     for ( auto ent: stlVectorMap )
     {
         Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
-        for ( unsigned int i = 0; i < array.rows( ); i++ )
+        for ( int i = 0; i < array.rows( ); i++ )
         {
             array.row( i ) = ent.second.at( i );
         }
