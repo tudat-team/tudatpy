@@ -35,6 +35,7 @@ public:
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Constructor from vectors of independent/dependent data.
     /*!
