@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
             1, 1, 2017;
 
     // Convert UTC to TAI, and back, in microsecond before and after leap second, and check results in double precision.
-    for( unsigned int i = 0; i < leapSecondDays.rows( ); i++ )
+    for( int i = 0; i < leapSecondDays.rows( ); i++ )
     {
         double utcTimeOfLeapSeconds = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
                     leapSecondDays( i, 2 ), leapSecondDays( i, 1 ), leapSecondDays( i, 0 ), 0, 0, 0.0,
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
     }
 
     // Convert UTC to TAI, and back, in microsecond before and after leap second, and check results in Time precision.
-    for( unsigned int i = 0; i < leapSecondDays.rows( ); i++ )
+    for( int i = 0; i < leapSecondDays.rows( ); i++ )
     {
         Time utcTimeOfLeapSeconds = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
                     leapSecondDays( i, 2 ), leapSecondDays( i, 1 ), leapSecondDays( i, 0 ), 0, 0, 0.0,

@@ -34,6 +34,7 @@ namespace propagators
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
+    undefined_propagator = -1,
     cowell = 0,
     encke = 1,
     gauss_keplerian = 2,
