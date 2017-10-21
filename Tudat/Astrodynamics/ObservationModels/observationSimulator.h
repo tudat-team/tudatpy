@@ -149,6 +149,9 @@ public:
             const ObservableType observableType ):
         observableType_( observableType ){ }
 
+    //! Destructor
+    virtual ~ObservationSimulatorBase( ){ }
+
     //! Function to get the type of observable for which this object computes observations
     /*!
      * Function to get the type of observable for which this object computes observations
