@@ -151,7 +151,6 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             }
             else
             {
-                std::cerr << caughtException.what( )<<std::endl;
                 std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
                            ", found Nan/inf entry, returning propagation data up to current time"<<std::endl;
                 breakPropagation = 1;
