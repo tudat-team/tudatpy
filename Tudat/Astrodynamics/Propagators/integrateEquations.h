@@ -93,58 +93,69 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
     {
         try
         {
-            previousTime = currentTime;
-
-            // Perform integration step.
-            newState = integrator->performIntegrationStep( timeStep );
-
-            // Check if the termination condition was reached during evaluation of integration sub-steps.
-            // If evaluation of the termination condition during integration sub-steps is disabled,
-            // this function returns always `false`.
-            // If the termination condition was reached, the last step could not be computed correctly because some
-            // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
-            if ( integrator->getPropagationTerminationConditionReached() )
+            if( newState.allFinite( ) == 0 && !newState.hasNaN( ) )
             {
-                propagationTerminationReason = termination_condition_reached;
-                break;
-            }
+                previousTime = currentTime;
 
-            // Update epoch and step-size
-            currentTime = integrator->getCurrentIndependentVariable( );
-            timeStep = integrator->getNextStepSize( );
+                // Perform integration step.
+                newState = integrator->performIntegrationStep( timeStep );
 
-            // Save integration result in map
-            saveIndex++;
-            saveIndex = saveIndex % saveFrequency;
-            if( saveIndex == 0 )
-            {
-                solutionHistory[ currentTime ] = newState;
-
-                if( !dependentVariableFunction.empty( ) )
+                // Check if the termination condition was reached during evaluation of integration sub-steps.
+                // If evaluation of the termination condition during integration sub-steps is disabled,
+                // this function returns always `false`.
+                // If the termination condition was reached, the last step could not be computed correctly because some
+                // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
+                if ( integrator->getPropagationTerminationConditionReached() )
                 {
-                    integrator->getStateDerivativeFunction( )( currentTime, newState );
-                    dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                    propagationTerminationReason = termination_condition_reached;
+                    break;
+                }
+
+                // Update epoch and step-size
+                currentTime = integrator->getCurrentIndependentVariable( );
+                timeStep = integrator->getNextStepSize( );
+
+                // Save integration result in map
+                saveIndex++;
+                saveIndex = saveIndex % saveFrequency;
+                if( saveIndex == 0 )
+                {
+                    solutionHistory[ currentTime ] = newState;
+
+                    if( !dependentVariableFunction.empty( ) )
+                    {
+                        integrator->getStateDerivativeFunction( )( currentTime, newState );
+                        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                    }
+                }
+
+
+                // Print solutions
+                if( printInterval == printInterval )
+                {
+                    if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
+                          static_cast< int >( printInterval ) ) <=
+                            ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
+                              static_cast<int>( printInterval ) )  )
+                    {
+                        std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
+                                   timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+                    }
+                }
+
+                if( stopPropagationFunction( static_cast< double >( currentTime ) ) )
+                {
+                    propagationTerminationReason = termination_condition_reached;
+                    breakPropagation = true;
                 }
             }
-
-
-            // Print solutions
-            if( printInterval == printInterval )
+            else
             {
-                if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
-                      static_cast< int >( printInterval ) ) <=
-                        ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
-                          static_cast<int>( printInterval ) )  )
-                {
-                    std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
-                               timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
-                }
-            }
-
-            if( stopPropagationFunction( static_cast< double >( currentTime ) ) )
-            {
-                propagationTerminationReason = termination_condition_reached;
-                breakPropagation = true;
+                std::cerr << caughtException.what( )<<std::endl;
+                std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
+                           ", found Nan/inf entry, returning propagation data up to current time"<<std::endl;
+                breakPropagation = 1;
+                propagationTerminationReason = runtime_error_caught_in_propagation;
             }
 
         }
