@@ -93,7 +93,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
     {
         try
         {
-            if( newState.allFinite( ) == 0 && !newState.hasNaN( ) )
+            if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 previousTime = currentTime;
 
