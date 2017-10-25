@@ -373,7 +373,8 @@ DependentVariableType, TimeStepType > > createIntegrator(
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
                       stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< TimeStepType >( bulirschStoerIntegratorSettings->minimumStepSize_ ),
-                      bulirschStoerIntegratorSettings->relativeErrorTolerance_ );
+                      bulirschStoerIntegratorSettings->relativeErrorTolerance_,
+                      bulirschStoerIntegratorSettings->absoluteErrorTolerance_ );
         }
         break;
     }
