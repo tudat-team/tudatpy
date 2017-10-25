@@ -133,7 +133,7 @@ public:
             const IndependentVariableType intervalStart, const StateType& initialState,
             const IndependentVariableType minimumStepSize = 1.0e-15,
             const typename StateType::Scalar relativeErrorTolerance = 1.0e-12,
-            const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12) :
+            const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
         sequence_( sequence ), minimumStepSize_( minimumStepSize ),
@@ -345,8 +345,6 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
                 = 0.5 * ( stateAtLastPoint_ + stateAtCenterPoint_+ subSteps_.at( i ) * this->stateDerivativeFunction_(
                               currentIndependentVariable_ + stepSize, stateAtLastPoint_ ) );
 
-        //        std::cout<<"Integrated state: "<<integratedStates_[ i ][ 0 ].transpose( )<<std::endl;
-
         for ( unsigned int k = 1; k < i + 1; k++ )
         {
             integratedStates_[ i ][ k ] =
@@ -355,21 +353,15 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
                     * ( integratedStates_[ i ][ k - 1 ] - integratedStates_[ i - 1 ][ k - 1 ] );
         }
 
+        const StateType errorTolerance_ =
+                ( integratedStates_.at( i ).at( i ).array( ).abs( ) *
+                  relativeErrorTolerance_.array( ) ).matrix( )
+                + absoluteErrorTolerance_;
 
-
-        //        if ( i == sequence_.size( )  )
-        //        {
-        //            std::cout << "Problem in BS integrator. " << std::endl;
-        //        }
-
-//        if( i > 1 )
-//        {
-//            std::cout<<"i: "<<i<<" "<<( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )<<std::endl;
-//        }
 
         if ( ( i > 1 ) &&
              ( ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )
-               < relativeErrorTolerance_.array( ).maxCoeff( ) ) )
+               < errorTolerance_.array( ).maxCoeff( ) ) )
         {
             // Accept the current step.
             lastIndependentVariable_ = currentIndependentVariable_;
@@ -378,22 +370,19 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
             currentState_ = integratedStates_[ i ][ i ];
             stepSize_ = stepSize;
 
-//            std::cout<<"Accepting: "<<i<<" "<<std::endl;
-//            std::cout<<"Tolerances : "<<relativeErrorTolerance_.array( ).maxCoeff( )<<" "<<
-//                       lastIndependentVariable_<<" "<<( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )<<std::endl<<
-//                       integratedStates_.at( i ).at( i ).transpose( )<<std::endl;
-            //sleep( 1 );
+            if( i < ( sequence_.size( ) - 1 ) )
+            {
+                stepSize_ *= 4.0;
+            }
+
             break;
         }
         else if( i == ( maximumNumberOfAttempts_ - 1 ) )
         {
             double maximumErrorValue = ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( );
-            //std::cout<<"Reducing step: "<<stepSize<<" ";
-            this->stepSize_ = 0.7 * stepSize * std::pow( relativeErrorTolerance_.array( ).maxCoeff( ) / maximumErrorValue,
-                                                         1.0 / ( 2.0 * i - 1.0 ) );
 
-//            std::cout<<"Resetting: "<<stepSize<<" "<<this->stepSize_<<" "<<maximumErrorValue<<std::endl;
-//            sleep( 1 );
+            this->stepSize_ = 0.7 * stepSize * std::pow( errorTolerance_.array( ).maxCoeff( ) / maximumErrorValue,
+                                                         1.0 / ( 2.0 * i - 1.0 ) );
 
             return performIntegrationStep( this->stepSize_ );
         }
