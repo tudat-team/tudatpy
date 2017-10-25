@@ -59,7 +59,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
  * \sa NumericalIntegrator.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = double >
+           typename StateDerivativeType = Eigen::VectorXd >
 class BulirschStoerVariableStepSizeIntegrator :
         public NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType >
 {
@@ -97,21 +97,11 @@ public:
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart,  const StateType& initialState,
             const IndependentVariableType minimumStepSize,
-            const IndependentVariableType maximumStepSize,
-            const StateType& relativeErrorTolerance,
-            const StateType& absoluteErrorTolerance,
-            const TimeStepType safetyFactorForNextStepSize = 0.6,
-            const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
+            const StateType& relativeErrorTolerance ) :
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
-        sequence_( sequence ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance ),
-        absoluteErrorTolerance_( absoluteErrorTolerance ),
-        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
-        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
-        isMinimumStepSizeViolated_( false )
+        sequence_( sequence ), minimumStepSize_( minimumStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), isMinimumStepSizeViolated_( false )
     {
         maximumStepIndex_ = sequence_.size( ) - 1;
         subSteps_.resize( maximumStepIndex_ );
@@ -121,6 +111,8 @@ public:
         {
             integratedStates_[ i ].resize( maximumStepIndex_ );
         }
+
+        initializeWorkParameters( );
     }
 
     //! Default constructor.
@@ -141,23 +133,16 @@ public:
             const std::vector< unsigned int >& sequence,
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart, const StateType& initialState,
-            const IndependentVariableType minimumStepSize,
-            const IndependentVariableType maximumStepSize,
+            const IndependentVariableType minimumStepSize = 1.0e-15,
             const typename StateType::Scalar relativeErrorTolerance = 1.0e-12,
-            const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12,
-            const TimeStepType safetyFactorForNextStepSize = 0.75,
-            const TimeStepType maximumFactorIncreaseForNextStepSize = 4.0,
-            const TimeStepType minimumFactorDecreaseForNextStepSize = 0.1 ):
+            const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12 ):
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
-        sequence_( sequence ), minimumStepSize_( minimumStepSize ),  maximumStepSize_( maximumStepSize ),
+        sequence_( sequence ), minimumStepSize_( minimumStepSize ),
         relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
                                                       relativeErrorTolerance ) ),
         absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
                                                       absoluteErrorTolerance ) ),
-        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
-        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
-        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ),
         isMinimumStepSizeViolated_( false )
     {
         maximumStepIndex_ = sequence_.size( ) - 1;
@@ -168,6 +153,8 @@ public:
         {
             integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
         }
+
+        initializeWorkParameters( );
     }
 
     //! Get step size of the next step.
@@ -201,129 +188,7 @@ public:
      *          constraints, the step is redone until the error constraint is satisfied.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
-    {
-        StateType stateAtFirstPoint_;
-        StateType stateAtCenterPoint_;
-        StateType stateAtLastPoint_;
-
-        bool stepSuccessful = 0;
-
-        // Compute sub steps to take.
-        for ( unsigned int p = 0; p <  subSteps_.size( ); p++ )
-        {
-            subSteps_.at( p ) = stepSize / static_cast< double >(
-                        sequence_.at( p ) );
-        }
-
-        double errorScaleTerm = TUDAT_NAN;
-        for ( unsigned int i = 0; i <= maximumStepIndex_; i++ )
-        {
-            // Compute Euler step and set as state at center point for use with mid-point method.
-            stateAtCenterPoint_ = currentState_ + subSteps_.at( i )
-                    * this->stateDerivativeFunction_( currentIndependentVariable_, currentState_ );
-
-            // Apply modified mid-point rule.
-            stateAtFirstPoint_ = currentState_;
-            IndependentVariableType independentVariableAtFirstPoint_ = currentIndependentVariable_;
-            for ( unsigned int j = 0; j < sequence_.at( i ) - 1; j++ )
-            {
-                stateAtLastPoint_ = executeMidPointMethod(
-                            stateAtFirstPoint_, stateAtCenterPoint_,
-                            independentVariableAtFirstPoint_, subSteps_.at( i ) );
-
-                if ( j < sequence_.at( i ) - 2 )
-                {
-                    stateAtFirstPoint_ = stateAtCenterPoint_;
-                    stateAtCenterPoint_ = stateAtLastPoint_;
-                    independentVariableAtFirstPoint_ += subSteps_.at( i );
-                }
-            }
-
-            // Apply end-point correction.
-            integratedStates_[ i ][ 0 ]
-                    = 0.5 * ( stateAtLastPoint_ + stateAtCenterPoint_+ subSteps_.at( i ) * this->stateDerivativeFunction_(
-                                  currentIndependentVariable_ + stepSize, stateAtLastPoint_ ) );
-
-            for ( unsigned int k = 1; k < i + 1; k++ )
-            {
-                integratedStates_[ i ][ k ] =
-                        integratedStates_[ i ][ k - 1 ] + 1.0 /
-                        ( pow( subSteps_.at( i - k ), 2.0 ) / std::pow( subSteps_.at( i ), 2.0 ) - 1.0 )
-                        * ( integratedStates_[ i ][ k - 1 ] - integratedStates_[ i - 1 ][ k - 1 ] );
-            }
-
-            if( i == maximumStepIndex_ )
-            {
-                const StateType errorTolerance_ =
-                        ( integratedStates_.at( i ).at( i ).array( ).abs( ) * relativeErrorTolerance_.array( ) ).matrix( )
-                        + absoluteErrorTolerance_;
-
-                double maximumAllowableErrorValue = errorTolerance_.array( ).maxCoeff( );
-                double maximumErrorValue = ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( );
-
-                errorScaleTerm = safetyFactorForNextStepSize_ * std::pow( maximumAllowableErrorValue / maximumErrorValue,
-                                           ( 1.0 / static_cast< double >( 2 * i - 1 ) ) );
-
-                if( maximumErrorValue < maximumAllowableErrorValue )
-                {
-                    // Accept the current step.
-                    lastIndependentVariable_ = currentIndependentVariable_;
-                    lastState_ = currentState_;
-                    currentIndependentVariable_ += stepSize;
-                    currentState_ = integratedStates_[ i ][ i ];
-                    stepSize_ = stepSize;
-                    stepSuccessful = true;
-                }
-                else
-                {
-                    stepSuccessful = false;
-                }
-            }
-        }
-        if( !stepSuccessful )
-        {
-            if( errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
-            {
-                this->stepSize_ = minimumFactorDecreaseForNextStepSize_ * errorScaleTerm;
-            }
-            else
-            {
-                this->stepSize_ = stepSize * safetyFactorForNextStepSize_ * errorScaleTerm;
-            }
-
-            if( stepSize_ < minimumStepSize_ )
-            {
-                isMinimumStepSizeViolated_ = true;
-                throw std::runtime_error( "Error in BS integrator, minimum step size exceeded" );
-            }
-            performIntegrationStep( stepSize_ );
-        }
-        else
-        {
-            if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
-            {
-                this->stepSize_ = stepSize * maximumFactorIncreaseForNextStepSize_;
-
-                if( stepSize < maximumStepSize_ && this->stepSize_ >= maximumStepSize_ )
-                {
-                    stepSize_ = maximumStepSize_;
-                    performIntegrationStep( stepSize_ );
-                }
-                else if( this->stepSize_ < maximumStepSize_ )
-                {
-                    performIntegrationStep( stepSize_ );
-                }
-            }
-            else
-            {
-                this->stepSize_ = stepSize * errorScaleTerm;
-            }
-        }
-
-
-        return currentState_;
-    }
+    virtual StateType performIntegrationStep( const IndependentVariableType stepSize );
 
     //! Rollback internal state to the last state.
     /*!
@@ -353,7 +218,36 @@ public:
      */
     bool isMinimumStepSizeViolated( ) const { return isMinimumStepSizeViolated_; }
 
-private:
+protected:
+
+    void initializeWorkParameters( )
+    {
+
+        aTerms_.resize( maximumStepIndex_ + 1  );
+        aTerms_[ 0 ] = sequence_.at( 0 ) + 1;
+
+        alphaTerms_.resize( maximumStepIndex_ + 1  );
+        for( unsigned int i = 0; i <= maximumStepIndex_; i++ )
+        {
+            alphaTerms_[ i ].resize( maximumStepIndex_ + 1  );
+
+            if( i > 0 )
+            {
+                aTerms_[ i ] = sequence_.at( i ) + aTerms_[ i - 1 ];
+            }
+        }
+
+        for( unsigned int i = 0; i < maximumStepIndex_ ; i++ )
+        {
+            for( unsigned int j = 0; j < maximumStepIndex_ ; j++ )
+            {
+                alphaTerms_[ i ][ j ] = std::pow(
+                            relativeErrorTolerance_.array( ).maxCoeff( ), static_cast< double >( aTerms_[ i + 1 ] - aTerms_[ j + 1 ] ) /
+                         static_cast< double >( ( 2 * i  - 1 ) * ( aTerms_[ j + 1 ] - aTerms_[ 0 ] + 1 )  ) );
+                //std::cout<<"Computing alpha: "<<i<<" "<<j<<" "<<alphaTerms_[ i ][ j ]<<std::endl;
+            }
+        }
+    }
 
     //! Last used step size.
     /*!
@@ -397,28 +291,13 @@ private:
      */
     IndependentVariableType minimumStepSize_;
 
-    IndependentVariableType maximumStepSize_;
-
     //! Relative error tolerance.
     /*!
      * Relative error tolerance per element in the state.
      */
     StateType relativeErrorTolerance_;
 
-    //! Absolute error tolerance.
-    /*!
-     *  Absolute error tolerance per element in the state.
-     */
     StateType absoluteErrorTolerance_;
-
-
-    TimeStepType safetyFactorForNextStepSize_;
-
-
-    TimeStepType maximumFactorIncreaseForNextStepSize_;
-
-
-    TimeStepType minimumFactorDecreaseForNextStepSize_;
 
     //! Flag to indicate whether the minimum step size constraint has been violated.
     /*!
@@ -437,12 +316,7 @@ private:
      */
     StateType executeMidPointMethod( StateType stateAtFirstPoint, StateType stateAtCenterPoint,
                                      const IndependentVariableType independentVariableAtFirstPoint,
-                                     const IndependentVariableType subStepSize )
-    {
-        return stateAtFirstPoint + 2.0 * subStepSize
-                * this->stateDerivativeFunction_( independentVariableAtFirstPoint + subStepSize,
-                                                  stateAtCenterPoint );
-    }
+                                     const IndependentVariableType subStepSize );
 
     std::vector< std::vector< StateType > > integratedStates_;
 
@@ -450,7 +324,200 @@ private:
 
     std::vector< double > subSteps_;
 
+    int optimalIndex_;
+
+    std::vector< std::vector< double > > alphaTerms_;
+
+    std::vector< int > aTerms_;
+
+private:
 };
+
+//! Perform a single integration step.
+template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
+StateType
+BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType >
+::performIntegrationStep( const IndependentVariableType stepSize )
+{
+    //std::cout<<"Starting: "<<currentIndependentVariable_<<" "<<stepSize<<std::endl;
+
+
+    //  std::cout<<stepSize<<" "<<this->currentIndependentVariable_<<std::endl;
+
+    //    std::cout<<"Start "<<stepSize<<" "<<currentIndependentVariable_<<std::endl;
+    StateType stateAtFirstPoint_;
+    StateType stateAtCenterPoint_;
+    StateType stateAtLastPoint_;
+
+    bool stepSuccessful = 0;
+
+    // Compute sub steps to take.
+    for ( unsigned int p = 0; p <  subSteps_.size( ); p++ )
+    {
+        subSteps_.at( p ) = stepSize / static_cast< double >(
+                    sequence_.at( p ) );
+    }
+
+    double errorScaleTerm = TUDAT_NAN;
+    int breakIndex = -1;
+
+    for ( unsigned int i = 0; i <= maximumStepIndex_; i++ )
+    {
+        breakIndex = i;
+        // Compute Euler step and set as state at center point for use with mid-point method.
+        stateAtCenterPoint_ = currentState_ + subSteps_.at( i )
+                * this->stateDerivativeFunction_( currentIndependentVariable_, currentState_ );
+
+        // Apply modified mid-point rule.
+        stateAtFirstPoint_ = currentState_;
+        IndependentVariableType independentVariableAtFirstPoint_ = currentIndependentVariable_;
+        for ( unsigned int j = 0; j < sequence_.at( i ) - 1; j++ )
+        {
+            stateAtLastPoint_ = executeMidPointMethod(
+                        stateAtFirstPoint_, stateAtCenterPoint_,
+                        independentVariableAtFirstPoint_, subSteps_.at( i ) );
+
+            if ( j < sequence_.at( i ) - 2 )
+            {
+                stateAtFirstPoint_ = stateAtCenterPoint_;
+                stateAtCenterPoint_ = stateAtLastPoint_;
+                independentVariableAtFirstPoint_ += subSteps_.at( i );
+            }
+        }
+
+        // Apply end-point correction.
+        integratedStates_[ i ][ 0 ]
+                = 0.5 * ( stateAtLastPoint_ + stateAtCenterPoint_+ subSteps_.at( i ) * this->stateDerivativeFunction_(
+                              currentIndependentVariable_ + stepSize, stateAtLastPoint_ ) );
+
+        for ( unsigned int k = 1; k < i + 1; k++ )
+        {
+            integratedStates_[ i ][ k ] =
+                    integratedStates_[ i ][ k - 1 ] + 1.0 /
+                    ( pow( subSteps_.at( i - k ), 2.0 ) / std::pow( subSteps_.at( i ), 2.0 ) - 1.0 )
+                    * ( integratedStates_[ i ][ k - 1 ] - integratedStates_[ i - 1 ][ k - 1 ] );
+        }
+
+        if( i != 1 )
+        {
+            const StateType errorTolerance_ =
+                    ( integratedStates_.at( i ).at( i ).array( ).abs( ) * relativeErrorTolerance_.array( ) ).matrix( )
+                    + absoluteErrorTolerance_;
+
+            double maximumAllowableErrorValue = errorTolerance_.array( ).maxCoeff( );
+            double maximumErrorValue = ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( );
+
+            errorScaleTerm = 0.8 * std::pow( maximumAllowableErrorValue / maximumErrorValue,
+                                       ( 1.0 / static_cast< double >( 2 * i - 1 ) ) );
+            double inverseErrorScaleTerm = 1.0 / errorScaleTerm;
+            inverseErrorScaleTerms[ i - 1 ] = inverseErrorScaleTerm;
+        }
+
+        if( i == maximumStepIndex_ && ( i >= optimalIndex_ - 1 ) )
+        {
+
+            if( maximumErrorValue < maximumAllowableErrorValue )
+            {
+                // Accept the current step.
+                lastIndependentVariable_ = currentIndependentVariable_;
+                lastState_ = currentState_;
+                currentIndependentVariable_ += stepSize;
+                currentState_ = integratedStates_[ i ][ i ];
+                stepSize_ = stepSize;
+                stepSuccessful = true;
+                break;
+            }
+
+            if( ( i == maximumStepIndex_ ) || (  i == optimalIndex_ + 1 ) )
+            {
+                std::cout<<"In A"<<std::endl;
+                stepSizeChangeFactor = 0.7 / inverseErrorScaleTerm;
+                break;
+            }
+            else if( ( i == optimalIndex_ ) && ( alphaTerms_[ optimalIndex_ - 1 ][ optimalIndex_ ] < inverseErrorScaleTerm ) )
+            {
+                std::cout<<"In B"<<std::endl;
+                stepSizeChangeFactor = 1.0 / inverseErrorScaleTerm;
+                break;
+            }
+            else if( ( optimalIndex_ == maximumStepIndex_ ) && ( alphaTerms_[ i - 1 ][ maximumStepIndex_ - 1 ] < inverseErrorScaleTerm ) )
+            {
+                std::cout<<"In C "<<i - 1<<" "<<maximumStepIndex_ - 1<<" "<<alphaTerms_[ i - 1 ][ maximumStepIndex_ - 1 ]<<std::endl;
+                stepSizeChangeFactor = alphaTerms_[ i - 1 ][ maximumStepIndex_ - 1 ]  * 0.7 / inverseErrorScaleTerm;
+                break;
+            }
+            else if( alphaTerms_[ i - 1 ][ optimalIndex_ ] < inverseErrorScaleTerm )
+            {
+                std::cout<<"In D "<<i - 1<<" "<<optimalIndex_ - 1 <<" "<<alphaTerms_[ i - 1 ][ optimalIndex_ - 1 ] <<std::endl;
+                stepSizeChangeFactor = alphaTerms_[ i - 1 ][ optimalIndex_ - 1 ] / inverseErrorScaleTerm;
+                break;
+            }
+        }
+
+        if( stepSizeChangeFactor < 1.0e-3 )
+        {
+            stepSizeChangeFactor = 1.0E-3;
+        }
+        else if( stepSizeChangeFactor > 0.7 )
+        {
+            stepSizeChangeFactor = 0.7;
+        }
+
+        this->stepSize_ = stepSizeChangeFactor * stepSize;
+    }
+
+    firstStepDone = false;
+
+    {
+        double scale = 1.0;
+        for( unsigned int i = 1; k < breakIndex; i++ )
+        {
+            double factor = std::max( inverseErrorScaleTerms[ i ], 0.1 );
+            double work = factor * aTerms_[ k + 1 ];
+            if( work < minimumWork )
+            {
+                scale = factor;
+                minimumWork = work;
+                optimalIndex_ = i + 1;
+            }
+        }
+        this->stepSize_ = this->stepSize_ / scale;
+    }
+
+    if( !stepSuccessful )
+    {
+
+        performIntegrationStep( stepSize_ );
+    }
+    else
+    {
+        if( errorScaleTerm > 4.0  )
+        {
+            this->stepSize_ = stepSize * 4.0;
+            performIntegrationStep( stepSize_ );
+        }
+        else
+        {
+            this->stepSize_ = stepSize * errorScaleTerm;
+        }
+    }
+
+
+    return currentState_;
+}
+
+//! Execute mid-point method.
+template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
+StateType
+BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType >
+::executeMidPointMethod( StateType stateAtFirstPoint, StateType stateAtCenterPoint,
+                         const IndependentVariableType independentVariableAtFirstPoint,
+                         const IndependentVariableType subStepSize )
+{
+    return stateAtFirstPoint + 2.0 * subStepSize
+            * this->stateDerivativeFunction_( independentVariableAtFirstPoint + subStepSize,
+                                              stateAtCenterPoint );
+}
 
 //! Typedef of variable-step size Bulirsch-Stoer integrator (state/state derivative = VectorXd,
 //! independent variable = double).
