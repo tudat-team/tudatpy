@@ -241,7 +241,7 @@ public:
             const TimeType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
-            const TimeType safetyFactorForNextStepSize = 0.8,
+            const TimeType safetyFactorForNextStepSize = 0.75,
             const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
         IntegratorSettings< TimeType >( bulirsch_stoer, initialTime, initialTimeStep, saveFrequency,
@@ -373,8 +373,12 @@ DependentVariableType, TimeStepType > > createIntegrator(
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
                       stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< TimeStepType >( bulirschStoerIntegratorSettings->minimumStepSize_ ),
+                      static_cast< TimeStepType >( bulirschStoerIntegratorSettings->maximumStepSize_ ),
                       bulirschStoerIntegratorSettings->relativeErrorTolerance_,
-                      bulirschStoerIntegratorSettings->absoluteErrorTolerance_ );
+                      bulirschStoerIntegratorSettings->absoluteErrorTolerance_,
+                      bulirschStoerIntegratorSettings->safetyFactorForNextStepSize_,
+                      bulirschStoerIntegratorSettings->maximumFactorIncreaseForNextStepSize_,
+                      bulirschStoerIntegratorSettings->minimumFactorDecreaseForNextStepSize_ );
         }
         break;
     }
