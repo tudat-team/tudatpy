@@ -37,6 +37,15 @@ static inline Eigen::VectorXd computeZeroStateDerivative( const double time,
     return Eigen::VectorXd::Zero( state.rows( ) );
 }
 
+static inline Eigen::VectorXd computeConstantStateDerivative( const double time,
+                                                              const Eigen::VectorXd& state )
+{
+    Eigen::VectorXd stateDerivative = Eigen::VectorXd::Zero( state.rows( ) );
+    stateDerivative( 0 ) = 1.0;
+    //std::cout<<"State der: "<<time<<" "<<stateDerivative.transpose( )<<" "<<std::endl<<state.transpose( )<<std::endl;
+    return stateDerivative;
+}
+
 //! Compute analytical state for zero-state derivative.
 /*!
  * Computes analytical state for zero-state derivative function. This function always returns the
