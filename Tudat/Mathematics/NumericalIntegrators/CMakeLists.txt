@@ -11,9 +11,9 @@
 # Add source files.
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/bulirschStoerRationalFunctionSequences.cpp"
 )
 
 # Add header files.
@@ -22,7 +22,6 @@ set(NUMERICALINTEGRATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/bulirschStoerRationalFunctionSequences.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/euler.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/reinitializableNumericalIntegrator.h"
