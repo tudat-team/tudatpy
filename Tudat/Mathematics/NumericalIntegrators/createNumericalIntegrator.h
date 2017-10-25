@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/euler.h"
@@ -35,7 +36,8 @@ enum AvailableIntegrators
 {
     rungeKutta4,
     euler,
-    rungeKuttaVariableStepSize
+    rungeKuttaVariableStepSize,
+    bulirsch_stoer,
 };
 
 //! Class to define settings of numerical integrator
@@ -202,6 +204,90 @@ public:
     const TimeType minimumFactorDecreaseForNextStepSize_;
 };
 
+template< typename TimeType = double >
+class BulirschStoerIntegratorSettings: public IntegratorSettings< TimeType >
+{
+public:
+
+    //! Constructor
+    /*!
+     *  Constructor for variable step RK integrator settings.
+     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
+     *  Adapted during integration
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *  comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *  each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
+     */
+    BulirschStoerIntegratorSettings(
+            const TimeType initialTime,
+            const TimeType initialTimeStep,
+            const ExtrapolationMethodStepSequences extrapolationSequence,
+            const unsigned int maximumNumberOfSteps,
+            const TimeType minimumStepSize, const TimeType maximumStepSize,
+            const TimeType relativeErrorTolerance = 1.0E-12,
+            const TimeType absoluteErrorTolerance = 1.0E-12,
+            const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const TimeType safetyFactorForNextStepSize = 0.8,
+            const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
+            const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
+        IntegratorSettings< TimeType >( bulirsch_stoer, initialTime, initialTimeStep, saveFrequency,
+                                        assessPropagationTerminationConditionDuringIntegrationSubsteps ),
+        extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
+        minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
+        safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
+        maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
+        minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ){ }
+
+    //! Destructor
+    /*!
+     *  Destructor
+     */
+    ~BulirschStoerIntegratorSettings( ){ }
+
+    ExtrapolationMethodStepSequences extrapolationSequence_;
+
+    unsigned int maximumNumberOfSteps_;
+
+    //! Minimum step size for integration.
+    /*!
+     *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
+     */
+    const TimeType minimumStepSize_;
+
+    //! Maximum step size for integration.
+    const TimeType maximumStepSize_;
+
+    //! Relative error tolerance for step size control
+    const TimeType relativeErrorTolerance_;
+
+    //! Absolute error tolerance for step size control
+    const TimeType absoluteErrorTolerance_;
+
+    //! Safety factor for step size control
+    const TimeType safetyFactorForNextStepSize_;
+
+    //! Maximum increase factor in time step in subsequent iterations.
+    const TimeType maximumFactorIncreaseForNextStepSize_;
+
+    //! Maximum decrease factor in time step in subsequent iterations.
+    const TimeType minimumFactorDecreaseForNextStepSize_;
+};
+
 //! Function to create a numerical integrator.
 /*!
  *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
@@ -265,6 +351,29 @@ DependentVariableType, TimeStepType > > createIntegrator(
                       static_cast< TimeStepType >( variableStepIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< TimeStepType >( variableStepIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< TimeStepType >( variableStepIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+        }
+        break;
+    }
+    case bulirsch_stoer:
+    {
+        // Check input consistency
+        boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
+                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+                    integratorSettings );
+        if( bulirschStoerIntegratorSettings == NULL )
+        {
+           std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with selected integrator (derived class of IntegratorSettings must be RungeKuttaVariableStepSizeSettings for this type)" );
+        }
+        else
+        {
+            integrator = boost::make_shared<
+                    BulirschStoerVariableStepSizeIntegrator
+                    < IndependentVariableType, DependentVariableType, DependentVariableType > >
+                    ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
+                                                    bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
+                      stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                      static_cast< TimeStepType >( bulirschStoerIntegratorSettings->minimumStepSize_ ),
+                      bulirschStoerIntegratorSettings->relativeErrorTolerance_ );
         }
         break;
     }

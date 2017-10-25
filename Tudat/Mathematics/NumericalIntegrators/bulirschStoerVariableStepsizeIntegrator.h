@@ -24,17 +24,29 @@
 
 #include <cmath>
 
+#include <boost/assign/std/vector.hpp>
+
 #include <Eigen/Core>
 
 #include <Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h>
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerRationalFunctionSequences.h"
 
 namespace tudat
 {
 namespace numerical_integrators
 {
+
+enum ExtrapolationMethodStepSequences
+{
+    bulirsch_stoer_sequence,
+    deufelhard_sequence
+};
+
+
+std::vector< unsigned int > getBulirschStoerStepSequence(
+        const ExtrapolationMethodStepSequences& extrapolationMethodStepSequenceType = bulirsch_stoer_sequence,
+        const unsigned int lengthOfSequence = 12 );
 
 //! Class that implements the Bulirsch-Stoer variable stepsize integrator.
 /*!
@@ -81,7 +93,7 @@ public:
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     BulirschStoerVariableStepSizeIntegrator(
-            const BulirschStoerRationalFunctionSequences& sequence,
+            const std::vector< unsigned int >& sequence,
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart,  const StateType& initialState,
             const IndependentVariableType minimumStepSize,
@@ -90,7 +102,16 @@ public:
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
         sequence_( sequence ), minimumStepSize_( minimumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), isMinimumStepSizeViolated_( false )
-    { }
+    {
+        maximumNumberOfAttempts_ = sequence_.size( );
+        subSteps_.resize( maximumNumberOfAttempts_ );
+
+        integratedStates_.resize( maximumNumberOfAttempts_ );
+        for( unsigned int i = 0; i < maximumNumberOfAttempts_; i++ )
+        {
+            integratedStates_[ i ].resize( maximumNumberOfAttempts_ );
+        }
+    }
 
     //! Default constructor.
     /*!
@@ -107,20 +128,22 @@ public:
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     BulirschStoerVariableStepSizeIntegrator(
-            const BulirschStoerRationalFunctionSequences& sequence,
+            const std::vector< unsigned int >& sequence,
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart, const StateType& initialState,
             const IndependentVariableType minimumStepSize = 1.0e-15,
-            const typename StateType::Scalar relativeErrorTolerance = 1.0e-12 ) :
+            const typename StateType::Scalar relativeErrorTolerance = 1.0e-12,
+            const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12) :
         Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
         currentState_( initialState ), lastIndependentVariable_( intervalStart ),
         sequence_( sequence ), minimumStepSize_( minimumStepSize ),
         relativeErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
                                                       relativeErrorTolerance ) ),
+        absoluteErrorTolerance_( StateType::Constant( initialState.rows( ), initialState.cols( ),
+                                                      absoluteErrorTolerance ) ),
         isMinimumStepSizeViolated_( false )
     {
-        maximumNumberOfAttempts_ = sequence_.rationalFunctionSequence.size( );
-
+        maximumNumberOfAttempts_ = sequence_.size( );
         subSteps_.resize( maximumNumberOfAttempts_ );
 
         integratedStates_.resize( maximumNumberOfAttempts_ );
@@ -227,7 +250,7 @@ protected:
     /*!
      * Rational function sequence for the integrator.
      */
-    BulirschStoerRationalFunctionSequences sequence_;
+    std::vector< unsigned int > sequence_;
 
     //! Minimum step size.
     /*!
@@ -240,6 +263,8 @@ protected:
      * Relative error tolerance per element in the state.
      */
     StateType relativeErrorTolerance_;
+
+    StateType absoluteErrorTolerance_;
 
     //! Flag to indicate whether the minimum step size constraint has been violated.
     /*!
@@ -262,7 +287,7 @@ protected:
 
     std::vector< std::vector< StateType > > integratedStates_;
 
-    int maximumNumberOfAttempts_;
+    unsigned int maximumNumberOfAttempts_;
 
     std::vector< double > subSteps_;
 
@@ -277,6 +302,9 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
 ::performIntegrationStep( const IndependentVariableType stepSize )
 {
 
+   //  std::cout<<stepSize<<" "<<this->currentIndependentVariable_<<std::endl;
+
+    //    std::cout<<"Start "<<stepSize<<" "<<currentIndependentVariable_<<std::endl;
     StateType stateAtFirstPoint_;
     StateType stateAtCenterPoint_;
     StateType stateAtLastPoint_;
@@ -286,10 +314,10 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
     for ( unsigned int p = 0; p <  subSteps_.size( ); p++ )
     {
         subSteps_.at( p ) = stepSize / static_cast< double >(
-                    sequence_.rationalFunctionSequence.at( p ) );
+                    sequence_.at( p ) );
     }
 
-    for ( unsigned int i = 0; i < sequence_.rationalFunctionSequence.size( ); i++ )
+    for ( unsigned int i = 0; i < sequence_.size( ); i++ )
     {
         // Compute Euler step and set as state at center point for use with mid-point method.
         stateAtCenterPoint_ = currentState_ + subSteps_.at( i )
@@ -298,13 +326,13 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
         // Apply modified mid-point rule.
         stateAtFirstPoint_ = currentState_;
         IndependentVariableType independentVariableAtFirstPoint_ = currentIndependentVariable_;
-        for ( unsigned int j = 0; j < sequence_.rationalFunctionSequence.at( i ) - 1; j++ )
+        for ( unsigned int j = 0; j < sequence_.at( i ) - 1; j++ )
         {
             stateAtLastPoint_ = executeMidPointMethod(
                         stateAtFirstPoint_, stateAtCenterPoint_,
                         independentVariableAtFirstPoint_, subSteps_.at( i ) );
 
-            if ( j < sequence_.rationalFunctionSequence.at( i ) - 2 )
+            if ( j < sequence_.at( i ) - 2 )
             {
                 stateAtFirstPoint_ = stateAtCenterPoint_;
                 stateAtCenterPoint_ = stateAtLastPoint_;
@@ -313,40 +341,66 @@ BulirschStoerVariableStepSizeIntegrator< IndependentVariableType, StateType, Sta
         }
 
         // Apply end-point correction.
-        std::vector< StateType > integratedStatesRow_( i + 1 );
-        integratedStatesRow_.front( )
+        integratedStates_[ i ][ 0 ]
                 = 0.5 * ( stateAtLastPoint_ + stateAtCenterPoint_+ subSteps_.at( i ) * this->stateDerivativeFunction_(
                               currentIndependentVariable_ + stepSize, stateAtLastPoint_ ) );
 
-        for ( unsigned int k = 1; k < integratedStatesRow_.size( ); k++ )
+        //        std::cout<<"Integrated state: "<<integratedStates_[ i ][ 0 ].transpose( )<<std::endl;
+
+        for ( unsigned int k = 1; k < i + 1; k++ )
         {
-            integratedStatesRow_.at( k ) =
-                    integratedStatesRow_.at( k - 1 ) + 1.0 /
+            integratedStates_[ i ][ k ] =
+                    integratedStates_[ i ][ k - 1 ] + 1.0 /
                     ( pow( subSteps_.at( i - k ), 2.0 ) / std::pow( subSteps_.at( i ), 2.0 ) - 1.0 )
-                    * ( integratedStatesRow_.at( k - 1 ) - integratedStates_.at( i - 1 ).at( k - 1 ) );
+                    * ( integratedStates_[ i ][ k - 1 ] - integratedStates_[ i - 1 ][ k - 1 ] );
         }
 
-        integratedStates_.at( i ) = integratedStatesRow_;
 
-        if ( i == sequence_.rationalFunctionSequence.size( ) - 1 )
-        {
-            std::cout << "Problem in BS integrator. " << std::endl;
-        }
+
+        //        if ( i == sequence_.size( )  )
+        //        {
+        //            std::cout << "Problem in BS integrator. " << std::endl;
+        //        }
+
+//        if( i > 1 )
+//        {
+//            std::cout<<"i: "<<i<<" "<<( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )<<std::endl;
+//        }
 
         if ( ( i > 1 ) &&
-             ( ( integratedStatesRow_.back( ) - integratedStates_.at( i - 1 ).back( ) ).array( ).abs( ).maxCoeff( )
-                            < relativeErrorTolerance_.array( ).maxCoeff( ) ) )
+             ( ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )
+               < relativeErrorTolerance_.array( ).maxCoeff( ) ) )
         {
             // Accept the current step.
             lastIndependentVariable_ = currentIndependentVariable_;
             lastState_ = currentState_;
             currentIndependentVariable_ += stepSize;
-            currentState_ = integratedStatesRow_.back( );
+            currentState_ = integratedStates_[ i ][ i ];
             stepSize_ = stepSize;
 
+//            std::cout<<"Accepting: "<<i<<" "<<std::endl;
+//            std::cout<<"Tolerances : "<<relativeErrorTolerance_.array( ).maxCoeff( )<<" "<<
+//                       lastIndependentVariable_<<" "<<( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( )<<std::endl<<
+//                       integratedStates_.at( i ).at( i ).transpose( )<<std::endl;
+            //sleep( 1 );
             break;
         }
+        else if( i == ( maximumNumberOfAttempts_ - 1 ) )
+        {
+            double maximumErrorValue = ( integratedStates_.at( i ).at( i ) - integratedStates_.at( i ).at( i - 1 ) ).array( ).abs( ).maxCoeff( );
+            //std::cout<<"Reducing step: "<<stepSize<<" ";
+            this->stepSize_ = 0.7 * stepSize * std::pow( relativeErrorTolerance_.array( ).maxCoeff( ) / maximumErrorValue,
+                                                         1.0 / ( 2.0 * i - 1.0 ) );
+
+//            std::cout<<"Resetting: "<<stepSize<<" "<<this->stepSize_<<" "<<maximumErrorValue<<std::endl;
+//            sleep( 1 );
+
+            return performIntegrationStep( this->stepSize_ );
+        }
     }
+
+    //    std::cout<<"End"<<std::endl<<std::endl;
+
 
     return currentState_;
 }
