@@ -283,7 +283,7 @@ public:
         }
         if( !stepSuccessful )
         {
-            if( errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
+            if( safetyFactorForNextStepSize_ * errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
             {
                 this->stepSize_ = minimumFactorDecreaseForNextStepSize_ * errorScaleTerm;
             }
@@ -304,15 +304,9 @@ public:
             if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
             {
                 this->stepSize_ = stepSize * maximumFactorIncreaseForNextStepSize_;
-
-                if( stepSize < maximumStepSize_ && this->stepSize_ >= maximumStepSize_ )
+                if( this->stepSize_ >= maximumStepSize_ )
                 {
-                    stepSize_ = maximumStepSize_;
-                    performIntegrationStep( stepSize_ );
-                }
-                else if( this->stepSize_ < maximumStepSize_ )
-                {
-                    performIntegrationStep( stepSize_ );
+                   this->stepSize_ = maximumStepSize_ ;
                 }
             }
             else

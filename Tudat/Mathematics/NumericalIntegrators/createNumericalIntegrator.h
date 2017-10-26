@@ -241,8 +241,8 @@ public:
             const TimeType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
-            const TimeType safetyFactorForNextStepSize = 0.75,
-            const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
+            const TimeType safetyFactorForNextStepSize = 0.7,
+            const TimeType maximumFactorIncreaseForNextStepSize = 10.0,
             const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
         IntegratorSettings< TimeType >( bulirsch_stoer, initialTime, initialTimeStep, saveFrequency,
                                         assessPropagationTerminationConditionDuringIntegrationSubsteps ),
