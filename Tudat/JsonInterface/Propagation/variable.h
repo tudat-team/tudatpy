@@ -85,7 +85,8 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
     { single_torque_norm_dependent_variable, "torqueNorm" },
     { total_torque_dependent_variable, "totalTorque" },
     { single_torque_dependent_variable, "torque" },
-    { body_fixed_groundspeed_based_velocity_variable, "bodyFixedGroundspeedBasedVelocity" }
+    { body_fixed_groundspeed_based_velocity_variable, "bodyFixedGroundspeedBasedVelocity" },
+    { keplerian_state_dependent_variable, "keplerElements" }
 };
 
 //! `PropagationDependentVariables` not supported by `json_interface`.
