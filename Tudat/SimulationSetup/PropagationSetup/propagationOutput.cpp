@@ -237,6 +237,9 @@ int getDependentVariableSize(
     case single_torque_norm_dependent_variable:
         variableSize = 3;
         break;
+    case keplerian_state_dependent_variable:
+        variableSize = 6;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 boost::lexical_cast< std::string >( dependentVariableSettings );

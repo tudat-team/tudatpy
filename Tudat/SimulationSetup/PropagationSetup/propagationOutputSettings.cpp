@@ -154,6 +154,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case total_torque_norm_dependent_variable:
         variableName = "Total torque norm in body-fixed frame ";
         break;
+    case keplerian_state_dependent_variable:
+        variableName = "Kepler elements  ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +

@@ -83,6 +83,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
     const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
@@ -140,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
 
         // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -243,6 +244,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         third_body_central_gravity, "Apollo", "Moon", 0 ) );
 
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        keplerian_state_dependent_variable,  "Apollo", "Earth" ) );
+
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -314,6 +319,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             Eigen::Vector3d aerodynamicAcceleration = variableIterator->second.segment( 33, 3 );
             Eigen::Vector3d moonAcceleration1 = variableIterator->second.segment( 36, 3 );
             Eigen::Vector3d moonAcceleration2 = variableIterator->second.segment( 39, 3 );
+
+            Eigen::Vector6d keplerElements =  variableIterator->second.segment( 42, 6 );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -467,6 +474,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             // Check if third-body gravity saving is done correctly
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( moonAcceleration1, moonAcceleration2,
                                                ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+            Eigen::Vector6d expectedKeplerElements =
+                    tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
+                        Eigen::Vector6d( numericalSolution.at( variableIterator->first ) ), earthGravitationalParameter );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerElements, keplerElements,
+                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         }
     }

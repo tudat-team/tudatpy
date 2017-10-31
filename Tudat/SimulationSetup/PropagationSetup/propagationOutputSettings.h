@@ -91,7 +91,8 @@ enum PropagationDependentVariables
     single_torque_norm_dependent_variable = 28,
     total_torque_dependent_variable = 29,
     single_torque_dependent_variable = 30,
-    body_fixed_groundspeed_based_velocity_variable = 31
+    body_fixed_groundspeed_based_velocity_variable = 31,
+    keplerian_state_dependent_variable = 32
 };
 
 
