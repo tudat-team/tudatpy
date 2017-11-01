@@ -30,5 +30,6 @@
   "torqueNorm",
   "totalTorque",
   "torque",
-  "bodyFixedGroundspeedBasedVelocity"
+  "bodyFixedGroundspeedBasedVelocity",
+  "keplerElements"
 ]
