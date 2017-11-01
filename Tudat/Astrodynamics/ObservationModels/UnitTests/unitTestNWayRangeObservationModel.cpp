@@ -167,8 +167,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
             // Iterate over each 2-way link end as reference link end
             double observationTime = observationTimes.at( observationTimeNumber );
-            double uplinkObservationTime, downlinkObservationTime;
-            LinkEndType uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
+            double uplinkObservationTime = TUDAT_NAN, downlinkObservationTime = TUDAT_NAN;
+            LinkEndType uplinkReferenceLinkEnd = unidentified_link_end , downlinkReferenceLinkEnd = unidentified_link_end;
             for( LinkEnds::const_iterator linkEndIterator = twoWayLinkEnds.begin( ); linkEndIterator != twoWayLinkEnds.end( );
                  linkEndIterator++ )
             {

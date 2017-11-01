@@ -131,8 +131,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
     using namespace estimatable_parameters;
 
     // Define default values for return values
-    int maximumUsedDegree = TUDAT_NAN;
-    int maximumUsedOrder = TUDAT_NAN;
+    int maximumUsedDegree = -1;
+    int maximumUsedOrder = -1;
     int numberOfRows = 0;
 
     // Check if parameter is tidal property of deformed body
@@ -172,7 +172,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         if( coefficientsParameter->useComplexComponents( ) )
                         {
                             // Calculate partials for complex love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
+                              parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     boost::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber, this,

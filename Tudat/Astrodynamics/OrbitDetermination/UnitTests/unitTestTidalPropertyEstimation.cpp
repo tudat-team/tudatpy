@@ -257,7 +257,8 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
             initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
         }
-        for( unsigned int i = 6 * bodiesToEstimate.size( ); i < initialParameterEstimate.rows( ); i++ )
+        for( unsigned int i = 6 * bodiesToEstimate.size( );
+             i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
         {
             initialParameterEstimate[ i ] *= 10.0;
         }
@@ -279,7 +280,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - podOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - podOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
         }
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - podOutput->parameterEstimate_( 12 ) ), 1.0E-2 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - podOutput->parameterEstimate_( 12 ) ), 0.1 );
         BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - podOutput->parameterEstimate_( 13 ) ), 10.0 );
         BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - podOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
         if( test == 1 )
@@ -473,7 +474,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
     parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
-    for( unsigned int i = 6; i < parameterPerturbation.rows( ); i++ )
+    for( int i = 6; i < parameterPerturbation.rows( ); i++ )
     {
         parameterPerturbation( i ) += 0.001;
     }
@@ -493,13 +494,13 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     // Check estimation results
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    for( unsigned int i = 0; i < 3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 1.0E-4 );
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-8 );
     }
 
-    for( unsigned int i = 0; i < estimationError.rows( ) - 6; i++ )
+    for( int i = 0; i < estimationError.rows( ) - 6; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( estimationError( i + 6 ) ), 1.0E-6 );
     }

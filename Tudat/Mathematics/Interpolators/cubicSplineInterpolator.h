@@ -117,6 +117,7 @@ public:
     independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
     lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Cubic spline interpolator constructor.
     /*!
@@ -212,9 +213,6 @@ public:
      *  Default destructor
      */
     ~CubicSplineInterpolator( ){ }
-
-    // Statement required to prevent hiding of base class functions.
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Interpolate.
     /*!
