@@ -162,11 +162,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     double meanEarthRadius = 6371.0E3;
     double perigeeAltitude = 150.0E3;
     double apogeeAltitude = 35780.0E3;
-    double semiMajorAixs= (apogeeAltitude + perigeeAltitude)/2 + meanEarthRadius;
+    double semiMajorAixs= (apogeeAltitude + perigeeAltitude) / 2.0 + meanEarthRadius;
     double eccentricity = (apogeeAltitude - perigeeAltitude)/(apogeeAltitude + perigeeAltitude + 2*meanEarthRadius);
 
     // Set Keplerian elements for Vehicle.
-    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements = Eigen::Vector6d::Zero( );
     vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = semiMajorAixs;
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = eccentricity;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = mathematical_constants::PI / 180.0 * 23.4;
