@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_SUITE( test_eop_reader )
 BOOST_AUTO_TEST_CASE( testEopReaderData )
 {
     boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >(
-                tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
+                tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
 
     // Define current time/
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
     // Read EOP file and get UT1-UTC interpolator
     boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >(
-                tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now",
+                tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
     boost::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
             createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
