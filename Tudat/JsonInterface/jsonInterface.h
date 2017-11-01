@@ -68,6 +68,8 @@ public:
         resetJsonObject( jsonObject );
     }
 
+    ~JsonSimulationManager( ){ }
+
     //! Reset the root JSON input file.
     /*!
      * Reset the root JSON input file.

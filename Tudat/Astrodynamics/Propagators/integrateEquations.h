@@ -106,6 +106,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
     {
         try
         {
+
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 previousTime = currentTime;
@@ -142,6 +143,13 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                     }
                 }
             }
+            else
+            {
+                std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
+                           ", found Nan/inf entry, returning propagation data up to current time"<<std::endl;
+                breakPropagation = 1;
+                propagationTerminationReason = runtime_error_caught_in_propagation;
+            }
 
 
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
@@ -166,13 +174,6 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             {
                 propagationTerminationReason = termination_condition_reached;
                 breakPropagation = true;
-            }
-            else
-            {
-                std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
-                           ", found Nan/inf entry, returning propagation data up to current time"<<std::endl;
-                breakPropagation = 1;
-                propagationTerminationReason = runtime_error_caught_in_propagation;
             }
 
         }

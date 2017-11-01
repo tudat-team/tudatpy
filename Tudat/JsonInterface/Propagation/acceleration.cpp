@@ -146,7 +146,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     }
     case mutual_spherical_harmonic_gravity:
     {
-        MutualSphericalHarmonicAccelerationSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+        MutualSphericalHarmonicAccelerationSettings defaults( -1, -1, -1, -1 );
         accelerationSettings = boost::make_shared< MutualSphericalHarmonicAccelerationSettings >(
                     getValue< int >( jsonObject, K::maximumDegreeOfBodyExertingAcceleration ),
                     getValue< int >( jsonObject, K::maximumOrderOfBodyExertingAcceleration ),
