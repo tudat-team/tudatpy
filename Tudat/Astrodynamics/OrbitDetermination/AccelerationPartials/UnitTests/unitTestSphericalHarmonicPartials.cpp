@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 
     Eigen::Vector3d perturbedSphericalPosition;
     Eigen::Vector3d sphericalStatePerturbation;
-    sphericalStatePerturbation<<10.0, 1.0E-7, 1.0E-8;
+    sphericalStatePerturbation << 10.0, 1.0E-7, 1.0E-8;
 
     for( unsigned parameter = 0; parameter < 3; parameter++ )
     {
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 cumulativeSphericalHessian, numericalTotalSphericalGradient, 1.0E-6 );
 
     Eigen::Vector3d cartesianStatePerturbation;
-    cartesianStatePerturbation<<10.0, 10.0, 10.0;
+    cartesianStatePerturbation << 10.0, 10.0, 10.0;
 
     for( unsigned parameter = 0; parameter < 3; parameter++ )
     {
@@ -563,9 +563,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<<10.0, 10.0, 10.0;
+    positionPerturbation << 10.0, 10.0, 10.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
+    velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
 
     // Create state access/modification functions for bodies.
     boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =

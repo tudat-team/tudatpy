@@ -119,7 +119,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when getting state derivative partial acceleration model, dynamics type " +
-                    boost::lexical_cast< std::string >( integratedStateType ) + "not recognized" ;
+                    std::to_string( integratedStateType ) + "not recognized" ;
             throw std::runtime_error( errorMessage );
             break;
         }

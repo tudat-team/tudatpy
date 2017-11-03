@@ -11,9 +11,6 @@
 
 #include <stdexcept>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/exception/all.hpp>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
@@ -70,7 +67,7 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
 
     if ( correctForLightTimeAberration && correctForStellarAberration )
     {
-        aberrationCorrections_.append( "+S" );
+        aberrationCorrections_.append( " +S" );
     }
 }
 

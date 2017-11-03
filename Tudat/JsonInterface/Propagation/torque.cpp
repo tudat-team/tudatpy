@@ -9,7 +9,7 @@
  *
  */
 
-#include "torque.h"
+#include "Tudat/JsonInterface/Propagation/torque.h"
 
 namespace tudat
 {

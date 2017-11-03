@@ -11,18 +11,17 @@
 #ifndef TUDAT_JSONINTERFACE_PROPAGATOR_H
 #define TUDAT_JSONINTERFACE_PROPAGATOR_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/propagationSettings.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 
-#include "termination.h"
-#include "state.h"
-#include "variable.h"
-#include "acceleration.h"
-#include "massRateModel.h"
-#include "torque.h"
-#include "export.h"
+#include "Tudat/JsonInterface/Propagation/termination.h"
+#include "Tudat/JsonInterface/Propagation/state.h"
+#include "Tudat/JsonInterface/Propagation/variable.h"
+#include "Tudat/JsonInterface/Propagation/acceleration.h"
+#include "Tudat/JsonInterface/Propagation/massRateModel.h"
+#include "Tudat/JsonInterface/Propagation/torque.h"
+#include "Tudat/JsonInterface/Propagation/export.h"
 
 namespace tudat
 {

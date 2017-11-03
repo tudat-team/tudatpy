@@ -9,7 +9,7 @@
  *
  */
 
-#include "interpolation.h"
+#include "Tudat/JsonInterface/Mathematics/interpolation.h"
 
 namespace tudat
 {

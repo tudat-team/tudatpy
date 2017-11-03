@@ -11,9 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_THRUST_H
 #define TUDAT_JSONINTERFACE_THRUST_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h>
-#include <Tudat/SimulationSetup/PropagationSetup/thrustSettings.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/thrustSettings.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

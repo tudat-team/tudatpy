@@ -12,12 +12,9 @@
 #ifndef TUDAT_EXTRACTOR_H
 #define TUDAT_EXTRACTOR_H
 
-#include <boost/exception/all.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <map>
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 

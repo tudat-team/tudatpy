@@ -10,8 +10,6 @@
 
 #include <Eigen/Geometry>
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
 
 namespace tudat

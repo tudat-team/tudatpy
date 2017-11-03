@@ -267,13 +267,13 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
         // Define state perturbation
         if( i == 0 )
         {
-            statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
                                   100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
                                   100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1 ).finished( );
         }
         else if( i == 1 )
         {
-            statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
                                   100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1,
                                   100000.0, 100000.0, 10000000.0, 0.1, 0.1, 10.0 ).finished( );
         }
@@ -375,7 +375,7 @@ executeOrbiterSimulation(
     double aerodynamicCoefficient = 1.2;
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( )<<1.2, -0.1, -0.4 ).finished( ), 1, 1 );
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
               sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation, sphericalHarmonicsPerturbation ).finished( );
 
     // Define state perturbation
-    statePerturbation = ( Eigen::Matrix< double, 6, 1>( )<<
+    statePerturbation = ( Eigen::Matrix< double, 6, 1>( ) <<
                           10.0, 10.0, 10.0, 0.01, 0.01, 0.01 ).finished( );
 
 

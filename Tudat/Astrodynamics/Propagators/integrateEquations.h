@@ -145,8 +145,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             }
             else
             {
-                std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
-                           ", found Nan/inf entry, returning propagation data up to current time"<<std::endl;
+                std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
+                           ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
                 breakPropagation = 1;
                 propagationTerminationReason = runtime_error_caught_in_propagation;
             }
@@ -165,8 +165,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                         ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
                           static_cast<int>( printInterval ) )  )
                 {
-                    std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
-                               timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+                    std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
+                               timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
                 }
             }
 
@@ -179,9 +179,9 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
         }
         catch( const std::exception &caughtException )
         {
-            std::cerr << caughtException.what( )<<std::endl;
-            std::cerr<<"Error, propagation terminated at t=" + boost::lexical_cast< std::string >( currentTime ) +
-                       ", returning propagation data up to current time"<<std::endl;
+            std::cerr << caughtException.what( ) << std::endl;
+            std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
+                       ", returning propagation data up to current time" << std::endl;
             breakPropagation = 1;
             propagationTerminationReason = runtime_error_caught_in_propagation;
         }

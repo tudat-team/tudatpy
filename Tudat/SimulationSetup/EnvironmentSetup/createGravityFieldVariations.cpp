@@ -225,7 +225,7 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
     }
     default:
     {
-        throw std::runtime_error( "Error, case " + boost::lexical_cast< std::string >(
+        throw std::runtime_error( "Error, case " + std::to_string(
                                        gravityFieldVariationSettings->getBodyDeformationType( ) ) +
                                    " not implemented for gravity field variations." );
     }

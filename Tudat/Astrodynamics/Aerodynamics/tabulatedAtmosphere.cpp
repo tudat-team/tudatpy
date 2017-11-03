@@ -9,8 +9,6 @@
  *
  */
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"

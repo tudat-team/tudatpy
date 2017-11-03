@@ -78,7 +78,7 @@ public:
      *  Function to calculate the azimuth and elevationangle from body-fixed reference point to given point.
      *  \param inertialVectorAwayFromStation Vector from reference point to target point expressed in inertial frame.
      *  \param time Time at which angles are to be calculated.
-     *  \return Elevation and ezimuth angle (in that order) from reference point to input point (inertialVectorAwayFromStation)
+     *  \return Elevation and azimuth angle (in that order) from reference point to input point (inertialVectorAwayFromStation)
      */
     std::pair< double, double > calculatePointingAngles( const Eigen::Vector3d inertialVectorAwayFromStation, const double time );
 

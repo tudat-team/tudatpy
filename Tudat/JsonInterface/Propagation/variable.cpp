@@ -9,11 +9,11 @@
  *
  */
 
-#include "variable.h"
+#include "Tudat/JsonInterface/Propagation/variable.h"
 
-#include "acceleration.h"
-#include "torque.h"
-#include "referenceFrames.h"
+#include "Tudat/JsonInterface/Propagation/acceleration.h"
+#include "Tudat/JsonInterface/Propagation/torque.h"
+#include "Tudat/JsonInterface/Propagation/referenceFrames.h"
 
 namespace tudat
 {

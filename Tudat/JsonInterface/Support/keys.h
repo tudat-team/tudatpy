@@ -13,8 +13,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
-
 namespace tudat
 {
 
@@ -488,7 +486,7 @@ public:
 };
 
 //! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
-std::ostream& operator<< ( std::ostream& stringRepresentation, KeyPath const& keyPath );
+std::ostream& operator << ( std::ostream& stringRepresentation, KeyPath const& keyPath );
 
 inline KeyPath operator / ( KeyPath path1, const KeyPath& path2 )
 {

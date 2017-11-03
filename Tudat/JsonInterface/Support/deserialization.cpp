@@ -11,10 +11,10 @@
 
 #include <boost/regex.hpp>
 
-#include "deserialization.h"
-#include "keys.h"
-#include "utilities.h"
-#include "valueAccess.h"
+#include "Tudat/JsonInterface/Support/deserialization.h"
+#include "Tudat/JsonInterface/Support/keys.h"
+#include "Tudat/JsonInterface/Support/utilities.h"
+#include "Tudat/JsonInterface/Support/valueAccess.h"
 
 namespace tudat
 {

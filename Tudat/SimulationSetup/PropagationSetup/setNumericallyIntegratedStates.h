@@ -92,7 +92,7 @@ void resetIntegratedEphemerisOfBody(
     // Else, update existing tabulated ephemeris
     else
     {
-        std::cerr<<"Warning, tabulated ephemeris is being reset using data at different precision"<<std::endl;
+        std::cerr << "Warning, tabulated ephemeris is being reset using data at different precision" << std::endl;
         if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                     bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
         {
@@ -983,7 +983,7 @@ createIntegratedStateProcessors(
                     if(  typeIterator->second.at( i ) == NULL )
                     {
                         std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
-                                boost::lexical_cast< std::string >( i ) + " is not defined.";
+                                std::to_string( i ) + " is not defined.";
                         throw std::runtime_error( errorMessage );
                     }
 
@@ -1082,7 +1082,7 @@ createIntegratedStateProcessors(
     }
     default:
         throw std::runtime_error( "Error, could not process integrated state type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
 
     return integratedStateProcessors;

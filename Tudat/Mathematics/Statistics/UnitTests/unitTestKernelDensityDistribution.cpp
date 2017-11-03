@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <vector>
 #include <limits>
 

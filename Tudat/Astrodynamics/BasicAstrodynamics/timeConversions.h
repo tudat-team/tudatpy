@@ -14,7 +14,7 @@
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-#include "physicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 namespace tudat
 {

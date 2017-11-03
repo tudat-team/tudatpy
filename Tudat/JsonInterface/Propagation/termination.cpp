@@ -9,9 +9,9 @@
  *
  */
 
-#include "termination.h"
+#include "Tudat/JsonInterface/Propagation/termination.h"
 
-#include "variable.h"
+#include "Tudat/JsonInterface/Propagation/variable.h"
 
 namespace tudat
 {

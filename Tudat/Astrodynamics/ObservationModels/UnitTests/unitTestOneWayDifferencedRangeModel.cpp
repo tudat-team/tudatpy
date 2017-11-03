@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -97,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         for( double observationTime = 86400.0; observationTime <= 86400.0; observationTime += observationTime )
         {
 
-            std::cout<<"TEST: ************************************* "<<testCase<<" "<< observationTime<<std::endl;
+            std::cout << "TEST: ************************************* " << testCase << " " << observationTime << std::endl;
             double dopplerCountInterval = integrationTimeFunction( observationTime );
             double arcStartObservationTime = observationTime - dopplerCountInterval;
             double arcEndObservationTime = observationTime;

@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
             ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
     groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
-            ( Eigen::Vector3d( ) <<-2.5E5, 3.2E6, -2.65E4 ).finished( );
+            ( Eigen::Vector3d( ) << -2.5E5, 3.2E6, -2.65E4 ).finished( );
     createGroundStations( bodyMap, groundStationsToCreate );
 
 
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
 
     // Compute numerical partial w.r.t. pole position
-    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( )<<1.0E-5, 1.0E-5 ).finished( );
+    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( ) << 1.0E-5, 1.0E-5 ).finished( );
     Eigen::MatrixXd numericalPartialWrtReceiverPolePosition = calculateNumericalObservationParameterPartial(
                 earthPolePosition, polePositionPerturbation, observationFunctionAtReception, receptionTime );
 

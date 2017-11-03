@@ -357,7 +357,7 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                 boost::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
         if( empiricalAcceleration == NULL )
         {
-            std::cerr<<"Acceleration class type does not match acceleration type enum (rel. corr.) set when making acceleration partial"<<std::endl;
+            std::cerr << "Acceleration class type does not match acceleration type enum (rel. corr.) set when making acceleration partial" << std::endl;
 
         }
         else
@@ -368,7 +368,7 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
         break;
     }
     default:
-        std::string errorMessage = "Acceleration model " + boost::lexical_cast< std::string >( accelerationType ) +
+        std::string errorMessage = "Acceleration model " + std::to_string( accelerationType ) +
                 " not found when making acceleration partial";
         throw std::runtime_error( errorMessage );
         break;

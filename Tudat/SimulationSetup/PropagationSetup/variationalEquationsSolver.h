@@ -302,8 +302,8 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         if( propagatedBodies.size( ) != estimatedBodies.size( ) )
         {
             std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
-                    boost::lexical_cast< std::string >( propagatedBodies.size( ) ) + " " +
-                    boost::lexical_cast< std::string >( estimatedBodies.size( ) );
+                    std::to_string( propagatedBodies.size( ) ) + " " +
+                    std::to_string( estimatedBodies.size( ) );
             throw std::runtime_error( errorMessage );
             isInputConsistent = 0;
         }
@@ -314,8 +314,8 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
                 if( propagatedBodies.at( i ) != estimatedBodies.at( i ) )
                 {
                     std::string errorMessage = "Error, propagated and estimated body vectors inconsistent at index" +
-                            boost::lexical_cast< std::string >( propagatedBodies.at( i ) ) + " " +
-                            boost::lexical_cast< std::string >( estimatedBodies.at( i ) );
+                            std::string( propagatedBodies.at( i ) ) + " " +
+                            std::string( estimatedBodies.at( i ) );
                     throw std::runtime_error( errorMessage );
                     isInputConsistent = 0;
                 }
@@ -326,7 +326,7 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
     }
     default:
         std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
-                boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) );
+                std::to_string( propagatorSettings->getStateType( ) );
         throw std::runtime_error( errorMessage );
     }
     return isInputConsistent;
@@ -412,8 +412,8 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                 {
                     isInputConsistent = false;
                     std::string errorMessage = "Error, propagated body vector sizes are inconsistent between arcs " +
-                            boost::lexical_cast< std::string >( propagatedBodies.size( ) ) + " " +
-                            boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].size( ) ) +
+                            std::to_string( propagatedBodies.size( ) ) + " " +
+                            std::to_string( propagatedStateTypes[ transational_state ].size( ) ) +
                             " when checking multi-arc estimation/propagation consistency";
                     throw std::runtime_error( errorMessage );
                 }
@@ -425,9 +425,9 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
                         {
                             isInputConsistent = false;
                             std::string errorMessage = "Error, propagated body vector sizes are inconsistent between arcs at index  " +
-                                    boost::lexical_cast< std::string >( i ) + " " +
-                                    boost::lexical_cast< std::string >( propagatedBodies.at( i ) ) + " " +
-                                    boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].at( i ) ) +
+                                    std::to_string( i ) + " " +
+                                    std::string( propagatedBodies.at( i ) ) + " " +
+                                    std::string( propagatedStateTypes[ transational_state ].at( i ) ) +
                                     " when checking multi-arc estimation/propagation consistency";
                             throw std::runtime_error( errorMessage );
                         }
@@ -441,7 +441,7 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
         }
         default:
             std::string errorMessage = "Error, cannot yet check consistency of multi-arc propagator settings for type " +
-                    boost::lexical_cast< std::string >( propagatorSettings->getSingleArcSettings( ).at( arc )->getStateType( ) );
+                    std::to_string( propagatorSettings->getSingleArcSettings( ).at( arc )->getStateType( ) );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -450,8 +450,8 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
     {
         isInputConsistent = false;
         std::string errorMessage = "Error, propagated body vector sizes are inconsistent " +
-                boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].size( ) ) + " " +
-                boost::lexical_cast< std::string >( estimatedBodies.size( ) ) +
+                std::to_string( propagatedStateTypes[ transational_state ].size( ) ) + " " +
+                std::to_string( estimatedBodies.size( ) ) +
                 " when checking multi-arc estimation/propagation consistency";
         throw std::runtime_error( errorMessage );
 
@@ -461,7 +461,7 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
             {
                 isInputConsistent = false;
                 std::string errorMessage = "Error, propagated body " +
-                        boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].at( i ) ) + " " +
+                        std::string( propagatedStateTypes[ transational_state ].at( i ) ) + " " +
                         " not found in estimated body list when checking multi-arc estimation/propagation consistency";
                 throw std::runtime_error( errorMessage );
             }
@@ -872,7 +872,7 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
         }
         default:
             std::string errorMessage = "Error, cannot yet make parameters and multi-arc propagator settings consistent for " +
-                    boost::lexical_cast< std::string >( propagatorSettings->getSingleArcSettings( ).at( arc )->getStateType( ) );
+                    std::to_string( propagatorSettings->getSingleArcSettings( ).at( arc )->getStateType( ) );
             throw std::runtime_error( errorMessage );
         }
     }

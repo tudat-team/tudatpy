@@ -11,8 +11,6 @@
 #ifndef TUDAT_OBSERVATIONSIMULATOR_H
 #define TUDAT_OBSERVATIONSIMULATOR_H
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
@@ -312,7 +310,7 @@ public:
         {
             throw std::runtime_error(
                         "Error in observation manager when getting observation model, did not find model for given link ends " +
-                        boost::lexical_cast< std::string >( observationModels_.size( ) ) );
+                        std::to_string( observationModels_.size( ) ) );
         }
         return observationModels_.at( linkEnds );
     }

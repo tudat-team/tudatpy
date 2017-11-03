@@ -12,8 +12,6 @@
 #ifndef TUDAT_TEXT_PARSER_H
 #define TUDAT_TEXT_PARSER_H
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/parser.h"
@@ -74,7 +72,7 @@ public:
      * \see Parser::parse(std::istream& stream).
      */
     parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::istream& stream );
-	
+        
 protected:
 
     //! Data container of the parsed data.
@@ -90,7 +88,7 @@ protected:
      * Clients doing both parsing techniques must override parseLine and parseStream.
      */
     bool parseAsStream;
-	
+        
     //! Parse the given line content and append the resulting data lines to parsedData.
     /*!
      * Parse all lines/fields from the passed string and store (append) them to parsedData.

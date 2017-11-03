@@ -13,11 +13,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-
-#include "path.h"
-#include "utilities.h"
-#include "valueAccess.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/JsonInterface/Support/path.h"
+#include "Tudat/JsonInterface/Support/utilities.h"
+#include "Tudat/JsonInterface/Support/valueAccess.h"
 
 namespace tudat
 {
@@ -256,8 +255,7 @@ inline void to_json( nlohmann::json& jsonObject, const Quaterniond& quaternion )
 //! Create `Eigen::Quaternion` from a `json` object.
 inline void from_json( const nlohmann::json& jsonObject, Quaterniond& quaternion )
 {
-    using namespace tudat;
-    using namespace json_interface;
+    using namespace tudat::json_interface;
     using K = Keys::Body::RotationModel;
 
     if ( jsonObject.is_array( ) )

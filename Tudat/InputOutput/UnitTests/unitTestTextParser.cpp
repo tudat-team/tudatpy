@@ -15,8 +15,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 

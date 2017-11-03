@@ -221,7 +221,7 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
         if( counter > 10000 )
         {
             throw std::runtime_error( "Warning, ephemeris update order determination now at iteration " +
-                                      boost::lexical_cast< std::string>( counter ) );
+                                      std::to_string( counter ) );
         }
     }
 

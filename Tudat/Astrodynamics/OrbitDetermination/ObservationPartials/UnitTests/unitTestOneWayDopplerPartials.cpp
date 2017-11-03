@@ -1,18 +1,11 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -223,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
         {
-            std::cout<<"Case "<<estimationCase<<std::endl;
+            std::cout << "Case " << estimationCase << std::endl;
             // Generate one-way doppler model
             boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
             std::vector< std::string > perturbingBodies;
@@ -264,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             testObservationPartials< 1 >(
                         oneWayDopplerModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_doppler, 1.0E-5,
                         true, true, 10.0, parameterPerturbationMultipliers );
-            std::cout<<"Case "<<estimationCase<<std::endl;
+            std::cout << "Case " << estimationCase << std::endl;
 
         }
     }
@@ -281,7 +274,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
 
         for( unsigned int estimationCase  = 0; estimationCase  < 3; estimationCase ++ )
         {
-            std::cout<<"Rates: "<<estimationCase <<std::endl;
+            std::cout << "Rates: " << estimationCase << std::endl;
             // Generate one-way doppler model
             boost::shared_ptr< ObservationModel< 1 > > oneWayDopplerModel;
             std::vector< std::string > perturbingBodies;

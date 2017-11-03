@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 
 namespace tudat

@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_TORQUE_H
 #define TUDAT_JSONINTERFACE_TORQUE_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/torqueSettings.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/torqueSettings.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

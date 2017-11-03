@@ -56,7 +56,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
 {
     if( linkEndOfFixedTime != oneWayRangeScaler_->getCurrentLinkEndType( ) )
     {
-        std::cout<<linkEndOfFixedTime<<" "<<oneWayRangeScaler_->getCurrentLinkEndType( )<<std::endl;
+        std::cout << linkEndOfFixedTime << " " << oneWayRangeScaler_->getCurrentLinkEndType( ) << std::endl;
         throw std::runtime_error( "Error one-way range partial and scaling are inconsistent" );
     }
 

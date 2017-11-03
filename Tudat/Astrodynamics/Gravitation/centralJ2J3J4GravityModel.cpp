@@ -12,7 +12,6 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Gravitation/centralJ2J3J4GravityModel.h"

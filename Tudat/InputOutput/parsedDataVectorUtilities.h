@@ -17,7 +17,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/shared_ptr.hpp>
 

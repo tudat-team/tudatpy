@@ -1,18 +1,11 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *
- *    References
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  */
 
@@ -132,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 1.0E-6, true, true, 1.0,
-                        ( Eigen::Vector4d( )<<10.0, 1.0, 1.0, 10.0 ).finished( ) );
+                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
@@ -163,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             // Test observation partials
             testObservationPartials< 1 >(
                         nWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, n_way_range, 1.0E-6, false, true, 1.0,
-                        ( Eigen::Vector4d( )<<10.0, 1.0, 1.0, 20.0 ).finished( ) );
+                        ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ) );
         }
     }
 }

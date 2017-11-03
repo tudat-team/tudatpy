@@ -18,8 +18,6 @@
 #ifndef TUDAT_NUMERICAL_DERIVATIVE_H
 #define TUDAT_NUMERICAL_DERIVATIVE_H
 
-#include <iomanip>
-#include <iostream>
 #include <map>
 
 #include <boost/function.hpp>

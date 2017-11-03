@@ -9,7 +9,7 @@
  *
  */
 
-#include "ephemeris.h"
+#include "Tudat/JsonInterface/Environment/ephemeris.h"
 
 #include "Tudat/JsonInterface/Mathematics/interpolation.h"
 

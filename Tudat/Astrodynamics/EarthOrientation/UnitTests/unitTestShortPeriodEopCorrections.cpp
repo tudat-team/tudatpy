@@ -11,8 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Basics/testMacros.h"

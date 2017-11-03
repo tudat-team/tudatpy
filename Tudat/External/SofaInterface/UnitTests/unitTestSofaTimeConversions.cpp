@@ -11,12 +11,9 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <Eigen/Core>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
@@ -189,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testSofaTimeConversions )
             dtr = iauDtdb ( tt1, tt2, ut, elon, u/1e3, v/1e3 );
 
             // Define reference point and
-            referencePoint = ( Eigen::Vector3d( )<<xyz[ 0 ], xyz[ 1 ], xyz[ 2 ] ).finished( );
+            referencePoint = ( Eigen::Vector3d( ) << xyz[ 0 ], xyz[ 1 ], xyz[ 2 ] ).finished( );
         }
 
         // Calculate UT1 fraction of day
@@ -215,7 +212,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
     Eigen::Matrix< int, Eigen::Dynamic, 3 > leapSecondDays;
     leapSecondDays.resize( 27, 3 );
-    leapSecondDays<<1, 7, 1972,
+    leapSecondDays << 1, 7, 1972,
             1, 1, 1973,
             1, 1, 1974,
             1, 1, 1975,

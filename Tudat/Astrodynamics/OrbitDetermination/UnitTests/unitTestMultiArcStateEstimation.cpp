@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -77,7 +88,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
 
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( )<< 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -231,7 +242,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    std::cout<<"Truth "<<std::setprecision( 16 )<<truthParameters.transpose( )<<std::endl;
+    std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
     for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
     {
@@ -270,7 +281,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
-        std::cout<<parameterError.transpose( )<<std::endl;
+        std::cout << parameterError.transpose( ) << std::endl;
         for( int i = 0; i < numberOfEstimatedArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )

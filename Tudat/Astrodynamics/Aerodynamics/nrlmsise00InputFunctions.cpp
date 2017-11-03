@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -54,7 +52,7 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
     if( solarActivityMap.count( julianDay ) == 0 )
     {
         std::string errorMessage = "Solar activity data could not be found for this julian date: "
-                + boost::lexical_cast< std::string >( julianDay ) + " in nrlmsiseInputFunction";
+                + std::to_string( julianDay ) + " in nrlmsiseInputFunction";
         throw std::runtime_error( errorMessage );
     }
     SolarActivityDataPtr solarActivity = solarActivityMap.at( julianDay );

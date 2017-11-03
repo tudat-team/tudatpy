@@ -9,8 +9,6 @@
  *
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/GeometricShapes/conicalFrustum.h"
 
@@ -195,7 +193,7 @@ double ConicalFrustum::getParameter( const int index )
        break;
 
    default:
-       std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in ConicalFrustum.";
+       std::string errorMessage = "Parameter " + std::to_string( index ) + "does not exist in ConicalFrustum.";
        throw std::runtime_error( errorMessage );
    }
 
@@ -204,7 +202,7 @@ double ConicalFrustum::getParameter( const int index )
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, ConicalFrustum& conicalFrustum )
+std::ostream &operator << ( std::ostream &stream, ConicalFrustum& conicalFrustum )
 {
     stream << "This is a conical frustum geometry." << std::endl;
     stream << "The circumferential angle runs from: "

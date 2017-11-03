@@ -81,7 +81,7 @@ void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
     {
         throw std::runtime_error(
                     std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
-                    boost::lexical_cast< std::string >( independentVariable ) +
+                    std::to_string( independentVariable ) +
                     std::string(", will not  be used." ) );
     }
     else
@@ -176,7 +176,7 @@ double FlightConditions::getAerodynamicCoefficientIndependentVariable(
         if( customCoefficientDependencies_.count( independentVariableType ) == 0 )
         {
             throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
-                                      + boost::lexical_cast< std::string >( independentVariableType ) );
+                                      + std::to_string( independentVariableType ) );
         }
         else
         {

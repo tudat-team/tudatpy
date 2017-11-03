@@ -18,8 +18,6 @@
 #include <unordered_map>
 
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -396,7 +394,7 @@ public:
     {
         if( this->stateSize_ != this->initialStates_.rows( ) )
         {
-            std::cerr<<"Warning when resetting multi-arc initial states, size is incomparible with original size."<<std::endl;
+            std::cerr << "Warning when resetting multi-arc initial states, size is incomparible with original size." << std::endl;
         }
 
         this->initialStates_ = initialBodyStates;
@@ -420,7 +418,7 @@ public:
     {
         if( initialStateList_.size( ) != initialStateList.size( ) )
         {
-            std::cerr<<"Warning when resetting multi-arc initial state list, size is incomparible with original size."<<std::endl;
+            std::cerr << "Warning when resetting multi-arc initial state list, size is incomparible with original size." << std::endl;
         }
 
         initialStateList_ = initialStateList;
@@ -1201,9 +1199,9 @@ public:
         // Check consistency
         if( currentStartIndex != initialBodyStates.rows( ) )
         {
-            std::string errorMessage = "Error when resetting multi-type state, total size is incompatible "+
-                    boost::lexical_cast< std::string >( currentStartIndex ) +
-                    boost::lexical_cast< std::string >( initialBodyStates.rows( ) );
+            std::string errorMessage = "Error when resetting multi-type state, total size is incompatible " +
+                    std::to_string( currentStartIndex ) +
+                    std::to_string( initialBodyStates.rows( ) );
             throw std::runtime_error( errorMessage );
         }
 
@@ -1319,10 +1317,10 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                             || singleTypeIntegratedStateList.size( ) != 1 )
                     {
                         std::string errorMessage = "Error when making integrated state list for hybrid propagator, inconsistency encountered " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->first ) + " " +
-                                boost::lexical_cast< std::string >( typeIterator->first ) + " " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.size( ) ) + " " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->second.size( ) );
+                                std::to_string( singleTypeIntegratedStateList.begin( )->first ) + " " +
+                                std::to_string( typeIterator->first ) + " " +
+                                std::to_string( singleTypeIntegratedStateList.size( ) ) + " " +
+                                std::to_string( singleTypeIntegratedStateList.begin( )->second.size( ) );
                         throw std::runtime_error( errorMessage );
                     }
                     else
@@ -1409,7 +1407,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     }
     default:
         throw std::runtime_error( "Error, could not process integrated state type in getIntegratedTypeAndBodyList " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
 
     return integratedStateList;

@@ -10,12 +10,8 @@
 #ifndef TUDAT_CREATENUMERICALINTEGRATOR_H
 #define TUDAT_CREATENUMERICALINTEGRATOR_H
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/euler.h"
@@ -270,7 +266,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
     }
     default:
         std::runtime_error(
-                    "Error, integrator " +  boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) +
+                    "Error, integrator " +  std::to_string( integratorSettings->integratorType_ ) +
                     "not found. " );    }
     return integrator;
 }

@@ -20,14 +20,11 @@
 #include <map>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
-#include <Tudat/Astrodynamics/Aerodynamics/aerodynamics.h>
-#include <Tudat/Basics/utilities.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Basics/utilities.h"
 namespace tudat
 {
 namespace aerodynamics
@@ -108,7 +105,13 @@ public:
      */
     double getLateralReferenceLength( ) { return lateralReferenceLength_; }
 
+    //! Get reference lengths.
+    /*!
+     * Returns the all reference lengths used to non-dimensionalize aerodynamic moments.
+     * \return Aerodynamic reference lengths.
+     */
     Eigen::Vector3d getReferenceLengths( ) { return referenceLengths_; }
+
     //! Get moment reference point.
     /*!
      * Returns the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
@@ -238,8 +241,8 @@ public:
             throw std::runtime_error(
                         std::string( "Error when retrieving aerodynamic coefficient interface " ) +
                         ( " variable name, requested variable index " ) +
-                        boost::lexical_cast< std::string >( index ) +
-                        ", but only " + boost::lexical_cast< std::string >(
+                        std::to_string( index ) +
+                        ", but only " + std::to_string(
                             numberOfIndependentVariables_ ) + " variables available." );
         }
 
@@ -404,6 +407,10 @@ protected:
      */
     double lateralReferenceLength_;
 
+    //! Aerodynamic reference lengths.
+    /*!
+     * All reference lengths with which aerodynamic moments are non-dimensionalized.
+     */
     Eigen::Vector3d referenceLengths_;
 
     //! Aerodynamic moment reference point.

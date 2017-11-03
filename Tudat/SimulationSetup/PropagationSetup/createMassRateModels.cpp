@@ -71,7 +71,7 @@ createMassRateModel(
 
             if( thrustAccelerations.size( ) == 0 )
             {
-                std::cerr<<"Warning when making from-thrust mass-rate model, no thrust model is found; no thust is used"<<std::endl;
+                std::cerr << "Warning when making from-thrust mass-rate model, no thrust model is found; no thust is used" << std::endl;
             }
 
             std::vector< boost::shared_ptr< propulsion::ThrustAcceleration > >
@@ -93,7 +93,7 @@ createMassRateModel(
 
                 if( explicitThrustAccelerations.size( ) != 1 )
                 {
-                    std::cerr<<"Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier"<<std::endl;
+                    std::cerr << "Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier" << std::endl;
                 }
             }
             else

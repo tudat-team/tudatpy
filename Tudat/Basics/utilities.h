@@ -182,7 +182,7 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( );
          mapIterator != mapToPrint.end( ); mapIterator++ )
     {
-        std::cout<<mapIterator->first<<", "<<mapIterator->second<<std::endl;
+        std::cout << mapIterator->first << ", " << mapIterator->second << std::endl;
     }
 }
 

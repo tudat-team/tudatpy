@@ -9,9 +9,9 @@
  *
  */
 
-#include "valueAccess.h"
+#include "Tudat/JsonInterface/Support/valueAccess.h"
 
-#include "options.h"
+#include "Tudat/JsonInterface/Support/options.h"
 
 namespace tudat
 {

@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef TUDAT_GCRSTOITRSROTATIONMODEL_H
 #define TUDAT_GCRSTOITRSROTATIONMODEL_H
 
@@ -6,9 +17,7 @@
 #include <boost/bind.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
-
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 

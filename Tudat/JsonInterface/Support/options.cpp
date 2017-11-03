@@ -9,7 +9,7 @@
  *
  */
 
-#include "options.h"
+#include "Tudat/JsonInterface/Support/options.h"
 
 namespace tudat
 {

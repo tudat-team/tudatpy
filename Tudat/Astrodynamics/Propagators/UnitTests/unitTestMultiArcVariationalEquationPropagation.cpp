@@ -314,13 +314,13 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
         // Define state perturbation
         if( i == 0 )
         {
-            statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
                                   100000.0, 100000.0, 100000.0, 1.0, 0.1, 1.0,
                                   100000.0, 100000.0, 100000.0, 1.0, 0.1, 1.0 ).finished( );
         }
         else if( i == 1 )
         {
-            statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<<
+            statePerturbation = ( Eigen::Matrix< double, 12, 1>( ) <<
                                   100000.0, 100000.0, 100000.0, 1.0, 0.1, 1.0,
                                   10000000.0, 1000000.0, 100000000.0, 100.0, 100.0, 1000.0 ).finished( );
         }
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
             // Test for all requested propagator types.
             for( unsigned int k = 0; k < maximumPropagatorType; k++ )
             {
-                std::cout<<"Test: "<<i<<" "<<patchArcs<<" "<<k<<std::endl;
+                std::cout << "Test: " << i << " " << patchArcs << " " << k << std::endl;
                 // Compute state transition and sensitivity matrices
                 currentOutput = executeMultiArcEarthMoonSimulation < double, double >(
                             centralBodiesSet[ i ], Eigen::Matrix< double, 12, 1 >::Zero( ), k, patchArcs );
@@ -398,8 +398,8 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
                     }
                 }
 
-                std::cout<<manualPartial.at( 1 )<<std::endl<<std::endl<<
-                           stateTransitionAndSensitivityMatrixAtEpoch.at( 1 )<<std::endl;
+                std::cout << manualPartial.at( 1 ) << std::endl << std::endl
+                          << stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) << std::endl;
 
                 // Check results
                 for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )

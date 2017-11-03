@@ -12,9 +12,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
-#include "applicationOutput.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/applicationOutput.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 

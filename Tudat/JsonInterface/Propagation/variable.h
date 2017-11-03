@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_VARIABLE_H
 #define TUDAT_JSONINTERFACE_VARIABLE_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

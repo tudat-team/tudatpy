@@ -199,7 +199,7 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
     default:
-        throw std::runtime_error( "Error, observable type " + boost::lexical_cast< std::string >(
+        throw std::runtime_error( "Error, observable type " + std::to_string(
                                       observableType ) + " not recognized when making viability link ends" );
 
     }
@@ -375,7 +375,7 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
         default:
             throw std::runtime_error(
                         "Error when making observation viability calculator, type not recognized " +
-                        boost::lexical_cast< std::string >(
+                        std::to_string(
                             relevantObservationViabilitySettings.at( i )->observationViabilityType_ ) );
         }
 
