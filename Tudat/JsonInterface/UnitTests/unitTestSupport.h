@@ -15,8 +15,8 @@
 
 #include "Tudat/JsonInterface/Support/deserialization.h"
 #include "Tudat/JsonInterface/Support/utilities.h"
-
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+
 namespace tudat
 {
 
