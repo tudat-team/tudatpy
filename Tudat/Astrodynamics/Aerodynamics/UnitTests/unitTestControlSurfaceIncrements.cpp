@@ -97,7 +97,7 @@ Eigen::Vector6d dummyControlIncrements(
         const std::vector< double > independentVariables )
 {
     Eigen::Vector6d randomControlIncrements =
-            ( Eigen::Vector6d( )<<1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
+            ( Eigen::Vector6d( ) << 1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
     for( unsigned int i = 0; i < 6; i++ )
     {
         randomControlIncrements( i ) *= (

@@ -40,13 +40,12 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
 
@@ -360,7 +359,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         }
         else
         {
-            aerodynamicCoefficients = ( Eigen::Vector3d( )<<1.0, -0.1, 0.5 ).finished( );
+            aerodynamicCoefficients = ( Eigen::Vector3d( ) << 1.0, -0.1, 0.5 ).finished( );
 
         }
 

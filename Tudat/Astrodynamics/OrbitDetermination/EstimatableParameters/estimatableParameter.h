@@ -19,8 +19,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
@@ -336,8 +334,8 @@ public:
         if( newParameterValues.rows( ) != totalParameterSetSize_ )
         {
             throw std::runtime_error( "Error when resetting parameters of parameter set, given vector has size " +
-                                      boost::lexical_cast< std::string >( newParameterValues.rows( ) ) +
-                                      ", while internal size is " + boost::lexical_cast< std::string >( totalParameterSetSize_ ) );
+                                      std::to_string( newParameterValues.rows( ) ) +
+                                      ", while internal size is " + std::to_string( totalParameterSetSize_ ) );
         }
         else
         {
@@ -481,28 +479,28 @@ void printEstimatableParameterEntries(
     std::map< int, boost::shared_ptr<
             EstimatableParameter< Eigen::VectorXd > > > vectorParameters = estimatableParameters->getVectorParameters( );
 
-    std::cout<<"Parameter start index, Parameter definition"<<std::endl;
+    std::cout << "Parameter start index, Parameter definition" << std::endl;
     for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::Matrix<
          InitialStateParameterType, Eigen::Dynamic, 1 > > > >::const_iterator parameterIterator = initialStateParameters.begin( );
          parameterIterator != initialStateParameters.end( ); parameterIterator++ )
     {
-        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+        std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
     for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< double > > >::const_iterator
          parameterIterator = doubleParameters.begin( );
          parameterIterator != doubleParameters.end( ); parameterIterator++ )
     {
-        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+        std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
     for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::VectorXd > > >::const_iterator
          parameterIterator = vectorParameters.begin( );
          parameterIterator != vectorParameters.end( ); parameterIterator++ )
     {
-        std::cout<<parameterIterator->first<<", "<<parameterIterator->second->getParameterDescription( )<<std::endl;
+        std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
-     std::cout<<std::endl;
+     std::cout << std::endl;
 }
 
 //! Function to get the list of names of bodies for which initial translational dynamical state is estimated.

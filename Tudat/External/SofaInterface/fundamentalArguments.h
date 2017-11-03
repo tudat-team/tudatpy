@@ -13,8 +13,8 @@
 
 extern "C"
 {
-    #include "sofa/src/sofa.h"
-    #include "sofa/src/sofam.h"
+    #include <sofa/src/sofa.h>
+    #include <sofa/src/sofam.h>
 }
 
 #include <vector>

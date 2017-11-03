@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -71,8 +70,8 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
             }
         }
 
-        std::cout<<sofaRotationDerivative<<std::endl<<std::endl<<
-                   sofaRotationDerivative - spiceRotationDerivative<<std::endl<<std::endl<<std::endl<<std::endl;
+        std::cout << sofaRotationDerivative << std::endl << std::endl
+                  << sofaRotationDerivative - spiceRotationDerivative << std::endl << std::endl << std::endl << std::endl;
     }
 }
 

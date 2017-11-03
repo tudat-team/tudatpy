@@ -13,8 +13,7 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Basics/basicTypedefs.h>
-
+#include "Tudat/Basics/basicTypedefs.h"
 namespace tudat
 {
 

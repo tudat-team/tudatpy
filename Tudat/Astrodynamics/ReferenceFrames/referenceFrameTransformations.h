@@ -494,21 +494,21 @@ Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformatio
 
 //! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( )<<
+        ( Eigen::Matrix3d( ) <<
           0.0, 0.0, 0.0,
           0.0, 0.0, 1.0,
           0.0, -1.0, 0.0 ).finished( );
 
 //! Pre-multiplier used to take derivative of rotation matrix about y-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( )<<
+        ( Eigen::Matrix3d( ) <<
           0.0, 0.0, -1.0,
           0.0, 0.0, 0.0,
           1.0, 0.0, 0.0 ).finished( );
 
 //! Pre-multiplier used to take derivative of rotation matrix about z-axis w.r.t. the rotation angle
 static const Eigen::Matrix3d Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
-        ( Eigen::Matrix3d( )<<
+        ( Eigen::Matrix3d( ) <<
           0.0, 1.0, 0.0,
           -1.0, 0.0, 0.0,
           0.0, 0.0, 0.0 ).finished( );

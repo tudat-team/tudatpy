@@ -18,8 +18,6 @@
 #ifndef TUDAT_CAPSULE_H
 #define TUDAT_CAPSULE_H
 
-#include <iostream>
-
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
@@ -102,7 +100,7 @@ public:
      * \param capsule Capsule of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator<<( std::ostream &stream, Capsule& capsule );
+    friend std::ostream &operator << ( std::ostream &stream, Capsule& capsule );
 
 protected:
 

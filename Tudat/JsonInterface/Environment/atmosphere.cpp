@@ -9,7 +9,7 @@
  *
  */
 
-#include "atmosphere.h"
+#include "Tudat/JsonInterface/Environment/atmosphere.h"
 
 namespace tudat
 {

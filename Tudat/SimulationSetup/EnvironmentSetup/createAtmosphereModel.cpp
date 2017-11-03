@@ -9,7 +9,6 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
@@ -143,7 +142,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     default:
         throw std::runtime_error(
                     "Error, did not recognize atmosphere model settings type " +
-                    boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
+                    std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
     }
 
     if( atmosphereSettings->getWindSettings( ) != NULL )

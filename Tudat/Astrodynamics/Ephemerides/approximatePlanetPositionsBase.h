@@ -17,7 +17,6 @@
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_BASE_H
 
 #include <cmath>
-#include <fstream>
 #include <map>
 #include <string>
 

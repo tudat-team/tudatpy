@@ -9,7 +9,7 @@
  *
  */
 
-#include "spice.h"
+#include "Tudat/JsonInterface/Environment/spice.h"
 
 namespace tudat
 {

@@ -11,9 +11,10 @@
 #ifndef TUDAT_CREATEINTERPOLATOR_H
 #define TUDAT_CREATEINTERPOLATOR_H
 
+#include <iostream>
+
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
@@ -461,7 +462,7 @@ createOneDimensionalInterpolator(
     default:
         throw std::runtime_error(
                     "Error when making interpolator, function cannot be used to create interplator of type " +
-                    boost::lexical_cast< std::string >(
+                    std::to_string(
                         interpolatorSettings->getInterpolatorType( ) ) );
     }
     return createdInterpolator;

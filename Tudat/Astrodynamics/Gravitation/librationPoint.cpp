@@ -20,11 +20,9 @@
  */
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"

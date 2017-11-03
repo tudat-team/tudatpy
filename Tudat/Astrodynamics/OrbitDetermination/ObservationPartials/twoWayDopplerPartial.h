@@ -11,8 +11,6 @@
 #ifndef TUDAT_TWOWAYDOPPLERPARTIAL_H
 #define TUDAT_TWOWAYDOPPLERPARTIAL_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 
 #include <Eigen/Core>

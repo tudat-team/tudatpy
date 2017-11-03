@@ -158,7 +158,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             throw std::runtime_error( "Error when making one way range partials, could not identify parameter " +
-                       boost::lexical_cast< std::string >(
+                       std::to_string(
                                           initialDynamicalParameters.at( i )->getParameterName( ).first ) );
         }
 
@@ -283,8 +283,8 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         {
             if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) > 1 )
             {
-                std::cerr<<"Error when making one way range partials, light time corrections for "<<
-                           lightTimeCorrections.at( linkEnds.at( i ) ).size( )<<" links found"<<std::endl;
+                std::cerr << "Error when making one way range partials, light time corrections for "
+                          << lightTimeCorrections.at( linkEnds.at( i ) ).size( ) << " links found" << std::endl;
             }
             else if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) == 1 )
             {

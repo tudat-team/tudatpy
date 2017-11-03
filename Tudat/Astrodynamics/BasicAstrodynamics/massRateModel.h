@@ -127,6 +127,7 @@ private:
 
 };
 
+//! Typedef for the massrate model map.
 typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > > MassRateModelMap;
 
 

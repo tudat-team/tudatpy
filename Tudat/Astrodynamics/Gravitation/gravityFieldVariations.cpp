@@ -101,9 +101,9 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         if( isCorrectIdentifierFound == 0 )
         {
             std::string errorMessage = "Error when retrieving gravity field variation of typ " +
-                    boost::lexical_cast< std::string >( deformationType ) +
+                    std::to_string( deformationType ) +
                     ", none of " +
-                    boost::lexical_cast< std::string >( numberOfEntries ) +
+                    std::to_string( numberOfEntries ) +
                     " potential entries match identifier.";
             throw std::runtime_error( errorMessage );
         }
@@ -204,21 +204,21 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
         if( initialTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 4, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( finalTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 5, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( timeSteps_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 6, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }

@@ -11,6 +11,7 @@
 #ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
+#include <string>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
@@ -166,8 +167,7 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
-                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
                 throw std::runtime_error( errorMessage );
             }
             initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -200,8 +200,7 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
-                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
                 throw std::runtime_error( errorMessage );
             }
             initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -219,7 +218,7 @@ createTranslationalStateDerivativeModel(
     default:
         throw std::runtime_error(
                     "Error, did not recognize translational state propagation type: " +
-                    boost::lexical_cast< std::string >( translationPropagatorSettings->propagator_ ) );
+                    std::to_string( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -362,7 +361,7 @@ createStateDerivativeModel(
     default:
         throw std::runtime_error(
                     "Error, could not process state type "
-                    + boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) )
+                    + std::to_string( propagatorSettings->getStateType( ) )
                     + " when making state derivative model" );
     }
     return stateDerivativeModel;

@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <limits>
 
 #include <boost/test/floating_point_comparison.hpp>

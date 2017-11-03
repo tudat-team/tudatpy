@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_REFERENCEFRAMES_H
 #define TUDAT_JSONINTERFACE_REFERENCEFRAMES_H
 
-#include <Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h>
-
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 
@@ -48,7 +47,7 @@ inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFram
 inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrames& aerodynamicsReferenceFrame )
 {
     aerodynamicsReferenceFrame =
-	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
+            json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrames );
 }
 
 
@@ -79,7 +78,7 @@ inline void to_json( nlohmann::json& jsonObject, const AerodynamicsReferenceFram
 inline void from_json( const nlohmann::json& jsonObject, AerodynamicsReferenceFrameAngles& aerodynamicsReferenceFrameAngle )
 {
     aerodynamicsReferenceFrameAngle =
-	    json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );
+            json_interface::enumFromString( jsonObject, aerodynamicsReferenceFrameAngles );
 }
 
 } // namespace reference_frames

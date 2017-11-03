@@ -11,8 +11,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <iostream>
-
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>

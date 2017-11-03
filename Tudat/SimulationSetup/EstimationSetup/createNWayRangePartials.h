@@ -178,8 +178,8 @@ createNWayRangePartials(
             {
                 throw std::runtime_error(
                             "Error when making n-way range partials, found light time correction partials for " +
-                            boost::lexical_cast< std::string >( currentLightTimeCorrections.size( ) ) +
-                            " links, with " + boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends" );
+                            std::to_string( currentLightTimeCorrections.size( ) ) +
+                            " links, with " + std::to_string( linkEnds.size( ) ) + " link ends" );
             }
         }
         else

@@ -282,8 +282,8 @@ createAngularPositionPartials(
         {
             if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) != 1 )
             {
-                std::cerr<<"Error when making angular position partials, light time corrections for "<<
-                           lightTimeCorrections.at( linkEnds.at( i ) ).size( )<<" links found"<<std::endl;
+                std::cerr << "Error when making angular position partials, light time corrections for " <<
+                           lightTimeCorrections.at( linkEnds.at( i ) ).size( ) << " links found" << std::endl;
             }
             singleLinkLightTimeCorrections = lightTimeCorrections.at( linkEnds.at( i ) ).at( 0 );
         }

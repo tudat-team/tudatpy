@@ -11,8 +11,6 @@
 #ifndef TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 #define TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,7 +49,7 @@ public:
             std::string acceleratedBody,
             std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
-        empiricalAcceleration_( empiricalAcceleration ){ cartesianStateElementPerturbations<<0.1, 0.1, 0.1, 0.001, 0.001, 0.001; }
+        empiricalAcceleration_( empiricalAcceleration ){ cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001; }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

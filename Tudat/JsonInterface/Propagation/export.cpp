@@ -9,7 +9,7 @@
  *
  */
 
-#include "export.h"
+#include "Tudat/JsonInterface/Propagation/export.h"
 
 namespace tudat
 {

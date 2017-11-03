@@ -20,8 +20,7 @@
 #include <Eigen/SVD>
 #include <Eigen/Geometry>
 
-#include <Tudat/Basics/basicTypedefs.h>
-
+#include "Tudat/Basics/basicTypedefs.h"
 namespace tudat
 {
 

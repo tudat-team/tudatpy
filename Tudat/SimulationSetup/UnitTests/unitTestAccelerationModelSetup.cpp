@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Define (arbitrary) aerodynamic coefficient settings.
         Eigen::Vector3d aerodynamicCoefficients =
-                ( Eigen::Vector3d( )<<1.0, 3.0, -2.0 ).finished( );
+                ( Eigen::Vector3d( ) << 1.0, 3.0, -2.0 ).finished( );
         double referenceArea = 4.7;
 
         // Get coefficient settings for current test case
@@ -449,7 +449,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
         Eigen::Vector6d vehicleBodyFixedState =
-                ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+                ( Eigen::Vector6d( ) << -1656517.23153109, -5790058.28764025, -2440584.88186829,
                   6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
         double testTime = 0.5E7;
@@ -616,11 +616,11 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     {
         // Define body-fixed vehicle state.
         Eigen::Vector6d vehicleBodyFixedState =
-                ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+                ( Eigen::Vector6d( ) << -1656517.23153109, -5790058.28764025, -2440584.88186829,
                   6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
         if( i > 0 )
         {
-            vehicleBodyFixedState.segment( 3, 3 ) += ( Eigen::Vector3d( ) <<-3234.2, 2456.2, 33.245 ).finished( );
+            vehicleBodyFixedState.segment( 3, 3 ) += ( Eigen::Vector3d( ) << -3234.2, 2456.2, 33.245 ).finished( );
         }
 
         // Define vehicle inertial state.

@@ -19,7 +19,6 @@
 
 #include <stdexcept>
 
-#include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"

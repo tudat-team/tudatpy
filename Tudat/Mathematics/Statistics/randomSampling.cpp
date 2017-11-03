@@ -17,8 +17,7 @@
 #include <gsl/gsl_qrng.h>
 #endif
 
-#include <Tudat/Mathematics/Statistics/randomSampling.h>
-
+#include "Tudat/Mathematics/Statistics/randomSampling.h"
 namespace tudat
 {
 

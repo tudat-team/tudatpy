@@ -15,7 +15,6 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"

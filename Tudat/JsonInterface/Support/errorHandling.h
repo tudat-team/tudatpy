@@ -16,13 +16,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/core/demangle.hpp>
 
-#include "json/src/json.hpp"
+#include <json/src/json.hpp>
 
-#include "keys.h"
-#include "utilities.h"
+#include "Tudat/JsonInterface/Support/keys.h"
+#include "Tudat/JsonInterface/Support/utilities.h"
 
-#include <Tudat/InputOutput/basicInputOutput.h>
-
+#include "Tudat/InputOutput/basicInputOutput.h"
 namespace tudat
 {
 

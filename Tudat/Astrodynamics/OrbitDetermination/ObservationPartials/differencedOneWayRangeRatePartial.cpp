@@ -54,7 +54,7 @@ DifferencedOneWayRangeRatePartial::calculatePartial(
 
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )
     {
-        std::cerr<<"Error when making differenced one way range rate partials, arc start and end partials inconsistent"<<std::endl;
+        std::cerr << "Error when making differenced one way range rate partials, arc start and end partials inconsistent" << std::endl;
     }
 
     // Retrieve arc length

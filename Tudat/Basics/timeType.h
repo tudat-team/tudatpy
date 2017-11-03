@@ -911,9 +911,9 @@ public:
     }
 
     //!Output operator for Time object
-    friend std::ostream& operator<<( std::ostream& stream, const Time& timeToPrint )
+    friend std::ostream& operator << ( std::ostream& stream, const Time& timeToPrint )
     {
-        stream<<"("<<timeToPrint.getFullPeriods( )<<", "<<timeToPrint.getSecondsIntoFullPeriod( )<<") ";
+        stream << "(" << timeToPrint.getFullPeriods( ) << ", " << timeToPrint.getSecondsIntoFullPeriod( ) << ") ";
         return stream;
     }
 

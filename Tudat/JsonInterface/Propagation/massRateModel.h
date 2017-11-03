@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_MASSRATEMODEL_H
 #define TUDAT_JSONINTERFACE_MASSRATEMODEL_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

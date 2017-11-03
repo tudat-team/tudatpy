@@ -158,7 +158,7 @@ public:
      * \param torus Torus frustum of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator<<( std::ostream &stream, Torus& torus );
+    friend std::ostream &operator << ( std::ostream &stream, Torus& torus );
 
 protected:
 

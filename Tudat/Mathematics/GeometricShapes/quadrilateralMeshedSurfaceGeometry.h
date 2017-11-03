@@ -150,7 +150,7 @@ public:
       *         geometry.
       * \return Stream object.
       */
-     friend std::ostream& operator<<( std::ostream& stream,
+     friend std::ostream& operator << ( std::ostream& stream,
                                       QuadrilateralMeshedSurfaceGeometry&
                                       quadrilateralMeshedSurfaceGeometry );
 

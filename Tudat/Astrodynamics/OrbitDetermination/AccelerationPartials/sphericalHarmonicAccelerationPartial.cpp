@@ -99,7 +99,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
             else
             {
                 std::string errorMessage = "Error, not taking partial of sh acceleration wrt rotational parameter" +
-                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + " of " +
+                        std::to_string( parameter->getParameterName( ).first ) + " of " +
                         parameter->getParameterName( ).second.first;
                 throw std::runtime_error( errorMessage );
             }
@@ -132,8 +132,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                 if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                 {
                     throw std::runtime_error( "Error when getting double tidal parameter partial, multiple dependencies found " +
-                                              boost::lexical_cast< std::string >( numberOfRows ) + ", " +
-                                              boost::lexical_cast< std::string >( currentTidalPartialOutput.first ) );
+                                              std::to_string( numberOfRows ) + ", " +
+                                              std::to_string( currentTidalPartialOutput.first ) );
                 }
                 else
                 {
@@ -187,7 +187,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
             else
             {
                 std::string errorMessage = "Error, not taking partial of sh acceleration wrt rotational parameter" +
-                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + " of " +
+                        std::to_string( parameter->getParameterName( ).first ) + " of " +
                         parameter->getParameterName( ).second.first;
                 throw std::runtime_error( errorMessage );
             }
@@ -217,8 +217,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                 if( numberOfRows != 0 && currentTidalPartialOutput.first > 0 )
                 {
                     throw std::runtime_error( "Error when getting vector tidal parameter partial, inconsistent output" +
-                                              boost::lexical_cast< std::string >( numberOfRows ) + ", " +
-                                              boost::lexical_cast< std::string >( currentTidalPartialOutput.first ) );
+                                              std::to_string( numberOfRows ) + ", " +
+                                              std::to_string( currentTidalPartialOutput.first ) );
                 }
                 else
                 {

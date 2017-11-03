@@ -16,11 +16,10 @@
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
-#include <Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h>
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include <Tudat/Mathematics/Statistics/basicStatistics.h>
-
+#include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
 namespace tudat
 {
 
@@ -153,7 +152,7 @@ void testSchwarzschildPropagation(
     {
         std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
                     elementMaps[ elementIndex ], polynomialPowers );
-        //std::cout<<theoreticalSchwarzschildPericenterPrecession<<" "<<fitOutput.at( 1 )<<std::endl;
+        //std::cout << theoreticalSchwarzschildPericenterPrecession << " " << fitOutput.at( 1 ) << std::endl;
         if( elementIndex != 1 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-8 );

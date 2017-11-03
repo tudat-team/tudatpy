@@ -25,7 +25,7 @@ FixedWidthParser::FixedWidthParser( int numberOfFields, ... ) : TextParser( fals
 
     // Create a fancy vector (list) of all the fields:
     // Define argument list variable.
-    va_list	listOfArguments;
+    va_list        listOfArguments;
 
     // Initialize list. Point to last defined argument.
     va_start( listOfArguments, numberOfFields );

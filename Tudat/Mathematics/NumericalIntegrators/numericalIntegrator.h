@@ -241,9 +241,9 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
                 }
                 else
                 {
-                    std::cerr<<"Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is "<<
-                        intervalEnd - getCurrentIndependentVariable( ) <<", final time is: "<<
-                               getCurrentIndependentVariable( )<<std::endl;
+                    std::cerr << "Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is " <<
+                        intervalEnd - getCurrentIndependentVariable( ) << ", final time is: " <<
+                               getCurrentIndependentVariable( ) << std::endl;
                 }
             }
         }

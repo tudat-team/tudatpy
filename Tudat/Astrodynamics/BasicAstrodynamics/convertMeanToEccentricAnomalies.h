@@ -30,7 +30,6 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include <boost/exception/all.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -277,7 +276,7 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
     else
     {
         throw std::runtime_error( "Invalid eccentricity. Valid range is 0.0 <= e < 1.0. Eccentricity was: " +
-                            boost::lexical_cast< std::string >( eccentricity ) );
+                            std::to_string( eccentricity ) );
     }
 
     // Return eccentric anomaly.
@@ -421,7 +420,7 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
     else
     {
         throw std::runtime_error( "Invalid eccentricity. Valid range is e > 1.0. Eccentricity was: " +
-                            boost::lexical_cast< std::string >( eccentricity ) );
+                            std::to_string( eccentricity ) );
     }
 
     // Return hyperbolic eccentric anomaly.

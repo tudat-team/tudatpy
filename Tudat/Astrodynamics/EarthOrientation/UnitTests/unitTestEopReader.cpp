@@ -12,8 +12,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -165,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
     // Define list of leap seconds
     Eigen::Matrix< int, Eigen::Dynamic, 3 > leapSecondDays;
     leapSecondDays.resize( 27, 3 );
-    leapSecondDays<<1, 7, 1972,
+    leapSecondDays << 1, 7, 1972,
             1, 1, 1973,
             1, 1, 1974,
             1, 1, 1975,

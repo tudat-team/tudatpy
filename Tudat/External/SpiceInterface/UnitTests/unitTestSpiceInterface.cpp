@@ -27,7 +27,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -40,7 +39,6 @@
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 
 #include <limits>
-#include <iostream>
 #include <stdexcept>
 
 namespace tudat

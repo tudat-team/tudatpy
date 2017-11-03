@@ -17,7 +17,6 @@
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -82,7 +81,7 @@ public:
 
     //! Exception that is thrown if the minimum step size is exceeded.
     /*!
-     * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::
+     * Exception thrown by RungeKuttaVariableStepSizeIntegrator< >::
      * computeNextStepSizeAndValidateResult() if the minimum step size is exceeded.
      */
     class MinimumStepSizeExceededError;
@@ -613,7 +612,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
 //! Exception that is thrown if the minimum step size is exceeded.
 /*!
- * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::computeNextStepSizeAndValidateResult()
+ * Exception thrown by RungeKuttaVariableStepSizeIntegrator< >::computeNextStepSizeAndValidateResult()
  * if the minimum step size is exceeded.
  */
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

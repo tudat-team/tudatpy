@@ -8,10 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -77,7 +73,7 @@ std::string getObservableName( const ObservableType observableType, const int nu
     }
     default:
         std::string errorMessage =
-                "Error, could not find observable type "+ boost::lexical_cast< std::string >( observableType ) +
+                "Error, could not find observable type " + std::to_string( observableType ) +
                 " when getting name from type";
         throw std::runtime_error( errorMessage );
     }
@@ -116,7 +112,7 @@ ObservableType getObservableType( const std::string& observableName )
     else
     {
         std::string errorMessage =
-                "Error, could not find observable name "+ observableName +
+                "Error, could not find observable name " + observableName +
                 " when getting type from name";
         throw std::runtime_error( errorMessage );
     }
@@ -152,7 +148,7 @@ int getObservableSize( const ObservableType observableType )
         observableSize = 1;
         break;
     default:
-       std::string errorMessage = "Error, did not recognize observable " + boost::lexical_cast< std::string >( observableType )
+       std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
                + ", when getting observable size";
        throw std::runtime_error( errorMessage );
     }
@@ -179,8 +175,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         default:
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
         break;
@@ -196,8 +192,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         default:
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
         break;
@@ -217,8 +213,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         default:
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
         break;
@@ -236,8 +232,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         default:
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );        }
         break;
     case angular_position:
@@ -252,8 +248,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         default:
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
         break;
@@ -266,8 +262,8 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         {
             std::string errorMessage =
                     "Error, could not find link end type index for link end " +
-                    boost::lexical_cast< std::string >( linkEndType ) + " of observable " +
-                    boost::lexical_cast< std::string >( observableType );
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
     case n_way_range:
@@ -294,7 +290,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     default:
         std::string errorMessage =
                 "Error, could not find link end type index for link end types of observable " +
-                boost::lexical_cast< std::string >( observableType );
+                std::to_string( observableType );
         throw std::runtime_error( errorMessage );
     }
 

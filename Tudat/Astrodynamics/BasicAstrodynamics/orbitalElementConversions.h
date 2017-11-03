@@ -26,10 +26,8 @@
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
 #include <boost/function.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
-#include <iostream>
 #include <cmath>
 #include <limits>
 

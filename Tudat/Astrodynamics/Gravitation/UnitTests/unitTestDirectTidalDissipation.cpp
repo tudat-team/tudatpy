@@ -114,7 +114,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     }
 
 //    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
-//                                          "keplerElements_"  + boost::lexical_cast< std::string >( usePlanetDissipation ) +
+//                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
 //                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
@@ -172,16 +172,16 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     }
 
     bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 1.0 * 421.8E6, 1.0 * 0.004, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 1.0 * 421.8E6, 1.0 * 0.004, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ), "Jupiter", "ECLIPJ2000" );
     bodySettings[ "Europa" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 671.1E6, 0.009, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Europa" ), "Jupiter", "ECLIPJ2000" );
     bodySettings[ "Ganymede" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Ganymede" ), "Jupiter", "ECLIPJ2000" );
     //    bodySettings[ "Callisto" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-    //                ( Eigen::Vector6d( )<< 1882.700E6, 0.0074, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+    //                ( Eigen::Vector6d( ) << 1882.700E6, 0.0074, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
     //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
                     getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ) / intialKeplerElements( 0 ),
                     intialKeplerElements( 1 ), meanMotion );
 
-        std::cout<<elementRates.first / theoreticalSemiMajorAxisRateFromJupiterTide<<std::endl;
-        std::cout<<elementRates.second / theoreticaEccentricityRateFromJupiterTide<<std::endl;
+        std::cout << elementRates.first / theoreticalSemiMajorAxisRateFromJupiterTide << std::endl;
+        std::cout << elementRates.second / theoreticaEccentricityRateFromJupiterTide << std::endl;
 
         BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromJupiterTide, 2.0E-3 );
         BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromJupiterTide, 1.0E-1 );
@@ -243,8 +243,8 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
                 getBodyGravitationalParameter( galileanSatellites.at( i ) ) * std::pow( getAverageRadius( galileanSatellites.at( i ) ) / intialKeplerElements( 0 ), 5.0 ) *
                 intialKeplerElements( 1 ) * meanMotion;
 
-        std::cout<<elementRates.first / theoreticalSemiMajorAxisRateFromIoTide<<std::endl;
-        std::cout<<elementRates.second / theoreticaEccentricityRateFromIoTide<<std::endl;
+        std::cout << elementRates.first / theoreticalSemiMajorAxisRateFromIoTide << std::endl;
+        std::cout << elementRates.second / theoreticaEccentricityRateFromIoTide << std::endl;
 
         // Increase tolerance for more distance moons
         double toleranceMultiplier = 1.0;

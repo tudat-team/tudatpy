@@ -15,11 +15,9 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 namespace tudat
 {
 namespace unit_tests
@@ -299,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
         }
         for( unsigned int simulationCase = 0; simulationCase < 4; simulationCase++ )
         {
-            std::cout<<"Simulation case : "<<simulationCase<<std::endl<<std::endl;
+            std::cout << "Simulation case : " << simulationCase << std::endl << std::endl;
 
 
             // Define body settings for simulation.
@@ -448,7 +446,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
             for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
             {
-                //std::cout<<( gaussIterator->second - cowellIterator->second ).transpose( )<<std::endl;
+                //std::cout << ( gaussIterator->second - cowellIterator->second ).transpose( ) << std::endl;
                 for( int j= 0; j< 3; j++ )
                 {
                     BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 0.02 );

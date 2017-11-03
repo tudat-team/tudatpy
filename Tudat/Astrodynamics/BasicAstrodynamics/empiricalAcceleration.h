@@ -15,7 +15,6 @@
 #ifndef TUDAT_EMPIRICALACCELERATION_H
 #define TUDAT_EMPIRICALACCELERATION_H
 
-#include <iomanip>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -172,8 +171,7 @@ public:
      *  \return Empirical acceleration components in RSW frame. Constant, sine and cosine terms are given in first, second and
      *  third column of return matrix, respectively.
      */
-    Eigen::Matrix3d getAccelerationComponents(
-            const double currentTime = TUDAT_NAN )
+    Eigen::Matrix3d getAccelerationComponents( const double currentTime = TUDAT_NAN )
     {
         if( areAccelerationComponentsTimeDependent_ && !( currentTime == currentTime ) )
         {
@@ -219,7 +217,7 @@ public:
     {
         if( areAccelerationComponentsTimeDependent_ )
         {
-            std::cerr<<"Warning when resetting time-invariant empirical acceleration components; original componets are time-varying"<<std::endl;
+            std::cerr << "Warning when resetting time-invariant empirical acceleration components; original componets are time-varying" << std::endl;
         }
 
         areAccelerationComponentsTimeDependent_ = 0;

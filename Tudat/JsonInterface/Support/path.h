@@ -13,10 +13,9 @@
 
 #include <boost/filesystem.hpp>
 
-#include "json/src/json.hpp"
+#include <json/src/json.hpp>
 
-#include <Tudat/InputOutput/basicInputOutput.h>
-
+#include "Tudat/InputOutput/basicInputOutput.h"
 namespace tudat
 {
 

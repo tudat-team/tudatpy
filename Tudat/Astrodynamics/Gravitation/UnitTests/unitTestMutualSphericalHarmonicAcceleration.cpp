@@ -142,13 +142,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     bodySettings[ "Europa" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Europa" );
 
     bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Europa" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
 
 

@@ -12,8 +12,6 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
@@ -92,7 +90,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
     default:
 
         std::string errorMessage = "Error when making gravitional acceleration model, cannot parse type " +
-                boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ );
+                std::to_string( accelerationSettings->accelerationType_ );
         throw std::runtime_error( errorMessage );
     }
     return accelerationModel;
@@ -152,7 +150,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
     default:
 
         std::string errorMessage = "Error when making third-body gravitional acceleration model, cannot parse type " +
-                boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ );
+                std::to_string( accelerationSettings->accelerationType_ );
         throw std::runtime_error( errorMessage );
     }
     return accelerationModel;
@@ -1067,7 +1065,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
     {
         if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
         {
-            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyUndergoingAcceleration + " has no gravity field" );
         }
         else
@@ -1080,7 +1078,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
     {
         if( bodyExertingAcceleration->getGravityFieldModel( ) == NULL )
         {
-            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyExertingAcceleration + " has no gravity field" );
         }
         else
@@ -1092,7 +1090,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
 
         if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
         {
-            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite "+
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyUndergoingAcceleration + " has no gravity field" );
         }
         else
@@ -1108,7 +1106,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
         if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                     bodyExertingAcceleration->getGravityFieldModel( ) ) == NULL )
         {
-            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet "+
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
                                       nameOfBodyExertingAcceleration + " has no s.h. gravity field" );
         }
         else
@@ -1122,7 +1120,7 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
         if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                     bodyUndergoingAcceleration->getGravityFieldModel( ) ) == NULL )
         {
-            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet "+
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
                                       nameOfBodyUndergoingAcceleration + " has no s.h. gravity field" );
         }
         else
@@ -1244,7 +1242,7 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +
-                    boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ ) +
+                    std::to_string( accelerationSettings->accelerationType_ ) +
                     " not recognized when making acceleration model of" +
                     nameOfBodyExertingAcceleration + " on " +
                     nameOfBodyUndergoingAcceleration );

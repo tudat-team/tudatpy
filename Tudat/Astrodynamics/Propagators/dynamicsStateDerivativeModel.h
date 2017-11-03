@@ -86,7 +86,7 @@ public:
                              != stateDerivativeModels.at( i - 1 )->getIntegratedStateType( ) ) )
                 {
                     throw std::runtime_error( "Warning when making hybrid state derivative models, state type " +
-                                              boost::lexical_cast< std::string >( stateDerivativeModels.at( i )->getIntegratedStateType( ) )
+                                              std::to_string( stateDerivativeModels.at( i )->getIntegratedStateType( ) )
                                               + " entries are non-contiguous" );
                 }
             }
@@ -134,7 +134,7 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
-        //std::cout<<"Computing state derivative: "<<state.transpose( )<<std::endl;
+        //std::cout << "Computing state derivative: " << state.transpose( ) << std::endl;
         // Initialize state derivative
         if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
         {
@@ -494,7 +494,7 @@ private:
                 // Get state block indices of current state derivative model
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
-//                std::cout<<"Pre-converted state: "<<state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( )<<std::endl;
+//                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
@@ -503,9 +503,9 @@ private:
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
 
-//                std::cout<<"Converted state: "<<currentStatesPerTypeInConventionalRepresentation_.at(
+//                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
 //                               stateDerivativeModelsIterator_->first ).block(
-//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( )<<std::endl;
+//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 currentStateTypeSize += currentIndices.second;
             }

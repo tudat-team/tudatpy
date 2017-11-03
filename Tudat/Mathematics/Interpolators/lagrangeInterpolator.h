@@ -15,6 +15,8 @@
 #ifndef TUDAT_LAGRANGEINTERPOLATOR_H
 #define TUDAT_LAGRANGEINTERPOLATOR_H
 
+#include <iostream>
+
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -224,9 +226,9 @@ public:
         if( targetIndependentVariableValue < independentValues_.at( 0 ) ||
                 targetIndependentVariableValue > independentValues_.at( independentValues_.size( ) -1 ) )
         {
-            std::cout<<"Warning in Lagrange interpolation, outside range "<<
-                       independentValues_.at( 0 ) <<" "<<independentValues_.at( independentValues_.size( ) -1 )<<" "<<
-                       targetIndependentVariableValue<<std::endl;
+            std::cout << "Warning in Lagrange interpolation, outside range " <<
+                       independentValues_.at( 0 ) << " " << independentValues_.at( independentValues_.size( ) -1 ) << " " <<
+                       targetIndependentVariableValue << std::endl;
         }
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.

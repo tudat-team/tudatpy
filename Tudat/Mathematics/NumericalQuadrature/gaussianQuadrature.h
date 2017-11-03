@@ -88,7 +88,7 @@ struct GaussQuadratureNodesAndWeights
         if ( uniqueNodes_.count( numberOfNodes ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" +
-                    boost::lexical_cast< std::string >( numberOfNodes );
+                    std::to_string( numberOfNodes );
             throw std::runtime_error( errorMessage );
         }
         return uniqueNodes_.at( numberOfNodes );
@@ -105,7 +105,7 @@ struct GaussQuadratureNodesAndWeights
         if ( uniqueWeights_.count( order ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         return uniqueWeights_.at( order );

@@ -16,8 +16,6 @@
 #ifndef TUDAT_LAWGS_PART_GEOMETRY_H
 #define TUDAT_LAWGS_PART_GEOMETRY_H
 
-#include <iostream>
-
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -139,7 +137,7 @@ public:
      * \param lawgsPartGeometry Lawgs part geometry.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
+    friend std::ostream& operator << ( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
 
 protected:
 

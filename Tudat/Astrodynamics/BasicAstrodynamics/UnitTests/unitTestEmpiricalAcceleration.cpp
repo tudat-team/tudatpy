@@ -15,14 +15,12 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"

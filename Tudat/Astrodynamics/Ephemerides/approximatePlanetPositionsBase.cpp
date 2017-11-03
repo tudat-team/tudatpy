@@ -13,8 +13,6 @@
  *
  */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
@@ -142,7 +140,7 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
     ephemerisLineData_.clear( );
 
     // Read second line of data.
-    ephemerisLineData_<< containerOfDataFromEphemerisFile_[ lineNumber ];
+    ephemerisLineData_ << containerOfDataFromEphemerisFile_[ lineNumber ];
 
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.planetName_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermB_;

@@ -11,17 +11,16 @@
 #ifndef TUDAT_JSONINTERFACE_H
 #define TUDAT_JSONINTERFACE_H
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Support/deserialization.h"
 #include "Support/valueAccess.h"
 #include "Support/valueConversions.h"
 
-#include "Environment/spice.h"
-#include "Environment/body.h"
-#include "Propagation/propagator.h"
-#include "Mathematics/integrator.h"
-#include "Propagation/export.h"
+#include "Tudat/JsonInterface/Environment/spice.h"
+#include "Tudat/JsonInterface/Environment/body.h"
+#include "Tudat/JsonInterface/Propagation/propagator.h"
+#include "Tudat/JsonInterface/Mathematics/integrator.h"
+#include "Tudat/JsonInterface/Propagation/export.h"
 #include "Support/options.h"
 
 namespace tudat

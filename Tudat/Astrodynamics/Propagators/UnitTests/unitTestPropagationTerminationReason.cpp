@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include <boost/test/unit_test.hpp>
 
 //! Test suite for astrodynamics functions.

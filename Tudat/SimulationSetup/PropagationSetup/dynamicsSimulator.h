@@ -378,8 +378,8 @@ public:
 
             if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ )
             {
-                std::cout<<"Dependent variables being saved, output vectors contain: "<<std::endl<<
-                           "Vector entry, Vector contents"<<std::endl;
+                std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
+                          << "Vector entry, Vector contents" << std::endl;
                 utilities::printMapContents(
                             dependentVariableIds_ );
             }

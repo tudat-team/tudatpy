@@ -112,8 +112,8 @@ Eigen::VectorXd evaluateListOfVectorFunctions(
     if( currentIndex != totalSize )
     {
         std::string errorMessage = "Error when evaluating lists of functions, sizes are inconsistent: " +
-                boost::lexical_cast< std::string >( currentIndex ) + " and " +
-                boost::lexical_cast< std::string >( totalSize );
+                std::to_string( currentIndex ) + " and " +
+                std::to_string( totalSize );
         throw std::runtime_error( errorMessage );
     }
 
@@ -242,7 +242,7 @@ int getDependentVariableSize(
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
-                boost::lexical_cast< std::string >( dependentVariableSettings );
+                std::to_string( dependentVariableSettings );
         throw std::runtime_error( errorMessage );
     }
     return variableSize;

@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_RADIATIONPRESSURE_H
 #define TUDAT_JSONINTERFACE_RADIATIONPRESSURE_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

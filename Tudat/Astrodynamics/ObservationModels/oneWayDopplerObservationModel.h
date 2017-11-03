@@ -13,7 +13,6 @@
 
 
 #include <map>
-#include <iomanip>
 
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>

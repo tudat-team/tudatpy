@@ -8,11 +8,6 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
-# Add source files.
-set(ROOTFINDERS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/void.cpp"
-)
-
 # Add header files.
 set(ROOTFINDERS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/halleyRootFinder.h"
@@ -39,8 +34,9 @@ set(ROOTFINDERS_TESTS
 )
 
 # Add static libraries.
-add_library(tudat_root_finders STATIC ${ROOTFINDERS_SOURCES} ${ROOTFINDERS_HEADERS})
+add_library(tudat_root_finders STATIC ${ROOTFINDERS_HEADERS})
 setup_tudat_library_target(tudat_root_finders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
+set_target_properties(tudat_root_finders PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add unit tests.
 add_executable(test_RootFinders ${ROOTFINDERS_TESTS})

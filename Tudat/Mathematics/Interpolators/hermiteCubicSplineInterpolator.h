@@ -15,9 +15,8 @@
 #include <Eigen/Core>
 #include <vector>
 
-#include <Tudat/Mathematics/Interpolators/interpolator.h>
-#include <Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h>
-
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
+#include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
 

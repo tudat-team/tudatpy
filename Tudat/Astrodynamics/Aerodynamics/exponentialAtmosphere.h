@@ -17,7 +17,6 @@
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <cmath>

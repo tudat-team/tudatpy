@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_ACCELERATION_H
 #define TUDAT_JSONINTERFACE_ACCELERATION_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

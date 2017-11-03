@@ -17,7 +17,6 @@
 
 #include <map>
 
-#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>

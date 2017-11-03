@@ -11,7 +11,7 @@
 
 #include <boost/regex.hpp>
 
-#include "path.h"
+#include "Tudat/JsonInterface/Support/path.h"
 
 namespace tudat
 {
@@ -22,15 +22,14 @@ namespace json_interface
 //! Return \p path with the recognized paths replaced by placeholders (such as ${TUDAT_ROOT_PATH}).
 std::string pathAddingPlaceholders( std::string path )
 {
-    using namespace boost;
     for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
           rit != pathPlaceholders.rend( ); ++rit )
     {
         const std::string placeholderId = rit->first;
-        const std::string placeholderPath = filesystem::canonical( rit->second ).string( );
-        path = regex_replace( path, regex( placeholderPath ), "${" + placeholderId + "}" );
+        const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
+        path = boost::regex_replace( path, boost::regex( placeholderPath ), "${" + placeholderId + "}" );
     }
-    const std::string relativePath = filesystem::relative( path, filesystem::current_path( ) ).string( );
+    const std::string relativePath = boost::filesystem::relative( path, boost::filesystem::current_path( ) ).string( );
     if ( ! relativePath.empty( ) && relativePath.size( ) < path.size( ) )
     {
         path = relativePath;
@@ -41,13 +40,12 @@ std::string pathAddingPlaceholders( std::string path )
 //! Return \p path with the recognized path placeholders (such as ${TUDAT_ROOT_PATH}) replaced by the actual paths.
 std::string pathRemovingPlaceholders( std::string path )
 {
-    using namespace boost;
     for ( std::vector< std::pair< std::string, std::string > >::reverse_iterator rit = pathPlaceholders.rbegin( );
           rit != pathPlaceholders.rend( ); ++rit )
     {
         const std::string placeholderId = rit->first;
-        const std::string placeholderPath = filesystem::canonical( rit->second ).string( );
-        path = regex_replace( path, regex( R"(\$\{)" + placeholderId + R"(\})" ), placeholderPath );
+        const std::string placeholderPath = boost::filesystem::canonical( rit->second ).string( );
+        path = boost::regex_replace( path, boost::regex( R"(\$\{)" + placeholderId + R"(\})" ), placeholderPath );
     }
     return path;
 }
