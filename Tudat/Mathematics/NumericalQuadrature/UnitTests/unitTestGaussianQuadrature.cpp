@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <limits>
 
 #include <boost/test/floating_point_comparison.hpp>
@@ -132,8 +131,8 @@ void checkErrorWithinBounds( const unsigned int minOrder, const unsigned int max
                              boost::function< boost::function< double( const double ) >( const unsigned int ) > derivative,
                              const double abscissa, const double expectedSolution )
 {
-    double obtainedError;
-    double errorBound;
+    double obtainedError = TUDAT_NAN;
+    double errorBound = TUDAT_NAN;
     for ( unsigned int n = minOrder; n <= maxOrder; n++ )
     {
         const double previousObtainedError = obtainedError;

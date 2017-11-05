@@ -10,7 +10,6 @@
 
 # Add source files.
 set(BASICSDIR_SOURCES
-  "${SRCROOT}${BASICSDIR}/dummySourceFile.cpp"
   "${SRCROOT}${BASICSDIR}/utilities.cpp"
 )
 

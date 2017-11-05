@@ -33,8 +33,7 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     if( bodyName == "Earth" )
     {
         atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
-                    input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
-                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+                    input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     }
 
 
@@ -58,12 +57,13 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return boost::make_shared< InterpolatedSpiceEphemerisSettings >(
-                initialTime, finalTime, 300.0, "SSB", "ECLIPJ2000" );
+                initialTime, finalTime, timeStep, "SSB", "ECLIPJ2000" );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
 #endif
@@ -77,24 +77,15 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 {
     if( bodyName == "Earth" )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string earthGravityFieldFile =
-                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat";
-        readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients );
-
-        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    0.3986004418E15, 6378137.0, coefficients.first, coefficients.second, "IAU_Earth" );
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 );
     }
     else if( bodyName == "Moon" )
     {
-        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-        std::string earthGravityFieldFile =
-                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
-        std::pair< double, double > referenceData =
-                readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients, 1, 0 );
-        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
-                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
-
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 );
+    }
+    else if( bodyName == "Mars" )
+    {
+        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
     }
     else
     {
@@ -140,7 +131,8 @@ boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
 boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
     boost::shared_ptr< BodySettings > singleBodySettings = boost::make_shared< BodySettings >( );
 
@@ -163,7 +155,7 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     else
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    body, initialTime, finalTime );
+                    body, initialTime, finalTime, timeStep );
     }
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
                 body, initialTime, finalTime );
@@ -178,7 +170,8 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
-        const double finalTime )
+        const double finalTime,
+        const double timeStep )
 {
     std::map< std::string, boost::shared_ptr< BodySettings > > settingsMap;
 
@@ -186,7 +179,7 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), initialTime, finalTime );
+                    bodies.at( i ), initialTime, finalTime, timeStep );
 
     }
     return settingsMap;
@@ -203,7 +196,7 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     for( unsigned int i = 0; i < bodies.size( ); i++ )
     {
         settingsMap[ bodies.at( i ) ] = getDefaultSingleBodySettings(
-                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN );
+                    bodies.at( i ), TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
 
     }
     return settingsMap;

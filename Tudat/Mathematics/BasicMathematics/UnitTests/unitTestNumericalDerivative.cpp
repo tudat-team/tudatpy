@@ -11,12 +11,13 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
 
 #include "Tudat/Basics/testMacros.h"
-
 #include "Tudat/Mathematics/BasicMathematics/numericalDerivative.h"
 
 namespace tudat
@@ -34,6 +35,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
                                               DerivativeCallback analyticalCallback,
                                               FunctionEvaluationCallback numericalCallback )
 {
+    std::cout << std::numeric_limits< double >::epsilon( ) << std::endl;
     using numerical_derivatives::computeCentralDifference;
 
     // Compute the expected partial.

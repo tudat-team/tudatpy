@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
 
 namespace tudat
@@ -42,7 +43,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                     throw std::runtime_error(
                         "Error when making environment model update settings, could not find body "
-                        + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                        + updateIterator->second.at( i ) );
                 }
 
                 // Check if requested environment model exists.
@@ -54,7 +55,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find ephemeris of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -66,7 +67,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -80,7 +81,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find spherical harmonic gravity field of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -92,7 +93,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find flight conditions of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -105,7 +106,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find radiation pressure interface of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -114,7 +115,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, no body mass function of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
 
                     break;
@@ -123,6 +124,56 @@ void checkValidityOfRequiredEnvironmentUpdates(
         }
     }
 }
+
+
+//! Get list of required environment model update settings from torque models.
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap )
+{
+    using namespace basic_astrodynamics;
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleTorqueUpdateNeeds;
+
+    // Iterate over all bodies on which torques are being exerting
+    for( TorqueModelMap::const_iterator acceleratedBodyIterator = torqueModels.begin( );
+         acceleratedBodyIterator != torqueModels.end( ); acceleratedBodyIterator++ )
+    {
+        // Iterate over all bodies exerting on current body
+        for( SingleBodyTorqueModelMap::const_iterator torqueModelIterator = acceleratedBodyIterator->second.begin( );
+             torqueModelIterator != acceleratedBodyIterator->second.end( ); torqueModelIterator++ )
+        {
+            singleTorqueUpdateNeeds.clear( );
+            for( unsigned int i = 0; i < torqueModelIterator->second.size( ); i++ )
+            {
+                AvailableTorque currentTorqueModelType =
+                        getTorqueModelType( torqueModelIterator->second.at( i ) );
+
+                switch( currentTorqueModelType )
+                {
+                case second_order_gravitational_torque:
+                    break;
+                case aerodynamic_torque:
+                    singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ vehicle_flight_conditions_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
+                default:
+                    std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
+                    break;
+                }
+            }
+
+            checkValidityOfRequiredEnvironmentUpdates( singleTorqueUpdateNeeds, bodyMap );
+            addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
+        }
+    }
+
+    return environmentModelsToUpdate;
+}
+
 
 //! Get list of required environment model update settings from translational acceleration models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
@@ -294,9 +345,33 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
                     break;
                 }
+                case relativistic_correction_acceleration:
+                {
+                    boost::shared_ptr< relativity::RelativisticAccelerationCorrection >
+                            accelerationCorrection = boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                                accelerationModelIterator->second.at( i ) );
+                    if( accelerationCorrection->getCalculateDeSitterCorrection( ) )
+                    {
+                        std::string primaryBody = accelerationCorrection->getPrimaryBodyName( );
+                        if( translationalAccelerationModels.count(primaryBody ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        primaryBody );
+                        }
+                    }
+                    break;
+                }
+                case direct_tidal_dissipation_acceleration:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
+                            push_back( accelerationModelIterator->first );
+                    break;
+                case empirical_acceleration:
+                    break;
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
-                                              boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+                                              std::to_string( currentAccelerationModelType ) );
                     break;
                 }
 
@@ -347,7 +422,7 @@ createMassPropagationEnvironmentUpdaterSettings(
                 break;
             default:
                 throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
-                                          boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+                                          std::to_string( currentAccelerationModelType ) );
 
             }
 

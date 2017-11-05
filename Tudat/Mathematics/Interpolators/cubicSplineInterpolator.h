@@ -17,11 +17,8 @@
 #define TUDAT_CUBIC_SPLINE_INTERPOLATOR_H
 
 #include <cmath>
-#include <iostream>
-
 #include <Eigen/Core>
 
-#include <boost/exception/all.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
@@ -117,6 +114,7 @@ public:
     independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
     lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Cubic spline interpolator constructor.
     /*!
@@ -136,8 +134,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
         {
-            boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "The vectors used in the cubic spline interpolator initialization are empty." ) ) );
+            throw std::runtime_error(
+               "The vectors used in the cubic spline interpolator initialization are empty." );
         }
 
         // Set dependent and independent variable values.
@@ -181,8 +179,8 @@ public:
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
         {
-            boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "The vectors used in the cubic spline interpolator initialization are empty." ) ) );
+            throw std::runtime_error(
+               "The map used in the cubic spline interpolator initialization are empty." );
         }
 
         // Set data vector member variables from map.
@@ -212,9 +210,6 @@ public:
      *  Default destructor
      */
     ~CubicSplineInterpolator( ){ }
-
-    // Statement required to prevent hiding of base class functions.
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Interpolate.
     /*!

@@ -37,13 +37,12 @@ namespace observation_models
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
 template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
-class OneWayRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >
+          typename TimeType = double >
+class OneWayRangeObservationModel: public ObservationModel< 1, ObservationScalarType, TimeType >
 {
 public:    
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-    typedef Eigen::Matrix< StateScalarType, 3, 1 > PositionType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
 
     //! Constructor.
     /*!
@@ -54,9 +53,9 @@ public:
      */
     OneWayRangeObservationModel(
             const boost::shared_ptr< observation_models::LightTimeCalculator
-            < ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
+            < ObservationScalarType, TimeType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >( oneWayRange, observationBiasCalculator ),
+        ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
@@ -118,9 +117,12 @@ public:
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< TimeType >& linkEndTimes,
-                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                    std::vector< double >& linkEndTimes,
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
+        linkEndTimes.clear( );
+        linkEndStates.clear( );
+
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
@@ -142,7 +144,7 @@ public:
             break;
         default:
             std::string errorMessage = "Error, cannot have link end type: " +
-                    boost::lexical_cast< std::string >( linkEndAssociatedWithTime ) + "for one-way range";
+                    std::to_string( linkEndAssociatedWithTime ) + "for one-way range";
             throw std::runtime_error( errorMessage );
         }
 
@@ -150,11 +152,11 @@ public:
         observation *= physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Set link end states and times.
-        linkEndTimes.push_back( transmissionTime );
-        linkEndTimes.push_back( receptionTime );
+        linkEndTimes.push_back( static_cast< double >( transmissionTime ) );
+        linkEndTimes.push_back( static_cast< double >( receptionTime ) );
 
-        linkEndStates.push_back( transmitterState);
-        linkEndStates.push_back( receiverState );
+        linkEndStates.push_back( transmitterState.template cast< double >( ) );
+        linkEndStates.push_back( receiverState.template cast< double >( ) );
 
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << observation ).finished( );
     }
@@ -164,7 +166,7 @@ public:
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
@@ -176,7 +178,7 @@ private:
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     lightTimeCalculator_;
 
     //! Pre-declared receiver state, to prevent many (de-)allocations

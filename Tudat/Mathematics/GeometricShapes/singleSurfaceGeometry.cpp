@@ -14,8 +14,6 @@
  *
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 namespace tudat
@@ -49,7 +47,7 @@ void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIn
     default:
 
         std::string errorMessage =  "Only 2 independent variables, variable " +
-                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when setting minimum value";
+                std::to_string( parameterIndex ) + " does not exist when setting minimum value";
         throw std::runtime_error( errorMessage );
     }
 }
@@ -81,7 +79,7 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
     default:
 
         std::string errorMessage =  "Only 2 independent variables, variable " +
-                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when setting maximum value";
+                std::to_string( parameterIndex ) + " does not exist when setting maximum value";
         throw std::runtime_error( errorMessage );
     }
 }
@@ -110,7 +108,7 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable( const int parameter
     default:
 
         std::string errorMessage =  "Only 2 independent variables, variable " +
-                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when getting minimum value";
+                std::to_string( parameterIndex ) + " does not exist when getting minimum value";
         throw std::runtime_error( errorMessage );
     }
 
@@ -141,7 +139,7 @@ double SingleSurfaceGeometry::getMaximumIndependentVariable( const int parameter
 
     default:
         std::string errorMessage =  "Only 2 independent variables, variable " +
-                boost::lexical_cast< std::string >( parameterIndex ) + " does not exist when getting maximum value";
+                std::to_string( parameterIndex ) + " does not exist when getting maximum value";
         throw std::runtime_error( errorMessage );
     }
 

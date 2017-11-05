@@ -23,6 +23,7 @@
 
 namespace tudat
 {
+
 namespace basic_astrodynamics
 {
 
@@ -108,6 +109,7 @@ double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d& state,
 /*!
  * Compute periapsis altitude from Cartesian state for spherical central body.
  * \param state Cartesian state of the propagated body.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body.
  * \param centralBodyRadius Radius of the central body (assumed spherical).
  * \return The distance from the propagated body to the central body's spherical surface at periapsis.
  */

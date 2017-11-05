@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-  
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
     SimpleRotationalEphemeris venusRotationalEphemerisFromAngles(
                 venusPoleRightAscension, venusPoleDeclination, venusPrimeMeridianAtJ2000,
                 venusRotationRate, 0.0, baseFrame, targetFrame );
-    SimpleRotationalEphemeris venusRotationalEphemerisFromInitialState(
+    tudat::ephemerides::SimpleRotationalEphemeris venusRotationalEphemerisFromInitialState(
                 initialRotationToTargetFrame,
                 venusRotationRate, 0.0, baseFrame, targetFrame );
 

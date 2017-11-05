@@ -11,14 +11,18 @@
 #ifndef TUDAT_CREATEINTERPOLATOR_H
 #define TUDAT_CREATEINTERPOLATOR_H
 
+#include <iostream>
+
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/hermiteCubicSplineInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/piecewiseConstantInterpolator.h"
+
+#include "Tudat/InputOutput/mapTextFileReader.h"
 
 namespace tudat
 {
@@ -32,7 +36,8 @@ enum OneDimensionalInterpolatorTypes
     linear_interpolator = 1,
     cubic_spline_interpolator = 2,
     lagrange_interpolator = 3,
-    hermite_spline_interpolator = 4
+    hermite_spline_interpolator = 4,
+    piecewise_constant_interpolator = 5
 };
 
 //! Base class for providing settings for creating an interpolator.
@@ -84,6 +89,11 @@ public:
     }
 
 
+    void resetUseLongDoubleTimeStep( const bool useLongDoubleTimeStep )
+    {
+        useLongDoubleTimeStep_ = useLongDoubleTimeStep;
+    }
+
     //! Function to get a boolean denoting whether time step is to be a long double
     /*!
      * Function to get a boolean denoting whether time step is to be a long double
@@ -125,7 +135,8 @@ public:
             const int interpolatorOrder,
             const bool useLongDoubleTimeStep = 0,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const LagrangeInterpolatorBoundaryHandling boundaryHandling = lagrange_cubic_spline_boundary_interpolation ):
+            const LagrangeInterpolatorBoundaryHandling boundaryHandling =
+            lagrange_cubic_spline_boundary_interpolation ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep ),
         interpolatorOrder_( interpolatorOrder ),
         boundaryHandling_( boundaryHandling )
@@ -157,6 +168,197 @@ protected:
 
     LagrangeInterpolatorBoundaryHandling boundaryHandling_;
 
+};
+
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief DataMapSettings
+ * The class can be used to provided a map directly, or as a base class for loading the map using different procedures.
+ */
+template< typename IndependentType, typename DependentType >
+class DataMapSettings
+{
+public:
+    //! Empty constructor.
+    /*!
+     * Empty constructor.
+     */
+    DataMapSettings( ) { }
+
+    //! Constructor with a data map.
+    /*!
+     * Constructor to be used when the data map is provided directly.
+     * \param dataMap The data map containing values for the independent and dependent variables.
+     */
+    DataMapSettings( const std::map< IndependentType, DependentType >& dataMap ) : dataMap_( dataMap ) { }
+
+    //! Virtual destructor
+    virtual ~DataMapSettings( ) { }
+
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * \return The data map associated to the current setting object.
+     */
+    virtual std::map< IndependentType, DependentType > getDataMap( ) const
+    {
+        return dataMap_;
+    }
+
+protected:
+    //! The data map directly provided by the user in the constructor.
+    const std::map< IndependentType, DependentType > dataMap_;
+};
+
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief IndependentDependentDataMapSettings
+ * The data map will be created by combining values of independent and dependent variables.
+ */
+template< typename IndependentType, typename DependentType >
+class IndependentDependentDataMapSettings : public DataMapSettings< IndependentType, DependentType >
+{
+public:
+    //! Consturctor.
+    /*!
+     * Constructor.
+     * \param independentVariableValues Vector containing the values of the indepedent variable.
+     * \param dependentVariableValues Vector containing the values of the depedent variable.
+     */
+    IndependentDependentDataMapSettings( const std::vector< IndependentType >& independentVariableValues,
+                                         const std::vector< DependentType >& dependentVariableValues ) :
+        DataMapSettings< IndependentType, DependentType >( ),
+        independentVariableValues_( independentVariableValues ),
+        dependentVariableValues_( dependentVariableValues ) { }
+
+    //! Virtual destructor
+    virtual ~IndependentDependentDataMapSettings( ) { }
+
+    //! Vector containing the values of the indepedent variable.
+    std::vector< IndependentType > independentVariableValues_;
+
+    //! Vector containing the values of the depedent variable.
+    std::vector< DependentType > dependentVariableValues_;
+
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * The map is created from the provided vectors of independent and depedent variables values.
+     * \return The data map associated to the current setting object.
+     */
+    virtual std::map< IndependentType, DependentType > getDataMap( ) const
+    {
+        if ( independentVariableValues_.size( ) != dependentVariableValues_.size( ) )
+        {
+            std::cerr << "Could not get data map because the size of the independent and dependent variables values "
+                         "is inconsistent." << std::endl;
+            throw;
+        }
+        std::map< IndependentType, DependentType > dataMap;
+        for ( unsigned int i = 0; i < independentVariableValues_.size( ); ++i )
+        {
+            dataMap[ independentVariableValues_.at( i ) ] = dependentVariableValues_.at( i );
+        }
+        return dataMap;
+    }
+};
+
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief FromFileDataMapSettings
+ * The data map will be read from a file.
+ */
+template< typename EigenVectorType >
+class FromFileDataMapSettings : public DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param relativeFilePath Relative path to the file from which the map is to be loaded.
+     */
+    FromFileDataMapSettings( const std::string& relativeFilePath ) :
+        DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >( ),
+        relativeFilePath_( relativeFilePath ) { }
+
+    //! Virtual destructor
+    virtual ~FromFileDataMapSettings( ) { }
+
+    //! Relative path to the file from which the map is to be loaded.
+    std::string relativeFilePath_;
+
+    //! Get the data map associated to the current setting object.
+    /*!
+     * @copybrief getDataMap
+     * The map is loaded from the specified relativeFilePath_.
+     * \return The data map associated to the current setting object.
+     */
+    virtual std::map< typename EigenVectorType::Scalar, EigenVectorType > getDataMap( ) const
+    {
+        return input_output::readEigenVectorMapFromFile< EigenVectorType >( relativeFilePath_ );
+    }
+};
+
+
+//! Class defening the settings to be used to create a map of data (used for interpolation).
+/*!
+ * @copybrief HermiteDataSettings
+ * The data map will be created directly, in addition to the first derivatives.
+ */
+template< typename IndependentType, typename DependentType >
+class HermiteDataSettings : public DataMapSettings< IndependentType, DependentType >
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param dataToInterpolate The data map containing values for the independent and dependent variables.
+     * \param firstDerivativeOfDependentVariables Vector containing the first derivatives of the depedent variables.
+     */
+    HermiteDataSettings( const std::map< IndependentType, DependentType >& dataToInterpolate,
+                         const std::vector< DependentType >& firstDerivativeOfDependentVariables ) :
+        DataMapSettings< IndependentType, DependentType >( dataToInterpolate ),
+        firstDerivativeOfDependentVariables_( firstDerivativeOfDependentVariables ) { }
+
+    //! Virtual destructor
+    virtual ~HermiteDataSettings( ) { }
+
+    //! Vector containing the first derivatives of the depedent variables.
+    std::vector< DependentType > firstDerivativeOfDependentVariables_;
+};
+
+
+//! Class containing (the settings to create) the data needed for the interpolation and the settings to create the
+//! interpolator.
+/*!
+ * @copybrief DataInterpolationSettings
+ */
+template< typename IndependentType, typename DependentType >
+class DataInterpolationSettings
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param dataSettings Object containing (the settings to create) the data needed for the interpolation.
+     * \param interpolatorSettings Object containing the settings to create the interpolator to be used.
+     */
+    DataInterpolationSettings(
+            const boost::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
+            const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings ) :
+        dataSettings_( dataSettings ), interpolatorSettings_( interpolatorSettings ) { }
+
+    //! Virtual destructor
+    virtual ~DataInterpolationSettings( ){ }
+
+    //! Object containing (the settings to create) the data needed for the interpolation.
+    boost::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;
+
+    //! Object containing the settings to create the interpolator to be used.
+    boost::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
 
 
@@ -243,7 +445,8 @@ createOneDimensionalInterpolator(
     {
         if( firstDerivativeOfDependentVariables.size( ) != dataToInterpolate.size( ) )
         {
-            throw std::runtime_error( "Error when creating hermite spline interpolator, derivative size is inconsistent" );
+            throw std::runtime_error(
+                        "Error when creating hermite spline interpolator, derivative size is inconsistent" );
         }
         createdInterpolator = boost::make_shared< HermiteCubicSplineInterpolator
                 < IndependentVariableType, DependentVariableType > >(
@@ -251,14 +454,43 @@ createOneDimensionalInterpolator(
                     interpolatorSettings->getSelectedLookupScheme( ) );
         break;
     }
-
+    case piecewise_constant_interpolator:
+        createdInterpolator = boost::make_shared< PiecewiseConstantInterpolator
+                < IndependentVariableType, DependentVariableType > >(
+                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+        break;
     default:
         throw std::runtime_error(
                     "Error when making interpolator, function cannot be used to create interplator of type " +
-                    boost::lexical_cast< std::string >(
+                    std::to_string(
                         interpolatorSettings->getInterpolatorType( ) ) );
     }
     return createdInterpolator;
+}
+
+//! Function to create an interpolator from DataInterpolationSettings
+/*!
+ *  Function to create an interpolator from DataInterpolationSettings
+ *  \param dataInterpolationSettings Object containing the data that is to be interpolated and settings that are to be
+ *  used to create the interpolator.
+ *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
+ */
+template< typename IndependentType, typename DependentType >
+boost::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > createOneDimensionalInterpolator(
+        const boost::shared_ptr< DataInterpolationSettings< IndependentType, DependentType > >
+        dataInterpolationSettings )
+{
+    std::vector< DependentType > firstDerivativeOfDependentVariables;
+    boost::shared_ptr< HermiteDataSettings< IndependentType, DependentType > > hermiteDataSettings =
+            boost::dynamic_pointer_cast< HermiteDataSettings< IndependentType, DependentType > >(
+                dataInterpolationSettings->dataSettings_ );
+    if ( hermiteDataSettings )
+    {
+        firstDerivativeOfDependentVariables = hermiteDataSettings->firstDerivativeOfDependentVariables_;
+    }
+    return createOneDimensionalInterpolator( dataInterpolationSettings->dataSettings_->getDataMap( ),
+                                             dataInterpolationSettings->interpolatorSettings_,
+                                             firstDerivativeOfDependentVariables );
 }
 
 } // namespace interpolators

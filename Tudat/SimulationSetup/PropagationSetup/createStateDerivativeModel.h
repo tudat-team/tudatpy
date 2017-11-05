@@ -11,13 +11,18 @@
 #ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
 #define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
+#include <string>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
@@ -74,7 +79,7 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
     }
 
     std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >
-        ( const TimeType ) > > bodyStateFunctions;
+            ( const TimeType ) > > bodyStateFunctions;
 
     // Retrieve frame origin state functions
     for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
@@ -92,8 +97,25 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
                         Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
         }
     }
+
+    // Get state function of global frame origin w.r.t. barycenter
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricFunction;
+    std::string globalFrameOrigin = simulation_setup::getGlobalFrameOrigin( bodyMap );
+    if( globalFrameOrigin == "SSB" )
+    {
+        globalFrameOriginBarycentricFunction = boost::lambda::constant(
+                    Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
+    }
+    else
+    {
+        globalFrameOriginBarycentricFunction =
+                boost::bind( &simulation_setup::Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
+                             bodyMap.at( globalFrameOrigin ), _1 );
+    }
+
     return boost::make_shared< CentralBodyData< StateScalarType, TimeType > >(
-                centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions );
+                centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions,
+                globalFrameOriginBarycentricFunction, globalFrameOrigin );
 }
 
 //! Function to create a translational state derivative model.
@@ -129,8 +151,8 @@ createTranslationalStateDerivativeModel(
     case cowell:
     {
         stateDerivativeModel = boost::make_shared<
-                               NBodyCowellStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                NBodyCowellStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
         break;
     }
@@ -145,8 +167,7 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::string errorMessage = "Error when creating Encke propagator, did not find central body " +
-                        boost::lexical_cast< std::string >( centralBodies[ i ] );
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
                 throw std::runtime_error( errorMessage );
             }
             initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -156,18 +177,78 @@ createTranslationalStateDerivativeModel(
 
         // Create Encke state derivative object.
         stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
                   initialKeplerElements, propagationStartTime );
+
+        break;
+    }
+    case gauss_keplerian:
+    {
+        // Create Encke state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+
+        break;
+    }
+    case gauss_modified_equinoctial:
+    {
+        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements;
+        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
+
+        for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+        {
+            if( bodyMap.count( centralBodies[ i ] ) == 0 )
+            {
+                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
+                throw std::runtime_error( errorMessage );
+            }
+            initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                                                 translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
+                                                     bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) ) );
+        }
+
+        // Create Encke state derivative object.:
+        stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
 
         break;
     }
     default:
         throw std::runtime_error(
-            "Error, did not recognize translational state propagation type: " +
-            boost::lexical_cast< std::string >( translationPropagatorSettings->propagator_ ) );
+                    "Error, did not recognize translational state propagation type: " +
+                    std::to_string( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
+
+//! Function to create a rotational dynamics state derivative model.
+/*!
+ *  Function to create a rotational dynamics state derivative model from propagation settings and environment.
+ *  \param rotationPropagatorSettings Settings for the rotational dynamics model.
+ *  \param bodyMap List of body objects in the environment
+ *  \param startTime Propagation start time
+ *  \return Rotational dynamics state derivative model.
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createRotationalStateDerivativeModel(
+        const boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
+{
+    std::vector< boost::function< Eigen::Matrix3d( ) > > momentOfInertiaFunctions;
+    for( unsigned int i = 0; i < rotationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+    {
+        momentOfInertiaFunctions.push_back(
+                    boost::bind( &simulation_setup::Body::getBodyInertiaTensor,
+                                 bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
+    }
+    return boost::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                momentOfInertiaFunctions );
+}
+
+
 
 //! Function to create a mass state derivative model.
 /*!
@@ -182,7 +263,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
         const  simulation_setup::NamedBodyMap& bodyMap )
 {
     return boost::make_shared< propagators::BodyMassStateDerivative< StateScalarType, TimeType > >(
-                massPropagatorSettings->massRateModels_,
+                massPropagatorSettings->getMassRateModelsMap( ),
                 massPropagatorSettings->bodiesWithMassToPropagate_ );
 }
 
@@ -197,7 +278,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
 createStateDerivativeModel(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType propagationStartTime )
 {
@@ -205,7 +286,7 @@ createStateDerivativeModel(
 
     // Check dynamics type and call associated function to create
     // specific type of state derivative model.
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case transational_state:
     {
@@ -217,12 +298,28 @@ createStateDerivativeModel(
         if( translationPropagatorSettings == NULL )
         {
             throw std::runtime_error(
-                "Error, expected translational state propagation settings when making state derivative model" );
+                        "Error, expected translational state propagation settings when making state derivative model" );
         }
         else
         {
             stateDerivativeModel = createTranslationalStateDerivativeModel< StateScalarType, TimeType >(
                         translationPropagatorSettings, bodyMap, propagationStartTime );
+        }
+        break;
+    }
+    case rotational_state:
+    {
+        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings =
+                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( rotationPropagatorSettings == NULL )
+        {
+            throw std::runtime_error(
+                        "Error, expected rotation state propagation settings when making state derivative model" );
+        }
+        else
+        {
+            stateDerivativeModel = createRotationalStateDerivativeModel< StateScalarType, TimeType >(
+                        rotationPropagatorSettings, bodyMap, propagationStartTime );
         }
         break;
     }
@@ -234,7 +331,7 @@ createStateDerivativeModel(
         if( massPropagatorSettings == NULL )
         {
             throw std::runtime_error(
-                "Error, expected mass propagation settings when making state derivative model" );
+                        "Error, expected mass propagation settings when making state derivative model" );
         }
         else
         {
@@ -252,7 +349,7 @@ createStateDerivativeModel(
         if( customPropagatorSettings == NULL )
         {
             throw std::runtime_error(
-                "Error, expected custom propagation settings when making state derivative model" );
+                        "Error, expected custom propagation settings when making state derivative model" );
         }
         else
         {
@@ -264,11 +361,111 @@ createStateDerivativeModel(
     default:
         throw std::runtime_error(
                     "Error, could not process state type "
-                    + boost::lexical_cast< std::string >( propagatorSettings->stateType_ )
+                    + std::to_string( propagatorSettings->getStateType( ) )
                     + " when making state derivative model" );
     }
     return stateDerivativeModel;
 }
+
+//! Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
+/*!
+ *  Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
+ *  \param propagatorSettings Settings for teh numerical propagation
+ *  \param bodyMap List of body objects that comprises the environment
+ */
+template< typename StateScalarType = double >
+void setMultiTypePropagationClosure(
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    // Cast to multi-type settings, and perform closure if
+    boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+            boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+    if( multiTypePropagatorSettings != NULL )
+    {
+        // Perform closure for the case where both translational and rotational states are propagated
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( transational_state ) > 0 &&
+                multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
+        {
+            std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > translationalStateSettings =
+                    multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
+            std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
+                    multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
+
+            // Iterate over all accelerations, and identify those bodies for which an aerodynamic acceleration is applied
+            std::vector< std::string > bodiesWithAerodynamicAcceleration;
+            for( unsigned int i = 0; i < translationalStateSettings.size( ); i++ )
+            {
+                boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > currentTranslationalState =
+                        boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                            translationalStateSettings.at( i ) );
+                basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
+                for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = currentAccelerationsMap.begin( );
+                     accelerationIterator != currentAccelerationsMap.end( ); accelerationIterator++ )
+                {
+                    for( basic_astrodynamics::SingleBodyAccelerationMap::const_iterator singleBodyIterator =
+                         accelerationIterator->second.begin( ); singleBodyIterator != accelerationIterator->second.end( );
+                         singleBodyIterator++ )
+                    {
+                        for( unsigned int j = 0; j < singleBodyIterator->second.size( ); j++ )
+                        {
+                            if( std::find( bodiesWithAerodynamicAcceleration.begin( ), bodiesWithAerodynamicAcceleration.end( ),
+                                           accelerationIterator->first ) == bodiesWithAerodynamicAcceleration.end( ) )
+                            {
+                                if( basic_astrodynamics::getAccelerationModelType( singleBodyIterator->second.at( j ) ) ==
+                                        basic_astrodynamics::aerodynamic )
+                                {
+                                    bodiesWithAerodynamicAcceleration.push_back( accelerationIterator->first );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Iterate over all settings and identify those bodies for which rotational dynamics is propagated.
+            std::vector< std::string > bodiesWithPropagatedRotation;
+            for( unsigned int i = 0; i < rotationalStateSettings.size( ); i++ )
+            {
+                boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > currentTranslationalState =
+                        boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+                            rotationalStateSettings.at( i ) );
+                std::vector< std::string > currentBodiesWithPropagatedRotation = currentTranslationalState->bodiesToIntegrate_;
+                for( unsigned int j = 0; j < currentBodiesWithPropagatedRotation.size( ); j++ )
+                {
+                    if( std::find( bodiesWithPropagatedRotation.begin( ), bodiesWithPropagatedRotation.end( ),
+                                   currentBodiesWithPropagatedRotation.at( j ) ) == bodiesWithPropagatedRotation.end( ) )
+                    {
+                        bodiesWithPropagatedRotation.push_back( currentBodiesWithPropagatedRotation.at( j ) );
+                    }
+                }
+            }
+
+            // Find bodies for which both aerodynamic acceleration is used and rotational propagation is performed.
+            std::vector< std::string > bodiesWithAerodynamicRotationalClosure;
+            for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
+            {
+                if( std::find( bodiesWithAerodynamicAcceleration.begin( ), bodiesWithAerodynamicAcceleration.end( ),
+                               bodiesWithPropagatedRotation.at( i ) ) != bodiesWithAerodynamicAcceleration.end( ) )
+                {
+                    bodiesWithAerodynamicRotationalClosure.push_back( bodiesWithPropagatedRotation.at( i ) );
+                }
+            }
+
+            // Ensure that vehicle orientation is correctly set for aerodynamic acceleration/torque
+            for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
+            {
+                boost::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
+                        bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
+                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                            boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
+                                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) ) ),
+                            currentFlightConditions->getAerodynamicAngleCalculator( ) );
+            }
+        }
+    }
+}
+
 
 //! Function to create a list of state derivative models.
 /*!
@@ -283,15 +480,15 @@ createStateDerivativeModel(
 template< typename StateScalarType = double, typename TimeType = double >
 std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
 createStateDerivativeModels(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType propagationStartTime )
 {
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
-    stateDerivativeModels;
+            stateDerivativeModels;
 
     // Check type of state derivative model and call associated create function.
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     // If hybrid, call create function separately for each entry.
     case hybrid:
@@ -301,7 +498,7 @@ createStateDerivativeModels(
 
         // Iterate over all propagation settings
         for( typename std::map< IntegratedStateType,
-             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
+             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::iterator
              propagatorIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              propagatorIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); propagatorIterator++ )
         {
@@ -320,9 +517,12 @@ createStateDerivativeModels(
                 }
             }
         }
+
+        setMultiTypePropagationClosure( propagatorSettings, bodyMap );
+
         break;
     }
-    // If not hybrid, call create function for single object directly.
+        // If not hybrid, call create function for single object directly.
     default:
         stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
                                              propagatorSettings, bodyMap, propagationStartTime ) );

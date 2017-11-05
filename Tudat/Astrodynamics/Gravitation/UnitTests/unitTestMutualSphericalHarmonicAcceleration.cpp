@@ -121,12 +121,7 @@ BOOST_AUTO_TEST_SUITE( test_mutual_spherical_harmonic_gravity )
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 {
     // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    //spice_interface::loadSpiceKernelInTudat( kernelsPath + "jup230l.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create list of bodies to create.
     std::vector< std::string > bodyNames;
@@ -147,13 +142,13 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     bodySettings[ "Europa" ]->gravityFieldSettings = getDummyJovianSystemGravityField( "Europa" );
 
     bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 778.57E9, 0.0489, 1.3 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 421.8E6, 0.004, 0.04 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
     bodySettings[ "Europa" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
-                ( Eigen::Vector6d( )<< 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
+                ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.47 / 60.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                   getBodyGravitationalParameter( "Jupiter" ), "Sun", "ECLIPJ2000" );
 
 
@@ -233,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( expectedAcceleration( i ) - mutualDirectJupiterIoShGravityAcceleration( i ) ),
-                           10.0 * std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) );
+                           12.0 * std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) );
     }
 
     // Create mutual spherical harmonic gravity between Io and Jupiter on Jupiter, Io fixed (mu = Io + Jupiter)
@@ -255,14 +250,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( expectedAcceleration( i ) - mutualDirectJupiterIoShGravityAcceleration2( i ) ),
-                           10.0 * ( std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) ) );
+                           12.0 * std::numeric_limits< double >::epsilon( ) * expectedAcceleration.norm( ) );
     }
 
     // Test against directly calculated mutual spherical harmonic gravity.
     for( unsigned int i = 0; i < 3; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( mutualDirectJupiterIoShGravityAcceleration( i ) + mutualDirectJupiterIoShGravityAcceleration2( i ) ),
-                           10.0 * std::numeric_limits< double >::epsilon( ) * mutualDirectJupiterIoShGravityAcceleration.norm( ) );
+                           12.0 * std::numeric_limits< double >::epsilon( ) * mutualDirectJupiterIoShGravityAcceleration.norm( ) );
     }
 
 
@@ -299,14 +294,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                       ( ioGravityField->getGravitationalParameter( ) /
                         ( ioGravityField->getGravitationalParameter( ) + europaGravityField->getGravitationalParameter( ) ) *
                         mutualDirectIoOnEuropaShGravityAcceleration( i ) ) ),
-                    ( 10.0 * std::numeric_limits< double >::epsilon( ) * directAccelerationFromThirdBodyModel.norm( ) ) );
+                    ( 12.0 * std::numeric_limits< double >::epsilon( ) * directAccelerationFromThirdBodyModel.norm( ) ) );
 
         BOOST_CHECK_SMALL(
                     centralBodyAccelerationFromThirdBodyModel( i ) -
                     ( ioGravityField->getGravitationalParameter( ) /
                       ( ioGravityField->getGravitationalParameter( ) + jupiterGravityField->getGravitationalParameter( ) ) *
                       mutualDirectJupiterIoShGravityAcceleration2( i ) ),
-                    ( 10.0 * std::numeric_limits< double >::epsilon( ) * centralBodyAccelerationFromThirdBodyModel.norm( ) ) );
+                    ( 12.0 * std::numeric_limits< double >::epsilon( ) * centralBodyAccelerationFromThirdBodyModel.norm( ) ) );
 
         BOOST_CHECK_SMALL(
                     mutualThirdBodyIoOnEuropaShGravityAcceleration( i ) -

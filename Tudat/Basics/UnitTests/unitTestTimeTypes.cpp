@@ -10,10 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
-
-#include <iostream>
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Basics/timeType.h"

@@ -12,8 +12,6 @@
 #ifndef TUDAT_AERODYNAMIC_ACCELERATION_H
 #define TUDAT_AERODYNAMIC_ACCELERATION_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
@@ -141,6 +139,9 @@ public:
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }
 
+    //! Destructor
+    ~AerodynamicAcceleration( ){ }
+
     //! Get acceleration.
     /*!
      * Returns the aerodynamic acceleration. All data required for the computation is taken
@@ -175,8 +176,21 @@ public:
             currentMass_ = this->massFunction_( );
             currentAirspeed_ = this->airSpeedFunction_( );
             currentReferenceArea_ = this->referenceAreaFunction_( );
+
+            currentTime_ = currentTime;
         }
     }
+
+    //! Function to return current mass of body undergoing acceleration
+    /*!
+     * Function to return current mass of body undergoing acceleration as set from massFunction_ by updateMembers
+     * \return Current mass of body undergoing acceleration
+     */
+    double getCurrentMass( )
+    {
+        return currentMass_;
+    }
+
 
 private:
 

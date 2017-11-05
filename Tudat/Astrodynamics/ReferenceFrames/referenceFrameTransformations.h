@@ -198,6 +198,16 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
 Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
         const Eigen::Matrix< double, 6, 1 > spacecraftKeplerianState );
 
+//! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
+/*!
+ * Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
+ * \param bodyState State for which the RSW frame rotation is to be computed.
+ * \return Rotation matrix to RSW frame
+ */
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
+        const Eigen::Vector6d bodyState );
+
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
  * Returns transformation quaternion from inertial referenceframe (I) to the rotating
@@ -482,6 +492,74 @@ Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformatio
 Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude );
 
+//! Pre-multiplier used to take derivative of rotation matrix about x-axis w.r.t. the rotation angle
+static const Eigen::Matrix3d X_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( ) <<
+          0.0, 0.0, 0.0,
+          0.0, 0.0, 1.0,
+          0.0, -1.0, 0.0 ).finished( );
+
+//! Pre-multiplier used to take derivative of rotation matrix about y-axis w.r.t. the rotation angle
+static const Eigen::Matrix3d Y_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( ) <<
+          0.0, 0.0, -1.0,
+          0.0, 0.0, 0.0,
+          1.0, 0.0, 0.0 ).finished( );
+
+//! Pre-multiplier used to take derivative of rotation matrix about z-axis w.r.t. the rotation angle
+static const Eigen::Matrix3d Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER =
+        ( Eigen::Matrix3d( ) <<
+          0.0, 1.0, 0.0,
+          -1.0, 0.0, 0.0,
+          0.0, 0.0, 0.0 ).finished( );
+
+//! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
+ * \param angle Angle about which rotation is taken.
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const double angle );
+
+//! Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the x-axis w.r.t. the rotation angle
+ * \param rotationMatrix Rotation matrix for which partial is to be computed
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfXAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
+
+//! Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
+ * \param angle Angle about which rotation is taken.
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const double angle );
+
+//! Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the y-axis w.r.t. the rotation angle
+ * \param rotationMatrix Rotation matrix for which partial is to be computed
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfYAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
+
+//! Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
+ * \param angle Angle about which rotation is taken.
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle );
+
+//! Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
+/*!
+ * Function to compute the derivative of a rotation about the z-axis w.r.t. the rotation angle
+ * \param rotationMatrix Rotation matrix for which partial is to be computed
+ * \return Derivative of a rotation about the x-axis w.r.t. the rotation angle
+ */
+Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
 
 } // namespace reference_frames
 

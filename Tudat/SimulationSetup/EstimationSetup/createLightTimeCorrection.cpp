@@ -11,6 +11,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 
 namespace tudat
 {
@@ -74,7 +75,8 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             // Create light-time correction function
             lightTimeCorrection = boost::make_shared< FirstOrderLightTimeCorrectionCalculator >(
                         perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions, perturbingBodies,
-                        transmitter.first, receiver.first );
+                        transmitter.first, receiver.first,
+                        boost::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ) );
 
         }
         else
@@ -88,7 +90,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
     default:
     {
         std::string errorMessage = "Error, light time correction type " +
-                boost::lexical_cast< std::string >( correctionSettings->getCorrectionType( ) ) + " not recognized.";
+                std::to_string( correctionSettings->getCorrectionType( ) ) + " not recognized.";
         throw std::runtime_error( errorMessage );
 
         break;

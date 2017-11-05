@@ -95,6 +95,19 @@ public:
         return blockIndices_;
     }
 
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription =
+                getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + ")";
+        parameterDescription += ", Minimum D/O: (" +
+                std::to_string( blockIndices_.at( 0 ).first ) + ", " +
+                std::to_string( blockIndices_.at( 0 ).second ) + "), ";
+
+        parameterDescription += "Maximum D/O: (" +
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
+        return parameterDescription;
+    }
 
 protected:
 

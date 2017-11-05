@@ -11,9 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <sstream>
-
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 

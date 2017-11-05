@@ -13,6 +13,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -90,6 +91,14 @@ long double getTTMinusTai< long double >( )
 {
     return TT_MINUS_TAI_LONG;
 }
+
+//! Function to get the offset of TT from TAI (constant by definition), in Time format.
+template< >
+Time getTTMinusTai< Time>( )
+{
+    return Time( TT_MINUS_TAI_LONG );
+}
+
 
 //! Function to convert julian day to gregorian calendar date.
 boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay )
@@ -169,7 +178,8 @@ int getDaysInMonth( const int month,
     // Check input consistency
     if( month < 1 || month > 12 )
     {
-        std::cerr<<"Month number "<<month<<" does not exist, value must be gretaer than 0 and smaller than 13"<<std::endl;
+        throw std::runtime_error( "Error, month number " + std::to_string( month ) +
+                                  " does not exist, value must be gretaer than 0 and smaller than 13" );
     }
     else
     {
@@ -229,7 +239,8 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
             currentMonth++;
             if( currentMonth > 12 )
             {
-                std::cerr<<"Error when converting year and days in year to date, month number has exceeded 12"<<std::endl;
+                throw std::runtime_error(
+                            "Error when converting year and days in year to date, month number has exceeded 12" );
             }
         }
         else
@@ -243,7 +254,8 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
 
     if( date.day_of_year( ) != daysInYear + 1 )
     {
-        std::cerr<<"Error when converting year and days in year to date, inconsistent output"<<std::endl;
+        throw std::runtime_error(
+                    "Error when converting year and days in year to date, inconsistent output" );
     }
 
     return date;

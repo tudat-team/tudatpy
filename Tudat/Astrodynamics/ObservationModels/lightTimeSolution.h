@@ -14,8 +14,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/function.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <iostream>
 #include <map>
 #include <vector>
@@ -35,7 +33,7 @@ namespace observation_models
  *  difference between two subsequent light time solutions (in s) that is deemed acceptable for convergence/
  *  \return Default light-time tolerance for given template arguments.
  */
-template< typename ObservationScalarType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double >
 ObservationScalarType getDefaultLightTimeTolerance( );
 
 
@@ -44,14 +42,32 @@ typedef boost::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
+//! Class for wrapping a custom light-time correction function
 class LightTimeCorrectionFunctionWrapper: public LightTimeCorrection
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param lightTimeCorrectionFunction Custom light-time correction functions, as a function of transmitter and receiver
+     * state and time.
+     */
     LightTimeCorrectionFunctionWrapper(
             const LightTimeCorrectionFunction lightTimeCorrectionFunction ):
         LightTimeCorrection( function_wrapper_light_time_correction ),
-        lightTimeCorrectionFunction_( lightTimeCorrectionFunction ){ }
+        lightTimeCorrectionFunction_( lightTimeCorrectionFunction ),
+    isWarningProvided_( false ){ }
 
+    //! Function to compute the light-time correction
+    /*!
+     * Function to compute the custom light-time correction
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \return Light-time correction
+     */
     double calculateLightTimeCorrection(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -62,8 +78,69 @@ public:
                     transmitterState, receiverState, transmissionTime, receptionTime );
     }
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Light-time correction w.r.t. observation time
+     */
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        if( !isWarningProvided_ )
+        {
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
+            isWarningProvided_ = true;
+        }
+
+        return 0.0;
+    }
+
+    //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Light-time correction w.r.t. link end position
+     */
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        if( !isWarningProvided_ )
+        {
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
+            isWarningProvided_ = true;
+        }
+
+        return Eigen::Matrix< double, 3, 1 >::Zero( );
+    }
+
 private:
+
+    //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
     LightTimeCorrectionFunction lightTimeCorrectionFunction_;
+
+    //! Boolean denoting whether a warning has been provided when calling the partial derivative function(s)
+    bool isWarningProvided_;
 };
 
 //! Class to calculate the light time between two points.
@@ -74,22 +151,22 @@ private:
  *  light time is taken into account in the calculations.
  */
 template< typename ObservationScalarType = double,
-          typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
+          typename TimeType = double >
 class LightTimeCalculator
 {
 public:
 
 
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-    typedef Eigen::Matrix< StateScalarType, 3, 1 > PositionType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 3, 1 > PositionType;
+
     //! Class constructor.
     /*!
      *  This constructor is used to initialize the state functions and light-time correction
-     *  functions.
+     *  objects.
      *  \param positionFunctionOfTransmittingBody State function of transmitter.
      *  \param positionFunctionOfReceivingBody State function of receiver.
-     *  \param correctionFunctions List of light-time correction functions.
+     *  \param correctionFunctions List of light-time correction objects.
      *  \param iterateCorrections Boolean determining whether to recalculate the light-time
      *  correction during each iteration.
      */
@@ -105,6 +182,15 @@ public:
         iterateCorrections_( iterateCorrections ),
         currentCorrection_( 0.0 ){ }
 
+    //! Class constructor.
+    /*!
+     *  This constructor is used to initialize the state functions and light-time functions
+     *  \param positionFunctionOfTransmittingBody State function of transmitter.
+     *  \param positionFunctionOfReceivingBody State function of receiver.
+     *  \param correctionFunctions List of light-time correction functions.
+     *  \param iterateCorrections Boolean determining whether to recalculate the light-time
+     *  correction during each iteration.
+     */
     LightTimeCalculator(
             const boost::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
             const boost::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
@@ -136,7 +222,7 @@ public:
     ObservationScalarType calculateLightTime( const TimeType time,
                                const bool isTimeAtReception = true,
                                const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) )
+            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -162,7 +248,7 @@ public:
     PositionType calculateRelativeRangeVector( const TimeType time,
                                                const bool isTimeAtReception = 1 ,
                                                const ObservationScalarType tolerance =
-            getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) )
+            getDefaultLightTimeTolerance< ObservationScalarType >( ) )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -193,7 +279,7 @@ public:
             const TimeType time,
             const bool isTimeAtReception = 1,
             const ObservationScalarType tolerance =
-            ( getDefaultLightTimeTolerance< ObservationScalarType, StateScalarType >( ) ) )
+            ( getDefaultLightTimeTolerance< ObservationScalarType >( ) ) )
     {
         using physical_constants::SPEED_OF_LIGHT;
         using std::fabs;
@@ -270,17 +356,17 @@ public:
             {
                 // Get out of infinite loop (for instance due to low accuracy state functions,
                 // to stringent tolerance or limit case for trop. corrections).
-                if( counter == 20 )
+                if( counter == 50 )
                 {
                     isToleranceReached = true;
                     std::string errorMessage  =
                             "Warning, light time unconverged at level " +
-                            boost::lexical_cast< std::string >(
+                            std::to_string(
                                 fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                             "; current light-time corrections are: "  +
-                            boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
-                            boost::lexical_cast< std::string >( time );
-                   throw std::runtime_error( errorMessage );
+                            std::to_string( currentCorrection_ ) + " and input time was " +
+                            std::to_string( static_cast< double >( time ) );
+                   std::cerr << errorMessage << std::endl;
                 }
 
                 // Update light time for new iteration.
@@ -297,6 +383,38 @@ public:
         return newLightTimeCalculation;
     }
 
+    //! Function to get the part wrt linkend position
+    /*!
+     *  Function to get the part wrt linkend position
+     *  \param transmitterState State of transmitter.
+     *  \param receiverState State of receiver.
+     *  \param transmitterTime Time at transmission.
+     *  \param receiverTime Time at reiver.
+     *  \param isPartialWrtReceiver If partial is to be calculated w.r.t. receiver or transmitter.
+     */
+    Eigen::Matrix< ObservationScalarType, 1, 3 > getPartialOfLightTimeWrtLinkEndPosition(
+            const StateType& transmitterState,
+            const StateType& receiverState,
+            const TimeType transmitterTime,
+            const TimeType receiverTime,
+            const bool isPartialWrtReceiver )
+    {
+        setTotalLightTimeCorrection( transmitterState, receiverState, transmitterTime, receiverTime );
+
+        Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition =
+                receiverState.segment( 0, 3 ) - transmitterState.segment( 0, 3 );
+        return ( relativePosition.normalized( ) ).transpose( ) *
+                ( mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) +
+                  currentCorrection_ / relativePosition.norm( ) ) *
+                ( isPartialWrtReceiver ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1 ) :
+                                         mathematical_constants::getFloatingInteger< ObservationScalarType >( -1 ) );
+    }
+
+    //! Function to get list of light-time correction functions
+    /*!
+     * Function to get list of light-time correction functions
+     * \return List of light-time correction functions
+     */
     std::vector< boost::shared_ptr< LightTimeCorrection > > getLightTimeCorrection( )
     {
         return correctionFunctions_;

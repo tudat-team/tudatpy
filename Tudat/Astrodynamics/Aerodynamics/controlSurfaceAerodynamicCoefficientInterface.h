@@ -11,7 +11,6 @@
 #ifndef TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H
 #define TUDAT_CONTROLSURFACEAERODYNAMICCOEFFICIENTINTERFACE_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/function.hpp>
@@ -20,8 +19,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"
-#include <Tudat/Astrodynamics/Aerodynamics/aerodynamics.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 namespace tudat
 {
 
@@ -65,9 +63,9 @@ public:
         // Provide warning if number of control surface deflections is not equal to 1.
         if( numberOfControlSurfaceDeflections != 1 )
         {
-            std::string errorMessage = "Warnining when making control surface deflection interface, " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Warnining when making control surface deflection interface, " + std::to_string(
                         numberOfControlSurfaceDeflections ) + " deflection independent variables found, must be 1 per object ";
-            std::cerr<<errorMessage<<std::endl;
+            throw std::runtime_error( errorMessage );
         }
 
         numberOfIndependentVariables_ = independentVariableNames_.size( );
@@ -148,8 +146,8 @@ public:
             throw std::runtime_error(
                         std::string( "Error when retrieving aerodynamic coefficient interface " ) +
                         ( " variable name, requested variable index " ) +
-                        boost::lexical_cast< std::string >( index ) +
-                        ", but only " + boost::lexical_cast< std::string >(
+                        std::to_string( index ) +
+                        ", but only " + std::to_string(
                             numberOfIndependentVariables_ ) + " variables available." );
         }
 

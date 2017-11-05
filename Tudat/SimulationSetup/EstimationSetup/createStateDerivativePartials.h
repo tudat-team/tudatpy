@@ -33,13 +33,13 @@ namespace simulation_setup
  *  return List partials of state derivative models from. The key is the type of dynamics for which partials are taken,
  *  the values are StateDerivativePartialsMap (see StateDerivativePartialsMap definition for details).
  */
-template< typename StateScalarType, typename TimeType, typename InitialStateParameterType >
+template< typename StateScalarType, typename TimeType >
 std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials(
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >
         stateDerivativeModels,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
         parametersToEstimate )
 {
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials;
@@ -68,14 +68,14 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
                         boost::dynamic_pointer_cast< propagators::NBodyStateDerivative< StateScalarType, TimeType > >(
                             stateDerivativeIterator->second.at( 0 ) )->getFullAccelerationsMap( );
                 stateDerivativePartials[ propagators::transational_state ] =
-                        createAccelerationPartialsMap< InitialStateParameterType >(
+                        createAccelerationPartialsMap< StateScalarType >(
                             accelerationModelList, bodyMap, parametersToEstimate );
             }
             break;
         }
         default:
             std::string errorMessage = "Cannot yet create state derivative partial models for type " +
-                    boost::lexical_cast< std::string >( stateDerivativeIterator->first );
+                    std::to_string( stateDerivativeIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }

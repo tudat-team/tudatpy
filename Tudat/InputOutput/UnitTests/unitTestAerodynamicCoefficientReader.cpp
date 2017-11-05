@@ -12,22 +12,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fstream>
-#include <iostream>
 #include <map>
-#include <sstream>
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/erase.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/throw_exception.hpp>
 
 #include <Eigen/Core>
 

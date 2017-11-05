@@ -9,8 +9,6 @@
  */
 
 #include <map>
-#include <iostream>
-
 #include "Tudat/Basics/utilities.h"
 
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
@@ -72,7 +70,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     {
         index = utilities::getMultiArrayIndexArray( xComponents, p );
 
-        vectorVector[ i ] = ( Eigen::Vector3d( )<<xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
+        vectorVector[ i ] = ( Eigen::Vector3d( ) << xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
         ++p;
     }
 

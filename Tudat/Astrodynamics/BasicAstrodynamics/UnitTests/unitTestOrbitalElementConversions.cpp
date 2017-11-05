@@ -1567,11 +1567,11 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
 
     // Define previously offending states and gravitational parameters.
     Eigen::Vector6d centralBodyCartesianState;
-    centralBodyCartesianState<<-521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
+    centralBodyCartesianState << -521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
             3904.21508802941389149054884911, -18262.3110776023386279121041298, 103.914916159730324807242141105;
 
     Eigen::Vector6d orbitingBodyCartesianState;
-    orbitingBodyCartesianState<<-520894562964.4881591796875, 595481881288.00537109375, 8071968111.222164154052734375,
+    orbitingBodyCartesianState << -520894562964.4881591796875, 595481881288.00537109375, 8071968111.222164154052734375,
             -10065.8995464500585512723773718, -7984.05278915743656398262828588, 261.213167975313467650266829878;
 
     Eigen::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
@@ -1588,6 +1588,37 @@ BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
     BOOST_CHECK_EQUAL( ( keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ==
                          keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ), true );
 
+}
+
+BOOST_AUTO_TEST_CASE( test_LongitudeOfNodeBugfix )
+{
+    std::cout << std::endl << std::endl;
+    using namespace tudat;
+
+    // Define previously offending states and gravitational parameters.
+    Eigen::Vector6d cartesianState;
+    cartesianState << 146378739288.0336,  -32851886854.1209, -14241055658.24648,  6603.183449760695,
+            26444.27948911581,  11463.63694918501;
+    double gravitationalParameterOfCentralBody = 1.327128386237518e+20;
+
+    // Convert to Keplerian state
+    Eigen::Vector6d keplerianState =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                cartesianState, gravitationalParameterOfCentralBody );
+
+    Eigen::Vector6d recomputedCartesianState =
+            orbital_element_conversions::convertKeplerianToCartesianElements(
+                keplerianState, gravitationalParameterOfCentralBody );
+
+    Eigen::Vector6d  recomputedKeplerianState =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                recomputedCartesianState, gravitationalParameterOfCentralBody );
+
+    std::cout << std::setprecision( 16 ) << cartesianState.transpose( ) << std::endl;
+    std::cout << std::setprecision( 16 ) << recomputedCartesianState.transpose( ) << std::endl << std::endl;
+
+    std::cout << std::setprecision( 16 ) << keplerianState.transpose( ) << std::endl;
+    std::cout << std::setprecision( 16 ) << recomputedKeplerianState.transpose( ) << std::endl;
 }
 
 

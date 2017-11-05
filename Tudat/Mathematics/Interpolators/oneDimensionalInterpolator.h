@@ -12,7 +12,6 @@
 #ifndef TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H
 #define TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -60,10 +59,8 @@ public:
         // Check whether input is really 1-dimensional
         if ( independentVariableValues.size( ) != 1  )
         {
-            boost::throw_exception(
-                        boost::enable_error_info(
-                            std::runtime_error(
-                                "Error, provided input is not 1-dimensional." ) ) );
+            throw std::runtime_error(
+                                "Error in 1-dimensional interpolator, provided input is not 1-dimensional." );
         }
 
         // Call 1-dimensional interpolate function.

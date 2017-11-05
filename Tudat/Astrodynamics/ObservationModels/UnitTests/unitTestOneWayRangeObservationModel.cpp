@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -43,11 +42,7 @@ BOOST_AUTO_TEST_SUITE( test_one_way_range_model )
 
 BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -76,17 +71,26 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     linkEnds[ transmitter ] = std::make_pair( "Earth" , ""  );
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
-    // Create observation model.
-    boost::shared_ptr< ObservationBias< 1 > > observationBias =
-            boost::make_shared< ConstantObservationBias< 1 > >(
-                ( Eigen::Matrix< double, 1, 1 >( ) <<2.56294 ).finished( ) );
+    // Create light-time correction settings.
     std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );
-    boost::shared_ptr< ObservationModel< 1, double, double, double > > observationModel =
-           ObservationModelCreator< 1, double, double, double >::createObservationModel(
-                oneWayRange, linkEnds, bodyMap, lightTimeCorrectionSettings, observationBias );
+
+
+    // Create observation settings
+    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+            ( one_way_range, lightTimeCorrectionSettings,
+              boost::make_shared< ConstantObservationBiasSettings >(
+                  ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ) ) );
+
+    // Create observation model.
+    boost::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+           ObservationModelCreator< 1, double, double >::createObservationModel(
+                linkEnds, observableSettings, bodyMap );
+    boost::shared_ptr< ObservationBias< 1 > > observationBias = observationModel->getObservationBiasCalculator( );
+
+
 
     // Compute observation separately with two functions.
     double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;

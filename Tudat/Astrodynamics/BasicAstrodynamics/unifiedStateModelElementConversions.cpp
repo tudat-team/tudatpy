@@ -16,7 +16,6 @@
 
 #include <cmath>
 
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -55,7 +54,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified eccentricity: " << keplerianElements( eccentricityIndex ) << std::endl;
 
         // Throw exception
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If inclination is outside range [0,PI]
@@ -67,7 +66,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified inclination: " << keplerianElements( inclinationIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If argument of pericenter is outside range [0,2.0 * PI]
@@ -80,7 +79,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified inclination: " << keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If right ascension of ascending node is outside range [0,2.0 * PI]
@@ -94,7 +93,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If true anomaly is outside range [0,2.0 * PI]
@@ -106,7 +105,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified inclination: " << keplerianElements( trueAnomalyIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If inclination is zero and the right ascension of ascending node is non-zero
@@ -120,7 +119,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                         keplerianElements( longitudeOfAscendingNodeIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If eccentricity is zero and the argument of pericenter is non-zero
@@ -134,7 +133,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                         keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If semi-major axis is negative and the eccentricity is smaller or equal to one
@@ -147,7 +146,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified eccentricity: " << keplerianElements( eccentricityIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If semi-major axis is positive and the eccentricity is larger than one
@@ -160,7 +159,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
                      << "Specified eccentricity: " << keplerianElements( eccentricityIndex ) << " rad." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     //Else, nothing wrong and continue
 
@@ -256,7 +255,7 @@ Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
                      << "Norm of the specified quaternion is: " << normOfQuaternionElements << " ." << std::endl;
 
         // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     //Else, nothing wrong and continue
 
@@ -271,7 +270,7 @@ Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
                      << "Unified State Model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     else
     {

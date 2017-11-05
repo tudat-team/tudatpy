@@ -49,44 +49,7 @@ enum CentralDifferenceOrders
  * \param order The order of the coeffients.
  * \return Map of position versus weight.
  */
-const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferenceOrders order )
-{
-    static std::map< CentralDifferenceOrders, std::map< int, double > > coefficients;
-
-    if ( coefficients.empty( ) )
-    {
-        // Initialize the coefficients map
-        coefficients[ order2 ] = std::map< int, double >( );
-        coefficients[ order2 ][ -1] = -1.0 / 2.0;
-        coefficients[ order2 ][ 1] = 1.0 / 2.0;
-
-        coefficients[ order4 ] = std::map< int, double >( );
-        coefficients[ order4 ][ -2] = 1.0 / 12.0;
-        coefficients[ order4 ][ -1] = -2.0 / 3.0;
-        coefficients[ order4 ][ 1] = 2.0 / 3.0;
-        coefficients[ order4 ][ 2] = -1.0 / 12.0;
-
-        coefficients[ order6 ] = std::map< int, double >( );
-        coefficients[ order6 ][ -3 ] = -1.0 / 60.0;
-        coefficients[ order6 ][ -2 ] = 3.0 / 20.0;
-        coefficients[ order6 ][ -1 ] = -3.0 / 4.0;
-        coefficients[ order6 ][ 1 ] = 1.0 / 60.0;
-        coefficients[ order6 ][ 2 ] = -3.0 / 20.0;
-        coefficients[ order6 ][ 3 ] = 3.0 / 4.0;
-
-        coefficients[ order8 ] = std::map< int, double >( );
-        coefficients[ order8 ][ -4 ] = 1.0 / 280.0;
-        coefficients[ order8 ][ -3 ] = -4.0 / 105.0;
-        coefficients[ order8 ][ -2 ] = 1.0 / 5.0;
-        coefficients[ order8 ][ -1 ] = -4.0 / 5.0;
-        coefficients[ order8 ][ 1 ] = 4.0 / 5.0;
-        coefficients[ order8 ][ 2 ] = -1.0 / 5.0;
-        coefficients[ order8 ][ 3 ] = 4.0 / 105.0;
-        coefficients[ order8 ][ 4 ] = -1.0 / 280.0;
-    }
-
-    return coefficients[ order ];
-}
+const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferenceOrders order );
 
 //! Compute a numerical derivative using a central difference method.
 /*!
@@ -101,14 +64,14 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
  * \param function The function to call with signature
  *          void( const VectorXd& input, VectorXd& result ).
  * \param minimumStep The absolute minimum step size to take. By default 2^-13.
- * \param stepSize The relative step size to take. By default 2^-26.
+ * \param relativeStepSize The relative step size to take. By default 2^-26.
  * \param order The order of the algorithm to use.
  * \return Numerical derivative calculated from input
  */
 template < typename InputType, typename ResultType >
 ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
                                      const boost::function< ResultType( const InputType& ) >& function,
-                                     double minimumStep = 0.0, double stepSize = 0.0,
+                                     double minimumStep = 0.0, double relativeStepSize = 0.0,
                                      CentralDifferenceOrders order = order2 )
 {
     const std::map< int, double >& coefficients = getCentralDifferenceCoefficients( order );
@@ -120,17 +83,17 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
         minimumStep = std::pow( 2.0, -13 );
     }
 
-    if ( stepSize == 0.0 )
+    if ( relativeStepSize == 0.0 )
     {
         // Set the relative step to half of the amount of significant digits
         // in a double precision floating point.
-        stepSize = std::pow( 2.0, -26 );
+        relativeStepSize = std::pow( 2.0, -26 );
     }
 
     // Ensure proper rounding by storing the step in a temporary volatile, see
     // (Press W.H., et al., 2002).
     const volatile double temporaryVariable = input( derivativeIndex ) +
-            std::max( minimumStep, std::abs( stepSize * input( derivativeIndex ) ) );
+            std::max( minimumStep, std::abs( relativeStepSize * input( derivativeIndex ) ) );
     const double realStepSize = temporaryVariable - input( derivativeIndex );
 
     ResultType result;
@@ -168,28 +131,48 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
  * \param function The function to call with signature
  *          void( const VectorXd& input, VectorXd& result ).
  * \param minimumStep The absolute minimum step size to take. By default 2^-13.
- * \param stepSize The relative step size to take. By default 2^-26.
+ * \param relativeStepSize The relative step size to take. By default 2^-26.
  * \param order The order of the algorithm to use. Will yield an assertion failure if not 2 or 4.
  * \return Numerical derivative calculated from input
  */
 Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const boost::function<
                                           Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
-                                          double minimumStep = 0.0, double stepSize = 0.0,
-                                          CentralDifferenceOrders order = order2 )
-{
-    Eigen::MatrixXd result;
+                                          double minimumStep = 0.0, double relativeStepSize = 0.0,
+                                          CentralDifferenceOrders order = order2 );
 
-    for ( int derivative = 0; derivative < input.rows( ); derivative++ )
+template< typename DependentVariableType, typename IndependentVariableType >
+DependentVariableType computeCentralDifference(
+        const boost::function< DependentVariableType( const IndependentVariableType ) >& dependentVariableFunction,
+        const IndependentVariableType nominalIndependentVariable,
+        const IndependentVariableType independentVariableStepSize,
+        CentralDifferenceOrders order = order2 )
+{
+    const std::map< int, double >& coefficients = getCentralDifferenceCoefficients( order );
+
+    IndependentVariableType perturbedInput;
+    DependentVariableType perturbedOutput;
+    DependentVariableType numericalDerivative;
+
+    // Compute the numerical derivative.
+    for ( std::map< int, double >::const_iterator coefficientIterator = coefficients.begin( );
+          coefficientIterator != coefficients.end( ); coefficientIterator++ )
     {
-        Eigen::VectorXd partial = computeCentralDifference( input, derivative, function,
-                                                            minimumStep, stepSize, order );
-        if ( result.size( ) == 0 )
+        // Generate deviated input.
+        perturbedInput = nominalIndependentVariable + coefficientIterator->first * independentVariableStepSize;
+        perturbedOutput = dependentVariableFunction( perturbedInput );
+
+        if( coefficientIterator == coefficients.begin( ) )
         {
-            result = Eigen::MatrixXd( partial.rows( ), input.rows( ) );
+             numericalDerivative = perturbedOutput * ( coefficientIterator->second / independentVariableStepSize );
         }
-        result.col( derivative ) = partial;
+        else
+        {
+            numericalDerivative += perturbedOutput * ( coefficientIterator->second / independentVariableStepSize );
+        }
     }
-    return result;
+
+    return numericalDerivative;
+
 }
 
 } // namespace numerical_derivatives

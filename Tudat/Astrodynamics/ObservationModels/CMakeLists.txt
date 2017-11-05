@@ -15,7 +15,9 @@ set(OBSERVABLECORRECTIONSDIR "${OBSERVATIONMODELSDIR}/ObservableCorrections")
 set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
-  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.cpp"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"  
 )
 
 # Set the header files.
@@ -25,10 +27,18 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationManager.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationSimulator.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationBias.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/nWayRangeObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayRangeObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayDopplerObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayDifferencedRangeRateObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/simulateObservations.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/twoWayDopplerObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.h"
 )
@@ -52,8 +62,27 @@ if(USE_CSPICE)
     setup_custom_test_program(test_OneWayRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_OneWayRangeModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+    add_executable(test_OneWayDifferencedRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestOneWayDifferencedRangeModel.cpp")
+    setup_custom_test_program(test_OneWayDifferencedRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_OneWayDifferencedRangeModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_DopplerModels "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestDopplerModels.cpp")
+    setup_custom_test_program(test_DopplerModels "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_DopplerModels ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
     add_executable(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestPositionObservationModel.cpp")
     setup_custom_test_program(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_PositionObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+    add_executable(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestSimulatedObservationNoise.cpp")
+    setup_custom_test_program(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_ObservationNoiseSimulation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_NWayRangeObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestNWayRangeObservationModel.cpp")
+    setup_custom_test_program(test_NWayRangeObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_NWayRangeObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_ObservationViabilityCalculators "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestObservationViabilityCalculators.cpp")
+    setup_custom_test_program(test_ObservationViabilityCalculators "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_ObservationViabilityCalculators ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 endif( )

@@ -17,8 +17,17 @@
 namespace Eigen
 {
 
+//! Typedef for Vector1d.
+typedef Eigen::Matrix< double, 1, 1 > Vector1d;
+
+//! Typedef for Vector5d.
+typedef Eigen::Matrix< double, 5, 1 > Vector5d;
+
 //! Typedef for Vector6d.
 typedef Eigen::Matrix< double, 6, 1 > Vector6d;
+
+//! Typedef for Vector6d.
+typedef Eigen::Matrix< double, 7, 1 > Vector7d;
 
 //! Typedef for Vector6i.
 typedef Eigen::Matrix< int, 6, 1 > Vector6i;

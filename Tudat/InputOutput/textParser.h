@@ -12,8 +12,6 @@
 #ifndef TUDAT_TEXT_PARSER_H
 #define TUDAT_TEXT_PARSER_H
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/parser.h"
@@ -74,7 +72,7 @@ public:
      * \see Parser::parse(std::istream& stream).
      */
     parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::istream& stream );
-	
+        
 protected:
 
     //! Data container of the parsed data.
@@ -90,7 +88,7 @@ protected:
      * Clients doing both parsing techniques must override parseLine and parseStream.
      */
     bool parseAsStream;
-	
+        
     //! Parse the given line content and append the resulting data lines to parsedData.
     /*!
      * Parse all lines/fields from the passed string and store (append) them to parsedData.
@@ -101,8 +99,7 @@ protected:
      */
     virtual void parseLine( std::string& line )
     {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error
-                                                         ( "Must be overriden to be used" ) ) );
+        throw std::runtime_error( "Function parseLine must be overriden to be used" );
     }
 
     //! Parse the given stream content and append the resulting data lines to parsedData.
@@ -115,8 +112,8 @@ protected:
      */
     virtual void parseStream( std::istream& stream )
     {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error
-                                                         ( "Must be overriden to be used" ) ) );
+        throw std::runtime_error( "Function parseStream must be overriden to be used" );
+
     }
 
 private:

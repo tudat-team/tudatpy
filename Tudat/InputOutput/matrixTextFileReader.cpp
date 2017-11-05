@@ -19,13 +19,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-#include <boost/format.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
-
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/streamFilters.h"
 
@@ -42,11 +38,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
     std::fstream file( relativePath.c_str( ), std::ios::in );
     if ( file.fail( ) )
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                                    boost::str(
-                            boost::format( "Data file '%s' could not be opened." )
-                            % relativePath.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + relativePath );
     }
 
     std::stringstream filteredStream( std::ios::in | std::ios::out );
@@ -96,7 +88,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
     // Determine the number of columns from.
     std::vector< std::string > lineSplit_;
     boost::algorithm::split( lineSplit_, lines_[ 0 ], boost::is_any_of( realSeparators ),
-                             boost::algorithm::token_compress_on );
+            boost::algorithm::token_compress_on );
     const unsigned int numberOfColumns = lineSplit_.size( );
 
     // Initialize the matrix with sizes obtained from the number of lines and the entries in the
@@ -115,12 +107,10 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
         // If not, throw a runtime error.
         if ( lineSplit_.size( ) != numberOfColumns )
         {
-            boost::throw_exception(
-                        std::runtime_error(
-                            boost::str(
-                                boost::format(
-                                    "Number of columns in row %1% is %2%; should be %3%." )
-                                % rowIndex % lineSplit_.size( ) % numberOfColumns ) ) );
+            throw std::runtime_error(
+                        "Number of columns in row " + std::to_string( rowIndex ) + " is " +
+                        std::to_string( lineSplit_.size( ) ) + " should be " +
+                        std::to_string( numberOfColumns ) );
         }
 
         // Put single line entries into matrix as doubles.
@@ -128,7 +118,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
         {
             boost::trim( lineSplit_.at( columnIndex ) );
             dataMatrix_( rowIndex, columnIndex ) =
-                    boost::lexical_cast< double >( lineSplit_.at( columnIndex ) );
+                    std::stod( lineSplit_.at( columnIndex ) );
         }
     }
 

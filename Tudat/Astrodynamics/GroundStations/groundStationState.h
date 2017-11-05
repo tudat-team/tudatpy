@@ -22,6 +22,28 @@ namespace tudat
 namespace ground_stations
 {
 
+
+//! Function to generate unit vectors of topocentric frame.
+/*!
+ *  Function to generate unit vectors of topocentric frame. The set of unit vectors of topocentric frame is expressed in
+ *  body-fixed frame, in ENU (Earth-North-Up) order.
+ *  \param topocentricToPlanetFixedFrameMatrix Rotation matrix from topocentric to body-fixed frame.
+ *  \return Unit vectors of topocentric frame, expressed in body-fixed frame.
+ */
+std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
+            const Eigen::Matrix3d& topocentricToPlanetFixedFrameMatrix );
+
+//! Function to generate unit vectors of topocentric frame.
+/*!
+ *  Function to generate unit vectors of topocentric frame. The set of unit vectors of topocentric frame is expressed in
+ *  body-fixed frame, in ENU (Earth-North-Up) order.
+ *  \param latitude Latitude of point for which topocentric frame is to be created.
+ *  \param longitude Longitude of point for which  topocentric frame is to be created.
+ *  \return Unit vectors of topocentric frame, expressed in body-fixed frame
+ */
+std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
+        const double latitude,  const double longitude );
+
 //! Class storing and computing the (time-variable) state of a ground station in a body-fixed frame.
 class GroundStationState
 {
@@ -48,13 +70,29 @@ public:
      *  Function to obtain the Cartesian state of the ground station in the local frame (body-fixed, not topocentric) at a
      *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
      *  poisition variations are as yet not included.
-     *  \param secondsSinceEpoch Secons since reference epoch at which the position is to be retrieved.
+     *  \param secondsSinceEpoch Seconds since reference epoch at which the position is to be retrieved.
      *  \param inputReferenceEpoch Reference epoch julian day
      *  \return Cartesian state of station in local frame at requested time.
      */
      Eigen::Vector6d getCartesianStateInTime(
             const double secondsSinceEpoch,
             const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+     //! Function to obtain the Cartesian position of the ground station in the local frame at a given time.
+     /*!
+      *  Function to obtain the Cartesian position of the ground station in the local frame (body-fixed, not topocentric) at a
+      *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
+      *  poisition variations are as yet not included.
+      *  \param secondsSinceEpoch Seconds since reference epoch at which the position is to be retrieved.
+      *  \param inputReferenceEpoch Reference epoch julian day
+      *  \return Cartesian position of station in local frame at requested time.
+      */
+     Eigen::Vector3d getCartesianPositionInTime(
+            const double secondsSinceEpoch,
+            const double inputReferenceEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+     {
+         return getCartesianStateInTime( secondsSinceEpoch, inputReferenceEpoch ).segment( 0, 3 );
+     }
 
     //! Function to return the nominal (unperturbed) Cartesian position of the station
     /*!
@@ -95,6 +133,38 @@ public:
         return geodeticPosition;
     }
 
+    //! Function to return the geocentric latitude of the station.
+    /*!
+     *  Function to return the geocentric latitude of the station.
+     *  \return Geocentric latitude of the station.
+     */
+    double getLatitude( )
+    {
+        return sphericalPosition_.y( );
+    }
+
+    //! Function to return the geocentric longtude of the station.
+    /*!
+     *  Function to return the geocentric longtude of the station.
+     *  \return Geocentric longtude of the station.
+     */
+    double getLongitude( )
+    {
+        return sphericalPosition_.z( );
+    }
+
+    //! Function to return current rotation from body-fixed to topocentric frame
+    /*!
+     *  Function to return current rotation from body-fixed to topocentric frame, with topocentric xyz-axes in ENU (Earth-North-Up) order.
+     *  Note that no relativistic rescaling of vectors is performed, only a rotation is applied.
+     *  \param time Time at which rotation quaternion is to be evaluated.
+     *  \return Current rotation from body-fixed to topocentrix frame
+     */
+    Eigen::Quaterniond getRotationFromBodyFixedToTopocentricFrame( const double time )
+    {
+        return bodyFixedToTopocentricFrameRotation_;
+    }
+
     //! Function to (re)set the nominal state of the station
     /*!
      *  Function to (re)set the nominal state of the station. Input may be in any type of elements defined in
@@ -118,6 +188,10 @@ public:
 
 protected:
 
+
+    //! Function to reset the rotation from the body-fixed to local topocentric frame, and associated unit vectors
+    void setTransformationAndUnitVectors( );
+
     //! Cartesian position of station
     /*!
      *  Cartesian position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
@@ -139,9 +213,46 @@ protected:
      */
     Eigen::Vector3d geodeticPosition;
 
+    //! Set of unit vectors of topocentric frame.
+    /*!
+     *  Set of unit vectors of topocentric frame, expressed in body-fixed frame, in ENU (Earth-North-Up) order.
+     *  The up-vector is generated by drawing a line from the center of the body to the (nominal) position of the station.
+     *  For a sphere, this coincides with the true topocentric frame, for which the East-North vectors span a local tangent plane.
+     *  The transformation from body-fixed to 'true' topocentric frame is described by the
+     *  bodyFixedToTopocentricFrameRotation_ variable.
+     */
+    std::vector< Eigen::Vector3d > geocentricUnitVectors_;
+
+    //! Rotation from body-fixed to topocentrix frame
+    /*!
+     *  Rotation from body-fixed to topocentrix frame, with topocentric xyz-axes in ENU (Earth-North-Up) order.
+     *  In this frame the East-North vectors span a local tangent plane. The frame is time-independent and is based on the
+     *  cartesianPosition_ member, without variations.
+     */
+    Eigen::Quaterniond bodyFixedToTopocentricFrameRotation_;
+
     //! Shape of body on which state is defined
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
+
+//! Function to calculate the rotation from a body-fixed to a topocentric frame.
+/*!
+ *  Function to calculate the rotation from a body-fixed to a topocentric frame at a given point (localPoint), based on the geocentric
+ *  latitude and longitude (i.e. angles based on line from center of body to localPoint. The topocentric calculation differs per type of
+ *  body shape wrt which the point is located. The rotation is calculated by concatenating the unit vectors of the topocentric frame,
+ *  expresse in the body-fixed frame.
+ *  \param bodyShapeModel Shape model of body on which point is located.
+ *  \param geocentricLatitude Geocentric latitude of point, i.e. angle between equatorial planet and line from center of body to localPoint
+ *  \param geocentricLongitude Geocentric longitude of point, i.e. angle between positive x-axis and line from center of body to localPoint,
+ *  projected on equatorial plane, measured positive in +y direction
+ *  \param localPoint Cartesian position of point in body-fixed frame.
+ *  \return The rotation from the body-fixed to the topocentric frame at localPoint.
+ */
+Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
+        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
+        const double geocentricLatitude,
+        const double geocentricLongitude,
+        const Eigen::Vector3d localPoint );
 
 } // namespace ground_stations
 

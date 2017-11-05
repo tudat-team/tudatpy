@@ -109,6 +109,46 @@ public:
                                          const double transmissionTime,
                                          const double receptionTime );
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time, equal to zero in this
+     * model.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Light-time correction w.r.t. observation time
+     */
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType fixedLinkEnd,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated )
+    {
+        return 0.0;
+    }
+
+    //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Light-time correction w.r.t. link end position
+     */
+    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated );
+
     //! Function to get the names of bodies causing light-time correction.
     /*!
      * Function to get the names of bodies causing light-time correction.

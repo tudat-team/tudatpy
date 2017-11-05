@@ -9,16 +9,11 @@
  */
 
 #include <map>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <iostream>
-#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
@@ -68,7 +63,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
     if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == NULL )
     {
         throw std::runtime_error(
-                    "Error when making flight conditions, body "+ nameOfBodyUndergoingAcceleration +
+                    "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
                     " has no aerodynamic coefficients." );
     }
 
@@ -95,6 +90,20 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                 boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
                 nameOfBodyExertingAcceleration, 1,
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
+
+    // Add wind model if present
+    if( centralBody->getAtmosphereModel( )->getWindModel( ) != NULL )
+    {
+        if( centralBody->getShapeModel( ) == NULL )
+        {
+            std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
+        }
+        else
+        {
+           aerodynamicAngleCalculator->setWindModel(
+                        centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
+        }
+    }
 
 
     // Create flight conditions.

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
@@ -100,9 +101,9 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         if( isCorrectIdentifierFound == 0 )
         {
             std::string errorMessage = "Error when retrieving gravity field variation of typ " +
-                    boost::lexical_cast< std::string >( deformationType ) +
+                    std::to_string( deformationType ) +
                     ", none of " +
-                    boost::lexical_cast< std::string >( numberOfEntries ) +
+                    std::to_string( numberOfEntries ) +
                     " potential entries match identifier.";
             throw std::runtime_error( errorMessage );
         }
@@ -203,21 +204,21 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
         if( initialTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 4, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( finalTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 5, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( timeSteps_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 6, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -255,6 +256,103 @@ GravityFieldVariationsSet::getVariationFunctions( )
 
     // Return list.
     return variationFunctions;
+}
+
+//! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation
+boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirectTidalGravityFieldVariation(
+        const std::vector< std::string >& namesOfBodiesCausingDeformation )
+{
+    boost::shared_ptr< GravityFieldVariations > gravityFieldVariation;
+
+    // Check number of variation objects of correct type
+    int numberOfBasicModels = std::count( variationType_.begin( ), variationType_.end( ), basic_solid_body );
+
+    // If one model of correct type is found, check if it is consistent with input
+    if( ( numberOfBasicModels ) == 1 )
+    {
+        // Retrieve variation object. It is the return object if no namesOfBodiesCausingDeformation are given
+        gravityFieldVariation = variationObjects_.at(
+                    ( std::distance( variationType_.begin( ), std::find( variationType_.begin( ), variationType_.end( ),
+                                                                         basic_solid_body ) ) ) );
+        boost::shared_ptr< BasicSolidBodyTideGravityFieldVariations > tidalGravityFieldVariation =
+                boost::dynamic_pointer_cast< BasicSolidBodyTideGravityFieldVariations >( gravityFieldVariation );
+
+        // Check consistency
+        if( tidalGravityFieldVariation == NULL )
+        {
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model found, but type does not match" );
+        }
+        // Check if consistency with input needs to be determined
+        else if( namesOfBodiesCausingDeformation.size( ) != 0 )
+        {
+            bool doBodiesMatch = utilities::doStlVectorContentsMatch(
+                        tidalGravityFieldVariation->getDeformingBodies( ), namesOfBodiesCausingDeformation );
+
+            if( !doBodiesMatch )
+            {
+                throw std::runtime_error(
+                            "Error when getting direct tidal gravity field variation, one model found, but deforming bodies do not match" );
+            }
+        }
+    }
+    // If no models found, throw exception
+    else if( numberOfBasicModels == 0 )
+    {
+        throw std::runtime_error( "Error when getting direct tidal gravity field variation, no such model found" );
+    }
+    else
+    {
+        // If no input bodies are given, no object can be returned: no information is available to choose from list
+        if( namesOfBodiesCausingDeformation.size( ) == 0 )
+        {
+            throw std::runtime_error(
+                        "Error when getting direct tidal gravity field variation, found multiple models, but not id is provided" );
+        }
+        bool isVariationFound = 0;
+
+        // Iterate over all objects and check consistency with input
+        for( unsigned int i = 0; i < variationType_.size( ); i++ )
+        {
+            if( boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                        variationObjects_.at( i ) ) != NULL )
+            {
+                bool doBodiesMatch = utilities::doStlVectorContentsMatch(
+                            boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
+                                variationObjects_.at( i ) )->getDeformingBodies( ), namesOfBodiesCausingDeformation );
+
+                if( doBodiesMatch )
+                {
+                    gravityFieldVariation = variationObjects_.at( i );
+                    isVariationFound = 1;
+                }
+            }
+        }
+
+        if( isVariationFound == 0 )
+        {
+            throw std::runtime_error(
+                        "Error when getting direct tidal gravity field variation, found multiple models of correct type, but none coincide with ids in list" );
+        }
+    }
+
+    return gravityFieldVariation;
+}
+
+//! Function to retrieve the tidal gravity field variations
+std::vector< boost::shared_ptr< GravityFieldVariations > > GravityFieldVariationsSet::getDirectTidalGravityFieldVariations( )
+{
+    std::vector< boost::shared_ptr< GravityFieldVariations > > directTidalVariations;
+
+    // Iterate over variation objects and check type
+    for( unsigned int i = 0; i < variationType_.size( ); i++ )
+    {
+        if( variationType_[ i ] == basic_solid_body )
+        {
+            directTidalVariations.push_back( variationObjects_[ i ] );
+        }
+    }
+
+    return directTidalVariations;
 }
 
 } // namespace gravitation

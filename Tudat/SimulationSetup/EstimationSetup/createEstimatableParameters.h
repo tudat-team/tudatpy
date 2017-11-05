@@ -48,8 +48,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
     if( !isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
     {
         std::string errorMessage = "Error when requesting to make initial state parameter " +
-                boost::lexical_cast< std::string >( parameterSettings->parameterType_.first ) + " of " +
-                boost::lexical_cast< std::string >( parameterSettings->parameterType_.second.first ) +
+                std::to_string( parameterSettings->parameterType_.first ) + " of " +
+                parameterSettings->parameterType_.second.first +
                 ", parameter is not an initial state parameter ";
         throw std::runtime_error( errorMessage );
     }
@@ -102,9 +102,46 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                             initialStateSettings->frameOrientation_ );
             }
             break;
+        case arc_wise_initial_body_state:
+            if( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateEstimatableParameterSettings<
+                    InitialStateParameterType > >( parameterSettings ) == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when making body initial state parameter, settings type is incompatible" );
+            }
+            else
+            {
+                boost::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings =  boost::dynamic_pointer_cast<
+                        ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings );
+
+                if( initialStateSettings->isStateSet_ )
+                {
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
+                                initialStateSettings->parameterType_.second.first,
+                                initialStateSettings->arcStartTimes_,
+                                initialStateSettings->initialStateValue_,
+                                initialStateSettings->centralBody_,
+                                initialStateSettings->frameOrientation_ );
+                }
+                else
+                {
+                    initialStateParameterToEstimate = boost::make_shared< ArcWiseInitialTranslationalStateParameter<
+                            InitialStateParameterType > >(
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
+                                propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
+                                    initialStateSettings->parameterType_.second.first,
+                                    initialStateSettings->centralBody_, bodyMap,
+                                    initialStateSettings->arcStartTimes_ ),
+                                initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
+                }
+            }
+            break;
         default:
             std::string errorMessage = "Error, could not create parameter for initial state of type " +
-                    boost::lexical_cast< std::string >( parameterSettings->parameterType_.first );
+                    std::to_string( parameterSettings->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -190,8 +227,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
         else
         {
             std::string errorMessage = "Error, parameter type of  " +
-                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.second.first ) + "of " +
-                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.first ) +
+                    std::string( parameterNames[ i ]->parameterType_.second.first ) + "of " +
+                    std::to_string( parameterNames[ i ]->parameterType_.first ) +
                     "not recognized when making estimatable parameter set.";
 
             throw std::runtime_error( errorMessage );

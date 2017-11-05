@@ -10,9 +10,6 @@
 #ifndef TUDAT_ENTRYGUIDANCE_H
 #define TUDAT_ENTRYGUIDANCE_H
 
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 
 namespace tudat

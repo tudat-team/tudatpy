@@ -13,11 +13,9 @@
 #define TUDAT_TERMINATION_CONDITIONS_H
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -52,7 +50,7 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
         std::string errorMessage
                 = "Root-finder did not converge within maximum number of iterations!";
 
-        boost::throw_exception( boost::enable_error_info( std::runtime_error( errorMessage  ) ) );
+        throw std::runtime_error( errorMessage );
     }
 
     // Else, simply return whether maximum number of iterations have been exceeded.

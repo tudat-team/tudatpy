@@ -37,6 +37,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+//! Get list of required environment model update settings from torque models.
+/*!
+ * Get list of required environment model update settings from torque models.
+ * \param torqueModels List of torque models used in simulation.
+ * \param bodyMap List of body objects used in the simulations.
+ * \return List of required environment model update settings.
+ */
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+        const basic_astrodynamics::TorqueModelMap& torqueModels, const simulation_setup::NamedBodyMap& bodyMap );
+
 //! Get list of required environment model update settings from translational acceleration models.
 /*!
  * Get list of required environment model update settings from translational acceleration models.
@@ -72,14 +83,14 @@ createMassPropagationEnvironmentUpdaterSettings(
 template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate,
     std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate,
         std::vector< std::string > > environmentModelsToUpdate;
 
     // Check dynamics type
-    switch( propagatorSettings->stateType_ )
+    switch( propagatorSettings->getStateType( ) )
     {
     case hybrid:
     {
@@ -91,7 +102,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
         for( typename std::map< IntegratedStateType,
-             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
         {
@@ -122,7 +133,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     TranslationalStatePropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->accelerationsMap_,
+                        propagatorSettings )->getAccelerationsMap( ),
+                    bodyMap );
+        break;
+    }
+    case rotational_state:
+    {
+        environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
+                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->getTorqueModelsMap( ),
                     bodyMap );
         break;
     }
@@ -132,7 +150,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     MassPropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->massRateModels_, bodyMap );
+                        propagatorSettings )->getMassRateModelsMap( ), bodyMap );
         break;
     }
     case custom_state:
@@ -142,7 +160,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
     }
     return environmentModelsToUpdate;
@@ -173,7 +191,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
 template< typename StateScalarType, typename TimeType >
 boost::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > >
 createEnvironmentUpdaterForDynamicalEquations(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     // Create environment update settings.

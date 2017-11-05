@@ -21,8 +21,6 @@
 #include <vector>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
-
 namespace tudat
 {
 namespace input_output
@@ -121,7 +119,7 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
         if ( validdata == true )
         {
             // add datatype at the end of the parsed line
-            line = line + " " + boost::lexical_cast< std::string >( dataType );
+            line = line + " " + std::to_string( dataType );
 
             parsedData->push_back( solarParser.parse( line )->at( 0 ) );
         }

@@ -244,7 +244,7 @@ public:
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
         bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
-                    &reference_frames::AerodynamicAngleCalculator::getCurrentBodyFixedState, aerodynamicAngleCalculator_ );
+                    &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
     }
 
     //! Function to set custom dependency of aerodynamic coefficients
@@ -266,7 +266,7 @@ public:
      */
     Eigen::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
-        return currentBodyCenteredPseudoBodyFixedState_;
+        return currentBodyCenteredAirspeedBasedBodyFixedState_;
     }
 
     //! Function to return current central body-fixed velocity of vehicle.
@@ -276,7 +276,7 @@ public:
      */
     Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
     {
-        return currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 );
+        return currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 );
     }
 
 
@@ -380,7 +380,7 @@ private:
     void computeAltitude( )
     {
         scalarFlightConditions_[ altitude_flight_condition ] =
-                shapeModel_->getAltitude( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+                shapeModel_->getAltitude( currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
     }
 
     //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
@@ -456,7 +456,7 @@ private:
     //! Function to compute and set the current airspeed
     void computeAirspeed( )
     {
-        scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
+        scalarFlightConditions_[ airspeed_flight_condition ] = currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 ).norm( );
     }
 
     //! Function to compute and set the current freestream dynamic pressure.
@@ -480,7 +480,7 @@ private:
         if( !geodeticLatitudeFunction_.empty( ) )
         {
             scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
-                        currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+                        currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
         }
         else
         {
@@ -520,7 +520,7 @@ private:
     Eigen::Vector6d currentBodyCenteredState_;
 
     //! Current state of vehicle in body-fixed frame.
-    Eigen::Vector6d currentBodyCenteredPseudoBodyFixedState_;
+    Eigen::Vector6d currentBodyCenteredAirspeedBasedBodyFixedState_;
 
     //! List of atmospheric/flight properties computed at current time step.
     std::map< FlightConditionVariables, double > scalarFlightConditions_;

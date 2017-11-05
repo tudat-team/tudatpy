@@ -17,7 +17,6 @@
 
 #include <cmath>
 
-#include <boost/format.hpp>
 #include <boost/math/special_functions.hpp> // for asinh and acosh
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -112,12 +111,9 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
     if ( numberOfRevolutions > maximumNumberOfRevolutions )
     {
         // Throw exception.
-        BOOST_THROW_EXCEPTION( std::runtime_error( 
-            ( boost::format(
-                "Number of revolutions specified in Lambert problem is larger than possible.\n"
-                "Specified number of revolutions %d while the maximum is %d" 
-            ) % numberOfRevolutions % maximumNumberOfRevolutions).str( )
-        ) );
+        throw std::runtime_error(  "Number of revolutions specified in Lambert problem is larger than possible. Specified number of revolutions is " +
+                                   std::to_string( numberOfRevolutions )  + " while the maximum is " +
+                                   std::to_string( maximumNumberOfRevolutions ) );
     }
     // Else, nothing wrong.
 }
@@ -278,12 +274,9 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     // Verify that root-finder has converged.
     if ( iterator == maximumNumberOfIterations )
     {
-        BOOST_THROW_EXCEPTION( basic_mathematics::ConvergenceException( 
-            ( boost::format(
-                "Multi-Revolution Lambert targeter failed to converge to a solution.\n"
-                "Reached the maximum number of iterations: %d"
-            ) % maximumNumberOfIterations).str( )
-        ) );
+        throw basic_mathematics::ConvergenceException(
+                    "Multi-Revolution Lambert targeter failed to converge to a solution. Reached the maximum number of iterations: %d"
+                    + std::to_string( maximumNumberOfIterations ) );;
     }
 
     // Revert to x parameter.

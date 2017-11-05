@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 
 namespace tudat
@@ -134,6 +135,51 @@ public:
         return interpolator_;
     }
 
+    //! Function that retrieves the time interval at which this ephemeris can be safely interrogated
+    /*!
+     * Function that retrieves the time interval at which this ephemeris can be safely interrogated. The interval
+     * on which the interpolator inside this object is valid is checked and returned
+     * \return The time interval at which the tabulated ephemeris can be safely interrogated
+     */
+    std::pair< double, double > getSafeInterpolationInterval( )
+    {
+        std::pair< double, double > safeInterpolationInterval;
+
+        // Check interpolator type. If interpolator is not a Lagrange interpolator, return full domain
+        if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                    interpolator_ ) == NULL &&
+                boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                    interpolator_ ) == NULL )
+        {
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 );
+        }
+        // If interpolator is a Lagrange interpolator, return full domain minus edges where interpolator has reduced accuracy
+        else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                     interpolator_ ) != NULL )
+        {
+            int numberOfNodes =
+                    boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >(
+                        interpolator_ )->getNumberOfStages( );
+
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+         }
+        else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                     interpolator_ ) != NULL )
+        {
+            int numberOfNodes =
+                    boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
+                        interpolator_ )->getNumberOfStages( );
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
+                        interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
+         }
+        return safeInterpolationInterval;
+    }
+
 
 private:
 
@@ -153,6 +199,16 @@ private:
  *  \return True if ephemeris is a tabulated ephemeris
  */
 bool isTabulatedEphemeris( const boost::shared_ptr< Ephemeris > ephemeris );
+
+//! Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated
+/*!
+ * Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated. The interval
+ * on which the interpolator inside this object is valid is checked and returned
+ * \param ephemeris Ephemeris model for which the interval is to be determined. AN exception is thrown if this is not
+ * a tabulated ephemeris
+ * \return The time interval at which the tabulated ephemeris can be safely interrogated
+ */
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const boost::shared_ptr< Ephemeris > ephemeris );
 
 //! Function to create an empty (dummy) tabulated ephemeris
 /*!

@@ -72,7 +72,7 @@ inline Eigen::Vector6d concatenateForceAndMomentCoefficients(
         momentCoefficientFunction,
         const std::vector< double >& independentVariables )
 {
-    return ( Eigen::Vector6d( )<<forceCoefficientFunction( independentVariables ),
+    return ( Eigen::Vector6d( ) << forceCoefficientFunction( independentVariables ),
              momentCoefficientFunction( independentVariables ) ).finished( );
 }
 

@@ -11,9 +11,6 @@
 
 #include <stdexcept>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/exception/all.hpp>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
@@ -27,9 +24,9 @@ namespace ephemerides
 //! Constructor
 SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
                                 const std::string& observerBodyName,
-                                const bool correctForStellarAbberation,
-                                const bool correctForLightTimeAbberation,
-                                const bool convergeLighTimeAbberation,
+                                const bool correctForStellarAberration,
+                                const bool correctForLightTimeAberration,
+                                const bool convergeLighTimeAberration,
                                 const std::string& referenceFrameName,
                                 const double referenceJulianDay )
     : Ephemeris( observerBodyName, referenceFrameName ),
@@ -38,45 +35,39 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
     referenceDayOffSet_ = ( referenceJulianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
 
     // Check consistency of input.
-    if ( correctForLightTimeAbberation == 0 && convergeLighTimeAbberation == 1 )
+    if ( correctForLightTimeAberration == 0 && convergeLighTimeAberration == 1 )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Warning, requested multiple iterations for light time correction, "
-                            "but not light time correction itself." ) ) );
+        throw std::runtime_error(
+                    "Error, requested multiple iterations for light time correction, but not light time correction itself." );
     }
 
-    if ( correctForLightTimeAbberation == 0 && correctForStellarAbberation ==  1 )
+    if ( correctForLightTimeAberration == 0 && correctForStellarAberration ==  1 )
     {
 
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error
-                        ( "Warning, requested stellar aberration, but not light-time correction, "
-                          "this is not supprted by spice." ) ) );
+        throw std::runtime_error(
+                    "Error, requested stellar aberration, but not light-time correction, this is not supprted by spice." );
     }
 
     // Set aberration corrections variable.
-    abberationCorrections_ = "";
-    if ( correctForLightTimeAbberation && !convergeLighTimeAbberation )
+    aberrationCorrections_ = "";
+    if ( correctForLightTimeAberration && !convergeLighTimeAberration )
     {
-        abberationCorrections_.append( "LT" );
+        aberrationCorrections_.append( "LT" );
     }
 
-    else if ( correctForLightTimeAbberation && convergeLighTimeAbberation )
+    else if ( correctForLightTimeAberration && convergeLighTimeAberration )
     {
-        abberationCorrections_.append( "CN" );
+        aberrationCorrections_.append( "CN" );
     }
 
-    else if ( !correctForLightTimeAbberation && !correctForStellarAbberation )
+    else if ( !correctForLightTimeAberration && !correctForStellarAberration )
     {
-        abberationCorrections_.append( "NONE" );
+        aberrationCorrections_.append( "NONE" );
     }
 
-    if ( correctForLightTimeAbberation && correctForStellarAbberation )
+    if ( correctForLightTimeAberration && correctForStellarAberration )
     {
-        abberationCorrections_.append( "+S" );
+        aberrationCorrections_.append( " +S" );
     }
 }
 
@@ -96,7 +87,7 @@ Eigen::Vector6d SpiceEphemeris::getCartesianState(
     const Eigen::Vector6d cartesianStateAtEpoch =
             spice_interface::getBodyCartesianStateAtEpoch(
                 targetBodyName_, referenceFrameOrigin_, referenceFrameOrientation_,
-                abberationCorrections_, ephemerisTime + referenceDayOffSet_ );
+                aberrationCorrections_, ephemerisTime + referenceDayOffSet_ );
 
     return cartesianStateAtEpoch;
 }

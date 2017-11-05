@@ -63,7 +63,7 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
-        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, true );
     }
 
     //! Function to convert the state in the conventional form to the propagator-specific form.

@@ -20,10 +20,16 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/radiationPressureAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/relativisticAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/aerodynamicAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/empiricalAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createPositionPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
 
 
 namespace tudat
@@ -31,6 +37,18 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+//! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
+/*!
+ * Function to create a list of objects that can be used to compute partials of tidal gravity field variations
+ * \param bodyMap List of all body objects
+ * \param acceleratingBodyName Name of body for which tidal gravity field variation objects are to be created
+ * \return List of tidal gravity field variation objects, one for each such field variation object of bodyacceleratingBodyName
+ */
+std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
+        const NamedBodyMap& bodyMap,
+        const std::string& acceleratingBodyName );
+
 
 //! Function to create a single acceleration partial derivative object.
 /*!
@@ -43,15 +61,15 @@ namespace simulation_setup
  *  types of partials (e.g. spherical harmonic acceleration w.r.t. rotational parameters).
  *  \return Single acceleration partial derivative object.
  */
-template< typename InitialStateParameterType = double, typename ParameterScalarType = InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial(
         boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
-        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >( ) )
+        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
 {
     using namespace gravitation;
     using namespace basic_astrodynamics;
@@ -80,6 +98,37 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
+    case relativistic_correction_acceleration:
+
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (relativistic_correction_acceleration) when making acceleration partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = boost::make_shared< RelativisticAccelerationPartial  >
+                    ( boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ),
+                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    case direct_tidal_dissipation_acceleration:
+    {
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (direct_tidal_dissipation_acceleration) when making acceleration partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = boost::make_shared< DirectTidalDissipationAccelerationPartial  >
+                    ( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ),
+                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
 
     case third_body_central_gravity:
         // Check if identifier is consistent with type.
@@ -131,10 +180,19 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                         rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
                             parametersToEstimate, acceleratingBody.first, bodyMap );
 
+                // If body has gravity field variations, create partial objects
+                std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+                        currentBodyLoveNumberPartialInterfaces;
+                if( acceleratingBody.second->getGravityFieldVariationSet( ) != NULL )
+                {
+                    currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
+                                bodyMap, acceleratingBody.first );
+                }
+
                 // Create partial-calculating object.
                 accelerationPartial = boost::make_shared< SphericalHarmonicsGravityPartial >
                         ( acceleratedBody.first, acceleratingBody.first,
-                          sphericalHarmonicAcceleration, rotationMatrixPartials );
+                          sphericalHarmonicAcceleration, rotationMatrixPartials, currentBodyLoveNumberPartialInterfaces );
         }
         break;
     }
@@ -172,6 +230,66 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
 
         }
         break;
+    case mutual_spherical_harmonic_gravity:
+    {
+        // Check if identifier is consistent with type.
+        boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > mutualSphericalHarmonicAcceleration =
+                boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
+        if( mutualSphericalHarmonicAcceleration == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type enum (mut. spher. harm. grav.) set when making acceleration partial" );
+        }
+        else
+        {
+            boost::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyExertingAcceleration =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            mutualSphericalHarmonicAcceleration->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( ),
+                            acceleratedBody, acceleratingBody,bodyMap, parametersToEstimate ) );
+            boost::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyUndergoingAcceleration =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            mutualSphericalHarmonicAcceleration->getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( ),
+                            acceleratingBody, acceleratedBody, bodyMap, parametersToEstimate ) );
+            accelerationPartial = boost::make_shared< MutualSphericalHarmonicsGravityPartial >(
+                        accelerationPartialOfShExpansionOfBodyExertingAcceleration,
+                        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration, acceleratedBody.first, acceleratingBody.first,
+                        mutualSphericalHarmonicAcceleration->getUseCentralBodyFixedFrame( ) );
+        }
+        break;
+    }
+    case third_body_mutual_spherical_harmonic_gravity:
+    {
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_mutual_spherical_harmonic_gravity) enum set when making acceleration partial" );
+        }
+        else
+        {
+            boost::shared_ptr< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel > thirdBodyAccelerationModel  =
+                    boost::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
+
+            boost::shared_ptr< MutualSphericalHarmonicsGravityPartial > accelerationPartialForBodyUndergoingAcceleration =
+                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            thirdBodyAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ),
+                            acceleratedBody, acceleratingBody, bodyMap, parametersToEstimate  ) );
+            boost::shared_ptr< MutualSphericalHarmonicsGravityPartial > accelerationPartialForCentralBody =
+                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial(
+                            thirdBodyAccelerationModel->getAccelerationModelForCentralBody( ),
+                            std::make_pair( thirdBodyAccelerationModel->getCentralBodyName( ),
+                                            bodyMap.at( thirdBodyAccelerationModel->getCentralBodyName( ) ) ),
+                            acceleratingBody, bodyMap, parametersToEstimate ) );
+            accelerationPartial = boost::make_shared< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
+                        accelerationPartialForBodyUndergoingAcceleration,
+                        accelerationPartialForCentralBody, acceleratedBody.first, acceleratingBody.first,
+                        thirdBodyAccelerationModel->getCentralBodyName( ) );
+
+        }
+        break;
+    }
     case cannon_ball_radiation_pressure:
     {
         // Check if identifier is consistent with type.
@@ -203,8 +321,54 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
         }
         break;
     }
+    case aerodynamic:
+    {
+        // Check if identifier is consistent with type.
+        boost::shared_ptr< AerodynamicAcceleration > aerodynamicAcceleration =
+                boost::dynamic_pointer_cast< AerodynamicAcceleration >( accelerationModel );
+        if( aerodynamicAcceleration == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (aerodynamic) when making acceleration partial" );
+        }
+        else
+        {
+            boost::shared_ptr< FlightConditions > flightConditions =
+                    acceleratedBody.second->getFlightConditions( );
+
+            if( flightConditions == NULL )
+            {
+                throw std::runtime_error( "No flight conditions found when making acceleration partial." );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                accelerationPartial = boost::make_shared< AerodynamicAccelerationPartial >
+                        ( aerodynamicAcceleration, flightConditions,
+                          boost::bind( &Body::getState, acceleratedBody.second ),
+                          boost::bind( &Body::setState, acceleratedBody.second, _1 ),
+                          acceleratedBody.first, acceleratingBody.first );
+            }
+        }
+        break;
+    }
+    case empirical_acceleration:
+    {
+        boost::shared_ptr< EmpiricalAcceleration > empiricalAcceleration =
+                boost::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
+        if( empiricalAcceleration == NULL )
+        {
+            std::cerr << "Acceleration class type does not match acceleration type enum (rel. corr.) set when making acceleration partial" << std::endl;
+
+        }
+        else
+        {
+            accelerationPartial = boost::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
+                                                                                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
     default:
-        std::string errorMessage = "Acceleration model " + boost::lexical_cast< std::string >( accelerationType ) +
+        std::string errorMessage = "Acceleration model " + std::to_string( accelerationType ) +
                 " not found when making acceleration partial";
         throw std::runtime_error( errorMessage );
         break;
@@ -250,8 +414,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == accelerationIterator->first )
             {
-                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first ==
-                      estimatable_parameters::initial_body_state ) )
+                if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
+                        ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) )
                 {
                     // Get object for body undergoing acceleration
                     const std::string acceleratedBody = accelerationIterator->first;

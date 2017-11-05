@@ -68,14 +68,14 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
             break;
         default:
             throw std::runtime_error( "Error when getting parameterized thrust input variables, variable " +
-                                      boost::lexical_cast< std::string >( independentVariables.at( i ) ) + "not found" );
+                                      std::to_string( independentVariables.at( i ) ) + "not found" );
         }
     }
 
     // Check input consistency
     if( numberOfCustomInputs != guidanceInputFunctions.size( ) )
     {
-        std::cerr<<"Warning when creating propulsion indput dependent variables, not all user-defined inputs have been parsed"<<std::endl;
+        std::cerr << "Warning when creating propulsion indput dependent variables, not all user-defined inputs have been parsed" << std::endl;
     }
 
     return inputFunctions;

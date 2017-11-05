@@ -30,7 +30,7 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
     separator_ = separator;
 
     // Create a fancy vector (list) of all the fields.
-    va_list listOfArguments;	        // Define argument list variable.
+    va_list listOfArguments;                // Define argument list variable.
     va_start( listOfArguments,numberOfFields );  // init list; point to last defined argument.
 
     for ( int i = 0; i < numberOfFields; i++ )

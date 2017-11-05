@@ -23,6 +23,8 @@ set(INTERPOLATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lookupScheme.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/oneDimensionalInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/multiLinearInterpolator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Interpolators/piecewiseConstantInterpolator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Interpolators/jumpDataLinearInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/createInterpolator.h"
 )
 

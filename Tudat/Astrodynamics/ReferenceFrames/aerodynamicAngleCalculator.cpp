@@ -12,7 +12,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
@@ -53,7 +52,7 @@ std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame )
         break;
     default:
         std::string errorMessage = "Error, aerodynamic frame type " +
-                boost::lexical_cast< std::string >( frame ) +
+                std::to_string( frame ) +
                 "not found when retrieving frame name ";
         throw std::runtime_error( errorMessage );
     }
@@ -89,7 +88,7 @@ std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angl
         break;
     default:
         std::string errorMessage = "Error, aerodynamic angle type " +
-                boost::lexical_cast< std::string >( angle ) +
+                std::to_string( angle ) +
                 "not found when retrieving angle name ";
         throw std::runtime_error( errorMessage );
     }
@@ -106,16 +105,32 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     // Get current body-fixed state.
     if( !( currentTime == currentTime_ ) )
     {
-        currentBodyFixedState_ = bodyFixedStateFunction_( );
+
+        currentBodyFixedGroundSpeedBasedState_ = bodyFixedStateFunction_( );
         currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
 
         Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical< double >(
-                    currentBodyFixedState_.segment( 0, 3 ) );
+                    currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) );
 
         // Calculate latitude and longitude.
         currentAerodynamicAngles_[ latitude_angle ] =
                 mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
         currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
+
+        // Compute wind velocity vector
+        Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
+        if( windModel_ != NULL )
+        {
+            localWindVelocity = windModel_->getCurrentWindVelocity(
+                        shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) ),
+                        currentAerodynamicAngles_[ longitude_angle ],
+                        currentAerodynamicAngles_[ latitude_angle ],
+                        currentTime );
+        }
+
+        // Compute airspeed-based velocity vector
+        currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) += localWindVelocity;
 
         // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
         if( calculateVerticalToAerodynamicFrame_ )
@@ -124,7 +139,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
                     getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
                         currentAerodynamicAngles_.at( longitude_angle ),
                         currentAerodynamicAngles_.at( latitude_angle ) ) *
-                    currentBodyFixedState_.segment( 3, 3 );
+                    currentBodyFixedAirspeedBasedState_.segment( 3, 3 );
 
             currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
             currentAerodynamicAngles_[ flight_path_angle ] =
@@ -157,7 +172,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         }
 
         currentBodyAngleTime_ = currentTime;
-
     }
     else if( !( currentBodyAngleTime_ == currentTime ) )
     {
@@ -181,7 +195,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
     if( !calculateVerticalToAerodynamicFrame_ &&
             ( originalFrame > vertical_frame || targetFrame > vertical_frame ) )
     {
-        throw( "Error in AerodynamicAngleCalculator, instance ends at vertical frame" );
+        throw std::runtime_error( "Error in AerodynamicAngleCalculator, instance ends at vertical frame" );
     }
 
     // Set current frame pair.
@@ -321,7 +335,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 default:
                     throw std::runtime_error(
                                 "Error, index " +
-                                boost::lexical_cast< std::string>( currentFrameIndex ) +
+                                std::to_string( currentFrameIndex ) +
                                 "not found in AerodynamicAngleCalculator" );
 
                 }
@@ -359,7 +373,7 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     if( currentAerodynamicAngles_.count( angleId ) == 0 )
     {
         throw std::runtime_error( "Error in AerodynamicAngleCalculator, angleId " +
-                                  boost::lexical_cast< std::string >( angleId ) + "not found" );
+                                  std::to_string( angleId ) + "not found" );
     }
     else
     {
@@ -379,7 +393,7 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
     {
         if( !angleOfAttackFunction_.empty( ) )
         {
-            std::cout << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
+            std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }
@@ -480,9 +494,9 @@ void AerodynamicAnglesClosure::updateAngles( const double currentTime )
 {
     // Retrieve rotation matrix that is to be converted to orientation angles.
     currentRotationFromBodyToTrajectoryFrame_ =
-            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ) *
+            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ).toRotationMatrix( ) *
                 aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
-                    trajectory_frame, inertial_frame ) ).toRotationMatrix( ) ).transpose( );
+                    trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
 
     // Compute associated Euler angles and set as orientation angles.
     Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(

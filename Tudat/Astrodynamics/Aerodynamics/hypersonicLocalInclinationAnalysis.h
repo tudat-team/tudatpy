@@ -169,7 +169,7 @@ public:
      * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination analysis.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
+    friend std::ostream& operator << ( std::ostream& stream,
                                      HypersonicLocalInclinationAnalysis&
                                      hypersonicLocalInclinationAnalysis );
 

@@ -91,13 +91,15 @@ elseif( TUDAT_BUILD_GNU )
       # MinGW fails to build with O2 or O3 optimization on several math.h function
       # http://ehc.ac/p/mingw/bugs/2250/
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_INLINE__")
-      # MinGW gives some c11plus.xe out of memory messages:
-      # http://sourceforge.net/p/mingw-w64/mailman/message/33182613/
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrack-macro-expansion=0")
       # MinGW32 4.8.1 has no defenitions for _aligned_malloc/realloc/free
       #
       add_definitions(-DEIGEN_MALLOC_ALREADY_ALIGNED=1)
       add_definitions(-DEIGEN_DONT_ALIGN=1)
+    endif()
+
+    if( MINGW )
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrack-macro-expansion=0")
+      set(CMAKE_EXE_LINKER_FLAGS "-Wl,--large-address-aware")
     endif()
 
 elseif( TUDAT_BUILD_MSVC )

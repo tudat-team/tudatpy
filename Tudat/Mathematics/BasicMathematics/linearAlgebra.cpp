@@ -11,13 +11,30 @@
 
 #include <cmath>
 
+#include <Eigen/LU>
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
 
 namespace linear_algebra
 {
+
+//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion )
+{
+    Eigen::Vector4d vector;
+
+    vector( 0 ) = quaternion.w( );
+    vector( 1 ) = quaternion.x( );
+    vector( 2 ) = quaternion.y( );
+    vector( 3 ) = quaternion.z( );
+
+    return vector;
+}
+
 
 //! Function that returns that 'cross-product matrix'
 Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
@@ -71,13 +88,6 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
     return std::acos( dotProductOfNormalizedVectors );
 }
 
-//! Computes the difference between two 3d vectors.
-Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
-                                         const Eigen::Vector3d& vector1 )
-{
-    return ( vector0 - vector1 );
-}
-
 //! Computes norm of the the difference between two 3d vectors.
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 )
@@ -91,12 +101,42 @@ double getVectorNorm( const Eigen::Vector3d& vector )
     return vector.norm( );
 }
 
+Eigen::Vector3d evaluateSecondBlockInStateVector(
+        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const double time )
+{
+    return stateFunction( time ).segment( 3, 3 );
+}
+
 //! Computes the norm of a 3d vector from a vector-returning function.
 double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction )
 {
     return getVectorNorm( vectorFunction( ) );
 }
 
+//! Function to calculate the jacobian of a normalized vector, from the partial of the unnormalized vector.
+Eigen::Matrix3d calculatePartialOfNormalizedVector( const Eigen::Matrix3d& partialOfUnnormalizedVector,
+                                                    const Eigen::Vector3d& unnormalizedVector )
+{
+    double normOfVector = unnormalizedVector.norm( );
+
+    return ( Eigen::Matrix3d::Identity( ) / normOfVector - unnormalizedVector * unnormalizedVector.transpose( ) /
+             ( normOfVector * normOfVector * normOfVector ) ) * partialOfUnnormalizedVector;
+}
+
+//! Function to compute the root mean square value of the entries in an Eigen vector
+double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector )
+{
+    // Calculate RMS for vector
+    double vectorRms = 0.0;
+    for( int i = 0; i < inputVector.rows( ); i++ )
+    {
+        vectorRms += inputVector( i ) * inputVector( i );
+    }
+    vectorRms = std::sqrt( vectorRms / inputVector.rows( ) );
+
+    return vectorRms;
+}
 
 
 } // namespace linear_algebra

@@ -14,8 +14,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include <iostream>
-
 #include "Tudat/InputOutput/extractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 

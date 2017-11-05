@@ -17,8 +17,7 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Mathematics/NumericalQuadrature/numericalQuadrature.h>
-
+#include "Tudat/Mathematics/NumericalQuadrature/numericalQuadrature.h"
 namespace tudat
 {
 

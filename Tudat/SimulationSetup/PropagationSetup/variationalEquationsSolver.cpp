@@ -38,10 +38,12 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
             boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ), 4 );
+
     if( clearRawSolution )
     {
         variationalEquationsSolution[ 1 ].clear( );
     }
+
 }
 
 }

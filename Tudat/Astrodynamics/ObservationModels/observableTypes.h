@@ -25,28 +25,50 @@ namespace observation_models
 //! Enum for types of observations
 enum ObservableType
 {
-    oneWayRange = 0,
+    one_way_range = 0,
     angular_position = 1,
-    position_observable = 2
-
+    position_observable = 2,
+    one_way_doppler = 3,
+    one_way_differenced_range = 4,
+    n_way_range = 5,
+    two_way_doppler = 6
 };
 
 //! Function to get the name (string) associated with a given observable type.
 /*!
  * Function to get the name (string) associated with a given observable type.
  * \param observableType Type of observable.
+ * \param numberOfLinkEnds Number of link ends in observable
  * \return Name of observable
  */
-std::string getObservableName( const ObservableType observableType );
+std::string getObservableName( const ObservableType observableType, const int numberOfLinkEnds );
 
 //! Function to get the observable type.ssociated with the name (string) of observable.
 /*!
  * Function to get the observable type.ssociated with the name (string) of observable.
  * \param observableName of observable
- * \return observableType Type of observable.
+ * \return Type of observable.
  */
 ObservableType getObservableType( const std::string& observableName );
 
+//! Function to get the size of an observable of a given type.
+/*!
+ * Function to get the size of an observable of a given type.
+ * \param observableType Type of observable.
+ * \return Size of observable.
+ */
+int getObservableSize( const ObservableType observableType );
+
+//! Function to get the indices in link end times/states for a given link end type and observable type
+/*!
+ * Function to get the indices in link end times/states for a given link end type and observable type
+ * \param observableType Type of observable for which link end indices are to be returned
+ * \param linkEndType Type of link end for which link end indices are to be returned
+ * \param numberOfLinkEnds Number of link ends in observable
+ * \return Indices in link end times/states for given link end type and observable type
+ */
+std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
+        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
 
 } // namespace observation_models
 

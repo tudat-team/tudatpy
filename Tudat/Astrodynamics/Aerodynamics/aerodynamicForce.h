@@ -14,8 +14,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
-
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Basics/utilityMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
