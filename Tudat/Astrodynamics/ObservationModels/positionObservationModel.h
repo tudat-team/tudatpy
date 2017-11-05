@@ -29,8 +29,8 @@ namespace observation_models
  *  Class for simulating observations of three-dimensional position. This observable is typically not realized in
  *  practice, but its use can be very valuable in simulation studies
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-class PositionObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class PositionObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType >
 {
 public:
 
@@ -42,9 +42,9 @@ public:
      *  observable, i.e. deviations from the physically ideal observable (default none).
      */
     PositionObservationModel(
-            const boost::function<  Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > stateFunction,
+            const boost::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
             const boost::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
-        ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType >(
+        ObservationModel< 3, ObservationScalarType, TimeType >(
             position_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
     //! Destructor
@@ -83,11 +83,11 @@ public:
      *  \param linkEndStates List of states at each link end during observation.
      *  \return Ideal position observable.
      */
-    Eigen::Matrix< StateScalarType, 3, 1 > computeIdealObservationsWithLinkEndData(
+    Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservationsWithLinkEndData(
                 const TimeType time,
                 const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                std::vector< double >& linkEndTimes,
+                std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check link end
         if( linkEndAssociatedWithTime != observed_body )
@@ -96,17 +96,17 @@ public:
                         "Error when computing position observable, associated link end must be observed_body " );
         }
 
+        currentState_ = stateFunction_( time );
+
         // Set link end times and states.
         linkEndTimes.clear( );
-        linkEndTimes.push_back( static_cast< TimeType >( time ) );
+        linkEndTimes.push_back( static_cast< double >( time ) );
 
         linkEndStates.clear( );
-        linkEndStates.push_back( stateFunction_( time ).template cast< StateScalarType >( ) );
+        linkEndStates.push_back( currentState_.template cast< double >( ) );
 
         // Retrieve position
-        Eigen::Matrix< ObservationScalarType, 3, 1 >  observation = linkEndStates.at( 0 ).segment( 0, 3 );
-
-        return observation;
+        return currentState_.segment( 0, 3 );
     }
 
 
@@ -114,6 +114,8 @@ private:
 
     //! Function that returns the Cartesian state of the observed body as a function of time.
     boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction_;
+
+    Eigen::Matrix< ObservationScalarType, 6, 1 > currentState_;
 };
 
 } // namespace observation_models

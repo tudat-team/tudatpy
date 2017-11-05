@@ -140,7 +140,7 @@ public:
             // Check if propagation should terminate because the propagation termination condition has been reached
             // while computing k1, k2, k3 or k4. If so, return immediately the current state (not recomputed yet),
             // which will be discarded.
-            if ( this->propagationTerminationFunction_( static_cast< double >( time ) ) )
+            if ( this->propagationTerminationFunction_( static_cast< double >( time ), TUDAT_NAN ) )
             {
                 this->propagationTerminationConditionReachedDuringStep_ = true;
                 return currentState_;

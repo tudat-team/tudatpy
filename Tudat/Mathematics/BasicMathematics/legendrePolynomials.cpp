@@ -12,7 +12,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <boost/exception/all.hpp>
 #include <boost/math/special_functions/factorials.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
@@ -238,10 +237,10 @@ double LegendreCache::getLegendrePolynomial(
     if( degree > maximumDegree_ || order > maximumOrder_ )
     {
         std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
-                boost::lexical_cast< std::string >( degree ) + " " +
-                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
-                boost::lexical_cast< std::string >( order ) + " " +
-                boost::lexical_cast< std::string >( maximumOrder_ );
+                std::to_string( degree ) + " " +
+                std::to_string( maximumDegree_ ) + " " +
+                std::to_string( order ) + " " +
+                std::to_string( maximumOrder_ );
         throw std::runtime_error( errorMessage );
         return TUDAT_NAN;
     }
@@ -262,10 +261,10 @@ double LegendreCache::getLegendrePolynomialDerivative(
     if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
     {
         std::string errorMessage = "Error when requesting legendre cache first derivatives, maximum degree or order exceeded " +
-                boost::lexical_cast< std::string >( degree ) + " " +
-                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
-                boost::lexical_cast< std::string >( order ) + " " +
-                boost::lexical_cast< std::string >( maximumOrder_ );
+                std::to_string( degree ) + " " +
+                std::to_string( maximumDegree_ ) + " " +
+                std::to_string( order ) + " " +
+                std::to_string( maximumOrder_ );
         throw std::runtime_error( errorMessage );
         return TUDAT_NAN;
     }
@@ -286,10 +285,10 @@ double LegendreCache::getLegendrePolynomialSecondDerivative(
     if( degree > ( maximumDegree_  ) || order > maximumOrder_ )
     {
         std::string errorMessage = "Error when requesting legendre cache second derivatives, maximum degree or order exceeded " +
-                boost::lexical_cast< std::string >( degree ) + " " +
-                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
-                boost::lexical_cast< std::string >( order ) + " " +
-                boost::lexical_cast< std::string >( maximumOrder_ );
+                std::to_string( degree ) + " " +
+                std::to_string( maximumDegree_ ) + " " +
+                std::to_string( order ) + " " +
+                std::to_string( maximumOrder_ );
         throw std::runtime_error( errorMessage );
         return TUDAT_NAN;
     }
@@ -326,8 +325,7 @@ double computeLegendrePolynomialFromCache( const int degree,
                      << order << " is undefined." << std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     // Else if order is greater than degree...
@@ -411,8 +409,7 @@ double computeGeodesyLegendrePolynomialFromCache( const int degree,
                      << order << " is undefined." << std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 
     // Else if order is greater than degree...
@@ -567,8 +564,8 @@ double computeLegendrePolynomialExplicit( const int degree,
         default:
         {
             std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                    boost::lexical_cast< std::string >( degree ) + ", " +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( degree ) + ", " +
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         }
@@ -583,8 +580,8 @@ double computeLegendrePolynomialExplicit( const int degree,
         default:
         {
             std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                    boost::lexical_cast< std::string >( degree ) + ", " +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( degree ) + ", " +
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         }
@@ -602,8 +599,8 @@ double computeLegendrePolynomialExplicit( const int degree,
         default:
         {
             std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                    boost::lexical_cast< std::string >( degree ) + ", " +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( degree ) + ", " +
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         }
@@ -625,8 +622,8 @@ double computeLegendrePolynomialExplicit( const int degree,
         default:
         {
             std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                    boost::lexical_cast< std::string >( degree ) + ", " +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( degree ) + ", " +
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         }
@@ -655,8 +652,8 @@ double computeLegendrePolynomialExplicit( const int degree,
         default:
         {
             std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                    boost::lexical_cast< std::string >( degree ) + ", " +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( degree ) + ", " +
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         }
@@ -664,8 +661,8 @@ double computeLegendrePolynomialExplicit( const int degree,
     default:
     {
         std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
-                boost::lexical_cast< std::string >( degree ) + ", " +
-                boost::lexical_cast< std::string >( order );
+                std::to_string( degree ) + ", " +
+                std::to_string( order );
         throw std::runtime_error( errorMessage );
     }
     }
@@ -704,8 +701,7 @@ double computeGeodesyLegendrePolynomialExplicit( const int degree,
                        <<  " and order = "  <<  order  <<  " is not supported."  <<  std::endl;
 
         // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                              errorMessage.str( ) ) ) );
+        throw std::runtime_error( errorMessage.str( ) );
     }
 }
 

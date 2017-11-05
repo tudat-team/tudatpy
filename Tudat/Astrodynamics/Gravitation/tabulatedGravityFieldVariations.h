@@ -22,8 +22,6 @@ namespace tudat
 namespace gravitation
 {
 
-
-
 //! Class for variations in spherical harmonic coefficients, directly interpolated from tables.
 /*!
  *  Class for variations in spherical harmonic coefficients, directly interpolated from tables.

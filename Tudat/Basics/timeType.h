@@ -660,7 +660,7 @@ public:
             return true;
         }
         else if( ( timeToCompare1.getFullPeriods( ) == timeToCompare2.getFullPeriods( ) ) &&
-                 ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
+          ( timeToCompare1.getSecondsIntoFullPeriod( ) >= timeToCompare2.getSecondsIntoFullPeriod( ) ) )
         {
             return true;
         }
@@ -718,7 +718,7 @@ public:
         }
     }
 
-        //! Smaller-than operator for Time object with double
+    //! Smaller-than operator for Time object with double
     /*!
      * Smaller-than operator for two Time objects
      * \param timeToCompare1 First time to compare
@@ -911,9 +911,9 @@ public:
     }
 
     //!Output operator for Time object
-    friend std::ostream& operator<<( std::ostream& stream, const Time& timeToPrint )
+    friend std::ostream& operator << ( std::ostream& stream, const Time& timeToPrint )
     {
-        stream<<"("<<timeToPrint.getFullPeriods( )<<", "<<timeToPrint.getSecondsIntoFullPeriod( )<<") ";
+        stream << "(" << timeToPrint.getFullPeriods( ) << ", " << timeToPrint.getSecondsIntoFullPeriod( ) << ") ";
         return stream;
     }
 

@@ -32,17 +32,11 @@
  */ 
 
 #include <cmath>
-#include <iostream>
 #include <map>
 #include <string>
 #include <utility>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/throw_exception.hpp>
 #include <boost/algorithm/string/trim.hpp>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -80,14 +74,8 @@ void TwoLineElementsTextFileReader::openFile( )
     // opened.
     if ( !dataFile_ )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            boost::str( boost::format( "Data file '%s' could not be opened." )
-                                 % absoluteFilePath_.c_str( ) ) ) )
-            << boost::errinfo_file_name( absoluteFilePath_.c_str( ) )
-            << boost::errinfo_file_open_mode( "std::ios::binary" )
-            << boost::errinfo_api_function( "std::ifstream::open" ) );
+       throw std::runtime_error(
+                    "Data file could not be opened: " + absoluteFilePath_ );
     }
 }
 
@@ -311,12 +299,12 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get line number integer of line-1 from string.
         twoLineElementData_[ objectNumberCounter_ ].lineNumberLine1  =
-                boost::lexical_cast<unsigned int>(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 0, 1 ) ) );
 
         // Get object indentification number integer of line-1 from string
         twoLineElementData_[ objectNumberCounter_ ].objectIdentificationNumber =
-                boost::lexical_cast<unsigned int>(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 2, 5 ) ) );
 
 
@@ -326,7 +314,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get launch year integer from string.
         twoLineElementData_[ objectNumberCounter_ ].launchYear =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 9, 2 ) ) );
 
         // Calculate four-digit launch year from the above.
@@ -344,7 +332,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get launch number integer from string.
         twoLineElementData_[ objectNumberCounter_ ].launchNumber =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 11, 3 ) ) );
 
         // Get launch part string from string.
@@ -353,7 +341,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch year integer from string.
         twoLineElementData_[ objectNumberCounter_ ].epochYear =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 18, 2 ) ) );
 
         // Calculate four-digit epoch year from the above.
@@ -371,12 +359,12 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch day double from string.
         twoLineElementData_[ objectNumberCounter_ ].epochDay =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 20, 12 ) ) );
 
         // Get "first-derivative of mean motion divided by two" double from string.
         twoLineElementData_[ objectNumberCounter_].firstDerivativeOfMeanMotionDividedByTwo =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 33, 10 ) ) );
 
         // Get coefficient of scientific notation of "second-derivative of mean motion divided
@@ -384,14 +372,14 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Apply implied leading decimal point.
         twoLineElementData_[ objectNumberCounter_ ]
                 .coefficientOfSecondDerivativeOfMeanMotionDividedBySix =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 44, 6 ) ) ) / 100000.0;
 
         // Get exponent of scientific notation of "second-derivative of mean motion divided
         // by six" integer from string.
         twoLineElementData_[ objectNumberCounter_]
                 .exponentOfSecondDerivativeOfMeanMotionDividedBySix =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 50, 2 ) ) );
 
         // Calculate "second-derivative of mean motion divided by six" double from the above two.
@@ -404,13 +392,13 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Get coefficient of scientific notation of "B* divided by six" double
         // from string; apply implied leading decimal point.
         twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 53, 6 ) ) ) /
                 100000.0;
 
         // Get exponent of scientific notation of B* integer from string
         twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar =
-                boost::lexical_cast< int >(
+                std::stoi(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 59, 2 ) ) );
 
         // Calculate B* double from the above two.
@@ -420,17 +408,17 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get orbital model integer from string.
         twoLineElementData_[ objectNumberCounter_ ].orbitalModel =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 62, 1 ) ) );
 
         // Get TLE number integer from string.
         twoLineElementData_[ objectNumberCounter_ ].tleNumber =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 64, 4 ) ) );
 
         // Get modulo-10 checksum integer from string.
         twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine1 =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 68, 1 ) ) );
 
         // Line-2 variable storing.
@@ -474,17 +462,17 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get mean motion double from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay =
-                boost::lexical_cast< double >(
+                std::stod(
                     trim_copy( twoLineElementString_[ 2 ].substr( 52, 11 ) ) );
 
         // Get revolution number integer from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].revolutionNumber =
-                boost::lexical_cast< int >(
+                std::stoi(
                     trim_copy( twoLineElementString_[ 2 ].substr( 63, 5 ) ) );
 
         // Get modulo-10 checksum integer of line-2 from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine2 =
-                boost::lexical_cast< unsigned int >(
+                std::stoul(
                     trim_copy( twoLineElementString_[ 2 ].substr( 68, 1 ) ) );
 
         // Calculate the approximate total number of revolutions, as the counter resets to 0 after
@@ -643,7 +631,7 @@ std::multimap< int, std::string > TwoLineElementsTextFileReader::checkTwoLineEle
                  j != 7 && j != 14 && j != 15 && j != 16 )
             {
                 // Add int to checksum.
-                line1Modulo10Sum_ += boost::lexical_cast<int>(
+                line1Modulo10Sum_ += std::stoi(
                             twoLineElementString_.at( 1 ).substr( j , 1 ) );
             }
 
@@ -680,7 +668,7 @@ std::multimap< int, std::string > TwoLineElementsTextFileReader::checkTwoLineEle
                  twoLineElementString_.at( 2 )[ k ] != '.' )
             {
                 // Add int to checksum.
-                line2Modulo10Sum_ += boost::lexical_cast<int>(
+                line2Modulo10Sum_ += std::stoi(
                             twoLineElementString_[ 2 ].substr( k , 1 ) );
             }
         }

@@ -19,10 +19,6 @@
 #ifndef TUDAT_PARSESOLARACTIVITY_H
 #define TUDAT_PARSESOLARACTIVITY_H
 
-#include <iostream>
-
-#include <boost/shared_ptr.hpp>
-
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 #include "Tudat/InputOutput/textParser.h"
 

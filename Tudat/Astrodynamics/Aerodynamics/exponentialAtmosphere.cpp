@@ -45,7 +45,7 @@ ExponentialAtmosphere::ExponentialAtmosphere(
     default:
         throw std::runtime_error(
                     "Error when making exponential atmosphere, predefined atmosphere" +
-                    boost::lexical_cast< std::string >(
+                    std::to_string(
                         bodyWithPredefinedExponentialAtmosphere ) + "not recognized." );
     }
 }

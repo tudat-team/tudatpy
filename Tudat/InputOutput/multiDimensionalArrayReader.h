@@ -152,7 +152,9 @@ public:
 
         if( !( independentVariables.size( ) == 1 ) )
         {
-            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found" );
+            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
+                                      " (expected 1 independent variable, got " +
+                                      std::to_string( independentVariables.size( ) ) + ")" );
         }
 
         // Set sizes of independent variables
@@ -204,7 +206,9 @@ public:
 
         if( !( independentVariables.size( ) == 2 ) )
         {
-            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found" );
+            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
+                                      " (expected 2 independent variables, got " +
+                                      std::to_string( independentVariables.size( ) ) + ")" );
         }
 
         // Set sizes of independent variables
@@ -257,7 +261,9 @@ public:
 
         if( !( independentVariables.size( ) == 3 ) )
         {
-            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found" );
+            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
+                                      " (expected 3 independent variables, got " +
+                                      std::to_string( independentVariables.size( ) ) + ")" );
         }
 
         // Set sizes of independent variables

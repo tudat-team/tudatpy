@@ -16,9 +16,7 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 
-#include <Tudat/Mathematics/Statistics/multiVariateGaussianProbabilityDistributions.h>
-
-
+#include "Tudat/Mathematics/Statistics/multiVariateGaussianProbabilityDistributions.h"
 namespace tudat
 {
 namespace statistics

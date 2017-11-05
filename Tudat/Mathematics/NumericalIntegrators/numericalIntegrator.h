@@ -155,7 +155,7 @@ public:
      *  \param terminationFunction Function that returns true if termination condition is reached, false if it has not,
      *  as a function of current time.
      */
-    void setPropagationTerminationFunction( boost::function< bool( const double ) > terminationFunction )
+    void setPropagationTerminationFunction( boost::function< bool( const double, const double ) > terminationFunction )
     {
         propagationTerminationFunction_ = terminationFunction;
     }
@@ -182,7 +182,7 @@ protected:
      *  By default, this function evaluates always to false, so the propagation termination conditions will not be
      *  checked during the integration subteps.
      */
-    boost::function< bool( const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
+    boost::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.
@@ -241,9 +241,9 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
                 }
                 else
                 {
-                    std::cerr<<"Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is "<<
-                        intervalEnd - getCurrentIndependentVariable( ) <<", final time is: "<<
-                               getCurrentIndependentVariable( )<<std::endl;
+                    std::cerr << "Warning, integrateTo function has failed to converge to final time to within tolerances, difference between true and requested final time is " <<
+                        intervalEnd - getCurrentIndependentVariable( ) << ", final time is: " <<
+                               getCurrentIndependentVariable( ) << std::endl;
                 }
             }
         }

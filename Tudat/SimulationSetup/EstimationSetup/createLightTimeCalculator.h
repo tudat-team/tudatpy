@@ -77,7 +77,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     {
         if( bodyWithLinkEnd->getGroundStationMap( ).count( linkEndId.second ) == 0 )
         {
-            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", station not found.";
+            std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
+                    linkEndId.second + ", station not found.";
             throw std::runtime_error( errorMessage );
         }
 
@@ -95,7 +96,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     else
     {
         // Create function to calculate state of transmitting ground station.
-        linkEndCompleteEphemerisFunction = boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+        linkEndCompleteEphemerisFunction =
+                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
                                                         bodyWithLinkEnd, _1 );
     }
     return linkEndCompleteEphemerisFunction;
@@ -114,7 +116,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getL
 {
     if( bodyMap.count( linkEndId.first ) == 0  )
     {
-        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " + linkEndId.second + ", body not found.";
+        std::string errorMessage = "Error when making ephemeris function for " + linkEndId.first + ", " +
+                linkEndId.second + ", body not found.";
         throw std::runtime_error( errorMessage );
     }
     return getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( bodyMap.at( linkEndId.first ), linkEndId );
@@ -132,12 +135,11 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getL
  *  \param transmittingLinkEnd Identifier for transmitting link end.
  *  \param receivingLinkEnd Identifier for receiving link end.
  */
-template< typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
 createLightTimeCalculator(
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
+        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
+        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
         const LinkEndId& transmittingLinkEnd,
@@ -155,7 +157,7 @@ createLightTimeCalculator(
     }
 
     // Create light time calculator.
-    return boost::make_shared< LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+    return boost::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
             ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions );
 }
 
@@ -169,21 +171,21 @@ createLightTimeCalculator(
  *  \param lightTimeCorrections List of light time corrections (w.r.t. Euclidean distance) that are applied when computing
  *  light time.
  */
-template< typename ObservationScalarType = double, typename TimeType = double,
-          typename StateScalarType = ObservationScalarType >
-boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > >
+template< typename ObservationScalarType = double, typename TimeType = double >
+boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
 createLightTimeCalculator(
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections )
+        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
+        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ) )
 {
 
     // Get link end state functions and create light time calculator.
-    return createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+    return createLightTimeCalculator< ObservationScalarType, TimeType >(
+                getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
                     transmittingLinkEnd, bodyMap ),
-                getLinkEndCompleteEphemerisFunction< StateScalarType, TimeType >(
+                getLinkEndCompleteEphemerisFunction< TimeType, ObservationScalarType >(
                     receivingLinkEnd, bodyMap ),
                 bodyMap, lightTimeCorrections, transmittingLinkEnd, receivingLinkEnd );
 }
@@ -191,4 +193,5 @@ createLightTimeCalculator(
 } // namespace observation_models
 
 } // namespace tudat
+
 #endif // TUDAT_CREATELIGHTTIMECALCULATOR_H

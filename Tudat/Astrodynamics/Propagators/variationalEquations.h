@@ -62,7 +62,7 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
-    {
+    {        
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
                     parametersToEstimate );
@@ -78,7 +78,7 @@ public:
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
                 std::string errorMessage = "Error when making variational equations object, found no state to estimate of type " +
-                        boost::lexical_cast< std::string >( partialTypeIterator->first );
+                        std::to_string( partialTypeIterator->first );
                 throw std::runtime_error( errorMessage );
             }
             else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=
@@ -383,6 +383,17 @@ private:
                 centralBodies.push_back( boost::dynamic_pointer_cast
                                          < estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getCentralBody( ) );
+            }
+            else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+            {
+                propagatedBodies.push_back(
+                            initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+                centralBodies.push_back( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
+                                             initialDynamicalParameters.at( i ) )->getCentralBody( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when settinf up variational equations, did not recognize initial state type" );
             }
         }
 

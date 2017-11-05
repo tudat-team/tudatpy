@@ -11,11 +11,17 @@
 # Set the source files.
 set(RELATIVITY_SOURCES
   "${SRCROOT}${RELATIVITYDIR}/relativisticLightTimeCorrection.cpp"
+  "${SRCROOT}${RELATIVITYDIR}/relativisticAccelerationCorrection.cpp"
+  "${SRCROOT}${RELATIVITYDIR}/relativisticTimeConversion.cpp"
+  "${SRCROOT}${RELATIVITYDIR}/metric.cpp"
 )
 
 # Set the header files.
 set(RELATIVITY_HEADERS 
   "${SRCROOT}${RELATIVITYDIR}/relativisticLightTimeCorrection.h"
+  "${SRCROOT}${RELATIVITYDIR}/relativisticAccelerationCorrection.h"
+  "${SRCROOT}${RELATIVITYDIR}/relativisticTimeConversion.h"
+  "${SRCROOT}${RELATIVITYDIR}/metric.h"
 )
 
 # Add static libraries.
@@ -27,3 +33,11 @@ setup_tudat_library_target(tudat_relativity "${SRCROOT}${RELATIVITYDIR}")
 add_executable(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}/UnitTests/unitTestShapiroTimeDelay.cpp")
 setup_custom_test_program(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}")
 target_link_libraries(test_ShapiroTimeDelay tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides ${Boost_LIBRARIES})
+
+if( COMPILE_PROPAGATION_TESTS )
+
+add_executable(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}/UnitTests/unitTestRelativisticAccelerationCorrection.cpp")
+setup_custom_test_program(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}")
+target_link_libraries(test_RelativisticAccelerationCorrection ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+endif( )

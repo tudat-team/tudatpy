@@ -27,6 +27,7 @@ class SingleDependentVariableSaveSettings;
 enum PropagationTerminationTypes
 {
     time_stopping_condition,
+    cpu_time_stopping_condition,
     dependent_variable_stopping_condition,
     hybrid_stopping_condition
 };
@@ -79,6 +80,31 @@ public:
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
+};
+
+//! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time
+/*!
+ *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time.
+ *  Note that the propagator will finish a given time step, slightly surpassing the defined final CPU time.
+ */
+class PropagationCPUTimeTerminationSettings: public PropagationTerminationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param cpuTerminationTime Maximum cpu time for the propagation, upon which the propagation is to be stopped
+     */
+    PropagationCPUTimeTerminationSettings( const double cpuTerminationTime ):
+        PropagationTerminationSettings( cpu_time_stopping_condition ),
+        cpuTerminationTime_( cpuTerminationTime ){ }
+
+    //! Destructor
+    ~PropagationCPUTimeTerminationSettings( ){ }
+
+    //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
+    double cpuTerminationTime_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a

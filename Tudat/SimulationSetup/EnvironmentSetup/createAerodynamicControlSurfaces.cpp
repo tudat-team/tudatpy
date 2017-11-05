@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/SimulationSetup/EnvironmentSetup/createAerodynamicControlSurfaces.h"
 
 namespace tudat
@@ -50,7 +48,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
     else
     {
         throw std::runtime_error( "Error when reading aerodynamic control increment coefficient settings from file, found " +
-                                  boost::lexical_cast< std::string >( numberOfIndependentVariables ) +
+                                  std::to_string( numberOfIndependentVariables ) +
                                   " independent variables, up to 3 currently supported" );
     }
 
@@ -87,7 +85,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
     else
     {
         throw std::runtime_error( "Error when reading aerodynamic coefficient settings from file, found " +
-                                  boost::lexical_cast< std::string >( numberOfIndependentVariables ) +
+                                  std::to_string( numberOfIndependentVariables ) +
                                   " independent variables, up to 3 currently supported" );
     }
     return coefficientSettings;
@@ -151,7 +149,7 @@ createControlSurfaceIncrementAerodynamicCoefficientInterface(
         }
         default:
             throw std::runtime_error( "Error when making tabulated control surface aerodynamic coefficient interface, " +
-                                      boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
+                                      std::to_string( numberOfDimensions ) + " dimensions not yet implemented" );
         }
         break;
     }

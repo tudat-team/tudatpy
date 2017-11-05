@@ -12,10 +12,13 @@
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussKeplerStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussModifiedEquinoctialStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
@@ -25,6 +28,8 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussKeplerStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussModifiedEquinoctialStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
@@ -33,7 +38,8 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
-  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 )
 
 # Add static libraries.
@@ -47,6 +53,8 @@ target_link_libraries(test_CentralBodyData tudat_propagators tudat_basic_mathema
 
 if(USE_CSPICE)
 
+if( COMPILE_PROPAGATION_TESTS )
+
 add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_CowellStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -55,6 +63,10 @@ add_executable(test_EnckeStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/
 setup_custom_test_program(test_EnckeStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_EnckeStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_GaussStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestGaussStateDerivative.cpp")
+setup_custom_test_program(test_GaussStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_GaussStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 add_executable(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestSequentialVariationalEquationIntegration.cpp")
 setup_custom_test_program(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_SequentialVariationEquationIntegration ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -62,6 +74,16 @@ target_link_libraries(test_SequentialVariationEquationIntegration ${TUDAT_ESTIMA
 add_executable(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestVariationalEquationPropagation.cpp")
 setup_custom_test_program(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_VariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestMultiArcVariationalEquationPropagation.cpp")
+setup_custom_test_program(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_MultiArcVariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
+setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_DependentVariableOutput ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+endif( )
 
 add_executable(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}")
@@ -75,10 +97,6 @@ add_executable(test_MultiTypeStatePropagation "${SRCROOT}${PROPAGATORSDIR}/UnitT
 setup_custom_test_program(test_MultiTypeStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiTypeStatePropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
-setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_DependentVariableOutput ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-
 add_executable(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStoppingConditions.cpp")
 setup_custom_test_program(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_StoppingConditions ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -87,9 +105,17 @@ add_executable(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTest
 setup_custom_test_program(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_CustomStatePropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestMultiArcDynamics.cpp")
+setup_custom_test_program(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_MultiArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 add_executable(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestPropagationTerminationReason.cpp")
 setup_custom_test_program(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationReason ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestRotationalDynamicsPropagator.cpp")
+setup_custom_test_program(test_RotationalDynamicsPropagation "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_RotationalDynamicsPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCR3BPPropagation.cpp")
 setup_custom_test_program(test_CR3BPPropagation "${SRCROOT}${PROPAGATORSDIR}/")
@@ -98,6 +124,11 @@ target_link_libraries(test_CR3BPPropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boo
 add_executable(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGATORSDIR}/UnitTests/uniTestPropagationTerminationCheckOnFinalStep.cpp")
 setup_custom_test_program(test_PropagationTerminationCheckOnFinalStep "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_PropagationTerminationCheckOnFinalStep ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_GlobalFrameOrigin "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestGlobalFrameOrigin.cpp")
+setup_custom_test_program(test_GlobalFrameOrigin "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_GlobalFrameOrigin ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")

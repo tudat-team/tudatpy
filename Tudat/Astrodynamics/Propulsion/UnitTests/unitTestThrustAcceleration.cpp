@@ -19,17 +19,16 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include <Tudat/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/InputOutput/multiDimensionalArrayReader.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/multiDimensionalArrayReader.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include <Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include <limits>
 #include <string>
 
@@ -43,11 +42,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_thrust_acceleration )
 
-//! In this test, the thrust acceleration is tested for a constant thrust force. A trajectory with only the thrusta
-//! acceleration, as well as the associated mass, is  propagated and teh result is compared against Tsiolkovsky's
-//! equation, the assumptions for which are equal to the simulation settings here (no gravity, constant thrust force
-//! direction and magnitude).
-BOOST_AUTO_TEST_CASE( testConstantThrustForce )
+BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 {
     using namespace tudat;
     using namespace numerical_integrators;
@@ -139,16 +134,16 @@ BOOST_AUTO_TEST_CASE( testConstantThrustForce )
                     createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 1 ),
                                          bodyMap, accelerationModelMap ) );
 
-        boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 boost::make_shared< MassPropagatorSettings< double > >(
                     boost::assign::list_of( "Vehicle" ), massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
@@ -173,6 +168,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustForce )
         }
     }
 }
+
 
 //! In this unit test, the thrust acceleration is tested for the case where the thrust force is taken from a (set of)
 //! engine objects stored in the VehicleSystems object. This is tested for a single engine (out of two), two engines, as
@@ -354,16 +350,16 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         double totalSpecificImpulse = totalThrust / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * totalMassRate );
 
-        boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 boost::make_shared< MassPropagatorSettings< double > >(
                     boost::assign::list_of( "Vehicle" ), massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
 
         // Create simulation object and propagate dynamics.
@@ -402,10 +398,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -580,10 +573,8 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
+
 
 
     double thrustMagnitude = 1.0E3;
@@ -708,9 +699,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
 
     // Set simulation start epoch.
@@ -998,6 +987,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     using namespace gravitation;
     using namespace numerical_integrators;
     using namespace unit_conversions;
+    using namespace interpolators;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1005,9 +995,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation end epoch.
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
@@ -1056,9 +1044,10 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     randomThrustMap[ 8.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
     randomThrustMap[ 9.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector3d > >(
-                randomThrustMap );
+    boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > thrustDataInterpolation =
+            boost::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
+                boost::make_shared< DataMapSettings< double, Eigen::Vector3d > >( randomThrustMap ),
+                boost::make_shared< InterpolatorSettings >( linear_interpolator ) );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -1072,19 +1061,14 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
-        if( testCase == 0 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               inertial_thurst_frame, "Earth" ) );
-        }
-        else if( testCase == 1 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               lvlh_thrust_frame, "Earth" ) );
-        }
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+
+        boost::shared_ptr< ThrustAccelerationSettings > thrustSettings =
+                boost::make_shared< ThrustAccelerationSettings >(
+                    thrustDataInterpolation, boost::lambda::constant( 300.0 ),
+                    testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
+
+        accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 
@@ -1138,11 +1122,16 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+
+        boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
+                thrustSettings->interpolatorInterface_->getThrustInterpolator( );
 
         Eigen::Vector3d thrustDifference;
 
@@ -1250,9 +1239,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
 
     // Set simulation start epoch.
@@ -1489,11 +1476,11 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                     boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
         propagatorSettingsVector.push_back( translationalPropagatorSettings );
         propagatorSettingsVector.push_back( massPropagatorSettings );
 
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< MultiTypePropagatorSettings< double > >(
                     propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >(
                         simulationEndEpoch ),
@@ -1600,10 +1587,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
@@ -1728,11 +1712,11 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
                 ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                 boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
-    std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >(
                     simulationEndEpoch ),

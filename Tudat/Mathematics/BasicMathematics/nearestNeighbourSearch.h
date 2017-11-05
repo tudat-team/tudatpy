@@ -20,9 +20,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/exception/all.hpp>
-
 #include <Eigen/Core>
 
 namespace tudat
@@ -191,17 +188,14 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
     if( independentValueVectorSize < 2 )
     {
         throw std::runtime_error( "Error in nearest neighbour search, size of input vector is " +
-                                  boost::lexical_cast< std::string >( independentValueVectorSize ) );
+                                  std::to_string( independentValueVectorSize ) );
     }
 
     // Check whether initial estimate is possible.
     if ( previousNearestLowerIndex_ < 0 ||
          previousNearestLowerIndex_ > static_cast< int >( independentValues_.size( ) - 2 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                                    std::runtime_error(
-        "Error, initial guess for nearest neighbour search not within allowable bounds." ) ) );
+        throw std::runtime_error( "Error, initial guess for nearest neighbour search not within allowable bounds." );
     }
 
     // Check if independent variable value falls within region of values provided.
@@ -295,11 +289,12 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
                 {
 
                     int middleIndex;
+
                     if( !( upperIndex - lowerIndex  > 0 ) )
                     {
                         throw std::runtime_error( "Error, upper and lower indices are inconsistent in nearest neighbour search" +
-                                                  boost::lexical_cast< std::string >( upperIndex ) + " " +
-                                                  boost::lexical_cast< std::string >( lowerIndex ) );
+                                                  std::to_string( upperIndex ) + " " +
+                                                  std::to_string( lowerIndex ) );
                     }
 
                     // If the upper and lower indices have a difference of exactly one, the

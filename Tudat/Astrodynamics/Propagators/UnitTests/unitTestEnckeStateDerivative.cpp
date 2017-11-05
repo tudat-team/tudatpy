@@ -15,7 +15,6 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
@@ -57,11 +56,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
 
         //Load spice kernels.
-        std::string kernelsPath = input_output::getSpiceKernelPath( );
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+        spice_interface::loadStandardSpiceKernels( );
 
         // Define bodies in simulation.
         unsigned int totalNumberOfBodies = 7;
@@ -258,9 +253,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         using namespace numerical_integrators;
 
         // Load Spice kernels.
-        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+        spice_interface::loadStandardSpiceKernels( );
 
         // Set simulation time settings.
         const double simulationStartEpoch = 0.0;
@@ -450,7 +443,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
 
     for( unsigned testCase = 0; testCase < testEccentricities.size( ); testCase++ )
     {
-        std::cout<<"Testint with eccentricity "<<testEccentricities.at( testCase );
         // Set simulation end epoch.
         const double simulationEndEpoch = 2.0 * tudat::physical_constants::JULIAN_DAY;
 

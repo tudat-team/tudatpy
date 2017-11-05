@@ -20,14 +20,11 @@
 #include <map>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h>
-#include <Tudat/Astrodynamics/Aerodynamics/aerodynamics.h>
-#include <Tudat/Basics/utilities.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Basics/utilities.h"
 namespace tudat
 {
 namespace aerodynamics
@@ -56,11 +53,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along tyhe positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction (default true).
      */
     AerodynamicCoefficientInterface(
@@ -81,6 +78,7 @@ public:
         areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )\
     {
         numberOfIndependentVariables_ = independentVariableNames.size( );
+        referenceLengths_ << referenceLength_, lateralReferenceLength_, referenceLength_;
     }
 
     //! Default destructor.
@@ -106,6 +104,13 @@ public:
      * \return Aerodynamic lateral reference length.
      */
     double getLateralReferenceLength( ) { return lateralReferenceLength_; }
+
+    //! Get reference lengths.
+    /*!
+     * Returns the all reference lengths used to non-dimensionalize aerodynamic moments.
+     * \return Aerodynamic reference lengths.
+     */
+    Eigen::Vector3d getReferenceLengths( ) { return referenceLengths_; }
 
     //! Get moment reference point.
     /*!
@@ -236,8 +241,8 @@ public:
             throw std::runtime_error(
                         std::string( "Error when retrieving aerodynamic coefficient interface " ) +
                         ( " variable name, requested variable index " ) +
-                        boost::lexical_cast< std::string >( index ) +
-                        ", but only " + boost::lexical_cast< std::string >(
+                        std::to_string( index ) +
+                        ", but only " + std::to_string(
                             numberOfIndependentVariables_ ) + " variables available." );
         }
 
@@ -402,6 +407,12 @@ protected:
      */
     double lateralReferenceLength_;
 
+    //! Aerodynamic reference lengths.
+    /*!
+     * All reference lengths with which aerodynamic moments are non-dimensionalized.
+     */
+    Eigen::Vector3d referenceLengths_;
+
     //! Aerodynamic moment reference point.
     /*!
      * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
@@ -421,7 +432,7 @@ protected:
 
     //! Boolean to denote whether coefficients are defined in aerodynamic or body frame
     /*! Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      */
     bool areCoefficientsInAerodynamicFrame_;
@@ -429,7 +440,7 @@ protected:
     //! Boolean to denote whether coefficients are positive along frame axes
     /*! Boolean to define whether the aerodynamic coefficients are
       *  positive along tyhe positive axes of the body or aerodynamic frame
-      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+      *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
       *  coefficients are typically defined in negative direction.
      */
     bool areCoefficientsInNegativeAxisDirection_;

@@ -12,7 +12,6 @@
 #ifndef TUDAT_KEPLER_PROPAGATOR_H
 #define TUDAT_KEPLER_PROPAGATOR_H
 
-#include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -78,9 +77,7 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
     if ( initialStateInKeplerianElements( eccentricityIndex ) <
          mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid (smaller than 0)." ) ) );
+        throw std::runtime_error( "Eccentricity is invalid (smaller than 0)." );
     }
 
     // Check if orbit is elliptical.
@@ -156,9 +153,7 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
     // In this case the eccentricity has to be 1.0, hence the orbit is parabolic.
     else
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Parabolic orbits are not (yet) supported." ) ) );
+        throw std::runtime_error( "Parabolic orbits are not (yet) supported." );
     }
 
     return finalStateInKeplerianElements;

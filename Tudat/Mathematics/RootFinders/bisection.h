@@ -21,9 +21,6 @@
 #define TUDAT_BISECTION_H
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/format.hpp>
-#include <boost/format/free_funcs.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -157,10 +154,8 @@ public:
         // (requirement).
         if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
         {
-            boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                                  boost::str( boost::format(
-                                                                                  "The Bisection algorithm requires that the values at the upper "
-                                                                                  "and lower bounds have a different sign." ) ) ) ) );
+            throw std::runtime_error(
+                        "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign." );
         }
 
         // Loop counter.
@@ -172,10 +167,8 @@ public:
             // Sanity check.
             if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
             {
-                boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                                                                      boost::str( boost::format(
-                                                                                      "The Bisection algorithm requires that the values at the upper "
-                                                                                      "and lower bounds have a different sign, error during iteration." ) ) ) ) );
+                throw std::runtime_error(
+                            "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign, error during iteration." );
             }
             // Save old values.
             previousRootValue = rootValue;

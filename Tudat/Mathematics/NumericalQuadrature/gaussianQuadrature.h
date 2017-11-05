@@ -88,7 +88,7 @@ struct GaussQuadratureNodesAndWeights
         if ( uniqueNodes_.count( numberOfNodes ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, nodes not available for n=" +
-                    boost::lexical_cast< std::string >( numberOfNodes );
+                    std::to_string( numberOfNodes );
             throw std::runtime_error( errorMessage );
         }
         return uniqueNodes_.at( numberOfNodes );
@@ -105,7 +105,7 @@ struct GaussQuadratureNodesAndWeights
         if ( uniqueWeights_.count( order ) == 0 )
         {
             std::string errorMessage = "Error in Gaussian quadrature, weights not available for n=" +
-                    boost::lexical_cast< std::string >( order );
+                    std::to_string( order );
             throw std::runtime_error( errorMessage );
         }
         return uniqueWeights_.at( order );
@@ -132,7 +132,7 @@ struct GaussQuadratureNodesAndWeights
 
             // Include ± nodes
             IndependentVariableArray uniqueNodes_ = getUniqueNodes( order );
-            for ( unsigned int j = 0; j < uniqueNodes_.size(); j++ )
+            for ( int j = 0; j < uniqueNodes_.size( ); j++ )
             {
                 newNodes.row( i++ ) = -uniqueNodes_[ j ];
                 newNodes.row( i++ ) =  uniqueNodes_[ j ];
@@ -154,7 +154,7 @@ struct GaussQuadratureNodesAndWeights
 
             // Include non-repeated weight factor if n is odd
             unsigned int i = 0;
-            unsigned int j = 0;
+            int j = 0;
             if ( n % 2 == 1 )
             {
                 newWeights.row( i++ ) = orderNWeights[ j++ ];

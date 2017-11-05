@@ -1,0 +1,9 @@
+{
+  "maximumDegreeOfBodyExertingAcceleration": 7,
+  "maximumOrderOfBodyExertingAcceleration": 0,
+  "maximumDegreeOfBodyUndergoingAcceleration": 3,
+  "maximumOrderOfBodyUndergoingAcceleration": 2,
+  "maximumDegreeOfCentralBody": 5,
+  "maximumOrderOfCentralBody": 4,
+  "type": "mutualSphericalHarmonicGravity"
+}

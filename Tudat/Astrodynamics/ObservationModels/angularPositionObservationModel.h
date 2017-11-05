@@ -12,8 +12,6 @@
 #define TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
 
 #include <map>
-#include <string>
-
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -32,13 +30,13 @@ namespace observation_models
  *  to determine the states of the link ends (source and receiver).
  *  The user may add observation biases to model system-dependent deviations between measured and true observation.
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
-class AngularPositionObservationModel: public ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >
+template< typename ObservationScalarType = double, typename TimeType = double >
+class AngularPositionObservationModel: public ObservationModel< 2, ObservationScalarType, TimeType >
 {
 public:
 
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-    typedef Eigen::Matrix< StateScalarType, 6, 1 > PositionType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< ObservationScalarType, 6, 1 > PositionType;
 
     //! Constructor.
     /*!
@@ -49,9 +47,9 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     AngularPositionObservationModel(
-            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
+            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL ):
-        ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >( angular_position, observationBiasCalculator ),
+        ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ) { }
 
     //! Destructor
@@ -75,8 +73,8 @@ public:
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
-                    std::vector< TimeType >& linkEndTimes,
-                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+                    std::vector< double >& linkEndTimes,
+                    std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
 
     {
         // Check link end associated with input time and compute observable
@@ -95,8 +93,8 @@ public:
             throw std::runtime_error( "Error when calculating angular position observation, link end is not transmitter or receiver" );
         }
 
-        Eigen::Matrix< StateScalarType, 6, 1 > receiverState;
-        Eigen::Matrix< StateScalarType, 6, 1 > transmitterState;
+        Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState;
+        Eigen::Matrix< ObservationScalarType, 6, 1 > transmitterState;
 
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
@@ -104,25 +102,25 @@ public:
 
         // Compute spherical relative position
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-                coordinate_conversions::convertCartesianToSpherical< StateScalarType >(
+                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
                     transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
                 template cast< ObservationScalarType >( );
 
         // Set link end times and states.
         linkEndTimes.clear( );
         linkEndStates.clear( );
-        linkEndStates.push_back( transmitterState );
-        linkEndStates.push_back( receiverState );
+        linkEndStates.push_back( transmitterState.template cast< double >( ) );
+        linkEndStates.push_back( receiverState.template cast< double >( ) );
 
         if( isTimeAtReception )
         {
-            linkEndTimes.push_back( time - lightTime );
-            linkEndTimes.push_back( time );
+            linkEndTimes.push_back( static_cast< double >( time - lightTime ) );
+            linkEndTimes.push_back( static_cast< double >( time ) );
         }
         else
         {
-            linkEndTimes.push_back( time );
-            linkEndTimes.push_back( time + lightTime );
+            linkEndTimes.push_back( static_cast< double >( time ) );
+            linkEndTimes.push_back( static_cast< double >( time + lightTime ) );
         }
 
         // Return observable
@@ -134,7 +132,7 @@ public:
     /*!
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
-     */    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > getLightTimeCalculator( )
+     */    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
     }
@@ -145,7 +143,7 @@ private:
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator_;
+    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 };
 
 } // namespace observation_models

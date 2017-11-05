@@ -12,8 +12,6 @@
 #ifndef TUDAT_SURFACEGEOMETRY_H
 #define TUDAT_SURFACEGEOMETRY_H
 
-#include <iostream>
-
 //! Tudat library namespace.
 /*!
  * The Tudat library namespace.

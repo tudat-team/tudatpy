@@ -20,11 +20,9 @@
  */
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
@@ -118,10 +116,8 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
     default:
 
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "The Lagrange libration point requested does not exist." ) ) );
+        throw std::runtime_error(
+                            "The Lagrange libration point requested does not exist." );
     };
 }
 

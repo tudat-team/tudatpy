@@ -12,8 +12,6 @@
 #define TUDAT_GRAVITYFIELDVARIATIONS_H
 
 #include <boost/function.hpp>
-#include <iostream>
-
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"
@@ -376,18 +374,39 @@ public:
     std::vector< boost::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
     getVariationFunctions( );
 
+    //! Function to retrieve the complete set of variations to take nto account.
+    /*!
+     * Function to retrieve the complete set of variations to take nto account.
+     * \return Complete set of variations to take nto account.
+     */
     std::vector< boost::shared_ptr< GravityFieldVariations > > getVariationObjects( )
     {
         return variationObjects_;
     }
 
+    //! Function to retrieve the tidal gravity field variation with the specified bodies causing deformation
+    /*!
+     * Function to retrieve the tidal gravity field variation with the specified bodies causing deformation. If the
+     * deformingBodies list is empty, and only one tidal gravity field variation exists, this object is returned. Function
+     * throws an exception in no object correspond to input is found
+     * \param deformingBodies List of objects that cause tidal gravity field variation
+     * \return The tidal gravity field variation with the specified bodies causing deformation
+     */
+    boost::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation(
+            const std::vector< std::string >& deformingBodies );
+
+    //! Function to retrieve the tidal gravity field variations
+    /*!
+     * Function to retrieve the tidal gravity field variations
+     * \return List of tidal gravity field variations objects
+     */
+    std::vector< boost::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
+
 private:
 
-    //! List of GravityFieldVariations objects denoting the complete set of variations to take
-    //! into account.
+    //! List of GravityFieldVariations objects denoting the complete set of variations to take nto account.
     /*!
-     *  List of GravityFieldVariations objects denoting the complete set of variations to take
-     *  into account.
+     *  List of GravityFieldVariations objects denoting the complete set of variations to take into account.
      */
     std::vector< boost::shared_ptr< GravityFieldVariations > > variationObjects_;
 

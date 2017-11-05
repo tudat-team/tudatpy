@@ -57,13 +57,8 @@ BOOST_AUTO_TEST_SUITE( test_sequential_variational_equation_integration )
 std::pair< boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface >, boost::shared_ptr< Ephemeris > >
 integrateEquations( const bool performIntegrationsSequentially )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Earth" );
@@ -152,16 +147,16 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Perform requested propagation
-    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double, double > > variationalEquationSolver;
+    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double> > variationalEquationSolver;
     if( !performIntegrationsSequentially )
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate );
     }
     else
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double, double > >(
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
                     integratorSettings );

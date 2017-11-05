@@ -12,6 +12,7 @@ set(ESTIMATABLE_PARAMETERS_SOURCES
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/estimatableParameter.cpp"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.cpp"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.cpp"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/tidalLoveNumber.cpp"
 )
 
 # Set the header files.
@@ -23,7 +24,15 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationRate.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantDragCoefficient.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/constantRotationalOrientation.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/observationBiasParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/ppnParameters.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/groundStationPosition.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/equivalencePrincipleViolationParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/empiricalAccelerationCoefficients.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/tidalLoveNumber.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/directTidalTimeLag.h"
 )
 
 # Add static libraries.

@@ -11,8 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <iomanip>
 #include <limits>
 
 #include <boost/math/special_functions/fpclassify.hpp>

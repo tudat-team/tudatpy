@@ -112,10 +112,7 @@ double OscillatingFunctionNovak::computeDerivative(
     // Throw runtime error, when order is higher that 3.
     else
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Derivatives of order higher than 3 are not supported.") ) );
+        throw std::runtime_error( "Derivatives of order higher than 3 are not supported." );
     }
 }
 
@@ -129,11 +126,7 @@ double OscillatingFunctionNovak::computeDefiniteIntegral(
     TUDAT_UNUSED_PARAMETER( upperBound );
 
     // Throw runtime error, when trying to compute the integral of the function.
-    boost::throw_exception(
-                boost::enable_error_info(
-                    std::runtime_error(
-                        "Cannot compute the integral, "
-                        "this is not supported for this function class.") ) );
+    throw std::runtime_error( "Cannot compute the integral, this is not supported for this function class." );
 }
 
 } // namespace mission_segments

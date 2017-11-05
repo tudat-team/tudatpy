@@ -10,14 +10,13 @@
 
 # Set the source files.
 set(AERODYNAMICS_SOURCES
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicTorque.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
-  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/trimOrientation.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.cpp"
@@ -26,12 +25,11 @@ set(AERODYNAMICS_SOURCES
 # Set the header files.
 set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicTorque.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientInterface.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicRotationalAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.h"
   "${SRCROOT}${AERODYNAMICSDIR}/atmosphereModel.h"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.h"
@@ -45,6 +43,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicGuidance.h"
   "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/windModel.h"
 )
 
 if(USE_NRLMSISE00)
@@ -97,6 +96,9 @@ add_executable(test_AerodynamicCoefficientsFromFile "${SRCROOT}${AERODYNAMICSDIR
 setup_custom_test_program(test_AerodynamicCoefficientsFromFile "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicCoefficientsFromFile ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_WindModel "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestWindModel.cpp")
+setup_custom_test_program(test_WindModel "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_WindModel ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")
     setup_custom_test_program(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}")

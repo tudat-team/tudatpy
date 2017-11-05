@@ -99,9 +99,9 @@ public:
         if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
-                                      boost::lexical_cast< std::string >( integratedStatesToSet.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
+                                      std::to_string( integratedStatesToSet.size( ) ) + " " +
+                                      std::to_string( setIntegratedStatesFromEnvironment.size( ) ) + " " +
+                                      std::to_string( integratedStates_.size( ) ) );
         }
 
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
@@ -155,6 +155,17 @@ private:
                 }
                 break;
             }
+            case rotational_state:
+            {
+                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                        integratedStates_.at( rotational_state );
+                for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
+                {
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->setCurrentRotationalStateToLocalFrame(
+                                integratedStateIterator_->second.segment( i * 7, 7 ).template cast< double >( ) );
+                }
+                break;
+            }
             case body_mass_state:
             {
                 // Set mass for bodies provided as input.
@@ -174,7 +185,7 @@ private:
             }
             default:
                 throw std::runtime_error( "Error, could not find integrated state settings for " +
-                                          boost::lexical_cast< std::string >( integratedStateIterator_->first ) );
+                                          std::to_string( integratedStateIterator_->first ) );
             }
         }
     }
@@ -208,6 +219,17 @@ private:
                 }
                 break;
             }
+            case rotational_state:
+            {
+                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                        integratedStates_.at( rotational_state );
+                for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
+                {
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
+                                currentTime );
+                }
+                break;
+            }
             case body_mass_state:
             {
                 // Iterate over all integrated masses.
@@ -223,7 +245,7 @@ private:
             }
             default:
                 throw std::runtime_error( "Error, could not find  state settings for " +
-                                          boost::lexical_cast< std::string >( statesToSet.at( i ) ) );
+                                          std::to_string( statesToSet.at( i ) ) );
             }
         }
     }
@@ -444,32 +466,50 @@ private:
                     }
                     case body_rotational_state_update:
                     {
-                        // Check if rotational ephemeris exists
-                        if(  ( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) != NULL ) ||
-                             ( bodyList_.at( currentBodies.at( i ) )->getDependentOrientationCalculator( ) != NULL ) )
-                        {
-                            boost::function< void( const TimeType ) > rotationalStateSetFunction =
-                                    boost::bind( &simulation_setup::Body
-                                                 ::setCurrentRotationalStateToLocalFrameFromEphemeris,
-                                                 bodyList_.at( currentBodies.at( i ) ), _1 );
-                            updateTimeFunctionList[ body_rotational_state_update ].push_back(
-                                        std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
 
-                            if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == NULL )
+                        bool addUpdate = 1;
+                        if( integratedStates_.count( rotational_state ) > 0 )
+                        {
+                            std::pair< std::string, std::string > bodyToCheck = std::make_pair( currentBodies.at( i ), "" );
+                            std::vector< std::pair< std::string, std::string > > integratedRotationalStates =
+                                    integratedStates_.at( rotational_state );
+                            if( std::find( integratedRotationalStates.begin( ), integratedRotationalStates.end( ), bodyToCheck ) !=
+                                    integratedRotationalStates.end( ) )
                             {
-                                resetFunctionVector_.push_back(
-                                            boost::make_tuple(
-                                                body_rotational_state_update, currentBodies.at( i ),
-                                                boost::bind( &reference_frames::DependentOrientationCalculator::
-                                                             resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
-                                                             getDependentOrientationCalculator( ), TUDAT_NAN ) ) );
+                                addUpdate = 0;
                             }
                         }
-                        else
+
+                        if( addUpdate == 1 )
                         {
-                            throw std::runtime_error(
-                                        "Request rotation update of " + currentBodies.at( i ) +
-                                        ", but body has no rotational ephemeris" );
+
+                            // Check if rotational ephemeris exists
+                            if(  ( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) != NULL ) ||
+                                 ( bodyList_.at( currentBodies.at( i ) )->getDependentOrientationCalculator( ) != NULL ) )
+                            {
+                                boost::function< void( const TimeType ) > rotationalStateSetFunction =
+                                        boost::bind( &simulation_setup::Body
+                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >,
+                                                     bodyList_.at( currentBodies.at( i ) ), _1 );
+                                updateTimeFunctionList[ body_rotational_state_update ].push_back(
+                                            std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
+
+                                if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == NULL )
+                                {
+                                    resetFunctionVector_.push_back(
+                                                boost::make_tuple(
+                                                    body_rotational_state_update, currentBodies.at( i ),
+                                                    boost::bind( &reference_frames::DependentOrientationCalculator::
+                                                                 resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
+                                                                 getDependentOrientationCalculator( ), TUDAT_NAN ) ) );
+                                }
+                            }
+                            else
+                            {
+                                throw std::runtime_error(
+                                            "Request rotation update of " + currentBodies.at( i ) +
+                                            ", but body has no rotational ephemeris" );
+                            }
                         }
 
                         break;
@@ -578,8 +618,8 @@ private:
                         }
                         else if( radiationPressureInterfaces.size( ) > 1 )
                         {
-                            std::cerr<<"Warning, requested radiation pressure update of "<<currentBodies.at( i )<<
-                                       ", but body has multiple radiation pressure interfaces: updating all."<<std::endl;
+                            std::cerr << "Warning, requested radiation pressure update of " << currentBodies.at( i ) <<
+                                       ", but body has multiple radiation pressure interfaces: updating all." << std::endl;
                         }
 
                         // Add each interface update function to update list.

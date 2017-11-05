@@ -17,19 +17,18 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Basics/testMacros.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h>
-#include <Tudat/Basics/basicTypedefs.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 
 
@@ -56,9 +55,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     using namespace unit_conversions;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation end epoch.
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
@@ -121,7 +118,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 earthGravitationalParameter );
 
 
-    boost::shared_ptr< PropagatorSettings< double > > translationalPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
@@ -132,13 +129,13 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
                 boost::lambda::constant( -0.01 ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
                 boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
                 boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+    boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings;
     if( ( simulationCase  % 3 ) == 0 )
     {
         propagatorSettings = translationalPropagatorSettings;
@@ -149,7 +146,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     }
     else if( ( simulationCase  % 3 ) == 2 )
     {
-        std::vector< boost::shared_ptr< PropagatorSettings< double > > >  propagatorSettingsList;
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
         propagatorSettingsList.push_back( translationalPropagatorSettings );
         propagatorSettingsList.push_back( massPropagatorSettings );
 

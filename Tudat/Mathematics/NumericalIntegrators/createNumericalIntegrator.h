@@ -10,12 +10,8 @@
 #ifndef TUDAT_CREATENUMERICALINTEGRATOR_H
 #define TUDAT_CREATENUMERICALINTEGRATOR_H
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/euler.h"
@@ -181,25 +177,25 @@ public:
     /*!
      *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
      */
-    const TimeType minimumStepSize_;
+    TimeType minimumStepSize_;
 
     //! Maximum step size for integration.
-    const TimeType maximumStepSize_;
+    TimeType maximumStepSize_;
 
     //! Relative error tolerance for step size control
-    const TimeType relativeErrorTolerance_;
+    TimeType relativeErrorTolerance_;
 
     //! Absolute error tolerance for step size control
-    const TimeType absoluteErrorTolerance_;
+    TimeType absoluteErrorTolerance_;
 
     //! Safety factor for step size control
-    const TimeType safetyFactorForNextStepSize_;
+    TimeType safetyFactorForNextStepSize_;
 
     //! Maximum increase factor in time step in subsequent iterations.
-    const TimeType maximumFactorIncreaseForNextStepSize_;
+    TimeType maximumFactorIncreaseForNextStepSize_;
 
     //! Maximum decrease factor in time step in subsequent iterations.
-    const TimeType minimumFactorDecreaseForNextStepSize_;
+    TimeType minimumFactorDecreaseForNextStepSize_;
 };
 
 //! Function to create a numerical integrator.
@@ -270,7 +266,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
     }
     default:
         std::runtime_error(
-                    "Error, integrator " +  boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) +
+                    "Error, integrator " +  std::to_string( integratorSettings->integratorType_ ) +
                     "not found. " );    }
     return integrator;
 }

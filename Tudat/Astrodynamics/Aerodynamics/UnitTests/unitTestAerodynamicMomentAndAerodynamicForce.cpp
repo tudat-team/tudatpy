@@ -38,16 +38,14 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
 
@@ -228,7 +226,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     const double dynamicPressure = 123.6;
     const double referenceArea = 1.7;
     const double referenceLength = 2.6;
-    const double mass = 12.46;
 
     // Calculate expected moment.
     const Eigen::Vector3d expectedMoment = dynamicPressure * referenceArea *
@@ -259,38 +256,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
                                                            aerodynamicCoefficientInterface );
-
-        // Check if computed moment matches expected.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
-    }
-
-    // Test 3: test the rotational acceleration model implemented as free function with coefficient
-    //         interface argument, based on the force that can be derived from the computed
-    //         acceleration.
-    {
-        // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                createConstantCoefficientAerodynamicCoefficientInterface(
-                    Eigen::Vector3d::Zero( ), momentCoefficients,
-                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
-
-        // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
-        // primitive arguments.
-        Eigen::Vector3d moment = computeAerodynamicRotationalAcceleration(
-                    dynamicPressure, aerodynamicCoefficientInterface, mass ) * mass;
-
-        // Check if computed moment matches expected.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
-    }
-
-    // Test 4: test the rotational acceleration model implemented as free function with primitive
-    //         arguments, based on the force that can be derived from the computed acceleration.
-    {
-        // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
-        // primitive arguments.
-        Eigen::Vector3d moment = computeAerodynamicRotationalAcceleration(
-                    dynamicPressure, referenceArea, referenceLength,
-                    momentCoefficients, mass ) * mass;
 
         // Check if computed moment matches expected.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
@@ -343,9 +308,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -396,7 +359,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         }
         else
         {
-            aerodynamicCoefficients = ( Eigen::Vector3d( )<<1.0, -0.1, 0.5 ).finished( );
+            aerodynamicCoefficients = ( Eigen::Vector3d( ) << 1.0, -0.1, 0.5 ).finished( );
 
         }
 

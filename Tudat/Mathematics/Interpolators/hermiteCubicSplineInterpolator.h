@@ -15,9 +15,8 @@
 #include <Eigen/Core>
 #include <vector>
 
-#include <Tudat/Mathematics/Interpolators/interpolator.h>
-#include <Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h>
-
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
+#include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
 
@@ -37,6 +36,7 @@ public:
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Constructor
     HermiteCubicSplineInterpolator(

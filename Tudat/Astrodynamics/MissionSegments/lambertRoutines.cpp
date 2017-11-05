@@ -17,12 +17,9 @@
  */
 
 #include <cmath>
-#include <iostream>
-#include <sstream>
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/math/special_functions.hpp>
 
@@ -56,14 +53,8 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Sanity check for specified time-of-flight.
     if ( timeOfFlight <= 0.0 )
     {
-        // Define error message.
-        std::stringstream errorMessage;
-        errorMessage << "Specified time-of-flight must be strictly positive.\n"
-                     << "Specified time-of-flight: " << timeOfFlight << " days." << std::endl;
-
         // Throw exception.
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( errorMessage.str( ) ) ) );
+        throw std::runtime_error( "Specified time-of-flight must be strictly positive: " + std::to_string( timeOfFlight ) + " days." );
     }
 
     // Compute normalizing values.
@@ -169,7 +160,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     if ( iterator == maximumNumberOfIterations )
     {
         std::string errorMessage = "Lambert Solver did not converge within the maximum number of iterations: " +
-                boost::lexical_cast< std::string >( maximumNumberOfIterations );
+                std::to_string( maximumNumberOfIterations );
         throw std::runtime_error( errorMessage );
     }
 

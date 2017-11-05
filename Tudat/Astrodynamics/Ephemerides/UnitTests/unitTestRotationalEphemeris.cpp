@@ -11,8 +11,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <iostream>
-
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -20,10 +18,13 @@
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
-//#include "Tudat/External/SpiceInterface/spiceInterface.h"
-//#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Astrodynamics/Ephemerides/tabulatedRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
@@ -51,68 +52,69 @@ BOOST_AUTO_TEST_CASE( testRotationalEphemeris )
         //        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) +
         // "pck00010.tpc" );
         //        const double secondsSinceJ2000 = 1.0E6;
-        //        Eigen::Quaterniond spiceRotationMatrix =
+        //        Eigen::Quaterniond spiceRotationMatrixToFrame =
         //                spice_interface::computeRotationQuaternionBetweenFrames(
         // baseFrame, targetFrame, secondsSinceJ2000 );
-        //        Eigen::Matrix3d spiceRotationMatrixDerivative =
+        //        Eigen::Matrix3d spiceRotationMatrixDerivativeToFrame =
         //                spice_interface::computeRotationMatrixDerivativeBetweenFrames(
         // baseFrame, targetFrame, secondsSinceJ2000 );
-        //        Eigen::Vector3d spiceRotationalVelocityVector =
+        //        Eigen::Vector3d spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame =
         //                spice_interface::getAngularVelocityVectorOfFrameInOriginalFrame(
         // baseFrame, targetFrame, secondsSinceJ2000 );
 
         // Set rotational characteristics at given time, as calculated with Spice
         // (see above commented lines).
-        Eigen::Matrix3d spiceRotationMatrixDerivative;
-        spiceRotationMatrixDerivative <<
-                1.690407961416589e-07, 2.288121921543265e-07, 9.283170431475241e-08,
+        Eigen::Matrix3d spiceRotationMatrixDerivativeToFrame;
+        spiceRotationMatrixDerivativeToFrame <<
+                                                1.690407961416589e-07, 2.288121921543265e-07, 9.283170431475241e-08,
                 -2.468632444964533e-07, 1.540516111965609e-07, 6.981529179974795e-08,
                 0.0,           0.0,          0.0;
 
-        Eigen::Matrix3d spiceRotationMatrix;
-        spiceRotationMatrix << -0.8249537745726603, 0.5148010526833556, 0.2333048348715243,
+        Eigen::Matrix3d spiceRotationMatrixToFrame;
+        spiceRotationMatrixToFrame << -0.8249537745726603, 0.5148010526833556, 0.2333048348715243,
                 -0.5648910720519699, -0.7646317780963481, -0.3102197940834743,
                 0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
 
-        Eigen::Vector3d spiceRotationalVelocityVector;
-        spiceRotationalVelocityVector << -5.593131603532092e-09,
+        Eigen::Vector3d spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame;
+        spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame << -5.593131603532092e-09,
                 1.160198999048488e-07,
                 -2.75781861386115e-07;
 
         // Calculate rotational velocity from SPICE rotation matrix derivative.
-        Eigen::Vector3d rotationalVelocityVector =
+        Eigen::Vector3d manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame =
                 getRotationalVelocityVectorInBaseFrameFromMatrices(
-                    spiceRotationMatrix, spiceRotationMatrixDerivative.transpose( ) );
+                    spiceRotationMatrixToFrame, spiceRotationMatrixDerivativeToFrame.transpose( ) );
 
         // Calculate rotation matrix derivative from SPICE rotational velocity vector.
         Eigen::Matrix3d rotationMatrixDerivative = getDerivativeOfRotationMatrixToFrame(
-                    spiceRotationMatrix, spiceRotationalVelocityVector );
+                    spiceRotationMatrixToFrame, spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
 
         // Calculate rotational velocity from previously calculated rotation matrix derivative.
         Eigen::Matrix3d backCalculatedRotationMatrixDerivative =
                 getDerivativeOfRotationMatrixToFrame(
-                    spiceRotationMatrix, rotationalVelocityVector );
+                    spiceRotationMatrixToFrame,
+                    manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame );
 
         // Calculate rotation matrix derivative from previously calculated rotational velocity
         // vector.
         Eigen::Vector3d backCalculatedRotationalVelocityVector =
                 getRotationalVelocityVectorInBaseFrameFromMatrices(
-                    spiceRotationMatrix, rotationMatrixDerivative.transpose( ) );
+                    spiceRotationMatrixToFrame, rotationMatrixDerivative.transpose( ) );
 
         // Check equivalence of results.
         for( int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( rotationalVelocityVector( i ) -
+            BOOST_CHECK_SMALL( manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ) -
                                backCalculatedRotationalVelocityVector( i ), 2.0E-22 );
-            BOOST_CHECK_SMALL( rotationalVelocityVector( i ) -
-                               spiceRotationalVelocityVector( i ), 2.0E-22 );
+            BOOST_CHECK_SMALL( manualRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ) -
+                               spiceRotationalVelocityVectorOfTargetFrameExpressedInBaseFrame( i ), 2.0E-22 );
 
             for( int j = 0; j < 3; j++ )
             {
                 BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) -
                                    backCalculatedRotationMatrixDerivative( i, j ), 2.0E-22 );
                 BOOST_CHECK_SMALL( rotationMatrixDerivative( i, j ) -
-                                   spiceRotationMatrixDerivative( i, j ), 2.0E-22 );
+                                   spiceRotationMatrixDerivativeToFrame( i, j ), 2.0E-22 );
             }
         }
     }

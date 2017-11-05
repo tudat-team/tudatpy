@@ -19,17 +19,14 @@
 #ifndef TUDAT_SOLAR_ACTIVITY_DATA_H
 #define TUDAT_SOLAR_ACTIVITY_DATA_H
 
-#include <cstdlib>
 #include <string>
-
 #include <map>
 
 #include <Eigen/Core>
 
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
-
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 namespace tudat
 {
 namespace input_output
@@ -155,7 +152,7 @@ public:
     /*! Overloaded ostream to print class information; prints all converted Solar Activity
      * variables listed in the http://celestrak.com/SpaceData/sw19571001.txt file.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
+    friend std::ostream& operator << ( std::ostream& stream,
                                      SolarActivityData& solarActivityData );
 
 protected:

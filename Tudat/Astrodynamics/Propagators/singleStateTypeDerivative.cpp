@@ -7,8 +7,6 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
 namespace tudat
@@ -26,12 +24,15 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     case transational_state:
         singleStateSize = 6;
         break;
+    case rotational_state:
+        singleStateSize = 7;
+        break;
     case body_mass_state:
         singleStateSize = 1;
         break;
     default:
         std::string errorMessage =
-                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting size";
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting size";
        throw std::runtime_error( errorMessage );
     }
     return singleStateSize;
@@ -51,7 +52,7 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
         break;
     default:
         std::string errorMessage =
-                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting order";
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting order";
        throw std::runtime_error( errorMessage );
     }
     return singleStateSize;

@@ -9,23 +9,34 @@
 
 # Set the source files.
 set(ACCELERATION_PARTIALS_SOURCES
-  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/accelerationPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/aerodynamicAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/centralGravityAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/numericalAccelerationPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/relativisticAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/radiationPressureAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicPartialFunctions.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicAccelerationPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/tidalLoveNumberPartialInterface.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/directTidalDissipationAccelerationPartial.cpp"
 )
 
 # Set the header files.
 set(ACCELERATION_PARTIALS_HEADERS
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/accelerationPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/aerodynamicAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/thirdBodyGravityPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/centralGravityAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/numericalAccelerationPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/relativisticAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/radiationPressureAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicPartialFunctions.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/sphericalHarmonicAccelerationPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/mutualSphericalHarmonicGravityPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/empiricalAccelerationPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/tidalLoveNumberPartialInterface.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/directTidalDissipationAccelerationPartial.h"
 )
 
 # Add static libraries.
@@ -43,6 +54,10 @@ target_link_libraries(test_AccelerationPartials ${TUDAT_ESTIMATION_LIBRARIES} ${
 add_executable(test_SphericalHarmonicPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}/UnitTests/unitTestSphericalHarmonicPartials.cpp")
 setup_custom_test_program(test_SphericalHarmonicPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}")
 target_link_libraries(test_SphericalHarmonicPartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MutualSphericalHarmonicPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}/UnitTests/unitTestMutualSphericalHarmonicPartials.cpp")
+setup_custom_test_program(test_MutualSphericalHarmonicPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}")
+target_link_libraries(test_MutualSphericalHarmonicPartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
 

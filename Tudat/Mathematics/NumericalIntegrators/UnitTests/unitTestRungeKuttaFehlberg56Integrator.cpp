@@ -24,8 +24,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <cmath>
 
 #include <Eigen/Core>

@@ -11,12 +11,10 @@
 #ifndef TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 #define TUDAT_RELATIVISTICLIGHTTIMECORRECTIONS_H
 
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include <cmath>
 #include <vector>
-
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -36,7 +34,8 @@ namespace relativity
  *  \param transmitterPosition Position of origin of electromagnetic signal (at time of transmission).
  *  \param receiverPosition Position of target of electromagentic signal (at time of reception)
  *  \param centralBodyPosition Position of perturbing body (at certain time during signal propagation).
- *  \param ppnParameterGamma Parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a unit rest mass (1.0 in GR)
+ *  \param ppnParameterGamma Parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
+ *  unit rest mass (1.0 in GR)
  *  \return Light time correction (in seconds) due to the gravitating point mass.
  */
 double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyGravitationalParameter,
@@ -44,6 +43,28 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
                                                               const Eigen::Vector3d& receiverPosition,
                                                               const Eigen::Vector3d& centralBodyPosition,
                                                               const double ppnParameterGamma = 1.0 );
+
+//! Function to calculate gradient of first order relativistic light time correction due to a gravitating point mass.
+/*!
+ *  Function to calculate gradient of first order relativistic light time correction due to a gravitating point mass.
+ *  Correction is according to Eq. (11.17) of 2010 IERS conventions.
+ *  \param bodyGravitationalParameter Gravitational parameter of gravitating body.
+ *  \param transmitterPosition Position of origin of electromagnetic signal (at time of transmission).
+ *  \param receiverPosition Position of target of electromagentic signal (at time of reception)
+ *  \param centralBodyPosition Position of perturbing body (at certain time during signal propagation).
+ *  \param ppnParameterGamma Parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
+ *  unit rest mass (1.0 in GR)
+ *  \param evaluateGradientAtReceiver Boolean denoting whether to compute gradient at receiver or transmitter
+ *  \return Light time correction (in seconds) due to the gravitating point mass.
+ */
+Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
+        const double bodyGravitationalParameter,
+        const Eigen::Vector3d& transmitterPosition,
+        const Eigen::Vector3d& receiverPosition,
+        const Eigen::Vector3d& centralBodyPosition,
+        const bool evaluateGradientAtReceiver,
+        const double ppnParameterGamma = 1.0 );
+
 } // namespace relativity
 
 } // namespace tudat

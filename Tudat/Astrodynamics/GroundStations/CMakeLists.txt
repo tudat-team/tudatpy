@@ -10,13 +10,16 @@
 
 # Set the source files.
 set(GROUND_STATIONS_SOURCES
+  "${SRCROOT}${GROUNDSTATIONSDIR}/groundStation.cpp"
   "${SRCROOT}${GROUNDSTATIONSDIR}/groundStationState.cpp"
+  "${SRCROOT}${GROUNDSTATIONSDIR}/pointingAnglesCalculator.cpp"
 )
 
 # Set the header files.
 set(GROUND_STATIONS_HEADERS
   "${SRCROOT}${GROUNDSTATIONSDIR}/groundStation.h"
   "${SRCROOT}${GROUNDSTATIONSDIR}/groundStationState.h"
+  "${SRCROOT}${GROUNDSTATIONSDIR}/pointingAnglesCalculator.h"
 )
 
 # Add static libraries.
@@ -26,4 +29,8 @@ setup_tudat_library_target(tudat_ground_stations "${SRCROOT}{GROUNDSTATIONSDIR}"
 
 add_executable(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}/UnitTests/unitTestGroundStationState.cpp")
 setup_custom_test_program(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}")
-target_link_libraries(test_GroundStationState tudat_simulation_setup tudat_ephemerides tudat_ground_stations tudat_basic_astrodynamics tudat_basic_mathematics tudat_spice_interface tudat_input_output cspice ${Boost_LIBRARIES})
+target_link_libraries(test_GroundStationState ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}/UnitTests/unitTestPointingAnglesCalculator.cpp")
+setup_custom_test_program(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}")
+target_link_libraries(test_PointingAnglesCalculator ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})

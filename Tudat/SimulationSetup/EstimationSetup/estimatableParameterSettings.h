@@ -11,6 +11,9 @@
 #ifndef TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 #define TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
+#include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 namespace tudat
@@ -57,6 +60,32 @@ public:
 
 };
 
+//! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+/*!
+ * Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+ * \param minimumDegree Minimum degree of field
+ * \param minimumOrder Minimum order of field
+ * \param maximumDegree Maximum degree of field
+ * \param maximumOrder Maximum order of field
+ * \return List of paird containing (degree,order) of field.
+ */
+inline std::vector< std::pair< int, int > > getSphericalHarmonicBlockIndices(
+        const int minimumDegree,
+        const int minimumOrder,
+        const int maximumDegree,
+        const int maximumOrder )
+{
+    std::vector< std::pair< int, int > > blockIndices;
+    for( int i = minimumDegree; i <= maximumDegree; i++ )
+    {
+        for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
+        {
+            blockIndices.push_back( std::make_pair( i, j ) );
+        }
+    }
+    return blockIndices;
+}
+
 //! Class for providing settings spherical harmonic coefficient(s) parameter
 class SphericalHarmonicEstimatableParameterSettings: public EstimatableParameterSettings
 {
@@ -79,7 +108,9 @@ public:
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
-            std::cerr<<"Error when making spherical harmonic parameter settings, input parameter type is inconsistent."<<std::endl;
+
+            throw std::runtime_error(
+                        "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
     }
 
@@ -90,7 +121,7 @@ public:
      * \param minimumOrder Minimum order of field that is to be estimated.
      * \param maximumDegree Maximum degree of field that is to be estimated.
      * \param maximumOrder Maximum order of field that is to be estimated.
-     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param associatedBody Body for which  coefficients are to be estimated.
      * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
      * of spherical_harmonics_sine_coefficient_block).
      */
@@ -108,21 +139,46 @@ public:
             throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
         }
 
-        for( int i = minimumDegree; i <= maximumDegree; i++ )
-        {
-            for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
-            {
-                blockIndices_.push_back( std::make_pair( i, j ) );
-            }
-        }
+        blockIndices_ = getSphericalHarmonicBlockIndices( minimumDegree, minimumOrder, maximumDegree, maximumOrder );
     }
 
     //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
     std::vector< std::pair< int, int > > blockIndices_;
 };
 
+//! Class to define settings for estimation of constant observation biases (absolute or relative)
+class ConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param isBiasAdditive True if bias is absolute, false if it is relative
+     */
+    ConstantObservationBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const bool isBiasAdditive ):
+        EstimatableParameterSettings(
+            linkEnds.begin( )->second.first,
+            isBiasAdditive ? constant_additive_observation_bias : constant_relative_observation_bias,
+            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ){ }
+
+    //! Destructor
+    ~ConstantObservationBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+};
 //! Class to define settings for estimating an initial translational state.
-template< typename InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
@@ -172,6 +228,323 @@ public:
     std::string frameOrientation_;
 
 };
+
+//! Class to define settings for estimating an arcwise initial translational state.
+template< typename InitialStateParameterType >
+class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
+            const std::vector< double >& arcStartTimes,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
+        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        isStateSet_( 1 ){ }
+
+    //! Constructor, without initial value of translational state.
+    /*!
+     * Constructor, without initial value of translational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const std::vector< double >& arcStartTimes,
+            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
+        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        isStateSet_( 0 ){ }
+
+    //! Current value of initial arc states (concatenated in same order as arcs)
+    Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue_;
+
+    //! Start times for separate arcs
+    std::vector< double > arcStartTimes_;
+
+    //! Body w.r.t. which the initial state is to be estimated.
+    std::string centralBody_;
+
+    //!Orientation of the frame in which the state is defined.
+    std::string frameOrientation_;
+
+    //! Boolean to denote whether initial states are set, or if they need to be computed
+    bool isStateSet_;
+
+};
+
+//! Class to define settings for estimating time-independent empirical acceleration components
+class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     */
+    EmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //!  List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+};
+
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseEmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param centralBody Name of central body
+     * \param componentsToEstimate List of components of empirical acceleration that are to be estimated.
+     * \param arcStartTimeList List of times at which empirical acceleration arcs are to start
+     */
+    ArcWiseEmpiricalAccelerationEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::string centralBody,
+            const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+            std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
+
+    //! Name of central body
+    std::string centralBody_;
+
+    //! List of components of empirical acceleration that are to be estimated.
+    std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+
+    //! List of times at which empirical acceleration arcs are to start
+    std::vector< double > arcStartTimeList_;
+
+
+};
+
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseRadiationPressureCoefficientEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param arcStartTimeList List of times at which radiation pressure coefficient arcs are to start
+     */
+    ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
+        arcStartTimeList_( arcStartTimeList ){ }
+
+    //! List of times at which radiation pressure coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+
+
+};
+
+//! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
+/*!
+ *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
+ *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
+ *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
+ *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
+ *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ */
+class FullDegreeTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a single deforming body
+    /*!
+     * Constructor for a single deforming body
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBody Name of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree,
+                                                            const std::string deformingBody,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
+        useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param deformingBodies Names of bodies causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
+                                                            const int degree ,
+                                                            const std::vector< std::string >& deformingBodies,
+                                                            const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, full_degree_tidal_love_number ), degree_( degree ),
+        deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    //! Degree of Love number that is to be estimated
+    int degree_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    //! True if the complex Love number is estimated, false if only teh real part is considered
+    bool useComplexValue_;
+
+};
+
+//! Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree.
+/*!
+ *  Class to define settings for estimating a set of Tidal Love number (k_{n,m}) at a single degree and a set of orders at this
+ *  degree. The estimation will provide separate Love numbers for each order
+ *  Either a real or a complex Love number may be estimated (represented by entries of a VectorXd).
+ *  The constructor argument representing the deforming body/bodies must correspond exactly to the deforming bodies in a
+ *  BasicSolidBodyTideGravityFieldVariations member object of the deformed body. Alternatively, if only one
+ *  BasicSolidBodyTideGravityFieldVariations object is present, the deforming body list may be left empty.
+ */
+class SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param deformingBody Names of body causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::string& deformingBody,
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), useComplexValue_( useComplexValue )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor for a list of deforming bodyies
+    /*!
+     * Constructor for a list of deforming bodyies
+     * \param associatedBody Deformed body
+     * \param degree Degree of Love number that is to be estimated
+     * \param orders List of orders at which Love numbers are to be estimated.
+     * \param deformingBodies Names of bodies causing tidal deformation
+     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     */
+    SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
+                                                                      const int degree,
+                                                                      const std::vector< int > orders,
+                                                                      const std::vector< std::string >& deformingBodies,
+                                                                      const bool useComplexValue = 0 ):
+        EstimatableParameterSettings( associatedBody, single_degree_variable_tidal_love_number ), degree_( degree ),
+        orders_( orders ), deformingBodies_( deformingBodies ), useComplexValue_( useComplexValue ){ }
+
+    //! Degree of Love number that is to be estimated
+    int degree_;
+
+    //! List of orders at which Love numbers are to be estimated.
+    const std::vector< int > orders_;
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+    //! True if the complex Love number is estimated, false if only teh real part is considered
+    bool useComplexValue_;
+
+};
+
+//! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class DirectTidalTimeLagEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::string deformingBody ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::vector< std::string >& deformingBodies ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ),
+        deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
 
 } // namespace estimatable_parameters
 

@@ -27,15 +27,12 @@ namespace electro_magnetism
  * Computes Lorentz acceleration due to static magnetic field on a particle in an
  * inertial reference frame.
  * Assumes the particle is point-like. Note: This function does not take into account any
- * the Coulomb force between the particle and the source.	
- * \param velocityOfBodySubjectToAcceleration Velocity of body which is being accelerated
- *			by the Lorentz force.                                                             [m/s]
- * \param localMagneticField local magnetic field at position of body subject to acceleration [Tm]
- * \param chargeOfBodySubjectToAcceleration Charge of body which is being accelerated by
- *			Lorentz force. 																	  [C]
- * \param massOfBodySubjectToAcceleration Mass of body which is being accelerated by Lorentz
- *			force. 																			  [kg]
- * \return Lorentz acceleration due to static magnetic field. 				                  [N]
+ * the Coulomb force between the particle and the source.
+ * \param velocityOfBodySubjectToAcceleration Velocity of body which is being accelerated by the Lorentz force.  [m/s]
+ * \param localMagneticField local magnetic field at position of body subject to acceleration                    [Tm]
+ * \param chargeOfBodySubjectToAcceleration Charge of body which is being accelerated by Lorentz force.          [C]
+ * \param massOfBodySubjectToAcceleration Mass of body which is being accelerated by Lorentz force               [kg]
+ * \return Lorentz acceleration due to static magnetic field.                                                    [N]
  * \sa computeLorentzForceDueToStaticMagneticField.
  */
 Eigen::Vector3d computeLorentzAccelerationDueToStaticMagneticField(

@@ -9,8 +9,6 @@
  */
 
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
@@ -23,31 +21,18 @@ namespace observation_models
 
 //! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
-double getDefaultLightTimeTolerance< double, double >( )
+double getDefaultLightTimeTolerance< double >( )
 {
     return 1.0E-12;
 }
 
 //! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
-long double getDefaultLightTimeTolerance< long double, long double >( )
+long double getDefaultLightTimeTolerance< long double >( )
 {
     return 1.0E-15L;
 }
 
-//! Function to retrieve the default tolerance for the light-time equation solution.
-template< >
-double getDefaultLightTimeTolerance< double, long double >( )
-{
-    return 1.0E-12;
-}
-
-//! Function to retrieve the default tolerance for the light-time equation solution.
-template< >
-long double getDefaultLightTimeTolerance< long double, double >( )
-{
-    return 1.0E-12L;
-}
 
 } // namespace observation_models
 } // namespace tudat

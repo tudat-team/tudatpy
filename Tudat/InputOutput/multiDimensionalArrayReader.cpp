@@ -11,15 +11,10 @@
 
 #include <map>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <iostream>
-#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
 
@@ -132,9 +127,7 @@ void readCoefficientsFile(
     // Check if file opened correctly.
     if ( stream.fail( ) )
     {
-        boost::throw_exception( std::runtime_error( boost::str(
-                                                        boost::format( "Data file '%s' could not be opened." ) %
-                                                        fileName.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened: " + fileName );
     }
 
     // Initialize boolean that gets set to true once the file header is passed.
@@ -173,7 +166,7 @@ void readCoefficientsFile(
                 {
                     throw std::runtime_error( "Error when reading multi-array, expected number of independent variables" );
                 }
-                numberOfIndependentVariables = boost::lexical_cast< int >( vectorOfIndividualStrings.at( 0 ) );
+                numberOfIndependentVariables = std::stoi( vectorOfIndividualStrings.at( 0 ) );
                 isFirstLinePassed = true;
             }            
             // If the file header is not passed, this should contain the independent variables
@@ -182,7 +175,7 @@ void readCoefficientsFile(
                 std::vector< double > currentDataPoints;
                 for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
                 {
-                    currentDataPoints.push_back( boost::lexical_cast< double >( vectorOfIndividualStrings.at( i ) ) );
+                    currentDataPoints.push_back( std::stod( vectorOfIndividualStrings.at( i ) ) );
                 }
                 independentVariables.push_back( currentDataPoints );
             }
@@ -192,15 +185,15 @@ void readCoefficientsFile(
                 if( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
                 {
                     throw std::runtime_error(
-                                "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                                " found " + boost::lexical_cast< std::string >( vectorOfIndividualStrings.size( ) ) +
-                                " columns, but expected " + boost::lexical_cast< std::string >( coefficientBlock.cols( ) ) );
+                                "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
+                                " found " + std::to_string( vectorOfIndividualStrings.size( ) ) +
+                                " columns, but expected " + std::to_string( coefficientBlock.cols( ) ) );
                 }
                 else if( numberOfDataLinesParsed > coefficientBlock.rows( ) )
                 {
                     throw std::runtime_error(
-                                "Error on data line " + boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                                " expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
+                                "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
+                                " expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows" );
                 }
                 else
                 {
@@ -208,7 +201,7 @@ void readCoefficientsFile(
                     for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
                     {
                         coefficientBlock( numberOfDataLinesParsed, i ) =
-                                boost::lexical_cast< double >( vectorOfIndividualStrings.at( i ) );
+                                std::stod( vectorOfIndividualStrings.at( i ) );
                     }
                     numberOfDataLinesParsed++;
                 }
@@ -248,8 +241,8 @@ void readCoefficientsFile(
     {
         throw std::runtime_error(
                     "Error at end of coefficient file reader, found " +
-                    boost::lexical_cast< std::string >( numberOfDataLinesParsed ) +
-                    " lines, but expected " +  boost::lexical_cast< std::string >( coefficientBlock.rows( ) ) + "rows" );
+                    std::to_string( numberOfDataLinesParsed ) +
+                    " lines, but expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows" );
     }
 }
 
@@ -262,10 +255,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
     // Check if file opened correctly.
     if ( stream.fail( ) )
     {
-        boost::throw_exception(
-                    std::runtime_error( boost::str(
-                                            boost::format( "Data file '%s' could not be opened." ) %
-                                            fileName.c_str( ) ) ) );
+       throw std::runtime_error( "Data file could not be opened: " + fileName );
     }
 
     std::string line;
@@ -287,7 +277,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
                                      boost::algorithm::token_compress_on );
             try
             {
-                numberOfIndependentVariables = boost::lexical_cast< double >( vectorOfIndividualStrings.at( 0 ).at( 0 ) );
+                numberOfIndependentVariables = std::stod( vectorOfIndividualStrings.at( 0 ) );
             }
             catch( std::runtime_error )
             {

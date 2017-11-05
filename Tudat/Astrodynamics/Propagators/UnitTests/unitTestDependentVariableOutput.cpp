@@ -15,19 +15,17 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h>
-#include <Tudat/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
+#include "Tudat/Basics/testMacros.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-
-#include <iostream>
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include <limits>
 #include <string>
 
@@ -59,10 +57,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
@@ -86,6 +81,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
     // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
     const Eigen::Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
@@ -143,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
 
         // Finalize body creation.
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+        setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
@@ -246,6 +242,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         third_body_central_gravity, "Apollo", "Moon", 0 ) );
 
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        keplerian_state_dependent_variable,  "Apollo", "Earth" ) );
+
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -284,8 +284,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                 bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
-        std::cout<<"Propagated"<<std::endl;
-
         for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
              variableIterator != dependentVariableSolution.end( ); variableIterator++ )
         {
@@ -319,6 +317,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             Eigen::Vector3d aerodynamicAcceleration = variableIterator->second.segment( 33, 3 );
             Eigen::Vector3d moonAcceleration1 = variableIterator->second.segment( 36, 3 );
             Eigen::Vector3d moonAcceleration2 = variableIterator->second.segment( 39, 3 );
+
+            Eigen::Vector6d keplerElements =  variableIterator->second.segment( 42, 6 );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -472,6 +472,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             // Check if third-body gravity saving is done correctly
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( moonAcceleration1, moonAcceleration2,
                                                ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+            Eigen::Vector6d expectedKeplerElements =
+                    tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
+                        Eigen::Vector6d( numericalSolution.at( variableIterator->first ) ), earthGravitationalParameter );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerElements, keplerElements,
+                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
         }
     }
