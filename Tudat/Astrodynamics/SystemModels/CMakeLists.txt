@@ -14,8 +14,12 @@ set(SYSTEMMODELS_HEADERS
   "${SRCROOT}${SYSTEMMODELSDIR}/vehicleSystems.h"
 )
 
+set(SYSTEMMODELS_SOURCES
+  "${SRCROOT}${SYSTEMMODELSDIR}/engineModel.cpp"
+)
+
 # Add static libraries.
-add_library(tudat_system_models STATIC ${SYSTEMMODELS_HEADERS})
+add_library(tudat_system_models STATIC ${SYSTEMMODELS_SOURCES} ${SYSTEMMODELS_HEADERS})
 setup_tudat_library_target(tudat_system_models "${SRCROOT}${SYSTEMMODELSDIR}")
 set_target_properties(tudat_system_models PROPERTIES LINKER_LANGUAGE CXX)
 
