@@ -15,7 +15,7 @@ set(SYSTEMMODELS_HEADERS
 )
 
 set(SYSTEMMODELS_SOURCES
-  "${SRCROOT}${SYSTEMMODELSDIR}/engineModel.cpp"
+  "${SRCROOT}${SYSTEMMODELSDIR}/dummySystemModel.cpp"
 )
 
 # Add static libraries.
