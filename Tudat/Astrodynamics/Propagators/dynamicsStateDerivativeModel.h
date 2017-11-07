@@ -317,9 +317,9 @@ public:
      * Function to convert a state history from propagator-specific form to the conventional form
      * (not necessarily in inertial frame).
      * \sa DynamicsStateDerivativeModel::convertToOutputSolution
+     * \param convertedSolution State history (rawSolution), converted to the 'conventional form' (by reference)
      * \param rawSolution State history in propagator-specific form (i.e. form that is used in
      *        numerical integration).
-     * \return State history (rawSolution), converted to the 'conventional form'
      */
     void convertNumericalStateSolutionsToOutputSolutions(
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
