@@ -639,13 +639,15 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         propagatorSettings_->getPrintInterval( ) );
 
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution;
+
             utilities::createVectorBlockMatrixHistory(
-                        rawNumericalSolution, equationsOfMotionNumericalSolution,
+                        rawNumericalSolution, equationsOfMotionNumericalSolutionRaw,
                         std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
 
-            equationsOfMotionNumericalSolution = convertNumericalStateSolutionsToOutputSolutions(
-                        equationsOfMotionNumericalSolution, dynamicsStateDerivative_ );
+            convertNumericalStateSolutionsToOutputSolutions(
+                        equationsOfMotionNumericalSolution, equationsOfMotionNumericalSolutionRaw, dynamicsStateDerivative_ );
             dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
                         equationsOfMotionNumericalSolution, dependentVariableHistory );
 
@@ -1098,12 +1100,16 @@ public:
         if( integrateEquationsConcurrently )
         {
             // Allocate maps that stored numerical solution for equations of motion
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+                    currentEquationsOfMotionNumericalSolutionsRaw;
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
                     equationsOfMotionNumericalSolutions;
             std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
                     dependentVariableHistorySolutions;
             std::vector< std::map< TimeType, double > > cummulativeComputationTimeHistorySolutions;
+
             equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
+
             dependentVariableHistorySolutions.resize( numberOfArcs_ );
             cummulativeComputationTimeHistorySolutions.resize( numberOfArcs_ );
 
@@ -1159,13 +1165,14 @@ public:
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
-                            rawNumericalSolution, equationsOfMotionNumericalSolutions[ i ],
+                            rawNumericalSolution, currentEquationsOfMotionNumericalSolutionsRaw,
                             std::make_pair( 0, parameterVectorSize_ ), stateTransitionMatrixSize_ );
 
 
                 // Transform equations of motion solution to output formulation
-                equationsOfMotionNumericalSolutions[ i ] = convertNumericalStateSolutionsToOutputSolutions(
-                            equationsOfMotionNumericalSolutions[ i ], dynamicsStateDerivatives_.at( i ) );
+                convertNumericalStateSolutionsToOutputSolutions(
+                            equationsOfMotionNumericalSolutions[ i ], currentEquationsOfMotionNumericalSolutionsRaw,
+                            dynamicsStateDerivatives_.at( i ) );
                 arcStartTimes_[ i ] = equationsOfMotionNumericalSolutions[ i ].begin( )->first;
 
                 // Save state transition and sensitivity matrix solutions for current arc.
