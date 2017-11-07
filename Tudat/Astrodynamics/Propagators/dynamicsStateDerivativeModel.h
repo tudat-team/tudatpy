@@ -321,13 +321,10 @@ public:
      *        numerical integration).
      * \return State history (rawSolution), converted to the 'conventional form'
      */
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-    convertNumericalStateSolutionsToOutputSolutions(
+    void convertNumericalStateSolutionsToOutputSolutions(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution )
     {
-        // Initialize converted solution.
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
         // Iterate over all times.
         for( typename std::map< TimeType, Eigen::Matrix< StateScalarType,
              Eigen::Dynamic, 1 > >::const_iterator
@@ -338,7 +335,6 @@ public:
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
         }
-        return convertedSolution;
     }
 
     //! Function to add variational equations to the state derivative model
@@ -850,13 +846,11 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
 
 template< typename TimeType = double, typename StateScalarType = double,
           typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
-std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+void convertNumericalStateSolutionsToOutputSolutions(
+        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
         boost::shared_ptr< ConversionClassType > converterClass )
 {
-    // Initialize converted solution.
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
     // Iterate over all times.
     for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
          rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
@@ -864,7 +858,6 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > conver
         // Convert solution at this time to output (typically ephemeris frame of given body) solution
         convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
     }
-    return convertedSolution;
 }
 
 } // namespace propagators
