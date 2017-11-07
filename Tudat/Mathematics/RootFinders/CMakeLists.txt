@@ -24,6 +24,11 @@ set(ROOTFINDERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithZeroRoot.h"
 )
 
+set(ROOTFINDERS_SOURCES
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/dummyRootFinder.cpp"
+)
+
+
 # Add unit test files.
 set(ROOTFINDERS_TESTS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestBisection.cpp"
@@ -34,7 +39,7 @@ set(ROOTFINDERS_TESTS
 )
 
 # Add static libraries.
-add_library(tudat_root_finders STATIC ${ROOTFINDERS_HEADERS})
+add_library(tudat_root_finders STATIC ${ROOTFINDERS_SOURCES} ${ROOTFINDERS_HEADERS})
 setup_tudat_library_target(tudat_root_finders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
 set_target_properties(tudat_root_finders PROPERTIES LINKER_LANGUAGE CXX)
 

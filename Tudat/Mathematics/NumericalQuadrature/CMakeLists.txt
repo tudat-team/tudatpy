@@ -15,8 +15,13 @@ set(NUMERICAL_QUADRATURE_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/gaussianQuadrature.h"
 )
 
+set(NUMERICAL_QUADRATURE_SOURCES
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/dummyNumericalQuadrature.cpp"
+)
+
+
 # Add static libraries.
-add_library(tudat_numerical_quadrature STATIC ${NUMERICAL_QUADRATURE_HEADERS} )
+add_library(tudat_numerical_quadrature STATIC ${NUMERICAL_QUADRATURE_SOURCES} ${NUMERICAL_QUADRATURE_HEADERS} )
 setup_tudat_library_target(tudat_numerical_quadrature "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature")
 set_target_properties(tudat_numerical_quadrature PROPERTIES LINKER_LANGUAGE CXX)
 
