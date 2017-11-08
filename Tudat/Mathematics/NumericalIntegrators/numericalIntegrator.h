@@ -205,7 +205,8 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
     {
         // Check if the remaining interval is smaller than the step size.
         if ( std::fabs( static_cast< TimeStepType >( intervalEnd - getCurrentIndependentVariable( ) ) )
-             <= finalTimeTolerance )
+             <= std::fabs( stepSize ) *
+             ( 1.0 + finalTimeTolerance ) )
         {
             // The next step is beyond the end of the integration interval, so adjust the
             // step size accordingly.
