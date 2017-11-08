@@ -92,8 +92,7 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
     fehlbergError << 0.1072E-12, -0.2190E-12;
 
     // Sign check
-    // Not always same sign -> initial step size = 1 or 1E-2, failure: computedError( 1 ),
-    // fehlbergError( 1 ) not same sign
+    // Not always same sign -> initial step size = 1 or 1E-2, failure: computedError( 1 ),fehlbergError( 1 ) not same sign
     BOOST_CHECK_GE( computedError( 0 ) / fehlbergError( 0 ), 0.0 );
     BOOST_CHECK_GE( computedError( 1 ) / fehlbergError( 1 ), 0.0 );
 
