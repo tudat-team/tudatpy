@@ -543,15 +543,19 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
     }
 
     // Check if minimum step size is violated and throw exception if necessary.
-    if ( std::fabs( this->stepSize_ ) < this->minimumStepSize_ )
+    if ( std::fabs( this->stepSize_ ) < std::fabs( this->minimumStepSize_ ) )
     {
-        throw MinimumStepSizeExceededError( this->minimumStepSize_,
+        throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
                                                       std::fabs( this->stepSize_ ) );
     }
-
-    else if ( std::fabs( this->stepSize_ ) > this->maximumStepSize_ )
+    else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
     {
-        this->stepSize_ = this->maximumStepSize_;
+        this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->maximumStepSize_ );
+    }
+
+    if( stepSize * this->stepSize_ < 0 )
+    {
+        throw std::runtime_error( "Error during step size control, step size flipped sign" );
     }
 
     // Check if computed error in state is too large and reject step if true.
