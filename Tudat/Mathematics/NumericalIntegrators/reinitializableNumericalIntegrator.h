@@ -14,6 +14,7 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
 namespace tudat

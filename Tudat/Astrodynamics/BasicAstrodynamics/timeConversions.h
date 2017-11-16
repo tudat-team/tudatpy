@@ -12,10 +12,9 @@
 #ifndef TUDAT_TIME_CONVERSIONS_H
 #define TUDAT_TIME_CONVERSIONS_H
 
-#include "boost/date_time/gregorian/gregorian.hpp"
+#include <boost/date_time/gregorian/gregorian.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "physicalConstants.h"
 
 namespace tudat
 {

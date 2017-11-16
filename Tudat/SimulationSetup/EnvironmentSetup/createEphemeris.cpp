@@ -75,9 +75,9 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 ephemeris = boost::make_shared< SpiceEphemeris >(
                             bodyName,
                             directEphemerisSettings->getFrameOrigin( ),
-                            directEphemerisSettings->getCorrectForStellarAbberation( ),
-                            directEphemerisSettings->getCorrectForLightTimeAbberation( ),
-                            directEphemerisSettings->getConvergeLighTimeAbberation( ),
+                            directEphemerisSettings->getCorrectForStellarAberration( ),
+                            directEphemerisSettings->getCorrectForLightTimeAberration( ),
+                            directEphemerisSettings->getConvergeLighTimeAberration( ),
                             directEphemerisSettings->getFrameOrientation( ) );
             }
             break;

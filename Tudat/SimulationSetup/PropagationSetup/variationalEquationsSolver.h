@@ -450,10 +450,10 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
     {
         isInputConsistent = false;
         std::string errorMessage = "Error, propagated body vector sizes are inconsistent " +
-                                    boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].size( ) ) + " " +
-                                    boost::lexical_cast< std::string >( estimatedBodies.size( ) ) +
-                                    " when checking multi-arc estimation/propagation consistency";
-                            throw std::runtime_error( errorMessage );
+                boost::lexical_cast< std::string >( propagatedStateTypes[ transational_state ].size( ) ) + " " +
+                boost::lexical_cast< std::string >( estimatedBodies.size( ) ) +
+                " when checking multi-arc estimation/propagation consistency";
+        throw std::runtime_error( errorMessage );
 
         for( unsigned int i = 0; i < propagatedStateTypes[ transational_state ].size( ); i++ )
         {
@@ -627,13 +627,15 @@ public:
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
+            std::map< TimeType, double > cummulativeComputationTimeHistory;
 
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1 ),
+                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
                         dependentVariableHistory,
+                        cummulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         propagatorSettings_->getPrintInterval( ) );
 
@@ -664,13 +666,14 @@ public:
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
+            std::map< double, double > cummulativeComputationTimeHistory;
 
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1 ),
-                        dependentVariableHistory );
+                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
+                        dependentVariableHistory, cummulativeComputationTimeHistory );
 
             setVariationalEquationsSolution< double, double >(
                         rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
@@ -828,8 +831,8 @@ private:
  */
 template< typename StateScalarType = double >
 void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >  parametersToEstimate,
-            const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings )
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >  parametersToEstimate,
+        const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > propagatorSettings )
 {
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > StateType;
     typedef std::map< std::string, boost::shared_ptr< estimatable_parameters::EstimatableParameter< StateType > > >
@@ -1099,8 +1102,10 @@ public:
                     equationsOfMotionNumericalSolutions;
             std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
                     dependentVariableHistorySolutions;
+            std::vector< std::map< TimeType, double > > cummulativeComputationTimeHistorySolutions;
             equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
             dependentVariableHistorySolutions.resize( numberOfArcs_ );
+            cummulativeComputationTimeHistorySolutions.resize( numberOfArcs_ );
 
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
@@ -1146,8 +1151,10 @@ public:
                             rawNumericalSolution,
                             initialVariationalState, integratorSettings,
                             boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ), _1 ),
+                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
+                                         _1, _2 ),
                             dependentVariableHistorySolutions.at( i ),
+                            cummulativeComputationTimeHistorySolutions.at( i ),
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ) );
 
                 // Extract solution of equations of motion.
@@ -1210,6 +1217,7 @@ public:
 
             std::map< TimeType, MatrixType > rawNumericalSolutions;
             std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
+            std::map< TimeType, double > dummyCummulativeComputationTimeHistorySolution;
 
             // Integrate variational equarions for each arc
             for( int i = 0; i < numberOfArcs_; i++ )
@@ -1228,8 +1236,9 @@ public:
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ), _1 ),
-                            dummyDependentVariableHistorySolution );
+                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
+                                         _1, _2 ),
+                            dummyDependentVariableHistorySolution, dummyCummulativeComputationTimeHistorySolution );
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(

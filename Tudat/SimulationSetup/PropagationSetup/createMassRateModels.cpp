@@ -83,8 +83,8 @@ createMassRateModel(
                 for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
                 {
                     if( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThroustSource( ) ==
-                            fromThrustMassModelSettings->associatedThroustSource_ )
+                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
+                            fromThrustMassModelSettings->associatedThrustSource_ )
                     {
                         explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
                                                                    thrustAccelerations.at( i ) ) );
@@ -121,9 +121,9 @@ createMassRateModel(
 
 
 //! Function to create a list of mass rate models for a list of bodies.
-std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
-        const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
+        const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
     // Iterate over all bodies

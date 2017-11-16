@@ -40,6 +40,9 @@ namespace simulation_setup
  */
 struct BodySettings
 {
+    //! Constant mass.
+    double constantMass = TUDAT_NAN;
+
     //! Settings for the atmosphere model that the body is to contain.
     boost::shared_ptr< AtmosphereSettings > atmosphereSettings;
 

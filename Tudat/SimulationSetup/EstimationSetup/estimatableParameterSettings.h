@@ -109,9 +109,9 @@ public:
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
         {
 
-            throw std::runtime_error(
-                        "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
-        }
+	    throw std::runtime_error(
+			"Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+	}
     }
 
     //! Constructor

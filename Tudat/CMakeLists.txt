@@ -164,6 +164,30 @@ endif()
 
 
 #
+# JSON
+#
+# Set whether to use the JSON library.
+option(USE_JSON "build Tudat with JSON enabled" ON)
+if(NOT USE_JSON)
+ message(STATUS "JSON disabled!")
+ add_definitions(-DUSE_JSON=0)
+else()
+ message(STATUS "JSON enabled!")
+ add_definitions(-DUSE_JSON=1)
+
+ # Find JSON library on local system.
+ find_package(nlohmann_json)
+
+ # Include JSON directories.
+ if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+   include_directories(SYSTEM AFTER "${JSON_INCLUDE_DIR}")
+ else( )
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${JSON_INCLUDE_DIR}\"")
+ endif( )
+endif()
+
+
+#
 # SOFA
 #
 # Set whether to use the SOFA library integration with Tudat or not. If it not supplied by the
@@ -257,6 +281,10 @@ if(USE_CSPICE)
  list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES tudat_spice_interface )
 endif()
 
+if(USE_JSON)
+  list(APPEND TUDAT_APPLICATION_EXTERNAL_LIBRARIES nlohmann_json)
+endif()
+
 if(USE_NRLMSISE00)
  list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
 endif()
@@ -284,7 +312,15 @@ list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_observation_
 # Set sub-directories.
 set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})
 
+if(USE_JSON)
+  # Set JSON interface directory.
+  set(JSONINTERFACEDIR "/JsonInterface")
+
+  # Add subdirectories.
+  list(APPEND SUBDIRS ${JSONINTERFACEDIR})
+endif()
+
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})
-add_subdirectory("${SRCROOT}${CURRENT_SUBDIR}")
+  add_subdirectory("${SRCROOT}${CURRENT_SUBDIR}")
 endforeach(CURRENT_SUBDIR)

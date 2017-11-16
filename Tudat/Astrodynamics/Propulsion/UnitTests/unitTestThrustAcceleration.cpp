@@ -988,6 +988,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     using namespace gravitation;
     using namespace numerical_integrators;
     using namespace unit_conversions;
+    using namespace interpolators;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1044,9 +1045,10 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     randomThrustMap[ 8.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
     randomThrustMap[ 9.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector3d > >(
-                randomThrustMap );
+    boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > thrustDataInterpolation =
+            boost::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
+                boost::make_shared< DataMapSettings< double, Eigen::Vector3d > >( randomThrustMap ),
+                boost::make_shared< InterpolatorSettings >( linear_interpolator ) );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -1060,19 +1062,14 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
-        if( testCase == 0 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               inertial_thurst_frame, "Earth" ) );
-        }
-        else if( testCase == 1 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               lvlh_thrust_frame, "Earth" ) );
-        }
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+
+        boost::shared_ptr< ThrustAccelerationSettings > thrustSettings =
+                boost::make_shared< ThrustAccelerationSettings >(
+                    thrustDataInterpolation, boost::lambda::constant( 300.0 ),
+                    testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
+
+        accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 
@@ -1126,11 +1123,16 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+
+        boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
+                thrustSettings->interpolatorInterface_->getThrustInterpolator( );
 
         Eigen::Vector3d thrustDifference;
 

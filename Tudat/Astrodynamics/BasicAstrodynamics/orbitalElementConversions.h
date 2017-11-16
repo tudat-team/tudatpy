@@ -25,6 +25,7 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
+#include <boost/function.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
@@ -442,7 +443,23 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     return computedKeplerianElements_;
 }
 
-
+//! Convert Cartesian to Keplerian orbital elements.
+/*!
+ * Converts Cartesian to Keplerian orbital elements, using function pointers to retrieve the cartesian state and gravitational
+ * parameter.
+ * \param cartesianElementsFunction Function that returns vector containing Cartesian elements.
+ * \param centralBodyGravitationalParameterFunction Function that returns  gravitational parameter of central body.
+ * \return Converted state in Keplerian elements.
+ * \sa convertCartesianToKeplerianElements
+ */
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElementsFromFunctions(
+        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return convertCartesianToKeplerianElements(
+                cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
+}
 
 //! Convert true anomaly to (elliptical) eccentric anomaly.
 /*!

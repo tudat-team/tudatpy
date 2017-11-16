@@ -462,7 +462,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         // Check if propagation should terminate because the propagation termination condition has been reached
         // while computing the intermediate state.
         // If so, return immediately the current state (not recomputed yet), which will be discarded.
-        if ( this->propagationTerminationFunction_( static_cast< double >( time ) ) )
+        if ( this->propagationTerminationFunction_( static_cast< double >( time ), TUDAT_NAN ) )
         {
             this->propagationTerminationConditionReachedDuringStep_ = true;
             return this->currentState_;
@@ -613,13 +613,12 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
 //! Exception that is thrown if the minimum step size is exceeded.
 /*!
- * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::
- * computeNextStepSizeAndValidateResult() if the minimum step size is exceeded.
+ * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::computeNextStepSizeAndValidateResult()
+ * if the minimum step size is exceeded.
  */
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType,
-        StateDerivativeType, TimeStepType >
-        ::MinimumStepSizeExceededError : public std::runtime_error
+        StateDerivativeType, TimeStepType >::MinimumStepSizeExceededError : public std::runtime_error
 {
 public:
 

@@ -118,6 +118,13 @@ public:
      */
     double getArea( ){ return area_; }
 
+    //! Function to set surface area that undergoes radiation pressure.
+    /*!
+     *  Function to set surface area that undergoes radiation pressure.
+     *  \param area Surface area that undergoes radiation pressure.
+     */
+    void setArea( double area ){ area_ = area; }
+
     //! Function to return radiation pressure coefficient.
     /*!
      *  Function to return radiation pressure coefficient.
