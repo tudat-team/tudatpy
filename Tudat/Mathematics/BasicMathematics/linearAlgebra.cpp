@@ -88,13 +88,6 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
     return std::acos( dotProductOfNormalizedVectors );
 }
 
-//! Computes the difference between two 3d vectors.
-Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
-                                         const Eigen::Vector3d& vector1 )
-{
-    return ( vector0 - vector1 );
-}
-
 //! Computes norm of the the difference between two 3d vectors.
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 )

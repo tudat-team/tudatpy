@@ -16,6 +16,42 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to get a string representing a 'named identification' of a variable type
+std::string getVariableName( const VariableType variableType )
+{
+    switch ( variableType )
+    {
+    case independentVariable:
+        return "Independent variable ";
+    case cpuTimeVariable:
+        return "Cummulative computation time variable ";
+    case stateVariable:
+        return "Integrated state ";
+    case dependentVariable:
+        return "Dependent variable ";
+    default:
+        throw std::runtime_error( "Error, variable " +
+                                  boost::lexical_cast< std::string >( variableType ) +
+                                  "not found when retrieving parameter name " );
+    }
+}
+
+//! Function to get a string representing a 'named identification' of a variable
+std::string getVariableId( const boost::shared_ptr< VariableSettings > variableSettings )
+{
+    boost::shared_ptr< SingleDependentVariableSaveSettings > singleDependentVariableSaveSettings =
+            boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variableSettings );
+    if ( singleDependentVariableSaveSettings )
+    {
+        return getDependentVariableId( singleDependentVariableSaveSettings );
+    }
+    else
+    {
+        return getVariableName( variableSettings->variableType_ );
+    }
+}
+
+
 //! Function to get a string representing a 'named identification' of a dependent variable type
 std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables )
 {
@@ -118,6 +154,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case total_torque_norm_dependent_variable:
         variableName = "Total torque norm in body-fixed frame ";
         break;
+    case keplerian_state_dependent_variable:
+        variableName = "Kepler elements  ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 boost::lexical_cast< std::string >( propagationDependentVariables ) +
@@ -132,10 +171,10 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 std::string getDependentVariableId(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
-    std::string variableId = getDependentVariableName( dependentVariableSettings->variableType_ );
+    std::string variableId = getDependentVariableName( dependentVariableSettings->dependentVariableType_ );
 
-    if( ( dependentVariableSettings->variableType_ == single_acceleration_dependent_variable ) ||
-            ( dependentVariableSettings->variableType_ == single_acceleration_norm_dependent_variable ) )
+    if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
+            ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) )
     {
         boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
                 boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
@@ -149,22 +188,22 @@ std::string getDependentVariableId(
                         accelerationDependentVariableSettings->accelerationModeType_ );
         }
     }
-    else if( ( dependentVariableSettings->variableType_ == single_torque_dependent_variable ) ||
-             ( dependentVariableSettings->variableType_ == single_torque_norm_dependent_variable ) )
-     {
-         boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
-                 boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
-         if( torqueDependentVariableSettings == NULL )
-         {
-             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (torque type )" );
-         }
-         else
-         {
-             variableId += basic_astrodynamics::getTorqueModelName(
-                         torqueDependentVariableSettings->torqueModeType_ );
-         }
-     }
-    else if( dependentVariableSettings->variableType_ == intermediate_aerodynamic_rotation_matrix_variable )
+    else if( ( dependentVariableSettings->dependentVariableType_ == single_torque_dependent_variable ) ||
+             ( dependentVariableSettings->dependentVariableType_ == single_torque_norm_dependent_variable ) )
+    {
+        boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
+                boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
+        if( torqueDependentVariableSettings == NULL )
+        {
+            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (torque type )" );
+        }
+        else
+        {
+            variableId += basic_astrodynamics::getTorqueModelName(
+                        torqueDependentVariableSettings->torqueModeType_ );
+        }
+    }
+    else if( dependentVariableSettings->dependentVariableType_ == intermediate_aerodynamic_rotation_matrix_variable )
     {
         boost::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationDependentVariableSettings =
                 boost::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
@@ -180,7 +219,7 @@ std::string getDependentVariableId(
         }
     }
 
-    else if( dependentVariableSettings->variableType_ == relative_body_aerodynamic_orientation_angle_variable )
+    else if( dependentVariableSettings->dependentVariableType_ == relative_body_aerodynamic_orientation_angle_variable )
     {
         boost::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
                 boost::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
@@ -195,8 +234,8 @@ std::string getDependentVariableId(
         }
     }
 
-    if( ( dependentVariableSettings->variableType_ == single_acceleration_dependent_variable ) ||
-            ( dependentVariableSettings->variableType_ == single_acceleration_norm_dependent_variable )  )
+    if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
+            ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable )  )
     {
         variableId += ", acting on " + dependentVariableSettings->associatedBody_;
         if( dependentVariableSettings->secondaryBody_ != dependentVariableSettings->associatedBody_ )

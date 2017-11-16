@@ -23,6 +23,39 @@ namespace tudat
 namespace propagators
 {
 
+//! Enum listing the variables that can be exported or use in termination conditions during the propagation
+enum VariableType
+{
+    independentVariable,
+    cpuTimeVariable,
+    stateVariable,
+    dependentVariable  // -> derivedVariable ?
+};
+
+//! Functional base class for defining settings for variables
+/*!
+ *  Functional base class for defining settings for variables.
+ *  Any variable that requires additional information in addition to what can be provided here, should be
+ *  defined by a dedicated derived class.
+ */
+class VariableSettings
+{
+public:
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param variableType Type of variable.
+     */
+    VariableSettings( const VariableType variableType ) :
+        variableType_( variableType ) { }
+
+    //! Destructor.
+    virtual ~VariableSettings( ){ }
+
+    //! Type of dependent variable that is to be saved.
+    VariableType variableType_;
+};
+
 
 //! Enum listing the dependent variables that can be saved during the propagation
 enum PropagationDependentVariables
@@ -58,7 +91,8 @@ enum PropagationDependentVariables
     single_torque_norm_dependent_variable = 28,
     total_torque_dependent_variable = 29,
     single_torque_dependent_variable = 30,
-    body_fixed_groundspeed_based_velocity_variable = 31
+    body_fixed_groundspeed_based_velocity_variable = 31,
+    keplerian_state_dependent_variable = 32
 };
 
 
@@ -69,37 +103,45 @@ enum PropagationDependentVariables
  *  Any dependent variable that requires additional information in addition to what can be provided here, should be
  *  defined by a dedicated derived class.
  */
-class SingleDependentVariableSaveSettings
+class SingleDependentVariableSaveSettings : public VariableSettings
 {
 public:
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
-     * \param variableType Type of dependent variable that is to be saved.
-     * \param associatedBody Body associated with dependent variable
+     * Constructor.
+     * \param dependentVariableType Type of dependent variable that is to be saved.
+     * \param associatedBody Body associated with dependent variable.
      * \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
      * position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleDependentVariableSaveSettings(
-            const PropagationDependentVariables variableType,
+            const PropagationDependentVariables dependentVariableType,
             const std::string& associatedBody,
-            const std::string& secondaryBody = "" ):
-        variableType_( variableType ), associatedBody_( associatedBody ), secondaryBody_( secondaryBody ){ }
-
-    //! Destructor.
-    virtual ~SingleDependentVariableSaveSettings( ){ }
+            const std::string& secondaryBody = "",
+            const int componentIndex = -1 ):
+        VariableSettings( dependentVariable ),
+        dependentVariableType_( dependentVariableType ),
+        associatedBody_( associatedBody ),
+        secondaryBody_( secondaryBody ),
+        componentIndex_( componentIndex ) { }
 
     //! Type of dependent variable that is to be saved.
-    PropagationDependentVariables variableType_;
+    PropagationDependentVariables dependentVariableType_;
 
-    //! Body associated with dependent variable
+    //! Body associated with variable.
     std::string associatedBody_;
 
     //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
     //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
     std::string secondaryBody_;
 
+    //! Index of the component to be saved.
+    //! Only applicable to vectorial dependent variables.
+    //! If negative, all the components of the vector are saved.
+    int componentIndex_;
 };
 
 //! Class to define settings for saving a single acceleration (norm or vector) during propagation
@@ -118,15 +160,18 @@ public:
      * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
      * \param bodyExertingAcceleration Name of body exerting the acceleration.
      * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleAccelerationDependentVariableSaveSettings(
             const basic_astrodynamics::AvailableAcceleration accelerationModeType,
             const std::string& bodyUndergoingAcceleration,
             const std::string& bodyExertingAcceleration,
-            const bool useNorm = 0 ):
+            const bool useNorm = 0,
+            const int componentIndex = -1 ):
         SingleDependentVariableSaveSettings(
             ( useNorm == 1 ) ? ( single_acceleration_norm_dependent_variable ) : ( single_acceleration_dependent_variable ),
-            bodyUndergoingAcceleration, bodyExertingAcceleration ),
+            bodyUndergoingAcceleration, bodyExertingAcceleration, componentIndex ),
         accelerationModeType_( accelerationModeType )
     { }
 
@@ -146,15 +191,18 @@ public:
      * \param bodyUndergoingTorque Name of body undergoing the torque.
      * \param bodyExertingTorque Name of body exerting the torque.
      * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the torque.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     SingleTorqueDependentVariableSaveSettings(
             const basic_astrodynamics::AvailableTorque torqueModeType,
             const std::string& bodyUndergoingTorque,
             const std::string& bodyExertingTorque,
-            const bool useNorm = 0 ):
+            const bool useNorm = 0,
+            const int componentIndex = -1 ):
         SingleDependentVariableSaveSettings(
             ( useNorm == 1 ) ? ( single_torque_norm_dependent_variable ) : ( single_torque_dependent_variable ),
-            bodyUndergoingTorque, bodyExertingTorque ),
+            bodyUndergoingTorque, bodyExertingTorque, componentIndex ),
         torqueModeType_( torqueModeType )
     { }
 
@@ -174,12 +222,16 @@ public:
      * \param associatedBody Body for which the rotation matrix is to be saved.
      * \param baseFrame Frame from which rotation is to take place.
      * \param targetFrame Frame to which the rotation is to take place.
+     * \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     * By default -1, i.e. all the components are saved.
      */
     IntermediateAerodynamicRotationVariableSaveSettings(
             const std::string& associatedBody,
             const reference_frames::AerodynamicsReferenceFrames baseFrame,
-            const reference_frames::AerodynamicsReferenceFrames targetFrame ):
-        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody ),
+            const reference_frames::AerodynamicsReferenceFrames targetFrame,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody,
+                                             "", componentIndex ),
         baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
 
     //! Frame from which rotation is to take place.
@@ -235,11 +287,29 @@ public:
     bool printDependentVariableTypes_;
 };
 
+
+//! Function to get a string representing a 'named identification' of a variable type
+/*!
+ * Function to get a string representing a 'named identification' of a variable type
+ * \param variableType Variable type
+ * \return String with variable type id.
+ */
+std::string getVariableName( const VariableType variableType );
+
+//! Function to get a string representing a 'named identification' of a variable
+/*!
+ * Function to get a string representing a 'named identification' of a variable
+ * \param variableSettings Variable
+ * \return String with variable id.
+ */
+std::string getVariableId( const boost::shared_ptr< VariableSettings > variableSettings );
+
+
 //! Function to get a string representing a 'named identification' of a dependent variable type
 /*!
  * Function to get a string representing a 'named identification' of a dependent variable type
  * \param propagationDependentVariables Dependent variable type
- * \return String with variable type id.
+ * \return String with dependent variable type id.
  */
 std::string getDependentVariableName( const PropagationDependentVariables propagationDependentVariables );
 
@@ -247,7 +317,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 /*!
  * Function to get a string representing a 'named identification' of a dependent variable
  * \param dependentVariableSettings Dependent variable
- * \return String with variable id.
+ * \return String with dependent variable id.
  */
 std::string getDependentVariableId(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );

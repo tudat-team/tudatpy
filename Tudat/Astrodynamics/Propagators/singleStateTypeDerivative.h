@@ -25,7 +25,8 @@ namespace propagators
 enum IntegratedStateType
 {
     hybrid = 0,
-    transational_state = 1,
+    translational_state = 1,
+    transational_state = translational_state,  // deprecated (typo)
     rotational_state = 2,
     body_mass_state = 3,
     custom_state = 4

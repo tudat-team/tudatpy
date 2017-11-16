@@ -61,6 +61,16 @@ NamedBodyMap createBodies(
         bodyMap[ orderedBodySettings.at( i ).first ] = boost::make_shared< Body >( );
     }
 
+    // Define constant mass for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        const double constantMass = orderedBodySettings.at( i ).second->constantMass;
+        if ( constantMass == constantMass )
+        {
+            bodyMap[ orderedBodySettings.at( i ).first ]->setConstantBodyMass( constantMass );
+        }
+    }
+
     // Create ephemeris objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {

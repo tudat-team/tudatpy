@@ -163,7 +163,7 @@ AvailableMassRateModels getMassRateModelType(
         massRateType = custom_mass_rate_model;
     }
     else if( boost::dynamic_pointer_cast< propulsion::FromThrustMassRateModel >(
-                massRateModel ) != NULL )
+                 massRateModel ) != NULL )
     {
         massRateType = from_thrust_mass_rate_model;
     }
@@ -196,8 +196,8 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
 {
     bool accelerationIsDirectGravity = 0;
     if( ( accelerationType == central_gravity ) ||
-           ( accelerationType == spherical_harmonic_gravity ) ||
-           ( accelerationType == mutual_spherical_harmonic_gravity ) )
+            ( accelerationType == spherical_harmonic_gravity ) ||
+            ( accelerationType == mutual_spherical_harmonic_gravity ) )
     {
         accelerationIsDirectGravity = 1;
     }

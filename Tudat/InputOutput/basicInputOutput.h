@@ -80,15 +80,38 @@ static inline std::string getSpiceKernelPath( )
 #ifdef SPICE_KERNEL_CUSTOM_FOLDER
     return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
 #else
-    // Declare file path string assigned to filePath.
-    // __FILE__ only gives the absolute path in the header file!
-    std::string filePath_( __FILE__ );
-
-    // Strip filename from temporary string and return root-path string.
-    return ( filePath_.substr( 0, filePath_.length( ) -
-                               std::string( "InputOutput/basicInputOutput.h" ).length( ) ) +
-             "External/SpiceInterface/Kernels/" );
+    return getTudatRootPath( ) + "External/SpiceInterface/Kernels/";
 #endif
+}
+
+//! Get atmosphere tables path.
+/*!
+ * Returns path in which atmosphere tables are located.
+ * \return Path containing atmosphere tables.
+ */
+static inline std::string getAtmosphereTablesPath( )
+{
+    return getTudatRootPath( ) + "External/AtmosphereTables/";
+}
+
+//! Get gravity models path.
+/*!
+ * Returns path in which gravity models are located.
+ * \return Path containing gravity models.
+ */
+static inline std::string getGravityModelsPath( )
+{
+    return getTudatRootPath( ) + "External/GravityModels/";
+}
+
+//! Get space weather data files path.
+/*!
+ * Returns path in which space weather data files are located.
+ * \return Path containing space weather data files.
+ */
+static inline std::string getSpaceWeatherDataPath( )
+{
+    return getTudatRootPath( ) + "External/SpaceWeatherData/";
 }
 
 //! Print floating-point number in formatted scientific notation.
@@ -348,6 +371,32 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
                                    " " );
 }
 
+//! Write data map to text file.
+/*!
+ * Writes Eigen data stored in a map to text file, using default KeyType-precision and
+ * ValueType-precision (digits10 from "limits" standard library), output directory
+ * (Tudat root-path), and delimiter (space).
+ * \tparam KeyType Data type for map key.
+ * \tparam ValueType Data type for Eigen::Matrix, used as map value.
+ * \param dataMap Map with data.
+ * \param outputPath Path of the output file.
+ * \param fileHeader Text to be placed at the head of the output file. N.B: This string MUST end in
+ *          a newline/return character, or the first line of data will not be printed on a new
+ *          line.
+ * \param precision Number of significant digits of KeyType-data and ValueType-data to output.
+ */
+template< typename KeyType, typename ValueType >
+void writeDataMapToTextFile(
+        const std::map< KeyType, ValueType >& dataMap,
+        const boost::filesystem::path& outputPath,
+        const std::string& fileHeader,
+        const int precision )
+{
+    writeDataMapToTextFile( dataMap.begin( ), dataMap.end( ),
+                            outputPath.filename( ).string( ), outputPath.parent_path( ),
+                            fileHeader, precision, precision, " " );
+}
+
 //! Write Eigen matrix to text file.
 /*!
  * Write Eigen matrix to text file.
@@ -356,13 +405,16 @@ void writeDataMapToTextFile( const std::map< KeyType, Eigen::Matrix< ScalarType,
  * \param precisionOfMatrixEntries Number of significant digits of Matrix output
  * \param outputDirectory Output directory. It can be passed as a string as well. The directory be created if it does not exist.
  * \param delimiter Delimiter character, to delimit data entries in file.
+ * \param header Header to be added in the first line. Header char (e.g. %, #), if any, must be included in this string.
+ * Must end in line break to make data matrix start in the next line.
  */
 template< typename ScalarType, int NumberOfRows, int NumberOfColumns >
 void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > matrixToWrite,
                         const std::string& outputFilename,
                         const int precisionOfMatrixEntries = 16,
                         const boost::filesystem::path& outputDirectory = getTudatRootPath( ),
-                        const std::string& delimiter = "\t" )
+                        const std::string& delimiter = "\t",
+                        const std::string& header = "" )
 {
     // Check if output directory exists; create it if it doesn't.
     if ( !boost::filesystem::exists( outputDirectory ) )
@@ -373,6 +425,9 @@ void writeMatrixToFile( Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns
     // Open output file.
     std::string outputDirectoryAndFilename = outputDirectory.string( ) + "/" + outputFilename;
     std::ofstream outputFile_( outputDirectoryAndFilename.c_str( ) );
+
+    // Write header
+    outputFile_ << header;
 
     writeValueToStream( outputFile_, matrixToWrite, precisionOfMatrixEntries,
                         delimiter, true );

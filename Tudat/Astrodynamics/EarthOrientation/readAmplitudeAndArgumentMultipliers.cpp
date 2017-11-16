@@ -27,6 +27,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
         const std::string fundamentalArgumentMultipliersFile,
         const double minimumAmplitude )
 {
+
     // Read amplitudes and fundamental argument multipliers into matrices.
     Eigen::MatrixXd amplitudesRaw = input_output::readMatrixFromFile( amplitudesFile );
     Eigen::MatrixXd fundamentalArgumentMultipliersRaw = input_output::readMatrixFromFile( fundamentalArgumentMultipliersFile );
