@@ -148,9 +148,9 @@ BOOST_AUTO_TEST_CASE( test_json_modular )
             )"_json;
 
     simulation[ "export" ][ 0 ][ "file" ] =
-            ( boost::filesystem::path( "export" ) / ".." / "outputs" / "epochs.txt" ).string( );
+            ( boost::filesystem::path( "export" ) / "../outputs/epochs.txt" ).string( );
     simulation[ "export" ][ 1 ][ "file" ] =
-            ( boost::filesystem::path( "export" ) / ".." / "states.txt" ).string( );
+            ( boost::filesystem::path( "export" ) / "../states.txt" ).string( );
 
     BOOST_CHECK_EQUAL( modular, simulation );
 }
