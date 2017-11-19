@@ -42,7 +42,10 @@ class PropagationTerminationCondition
 public:
 
     //! Constructor
-    PropagationTerminationCondition( const PropagationTerminationTypes terminationType ):
+    PropagationTerminationCondition(
+            const PropagationTerminationTypes terminationType,
+            const bool terminateExactlyOnFinalCondition = false,
+            const double terminationTolerance = TUDAT_NAN ):
         terminationType_( terminationType ){ }
 
     //! Destructor
@@ -83,8 +86,10 @@ public:
      */
     FixedTimePropagationTerminationCondition(
             const double stopTime,
-            const bool propagationDirectionIsPositive ):
-        PropagationTerminationCondition( time_stopping_condition ),
+            const bool propagationDirectionIsPositive,
+            const bool terminateExactlyOnFinalCondition = false,
+            const double terminationTolerance = TUDAT_NAN  ):
+        PropagationTerminationCondition( time_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
         stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
 
@@ -118,7 +123,7 @@ public:
      * \param cpuStopTime CPU time at which the propagation is to stop.
      */
     FixedCPUTimePropagationTerminationCondition( const double cpuStopTime ) :
-        PropagationTerminationCondition( cpu_time_stopping_condition ),
+        PropagationTerminationCondition( cpu_time_stopping_condition, false, TUDAT_NAN ),
         cpuStopTime_( cpuStopTime ) { }
 
 
@@ -156,10 +161,15 @@ public:
             const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const boost::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
-            const bool useAsLowerBound ):
-        PropagationTerminationCondition( dependent_variable_stopping_condition ),
+            const bool useAsLowerBound,
+            const bool terminateExactlyOnFinalCondition = false,
+            const double terminationTolerance = TUDAT_NAN,
+            const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
+        PropagationTerminationCondition(
+            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
-        limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
+        limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
+    terminationRootFinderSettings_( terminationRootFinderSettings ){ }
 
     //! Destructor.
     ~SingleVariableLimitPropagationTerminationCondition( ){ }
@@ -173,6 +183,16 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
+
+    double getStopConditionError( )
+    {
+         return variableRetrievalFuntion_( ) - limitingValue_;
+    }
+
+    boost::shared_ptr< root_finders::RootFinderSettings > getTerminationRootFinderSettings( )
+    {
+        return terminationRootFinderSettings_;
+    }
 
 private:
 
@@ -188,6 +208,8 @@ private:
     //! Boolean denoting whether the propagation should stop if the dependent variable goes below
     //! (if true) or above (if false) limitingValue
     bool useAsLowerBound_;
+
+    boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
 //! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
@@ -206,7 +228,7 @@ public:
     HybridPropagationTerminationCondition(
             const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulFillSingleCondition = 0 ):
-        PropagationTerminationCondition( hybrid_stopping_condition ),
+        PropagationTerminationCondition( hybrid_stopping_condition, false, TUDAT_NAN ),
         propagationTerminationCondition_( propagationTerminationCondition ),
         fulFillSingleCondition_( fulFillSingleCondition ){ }
 
@@ -219,6 +241,16 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
+
+    std::vector< boost::shared_ptr< PropagationTerminationCondition > > getPropagationTerminationConditions( )
+    {
+        return propagationTerminationCondition_;
+    }
+
+    bool getFulFillSingleCondition( )
+    {
+        return fulFillSingleCondition_;
+    }
 
 private:
 

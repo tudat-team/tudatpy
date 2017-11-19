@@ -15,6 +15,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Mathematics/RootFinders/createRootFinder.h"
+
 namespace tudat
 {
 
@@ -47,14 +49,28 @@ public:
      * Constructor
      * \param terminationType Type of stopping condition that is to be used.
      */
-    PropagationTerminationSettings( const PropagationTerminationTypes terminationType ):
-        terminationType_( terminationType ){ }
+    PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
+                                    const bool terminateExactlyOnFinalCondition = false,
+                                    const double terminationTolerance = TUDAT_NAN ):
+        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ),
+        terminationTolerance_( terminationTolerance )
+    {
+        if( terminateExactlyOnFinalCondition_ && !( terminationTolerance_ == terminationTolerance_ ) )
+        {
+            throw std::runtime_error( "Error in termination condition of type: " + std::to_string( terminationType_ ) +
+                                      ", terminateExactlyOnFinalCondition is true, but no tolerance has been set" );
+        }
+    }
 
     //! Destructor
     virtual ~PropagationTerminationSettings( ){ }
 
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
+
+    bool terminateExactlyOnFinalCondition_;
+
+    double terminationTolerance_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -71,8 +87,10 @@ public:
      * Constructor
      * \param terminationTime Maximum time for the propagation, upon which the propagation is to be stopped
      */
-    PropagationTimeTerminationSettings( const double terminationTime ):
-        PropagationTerminationSettings( time_stopping_condition ),
+    PropagationTimeTerminationSettings( const double terminationTime,
+                                        const bool terminateExactlyOnFinalCondition = false,
+                                        const double terminationTolerance = TUDAT_NAN ):
+        PropagationTerminationSettings( time_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
         terminationTime_( terminationTime ){ }
 
     //! Destructor
@@ -130,10 +148,21 @@ public:
     PropagationDependentVariableTerminationSettings(
             const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const double limitValue,
-            const bool useAsLowerLimit ):
-        PropagationTerminationSettings( dependent_variable_stopping_condition ),
+            const bool useAsLowerLimit,
+            const bool terminateExactlyOnFinalCondition = false,
+            const double terminationTolerance = TUDAT_NAN,
+            const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
+        PropagationTerminationSettings(
+            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
         dependentVariableSettings_( dependentVariableSettings ),
-        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ){ }
+        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
+        terminationRootFinderSettings_( terminationRootFinderSettings )
+    {
+        if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == NULL ) )
+        {
+
+        }
+    }
 
     //! Destructor
     ~PropagationDependentVariableTerminationSettings( ){ }
@@ -147,6 +176,8 @@ public:
     //! Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above
     //! (if false) limitingValue
     bool useAsLowerLimit_;
+
+    boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
 //! Class for propagation stopping conditions settings: combination of other stopping conditions.
@@ -171,7 +202,20 @@ public:
             const bool fulFillSingleCondition = 0 ):
         PropagationTerminationSettings( hybrid_stopping_condition ),
         terminationSettings_( terminationSettings ),
-        fulFillSingleCondition_( fulFillSingleCondition ){ }
+        fulFillSingleCondition_( fulFillSingleCondition )
+    {
+        for( unsigned int i = 0; i < terminationSettings_.size( ); i++ )
+        {
+            if( i == 0 )
+            {
+                terminateExactlyOnFinalCondition_ = terminationSettings_.at( 0 )->terminateExactlyOnFinalCondition_;
+            }
+            else if( terminationSettings_.at( i )->terminateExactlyOnFinalCondition_ != terminateExactlyOnFinalCondition_ )
+            {
+                throw std::runtime_error( "Error in hybrid termination settings, terminateExactlyOnFinalCondition_ is inconsistent" );
+            }
+        }
+    }
 
     //! Destructor
     ~PropagationHybridTerminationSettings( ){ }
