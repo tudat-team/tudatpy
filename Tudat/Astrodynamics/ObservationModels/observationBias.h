@@ -70,7 +70,7 @@ public:
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
-            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) ) = 0;
+            Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) ) = 0;
 
     //! Function to return the size of the associated observation
     /*!
