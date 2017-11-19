@@ -24,6 +24,7 @@
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
+#include "Tudat/Mathematics/RootFinders/createRootFinder.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 
 namespace tudat
@@ -32,19 +33,36 @@ namespace tudat
 namespace propagators
 {
 
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+TimeStepType getTerminationDependentVariableErrorForGivenTimeStep(
+        TimeStepType timeStep,
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition )
+{
+    integrator->performIntegrationStep( timeStep );
+
+    TimeStepType dependentVariableError =
+            static_cast< TimeStepType >( dependentVariableTerminationCondition->getStopConditionError( ) );
+
+    integrator->rollbackToPreviousState( );
+
+    return dependentVariableError;
+}
+
 
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void propagateToExactTerminationCondition(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< PropagationTerminationCondition > terminationCondition,
         const TimeType secondToLastTime,
         const TimeType lastTime,
         const StateType& secondToLastState,
         const StateType& lastState,
-        const boost::shared_ptr< PropagationTerminationCondition > terminationCondition,
         TimeType& endTime,
-        StateType& endState,
-        Eigen::VectorXd& endDependentVariables )
+        StateType& endState )
 {
+    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
+
     switch( terminationCondition->getTerminationType( ) )
     {
     case  time_stopping_condition:
@@ -64,11 +82,90 @@ void propagateToExactTerminationCondition(
         endState = lastState;
         break;
     case  dependent_variable_stopping_condition:
+    {
+        boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition =
+                boost::dynamic_pointer_cast< SingleVariableLimitPropagationTerminationCondition >( terminationCondition );
+        boost::shared_ptr< root_finders::RootFinderCore< TimeType > > finalConditionRootFinder = root_finders::createRootFinder(
+                    dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
+                    secondToLastTime, lastTime, secondToLastTime );
+        boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
+                boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
+                             integrator, dependentVariableTerminationCondition );
+        TimeStepType finalTimeStep = finalConditionRootFinder->execute(
+                    boost::make_shared< basic_mathematics::FunctionProxy< TimeStepType, TimeStepType > >(
+                        dependentVariableErrorFunction ),
+                    secondToLastTime + ( lastTime - secondToLastTime ) / 2.0 );
+
+        endState = integrator->performIntegrationStep( finalTimeStep );
+        endTime = integrator->getCurrentIndependentVariable( );
 
         break;
+    }
     case  hybrid_stopping_condition:
+    {
+        boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
+                boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( terminationCondition );
+        std::vector< boost::shared_ptr< PropagationTerminationCondition > > terminationConditionList =
+                hyrbidTerminationCondition->getPropagationTerminationConditions( );
+
+        std::vector< TimeType > endTimes;
+        endTimes.resize( terminationConditionList.size( ) );
+        std::vector< StateType > endStates;
+        endStates.resize( terminationConditionList.size( ) );
+
+        int minimumTimeIndex = 0;
+        int maximumTimeIndex = 0;
+
+        TimeStepType minimumTimeStep, maximumTimeStep;
+
+        for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
+        {
+            TimeStepType currentFinalTimeStep = propagateToExactTerminationCondition(
+                        integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
+                        endTimes[ i ], endStates[ i ] );
+            if( i == 0 )
+            {
+                minimumTimeStep = currentFinalTimeStep;
+                maximumTimeStep = currentFinalTimeStep;
+            }
+            else
+            {
+                if( currentFinalTimeStep < minimumTimeStep )
+                {
+                    minimumTimeStep = currentFinalTimeStep;
+                    minimumTimeIndex = i;
+                }
+
+                if( currentFinalTimeStep > maximumTimeStep )
+                {
+                    maximumTimeStep = currentFinalTimeStep;
+                    maximumTimeIndex = i;
+                }
+            }
+        }
+
+        if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+                ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+        {
+            endState = endStates[ maximumTimeIndex ];
+            endTime = endTimes[ maximumTimeIndex ];
+        }
+        else if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+                 ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+        {
+            endState = endStates[ minimumTimeStep ];
+            endTime = endTimes[ minimumTimeStep ];
+        }
+        else
+        {
+            throw std::runtime_error( "Error when propagating to exact final hybrid condition, case not recognized" );
+        }
+
+
+
 
         break;
+    }
     default:
         throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination timw" );
     }
@@ -189,7 +286,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             else
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                           ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
+                             ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
                 breakPropagation = 1;
                 propagationTerminationReason = runtime_error_caught_in_propagation;
             }
@@ -209,7 +306,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                           static_cast<int>( printInterval ) )  )
                 {
                     std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
-                               timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
+                                 timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
                 }
             }
 
@@ -224,7 +321,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
         {
             std::cerr << caughtException.what( ) << std::endl;
             std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                       ", returning propagation data up to current time" << std::endl;
+                         ", returning propagation data up to current time" << std::endl;
             breakPropagation = 1;
             propagationTerminationReason = runtime_error_caught_in_propagation;
         }
