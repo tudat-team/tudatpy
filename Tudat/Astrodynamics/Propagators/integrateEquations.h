@@ -32,6 +32,49 @@ namespace tudat
 namespace propagators
 {
 
+
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+void propagateToExactTerminationCondition(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const TimeType secondToLastTime,
+        const TimeType lastTime,
+        const StateType& secondToLastState,
+        const StateType& lastState,
+        const boost::shared_ptr< PropagationTerminationCondition > terminationCondition,
+        TimeType& endTime,
+        StateType& endState,
+        Eigen::VectorXd& endDependentVariables )
+{
+    switch( terminationCondition->getTerminationType( ) )
+    {
+    case  time_stopping_condition:
+    {
+        boost::shared_ptr< FixedTimePropagationTerminationCondition > timeTerminationCondition =
+                boost::dynamic_pointer_cast< FixedTimePropagationTerminationCondition >( terminationCondition );
+        TimeStepType finalTimeStep = timeTerminationCondition->stopTime_ - secondToLastTime;
+
+        integrator->rollbackToPreviousState( );
+        endState = integrator->performIntegrationStep( finalTimeStep );
+        endTime = integrator->getCurrentIndependentVariable( );
+        break;
+    }
+    case  cpu_time_stopping_condition:
+        std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
+        endTime = lastTime;
+        endState = lastState;
+        break;
+    case  dependent_variable_stopping_condition:
+
+        break;
+    case  hybrid_stopping_condition:
+
+        break;
+    default:
+        throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination timw" );
+    }
+}
+
+
 //! Function to numerically integrate a given first order differential equation
 /*!
  *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
