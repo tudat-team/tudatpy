@@ -99,6 +99,16 @@ public:
      */
     virtual bool rollbackToPreviousState( ) = 0;
 
+    virtual IndependentVariableType getPreviousIndependentVariable( )
+    {
+        throw std::runtime_error( "Function getPreviousIndependentVariable not implemented in this integrator" );
+    }
+
+    virtual StateType getPreviousState( )
+    {
+        throw std::runtime_error( "Function getPreviousState not implemented in this integrator" );
+    }
+
     //! Perform an integration to a specified independent variable value.
     /*!
      * Performs an integration to independentVariableEnd with initial state and initial independent

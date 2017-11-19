@@ -44,9 +44,8 @@ public:
     //! Constructor
     PropagationTerminationCondition(
             const PropagationTerminationTypes terminationType,
-            const bool terminateExactlyOnFinalCondition = false,
-            const double terminationTolerance = TUDAT_NAN ):
-        terminationType_( terminationType ){ }
+            const bool terminateExactlyOnFinalCondition = false ):
+        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ){ }
 
     //! Destructor
     virtual ~PropagationTerminationCondition( ){ }
@@ -66,9 +65,16 @@ public:
         return terminationType_;
     }
 
+    bool getTerminateExactlyOnFinalCondition( )
+    {
+        return terminateExactlyOnFinalCondition_;
+    }
+
 protected:
 
     PropagationTerminationTypes terminationType_;
+
+    bool terminateExactlyOnFinalCondition_;
 
 };
 
@@ -87,9 +93,8 @@ public:
     FixedTimePropagationTerminationCondition(
             const double stopTime,
             const bool propagationDirectionIsPositive,
-            const bool terminateExactlyOnFinalCondition = false,
-            const double terminationTolerance = TUDAT_NAN  ):
-        PropagationTerminationCondition( time_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
+            const bool terminateExactlyOnFinalCondition = false ):
+        PropagationTerminationCondition( time_stopping_condition, terminateExactlyOnFinalCondition ),
         stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
 
@@ -102,6 +107,11 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     bool checkStopCondition( const double time, const double cpuTime );
+
+    double getStopTime( )
+    {
+        return stopTime_;
+    }
 
 private:
 
@@ -123,7 +133,7 @@ public:
      * \param cpuStopTime CPU time at which the propagation is to stop.
      */
     FixedCPUTimePropagationTerminationCondition( const double cpuStopTime ) :
-        PropagationTerminationCondition( cpu_time_stopping_condition, false, TUDAT_NAN ),
+        PropagationTerminationCondition( cpu_time_stopping_condition, false ),
         cpuStopTime_( cpuStopTime ) { }
 
 
@@ -163,10 +173,9 @@ public:
             const double limitingValue,
             const bool useAsLowerBound,
             const bool terminateExactlyOnFinalCondition = false,
-            const double terminationTolerance = TUDAT_NAN,
             const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
         PropagationTerminationCondition(
-            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
+            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
     terminationRootFinderSettings_( terminationRootFinderSettings ){ }
@@ -228,7 +237,7 @@ public:
     HybridPropagationTerminationCondition(
             const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulFillSingleCondition = 0 ):
-        PropagationTerminationCondition( hybrid_stopping_condition, false, TUDAT_NAN ),
+        PropagationTerminationCondition( hybrid_stopping_condition, false ),
         propagationTerminationCondition_( propagationTerminationCondition ),
         fulFillSingleCondition_( fulFillSingleCondition ){ }
 

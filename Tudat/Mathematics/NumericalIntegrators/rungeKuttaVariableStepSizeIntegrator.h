@@ -272,6 +272,16 @@ public:
         return true;
     }
 
+    IndependentVariableType getPreviousIndependentVariable( )
+    {
+        return this->lastIndependentVariable_;
+    }
+
+    StateType getPreviousState( )
+    {
+        return this->lastState_;
+    }
+
     //! Modify the state at the current interval.
     /*!
      * Modify the state at the current interval. This allows for discrete jumps in the state, often

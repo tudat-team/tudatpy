@@ -69,7 +69,7 @@ void propagateToExactTerminationCondition(
     {
         boost::shared_ptr< FixedTimePropagationTerminationCondition > timeTerminationCondition =
                 boost::dynamic_pointer_cast< FixedTimePropagationTerminationCondition >( terminationCondition );
-        TimeStepType finalTimeStep = timeTerminationCondition->stopTime_ - secondToLastTime;
+        TimeStepType finalTimeStep = timeTerminationCondition->getStopTime( ) - secondToLastTime;
 
         integrator->rollbackToPreviousState( );
         endState = integrator->performIntegrationStep( finalTimeStep );
@@ -85,9 +85,12 @@ void propagateToExactTerminationCondition(
     {
         boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition =
                 boost::dynamic_pointer_cast< SingleVariableLimitPropagationTerminationCondition >( terminationCondition );
-        boost::shared_ptr< root_finders::RootFinderCore< TimeType > > finalConditionRootFinder = root_finders::createRootFinder(
+        boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder =
+                root_finders::createRootFinder< TimeStepType >(
                     dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
-                    secondToLastTime, lastTime, secondToLastTime );
+                    static_cast< TimeStepType >( secondToLastTime ),
+                    static_cast< TimeStepType >( lastTime ),
+                    static_cast< TimeStepType >( secondToLastTime ) );
         boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
                 boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
                              integrator, dependentVariableTerminationCondition );
@@ -120,9 +123,12 @@ void propagateToExactTerminationCondition(
 
         for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
         {
-            TimeStepType currentFinalTimeStep = propagateToExactTerminationCondition(
+            propagateToExactTerminationCondition(
                         integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
                         endTimes[ i ], endStates[ i ] );
+
+            TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
+
             if( i == 0 )
             {
                 minimumTimeStep = currentFinalTimeStep;
@@ -153,8 +159,8 @@ void propagateToExactTerminationCondition(
         else if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
                  ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
         {
-            endState = endStates[ minimumTimeStep ];
-            endTime = endTimes[ minimumTimeStep ];
+            endState = endStates[ minimumTimeIndex ];
+            endTime = endTimes[ minimumTimeIndex ];
         }
         else
         {
@@ -198,7 +204,7 @@ template< typename StateType = Eigen::MatrixXd, typename TimeType = double, type
 PropagationTerminationReason integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
-        const boost::function< bool( const double, const double ) > stopPropagationFunction,
+        const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         std::map< TimeType, double >& cummulativeComputationTimeHistory,
@@ -310,8 +316,36 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                 }
             }
 
-            if( stopPropagationFunction( static_cast< double >( currentTime ), currentCPUTime ) )
+            if( propagationTerminationCondition->checkStopCondition( static_cast< double >( currentTime ), currentCPUTime ) )
             {
+                if( propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) )
+                {
+                    TimeType endTime;
+                    StateType endState;
+                    propagateToExactTerminationCondition(
+                                integrator, propagationTerminationCondition,
+                                integrator->getPreviousIndependentVariable( ),
+                                integrator->getCurrentIndependentVariable( ),
+                                integrator->getPreviousState( ),
+                                integrator->getCurrentState( ),
+                                endTime, endState );
+
+                    bool recomputeDependentVariables = false;
+                    if( dependentVariableHistory.rbegin( )->first == solutionHistory.rbegin( )->first )
+                    {
+                        dependentVariableHistory.erase( std::prev( dependentVariableHistory.end() ) );
+                        recomputeDependentVariables = true;
+                    }
+                    solutionHistory.erase( std::prev( solutionHistory.end() ) );
+                    solutionHistory[ endTime ] = endState;
+
+                    if( recomputeDependentVariables )
+                    {
+                        integrator->getStateDerivativeFunction( )( currentTime, newState );
+                        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                    }
+                }
+
                 propagationTerminationReason = termination_condition_reached;
                 breakPropagation = true;
             }
@@ -369,7 +403,7 @@ public:
             std::map< TimeType, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::function< bool( const double, const double ) > stopPropagationFunction,
+            const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
             std::map< TimeType, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
@@ -409,7 +443,7 @@ public:
             std::map< double, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-            const boost::function< bool( const double, const double ) > stopPropagationFunction,
+            const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
             std::map< double, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
@@ -417,6 +451,9 @@ public:
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
+        boost::function< bool( const double, const double ) > stopPropagationFunction =
+                boost::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, _1, _2 );
+
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
                 numerical_integrators::createIntegrator< double, StateType >(
@@ -428,7 +465,7 @@ public:
         }
 
         return integrateEquationsFromIntegrator< StateType, double >(
-                    integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
+                    integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
@@ -469,7 +506,7 @@ public:
             std::map< Time, StateType >& solutionHistory,
             const StateType initialState,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
-            const boost::function< bool( const double, const double ) > stopPropagationFunction,
+            const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
             std::map< Time, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
@@ -477,6 +514,9 @@ public:
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
+        boost::function< bool( const double, const double ) > stopPropagationFunction =
+                boost::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, _1, _2 );
+
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
@@ -488,7 +528,7 @@ public:
         }
 
         return integrateEquationsFromIntegrator< StateType, Time, long double >(
-                    integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
+                    integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
