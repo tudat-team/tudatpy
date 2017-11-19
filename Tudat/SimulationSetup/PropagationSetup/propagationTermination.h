@@ -42,7 +42,8 @@ class PropagationTerminationCondition
 public:
 
     //! Constructor
-    PropagationTerminationCondition( ){ }
+    PropagationTerminationCondition( const PropagationTerminationTypes terminationType ):
+        terminationType_( terminationType ){ }
 
     //! Destructor
     virtual ~PropagationTerminationCondition( ){ }
@@ -56,6 +57,16 @@ public:
      * \return True if propagation is to be stopped, false otherwise.
      */
     virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
+
+    virtual PropagationTerminationTypes getTerminationType( )
+    {
+        return terminationType_;
+    }
+
+protected:
+
+    PropagationTerminationTypes terminationType_;
+
 };
 
 //! Class for stopping the propagation after a fixed amount of time (i.e. for certain independent variable value)
@@ -73,6 +84,7 @@ public:
     FixedTimePropagationTerminationCondition(
             const double stopTime,
             const bool propagationDirectionIsPositive ):
+        PropagationTerminationCondition( time_stopping_condition ),
         stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
 
@@ -106,6 +118,7 @@ public:
      * \param cpuStopTime CPU time at which the propagation is to stop.
      */
     FixedCPUTimePropagationTerminationCondition( const double cpuStopTime ) :
+        PropagationTerminationCondition( cpu_time_stopping_condition ),
         cpuStopTime_( cpuStopTime ) { }
 
 
@@ -144,6 +157,7 @@ public:
             const boost::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
             const bool useAsLowerBound ):
+        PropagationTerminationCondition( dependent_variable_stopping_condition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
 
@@ -192,6 +206,7 @@ public:
     HybridPropagationTerminationCondition(
             const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulFillSingleCondition = 0 ):
+        PropagationTerminationCondition( hybrid_stopping_condition ),
         propagationTerminationCondition_( propagationTerminationCondition ),
         fulFillSingleCondition_( fulFillSingleCondition ){ }
 
