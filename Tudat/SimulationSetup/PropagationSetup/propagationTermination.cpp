@@ -107,8 +107,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
                     timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
-                    timeTerminationSettings->terminateExactlyOnFinalCondition_,
-                    timeTerminationSettings->terminationTolerance_ );
+                    timeTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     case cpu_time_stopping_condition:
@@ -144,7 +143,6 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
                     dependentVariableTerminationSettings->useAsLowerLimit_,
                     dependentVariableTerminationSettings->terminateExactlyOnFinalCondition_,
-                    dependentVariableTerminationSettings->terminationTolerance_,
                     dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }

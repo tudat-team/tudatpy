@@ -175,6 +175,16 @@ public:
         return true;
     }
 
+    IndependentVariableType getPreviousIndependentVariable( )
+    {
+        return lastIndependentVariable_;
+    }
+
+    StateType getPreviousState( )
+    {
+        return lastState_;
+    }
+
     //! Modify the state at the current value of the independent variable.
     /*!
      * Modify the state at the current value of the independent variable.

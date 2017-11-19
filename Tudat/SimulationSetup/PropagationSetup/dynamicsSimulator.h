@@ -430,8 +430,7 @@ public:
                     stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
-                    boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                 propagationTerminationCondition_, _1, _2 ),
+                    propagationTerminationCondition_,
                     dependentVariableHistory_,
                     cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
