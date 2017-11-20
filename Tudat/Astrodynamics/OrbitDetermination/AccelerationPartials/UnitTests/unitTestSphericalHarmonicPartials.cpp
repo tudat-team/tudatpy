@@ -724,7 +724,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 
 
-
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parameterSet->getVectorParameters( );
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::iterator vectorParametersIterator =
@@ -780,15 +779,18 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                 vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 4, 10.0 ), sphericalHarmonicFieldUpdate );
 
 
+
+
     Eigen::VectorXd nominalTidalParameter = vectorParametersIterator->second->getParameterValue( );
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( 1, 1.0 ) );
+
+    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
     earthGravityField->update( testTime );
     Eigen::MatrixXd upperturbedCosineCoefficients =
             earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
     Eigen::MatrixXd upperturbedSineCoefficients =
             earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
 
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( 1, 1.0 ) );
+    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
     earthGravityField->update( testTime );
     Eigen::MatrixXd downperturbedCosineCoefficients =
             earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
@@ -812,8 +814,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
     BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
 
+
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
+
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );

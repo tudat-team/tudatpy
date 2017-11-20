@@ -137,7 +137,8 @@ inline void testObservationPartials(
     // Create observation partials.
     std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
     observationModelList[ linkEnds ] = observationModel;
-    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator;
+    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator =
+        boost::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
@@ -237,7 +238,7 @@ inline void testObservationPartials(
                 bodyPositionPartial.setZero( );
                 for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
                 {
-                    bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first;
+                    bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first.block( 0, 0, ObservableSize, 3 );;
                 }
                 // Test position partial
                 if( observableType != angular_position )
