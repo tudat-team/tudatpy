@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
                     perturbedState, Eigen::Matrix< double, 10, 1 >::Zero( ), 0 ).second.at( 0 );
 
         manualPartial.block( 0, j, 6, 1 ) =
-                ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
+                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * statePerturbation( j ) );
     }
 
     // Numerically compute sensitivity matrix
@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
                     perturbedState, perturbedParameter ).second.at( 0 );
 
         manualPartial.block( 0, j + 6, 6, 1 ) =
-                ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
+                ( upPerturbedState.segment( 0, 6 ) - downPerturbedState.segment( 0, 6 ) ) / ( 2.0 * parameterPerturbation( j ) );
     }
 
     // Check results
