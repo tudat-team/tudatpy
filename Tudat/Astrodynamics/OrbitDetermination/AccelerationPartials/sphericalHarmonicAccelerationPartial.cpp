@@ -425,7 +425,7 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > coefficientPartialsPerOrder_ = coefficientPartialFunctions( );
     int singleOrderPartialSize = coefficientPartialsPerOrder_.at( 0 ).cols( );
 
-    Eigen::MatrixXd currentPartialContribution = Eigen::MatrixXd::Zero( 3, singleOrderPartialSize );
+    Eigen::MatrixXd currentPartialContribution = Eigen::MatrixXd::Zero( 3, 1 );
     std::vector< std::pair< int, int > > blockIndices;
     blockIndices.resize( 1 );
 
@@ -477,6 +477,7 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
 
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                         currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize );
+
         }
     }
 }
