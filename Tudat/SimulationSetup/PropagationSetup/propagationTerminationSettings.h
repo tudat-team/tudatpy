@@ -50,17 +50,8 @@ public:
      * \param terminationType Type of stopping condition that is to be used.
      */
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
-                                    const bool terminateExactlyOnFinalCondition = false,
-                                    const double terminationTolerance = TUDAT_NAN ):
-        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ),
-        terminationTolerance_( terminationTolerance )
-    {
-        if( terminateExactlyOnFinalCondition_ && !( terminationTolerance_ == terminationTolerance_ ) )
-        {
-            throw std::runtime_error( "Error in termination condition of type: " + std::to_string( terminationType_ ) +
-                                      ", terminateExactlyOnFinalCondition is true, but no tolerance has been set" );
-        }
-    }
+                                    const bool terminateExactlyOnFinalCondition = false ):
+        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ){ }
 
     //! Destructor
     virtual ~PropagationTerminationSettings( ){ }
@@ -69,8 +60,6 @@ public:
     PropagationTerminationTypes terminationType_;
 
     bool terminateExactlyOnFinalCondition_;
-
-    double terminationTolerance_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -88,9 +77,8 @@ public:
      * \param terminationTime Maximum time for the propagation, upon which the propagation is to be stopped
      */
     PropagationTimeTerminationSettings( const double terminationTime,
-                                        const bool terminateExactlyOnFinalCondition = false,
-                                        const double terminationTolerance = TUDAT_NAN ):
-        PropagationTerminationSettings( time_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
+                                        const bool terminateExactlyOnFinalCondition = false ):
+        PropagationTerminationSettings( time_stopping_condition, terminateExactlyOnFinalCondition ),
         terminationTime_( terminationTime ){ }
 
     //! Destructor
@@ -150,17 +138,16 @@ public:
             const double limitValue,
             const bool useAsLowerLimit,
             const bool terminateExactlyOnFinalCondition = false,
-            const double terminationTolerance = TUDAT_NAN,
             const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
         PropagationTerminationSettings(
-            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition, terminationTolerance ),
+            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ),
         limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
         if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == NULL ) )
         {
-
+            throw std::runtime_error( "Error when defining exavct dependent variable propagation termination settings. Root finder not defined" );
         }
     }
 

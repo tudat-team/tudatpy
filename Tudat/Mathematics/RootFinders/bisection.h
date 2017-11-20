@@ -20,6 +20,8 @@
 #ifndef TUDAT_BISECTION_H
 #define TUDAT_BISECTION_H
 
+#include <iostream>
+
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
