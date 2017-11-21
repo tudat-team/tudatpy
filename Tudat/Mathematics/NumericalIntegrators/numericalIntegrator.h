@@ -170,6 +170,9 @@ public:
         propagationTerminationFunction_ = terminationFunction;
     }
 
+    virtual void setStepSizeControl( const bool useStepSizeControl )
+    { }
+
 protected:
 
     //! Function that returns the state derivative.

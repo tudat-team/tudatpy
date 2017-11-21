@@ -161,7 +161,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                             bodyMap, initialTimeStep ) );
         }
         propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
-                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_ );
+                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_,
+                    hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     default:
