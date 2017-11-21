@@ -50,6 +50,9 @@ public:
 
 };
 
+bool doesRootFinderRequireDerivatives( const boost::shared_ptr< RootFinderSettings > rootFinderSettings );
+
+
 template< typename DataType = double >
 boost::shared_ptr< RootFinderCore< DataType > > createRootFinder(
         const boost::shared_ptr< RootFinderSettings > rootFinderSettings,

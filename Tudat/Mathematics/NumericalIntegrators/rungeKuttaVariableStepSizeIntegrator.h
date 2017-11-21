@@ -197,7 +197,7 @@ public:
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( false )
+        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
     {
         // Set default newStepSizeFunction_ to the class method.
         if ( newStepSizeFunction_ == 0 )

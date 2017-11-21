@@ -42,6 +42,12 @@ class PropagationTerminationCondition
 public:
 
     //! Constructor
+    /*!
+     * Constructor
+     * \param terminationType Type of termination condition
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     */
     PropagationTerminationCondition(
             const PropagationTerminationTypes terminationType,
             const bool terminateExactlyOnFinalCondition = false ):
@@ -60,11 +66,21 @@ public:
      */
     virtual bool checkStopCondition( const double time, const double cpuTime ) = 0;
 
+    //! Function to retrieve type of termination condition
+    /*!
+     *  Function to retrieve type of termination condition
+     *  \return Type of termination condition
+     */
     virtual PropagationTerminationTypes getTerminationType( )
     {
         return terminationType_;
     }
 
+    //! Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition
+    /*!
+     *  Function to retrieve boolean to denote whether the propagation is to terminate exactly on the final condition
+     *  \return Boolean to denote whether the propagation is to terminate exactly on the final condition
+     */
     bool getTerminateExactlyOnFinalCondition( )
     {
         return terminateExactlyOnFinalCondition_;
@@ -72,8 +88,11 @@ public:
 
 protected:
 
+    //! Type of termination condition
     PropagationTerminationTypes terminationType_;
 
+    //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
+    //! on the first step where it is violated.
     bool terminateExactlyOnFinalCondition_;
 
 };
@@ -89,6 +108,8 @@ public:
      * \param stopTime Time at which the propagation is to stop.
      * \param propagationDirectionIsPositive Boolean denoting whether propagation is forward (if true) or backwards
      * (if false) in time.
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
     FixedTimePropagationTerminationCondition(
             const double stopTime,
@@ -108,6 +129,11 @@ public:
      */
     bool checkStopCondition( const double time, const double cpuTime );
 
+    //! Function to retrieve time at which the propagation is to stop.
+    /*!
+     *  Function to retrieve time at which the propagation is to stop.
+     *  \return Type of termination condition
+     */
     double getStopTime( )
     {
         return stopTime_;
@@ -166,6 +192,9 @@ public:
      * \param limitingValue Value at which the propagation is to be stopped
      * \param useAsLowerBound Boolean denoting whether the propagation should stop if the dependent variable goes below
      * (if true) or above (if false) limitingValue
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
     SingleVariableLimitPropagationTerminationCondition(
             const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
@@ -178,7 +207,17 @@ public:
             dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
-    terminationRootFinderSettings_( terminationRootFinderSettings ){ }
+    terminationRootFinderSettings_( terminationRootFinderSettings )
+    {
+        if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != NULL ) )
+        {
+            std::cerr<<"Warning, root finder provided to SingleVariableLimitPropagationTerminationCondition, but termination on final conditions set to false"<<std::endl;
+        }
+        if( ( terminateExactlyOnFinalCondition == true ) && doesRootFinderRequireDerivatives( terminationRootFinderSettings ) )
+        {
+            throw std::runtime_error( "Error when setting exact dependent variable termination, requested root finder requires derivatives; not available in state derivative model" );
+        }
+    }
 
     //! Destructor.
     ~SingleVariableLimitPropagationTerminationCondition( ){ }
@@ -193,11 +232,21 @@ public:
      */
     bool checkStopCondition( const double time, const double cpuTime );
 
+    //! Function to return current difference between termination variable, and the value at which the propagation must terminate
+    /*!
+     * Function to return current difference between termination variable, and the value at which the propagation must terminate
+     * \return Current difference between termination variable, and the value at which the propagation must terminate
+     */
     double getStopConditionError( )
     {
          return variableRetrievalFuntion_( ) - limitingValue_;
     }
 
+    //! Function to retrieve settings to create root finder used to converge on exact final condition.
+    /*!
+     *  Function to retrieve settings to create root finder used to converge on exact final condition.
+     *  \return Settings to create root finder used to converge on exact final condition.
+     */
     boost::shared_ptr< root_finders::RootFinderSettings > getTerminationRootFinderSettings( )
     {
         return terminationRootFinderSettings_;
@@ -218,6 +267,7 @@ private:
     //! (if true) or above (if false) limitingValue
     bool useAsLowerBound_;
 
+    //! Settings to create root finder used to converge on exact final condition.
     boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
@@ -232,7 +282,9 @@ public:
      * \param propagationTerminationCondition List of termination conditions that are checked when calling
      * checkStopCondition is called.
      * \param fulFillSingleCondition Boolean denoting whether a single (if true) or all (if false) of the entries in the
-     * propagationTerminationCondition_ should return true from the checkStopCondition function to stop the propagation.
+     * propagationTerminationCondition_ should return true from the checkStopCondition function to stop the propagation
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
     HybridPropagationTerminationCondition(
             const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
@@ -252,11 +304,22 @@ public:
      */
     bool checkStopCondition( const double time, const double cpuTime );
 
+    //! Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
+    /*!
+     *  Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
+     *  \return List of termination conditions that are checked when calling checkStopCondition is called.
+     */
     std::vector< boost::shared_ptr< PropagationTerminationCondition > > getPropagationTerminationConditions( )
     {
         return propagationTerminationCondition_;
     }
 
+    //! Function to retrieve whether all or a single termination condition should be met
+    /*!
+     *  Function to retrieve whether all or a single termination condition should be met
+     *  \return Boolean denoting whether a single (if true) or all (if false) of the entries in the
+     *  propagationTerminationCondition_ should return true from the checkStopCondition function to stop the propagation.
+     */
     bool getFulFillSingleCondition( )
     {
         return fulFillSingleCondition_;
