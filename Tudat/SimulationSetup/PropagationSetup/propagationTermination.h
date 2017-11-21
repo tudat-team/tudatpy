@@ -236,8 +236,9 @@ public:
      */
     HybridPropagationTerminationCondition(
             const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
-            const bool fulFillSingleCondition = 0 ):
-        PropagationTerminationCondition( hybrid_stopping_condition, false ),
+            const bool fulFillSingleCondition = 0,
+            const bool terminateExactlyOnFinalCondition = 0 ):
+        PropagationTerminationCondition( hybrid_stopping_condition, terminateExactlyOnFinalCondition ),
         propagationTerminationCondition_( propagationTerminationCondition ),
         fulFillSingleCondition_( fulFillSingleCondition ){ }
 
