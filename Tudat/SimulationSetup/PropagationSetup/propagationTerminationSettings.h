@@ -48,6 +48,8 @@ public:
     /*!
      * Constructor
      * \param terminationType Type of stopping condition that is to be used.
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
     PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
                                     const bool terminateExactlyOnFinalCondition = false ):
@@ -59,6 +61,8 @@ public:
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
 
+    //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
+    //! on the first step where it is violated.
     bool terminateExactlyOnFinalCondition_;
 };
 
@@ -75,6 +79,8 @@ public:
     /*!
      * Constructor
      * \param terminationTime Maximum time for the propagation, upon which the propagation is to be stopped
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
     PropagationTimeTerminationSettings( const double terminationTime,
                                         const bool terminateExactlyOnFinalCondition = false ):
@@ -132,6 +138,9 @@ public:
      * \param limitValue Value at which the propagation is to be stopped
      * \param useAsLowerLimit Boolean denoting whether the propagation should stop if the dependent variable goes below
      * (if true) or above (if false) limitingValue
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
     PropagationDependentVariableTerminationSettings(
             const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
@@ -164,6 +173,7 @@ public:
     //! (if false) limitingValue
     bool useAsLowerLimit_;
 
+    //! Settings to create root finder used to converge on exact final condition.
     boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 

@@ -26,7 +26,7 @@ set(ROOTFINDERS_HEADERS
 )
 
 set(ROOTFINDERS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/dummyRootFinder.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/createRootFinder.cpp"
 )
 
 

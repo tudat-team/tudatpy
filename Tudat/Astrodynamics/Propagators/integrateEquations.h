@@ -34,22 +34,34 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to determine, for a given time step of the numerical integrator, the error in termination dependent variable
+/*!
+ *  Function to determine, for a given time step of the numerical integrator, the error in termination dependent variable. This
+ *  function is used as input for the root finder when the propagation must terminate exactly on a dependent variable value
+ *  \param timeStep Time step to take with the numerical integrator
+ *  \param integrator Numerical integrator used for propagation
+ *  \param dependentVariableTerminationCondition Settings used to determine value/type of dependent variable at which propagation
+ *  is to terminate
+ *  \return The difference between the reached and required value of the termination dependent variable
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 TimeStepType getTerminationDependentVariableErrorForGivenTimeStep(
         TimeStepType timeStep,
-        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
-        boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition )
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > >
+        integrator,
+        const boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition )
 {
-
+    // Perform integration step
     integrator->performIntegrationStep( timeStep );
-    integrator->getStateDerivativeFunction( )( integrator->getCurrentIndependentVariable( ),
-                                               integrator->getCurrentState( ) );
 
+    // Retrieve value of dependent variable after time step
+    integrator->getStateDerivativeFunction( )(
+                integrator->getCurrentIndependentVariable( ), integrator->getCurrentState( ) );
     TimeStepType dependentVariableError =
             static_cast< TimeStepType >( dependentVariableTerminationCondition->getStopConditionError( ) );
 
+    // Undo step
     integrator->rollbackToPreviousState( );
-
 
     return dependentVariableError;
 }
@@ -104,6 +116,9 @@ void propagateToExactTerminationCondition(
         boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
                 boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
                              integrator, dependentVariableTerminationCondition );
+
+        std::cout<<"Time step sign: "<<timeStepSign<<" "<<lastTime<<" "<<secondToLastTime<<" "<<
+                   ( lastTime - secondToLastTime )<<std::endl;
 
         TimeStepType finalTimeStep;
         if( timeStepSign > 0 )
@@ -207,7 +222,7 @@ void propagateToExactTerminationCondition(
         break;
     }
     default:
-        throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination timw" );
+        throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination time" );
     }
 }
 
@@ -218,7 +233,7 @@ void propagateToExactTerminationCondition(
  *  a single independent variable and the current state
  *  \param integrator Numerical integrator used for propagation
  *  \param initialTimeStep Time step to use for first step of numerical integration
- *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+ *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
  *  \param solutionHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
@@ -442,7 +457,7 @@ public:
      *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
      *  \param initialState Initial state
      *  \param integratorSettings Settings for numerical integrator.
-     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
      *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
@@ -482,7 +497,7 @@ public:
      *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
      *  \param initialState Initial state
      *  \param integratorSettings Settings for numerical integrator.
-     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
      *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
@@ -545,7 +560,7 @@ public:
      *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
      *  \param initialState Initial state
      *  \param integratorSettings Settings for numerical integrator.
-     *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+     *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
      *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
