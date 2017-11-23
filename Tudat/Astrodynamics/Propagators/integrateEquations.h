@@ -121,38 +121,39 @@ void propagateToExactTerminationCondition(
                    ( lastTime - secondToLastTime )<<std::endl;
 
         TimeStepType finalTimeStep;
+        boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
         if( timeStepSign > 0 )
         {
-            boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder =
-                    root_finders::createRootFinder< TimeStepType >(
+            finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
                         dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
                         static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ),
                         static_cast< TimeStepType >( lastTime - secondToLastTime ),
                         static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ) );
-
-            finalTimeStep = finalConditionRootFinder->execute(
-                        boost::make_shared< basic_mathematics::FunctionProxy< TimeStepType, TimeStepType > >(
-                            dependentVariableErrorFunction ), ( lastTime - secondToLastTime ) / 2.0 );
-
-            endState = integrator->performIntegrationStep( finalTimeStep );
         }
         else
         {
-            boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder =
-                    root_finders::createRootFinder< TimeStepType >(
+            finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
                         dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
                         static_cast< TimeStepType >( lastTime - secondToLastTime ),
                         static_cast< TimeStepType >( -std::numeric_limits< double >::min( ) ),
                         static_cast< TimeStepType >( lastTime - secondToLastTime ) );
 
+        }
+
+        try
+        {
             finalTimeStep = finalConditionRootFinder->execute(
                         boost::make_shared< basic_mathematics::FunctionProxy< TimeStepType, TimeStepType > >(
                             dependentVariableErrorFunction ), ( lastTime - secondToLastTime ) / 2.0 );
 
             endState = integrator->performIntegrationStep( finalTimeStep );
+            endTime = integrator->getCurrentIndependentVariable( );
+        }
+        catch( std::runtime_error )
+        {
+            endTime = TUDAT_NAN;
         }
 
-        endTime = integrator->getCurrentIndependentVariable( );
 
         break;
     }
@@ -172,34 +173,43 @@ void propagateToExactTerminationCondition(
         int maximumTimeIndex = 0;
 
         TimeStepType minimumTimeStep, maximumTimeStep;
-
+        bool timesAreSet = false;
         for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
         {
             propagateToExactTerminationCondition(
                         integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
                         endTimes[ i ], endStates[ i ] );
 
-            TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
+            if( endTimes[ i ] == endTimes[ i ] )
+            {
+                TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
 
-            if( i == 0 )
-            {
-                minimumTimeStep = currentFinalTimeStep;
-                maximumTimeStep = currentFinalTimeStep;
-            }
-            else
-            {
-                if( currentFinalTimeStep < minimumTimeStep )
+                if( !timesAreSet )
                 {
                     minimumTimeStep = currentFinalTimeStep;
-                    minimumTimeIndex = i;
-                }
-
-                if( currentFinalTimeStep > maximumTimeStep )
-                {
                     maximumTimeStep = currentFinalTimeStep;
-                    maximumTimeIndex = i;
+                    timesAreSet = true;
+                }
+                else
+                {
+                    if( currentFinalTimeStep < minimumTimeStep )
+                    {
+                        minimumTimeStep = currentFinalTimeStep;
+                        minimumTimeIndex = i;
+                    }
+
+                    if( currentFinalTimeStep > maximumTimeStep )
+                    {
+                        maximumTimeStep = currentFinalTimeStep;
+                        maximumTimeIndex = i;
+                    }
                 }
             }
+        }
+
+        if( !timesAreSet )
+        {
+            throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
         }
 
         if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||

@@ -42,11 +42,11 @@ BOOST_AUTO_TEST_SUITE( test_exact_termination )
 // Test Encke propagator for point mass, and spherical harmonics central body.
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 {
-    for( unsigned int integratorCase = 1; integratorCase < 2; integratorCase++ )
+    for( unsigned int integratorCase = 0; integratorCase < 2; integratorCase++ )
     {
-        for( unsigned int simulationCase = 3; simulationCase < 4; simulationCase++ )
+        for( unsigned int simulationCase = 0; simulationCase < 5; simulationCase++ )
         {
-            for( unsigned int direction = 0; direction < 1; direction++ )
+            for( unsigned int direction = 0; direction < 2; direction++ )
             {
                 std::cout<<integratorCase<<" "<<direction<<" "<<simulationCase<<std::endl;
                 using namespace tudat;
@@ -306,10 +306,10 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     }
                 }
 
-                //                std::cout<<"First time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.begin( )->first<<" "<<
-                //                           dependentVariableHistory.begin( )->second<<std::endl;
-                //                std::cout<<"Final time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.rbegin( )->first<<" "<<
-                //                           dependentVariableHistory.rbegin( )->second<<std::endl;
+                                std::cout<<"First time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.begin( )->first<<" "<<
+                                           dependentVariableHistory.begin( )->second<<std::endl;
+                                std::cout<<"Final time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.rbegin( )->first<<" "<<
+                                           dependentVariableHistory.rbegin( )->second<<std::endl;
 
                 //                for( std::map< double, Eigen::VectorXd >::const_iterator it = dependentVariableHistory.begin( );
                 //                     it != dependentVariableHistory.end( ); it++ )
