@@ -66,9 +66,144 @@ TimeStepType getTerminationDependentVariableErrorForGivenTimeStep(
     return dependentVariableError;
 }
 
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+void getFinalStateForExactDependentVariableTerminationCondition(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition,
+        const TimeType secondToLastTime,
+        const TimeType lastTime,
+        const StateType& secondToLastState,
+        const StateType& lastState,
+        TimeType& endTime,
+        StateType& endState )
+{
+    double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
+
+    boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
+            boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
+                         integrator, dependentVariableTerminationCondition );
+
+    TimeStepType finalTimeStep;
+    boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
+    if( timeStepSign > 0 )
+    {
+        finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
+                    dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
+                    static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ),
+                    static_cast< TimeStepType >( lastTime - secondToLastTime ),
+                    static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ) );
+    }
+    else
+    {
+        finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
+                    dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
+                    static_cast< TimeStepType >( lastTime - secondToLastTime ),
+                    static_cast< TimeStepType >( -std::numeric_limits< double >::min( ) ),
+                    static_cast< TimeStepType >( lastTime - secondToLastTime ) );
+
+    }
+
+    try
+    {
+        finalTimeStep = finalConditionRootFinder->execute(
+                    boost::make_shared< basic_mathematics::FunctionProxy< TimeStepType, TimeStepType > >(
+                        dependentVariableErrorFunction ), ( lastTime - secondToLastTime ) / 2.0 );
+
+        endState = integrator->performIntegrationStep( finalTimeStep );
+        endTime = integrator->getCurrentIndependentVariable( );
+    }
+    catch( std::runtime_error )
+    {
+        endTime = TUDAT_NAN;
+    }
+}
+
 
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-void propagateToExactTerminationCondition(
+void getFinalStateForExactHybridVariableTerminationCondition(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition,
+        const TimeType secondToLastTime,
+        const TimeType lastTime,
+        const StateType& secondToLastState,
+        const StateType& lastState,
+        TimeType& endTime,
+        StateType& endState )
+{
+    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
+
+    std::vector< boost::shared_ptr< PropagationTerminationCondition > > terminationConditionList =
+            hyrbidTerminationCondition->getPropagationTerminationConditions( );
+
+    std::vector< TimeType > endTimes;
+    endTimes.resize( terminationConditionList.size( ) );
+    std::vector< StateType > endStates;
+    endStates.resize( terminationConditionList.size( ) );
+
+    int minimumTimeIndex = 0;
+    int maximumTimeIndex = 0;
+
+    TimeStepType minimumTimeStep, maximumTimeStep;
+    bool timesAreSet = false;
+    for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
+    {
+        getFinalStateForExactTerminationCondition(
+                    integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
+                    endTimes[ i ], endStates[ i ] );
+
+        if( endTimes[ i ] == endTimes[ i ] )
+        {
+            TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
+
+            if( !timesAreSet )
+            {
+                minimumTimeStep = currentFinalTimeStep;
+                maximumTimeStep = currentFinalTimeStep;
+                timesAreSet = true;
+            }
+            else
+            {
+                if( currentFinalTimeStep < minimumTimeStep )
+                {
+                    minimumTimeStep = currentFinalTimeStep;
+                    minimumTimeIndex = i;
+                }
+
+                if( currentFinalTimeStep > maximumTimeStep )
+                {
+                    maximumTimeStep = currentFinalTimeStep;
+                    maximumTimeIndex = i;
+                }
+            }
+        }
+    }
+
+    if( !timesAreSet )
+    {
+        throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
+    }
+
+    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+            ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    {
+        endState = endStates[ maximumTimeIndex ];
+        endTime = endTimes[ maximumTimeIndex ];
+    }
+    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    {
+        endState = endStates[ minimumTimeIndex ];
+        endTime = endTimes[ minimumTimeIndex ];
+    }
+    else
+    {
+        throw std::runtime_error( "Error when propagating to exact final hybrid condition, case not recognized" );
+    }
+
+}
+
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+void getFinalStateForExactTerminationCondition(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const boost::shared_ptr< PropagationTerminationCondition > terminationCondition,
         const TimeType secondToLastTime,
@@ -79,8 +214,6 @@ void propagateToExactTerminationCondition(
         StateType& endState )
 {
     integrator->setStepSizeControl( false );
-
-    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
 
     switch( terminationCondition->getTerminationType( ) )
     {
@@ -110,50 +243,9 @@ void propagateToExactTerminationCondition(
 
         boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition =
                 boost::dynamic_pointer_cast< SingleVariableLimitPropagationTerminationCondition >( terminationCondition );
-
-        double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
-
-        boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
-                boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
-                             integrator, dependentVariableTerminationCondition );
-
-        std::cout<<"Time step sign: "<<timeStepSign<<" "<<lastTime<<" "<<secondToLastTime<<" "<<
-                   ( lastTime - secondToLastTime )<<std::endl;
-
-        TimeStepType finalTimeStep;
-        boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
-        if( timeStepSign > 0 )
-        {
-            finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
-                        dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
-                        static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ),
-                        static_cast< TimeStepType >( lastTime - secondToLastTime ),
-                        static_cast< TimeStepType >( std::numeric_limits< double >::min( ) ) );
-        }
-        else
-        {
-            finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
-                        dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
-                        static_cast< TimeStepType >( lastTime - secondToLastTime ),
-                        static_cast< TimeStepType >( -std::numeric_limits< double >::min( ) ),
-                        static_cast< TimeStepType >( lastTime - secondToLastTime ) );
-
-        }
-
-        try
-        {
-            finalTimeStep = finalConditionRootFinder->execute(
-                        boost::make_shared< basic_mathematics::FunctionProxy< TimeStepType, TimeStepType > >(
-                            dependentVariableErrorFunction ), ( lastTime - secondToLastTime ) / 2.0 );
-
-            endState = integrator->performIntegrationStep( finalTimeStep );
-            endTime = integrator->getCurrentIndependentVariable( );
-        }
-        catch( std::runtime_error )
-        {
-            endTime = TUDAT_NAN;
-        }
-
+        getFinalStateForExactDependentVariableTerminationCondition(
+                    integrator, dependentVariableTerminationCondition, secondToLastTime, lastTime,
+                    secondToLastState, lastState, endTime, endState );
 
         break;
     }
@@ -161,74 +253,10 @@ void propagateToExactTerminationCondition(
     {
         boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
                 boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( terminationCondition );
-        std::vector< boost::shared_ptr< PropagationTerminationCondition > > terminationConditionList =
-                hyrbidTerminationCondition->getPropagationTerminationConditions( );
 
-        std::vector< TimeType > endTimes;
-        endTimes.resize( terminationConditionList.size( ) );
-        std::vector< StateType > endStates;
-        endStates.resize( terminationConditionList.size( ) );
-
-        int minimumTimeIndex = 0;
-        int maximumTimeIndex = 0;
-
-        TimeStepType minimumTimeStep, maximumTimeStep;
-        bool timesAreSet = false;
-        for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
-        {
-            propagateToExactTerminationCondition(
-                        integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
-                        endTimes[ i ], endStates[ i ] );
-
-            if( endTimes[ i ] == endTimes[ i ] )
-            {
-                TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
-
-                if( !timesAreSet )
-                {
-                    minimumTimeStep = currentFinalTimeStep;
-                    maximumTimeStep = currentFinalTimeStep;
-                    timesAreSet = true;
-                }
-                else
-                {
-                    if( currentFinalTimeStep < minimumTimeStep )
-                    {
-                        minimumTimeStep = currentFinalTimeStep;
-                        minimumTimeIndex = i;
-                    }
-
-                    if( currentFinalTimeStep > maximumTimeStep )
-                    {
-                        maximumTimeStep = currentFinalTimeStep;
-                        maximumTimeIndex = i;
-                    }
-                }
-            }
-        }
-
-        if( !timesAreSet )
-        {
-            throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
-        }
-
-        if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-                ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
-        {
-            endState = endStates[ maximumTimeIndex ];
-            endTime = endTimes[ maximumTimeIndex ];
-        }
-        else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-                 ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
-        {
-            endState = endStates[ minimumTimeIndex ];
-            endTime = endTimes[ minimumTimeIndex ];
-        }
-        else
-        {
-            throw std::runtime_error( "Error when propagating to exact final hybrid condition, case not recognized" );
-        }
-
+        getFinalStateForExactHybridVariableTerminationCondition(
+                    integrator, hyrbidTerminationCondition, secondToLastTime, lastTime,
+                    secondToLastState, lastState, endTime, endState );
         break;
     }
     default:
@@ -236,6 +264,61 @@ void propagateToExactTerminationCondition(
     }
 }
 
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+void propagateToExactTerminationCondition(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
+        const TimeStepType timeStep,
+        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        std::map< TimeType, StateType >& solutionHistory,
+        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory )
+{
+    TimeType endTime;
+    StateType endState;
+    getFinalStateForExactTerminationCondition(
+                integrator, propagationTerminationCondition,
+                integrator->getPreviousIndependentVariable( ),
+                integrator->getCurrentIndependentVariable( ),
+                integrator->getPreviousState( ),
+                integrator->getCurrentState( ),
+                endTime, endState );
+
+    bool recomputeDependentVariables = false;
+    if( dependentVariableHistory.size( ) > 0 )
+    {
+        if( dependentVariableHistory.rbegin( )->first == solutionHistory.rbegin( )->first )
+        {
+            if( timeStep > 0 )
+            {
+                dependentVariableHistory.erase( std::prev( dependentVariableHistory.end() ) );
+            }
+            else
+            {
+                dependentVariableHistory.erase(  dependentVariableHistory.begin( ) );
+            }
+            recomputeDependentVariables = true;
+        }
+    }
+
+    if( timeStep > 0 )
+    {
+        solutionHistory.erase( std::prev( solutionHistory.end() ) );
+        solutionHistory[ endTime ] = endState;
+    }
+    else
+    {
+        solutionHistory.erase( solutionHistory.begin( ) );
+        solutionHistory[ endTime ] = endState;
+    }
+
+    if( recomputeDependentVariables )
+    {
+        integrator->getStateDerivativeFunction( )( endTime, endState );
+        dependentVariableHistory[ endTime ] = dependentVariableFunction( );
+    }
+
+    integrator->setStepSizeControl( true );
+}
 
 //! Function to numerically integrate a given first order differential equation
 /*!
@@ -379,52 +462,10 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             {
                 if( propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) )
                 {
-                    TimeType endTime;
-                    StateType endState;
                     propagateToExactTerminationCondition(
                                 integrator, propagationTerminationCondition,
-                                integrator->getPreviousIndependentVariable( ),
-                                integrator->getCurrentIndependentVariable( ),
-                                integrator->getPreviousState( ),
-                                integrator->getCurrentState( ),
-                                endTime, endState );
-
-                    bool recomputeDependentVariables = false;
-                    if( dependentVariableHistory.size( ) > 0 )
-                    {
-                        if( dependentVariableHistory.rbegin( )->first == solutionHistory.rbegin( )->first )
-                        {
-                            if( timeStep > 0 )
-                            {
-                                dependentVariableHistory.erase( std::prev( dependentVariableHistory.end() ) );
-                            }
-                            else
-                            {
-                                dependentVariableHistory.erase(  dependentVariableHistory.begin( ) );
-                            }
-                            recomputeDependentVariables = true;
-                        }
-                    }
-
-                    if( timeStep > 0 )
-                    {
-                        solutionHistory.erase( std::prev( solutionHistory.end() ) );
-                        solutionHistory[ endTime ] = endState;
-                    }
-                    else
-                    {
-                        solutionHistory.erase( solutionHistory.begin( ) );
-                        solutionHistory[ endTime ] = endState;
-                    }
-
-                    if( recomputeDependentVariables )
-                    {
-                        integrator->getStateDerivativeFunction( )( endTime, endState );
-                        dependentVariableHistory[ endTime ] = dependentVariableFunction( );
-                    }
-
-                    integrator->setStepSizeControl( true );
-
+                                timeStep, dependentVariableFunction,
+                                solutionHistory, dependentVariableHistory );
                 }
 
                 propagationTerminationReason = termination_condition_reached;
