@@ -59,9 +59,10 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
 bool HybridPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
     // Check if single condition is fulfilled.
+    bool stopPropagation = -1;
     if( fulFillSingleCondition_ )
     {
-        bool stopPropagation = 0;
+        stopPropagation = 0;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
@@ -75,7 +76,7 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
     // Check all conditions are fulfilled.
     else
     {
-        bool stopPropagation = 1;
+        stopPropagation = 1;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
@@ -84,8 +85,26 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 break;
             }
         }
-        return stopPropagation;
     }
+
+    // Save if conditions were met
+    if( stopPropagation )
+    {
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
+            {
+                isConditionMetWhenStopping_[ i ] = false;
+            }
+            else
+            {
+                isConditionMetWhenStopping_[ i ] = true;
+            }
+        }
+    }
+
+    return stopPropagation;
+
 }
 
 

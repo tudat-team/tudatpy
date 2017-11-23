@@ -28,7 +28,8 @@ enum PropagationTerminationReason
     propagation_never_run,
     unknown_propagation_termination_reason,
     termination_condition_reached,
-    runtime_error_caught_in_propagation
+    runtime_error_caught_in_propagation,
+    nan_or_inf_detected_in_state
 };
 
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
@@ -207,7 +208,7 @@ public:
             dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
-    terminationRootFinderSettings_( terminationRootFinderSettings )
+        terminationRootFinderSettings_( terminationRootFinderSettings )
     {
         if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != NULL ) )
         {
@@ -239,7 +240,7 @@ public:
      */
     double getStopConditionError( )
     {
-         return variableRetrievalFuntion_( ) - limitingValue_;
+        return variableRetrievalFuntion_( ) - limitingValue_;
     }
 
     //! Function to retrieve settings to create root finder used to converge on exact final condition.
@@ -292,7 +293,10 @@ public:
             const bool terminateExactlyOnFinalCondition = 0 ):
         PropagationTerminationCondition( hybrid_stopping_condition, terminateExactlyOnFinalCondition ),
         propagationTerminationCondition_( propagationTerminationCondition ),
-        fulFillSingleCondition_( fulFillSingleCondition ){ }
+        fulFillSingleCondition_( fulFillSingleCondition )
+    {
+        isConditionMetWhenStopping_.resize( propagationTerminationCondition.size( ) );
+    }
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -325,6 +329,12 @@ public:
         return fulFillSingleCondition_;
     }
 
+    std::vector< bool > getIsConditionMetWhenStopping( )
+    {
+        return isConditionMetWhenStopping_;
+    }
+
+
 private:
 
     //! List of termination conditions that are checked when calling checkStopCondition is called.
@@ -333,6 +343,8 @@ private:
     //!  Boolean denoting whether a single (if true) or all (if false) of the entries in the propagationTerminationCondition_
     //!  should return true from the checkStopCondition function to stop the propagation.
     bool fulFillSingleCondition_;
+
+    std::vector< bool > isConditionMetWhenStopping_;
 };
 
 //! Function to create propagation termination conditions from associated settings
@@ -347,6 +359,49 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep );
+
+class PropagationTerminationDetails
+{
+public:
+    PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
+                                   const bool terminationOnExactCondition = -1 ):
+        propagationTerminationReason_( propagationTerminationReason ),
+        terminationOnExactCondition_( terminationOnExactCondition ){ }
+
+    PropagationTerminationReason getPropagationTerminationReason( )
+    {
+        return propagationTerminationReason_;
+    }
+
+    bool getTerminationOnExactCondition( )
+    {
+        return terminationOnExactCondition_;
+    }
+protected:
+    PropagationTerminationReason propagationTerminationReason_;
+
+    bool terminationOnExactCondition_;
+};
+
+class PropagationTerminationDetailsFromHybridCondition: public PropagationTerminationDetails
+{
+public:
+    PropagationTerminationDetailsFromHybridCondition(
+            const bool terminationOnExactCondition,
+            const boost::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
+        PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
+        isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) ){ }
+
+    std::vector< bool > getWasConditionMetWhenStopping( )
+    {
+        return isConditionMetWhenStopping_;
+    }
+
+private:
+    std::vector< bool > isConditionMetWhenStopping_;
+
+};
+
 
 } // namespace propagators
 
