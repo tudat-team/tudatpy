@@ -212,14 +212,14 @@ void propagateToExactTerminationCondition(
             throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
         }
 
-        if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-                ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+        if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+                ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
         {
             endState = endStates[ maximumTimeIndex ];
             endTime = endTimes[ maximumTimeIndex ];
         }
-        else if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-                 ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+        else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
+                 ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
         {
             endState = endStates[ minimumTimeIndex ];
             endTime = endTimes[ minimumTimeIndex ];

@@ -39,14 +39,25 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_exact_termination )
 
-// Test Encke propagator for point mass, and spherical harmonics central body.
+//! Test exact termination conditions, to see if the propagation stops exactly (within tolerance) when it's supposed to.
+//! The test is run for an RK4 and RK7(8) integrator, with otherwise identical settings.
+//! Five types of termination conditions are used:
+//! 0) Termination on exact time
+//! 1) Termination on exact altitude
+//! 2) Termination when _either_ an exact altitude _or_ an exact time is reached (whichever comes first), with the two occuring
+//! very near one another
+//! 3) Termination when _both_ an exact altitude _and_ an exact time are reached, with the two occuring very near one another
+//! 4) Termination when _either_ an exact altitude _or_ an exact time is reached (whichever comes first), with the two _not_
+//! occuring very near one another
+//!
+//! The tests are run for forward and backward propagation
 BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 {
     for( unsigned int integratorCase = 0; integratorCase < 2; integratorCase++ )
     {
-        for( unsigned int simulationCase = 0; simulationCase < 5; simulationCase++ )
+        for( unsigned int direction = 0; direction < 2; direction++ )
         {
-            for( unsigned int direction = 0; direction < 2; direction++ )
+            for( unsigned int simulationCase = 0; simulationCase < 5; simulationCase++ )
             {
                 std::cout<<integratorCase<<" "<<direction<<" "<<simulationCase<<std::endl;
                 using namespace tudat;
@@ -216,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                     boost::make_shared< root_finders::RootFinderSettings >(
                                         root_finders::bisection_root_finder, 1.0E-6, 100 ) ) );
                     terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
-                                terminationSettingsList, true );
+                                terminationSettingsList, false );
                 }
 
 
@@ -248,8 +259,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
                 std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
 
+                // Sanity check: altitude limit not violated on first step
+                BOOST_CHECK_EQUAL( ( vehicleInitialState.segment( 0, 3 ).norm( ) - 8.7E6 ) < 100.0, true );
+
                 if( simulationCase == 0 )
                 {
+                    // Check if propagation terminated exactly on final time
                     if( direction == 0 )
                     {
                         BOOST_CHECK_SMALL( std::fabs( stateHistory.rbegin( )->first -
@@ -263,6 +278,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 }
                 else if( simulationCase == 1 )
                 {
+                    // Check if propagation terminated exactly on final altitude
                     if( direction == 0 )
                     {
                         BOOST_CHECK_SMALL( std::fabs( dependentVariableHistory.rbegin( )->second( 0 ) - 8.7E6 ), 0.01 );
@@ -274,24 +290,45 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 }
                 else if( simulationCase == 2 )
                 {
+                    // Check if propagation terminated exactly on final altitude  or final time (whichever came first)
+                    // Determine by inspection: for both forward propagation, altitude condition reached first; for
+                    // backward propagation, time condition reaced first
                     if( direction == 0 )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( stateHistory.rbegin( )->first - finalTestTime ), 0.01 );
+                        // Check if termination on final altitude
+                        BOOST_CHECK_SMALL( std::fabs( dependentVariableHistory.rbegin( )->second( 0 ) - 8.7E6 ), 0.01 );
+
+                        // Check if final time indeed not yet reached
+                        BOOST_CHECK_EQUAL( ( stateHistory.rbegin( )->first - finalTestTime ) < 1.0, true );
                     }
                     else
                     {
-                        BOOST_CHECK_SMALL( std::fabs( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6 ), 0.01 );
+                        // Check if termination on final time
+                        BOOST_CHECK_SMALL( std::fabs( stateHistory.begin( )->first - finalTestTime ), 1.0E-10 );
+
+                        // Check if final altitude indeed not yet reached
+                        BOOST_CHECK_EQUAL( ( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6 ) < -100.0, true );
                     }
                 }
                 else if( simulationCase == 3 )
                 {
+                    // Check if propagation terminated exactly on final altitude  or final time (both must be attained, see
+                    // comment on previous test.
                     if( direction == 0 )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( dependentVariableHistory.rbegin( )->second( 0 ) - 8.7E6 ), 0.01 );
+                        // Check if termination on final time
+                        BOOST_CHECK_SMALL( std::fabs( stateHistory.rbegin( )->first - finalTestTime ), 0.01 );
+
+                        // Check if final altitude indeed already exceeded
+                        BOOST_CHECK_EQUAL( ( dependentVariableHistory.rbegin( )->second( 0 ) - 8.7E6 ) > 100.0, true );
                     }
                     else
                     {
-                        BOOST_CHECK_SMALL( std::fabs( stateHistory.begin( )->first - finalTestTime ), 0.01 );
+                        // Check if termination on final altitude
+                        BOOST_CHECK_SMALL( std::fabs( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6  ), 0.01 );
+
+                        // Check if final time indeed already exceeded
+                        BOOST_CHECK_EQUAL( ( stateHistory.begin( )->first - finalTestTime ) < -0.1, true );
                     }
                 }
                 else if( simulationCase == 4 )
@@ -306,11 +343,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     }
                 }
 
-                                std::cout<<"First time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.begin( )->first<<" "<<
-                                           dependentVariableHistory.begin( )->second<<std::endl;
-                                std::cout<<"Final time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.rbegin( )->first<<" "<<
-                                           dependentVariableHistory.rbegin( )->second<<std::endl;
-
+                //                std::cout<<"First time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.begin( )->first<<" "<<
+                //                           dependentVariableHistory.begin( )->second<<std::endl;
+                //                std::cout<<"Final time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.rbegin( )->first<<" "<<
+                //                           dependentVariableHistory.rbegin( )->second<<std::endl;
+                //                std::cout<<"Final time/state: "<<std::setprecision( 12 )<<stateHistory.rbegin( )->first<<" "<<
+                //                           stateHistory.rbegin( )->second.transpose( )<<std::endl;
                 //                for( std::map< double, Eigen::VectorXd >::const_iterator it = dependentVariableHistory.begin( );
                 //                     it != dependentVariableHistory.end( ); it++ )
                 //                {
