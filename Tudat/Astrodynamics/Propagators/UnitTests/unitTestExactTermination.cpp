@@ -333,13 +333,16 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 }
                 else if( simulationCase == 4 )
                 {
+                    // Check if propagation terminated on final time
                     if( direction == 0 )
                     {
                         BOOST_CHECK_SMALL( std::fabs( stateHistory.rbegin( )->first - secondFinalTestTime ), 0.01 );
+                        BOOST_CHECK_EQUAL( ( dependentVariableHistory.rbegin( )->second( 0 ) - 8.7E6 ) > 100.0, true );
                     }
                     else
                     {
                         BOOST_CHECK_SMALL( std::fabs( stateHistory.begin( )->first - secondFinalTestTime ), 0.01 );
+                        BOOST_CHECK_EQUAL( ( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6 ) > 100.0, true );
                     }
                 }
 
