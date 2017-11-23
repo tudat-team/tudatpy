@@ -271,7 +271,8 @@ void propagateToExactTerminationCondition(
         const TimeStepType timeStep,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction,
         std::map< TimeType, StateType >& solutionHistory,
-        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory )
+        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+        const double currentCpuTime )
 {
     TimeType endTime;
     StateType endState;
@@ -315,6 +316,9 @@ void propagateToExactTerminationCondition(
     {
         integrator->getStateDerivativeFunction( )( endTime, endState );
         dependentVariableHistory[ endTime ] = dependentVariableFunction( );
+
+        // Check stopping conditions to be able to save details
+        propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
     }
 
     integrator->setStepSizeControl( true );
@@ -343,7 +347,7 @@ void propagateToExactTerminationCondition(
  *  \return Event that triggered the termination of the propagation
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
-PropagationTerminationReason integrateEquationsFromIntegrator(
+boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
         const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
@@ -356,7 +360,7 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
 {
-    PropagationTerminationReason propagationTerminationReason;
+    boost::shared_ptr< PropagationTerminationDetails > propagationTerminationReason;
 
     // Get Initial state and time.
     TimeType currentTime = integrator->getCurrentIndependentVariable( );
@@ -387,7 +391,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
 
     int saveIndex = 0;
 
-    propagationTerminationReason = unknown_propagation_termination_reason;
+    propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
+                unknown_propagation_termination_reason );
     bool breakPropagation = 0;
     // Perform numerical integration steps until end time reached.
     do
@@ -409,7 +414,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                 // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
                 if ( integrator->getPropagationTerminationConditionReached() )
                 {
-                    propagationTerminationReason = termination_condition_reached;
+                    propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
+                                termination_condition_reached );
                     break;
                 }
 
@@ -436,7 +442,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
                              ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
                 breakPropagation = 1;
-                propagationTerminationReason = runtime_error_caught_in_propagation;
+                propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
+                            nan_or_inf_detected_in_state );
             }
 
 
@@ -465,10 +472,27 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
                     propagateToExactTerminationCondition(
                                 integrator, propagationTerminationCondition,
                                 timeStep, dependentVariableFunction,
-                                solutionHistory, dependentVariableHistory );
+                                solutionHistory, dependentVariableHistory, currentCPUTime );
                 }
 
-                propagationTerminationReason = termination_condition_reached;
+                if( propagationTerminationCondition->getTerminationType( ) != hybrid_stopping_condition )
+                {
+                    propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
+                            termination_condition_reached,
+                                propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) );
+                }
+                else
+                {
+                    if( boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( propagationTerminationCondition )
+                            == NULL )
+                    {
+                        throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not" );
+                    }
+                    propagationTerminationReason = boost::make_shared< PropagationTerminationDetailsFromHybridCondition >(
+                                propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ),
+                                boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >(
+                                    propagationTerminationCondition ) );
+                }
                 breakPropagation = true;
             }
 
@@ -479,7 +503,8 @@ PropagationTerminationReason integrateEquationsFromIntegrator(
             std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
                          ", returning propagation data up to current time" << std::endl;
             breakPropagation = 1;
-            propagationTerminationReason = runtime_error_caught_in_propagation;
+            propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
+                        runtime_error_caught_in_propagation );
         }
     }
     while( !breakPropagation );
@@ -520,7 +545,7 @@ public:
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
-    static PropagationTerminationReason integrateEquations(
+    static boost::shared_ptr< PropagationTerminationDetails > integrateEquations(
             boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
             std::map< TimeType, StateType >& solutionHistory,
             const StateType initialState,
@@ -560,7 +585,7 @@ public:
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
-    static PropagationTerminationReason integrateEquations(
+    static boost::shared_ptr< PropagationTerminationDetails > integrateEquations(
             boost::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
             std::map< double, StateType >& solutionHistory,
             const StateType initialState,
@@ -623,7 +648,7 @@ public:
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
-    static PropagationTerminationReason integrateEquations(
+    static boost::shared_ptr< PropagationTerminationDetails > integrateEquations(
             boost::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
             std::map< Time, StateType >& solutionHistory,
             const StateType initialState,
