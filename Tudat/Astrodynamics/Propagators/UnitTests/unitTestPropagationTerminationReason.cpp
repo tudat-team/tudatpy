@@ -348,13 +348,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == termination_condition_reached );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
 
 }
 
@@ -509,13 +509,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
 
 }
 
