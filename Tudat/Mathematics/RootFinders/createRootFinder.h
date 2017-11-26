@@ -24,6 +24,7 @@ namespace tudat
 namespace root_finders
 {
 
+//! Enum defininf types of root finder
 enum RootFinderType
 {
     bisection_root_finder,
@@ -32,27 +33,53 @@ enum RootFinderType
     secant_root_finder
 };
 
+//! Class to define settings for a root finder
 class RootFinderSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param rootFinderType Type of root finder to be used
+     * \param terminationTolerance Convergence tolerance to be used for independent variable
+     * \param maximumNumberOfIterations Maximum number of iterations to be used by root finder.
+     */
     RootFinderSettings( const RootFinderType rootFinderType,
                         const double terminationTolerance, const unsigned int maximumNumberOfIterations  ):
         rootFinderType_( rootFinderType ), terminationTolerance_( terminationTolerance ),
         maximumNumberOfIterations_( maximumNumberOfIterations ){ }
 
+    //! Destructor
     ~RootFinderSettings( ){ }
 
+    //! Type of root finder to be used
     RootFinderType rootFinderType_;
 
+    //! Convergence tolerance to be used for independent variable
     double terminationTolerance_;
 
+    //! Maximum number of iterations to be used by root finder.
     unsigned int maximumNumberOfIterations_;
 
 };
 
+//! Function to determine whether a root finder requires any analytical derivatives
+/*!
+ * Function to determine whether a root finder requires any analytical derivatives, based on settings for root finder
+ * \param rootFinderSettings Settings to be used to create a root finder
+ * \return True if any analytical derivatives are required, false otherwise
+ */
 bool doesRootFinderRequireDerivatives( const boost::shared_ptr< RootFinderSettings > rootFinderSettings );
 
-
+//! Function to create a root finder
+/*!
+ * Function to create a root finde
+ * \param rootFinderSettings Settings to be used to create a root finder
+ * \param lowerBound Lower bound of search space of independent variables (default NaN; not needed by all root finders).
+ * \param upperBound Lower bound of search space of independent variables (default NaN; not needed by all root finders).
+ * \param previousGuess Initial guess for root position (default NaN; not needed by all root finders).
+ */
 template< typename DataType = double >
 boost::shared_ptr< RootFinderCore< DataType > > createRootFinder(
         const boost::shared_ptr< RootFinderSettings > rootFinderSettings,

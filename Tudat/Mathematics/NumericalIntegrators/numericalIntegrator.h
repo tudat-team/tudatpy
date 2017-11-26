@@ -99,11 +99,23 @@ public:
      */
     virtual bool rollbackToPreviousState( ) = 0;
 
+    //! Get previous independent variable.
+    /*!
+     * Returns the previoius value of the independent variable of the integrator. Derived classes
+     * should override this and provide the computed independent variable. If not implemented, throws error.
+     * \return Previous independent variable.
+     */
     virtual IndependentVariableType getPreviousIndependentVariable( )
     {
         throw std::runtime_error( "Function getPreviousIndependentVariable not implemented in this integrator" );
     }
 
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state. Derived classes
+     * should override this and provide the computed state. If not implemented, throws error.
+     * \return Previous state
+     */
     virtual StateType getPreviousState( )
     {
         throw std::runtime_error( "Function getPreviousState not implemented in this integrator" );
@@ -170,6 +182,11 @@ public:
         propagationTerminationFunction_ = terminationFunction;
     }
 
+    //! Function to toggle the use of step-size control
+    /*!
+     * Function to toggle the use of step-size control To be implemented in derived classes with variable step sizes
+     * \param useStepSizeControl Boolean denoting whether step size control is to be used
+     */
     virtual void setStepSizeControl( const bool useStepSizeControl )
     { }
 
@@ -182,7 +199,8 @@ protected:
     StateDerivativeFunction stateDerivativeFunction_;
 
     //! Boolean to denote whether the propagation termination condition was reached during the evaluation of one of the sub-steps
-    /*! Boolean to denote whether the propagation termination condition was reached during the evaluation of one of the sub-steps
+    /*!
+     *  Boolean to denote whether the propagation termination condition was reached during the evaluation of one of the sub-steps
      *  necessary to perform the last integration step. Parameter is false by default, and when set to true must be accompanied by
      *  propagationTerminationFunction_ (which is non-active by default)
      */

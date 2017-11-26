@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
 
 //! Test that after a propagation in which an error is caught, the propagation termination reason is
-//! `runtime_error_caught_in_propagation`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
+//! `nan_or_inf_detected_in_state`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
 BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -515,7 +515,8 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+                 nan_or_inf_detected_in_state );
 
 }
 
