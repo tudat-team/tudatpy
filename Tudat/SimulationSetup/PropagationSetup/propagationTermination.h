@@ -360,44 +360,84 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep );
 
+//! Class for storing details on the propagation termination
 class PropagationTerminationDetails
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param propagationTerminationReason Reason for termination
+     * \param terminationOnExactCondition True if exact termination condition is used, false if not, -1 if neither is relevant
+     */
     PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
                                    const bool terminationOnExactCondition = -1 ):
         propagationTerminationReason_( propagationTerminationReason ),
         terminationOnExactCondition_( terminationOnExactCondition ){ }
 
+    //! Function to retrieve reason for termination
+    /*!
+     * Function to retrieve reason for termination
+     * \return Reason for termination
+     */
     PropagationTerminationReason getPropagationTerminationReason( )
     {
         return propagationTerminationReason_;
     }
 
+    //! Function to retrieve boolean to denote whether exact termination conditions are used.
+    /*!
+     * Function to retrieve boolean to denote whether exact termination conditions are used.
+     * \return Boolean to denote whether exact termination conditions are used.
+     */
     bool getTerminationOnExactCondition( )
     {
         return terminationOnExactCondition_;
     }
 protected:
+
+    //! Reason for termination
     PropagationTerminationReason propagationTerminationReason_;
 
+    //! Boolean to denote whether exact termination conditions are used.
+    /*!
+     *  Boolean to denote whether exact termination conditions are used. True if exact termination condition is used,
+     *  false if not, -1 if neither is relevant.
+     */
     bool terminationOnExactCondition_;
 };
 
+//! Class for storing details on the propagation termination when using hybrid termination conditions
 class PropagationTerminationDetailsFromHybridCondition: public PropagationTerminationDetails
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param terminationOnExactCondition True if exact termination condition is used, false if not.
+     * \param terminationCondition Hybrid termination conditions that were used
+     */
     PropagationTerminationDetailsFromHybridCondition(
             const bool terminationOnExactCondition,
             const boost::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
         PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
         isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) ){ }
 
+    //! Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
+    /*!
+     * Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
+     * \return list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
+     */
     std::vector< bool > getWasConditionMetWhenStopping( )
     {
         return isConditionMetWhenStopping_;
     }
 
 private:
+
+    //! List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     std::vector< bool > isConditionMetWhenStopping_;
 
 };

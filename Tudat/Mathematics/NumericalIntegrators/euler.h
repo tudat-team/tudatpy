@@ -142,11 +142,21 @@ public:
         return true;
     }
 
+    //! Get previous independent variable.
+    /*!
+     * Returns the previoius value of the independent variable of the integrator.
+     * \return Previous independent variable.
+     */
     IndependentVariableType getPreviousIndependentVariable( )
     {
         return this->lastIndependentVariable_;
     }
 
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state.
+     * \return Previous state
+     */
     StateType getPreviousState( )
     {
         return this->lastState_;

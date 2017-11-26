@@ -16,6 +16,7 @@ namespace tudat
 namespace root_finders
 {
 
+//! Function to determine whether a root finder requires any analytical derivatives
 bool doesRootFinderRequireDerivatives( const boost::shared_ptr< RootFinderSettings > rootFinderSettings )
 {
     bool rootFinderRequireDerivatives = -1;

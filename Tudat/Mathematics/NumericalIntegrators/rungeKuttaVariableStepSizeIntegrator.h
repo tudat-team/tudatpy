@@ -272,11 +272,21 @@ public:
         return true;
     }
 
+    //! Get previous independent variable.
+    /*!
+     * Returns the previoius value of the independent variable of the integrator.
+     * \return Previous independent variable.
+     */
     IndependentVariableType getPreviousIndependentVariable( )
     {
         return this->lastIndependentVariable_;
     }
 
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state.
+     * \return Previous state
+     */
     StateType getPreviousState( )
     {
         return this->lastState_;
@@ -298,6 +308,11 @@ public:
         this->lastIndependentVariable_ = currentIndependentVariable_;
     }
 
+    //! Function to toggle the use of step-size control
+    /*!
+     * Function to toggle the use of step-size control
+     * \param useStepSizeControl Boolean denoting whether step size control is to be used
+     */
     void setStepSizeControl( const bool useStepSizeControl )
     {
         useStepSizeControl_ = useStepSizeControl;
@@ -440,6 +455,7 @@ protected:
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
 
+    //! Boolean denoting whether step size control is to be used
     bool useStepSizeControl_;
 };
 

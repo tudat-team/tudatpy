@@ -66,9 +66,25 @@ TimeStepType getTerminationDependentVariableErrorForGivenTimeStep(
     return dependentVariableError;
 }
 
+//! Function that propagates to an exact final condition (within tolerance) for dependent variable termination condition
+/*!
+ * Function that propagates to an exact final condition (within tolerance) for dependent variable termination condition.
+ * Determines the time step that is to be taken by using a root finder, and returns (by reference) the converged final time
+ * and state.
+ * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is rolled
+ * back to the secondToLastTime/secondToLastState
+ * \param dependentVariableTerminationCondition Termination condition that is to be used
+ * \param secondToLastTime Second to last time (e.g. last time at which integration did not exceed termination condition)
+ * \param lastTime Time at which integration first exceeded termination condition
+ * \param secondToLastState Second to last state (e.g. state at last time where integration did not exceed termination condition)
+ * \param lastState State at time where integration first exceeded termination condition
+ * \param endTime Time at which exact termination condition is met (returned by reference).
+ * \param endState State at time where exact termination condition is met (returned by reference).
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void getFinalStateForExactDependentVariableTerminationCondition(
-        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > >
+        integrator,
         const boost::shared_ptr< SingleVariableLimitPropagationTerminationCondition > dependentVariableTerminationCondition,
         const TimeType secondToLastTime,
         const TimeType lastTime,
@@ -77,13 +93,14 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         TimeType& endTime,
         StateType& endState )
 {
-    double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
 
+    // Function for which the root (zero value) occurs at the required end time/state
     boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
             boost::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
                          integrator, dependentVariableTerminationCondition );
 
-    TimeStepType finalTimeStep;
+    // Create root finder.
+    double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
     boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
     if( timeStepSign > 0 )
     {
@@ -103,6 +120,8 @@ void getFinalStateForExactDependentVariableTerminationCondition(
 
     }
 
+    // Solve root-finding problem.
+    TimeStepType finalTimeStep;
     try
     {
         finalTimeStep = finalConditionRootFinder->execute(
@@ -112,16 +131,32 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         endState = integrator->performIntegrationStep( finalTimeStep );
         endTime = integrator->getCurrentIndependentVariable( );
     }
+    // If dependent variable has no root in given interval, set end time at NaN
     catch( std::runtime_error )
     {
         endTime = TUDAT_NAN;
     }
 }
 
-
+//! Function that propagates to an exact final condition (within tolerance) for hybrid termination condition
+/*!
+ * Function that propagates to an exact final condition (within tolerance) for hybrid termination condition. Determines
+ * the termination time/state for each of the constituent termination condition, and chooses teh hybrid termiantion time/state
+ * accordingly
+ * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is rolled
+ * back to the secondToLastTime/secondToLastState
+ * \param hyrbidTerminationCondition Termination condition that is to be used
+ * \param secondToLastTime Second to last time (e.g. last time at which integration did not exceed termination condition)
+ * \param lastTime Time at which integration first exceeded termination condition
+ * \param secondToLastState Second to last state (e.g. state at last time where integration did not exceed termination condition)
+ * \param lastState State at time where integration first exceeded termination condition
+ * \param endTime Time at which exact termination condition is met (returned by reference).
+ * \param endState State at time where exact termination condition is met (returned by reference).
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void getFinalStateForExactHybridVariableTerminationCondition(
-        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > >
+        integrator,
         const boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition,
         const TimeType secondToLastTime,
         const TimeType lastTime,
@@ -130,27 +165,28 @@ void getFinalStateForExactHybridVariableTerminationCondition(
         TimeType& endTime,
         StateType& endState )
 {
-    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
 
     std::vector< boost::shared_ptr< PropagationTerminationCondition > > terminationConditionList =
             hyrbidTerminationCondition->getPropagationTerminationConditions( );
 
+    // Create list of converged times/states for each constituent condition
     std::vector< TimeType > endTimes;
     endTimes.resize( terminationConditionList.size( ) );
     std::vector< StateType > endStates;
     endStates.resize( terminationConditionList.size( ) );
 
-    int minimumTimeIndex = 0;
-    int maximumTimeIndex = 0;
-
+    // Iterate over all constituent termination conditions, and determine separate end times/states
+    int minimumTimeIndex = 0, maximumTimeIndex = 0;
     TimeStepType minimumTimeStep, maximumTimeStep;
     bool timesAreSet = false;
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
     {
+        // Determine single termination condition
         getFinalStateForExactTerminationCondition(
                     integrator, terminationConditionList.at( i ),secondToLastTime, lastTime, secondToLastState, lastState,
                     endTimes[ i ], endStates[ i ] );
 
+        // If converged time is found, check if it is smallest/highest converged time
         if( endTimes[ i ] == endTimes[ i ] )
         {
             TimeStepType currentFinalTimeStep = endTimes[ i ] - secondToLastTime;
@@ -178,11 +214,14 @@ void getFinalStateForExactHybridVariableTerminationCondition(
         }
     }
 
+    // Check if any of the conditions were valid
     if( !timesAreSet )
     {
         throw std::runtime_error( "Error when propagating exactly to hybrid condition, no conditions met" );
     }
 
+    // Set converged end time/state
+    bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
     if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
             ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
     {
@@ -202,6 +241,19 @@ void getFinalStateForExactHybridVariableTerminationCondition(
 
 }
 
+//! Function that propagates to an exact final condition (within tolerance) for arbitrary termination condition
+/*!
+ * Function that propagates to an exact final condition (within tolerance) for arbitrary termination condition.
+ * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is at
+ * the lastTime/lastState
+ * \param terminationCondition Termination condition that is to be used
+ * \param secondToLastTime Second to last time (e.g. last time at which integration did not exceed termination condition)
+ * \param lastTime Time at which integration first exceeded termination condition
+ * \param secondToLastState Second to last state (e.g. state at last time where integration did not exceed termination condition)
+ * \param lastState State at time where integration first exceeded termination condition
+ * \param endTime Time at which exact termination condition is met (returned by reference).
+ * \param endState State at time where exact termination condition is met (returned by reference).
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void getFinalStateForExactTerminationCondition(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
@@ -213,16 +265,16 @@ void getFinalStateForExactTerminationCondition(
         TimeType& endTime,
         StateType& endState )
 {
-    integrator->setStepSizeControl( false );
-
+    // Check type of termination condition
     switch( terminationCondition->getTerminationType( ) )
     {
     case  time_stopping_condition:
     {
-
+        // Check input consistency
         boost::shared_ptr< FixedTimePropagationTerminationCondition > timeTerminationCondition =
                 boost::dynamic_pointer_cast< FixedTimePropagationTerminationCondition >( terminationCondition );
 
+        // Determine final time step and propagate
         TimeStepType finalTimeStep = timeTerminationCondition->getStopTime( ) - secondToLastTime;
 
         integrator->rollbackToPreviousState( );
@@ -232,7 +284,10 @@ void getFinalStateForExactTerminationCondition(
         break;
     }
     case  cpu_time_stopping_condition:
+
+        // No exact final condition on CPU time is possible
         std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
+
         endTime = lastTime;
         endState = lastState;
         break;
@@ -264,6 +319,21 @@ void getFinalStateForExactTerminationCondition(
     }
 }
 
+//! Function that propagates to an exact final condition (within tolerance) for arbitrary termination condition
+/*!
+ * Function that propagates to an exact final condition (within tolerance) for arbitrary termination condition.
+ * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is at
+ * the final time/state encountered by the propagation
+ * \param propagationTerminationCondition Termination condition that is to be used
+ * \param timeStep Last time step taken by integrator.
+ * \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+ * derivative model).
+ * \param solutionHistory History of state variables that are to be saved given as map
+ * (time as key; returned by reference)
+ * \param dependentVariableHistory History of dependent variables that are to be saved given as map
+ * (time as key; returned by reference)
+ * \param currentCpuTime Current run time of propagation.
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
 void propagateToExactTerminationCondition(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
@@ -274,6 +344,10 @@ void propagateToExactTerminationCondition(
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         const double currentCpuTime )
 {
+    // Turn off step sie control
+    integrator->setStepSizeControl( false );
+
+    // Determine exact final time/state
     TimeType endTime;
     StateType endState;
     getFinalStateForExactTerminationCondition(
@@ -284,6 +358,7 @@ void propagateToExactTerminationCondition(
                 integrator->getCurrentState( ),
                 endTime, endState );
 
+    // Check if any dependent variables are saved. If so, remove last entry
     bool recomputeDependentVariables = false;
     if( dependentVariableHistory.size( ) > 0 )
     {
@@ -301,6 +376,7 @@ void propagateToExactTerminationCondition(
         }
     }
 
+    // Remove state entry last added, and enter converged final state
     if( timeStep > 0 )
     {
         solutionHistory.erase( std::prev( solutionHistory.end() ) );
@@ -312,6 +388,7 @@ void propagateToExactTerminationCondition(
         solutionHistory[ endTime ] = endState;
     }
 
+    // Recompute final dependent variables, if required
     if( recomputeDependentVariables )
     {
         integrator->getStateDerivativeFunction( )( endTime, endState );
@@ -331,7 +408,7 @@ void propagateToExactTerminationCondition(
  *  \param integrator Numerical integrator used for propagation
  *  \param initialTimeStep Time step to use for first step of numerical integration
  *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
- *  \param solutionHistory History of dependent variables that are to be saved given as map
+ *  \param solutionHistory History of state variables that are to be saved given as map
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
@@ -394,6 +471,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                 unknown_propagation_termination_reason );
     bool breakPropagation = 0;
+
     // Perform numerical integration steps until end time reached.
     do
     {
@@ -475,6 +553,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                                 solutionHistory, dependentVariableHistory, currentCPUTime );
                 }
 
+                // Set termination details
                 if( propagationTerminationCondition->getTerminationType( ) != hybrid_stopping_condition )
                 {
                     propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
