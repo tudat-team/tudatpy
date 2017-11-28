@@ -432,6 +432,10 @@ public:
      */
     std::vector< bool > getWasConditionMetWhenStopping( )
     {
+        if( terminationOnExactCondition_ )
+        {
+            std::cerr<<"Warning when retrieving list of conditions that were met in hybrid propagation termination details. Propagation was terminated on exact conditions using root finder, list of conditions may not be reliable"<<std::endl;
+        }
         return isConditionMetWhenStopping_;
     }
 
