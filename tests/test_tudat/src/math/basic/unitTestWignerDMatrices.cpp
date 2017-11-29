@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_SUITE( test_WignerDMatrices )
 // Varshalovich, p. 112, Eq. (1) and (2)
 BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
 {
-    int maximumDegree = 2;
+    int maximumDegree = 10;
     WignerDMatricesCache wignerDMatrixCache( maximumDegree );
     double angleAlpha = 0.0, angleBeta = 0.0, angleGamma = 0.0;
     std::complex< double > cayleyKleinA, cayleyKleinB;
@@ -110,62 +110,81 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
         //std::cout<<std::endl;
     }
 
-    angleAlpha = 0.0;//0.543;
-    angleBeta = 0.513483;
-    angleGamma = 0.0;//-1.073762;
-
-    double cosBeta = std::cos( angleBeta );
-    double sinBeta = std::sin( angleBeta );
-
-    convert323EulerAnglesToCayleyKleinParameters( -angleAlpha, -angleBeta, -angleGamma, cayleyKleinA, cayleyKleinB );
-    wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
-
-    for( unsigned int i = 0; i <= maximumDegree; i++ )
+    for( int useZRotations = 0; useZRotations < 2; useZRotations++ )
     {
-        Eigen::MatrixXcd currentDMatrix = wignerDMatrixCache.getWignerDMatrix( i );
-        std::cout<<std::setprecision( 3 )<<wignerDMatrixCache.getWignerDMatrix( i )<<std::endl<<std::endl;
-
-        Eigen::MatrixXd testMatrix = Eigen::MatrixXd( 2 * i + 1, 2 * i + 1);
-        if( i == 1 )
+        angleBeta = 0.543;
+        if( useZRotations == 0 )
         {
-            testMatrix << ( 1.0 + cosBeta ) / 2.0, sinBeta / std::sqrt( 2.0 ), ( 1.0 - cosBeta ) / 2.0,
-                    -sinBeta / std::sqrt( 2.0 ), cosBeta, sinBeta / std::sqrt( 2.0 ),
-                    ( 1.0 - cosBeta ) / 2.0, -sinBeta / std::sqrt( 2.0 ), ( 1.0 + cosBeta ) / 2.0;
+            angleAlpha = 0.0;
+            angleGamma = 0.0;
         }
-        else if( i == 2 )
+        else
         {
-            testMatrix << std::pow( 1.0 + cosBeta, 2 ) / 4.0, sinBeta * ( 1.0 + cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, sinBeta * ( 1.0 - cosBeta ) / 2.0, std::pow( 1.0 - cosBeta, 2 ) / 4.0,
-                    -sinBeta * ( 1.0 + cosBeta )/ 2.0, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 - cosBeta )/ 2.0,
-                    0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 3.0 * cosBeta * cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta,
-            -sinBeta * ( 1.0 - cosBeta )/ 2.0, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 + cosBeta )/ 2.0,
-                    std::pow( 1.0 - cosBeta, 2 ) / 4.0, - sinBeta * ( 1.0 - cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -sinBeta * ( 1.0 + cosBeta ) / 2.0, std::pow( 1.0 + cosBeta, 2 ) / 4.0;
-
+            angleAlpha = 0.513483;
+            angleGamma = -1.073762;
         }
 
-        std::cout<<std::setprecision( 3 )<<testMatrix<<std::endl<<std::endl;
+        double cosBeta = std::cos( angleBeta );
+        double sinBeta = std::sin( angleBeta );
 
+        convert323EulerAnglesToCayleyKleinParameters( -angleAlpha, -angleBeta, -angleGamma, cayleyKleinA, cayleyKleinB );
+        wignerDMatrixCache.updateMatrices( cayleyKleinA, cayleyKleinB );
 
-        for( unsigned int j = 0; j < 2 * i + 1; j++ )
+        for( unsigned int i = 0; i <= maximumDegree; i++ )
         {
-            int m = j - i;
+            Eigen::MatrixXcd currentDMatrix = wignerDMatrixCache.getWignerDMatrix( i );
+            //std::cout<<std::setprecision( 3 )<<wignerDMatrixCache.getWignerDMatrix( i )<<std::endl<<std::endl;
 
-            for( unsigned int k = 0; k < 2 * i + 1; k++ )
+            Eigen::MatrixXd testMatrix = Eigen::MatrixXd( 2 * i + 1, 2 * i + 1 );
+            if( useZRotations == 0 )
             {
-                if( j == i && k == i )
+                if( i == 1 )
                 {
-                    double testValue =  boost::math::legendre_p< double >( i, std::cos( angleBeta ) );
-                    std::cout<<"Test: "<<testValue<<std::endl<<std::endl;;
-                    BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).real( ) - testValue ),
-                                       10000.0 * std::numeric_limits< double >::epsilon( ) );
-                    BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ),
-                                       10000.0 * std::numeric_limits< double >::epsilon( ) );
+                    testMatrix << ( 1.0 + cosBeta ) / 2.0, sinBeta / std::sqrt( 2.0 ), ( 1.0 - cosBeta ) / 2.0,
+                            -sinBeta / std::sqrt( 2.0 ), cosBeta, sinBeta / std::sqrt( 2.0 ),
+                            ( 1.0 - cosBeta ) / 2.0, -sinBeta / std::sqrt( 2.0 ), ( 1.0 + cosBeta ) / 2.0;
+                }
+                else if( i == 2 )
+                {
+                    testMatrix << std::pow( 1.0 + cosBeta, 2 ) / 4.0, sinBeta * ( 1.0 + cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, sinBeta * ( 1.0 - cosBeta ) / 2.0, std::pow( 1.0 - cosBeta, 2 ) / 4.0,
+                            -sinBeta * ( 1.0 + cosBeta )/ 2.0, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 - cosBeta )/ 2.0,
+                            0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 3.0 * cosBeta * cosBeta - 1.0 ) / 2.0, std::sqrt( 1.5 ) * sinBeta * cosBeta, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta,
+                            -sinBeta * ( 1.0 - cosBeta )/ 2.0, -( 2.0 * cosBeta * cosBeta - cosBeta - 1.0 ) / 2.0, -std::sqrt( 1.5 ) * sinBeta * cosBeta, ( 2.0 * cosBeta * cosBeta + cosBeta - 1.0 ) / 2.0, sinBeta * ( 1.0 + cosBeta )/ 2.0,
+                            std::pow( 1.0 - cosBeta, 2 ) / 4.0, - sinBeta * ( 1.0 - cosBeta )/ 2.0, 0.5 * std::sqrt( 1.5 ) * sinBeta * sinBeta, -sinBeta * ( 1.0 + cosBeta ) / 2.0, std::pow( 1.0 + cosBeta, 2 ) / 4.0;
 
+                }
+            }
+
+            for( unsigned int j = 0; j < 2 * i + 1; j++ )
+            {
+                int m = j - i;
+
+                for( unsigned int k = 0; k < 2 * i + 1; k++ )
+                {
+                    if( j == i && k == i )
+                    {
+                        double testValue =  boost::math::legendre_p< double >( i, std::cos( angleBeta ) );
+                        //std::cout<<"Test: "<<testValue<<std::endl<<std::endl;;
+                        BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).real( ) - testValue ),
+                                           10000.0 * std::numeric_limits< double >::epsilon( ) );
+                        BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ),
+                                           10000.0 * std::numeric_limits< double >::epsilon( ) );
+                    }
+
+                    if( useZRotations == 0 )
+                    {
+                        if( i == 1 || i == 2 )
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).real( ) - testMatrix( j, k ) ),
+                                               10.0 * std::numeric_limits< double >::epsilon( ) );
+                        }
+                        BOOST_CHECK_SMALL( std::fabs( currentDMatrix( j, k ).imag( ) ),
+                                           10.0 * std::numeric_limits< double >::epsilon( ) );
+                    }
                 }
             }
         }
     }
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

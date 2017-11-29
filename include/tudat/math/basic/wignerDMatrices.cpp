@@ -61,14 +61,14 @@ void WignerDMatricesCache::updateMatrices( const std::complex< double > cayleyKl
 
                     if( j > 1 )
                     {
-                        wignerDMatrices_[ l ]( i, j ) += coefficientsIndexMinusOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 2 ) *
+                       wignerDMatrices_[ l ]( i, j ) += coefficientsIndexMinusOne_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 2 ) *
                                 wignerDMatrices_[ l - 1 ]( i - 2, j - 2 );
 //                       std::cout<<"A "<<coefficientsIndexMinusOne_[ l ]( i, j )<<" "<<wignerDMatrices_[ 1 ]( 2, 2 )<<" "<<
 //                                        wignerDMatrices_[  l - 1 ]( i - 2, j - 2 )<<" "<<
 //                                        wignerDMatrices_[ 1 ]( 2, 2 ) * wignerDMatrices_[ l - 1 ]( i - 2, j - 2 )<<std::endl;
                     }
 
-                    if( ( j > 0 ) && ( j < 2 * l - 1 ) )
+                    if( ( j > 0 ) && ( j <= 2 * l - 1 ) )
                     {
                         wignerDMatrices_[ l ]( i, j ) +=
                                 coefficientsIndexZero_[ l ]( i, j ) * wignerDMatrices_[ 1 ]( 2, 1 ) *
