@@ -2,9 +2,12 @@
 #define SPHERICALHARMONICTRANSFORMATIONS_H
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/function.hpp>
 #include <boost/math/special_functions/binomial.hpp>
 
@@ -34,18 +37,20 @@ public:
     void updateFromQuaternion(
             const Eigen::Quaterniond& rotationQuaternion );
 
+    void updateFrom313EulerAngles(
+            const double firstZRotation, const double XRotation, const double secondZRotation )
+    {
+        updateFromQuaternion(
+                    Eigen::Quaterniond( Eigen::AngleAxisd( -secondZRotation, Eigen::Vector3d::UnitZ( ) ) *
+                                        Eigen::AngleAxisd( -XRotation, Eigen::Vector3d::UnitX( ) ) *
+                                        Eigen::AngleAxisd( -firstZRotation, Eigen::Vector3d::UnitZ( ) ) ) );
+    }
+
     void transformCoefficientsAtDegree(
             const Eigen::MatrixXd& originalCosineCoefficients,
             const Eigen::MatrixXd& originalSineCoefficients,
             Eigen::MatrixXd& currentCosineCoefficients,
             Eigen::MatrixXd& currentSineCoefficients,
-            const bool areCoefficientsNormalized = 1 );
-
-    void getPartialDerivativesOfTransformedCoefficientsWrtEulerAngles(
-            const Eigen::MatrixXd& originalCosineCoefficients,
-            const Eigen::MatrixXd& originalSineCoefficients,
-            std::vector< Eigen::MatrixXd >& currentCosineCoefficients,
-            std::vector< Eigen::MatrixXd >& currentSineCoefficients,
             const bool areCoefficientsNormalized = 1 );
 
     void setUpdatePartials( )
@@ -55,6 +60,11 @@ public:
 
 
 private:
+
+    std::complex< double > getWignerFunctionValue( const int l, const int m, const int k )
+    {
+        return wignerDMatricesCache_->getWignerDCoefficient( l, m, k );
+    }
 
     boost::shared_ptr< WignerDMatricesCache > wignerDMatricesCache_;
 

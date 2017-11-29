@@ -42,11 +42,13 @@ class WignerDMatricesCache
 public:
     WignerDMatricesCache( const int maximumDegree );
 
+    ~WignerDMatricesCache( ){ }
+
     void updateMatrices( const std::complex< double > cayleyKleinA, const std::complex< double > cayleyKleinB );
 
     std::complex< double > getWignerDCoefficient( const int degree, const int originalOrder, const int newOrder )
     {
-        return wignerDMatrices_[ degree ]( originalOrder, newOrder );
+        return wignerDMatrices_[ degree ]( originalOrder + degree, newOrder + degree );
     }
 
     Eigen::MatrixXcd& getWignerDMatrix( const int degree )

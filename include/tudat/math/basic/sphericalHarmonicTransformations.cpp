@@ -16,10 +16,11 @@ void SphericalHarmonicTransformationCache::updateFromCayleyKleinParameters(
         const std::complex< double > cayleyKleinA,
         const std::complex< double > cayleyKleinB )
 {
+    std::cout<<"Updating: "<<cayleyKleinA<<" "<<cayleyKleinB<<std::endl;
     wignerDMatricesCache_->updateMatrices( cayleyKleinA, cayleyKleinB );
 }
 
-void updateFromQuaternion(
+void SphericalHarmonicTransformationCache::updateFromQuaternion(
         const Eigen::Quaterniond& rotationQuaternion )
 {
     std::complex< double > cayleyKleinA;
@@ -27,11 +28,6 @@ void updateFromQuaternion(
 
     convertQuaterionToCayleyKleinParameters( rotationQuaternion, cayleyKleinA, cayleyKleinB );
     updateFromCayleyKleinParameters( cayleyKleinA, cayleyKleinB );
-}
-
-void SphericalHarmonicTransformationCache::updateFunctionPartials( )
-{
-
 }
 
 void SphericalHarmonicTransformationCache::transformCoefficientsAtDegree(
@@ -45,49 +41,60 @@ void SphericalHarmonicTransformationCache::transformCoefficientsAtDegree(
     currentSineCoefficients.setZero( originalSineCoefficients.rows( ), originalSineCoefficients.cols( ) );
 
     double currentMultiplier;
+    double orderMMultiplier;
+
     for( unsigned int l = 0; l < originalCosineCoefficients.rows( ); l++ )
     {
         for( int m = 0; ( m <= l && m < originalCosineCoefficients.cols( ) ); m++ )
         {
             if( !areCoefficientsNormalized )
             {
-                currentMultiplier = factorials_[ l ] / factorials_[ l + m ];
+                orderMMultiplier = std::sqrt( boost::math::factorial< double >( l - m ) / boost::math::factorial< double >( l + m ) );
+                currentMultiplier = orderMMultiplier;
             }
             else
             {
-                currentMultiplier = factorials_[ l ]  /
-                        std::sqrt( factorials_[ l + m ]  * factorials_[ l - m ] * ( ( m == 0 ) ? 1.0 : 2.0 ) );
+                orderMMultiplier = ( m == 0 ? 1.0 : 1.0 / std::sqrt( 2.0 ) );
+                currentMultiplier = orderMMultiplier;
             }
 
+            std::complex< double > orderZeroDFunction = getWignerFunctionValue( l, m, 0 );
+
+//            std::cout<<l<<" "<<m<<" "<<0<<" "<<orderZeroDFunction<<std::endl;
+
             currentCosineCoefficients( l, m ) +=
-                    ( currentMultiplier ) * eFunctions_[ 0 + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].real( ) * originalCosineCoefficients( l, 0 );
+                    ( currentMultiplier ) * orderZeroDFunction.real( ) * originalCosineCoefficients( l, 0 );
             currentSineCoefficients( l, m ) +=
-                    ( currentMultiplier ) * eFunctions_[ 0 + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].imag( ) * originalCosineCoefficients( l, 0 );
+                    ( currentMultiplier ) * orderZeroDFunction.imag( ) * originalCosineCoefficients( l, 0 );
 
 
             for( int k = 1; k <= l; k++ )
             {
                 if( !areCoefficientsNormalized )
                 {
-                    currentMultiplier = factorials_[ l + k ] / factorials_[ l + m ];
+                    currentMultiplier = ::sqrt( boost::math::factorial< double >( l + k ) / boost::math::factorial< double >( l - k ) ) * orderMMultiplier;
                 }
                 else
                 {
-                    currentMultiplier = std::sqrt( 2.0 * ( factorials_[ l + k ] * factorials_[ l - k ] ) /
-                            ( factorials_[ l + m ]  * factorials_[ l - m ] * ( ( m == 0 ) ? 1.0 : 2.0 ) ) );
-
+                    currentMultiplier = std::sqrt( 2.0 ) * orderMMultiplier;
                 }
+
+
+                std::complex< double > orderKDFunction = getWignerFunctionValue( l, m, k );
+                std::complex< double > orderMinusKDFunction = getWignerFunctionValue( l, m, -k );
+
+//                std::cout<<l<<" "<<m<<" "<<k<<" "<<orderKDFunction<<std::endl;
+//                std::cout<<l<<" "<<m<<" "<<-k<<" "<<orderMinusKDFunction<<std::endl;
+
+                double signMultiplier = ( ( ( k % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) );
+
                 currentCosineCoefficients( l, m ) += 0.5 * currentMultiplier * (
-                            ( ( ( ( k % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) ) *eFunctions_[ -k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].real( ) +
-                        eFunctions_[ k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].real( ) ) * originalCosineCoefficients( l, k )  +
-                        ( ( ( ( k % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) ) *eFunctions_[ -k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].imag( ) -
-                        eFunctions_[ k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].imag( ) ) * originalSineCoefficients( l, k ) );
+                            ( signMultiplier * orderKDFunction.real( ) + orderMinusKDFunction.real( ) ) * originalCosineCoefficients( l, k )  +
+                            ( signMultiplier * orderKDFunction.imag( ) - orderMinusKDFunction.imag( ) ) * originalSineCoefficients( l, k ) );
 
                 currentSineCoefficients( l, m ) += 0.5 * currentMultiplier * (
-                            ( ( ( ( k % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) ) * eFunctions_[ -k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].imag( ) +
-                        eFunctions_[ k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].imag( ) ) * originalCosineCoefficients( l, k )  +
-                        ( ( ( ( ( k + 1 ) % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) ) *eFunctions_[ -k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].real( ) +
-                        eFunctions_[ k + maximumDegree_ + kSize * ( -m + maximumDegree_ + mSize * l ) ].real( ) ) * originalSineCoefficients( l, k ) );
+                            ( signMultiplier * orderKDFunction.imag( ) + orderMinusKDFunction.imag( ) ) * originalCosineCoefficients( l, k )  +
+                            ( -signMultiplier * orderKDFunction.real( ) + orderMinusKDFunction.real( ) ) * originalSineCoefficients( l, k ) );
             }
 
             currentCosineCoefficients( l, m ) = currentCosineCoefficients( l, m ) * ( ( ( m % 2 ) == 0 ) ? ( 1.0 ) : ( -1.0 ) );
@@ -101,28 +108,6 @@ void SphericalHarmonicTransformationCache::transformCoefficientsAtDegree(
             }
         }
     }
-}
-
-void SphericalHarmonicTransformationCache::getPartialDerivativesOfTransformedCoefficientsWrtEulerAngles(
-        const Eigen::MatrixXd& originalCosineCoefficients,
-        const Eigen::MatrixXd& originalSineCoefficients,
-        std::vector< Eigen::MatrixXd >& currentCosineCoefficients,
-        std::vector< Eigen::MatrixXd >& currentSineCoefficients,
-        const bool areCoefficientsNormalized )
-{
-    currentCosineCoefficients.resize( 3 );
-    currentSineCoefficients.resize( 3 );
-
-    for( unsigned int i = 0; i < 3; i++ )
-    {
-        currentCosineCoefficients[ i ].setZero( originalCosineCoefficients.rows( ), originalCosineCoefficients.cols( ) );
-        currentSineCoefficients[ i ].setZero( originalSineCoefficients.rows( ), originalSineCoefficients.cols( ) );
-    }
-
-    double currentMultiplier, realScaling, imaginaryScaling, realScalingConj, imaginaryScalingConj;
-    std::complex< double > currentEFunctionPartial;
-
-
 }
 
 }
