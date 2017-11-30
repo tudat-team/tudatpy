@@ -45,6 +45,7 @@ enum AvailableAcceleration {
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
+    mutual_extended_body_spherical_harmonic_gravity,
     polyhedron_gravity,
     ring_gravity,
     third_body_point_mass_gravity,

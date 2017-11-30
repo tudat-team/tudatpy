@@ -72,19 +72,14 @@ public:
         return currentRotationFromBody2ToBody1_;
     }
 
-    Eigen::Vector3d getCurrentEulerAngles( )
-    {
-        return currentEulerAngles_;
-    }
-
     boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > getEffectiveMutualPotentialField( )
     {
         return effectiveMutualPotentialField_;
     }
 
-    basic_mathematics::LegendreCache* getLegendreCache( )
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
     {
-        return legendreCache_;
+        return sphericalHarmonicsCache_;
     }
 
     double getEquatorialRadiusOfBody1( )
@@ -139,7 +134,7 @@ private:
     int maximumOrder_;
 
     boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
-    basic_mathematics::LegendreCache* legendreCache_;
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
     Eigen::Vector3d currentAcceleration_;
     Eigen::Vector3d currentRelativePosition_;
@@ -147,8 +142,6 @@ private:
     Eigen::Vector3d mutualPotentialGradient_;
 
     Eigen::Quaterniond currentRotationFromBody2ToBody1_;
-
-    Eigen::Vector3d currentEulerAngles_;
 
     bool useCentraBodyFrame_;
     bool areCoefficientsNormalized_;

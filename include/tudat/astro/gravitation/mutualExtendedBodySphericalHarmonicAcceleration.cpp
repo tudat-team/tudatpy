@@ -1,5 +1,5 @@
 #include "Tudat/Astrodynamics/Gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
-#include "Tudat/Mathematics/BasicMathematics/rotationRepresentations.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 namespace tudat
 {
@@ -54,7 +54,8 @@ MutualExtendedBodySphericalHarmonicAcceleration::MutualExtendedBodySphericalHarm
         }
     }
 
-    legendreCache_ = new basic_mathematics::LegendreCache( maximumOrder_ + 1, maximumDegree_ + 1 );
+    sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >(
+                maximumOrder_ + 1, maximumDegree_ + 1 );
     effectiveMutualPotentialField_ =  boost::make_shared< EffectiveMutualSphericalHarmonicsField >(
                 coefficientCombinationsToUse_,
                 cosineHarmonicCoefficientsOfBody1Function, sineHarmonicCoefficientsOfBody1Function,
@@ -82,21 +83,18 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
         currentBodyFixedRelativePosition_ =
                 currentRotationFromInertialToBody1 * ( currentRelativePosition_ );
 
-        currentEulerAngles_ = basic_mathematics::get313EulerAnglesFromQuaternion( currentRotationFromBody2ToBody1_ );
-
-        effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients(
-                    currentEulerAngles_( 2 ), currentEulerAngles_( 1 ), currentEulerAngles_( 0 ) );
+        effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
 
         double currentDistance = currentRelativePosition_.norm( );
         for( unsigned int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
         {
-            radius1Powers_[ i ] = raiseToIntegerPower( equatorialRadiusOfBody1_ / currentDistance, i );
+            radius1Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1_ / currentDistance, i );
 
         }
 
         for( unsigned int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree2( ); i++ )
         {
-            radius2Powers_[ i ] = raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
+            radius2Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
 
         }
 
@@ -112,7 +110,7 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
                         effectiveMutualPotentialField_->getMaximumDegree2( ),
                         radius1Powers_,
                         radius2Powers_,
-                        legendreCache_ );
+                        sphericalHarmonicsCache_ );
         }
         else
         {            
@@ -120,7 +118,7 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
                         currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
                         equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
                         effectiveCosineCoefficientFunction_, effectiveSineCoefficientFunction_,
-                        coefficientCombinationsToUse_, legendreCache_ );
+                        coefficientCombinationsToUse_, sphericalHarmonicsCache_ );
         }
 
         currentAcceleration_ = currentRotationFromInertialToBody1.inverse( ) * mutualPotentialGradient_;

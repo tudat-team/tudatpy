@@ -31,7 +31,7 @@ double computeSingleMutualForcePotentialTerm(
         const double effectiveCosineCoefficient,
         const double effectiveSineCoefficient,
         const double polynomialParameter,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int degreeOfBody1,
         const int orderOfBody1,
         const int degreeOfBody2,
@@ -50,7 +50,7 @@ double computeMutualForcePotential(
         const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        basic_mathematics::LegendreCache* legendreCache );
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
@@ -66,7 +66,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const int maximumDegree2,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        basic_mathematics::LegendreCache* legendreCache );
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
@@ -78,7 +78,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        basic_mathematics::LegendreCache* legendreCache );
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         std::vector< Eigen::Matrix< double, 1, 2 > >& potentialComponentsWrtFullCoefficients,
@@ -86,7 +86,7 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         const double distance,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const boost::function< int( const int, const int, const int, const int )> effectiveIndexFunction );
 
 inline double getSigmaSignFunction( const int order )
@@ -153,7 +153,7 @@ public:
             const int degree1, const int order1, const int degree2, const int order2, const int effectiveIndex,
             double& cosineCoefficient, double& sineCoefficient );
 
-    void computeCurrentEffectiveCoefficients( const double angleTheta, const double anglePhi, const double anglePsi );
+    void computeCurrentEffectiveCoefficients( const Eigen::Quaterniond coefficientRotationQuaterion );
 
     void computeCurrentEffectiveCoefficientsFromManualTransformedCoefficients(
             const Eigen::MatrixXd& transformedCosineCoefficients,
@@ -170,7 +170,7 @@ public:
 
     double getGravitationalPotential(
             const Eigen::Vector3d& bodyFixedPosition,
-            basic_mathematics::LegendreCache* legendreCache )
+            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
     {
 
         return computeMutualForcePotential(
@@ -182,7 +182,7 @@ public:
                     boost::bind(
                         &EffectiveMutualSphericalHarmonicsField::getEffectiveSineCoefficient,
                         this, _1, _2, _3, _4 ), coefficientCombinationsToUse_,
-                    legendreCache );
+                    sphericalHarmonicsCache );
     }
 
 
@@ -234,21 +234,21 @@ public:
                     degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ] ;
     }
 
-    void getTransformedCoefficientPartialsWrtEulerAngles(
-            std::vector< Eigen::MatrixXd >& transformedCosineCoefficientsOfBody2Partials,
-            std::vector< Eigen::MatrixXd >& transformedSineCoefficientsOfBody2Partials )
-    {
-        transformationCache_->getPartialDerivativesOfTransformedCoefficientsWrtEulerAngles(
-                    cosineCoefficientsOfBody2_,
-                    sineCoefficientsOfBody2_,
-                    transformedCosineCoefficientsOfBody2Partials_,
-                    transformedSineCoefficientsOfBody2Partials_,
-                    areCoefficientsNormalized_ );
+//    void getTransformedCoefficientPartialsWrtEulerAngles(
+//            std::vector< Eigen::MatrixXd >& transformedCosineCoefficientsOfBody2Partials,
+//            std::vector< Eigen::MatrixXd >& transformedSineCoefficientsOfBody2Partials )
+//    {
+//        transformationCache_->getPartialDerivativesOfTransformedCoefficientsWrtEulerAngles(
+//                    cosineCoefficientsOfBody2_,
+//                    sineCoefficientsOfBody2_,
+//                    transformedCosineCoefficientsOfBody2Partials_,
+//                    transformedSineCoefficientsOfBody2Partials_,
+//                    areCoefficientsNormalized_ );
 
-        transformedCosineCoefficientsOfBody2Partials = transformedCosineCoefficientsOfBody2Partials_;
-        transformedSineCoefficientsOfBody2Partials = transformedSineCoefficientsOfBody2Partials_;
+//        transformedCosineCoefficientsOfBody2Partials = transformedCosineCoefficientsOfBody2Partials_;
+//        transformedSineCoefficientsOfBody2Partials = transformedSineCoefficientsOfBody2Partials_;
 
-    }
+//    }
 
     void computePartialsOfFullCoefficientsWrtTransformedCoefficients(
             std::vector< Eigen::Matrix2d >& fullCoefficientsWrtBody2CoefficientsList );

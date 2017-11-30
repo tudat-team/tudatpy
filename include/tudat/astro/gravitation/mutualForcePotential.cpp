@@ -1,5 +1,5 @@
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualForcePotential.h"
 
 namespace tudat
@@ -82,16 +82,16 @@ double computeSingleMutualForcePotentialTerm(
         const double effectiveCosineCoefficient,
         const double effectiveSineCoefficient,
         const double polynomialParameter,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int degreeOfBody1,
         const int orderOfBody1,
         const int degreeOfBody2,
         const int orderOfBody2 )
 {
-    return ( effectiveCosineCoefficient * legendreCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) -
-             effectiveSineCoefficient * legendreCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) ) *
-            legendreCache->getOrElseUpdate( degreeOfBody1 + degreeOfBody2, std::abs( orderOfBody1 + orderOfBody2 ),
-                                            polynomialParameter, &basic_mathematics::computeLegendrePolynomial );
+    return ( effectiveCosineCoefficient * sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) -
+             effectiveSineCoefficient * sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) ) *
+            sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
+                degreeOfBody1 + degreeOfBody2, std::abs( orderOfBody1 + orderOfBody2 ) );
 }
 
 double computeMutualForcePotential(
@@ -104,7 +104,7 @@ double computeMutualForcePotential(
         const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        basic_mathematics::LegendreCache* legendreCache )
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     
     // Determine body fixed spherical position of body udnergoing acceleration.
@@ -115,8 +115,8 @@ double computeMutualForcePotential(
     double longitude = sphericalPositon.z( );
     
     double sineOfLatitude = std::sin( latitude );
-    legendreCache->updateSines( longitude );
-    legendreCache->update( sineOfLatitude, &basic_mathematics::computeLegendrePolynomial );
+    sphericalHarmonicsCache->update( TUDAT_NAN, sineOfLatitude, longitude, TUDAT_NAN );
+
     double potential = 0.0;
     
     int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2;
@@ -150,19 +150,19 @@ double computeMutualForcePotential(
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                    sineOfLatitude, legendreCache, degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
+                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                    sineOfLatitude,legendreCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
+                    sineOfLatitude,sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                    sineOfLatitude, legendreCache, degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
+                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                    sineOfLatitude, legendreCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
+                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
         currentTerm *= radiusRatioOfBody1List.at( degreeOfBody1 );
         currentTerm *= radiusRatioOfBody2List.at( degreeOfBody2 );
         
@@ -185,7 +185,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const int maximumDegree1, const int maximumDegree2,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        basic_mathematics::LegendreCache* legendreCache )
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
@@ -227,8 +227,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
     double cosineOfAngle = std::cos( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
 
-    legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
-    legendreCache->update( sineOfAngle, &basic_mathematics::computeGeodesyLegendrePolynomial );
+    sphericalHarmonicsCache->update( TUDAT_NAN, sineOfAngle, sphericalpositionOfBodySubjectToAcceleration( 2 ), TUDAT_NAN );
 
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
@@ -247,9 +246,9 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         for( unsigned int j = 0; j <= i; j++ )
         {
             // Compute geodesy-normalized Legendre polynomials.
-            const double legendrePolynomial = legendreCache->getPolynomial(
+            const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         i, j );
-            const double incrementedLegendrePolynomial = legendreCache->getPolynomial(
+            const double incrementedLegendrePolynomial = sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         i, j + 1 );
 
             // Compute geodesy-normalized Legendre polynomial derivative.
@@ -315,7 +314,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                             effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             currentTerms.first,
                             currentTerms.second,
-                            legendreCache );
+                            sphericalHarmonicsCache );
             }
         }
 
@@ -339,7 +338,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        basic_mathematics::LegendreCache* legendreCache )
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
@@ -381,8 +380,8 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
     double cosineOfAngle = std::cos( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
 
-    legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
-    legendreCache->update( sineOfAngle, &basic_mathematics::computeLegendrePolynomial );
+    sphericalHarmonicsCache->update( TUDAT_NAN, sineOfAngle, sphericalpositionOfBodySubjectToAcceleration( 2 ), TUDAT_NAN );
+
     
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
@@ -405,8 +404,8 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
         totalDegree = degreeOfBody1 + degreeOfBody2;
         
         equatorialRadiusRatioPower =
-                raiseToIntegerPower( equatorialRadiusOfBody1 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody1 ) *
-                raiseToIntegerPower( equatorialRadiusOfBody2 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody2 );
+                basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody1 ) *
+                basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2 / sphericalpositionOfBodySubjectToAcceleration( 0 ), degreeOfBody2 );
         
         for( unsigned j = 0; j < 4; j++ )
         {
@@ -433,20 +432,17 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
             
             if( computeTerm )
             {
-
-                
                 // Compute geodesy-normalized Legendre polynomials.
-                const double legendrePolynomial = basic_mathematics::computeLegendrePolynomial(
-                            totalDegree, totalOrder, sineOfAngle, legendreCache);
-                const double incrementedLegendrePolynomial =
-                        basic_mathematics::computeLegendrePolynomial(
-                            totalDegree, totalOrder + 1, sineOfAngle, legendreCache );
+                const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
+                            totalDegree, totalOrder );
+                const double incrementedLegendrePolynomial = sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
+                            totalDegree, totalOrder + 1  );
                 
                 // Compute geodesy-normalized Legendre polynomial derivative.
                 const double legendrePolynomialDerivative =
                         basic_mathematics::computeLegendrePolynomialDerivative(
                             totalOrder, sineOfAngle,
-                            legendrePolynomial, incrementedLegendrePolynomial );                
+                            legendrePolynomial, incrementedLegendrePolynomial );
 
                 // Compute the potential gradient of a single spherical harmonic term.
                 sphericalGradient += basic_mathematics::computePotentialGradientFromRadiusRatio(
@@ -460,7 +456,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
                             effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                             legendrePolynomial,
                             legendrePolynomialDerivative,
-                            legendreCache );
+                            sphericalHarmonicsCache );
             }
         }
 
@@ -470,7 +466,7 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector) and
     // return the resulting acceleration vector.
 
-     return coordinate_conversions::convertSphericalToCartesianGradient(
+    return coordinate_conversions::convertSphericalToCartesianGradient(
                 sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
@@ -480,7 +476,7 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         const double distance,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const boost::function< int( const int, const int, const int, const int )> effectiveIndexFunction )
 {
     int degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2;
@@ -500,9 +496,9 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         {
             effectiveIndex = effectiveIndexFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
 
-            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = legendreCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = legendreCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients *= legendreCache->getPolynomial(
+            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients *= sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         degreeOfBody1 + degreeOfBody2, std::abs( orderOfBody1 + orderOfBody2 ) ) * equatorialRadiusRatioPower;
             potentialComponentsWrtFullCoefficients[ effectiveIndex ] = currentPotentialComponentWrtFullCoefficients;
         }
@@ -510,9 +506,9 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         {
             effectiveIndex = effectiveIndexFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
 
-            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = legendreCache->getCosineOfMultipleLongitude( std::abs( -orderOfBody1 + orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = legendreCache->getSineOfMultipleLongitude( std::abs( -orderOfBody1 + orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients *= legendreCache->getPolynomial(
+            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( -orderOfBody1 + orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( -orderOfBody1 + orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients *= sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         degreeOfBody1 + degreeOfBody2, std::abs( -orderOfBody1 + orderOfBody2 ) ) * equatorialRadiusRatioPower;
             potentialComponentsWrtFullCoefficients[ effectiveIndex ] = currentPotentialComponentWrtFullCoefficients;
         }
@@ -520,9 +516,9 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         {
             effectiveIndex = effectiveIndexFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
 
-            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = legendreCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 - orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = legendreCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 - orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients *= legendreCache->getPolynomial(
+            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 - orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 - orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients *= sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         degreeOfBody1 + degreeOfBody2, std::abs( orderOfBody1 - orderOfBody2 ) ) * equatorialRadiusRatioPower;
             potentialComponentsWrtFullCoefficients[ effectiveIndex ] = currentPotentialComponentWrtFullCoefficients;
         }
@@ -530,9 +526,9 @@ void computePartialDerivativesOfPotentialComponentsWrtFullCoefficients(
         {
             effectiveIndex = effectiveIndexFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
 
-            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = legendreCache->getCosineOfMultipleLongitude( std::abs( -orderOfBody1 - orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = legendreCache->getSineOfMultipleLongitude( std::abs( -orderOfBody1 - orderOfBody2 ) );
-            currentPotentialComponentWrtFullCoefficients *= legendreCache->getPolynomial(
+            currentPotentialComponentWrtFullCoefficients( 0, 0 ) = sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( -orderOfBody1 - orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients( 0, 1 ) = sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( -orderOfBody1 - orderOfBody2 ) );
+            currentPotentialComponentWrtFullCoefficients *= sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                         degreeOfBody1 + degreeOfBody2, std::abs( -orderOfBody1 - orderOfBody2 ) ) * equatorialRadiusRatioPower;
             potentialComponentsWrtFullCoefficients[ effectiveIndex ] = currentPotentialComponentWrtFullCoefficients;
         }
@@ -565,14 +561,14 @@ void EffectiveMutualSphericalHarmonicsField::getCurrentEffectiveCoefficients(
 }
 
 void EffectiveMutualSphericalHarmonicsField::computeCurrentEffectiveCoefficients(
-        const double angleTheta, const double anglePhi, const double anglePsi )
+        const Eigen::Quaterniond coefficientRotationQuaterion )
 {
     cosineCoefficientsOfBody1_ = cosineCoefficientFunctionOfBody1_( );
     sineCoefficientsOfBody1_ = sineCoefficientFunctionOfBody1_( );
     cosineCoefficientsOfBody2_ = cosineCoefficientFunctionOfBody2_( );
     sineCoefficientsOfBody2_ = sineCoefficientFunctionOfBody2_( );
 
-    transformationCache_->update( angleTheta, anglePhi, anglePsi );
+    transformationCache_->updateFromQuaternion( coefficientRotationQuaterion );
     transformationCache_->transformCoefficientsAtDegree(
                 cosineCoefficientsOfBody2_,
                 sineCoefficientsOfBody2_,

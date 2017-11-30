@@ -17,6 +17,7 @@
 #include <type_traits>
 
 #include "tudat/astro/basic_astro/accelerationModel.h"
+#include "tudat/astro/gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/propagation_setup/accelerationSettings.h"
@@ -48,6 +49,7 @@ class CentralGravitationalAccelerationModel;
 
 class SphericalHarmonicsGravitationalAccelerationModel;
 class MutualSphericalHarmonicsGravitationalAccelerationModel;
+class MutualExtendedBodySphericalHarmonicAcceleration;
 class PolyhedronGravitationalAccelerationModel;
 class RingGravitationalAccelerationModel;
 
@@ -419,6 +421,14 @@ createThirdBodyRingGravityAccelerationModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
+
+std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
+        const bool useCentralBodyFixedFrame );
 
 //! Function to create an aerodynamic acceleration model.
 /*!
