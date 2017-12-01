@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Tudat/Astrodynamics/Gravitation/mutualExtendedBodySphericalHarmonicAcceleration.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
@@ -101,6 +103,7 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
 
         if( areCoefficientsNormalized_ )
         {
+            std::cout<<"Coeff. normalized"<<std::endl;
             mutualPotentialGradient_ = computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                         currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
                         equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,

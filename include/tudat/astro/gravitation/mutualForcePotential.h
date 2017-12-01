@@ -195,6 +195,9 @@ public:
     double getEffectiveSineCoefficient(
             const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
+        std::cout<<"Getting sine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
+                   degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) )<<" "<<
+                   effectiveSineCoefficients_[ degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) ) ]<<std::endl;
         return effectiveSineCoefficients_[ degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) ) ];
     }
 

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualForcePotential.h"
@@ -187,6 +189,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const std::vector< double > radius2Powers,
         boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
+    std::cout<<"Position: "<<positionOfBodySubjectToAcceleration.transpose( )<<std::endl;
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
 
@@ -303,11 +306,10 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                 currentTerms = legendreTerms.at( totalDegree + ( maximumDegree1  + maximumDegree2 + 1 ) * totalOrder );
 
                 // Compute the potential gradient of a single spherical harmonic term.
-                sphericalGradient += basic_mathematics::computePotentialGradientFromRadiusRatio(
+                sphericalGradient += basic_mathematics::computePotentialGradientWithManualRadiusRatioPower(
                             sphericalpositionOfBodySubjectToAcceleration,
-                            equatorialRadiusRatioPower,
                             preMultiplier,
-                            cosineOfAngle,
+                            equatorialRadiusRatioPower,
                             totalDegree,
                             totalOrder,
                             effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
@@ -315,6 +317,14 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                             currentTerms.first,
                             currentTerms.second,
                             sphericalHarmonicsCache );
+                std::cout<<"Computing  "<<j<<" "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<" "<<
+                           sphericalGradient.transpose( )<<" "<<
+                           sphericalpositionOfBodySubjectToAcceleration.transpose( )<<" "<<preMultiplier<<" "<<
+                           totalDegree<<" "<<totalOrder<<" "<<
+                           effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+                           effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+                           currentTerms.first<<" "<<currentTerms.second<<std::endl;
+
             }
         }
 
@@ -445,11 +455,10 @@ Eigen::Vector3d computeUnnormalizedMutualGravitationalAccelerationSum(
                             legendrePolynomial, incrementedLegendrePolynomial );
 
                 // Compute the potential gradient of a single spherical harmonic term.
-                sphericalGradient += basic_mathematics::computePotentialGradientFromRadiusRatio(
+                sphericalGradient += basic_mathematics::computePotentialGradientWithManualRadiusRatioPower(
                             sphericalpositionOfBodySubjectToAcceleration,
                             equatorialRadiusRatioPower,
                             preMultiplier,
-                            cosineOfAngle,
                             totalDegree,
                             totalOrder,
                             effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
@@ -608,6 +617,9 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
                     effectiveCosineCoefficients_[ effectiveIndex ],
                     effectiveSineCoefficients_[ effectiveIndex ] );
 
+        std::cout<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<effectiveIndex<<" "<<
+                   effectiveCosineCoefficients_[ effectiveIndex ]<<" "<<
+                   effectiveSineCoefficients_[ effectiveIndex ]<<std::endl;
         if( orderOfBody1 != 0 )
         {
             effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
