@@ -13,7 +13,6 @@
 
 #include <boost/assign.hpp>
 #include <boost/algorithm/string/replace.hpp>
-
 #include "Tudat/InputOutput/streamFilters.h"
 
 namespace tudat

@@ -19,12 +19,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
-
-#include "errorHandling.h"
-#include "keys.h"
-#include "utilities.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/JsonInterface/Support/errorHandling.h"
+#include "Tudat/JsonInterface/Support/keys.h"
+#include "Tudat/JsonInterface/Support/utilities.h"
 
 namespace tudat
 {

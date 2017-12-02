@@ -81,7 +81,7 @@ list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_PROPAGATIO
 macro(setup_executable_target target_name)
   set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}")
   install(TARGETS ${target_name} RUNTIME DESTINATION "${BINROOT}")
-endmacro(setup_custom_test_program)
+endmacro()
 
 
 # Add JSON-based application.

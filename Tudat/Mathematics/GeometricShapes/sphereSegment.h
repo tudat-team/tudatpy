@@ -143,7 +143,7 @@ public:
      * \param sphereSegment Sphere segment.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment );
+    friend std::ostream& operator << ( std::ostream& stream, SphereSegment& sphereSegment );
 
 protected:
 

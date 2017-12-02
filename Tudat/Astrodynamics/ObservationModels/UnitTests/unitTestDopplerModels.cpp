@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -50,10 +49,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
     // Load Spice kernels
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -271,10 +267,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
 {
     // Load Spice kernels
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0012.tls");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;

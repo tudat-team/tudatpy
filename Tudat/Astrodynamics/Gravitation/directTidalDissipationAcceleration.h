@@ -12,8 +12,6 @@
 #ifndef TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 #define TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>

@@ -9,7 +9,6 @@
 
 # Set the source files.
 set(ACCELERATION_PARTIALS_SOURCES
-  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/accelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/aerodynamicAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/centralGravityAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/numericalAccelerationPartial.cpp"

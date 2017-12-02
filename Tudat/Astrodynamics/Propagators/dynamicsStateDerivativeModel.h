@@ -86,7 +86,7 @@ public:
                              != stateDerivativeModels.at( i - 1 )->getIntegratedStateType( ) ) )
                 {
                     throw std::runtime_error( "Warning when making hybrid state derivative models, state type " +
-                                              boost::lexical_cast< std::string >( stateDerivativeModels.at( i )->getIntegratedStateType( ) )
+                                              std::to_string( stateDerivativeModels.at( i )->getIntegratedStateType( ) )
                                               + " entries are non-contiguous" );
                 }
             }
@@ -134,7 +134,7 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
-        //std::cout<<"Computing state derivative: "<<state.transpose( )<<std::endl;
+        //std::cout << "Computing state derivative: " << state.transpose( ) << std::endl;
         // Initialize state derivative
         if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
         {
@@ -317,17 +317,14 @@ public:
      * Function to convert a state history from propagator-specific form to the conventional form
      * (not necessarily in inertial frame).
      * \sa DynamicsStateDerivativeModel::convertToOutputSolution
+     * \param convertedSolution State history (rawSolution), converted to the 'conventional form' (by reference)
      * \param rawSolution State history in propagator-specific form (i.e. form that is used in
      *        numerical integration).
-     * \return State history (rawSolution), converted to the 'conventional form'
      */
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-    convertNumericalStateSolutionsToOutputSolutions(
+    void convertNumericalStateSolutionsToOutputSolutions(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution )
     {
-        // Initialize converted solution.
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
         // Iterate over all times.
         for( typename std::map< TimeType, Eigen::Matrix< StateScalarType,
              Eigen::Dynamic, 1 > >::const_iterator
@@ -338,7 +335,6 @@ public:
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
         }
-        return convertedSolution;
     }
 
     //! Function to add variational equations to the state derivative model
@@ -494,7 +490,7 @@ private:
                 // Get state block indices of current state derivative model
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
-//                std::cout<<"Pre-converted state: "<<state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( )<<std::endl;
+//                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
@@ -503,9 +499,9 @@ private:
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
 
-//                std::cout<<"Converted state: "<<currentStatesPerTypeInConventionalRepresentation_.at(
+//                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
 //                               stateDerivativeModelsIterator_->first ).block(
-//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( )<<std::endl;
+//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 currentStateTypeSize += currentIndices.second;
             }
@@ -850,13 +846,11 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
 
 template< typename TimeType = double, typename StateScalarType = double,
           typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
-std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+void convertNumericalStateSolutionsToOutputSolutions(
+        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
         boost::shared_ptr< ConversionClassType > converterClass )
 {
-    // Initialize converted solution.
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
     // Iterate over all times.
     for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
          rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
@@ -864,7 +858,6 @@ std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > conver
         // Convert solution at this time to output (typically ephemeris frame of given body) solution
         convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
     }
-    return convertedSolution;
 }
 
 } // namespace propagators

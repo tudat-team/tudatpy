@@ -43,7 +43,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                     throw std::runtime_error(
                         "Error when making environment model update settings, could not find body "
-                        + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                        + updateIterator->second.at( i ) );
                 }
 
                 // Check if requested environment model exists.
@@ -55,7 +55,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find ephemeris of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -67,7 +67,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -81,7 +81,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find spherical harmonic gravity field of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -93,7 +93,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find flight conditions of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -106,7 +106,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, could not find radiation pressure interface of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
                     break;
                 }
@@ -115,7 +115,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error(
                             "Error when making environment model update settings, no body mass function of body "
-                            + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                            + updateIterator->second.at( i ) );
                     }
 
                     break;
@@ -161,7 +161,7 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 acceleratedBodyIterator->first );
                     break;
                 default:
-                    std::cerr<<"Error, update information not found for torque model "<<currentTorqueModelType<<std::endl;
+                    std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
                     break;
                 }
             }
@@ -371,7 +371,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
-                                              boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+                                              std::to_string( currentAccelerationModelType ) );
                     break;
                 }
 
@@ -422,7 +422,7 @@ createMassPropagationEnvironmentUpdaterSettings(
                 break;
             default:
                 throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
-                                          boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+                                          std::to_string( currentAccelerationModelType ) );
 
             }
 

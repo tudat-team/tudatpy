@@ -137,7 +137,8 @@ inline void testObservationPartials(
     // Create observation partials.
     std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
     observationModelList[ linkEnds ] = observationModel;
-    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator;
+    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator =
+        boost::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
     std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
             boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
@@ -148,7 +149,7 @@ inline void testObservationPartials(
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
          linkEndIterator++ )
     {
-        std::cout<<"============================ REFERENCE LINK END ============="<<linkEndIterator->first<<std::endl;
+        std::cout << "============================ REFERENCE LINK END =============" << linkEndIterator->first << std::endl;
         // Evaluate nominal observation values
         std::vector< Eigen::Vector6d > vectorOfStates;
         std::vector< double > vectorOfTimes;
@@ -237,17 +238,17 @@ inline void testObservationPartials(
                 bodyPositionPartial.setZero( );
                 for( unsigned int j = 0; j < analyticalObservationPartials[ i ].size( ); j++ )
                 {
-                    bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first;
+                    bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first.block( 0, 0, ObservableSize, 3 );;
                 }
                 // Test position partial
                 if( observableType != angular_position )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
-                    std::cout<<"PARTIALS A: "<<
-                               bodyPositionPartial<<std::endl<<
-                               numericalPartialWrtBodyPosition<<std::endl<<
-                               numericalPartialWrtBodyPosition-bodyPositionPartial<<std::endl<<
-                               ( bodyPositionPartial - numericalPartialWrtBodyPosition ).cwiseQuotient( numericalPartialWrtBodyPosition )<<" "<<tolerance<<std::endl<<std::endl;
+                    std::cout << "PARTIALS A: "
+                              << bodyPositionPartial << std::endl
+                              << numericalPartialWrtBodyPosition << std::endl
+                              << numericalPartialWrtBodyPosition-bodyPositionPartial << std::endl
+                              << ( bodyPositionPartial - numericalPartialWrtBodyPosition ).cwiseQuotient( numericalPartialWrtBodyPosition ) << " " << tolerance << std::endl << std::endl;
                 }
                 else
                 {
@@ -291,17 +292,17 @@ inline void testObservationPartials(
                     currentParameterPartial.setZero( ObservableSize );
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                     {
-                        //std::cout<<"Adding component: "<<analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first<<std::endl;
+                        //std::cout << "Adding component: " << analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first << std::endl;
                         currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first;
 
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
 
-                    std::cout<<"PARTIALS BB: "<<i<<" "<<std::endl<<
-                               currentParameterPartial<<std::endl<<
-                               numericalPartialsWrtDoubleParameters[ i ]<<std::endl<<
-                               ( currentParameterPartial - numericalPartialsWrtDoubleParameters[ i ] ).cwiseQuotient( numericalPartialsWrtDoubleParameters[ i ] )<<" "<<tolerance<<std::endl<<std::endl;
+                    std::cout << "PARTIALS BB: " << i << " " << std::endl
+                              << currentParameterPartial << std::endl
+                              << numericalPartialsWrtDoubleParameters[ i ] << std::endl
+                              << ( currentParameterPartial - numericalPartialsWrtDoubleParameters[ i ] ).cwiseQuotient( numericalPartialsWrtDoubleParameters[ i ] ) << " " << tolerance << std::endl << std::endl;
 
                 }
             }
@@ -343,10 +344,10 @@ inline void testObservationPartials(
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
 
-                    std::cout<<"PARTIALS B: "<<i<<" "<<std::endl<<
-                               currentParameterPartial<<std::endl<<
-                               numericalPartialsWrtVectorParameters[ i ]<<std::endl<<
-                               ( currentParameterPartial - numericalPartialsWrtVectorParameters[ i ] ).cwiseQuotient( numericalPartialsWrtVectorParameters[ i ] )<<" "<<tolerance<<std::endl<<std::endl;
+                    std::cout << "PARTIALS B: " << i << " " << std::endl
+                              << currentParameterPartial << std::endl
+                              << numericalPartialsWrtVectorParameters[ i ] << std::endl
+                              << ( currentParameterPartial - numericalPartialsWrtVectorParameters[ i ] ).cwiseQuotient( numericalPartialsWrtVectorParameters[ i ] ) << " " << tolerance << std::endl << std::endl;
 
                 }
             }

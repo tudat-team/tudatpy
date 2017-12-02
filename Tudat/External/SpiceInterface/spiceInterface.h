@@ -34,7 +34,7 @@
 
 extern "C"
 {
-#include "cspice/include/SpiceUsr.h"
+    #include <cspice/include/SpiceUsr.h>
 }
 
 namespace tudat

@@ -11,8 +11,8 @@
 
 #include <boost/regex.hpp>
 
-#include "utilities.h"
-#include "keys.h"
+#include "Tudat/JsonInterface/Support/utilities.h"
+#include "Tudat/JsonInterface/Support/keys.h"
 
 namespace tudat
 {
@@ -421,7 +421,7 @@ KeyPath::KeyPath( const std::string& keyPathStringRepresentation ) : std::vector
 }
 
 //! String representation for `KeyPath`, as key.subkey.vectorIndex.subsubkey ...
-std::ostream& operator<< ( std::ostream& stringRepresentation, const KeyPath& keyPath )
+std::ostream& operator << ( std::ostream& stringRepresentation, const KeyPath& keyPath )
 {
     bool somethingAdded = false;
     for ( unsigned int i = 0; i < keyPath.size( ); ++i )

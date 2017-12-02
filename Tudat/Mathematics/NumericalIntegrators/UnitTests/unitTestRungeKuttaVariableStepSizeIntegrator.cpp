@@ -26,7 +26,6 @@
 #define BOOST_TEST_MAIN
 
 
-#include <boost/exception/all.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"

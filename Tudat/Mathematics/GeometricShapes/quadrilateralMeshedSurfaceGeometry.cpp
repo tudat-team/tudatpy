@@ -20,6 +20,7 @@
  */
 
 #include <boost/multi_array.hpp>
+#include <iostream>
 #include <limits>
 #include <Eigen/Geometry>
 
@@ -116,7 +117,7 @@ bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
+std::ostream& operator << ( std::ostream& stream,
                           QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
 {
     stream << "This is a quadrilateral meshed surface geometry"

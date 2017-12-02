@@ -14,8 +14,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/function.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <iostream>
 #include <map>
 #include <vector>
@@ -102,7 +100,7 @@ public:
     {
         if( !isWarningProvided_ )
         {
-            std::cerr<<"Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper."<<std::endl;
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
             isWarningProvided_ = true;
         }
 
@@ -129,7 +127,7 @@ public:
     {
         if( !isWarningProvided_ )
         {
-            std::cerr<<"Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper."<<std::endl;
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
             isWarningProvided_ = true;
         }
 
@@ -363,12 +361,12 @@ public:
                     isToleranceReached = true;
                     std::string errorMessage  =
                             "Warning, light time unconverged at level " +
-                            boost::lexical_cast< std::string >(
+                            std::to_string(
                                 fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                             "; current light-time corrections are: "  +
-                            boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
-                            boost::lexical_cast< std::string >( time );
-                   std::cerr << errorMessage <<std::endl;
+                            std::to_string( currentCorrection_ ) + " and input time was " +
+                            std::to_string( static_cast< double >( time ) );
+                   std::cerr << errorMessage << std::endl;
                 }
 
                 // Update light time for new iteration.
@@ -385,6 +383,15 @@ public:
         return newLightTimeCalculation;
     }
 
+    //! Function to get the part wrt linkend position
+    /*!
+     *  Function to get the part wrt linkend position
+     *  \param transmitterState State of transmitter.
+     *  \param receiverState State of receiver.
+     *  \param transmitterTime Time at transmission.
+     *  \param receiverTime Time at reiver.
+     *  \param isPartialWrtReceiver If partial is to be calculated w.r.t. receiver or transmitter.
+     */
     Eigen::Matrix< ObservationScalarType, 1, 3 > getPartialOfLightTimeWrtLinkEndPosition(
             const StateType& transmitterState,
             const StateType& receiverState,

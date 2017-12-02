@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include "unitTestSupport.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Mathematics/interpolation.h"
 
 namespace tudat
@@ -116,11 +116,11 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_dataMap )
             parseJSONFile< boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >( INPUT( "dataMap" ) );
 
     // Create DataMapSettings manually
-    const std::map< double, Eigen::Vector2d > dataMap =
-    {
-        { 1.0, ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( ) },
-        { 2.0, ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( ) }
-    };
+    std::map< double, Eigen::Vector2d > dataMap;
+    dataMap[ 1.0 ] = ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( );
+    dataMap[ 2.0 ] = ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( );
+
+
     const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
             boost::make_shared< DataMapSettings< double, Eigen::Vector2d > >( dataMap );
 
@@ -161,12 +161,14 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_independentDependentDataMap )
                 INPUT( "independentDependentDataMap" ) );
 
     // Create DataMapSettings manually
-    const std::vector< double > independentVariableValues = { 1.0, 2.0 };
-    const std::vector< Eigen::Vector2d > dependentVariableValues =
-    {
-        ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( ),
-        ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( )
-    };
+    std::vector< double > independentVariableValues;
+    independentVariableValues.push_back( 1.0 );
+    independentVariableValues.push_back( 2.0 );
+
+    std::vector< Eigen::Vector2d > dependentVariableValues;
+    dependentVariableValues.push_back( ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( ) );
+    dependentVariableValues.push_back( ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( ) );
+
     const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
             boost::make_shared< IndependentDependentDataMapSettings< double, Eigen::Vector2d > >(
                 independentVariableValues, dependentVariableValues );
@@ -188,16 +190,14 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_hermiteDataMap )
                 INPUT( "hermiteDataMap" ) );
 
     // Create DataMapSettings manually
-    const std::map< double, Eigen::Vector2d > dataMap =
-    {
-        { 1.0, ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( ) },
-        { 2.0, ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( ) }
-    };
-    const std::vector< Eigen::Vector2d > dependentVariableFirstDerivativeValues =
-    {
-        ( Eigen::Vector2d( ) << 1.0, 0.8 ).finished( ),
-        ( Eigen::Vector2d( ) << 0.5, 0.4 ).finished( )
-    };
+    std::map< double, Eigen::Vector2d > dataMap;
+    dataMap[ 1.0 ] = ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( );
+    dataMap[ 2.0 ] = ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( );
+
+    std::vector< Eigen::Vector2d > dependentVariableFirstDerivativeValues;
+    dependentVariableFirstDerivativeValues.push_back( ( Eigen::Vector2d( ) << 1.0, 0.8 ).finished( ) );
+    dependentVariableFirstDerivativeValues.push_back( ( Eigen::Vector2d( ) << 0.5, 0.4 ).finished( ) );
+
     const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
             boost::make_shared< HermiteDataSettings< double, Eigen::Vector2d > >(
                 dataMap, dependentVariableFirstDerivativeValues );

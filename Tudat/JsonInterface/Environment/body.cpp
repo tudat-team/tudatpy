@@ -9,16 +9,16 @@
  *
  */
 
-#include "body.h"
+#include "Tudat/JsonInterface/Environment/body.h"
 
-#include "atmosphere.h"
-#include "ephemeris.h"
-#include "gravityField.h"
-#include "rotationModel.h"
-#include "shapeModel.h"
-#include "radiationPressure.h"
-#include "aerodynamics.h"
-#include "gravityFieldVariation.h"
+#include "Tudat/JsonInterface/Environment/atmosphere.h"
+#include "Tudat/JsonInterface/Environment/ephemeris.h"
+#include "Tudat/JsonInterface/Environment/gravityField.h"
+#include "Tudat/JsonInterface/Environment/rotationModel.h"
+#include "Tudat/JsonInterface/Environment/shapeModel.h"
+#include "Tudat/JsonInterface/Environment/radiationPressure.h"
+#include "Tudat/JsonInterface/Environment/aerodynamics.h"
+#include "Tudat/JsonInterface/Environment/gravityFieldVariation.h"
 
 namespace tudat
 {

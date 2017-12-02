@@ -9,8 +9,6 @@
  */
 
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"

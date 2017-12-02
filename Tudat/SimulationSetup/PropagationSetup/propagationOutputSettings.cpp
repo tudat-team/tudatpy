@@ -31,7 +31,7 @@ std::string getVariableName( const VariableType variableType )
         return "Dependent variable ";
     default:
         throw std::runtime_error( "Error, variable " +
-                                  boost::lexical_cast< std::string >( variableType ) +
+                                  std::to_string( variableType ) +
                                   "not found when retrieving parameter name " );
     }
 }
@@ -159,7 +159,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +
-                boost::lexical_cast< std::string >( propagationDependentVariables ) +
+                std::to_string( propagationDependentVariables ) +
                 "not found when retrieving parameter name ";
         throw std::runtime_error( errorMessage );
     }

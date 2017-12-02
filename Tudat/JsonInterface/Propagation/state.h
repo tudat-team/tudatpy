@@ -11,11 +11,10 @@
 #ifndef TUDAT_JSONINTERFACE_STATE_H
 #define TUDAT_JSONINTERFACE_STATE_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/createBodies.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

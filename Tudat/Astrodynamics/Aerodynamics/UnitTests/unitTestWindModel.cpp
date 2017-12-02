@@ -27,13 +27,12 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
 
@@ -46,7 +45,7 @@ BOOST_AUTO_TEST_SUITE( test_wind_models )
 Eigen::Vector3d getCustomWindVector(
         const double altitude, const double longitude, const double latitude, const double time )
 {
-   return ( Eigen::Vector3d( )<<200.0, -120.0, 75.0 ).finished( ) *
+   return ( Eigen::Vector3d( ) << 200.0, -120.0, 75.0 ).finished( ) *
             ( longitude / ( 2.0 * mathematical_constants::PI ) ) *
               ( latitude / mathematical_constants::PI ) * ( altitude - 250.0E3 ) / 10E3 * ( time - 500.0 ) / 500.0;
 }

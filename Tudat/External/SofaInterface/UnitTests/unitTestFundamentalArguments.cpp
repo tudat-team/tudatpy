@@ -11,11 +11,9 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
 #include <Eigen/LU>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
@@ -51,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             ( - basic_astrodynamics::JULIAN_DAY_AT_0_MJD + basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) *
             physical_constants::JULIAN_DAY;
     Eigen::Matrix< double, 5, 1 > expectedFundamentalArgumentValues;
-    expectedFundamentalArgumentValues <<2.291187512612069099, 6.212931111003726414, 3.658025792050572989,
+    expectedFundamentalArgumentValues << 2.291187512612069099, 6.212931111003726414, 3.658025792050572989,
             4.554139562402433228, -0.5167379217231804489;
 
     // Calculate Delaunay arguments.

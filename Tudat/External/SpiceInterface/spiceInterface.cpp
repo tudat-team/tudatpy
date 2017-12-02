@@ -10,8 +10,6 @@
  */
 
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -163,7 +161,7 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
     // Calculate angular velocity vector.
     xf2rav_c( stateTransition, rotation, angularVelocity );
 
-    return ( Eigen::Vector3d( )<<angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).
+    return ( Eigen::Vector3d( ) << angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).
             finished( );
 }
 

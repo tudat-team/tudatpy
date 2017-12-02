@@ -37,7 +37,7 @@ CompositeSurfaceGeometry::CompositeSurfaceGeometry(
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream,
+std::ostream &operator << ( std::ostream &stream,
                           CompositeSurfaceGeometry& compositeSurfaceGeometry )
 {
     stream << "This is a composite surface geometry." << std::endl;

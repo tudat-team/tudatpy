@@ -1,34 +1,11 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      100903    K. Kumar          File header and footer added.
- *      100916    L. Abdulkadir     File checked.
- *      100929    K. Kumar          Checked code by D. Dirkx added.
- *      101110    K. Kumar          Added raiseToIntegerExponent( ) function.
- *      102410    D. Dirkx          Minor comment changes during code check.
- *      101213    K. Kumar          Modified raiseToIntegerExponent( ) function;
- *                                  renamed raiseToIntegerPower( ).
- *                                  Added computeAbsoluteValue( ) functions.
- *      110111    J. Melman         Added computeModulo( ) function.
- *      110202    K. Kumar          Added overload for State* for computeLinearInterpolation( ).
- *      110411    K. Kumar          Added convertCartesianToSpherical( ) function.
- *      110707    K. Kumar          Added computeSampleMean( ), computeSampleVariance( ) functions.
- *      110810    J. Leloux         Corrected doxygen documentation (equations).
- *      110824    J. Leloux         Corrected doxygen documentation.
- *      110905    S. Billemont      Reorganized includes.
- *                                  Moved (con/de)structors and getter/setters to header.
- *      120202    K. Kumar          Moved linear interpolation functions into new Interpolators
- *                                  sub-directory.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -43,10 +20,6 @@
 
 #include <map>
 #include <vector>
-#include <iomanip>
-
-#include <boost/multi_array.hpp>
-#include <boost/array.hpp>
 
 #include <Eigen/Core>
 

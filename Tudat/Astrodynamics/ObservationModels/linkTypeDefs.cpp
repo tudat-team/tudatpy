@@ -8,9 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <boost/lexical_cast.hpp>
-#include <iostream>
-
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
@@ -48,7 +45,7 @@ std::string getLinkEndTypeString( const LinkEndType linkEndType )
         break;
     default:
         std::string errorMessage = "Error when getting link end string for type " +
-                boost::lexical_cast< std::string >( linkEndType ) + ", type not found.";
+                std::to_string( linkEndType ) + ", type not found.";
         throw std::runtime_error( errorMessage );
     }
     return linkEndString;
@@ -121,8 +118,8 @@ LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOf
     else if( linkEndIndex >= numberOfLinkEnds )
     {
         throw std::runtime_error(
-                    "Error, found link end index " + boost::lexical_cast< std::string >( linkEndIndex ) +
-                    " when getting n-way link end index for " + boost::lexical_cast< std::string >(
+                    "Error, found link end index " + std::to_string( linkEndIndex ) +
+                    " when getting n-way link end index for " + std::to_string(
                    numberOfLinkEnds ) + " link end total." );
     }
     else

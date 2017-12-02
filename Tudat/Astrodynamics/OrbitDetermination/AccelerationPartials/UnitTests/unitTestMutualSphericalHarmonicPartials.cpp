@@ -292,9 +292,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 
         // Set perturbations in position and velocity for numerical partial
         Eigen::Vector3d positionPerturbation;
-        positionPerturbation<< 100.0, 100.0, 100.0;
+        positionPerturbation << 100.0, 100.0, 100.0;
         Eigen::Vector3d velocityPerturbation;
-        velocityPerturbation<< 1.0, 1.0, 1.0;
+        velocityPerturbation << 1.0, 1.0, 1.0;
 
         // Calculate numerical partials.
         Eigen::Matrix3d testPartialWrtPhobosPosition = calculateAccelerationWrtStatePartials(

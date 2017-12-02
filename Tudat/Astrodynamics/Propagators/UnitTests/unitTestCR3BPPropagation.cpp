@@ -14,10 +14,7 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
-
-
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 namespace tudat
 {
 namespace unit_tests
@@ -118,18 +115,18 @@ BOOST_AUTO_TEST_CASE( testCR3BPPropagation )
         Eigen::Vector6d expectedFinalState;
         if( testCase == 0 )
         {
-            expectedFinalState<<-1.34313636385140, -1.54200249942130, -0.416194453794142,  -0.863033291171519,
+            expectedFinalState << -1.34313636385140, -1.54200249942130, -0.416194453794142,  -0.863033291171519,
                     1.12530842202949, 0.181821699265344;
 
         }
         else if( testCase == 1 )
         {
-            expectedFinalState<<-0.636895857906707, 0.977767324698871, 0, 0.133701380037512, 0.0704414501083985, 0;
+            expectedFinalState << -0.636895857906707, 0.977767324698871, 0, 0.133701380037512, 0.0704414501083985, 0;
 
         }
         else if( testCase == 2 )
         {
-            expectedFinalState<< 0.770391451297307, -1.53581492635515, -0.181256821037128,  -0.783687153930728,
+            expectedFinalState << 0.770391451297307, -1.53581492635515, -0.181256821037128,  -0.783687153930728,
                     -0.805869201715479, -0.0200378316314463;
 
         }

@@ -28,9 +28,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -278,12 +276,12 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 
             // Check if map key written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->first,
-                                        boost::lexical_cast< double >( rowTokens.at( 0 ) ),
+                                        std::stod( rowTokens.at( 0 ) ),
                                         1.0e-14 );
 
             // Check if map value written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->second,
-                                        boost::lexical_cast< double >( rowTokens.at( 1 ) ),
+                                        std::stod( rowTokens.at( 1 ) ),
                                         1.0e-15 );
 
             // Increment row counter.
@@ -330,12 +328,12 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 
             // Check if map key written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->first,
-                                        boost::lexical_cast< double >( rowTokens.at( 0 ) ),
+                                        std::stod( rowTokens.at( 0 ) ),
                                         1.0e-14 );
 
             // Check if map value written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->second,
-                                        boost::lexical_cast< double >( rowTokens.at( 1 ) ),
+                                        std::stod( rowTokens.at( 1 ) ),
                                         1.0e-15 );
 
             // Increment row counter.
@@ -396,11 +394,11 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 
             // Check if map key written to file is as expected.
             BOOST_CHECK_EQUAL( iteratorDataMap->first,
-                               boost::lexical_cast< int >( rowTokens.at( 0 ) ) );
+                               std::stoi( rowTokens.at( 0 ) ) );
 
             // Check if map value written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->second,
-                                        boost::lexical_cast< double >( rowTokens.at( 1 ) ),
+                                        std::stod( rowTokens.at( 1 ) ),
                                         1.0e-15 );
 
             // Increment row counter.
@@ -447,13 +445,13 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 
             // Check if map key written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->first,
-                                        boost::lexical_cast< double >( rowTokens.at( 0 ) ),
+                                        std::stod( rowTokens.at( 0 ) ),
                                         1.0e-15 );
 
             // Create Vector3d from tokens.
-            Eigen::Vector3d valueVector3d( boost::lexical_cast< double >( rowTokens.at( 1 ) ),
-                                           boost::lexical_cast< double >( rowTokens.at( 2 ) ),
-                                           boost::lexical_cast< double >( rowTokens.at( 3 ) ) );
+            Eigen::Vector3d valueVector3d( std::stod( rowTokens.at( 1 ) ),
+                                           std::stod( rowTokens.at( 2 ) ),
+                                           std::stod( rowTokens.at( 3 ) ) );
 
             // Check if map value written to file is as expected.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( iteratorDataMap->second,
@@ -528,21 +526,21 @@ BOOST_AUTO_TEST_CASE( testWriteDataMapToTextFile )
 
             // Check if map key written to file is as expected.
             BOOST_CHECK_CLOSE_FRACTION( iteratorDataMap->first,
-                                        boost::lexical_cast< double >( rowTokens.at( 0 ) ),
+                                        std::stod( rowTokens.at( 0 ) ),
                                         1.0e-15 );
 
             // Create Matrix3d from tokens.
             Eigen::Matrix3d valueMatrix3d;
             valueMatrix3d << ( Eigen::Matrix3d( )
-                               << boost::lexical_cast< double >( rowTokens.at( 1 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 2 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 3 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 4 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 5 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 6 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 7 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 8 ) ),
-                               boost::lexical_cast< double >( rowTokens.at( 9 ) ) ).finished( );
+                               << std::stod( rowTokens.at( 1 ) ),
+                               std::stod( rowTokens.at( 2 ) ),
+                               std::stod( rowTokens.at( 3 ) ),
+                               std::stod( rowTokens.at( 4 ) ),
+                               std::stod( rowTokens.at( 5 ) ),
+                               std::stod( rowTokens.at( 6 ) ),
+                               std::stod( rowTokens.at( 7 ) ),
+                               std::stod( rowTokens.at( 8 ) ),
+                               std::stod( rowTokens.at( 9 ) ) ).finished( );
 
             // Check if map value written to file is as expected.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( iteratorDataMap->second,

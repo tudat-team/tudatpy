@@ -9,7 +9,7 @@
  *
  */
 
-#include "massRateModel.h"
+#include "Tudat/JsonInterface/Propagation/massRateModel.h"
 
 namespace tudat
 {

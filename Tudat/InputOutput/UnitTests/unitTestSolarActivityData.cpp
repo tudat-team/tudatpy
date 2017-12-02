@@ -170,8 +170,8 @@ BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData )
     BOOST_CHECK_EQUAL( solarActivityIterator->second->centered81DaySolarRadioFlux107Observed , 104.0 );
     BOOST_CHECK_EQUAL( solarActivityIterator->second->last81DaySolarRadioFlux107Observed , 99.0 );
 
-    Eigen::VectorXd expectedPlanetaryRangeIndices = ( Eigen::VectorXd( 8 )<< 33, 23, 20, 13, 17, 13, 17, 7 ).finished( );
-    Eigen::VectorXd expectedPlanetaryEquivalentAmplitudes = ( Eigen::VectorXd( 8 )<< 18, 9, 7, 5, 6, 5, 6, 3 ).finished( );
+    Eigen::VectorXd expectedPlanetaryRangeIndices = ( Eigen::VectorXd( 8 ) << 33, 23, 20, 13, 17, 13, 17, 7 ).finished( );
+    Eigen::VectorXd expectedPlanetaryEquivalentAmplitudes = ( Eigen::VectorXd( 8 ) << 18, 9, 7, 5, 6, 5, 6, 3 ).finished( );
 
     for( unsigned int i = 0; i < 8; i++ )
     {

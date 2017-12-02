@@ -14,8 +14,6 @@
 #include <vector>
 #include <cmath>
 
-#include <boost/function.hpp>
-
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/InputOutput/solarActivityData.h"
 

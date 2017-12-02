@@ -9,8 +9,6 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 
 #if USE_CSPICE
@@ -159,7 +157,7 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
     default:
         throw std::runtime_error(
                     "Error, did not recognize rotation model settings type " +
-                    boost::lexical_cast< std::string >( rotationModelSettings->getRotationType( ) ) );
+                    std::to_string( rotationModelSettings->getRotationType( ) ) );
     }
 
     return rotationalEphemeris;

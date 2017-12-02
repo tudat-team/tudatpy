@@ -100,12 +100,12 @@ public:
         std::string parameterDescription =
                 getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + ")";
         parameterDescription += ", Minimum D/O: (" +
-                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).first ) + ", " +
-                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).second ) + "), ";
+                std::to_string( blockIndices_.at( 0 ).first ) + ", " +
+                std::to_string( blockIndices_.at( 0 ).second ) + "), ";
 
         parameterDescription += "Maximum D/O: (" +
-                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
-                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
         return parameterDescription;
     }
 

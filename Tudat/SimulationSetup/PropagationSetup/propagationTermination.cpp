@@ -162,7 +162,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         break;
     }
     default:
-        std::string errorMessage = "Error, stopping condition type " + boost::lexical_cast< std::string >(
+        std::string errorMessage = "Error, stopping condition type " + std::to_string(
                     terminationSettings->terminationType_ ) + "not recognized when making stopping conditions object";
         throw std::runtime_error( errorMessage );
         break;

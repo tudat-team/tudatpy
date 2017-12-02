@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
             }
         }
 
-        std::cout<<"Parameter difference "<<estimationOutput.second.transpose( )<<std::endl<<std::endl;
+        std::cout << "Parameter difference " << estimationOutput.second.transpose( ) << std::endl << std::endl;
 
         parameterCorrections.push_back( estimationOutput.second );
     }
@@ -249,9 +249,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 {
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start and end epoch.
     const double simulationStartEpoch = 0.0;
@@ -387,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     BOOST_CHECK_EQUAL( prefitRms / postfitRms > 40.0, true );
 
-    std::cout<<"Parameter difference "<<estimationOutput.second.transpose( )<<std::endl;
+    std::cout << "Parameter difference " << estimationOutput.second.transpose( ) << std::endl;
 
     BOOST_AUTO_TEST_SUITE_END( )
 

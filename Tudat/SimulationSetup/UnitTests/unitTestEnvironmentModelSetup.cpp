@@ -935,7 +935,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
                 1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
-                ( Eigen::Vector3d( )<<-1.1, 0.1, 2.3 ).finished( ),
+                ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
                 Eigen::Vector3d::Zero( ), 1, 1 );
 
     // Create bodies
@@ -962,7 +962,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =
-            ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+            ( Eigen::Vector6d( ) << -1656517.23153109, -5790058.28764025, -2440584.88186829,
               6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
     // Set states in environment.

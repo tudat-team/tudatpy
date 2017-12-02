@@ -78,7 +78,7 @@ public:
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
                 std::string errorMessage = "Error when making variational equations object, found no state to estimate of type " +
-                        boost::lexical_cast< std::string >( partialTypeIterator->first );
+                        std::to_string( partialTypeIterator->first );
                 throw std::runtime_error( errorMessage );
             }
             else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=

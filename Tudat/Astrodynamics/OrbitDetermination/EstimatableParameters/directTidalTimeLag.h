@@ -51,7 +51,7 @@ public:
             // Check whetehr input is fully consistent at iteration 0.
             if( tidalAccelerationModels_.at( i )->getTimeLag( ) != tidalAccelerationModels_.at( 0 )->getTimeLag( ) )
             {
-                std::cerr<<"Warning when making direct tidal time lag parameter. Time lags are different in model upon creation, but will be estimated to the same value"<<std::endl;
+                std::cerr << "Warning when making direct tidal time lag parameter. Time lags are different in model upon creation, but will be estimated to the same value" << std::endl;
             }
         }
     }

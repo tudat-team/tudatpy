@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_INTEGRATOR_H
 #define TUDAT_JSONINTERFACE_INTEGRATOR_H
 
-#include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
-
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

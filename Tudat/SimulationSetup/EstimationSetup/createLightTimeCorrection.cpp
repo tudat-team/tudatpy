@@ -90,7 +90,7 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
     default:
     {
         std::string errorMessage = "Error, light time correction type " +
-                boost::lexical_cast< std::string >( correctionSettings->getCorrectionType( ) ) + " not recognized.";
+                std::to_string( correctionSettings->getCorrectionType( ) ) + " not recognized.";
         throw std::runtime_error( errorMessage );
 
         break;

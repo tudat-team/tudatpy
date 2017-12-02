@@ -144,7 +144,7 @@ public:
             break;
         default:
             std::string errorMessage = "Error, cannot have link end type: " +
-                    boost::lexical_cast< std::string >( linkEndAssociatedWithTime ) + "for one-way range";
+                    std::to_string( linkEndAssociatedWithTime ) + "for one-way range";
             throw std::runtime_error( errorMessage );
         }
 

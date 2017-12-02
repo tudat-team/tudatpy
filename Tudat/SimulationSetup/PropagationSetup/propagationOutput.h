@@ -290,7 +290,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 std::string errorMessage = "Error when getting acceleration between bodies " +
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
-                        boost::lexical_cast< std::string >(
+                        std::to_string(
                             accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
@@ -471,7 +471,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 std::string errorMessage = "Error when getting torque between bodies " +
                         torqueDependentVariableSettings->associatedBody_ + " and " +
                         torqueDependentVariableSettings->secondaryBody_ + " of type " +
-                        boost::lexical_cast< std::string >(
+                        std::to_string(
                             torqueDependentVariableSettings->torqueModeType_ ) +
                         ", no such torque found";
                 throw std::runtime_error( errorMessage );
@@ -549,7 +549,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
-                boost::lexical_cast< std::string >( dependentVariableSettings->dependentVariableType_ );
+                std::to_string( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
     return std::make_pair( variableFunction, parameterSize );
@@ -741,7 +741,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                     std::string errorMessage = "Error when getting acceleration between bodies " +
                             accelerationDependentVariableSettings->associatedBody_ + " and " +
                             accelerationDependentVariableSettings->secondaryBody_ + " of type " +
-                            boost::lexical_cast< std::string >(
+                            std::to_string(
                                 accelerationDependentVariableSettings->accelerationModeType_ ) +
                             ", no such acceleration found";
                     throw std::runtime_error( errorMessage );
@@ -806,7 +806,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                     std::string errorMessage = "Error when getting torque between bodies " +
                             torqueDependentVariableSettings->associatedBody_ + " and " +
                             torqueDependentVariableSettings->secondaryBody_ + " of type " +
-                            boost::lexical_cast< std::string >(
+                            std::to_string(
                                 torqueDependentVariableSettings->torqueModeType_ ) +
                             ", no such torque found";
                     throw std::runtime_error( errorMessage );
@@ -993,7 +993,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +
-                    boost::lexical_cast< std::string >( dependentVariableSettings->dependentVariableType_ );
+                    std::to_string( dependentVariableSettings->dependentVariableType_ );
             throw std::runtime_error( errorMessage );
         }
         return variableFunction;

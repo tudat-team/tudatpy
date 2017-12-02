@@ -29,7 +29,7 @@ EOPReader::EOPReader( const std::string& eopFile,
     }
     if( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ) )
     {
-        std::cerr<<( "Warning, only IAU2000 nutation theory format currently supported by reader." )<<std::endl;
+        std::cerr << ( "Warning, only IAU2000 nutation theory format currently supported by reader." ) << std::endl;
     }
     readEopFile( eopFile );
 }
@@ -89,22 +89,22 @@ void EOPReader::readEopFile( const std::string& fileName )
         {
 
             // Read pole positions.
-            cipInItrs[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
-                    convertArcSecondsToRadians< double >( boost::lexical_cast< double >( vectorOfIndividualStrings[ 4 ] ) );
-            cipInItrs[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
-                    convertArcSecondsToRadians< double >( boost::lexical_cast< double >( vectorOfIndividualStrings[ 5 ] ) );
+            cipInItrs[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
+                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 4 ] ) );
+            cipInItrs[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
+                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 5 ] ) );
 
             // Read UTC-UT1 and LOD corrections
-            ut1MinusUtc[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ] =
-                    boost::lexical_cast< double >( vectorOfIndividualStrings[ 6 ] );
-            lengthOfDayOffset[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ] =
-                    boost::lexical_cast< double >( vectorOfIndividualStrings[ 7 ] );
+            ut1MinusUtc[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] =
+                    std::stod( vectorOfIndividualStrings[ 6 ] );
+            lengthOfDayOffset[ std::stod( vectorOfIndividualStrings[ 3 ] ) ] =
+                    std::stod( vectorOfIndividualStrings[ 7 ] );
 
             // Read precession-nutation corrections.
-            cipInGcrsCorrection[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
-                    convertArcSecondsToRadians< double >( boost::lexical_cast< double >( vectorOfIndividualStrings[ 8 ] ) );
-            cipInGcrsCorrection[ boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
-                    convertArcSecondsToRadians< double >( boost::lexical_cast< double >( vectorOfIndividualStrings[ 9 ] ) );
+            cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].x( ) =
+                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 8 ] ) );
+            cipInGcrsCorrection[ std::stod( vectorOfIndividualStrings[ 3 ] ) ].y( ) =
+                    convertArcSecondsToRadians< double >( std::stod( vectorOfIndividualStrings[ 9 ] ) );
 
         }
     }

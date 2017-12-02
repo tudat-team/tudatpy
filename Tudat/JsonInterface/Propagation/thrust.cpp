@@ -9,8 +9,8 @@
  *
  */
 
-#include "acceleration.h"
-#include "thrust.h"
+#include "Tudat/JsonInterface/Propagation/acceleration.h"
+#include "Tudat/JsonInterface/Propagation/thrust.h"
 
 #include "Tudat/JsonInterface/Mathematics/interpolation.h"
 

@@ -9,7 +9,7 @@
  *
  */
 
-#include "gravityField.h"
+#include "Tudat/JsonInterface/Environment/gravityField.h"
 
 namespace tudat
 {

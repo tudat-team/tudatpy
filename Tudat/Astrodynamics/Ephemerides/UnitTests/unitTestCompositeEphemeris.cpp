@@ -42,7 +42,7 @@ Eigen::Vector6d getGroundStationPosition(
     Eigen::Vector3d nominalVelocity;
     nominalVelocity << 3.0E-3, -2.3E-3, 2.4E3;
     nominalVelocity /= physical_constants::JULIAN_YEAR;
-    return ( Eigen::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
+    return ( Eigen::Vector6d( ) << nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
 }
 
 BOOST_AUTO_TEST_SUITE( test_composite_ephemeris )

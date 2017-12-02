@@ -9,7 +9,7 @@
  *
  */
 
-#include "shapeModel.h"
+#include "Tudat/JsonInterface/Environment/shapeModel.h"
 
 namespace tudat
 {

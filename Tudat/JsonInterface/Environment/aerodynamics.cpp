@@ -11,7 +11,7 @@
 
 #include "Tudat/JsonInterface/Mathematics/interpolation.h"
 
-#include "aerodynamics.h"
+#include "Tudat/JsonInterface/Environment/aerodynamics.h"
 
 namespace tudat
 {

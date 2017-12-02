@@ -12,8 +12,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -54,7 +52,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
     // Compute CIRS->GCRS rotation matrix in Tudat, and compare against Sofa example.
     Eigen::Matrix3d cirsToGcrsRotation = calculateRotationFromCirsToGcrs( X, Y, s ).toRotationMatrix( );
     Eigen::Matrix3d expectedCirsToGcrsRotation;
-    expectedCirsToGcrsRotation<<     0.999999746339445, -5.138822464778592e-09, -0.0007122647300724212,
+    expectedCirsToGcrsRotation <<     0.999999746339445, -5.138822464778592e-09, -0.0007122647300724212,
             -2.647522726051399e-08,     0.9999999990149748, -4.438524282712702e-05,
             0.0007122647295989105,  4.438525042571229e-05,     0.9999997453544198;
 
@@ -121,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     // Compare Tudat GCRS -> TIRS against Sofa
     Eigen::Matrix3d expectedGcrsToTirs;
-    expectedGcrsToTirs<<0.9731043175731277,     0.2303638262477064, -0.0007033328188453794,
+    expectedGcrsToTirs << 0.9731043175731277,     0.2303638262477064, -0.0007033328188453794,
             -0.2303637988041795,     0.9731045707355742,  0.0001208885495858678,
             0.0007122647295989105,  4.438525042571229e-05,     0.9999997453544198;
     for( unsigned int i = 0; i < 3; i++ )
@@ -135,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationRotationSetupAgainstSofa )
 
     // Compare Tudat GCRS -> ITRS against Sofa
     Eigen::Matrix3d expectedGcrsToItrs;
-    expectedGcrsToItrs<<    0.973104317697536,     0.2303638262391256, -0.0007031634821983242,
+    expectedGcrsToItrs <<    0.973104317697536,     0.2303638262391256, -0.0007031634821983242,
             -0.2303638004560344,     0.9731045706328012,   0.000118545366624876,
             0.000711560162667892,  4.662640399540082e-05,     0.9999997457540244;
     for( unsigned int i = 0; i < 3; i++ )

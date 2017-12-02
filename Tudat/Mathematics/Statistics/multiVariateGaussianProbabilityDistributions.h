@@ -15,11 +15,8 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
-#include <boost/shared_ptr.hpp>
-
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h>
-
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h"
 namespace tudat
 {
 namespace statistics

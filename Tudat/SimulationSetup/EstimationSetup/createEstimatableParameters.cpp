@@ -49,8 +49,8 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
     if( isDoubleParameter( doubleParameterName->parameterType_.first ) != true )
     {
         std::string errorMessage = "Error when requesting to make double parameter " +
-                boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first ) + " of " +
-                boost::lexical_cast< std::string >( doubleParameterName->parameterType_.second.first ) +
+                std::to_string( doubleParameterName->parameterType_.first ) + " of " +
+                doubleParameterName->parameterType_.second.first +
                 ", parameter is not a double parameter ";
         throw std::runtime_error( errorMessage );
     }
@@ -63,9 +63,8 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         if( ( currentBodyName != "global_metric" ) && ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Error when creating parameters to estimate, body " +
-                    boost::lexical_cast< std::string >( currentBodyName ) +
-                    "  not in body map " +
-                    boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first );
+                    currentBodyName + "  not in body map " +
+                    std::to_string( doubleParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
         else if( ( currentBodyName != "" ) && ( currentBodyName != "global_metric" ) )
@@ -81,8 +80,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             if( currentBody->getGravityFieldModel( )== NULL )
             {
                 std::string errorMessage = "Error, body " +
-                        boost::lexical_cast< std::string >( currentBodyName ) +
-                        " has no gravity field, cannot estimate gravitational parameter.";
+                        currentBodyName + " has no gravity field, cannot estimate gravitational parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -98,15 +96,13 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
             {
                 std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                        boost::lexical_cast< std::string >( currentBodyName) +
-                        " when making Cr parameter.";
+                        currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
             {
                 std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                        boost::lexical_cast< std::string >( currentBodyName) +
-                        " when making Cr parameter.";
+                        currentBodyName + " when making Cr parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -138,16 +134,14 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             if( currentBody->getAerodynamicCoefficientInterface( ) == NULL )
             {
                 std::string errorMessage = "Error, body " +
-                        boost::lexical_cast< std::string >( currentBodyName ) +
-                        " has no coefficient interface, cannot estimate constant drag coefficient.";
+                        currentBodyName + " has no coefficient interface, cannot estimate constant drag coefficient.";
                 throw std::runtime_error( errorMessage );
             }
             else if( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                          currentBody->getAerodynamicCoefficientInterface( ) ) == NULL )
             {
                 std::string errorMessage = "Error, body " +
-                        boost::lexical_cast< std::string >( currentBodyName ) +
-                        " has no custom coefficient interface, cannot estimate constant drag coefficient.";
+                        currentBodyName + " has no custom coefficient interface, cannot estimate constant drag coefficient.";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -221,8 +215,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
     if( isDoubleParameter( vectorParameterName->parameterType_.first ) != false )
     {
         std::string errorMessage = "Error when requesting to make vector parameter " +
-                boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first ) +
-                " of  " + boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                std::to_string( vectorParameterName->parameterType_.first ) +
+                " of  " + std::string( vectorParameterName->parameterType_.second.first ) +
                 ", parameter is not a vector parameter ";
         throw std::runtime_error( errorMessage );
     }
@@ -234,9 +228,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Warning when creating parameters to estimate, body " +
-                    boost::lexical_cast< std::string >( currentBodyName ) +
-                    "not in body map " +
-                    boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first );
+                    currentBodyName  + "not in body map " + std::to_string( vectorParameterName->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
         else if( ( currentBodyName != "" ) )
@@ -304,7 +296,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             if( shGravityField == NULL )
             {
                 std::string errorMessage = "Error, requested spherical harmonic cosine coefficient block parameter of " +
-                        boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                        std::string( vectorParameterName->parameterType_.second.first ) +
                         ", but body does not have a spherical harmonic gravity field.";
                 throw std::runtime_error( errorMessage );
             }
@@ -361,7 +353,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             if( shGravityField == NULL )
             {
                 std::string errorMessage = "Error, requested spherical harmonic sine coefficient block parameter of " +
-                        boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                        std::string( vectorParameterName->parameterType_.second.first ) +
                         ", but body does not have a spherical harmonic gravity field.";
                 throw std::runtime_error( errorMessage );
 
@@ -462,8 +454,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
                 {
                     std::string errorMessage =
-                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
-                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            "Error, did not find accelerations on body " + 
+                            std::string( empiricalAccelerationSettings->parameterType_.second.first ) +
                             " when making constant empirical acceleration coefficients parameter";
                     throw std::runtime_error( errorMessage );
                 }
@@ -472,9 +464,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     std::string errorMessage =
                             "Error, did not find accelerations on body " +
-                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
-                            " due to body " +  boost::lexical_cast< std::string >(
-                                empiricalAccelerationSettings->centralBody_ ) +
+                            empiricalAccelerationSettings->parameterType_.second.first +
+                            " due to body " + empiricalAccelerationSettings->centralBody_ +
                             " when making constant empirical acceleration coefficients parameter";
                     throw std::runtime_error( errorMessage );
                 }
@@ -528,15 +519,13 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
                 {
                     std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
-                            boost::lexical_cast< std::string >( currentBodyName) +
-                            " when making Cr parameter.";
+                            currentBodyName + " when making Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
                 else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
                 {
                     std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
-                            boost::lexical_cast< std::string >( currentBodyName) +
-                            " when making Cr parameter.";
+                            currentBodyName + " when making Cr parameter.";
                     throw std::runtime_error( errorMessage );
                 }
                 else
@@ -566,8 +555,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
                 {
                     std::string errorMessage =
-                            "Error, did not find accelerations on body " + boost::lexical_cast< std::string >(
-                                empiricalAccelerationSettings->parameterType_.second.first ) +
+                            "Error, did not find accelerations on body " +  empiricalAccelerationSettings->parameterType_.second.first +
                             " when making arcwise empirical acceleration coefficients parameter";
                     throw std::runtime_error( errorMessage );
 
@@ -577,9 +565,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 {
                     std::string errorMessage =
                             "Error, did not find accelerations on body " +
-                            boost::lexical_cast< std::string >( empiricalAccelerationSettings->parameterType_.second.first ) +
-                            " due to body " +  boost::lexical_cast< std::string >(
-                                empiricalAccelerationSettings->centralBody_ ) +
+                            empiricalAccelerationSettings->parameterType_.second.first +
+                            " due to body " +  empiricalAccelerationSettings->centralBody_ +
                             " when making arcwise empirical acceleration coefficients parameter";
                     throw std::runtime_error( errorMessage );
                 }
@@ -712,7 +699,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                         if( std::find( orders.begin( ), orders.end( ), 0 ) != orders.end( ) &&
                                 tidalLoveNumberSettings->useComplexValue_ )
                         {
-                            std::cerr<<"Warning, creating parameter to estimate complex Love number at order 0, but imaginary part has no influence on dynamcis"<<std::endl;
+                            std::cerr << "Warning, creating parameter to estimate complex Love number at order 0, but imaginary part has no influence on dynamcis" << std::endl;
                         }
                         vectorParameterToEstimate = boost::make_shared< SingleDegreeVariableTidalLoveNumber >(
                                     gravityFieldVariation, currentBodyName, tidalLoveNumberSettings->degree_,
@@ -729,7 +716,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
-                    boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first ) +
+                    std::to_string( vectorParameterName->parameterType_.first ) +
                     ") has not yet been implemented when making parameters";
             throw std::runtime_error( errorMessage );
 

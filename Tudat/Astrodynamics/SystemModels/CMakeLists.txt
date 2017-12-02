@@ -8,19 +8,18 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
-# Set the source files.
-set(SYSTEMMODELS_SOURCES
-  "${SRCROOT}${SYSTEMMODELSDIR}/engineModel.cpp"
-)
-
 # Set the header files.
 set(SYSTEMMODELS_HEADERS 
   "${SRCROOT}${SYSTEMMODELSDIR}/engineModel.h"
   "${SRCROOT}${SYSTEMMODELSDIR}/vehicleSystems.h"
 )
 
+set(SYSTEMMODELS_SOURCES
+  "${SRCROOT}${SYSTEMMODELSDIR}/dummySystemModel.cpp"
+)
+
 # Add static libraries.
 add_library(tudat_system_models STATIC ${SYSTEMMODELS_SOURCES} ${SYSTEMMODELS_HEADERS})
 setup_tudat_library_target(tudat_system_models "${SRCROOT}${SYSTEMMODELSDIR}")
-
+set_target_properties(tudat_system_models PROPERTIES LINKER_LANGUAGE CXX)
 

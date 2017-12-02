@@ -18,26 +18,24 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h>
-#include <Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h>
-#include <Tudat/Astrodynamics/Aerodynamics/flightConditions.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h>
-#include <Tudat/Astrodynamics/Ephemerides/ephemeris.h>
-#include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
-#include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
-#include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
-#include <Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h>
-#include <Tudat/Astrodynamics/GroundStations/groundStation.h>
-#include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
-#include <Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h>
-#include <Tudat/Basics/basicTypedefs.h>
-#include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
-#include <Tudat/Astrodynamics/SystemModels/vehicleSystems.h>
-#include <Tudat/Mathematics/BasicMathematics/numericalDerivative.h>
-
-
+#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
+#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
+#include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/GroundStations/groundStation.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
+#include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
+#include "Tudat/Astrodynamics/SystemModels/vehicleSystems.h"
+#include "Tudat/Mathematics/BasicMathematics/numericalDerivative.h"
 namespace tudat
 {
 
@@ -672,7 +670,7 @@ public:
         // Update current mass of body, provide warning
         if( bodyMassFunction_ != NULL )
         {
-            std::cerr<<"Warning when settings gravity field model for body, mass function already found: resetting"<<std::endl;
+            std::cerr << "Warning when settings gravity field model for body, mass function already found: resetting" << std::endl;
         }
 
         currentMass_ = gravityFieldModel_->getGravitationalParameter( )
@@ -701,7 +699,7 @@ public:
     {
         if( dependentOrientationCalculator_ != NULL )
         {
-            std::cerr<<"Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure"<<std::endl;
+            std::cerr << "Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure" << std::endl;
         }
         rotationalEphemeris_ = rotationalEphemeris;
     }
@@ -742,7 +740,7 @@ public:
             }
             else
             {
-                std::cerr<< "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" <<std::endl;
+                std::cerr << "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" << std::endl;
             }
         }
         else
@@ -1069,8 +1067,8 @@ public:
     {
         if( groundStationMap.count( stationName ) == 0 )
         {
-	    throw std::runtime_error( "Error, station " + stationName + " does not exist" );
-	}
+            throw std::runtime_error( "Error, station " + stationName + " does not exist" );
+        }
 
         return groundStationMap.at( stationName );
     }

@@ -52,7 +52,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 
         if( conditionNumber > maximumAllowedConditionNumber )
         {
-            std::cerr<<"Warning when performing least squares, condition number is "<<conditionNumber<<std::endl;
+            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
         }
     }
     return svdDecomposition.solve( rightHandSideVector );

@@ -12,10 +12,9 @@
 #define TUDAT_EQUILIBRIUMWALLTEMPERATURE_H
 
 
-#include <Tudat/Mathematics/BasicMathematics/basicFunction.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <Tudat/Astrodynamics/ElectroMagnetism/basicElectroMagnetism.h>
-
+#include "Tudat/Mathematics/BasicMathematics/basicFunction.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/basicElectroMagnetism.h"
 namespace tudat
 {
 

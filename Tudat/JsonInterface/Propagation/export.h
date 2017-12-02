@@ -11,9 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_EXPORT_H
 #define TUDAT_JSONINTERFACE_EXPORT_H
 
-#include <Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h>
-
-#include "variable.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/JsonInterface/Propagation/variable.h"
 
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"

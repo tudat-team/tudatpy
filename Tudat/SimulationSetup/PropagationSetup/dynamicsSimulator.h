@@ -378,8 +378,8 @@ public:
 
             if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ )
             {
-                std::cout<<"Dependent variables being saved, output vectors contain: "<<std::endl<<
-                           "Vector entry, Vector contents"<<std::endl;
+                std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
+                          << "Vector entry, Vector contents" << std::endl;
                 utilities::printMapContents(
                             dependentVariableIds_ );
             }
@@ -417,6 +417,7 @@ public:
     {
 
         equationsOfMotionNumericalSolution_.clear( );
+        equationsOfMotionNumericalSolutionRaw_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
@@ -426,7 +427,7 @@ public:
         // Integrate equations of motion numerically.
         propagationTerminationReason_ =
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
-                    stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
+                    stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
@@ -436,8 +437,8 @@ public:
                     dependentVariablesFunctions_,
                     propagatorSettings_->getPrintInterval( ),
                     initialClockTime_ );
-        equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
-                convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
+        dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
+                    equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
         if( this->setIntegratedResult_ )
         {
@@ -751,6 +752,8 @@ protected:
      *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
+
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw_;
 
     //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;

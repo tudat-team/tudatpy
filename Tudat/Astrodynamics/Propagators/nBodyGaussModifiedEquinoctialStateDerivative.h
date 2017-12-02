@@ -85,9 +85,9 @@ public:
             if( initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) >  mathematical_constants::PI / 2.0 )
             {
                 flipSingularities_[ i ] = false;
-                std::cerr<<"Warning when using Gauss-MEE propagation, body "<<bodiesToIntegrate.at( i )<<" has inclination of "<<
-                           initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) * 180.0 /
-                           mathematical_constants::PI <<" degrees, but propagator has singularity at i=180 degrees"<<std::endl;
+                std::cerr << "Warning when using Gauss-MEE propagation, body " << bodiesToIntegrate.at( i ) << " has inclination of "
+                          << initialKeplerElements.at( i )( orbital_element_conversions::inclinationIndex ) * 180.0 /
+                           mathematical_constants::PI << " degrees, but propagator has singularity at i=180 degrees" << std::endl;
             }
             else
             {

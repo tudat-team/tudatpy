@@ -9,7 +9,7 @@
  *
  */
 
-#include "rotationModel.h"
+#include "Tudat/JsonInterface/Environment/rotationModel.h"
 
 namespace tudat
 {

@@ -13,10 +13,9 @@
 #include <limits>
 #include <stdexcept>
 
-#include <boost/exception/all.hpp>
 #include <boost/math/constants/constants.hpp>
 
-#include "Eigen/Core"
+#include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 

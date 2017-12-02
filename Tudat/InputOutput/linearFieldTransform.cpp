@@ -9,8 +9,6 @@
  *
  */
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/InputOutput/linearFieldTransform.h"
 
 namespace tudat
@@ -22,14 +20,13 @@ namespace input_output
 boost::shared_ptr< std::string > LinearFieldTransform::transform( const std::string& input )
 {
     // Transform string to double.
-    const double number = boost::lexical_cast< double >( input );
+    const double number = std::stod( input );
 
     // Perform transformation.
     const double result = slope * number + intercept;
 
     // Return pointer to transformed value, in string format.
-    return boost::shared_ptr< std::string >( new std::string(
-                                                 boost::lexical_cast< std::string >( result ) ) );
+    return boost::shared_ptr< std::string >( new std::string( std::to_string( result ) ) );
 }
 
 } // namespace input_output

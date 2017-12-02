@@ -163,7 +163,7 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
     }
     default:
         throw std::runtime_error(
-                    "Error, did not recognize type " + boost::lexical_cast< std::string >( torqueSettings->torqueType_ ) +
+                    "Error, did not recognize type " + std::to_string( torqueSettings->torqueType_ ) +
                     " when making torque model" );
     }
 

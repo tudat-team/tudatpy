@@ -19,18 +19,17 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include <Eigen/Core>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-#include <boost/format.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/throw_exception.hpp>
 
 #include "Tudat/InputOutput/streamFilters.h"
 
@@ -59,11 +58,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
     std::fstream file( relativePath.c_str( ), std::ios::in );
     if ( file.fail( ) )
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                        boost::str(
-                            boost::format( "Data file '%s' could not be opened." )
-                            % relativePath.c_str( ) ) ) );
+        throw std::runtime_error( "Data file could not be opened:" + relativePath ); 
     }
 
     std::stringstream filteredStream( std::ios::in | std::ios::out );
@@ -132,12 +127,8 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
         // If not, throw a runtime error.
         if ( lineSplit_.size( ) != numberOfColumns )
         {
-            boost::throw_exception(
-                        std::runtime_error(
-                            boost::str(
-                                boost::format(
-                                    "Number of columns in row %1% is %2%; should be %3%." )
-                                % rowIndex % lineSplit_.size( ) % numberOfColumns ) ) );
+            throw std::runtime_error( "Number of colums in row " + std::to_string( rowIndex )
+                   + " is " + std::to_string( lineSplit_.size( ) ) + "; should be " + std::to_string( numberOfColumns ) );
         }
 
         // Put single line entries into matrix as doubles.

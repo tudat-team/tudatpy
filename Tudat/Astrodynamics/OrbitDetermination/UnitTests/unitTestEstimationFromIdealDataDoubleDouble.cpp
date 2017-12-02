@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
     for( int simulationType = 0; simulationType < 5; simulationType++ )
     {
 
-        std::cout<<"=============================================== Running Case: "<<simulationType<<std::endl;
+        std::cout << "=============================================== Running Case: " << simulationType << std::endl;
 
         // Simulate estimated parameter error.
         Eigen::VectorXd totalError;
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         }
 
         BOOST_CHECK_SMALL( totalError( 6 ), toleranceMultiplier * 1.0E3 );
-        std::cout<<totalError.transpose( )<<std::endl;
+        std::cout << totalError.transpose( ) << std::endl;
     }
 
     std::pair< boost::shared_ptr< simulation_setup::PodOutput< double > >,

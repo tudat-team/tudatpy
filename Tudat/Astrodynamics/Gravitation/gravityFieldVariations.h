@@ -12,8 +12,6 @@
 #define TUDAT_GRAVITYFIELDVARIATIONS_H
 
 #include <boost/function.hpp>
-#include <iostream>
-
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"

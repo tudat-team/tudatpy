@@ -31,8 +31,6 @@
 #define TUDAT_LEGENDRE_POLYNOMIALS_H
 
 #include <cstddef>
-#include <iostream>
-
 #include <boost/bind.hpp>
 
 #include <boost/circular_buffer.hpp>

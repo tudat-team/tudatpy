@@ -13,8 +13,6 @@
 #define TUDAT_ONEWAYDOPPLERPARTIAL_H
 
 
-#include <iostream>
-
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
