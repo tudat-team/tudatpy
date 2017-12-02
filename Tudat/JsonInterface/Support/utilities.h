@@ -15,10 +15,9 @@
 #include <set>
 #include <vector>
 #include <cctype>
-#include <iomanip>
 #include <sstream>
 #include <string>
-#include <iostream>
+#include <iomanip>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/trim.hpp>

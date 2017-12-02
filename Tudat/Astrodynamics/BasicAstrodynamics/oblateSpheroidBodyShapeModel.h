@@ -17,9 +17,6 @@
 
 
 #include <Eigen/Core>
-#include <iostream>
-
-#include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"

@@ -124,7 +124,7 @@ public:
      * \param compositeSurfaceGeometry compositeSurfaceGeometry object.
      * \return Stream object.
      */
-    friend std::ostream &operator<<( std::ostream &stream,
+    friend std::ostream &operator << ( std::ostream &stream,
                                      CompositeSurfaceGeometry& compositeSurfaceGeometry );
 
 protected:

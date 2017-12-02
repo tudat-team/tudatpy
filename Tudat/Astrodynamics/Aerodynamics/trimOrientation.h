@@ -18,9 +18,8 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h>
-#include <Tudat/Mathematics/RootFinders/rootFinder.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
 namespace tudat
 {
 

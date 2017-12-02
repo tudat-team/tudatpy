@@ -9,8 +9,6 @@
  */
 
 #include <vector>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"

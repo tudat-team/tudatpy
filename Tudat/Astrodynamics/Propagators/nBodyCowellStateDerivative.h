@@ -11,7 +11,6 @@
 #ifndef TUDAT_NBODYCOWELLSTATEDERIVATIVE_H
 #define TUDAT_NBODYCOWELLSTATEDERIVATIVE_H
 
-#include <iomanip>
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
 namespace tudat

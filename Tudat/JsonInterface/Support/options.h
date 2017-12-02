@@ -11,8 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_OPTIONS_H
 #define TUDAT_JSONINTERFACE_OPTIONS_H
 
-#include "valueAccess.h"
-#include "valueConversions.h"
+#include "Tudat/JsonInterface/Support/valueAccess.h"
+#include "Tudat/JsonInterface/Support/valueConversions.h"
 
 namespace tudat
 {

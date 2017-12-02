@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
 
     bool areCoefficientsInAerodynamicFrame = 1;
-    Eigen::Vector3d aerodynamicCoefficients = ( Eigen::Vector3d( )<< 2.5, -0.1, 0.5 ).finished( );
+    Eigen::Vector3d aerodynamicCoefficients = ( Eigen::Vector3d( ) << 2.5, -0.1, 0.5 ).finished( );
 
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
@@ -683,7 +683,7 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     // Set vehicle and earth state.
     earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
     Eigen::Vector6d vehicleKeplerElements;
-    vehicleKeplerElements<<6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ),
+    vehicleKeplerElements << 6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ),
             convertDegreesToRadians( 217.6968 ), convertDegreesToRadians( 268.2663 ), convertDegreesToRadians( 142.3958 );
     vehicle->setState( earth->getState( ) + convertKeplerianToCartesianElements( vehicleKeplerElements,
                                                                                  getBodyGravitationalParameter( "Earth" ) ) );
@@ -745,9 +745,9 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<< 10.0, 10.0, 10.0;
+    positionPerturbation << 10.0, 10.0, 10.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0, 1.0, 1.0;
+    velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Calculate numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -810,7 +810,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     // Set vehicle and earth state.
     earth->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
     Eigen::Vector6d vehicleKeplerElements;
-    vehicleKeplerElements<<6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ),
+    vehicleKeplerElements << 6378.0E3 + 249E3, 0.0004318, convertDegreesToRadians( 96.5975 ),
             convertDegreesToRadians( 217.6968 ), convertDegreesToRadians( 268.2663 ), convertDegreesToRadians( 142.3958 );
     vehicle->setState( earth->getState( ) + convertKeplerianToCartesianElements( vehicleKeplerElements,
                                                                                  getBodyGravitationalParameter( "Earth" ) ) );
@@ -888,9 +888,9 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
         // Declare perturbations in position for numerical partial
         Eigen::Vector3d positionPerturbation;
-        positionPerturbation<< 1.0, 1.0, 1.0;
+        positionPerturbation << 1.0, 1.0, 1.0;
         Eigen::Vector3d velocityPerturbation;
-        velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
+        velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
         int parameterSize = empiricalAccelerationParameter->getParameterSize( );
         Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Constant( parameterSize, 1.0E-5 );
 
@@ -972,9 +972,9 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
         // Set numerical partial settings
         Eigen::Vector3d positionPerturbation;
-        positionPerturbation<< 1.0, 1.0, 1.0;
+        positionPerturbation << 1.0, 1.0, 1.0;
         Eigen::Vector3d velocityPerturbation;
-        velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
+        velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
         int parameterSize = empiricalAccelerationParameter->getParameterSize( );
         Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Constant( parameterSize, 1.0E-5 );
 
@@ -1037,7 +1037,7 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
     // Set state.
     jupiter->setState( Eigen::Vector6d::Zero( ) );
     Eigen::Vector6d ioKeplerElements =
-            ( Eigen::Vector6d( )<< 1.0 * 421.8E6, 1.0 * 0.004, 0.001, 2.0, 3.0, 0.4 ).finished( );
+            ( Eigen::Vector6d( ) << 1.0 * 421.8E6, 1.0 * 0.004, 0.001, 2.0, 3.0, 0.4 ).finished( );
     io->setState( convertKeplerianToCartesianElements(
                       ioKeplerElements,
                       getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ) ) );
@@ -1109,8 +1109,8 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                 // Calculate analytical partials.
                 accelerationModel->updateMembers( );
 
-                std::cout<<"Current acceleration: "<<useRadialTerm<<" "<<usePlanetTide<<" "<<
-                           accelerationModel->getAcceleration( ).transpose( )<<std::endl;
+                std::cout << "Current acceleration: " << useRadialTerm << " " << usePlanetTide << " "
+                          << accelerationModel->getAcceleration( ).transpose( ) << std::endl;
 
                 accelerationPartial->update( );
                 Eigen::MatrixXd partialWrtJupiterPosition = Eigen::Matrix3d::Zero( );
@@ -1130,9 +1130,9 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 
                 // Declare perturbations in position for numerical partial
                 Eigen::Vector3d positionPerturbation;
-                positionPerturbation<< 10.0, 10.0, 10.0;
+                positionPerturbation << 10.0, 10.0, 10.0;
                 Eigen::Vector3d velocityPerturbation;
-                velocityPerturbation<< 1.0E-1, 1.0E-1, 1.0E-1;
+                velocityPerturbation << 1.0E-1, 1.0E-1, 1.0E-1;
                 double jupiterGravityFieldPerturbation = 1.0E8;
                 double ioGravityFieldPerturbation = 1.0E8;
                 double timelagPerturbation = 1.0;;
@@ -1176,9 +1176,9 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                                                    partialWrtTidalTimeLag, 1.0e-6 );
 
 
-//                std::cout<<testPartialWrtTidalTimeLag<<std::endl<<std::endl<<partialWrtTidalTimeLag
-//                        <<std::endl<<std::endl<<( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
-//                              testPartialWrtTidalTimeLag )<<std::endl<<std::endl<<std::endl;
+//                std::cout << testPartialWrtTidalTimeLag << std::endl << std::endl << partialWrtTidalTimeLag
+//                        << std::endl << std::endl << ( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
+//                              testPartialWrtTidalTimeLag ) << std::endl << std::endl << std::endl;
 
 
             }

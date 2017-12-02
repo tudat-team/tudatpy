@@ -12,7 +12,6 @@
 #ifndef TUDAT_FIELD_VALUE_H
 #define TUDAT_FIELD_VALUE_H
 
-#include <iostream>
 #include <string>
 
 #include <boost/lexical_cast.hpp>

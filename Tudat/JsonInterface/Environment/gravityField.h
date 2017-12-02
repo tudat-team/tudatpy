@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_GRAVITYFIELD_H
 #define TUDAT_JSONINTERFACE_GRAVITYFIELD_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/createGravityField.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

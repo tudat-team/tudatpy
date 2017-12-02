@@ -23,16 +23,15 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-#include <boost/format.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "Eigen/Core"
+#include <Eigen/Core>
 
-#include "matrixTextFileReader.h"
-#include "streamFilters.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/InputOutput/streamFilters.h"
 
 
 namespace tudat

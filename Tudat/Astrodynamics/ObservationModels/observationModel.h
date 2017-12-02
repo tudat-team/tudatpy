@@ -11,7 +11,6 @@
 #ifndef TUDAT_OBSERVATIONMODEL_H
 #define TUDAT_OBSERVATIONMODEL_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/bind.hpp>

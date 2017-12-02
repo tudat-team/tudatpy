@@ -72,10 +72,10 @@ public:
 
 
         realLoveNumberScaler_ =
-                std::make_pair( ( Eigen::Vector2d( )<< 1.0, 0.0 ).finished( ), ( Eigen::Vector2d( )<< 0.0, 1.0 ).finished( ) );
+                std::make_pair( ( Eigen::Vector2d( ) << 1.0, 0.0 ).finished( ), ( Eigen::Vector2d( ) << 0.0, 1.0 ).finished( ) );
         complexLoveNumberScaler_ =
-                std::make_pair( ( Eigen::Matrix2d( )<< 1.0, 0.0, 0.0, -1.0  ).finished( ),
-                                                   ( Eigen::Matrix2d( )<< 0.0, 1.0, 1.0, 0.0 ).finished( ) );
+                std::make_pair( ( Eigen::Matrix2d( ) << 1.0, 0.0, 0.0, -1.0  ).finished( ),
+                                                   ( Eigen::Matrix2d( ) << 0.0, 1.0, 1.0, 0.0 ).finished( ) );
         for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
         {
             allDeformingBodyIndices_.push_back( i );
@@ -296,14 +296,14 @@ public:
             if( parameterDoublePartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
                 std::string errorMessage =
-                        "Parameter of type " + boost::lexical_cast< std::string>( parameter->getParameterName( ).first ) + ", " +
+                        "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
                            parameter->getParameterName( ).second.first + ", " +
                            parameter->getParameterName( ).second.second + " not found in list of existing partials";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
-                std::cerr<<"Warning, double partial should already be calculatedz in Love number interface"<<std::endl;
+                std::cerr << "Warning, double partial should already be calculatedz in Love number interface" << std::endl;
                 currentDoubleParameterPartials_[ std::make_pair( parameter, maximumDegreeAndOrder ) ] =
                         parameterDoublePartialFunctions_.at( std::make_pair( parameter, maximumDegreeAndOrder ) )( );
             }
@@ -347,14 +347,14 @@ public:
             if( parameterVectorPartialFunctions_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
             {
                 std::string errorMessage =
-                        "Parameter of type " + boost::lexical_cast< std::string>( parameter->getParameterName( ).first ) + ", " +
+                        "Parameter of type " + std::to_string( parameter->getParameterName( ).first ) + ", " +
                            parameter->getParameterName( ).second.first + ", " +
                            parameter->getParameterName( ).second.second + " not found in list of existing partials";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
-                std::cerr<<"Warning, vector partial should already be calculated in Love number interface"<<std::endl;
+                std::cerr << "Warning, vector partial should already be calculated in Love number interface" << std::endl;
                 currentVectorParameterPartials_[ std::make_pair( parameter, maximumDegreeAndOrder ) ] =
                         parameterVectorPartialFunctions_.at( std::make_pair( parameter, maximumDegreeAndOrder ) )( );
             }

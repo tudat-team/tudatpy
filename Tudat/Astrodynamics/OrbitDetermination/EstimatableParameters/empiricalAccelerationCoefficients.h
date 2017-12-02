@@ -174,7 +174,7 @@ public:
             basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
             for( unsigned int i = 0; i < indexIterator->second.size( ); i++ )
             {
-                parameterDescription += boost::lexical_cast< std::string >( indexIterator->second.at( i ) );
+                parameterDescription += std::to_string( indexIterator->second.at( i ) );
                 if( i != indexIterator->second.size( ) - 1 )
                 {
                     parameterDescription += ", ";

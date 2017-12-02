@@ -13,11 +13,9 @@
 #define TUDAT_TERMINATION_CONDITIONS_H
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 

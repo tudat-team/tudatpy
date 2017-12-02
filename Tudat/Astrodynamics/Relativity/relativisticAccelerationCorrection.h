@@ -11,8 +11,6 @@
 #ifndef TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 #define TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 

@@ -25,8 +25,6 @@
 #ifndef TUDAT_TWO_LINE_ELEMENT_DATA_H
 #define TUDAT_TWO_LINE_ELEMENT_DATA_H
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -291,7 +289,7 @@ public:
      * \param twoLineElementData TLE data to print.
      * \return Stream handler.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
+    friend std::ostream& operator << ( std::ostream& stream,
                                      TwoLineElementData& twoLineElementData );
 
 protected:

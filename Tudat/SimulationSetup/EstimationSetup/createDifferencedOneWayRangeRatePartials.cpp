@@ -41,7 +41,7 @@ splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
             {
                throw std::runtime_error(
                             "Error when splitting one-way range rate light time corrections, size is " +
-                            boost::lexical_cast< std::string >( correctionIterator->second.size( ) ) );
+                            std::to_string( correctionIterator->second.size( ) ) );
             }
             else
             {

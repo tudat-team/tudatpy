@@ -12,7 +12,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
@@ -53,7 +52,7 @@ std::string getAerodynamicFrameName( const AerodynamicsReferenceFrames frame )
         break;
     default:
         std::string errorMessage = "Error, aerodynamic frame type " +
-                boost::lexical_cast< std::string >( frame ) +
+                std::to_string( frame ) +
                 "not found when retrieving frame name ";
         throw std::runtime_error( errorMessage );
     }
@@ -89,7 +88,7 @@ std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angl
         break;
     default:
         std::string errorMessage = "Error, aerodynamic angle type " +
-                boost::lexical_cast< std::string >( angle ) +
+                std::to_string( angle ) +
                 "not found when retrieving angle name ";
         throw std::runtime_error( errorMessage );
     }
@@ -336,7 +335,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 default:
                     throw std::runtime_error(
                                 "Error, index " +
-                                boost::lexical_cast< std::string>( currentFrameIndex ) +
+                                std::to_string( currentFrameIndex ) +
                                 "not found in AerodynamicAngleCalculator" );
 
                 }
@@ -374,7 +373,7 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     if( currentAerodynamicAngles_.count( angleId ) == 0 )
     {
         throw std::runtime_error( "Error in AerodynamicAngleCalculator, angleId " +
-                                  boost::lexical_cast< std::string >( angleId ) + "not found" );
+                                  std::to_string( angleId ) + "not found" );
     }
     else
     {

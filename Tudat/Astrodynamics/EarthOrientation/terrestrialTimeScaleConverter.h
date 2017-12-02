@@ -60,7 +60,7 @@ struct CurrentTimes
             valueToReturn = ut1;
             break;
         default:
-            std::cerr<<"Error when getting time value in CurrentTimes, found time scale "<<requestedScale<<std::endl;
+            std::cerr << "Error when getting time value in CurrentTimes, found time scale " << requestedScale << std::endl;
         }
         return valueToReturn;
     }

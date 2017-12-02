@@ -11,8 +11,6 @@
 #ifndef TUDAT_ONEWAYRANGEPARTIAL_H
 #define TUDAT_ONEWAYRANGEPARTIAL_H
 
-#include <iostream>
-
 #include <boost/function.hpp>
 
 #include <Eigen/Core>

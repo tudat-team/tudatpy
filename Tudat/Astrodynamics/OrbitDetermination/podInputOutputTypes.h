@@ -14,8 +14,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
@@ -156,7 +154,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when setting  weights per observable, observable " +
-                        boost::lexical_cast< std::string >( observablesIterator->first  ) + " not found";
+                        std::to_string( observablesIterator->first  ) + " not found";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -168,7 +166,7 @@ public:
                     {
                         std::string errorMessage =
                                 "Error when setting  weights per observable, link ends not found for observable " +
-                                boost::lexical_cast< std::string >( observablesIterator->first  );
+                                std::to_string( observablesIterator->first  );
                         throw std::runtime_error( errorMessage );
                     }
                     else
@@ -459,7 +457,7 @@ struct PodOutput
         }
         else
         {
-            std::cerr<<"Warning, requesting residual history, but history not saved."<<std::endl;
+            std::cerr << "Warning, requesting residual history, but history not saved." << std::endl;
             return Eigen::MatrixXd::Zero( 0, 0 );
         }
     }
@@ -483,7 +481,7 @@ struct PodOutput
         }
         else
         {
-            std::cerr<<"Warning, requesting parameter history, but history not saved."<<std::endl;
+            std::cerr << "Warning, requesting parameter history, but history not saved." << std::endl;
             return Eigen::MatrixXd::Zero( 0, 0 );
         }
     }

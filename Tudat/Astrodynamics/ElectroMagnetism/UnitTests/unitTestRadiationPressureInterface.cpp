@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureCalculation )
             boost::make_shared< electro_magnetism::RadiationPressureInterface >(
                 boost::lambda::constant( totalSolarPower ),
                 boost::lambda::constant(
-                    ( Eigen::Vector3d( )<<
+                    ( Eigen::Vector3d( ) <<
                       0.0, physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0 ).finished( ) ),
                 boost::lambda::constant(
-                    ( Eigen::Vector3d( )<<
+                    ( Eigen::Vector3d( ) <<
                       physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0, 0.0 ).finished( ) ),
                 1.0, 1.0 );
     radiationPressureInterface->updateInterface( );

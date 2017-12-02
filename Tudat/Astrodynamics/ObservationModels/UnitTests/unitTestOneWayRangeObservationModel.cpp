@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -83,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
             ( one_way_range, lightTimeCorrectionSettings,
               boost::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Matrix< double, 1, 1 >( ) <<2.56294 ).finished( ) ) );
+                  ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ) ) );
 
     // Create observation model.
     boost::shared_ptr< ObservationModel< 1, double, double > > observationModel =

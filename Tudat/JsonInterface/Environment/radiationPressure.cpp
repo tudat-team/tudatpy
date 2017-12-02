@@ -9,7 +9,7 @@
  *
  */
 
-#include "radiationPressure.h"
+#include "Tudat/JsonInterface/Environment/radiationPressure.h"
 
 namespace tudat
 {

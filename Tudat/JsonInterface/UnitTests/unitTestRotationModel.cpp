@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include "unitTestSupport.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Environment/rotationModel.h"
 
 namespace tudat

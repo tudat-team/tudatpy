@@ -86,7 +86,7 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
-                boost::lexical_cast< std::string >( parameterType );
+                std::to_string( parameterType );
         throw std::runtime_error( errorMessage );
     }
     return parameterDescription;
@@ -175,7 +175,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
          isDoubleParameter = true;
         break;
     default:
-        throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
+        throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
     }
     return isDoubleParameter;

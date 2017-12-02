@@ -10,9 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
-#include "unitTestSupport.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/jsonInterface.h"
 
 namespace tudat

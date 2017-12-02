@@ -16,7 +16,6 @@
 #include <set>
 #include <stdexcept>
 
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 

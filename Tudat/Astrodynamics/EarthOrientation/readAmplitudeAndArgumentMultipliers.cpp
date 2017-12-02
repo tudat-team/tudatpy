@@ -9,8 +9,7 @@
  *
  */
 
-#include <iostream>
-#include <boost/exception/all.hpp>
+#include <stdexcept>
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/EarthOrientation/readAmplitudeAndArgumentMultipliers.h"
@@ -35,17 +34,13 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > readAmplitudesAndFundamentalArgume
     // Check whether amplitudes and fundamental argument multipliers matrices have same number of rows
     if( amplitudesRaw.rows( ) != fundamentalArgumentMultipliersRaw.rows( ) )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Amplitude and argument multipler files contain unequal set of entries" ) ) );
+        throw std::runtime_error( "Amplitude and argument multipler files contain unequal set of entries" );
     }
 
     // Check whether number of columns in fundamental argument multiplier matrix is equal to 6.
     if( fundamentalArgumentMultipliersRaw.cols( ) != 6 )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error( "Number of columns in fundamental argument multipler matrix not equal to 6" ) ) );
+        throw std::runtime_error( "Number of columns in fundamental argument multipler matrix not equal to 6" );
     }
 
 

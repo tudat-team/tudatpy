@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include "unitTestSupport.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Environment/ephemeris.h"
 
 namespace tudat
@@ -101,12 +101,12 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_tabulated )
             parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "tabulated" ) );
 
     // Create EphemerisSettings manually
-    const std::map< double, Eigen::Vector6d > bodyStateHistory =
-    {
-        { 0.0, ( Eigen::Vector6d( ) << 1.0, 0.0, 0.0, 0.0, -0.4, 0.0 ).finished( ) },
-        { 1.0, ( Eigen::Vector6d( ) << 3.0, 0.0, 0.0, 0.0, -0.2, 0.0 ).finished( ) },
-        { 2.0, ( Eigen::Vector6d( ) << 4.0, 0.0, 0.0, 0.0, -0.1, 0.0 ).finished( ) }
-    };
+    std::map< double, Eigen::Vector6d > bodyStateHistory;
+    bodyStateHistory[ 0.0 ] = ( Eigen::Vector6d( ) << 1.0, 0.0, 0.0, 0.0, -0.4, 0.0 ).finished( );
+    bodyStateHistory[ 1.0 ] = ( Eigen::Vector6d( ) << 3.0, 0.0, 0.0, 0.0, -0.2, 0.0 ).finished( );
+    bodyStateHistory[ 2.0 ] = ( Eigen::Vector6d( ) << 4.0, 0.0, 0.0, 0.0, -0.1, 0.0 ).finished( );
+
+
     const boost::shared_ptr< EphemerisSettings > manualSettings =
             boost::make_shared< TabulatedEphemerisSettings >( bodyStateHistory );
 

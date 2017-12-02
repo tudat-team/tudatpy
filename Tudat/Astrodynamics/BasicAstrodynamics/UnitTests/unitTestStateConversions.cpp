@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"

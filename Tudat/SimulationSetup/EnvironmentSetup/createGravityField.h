@@ -13,15 +13,9 @@
 
 #include <map>
 #include <vector>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <iostream>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"

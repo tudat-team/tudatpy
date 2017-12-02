@@ -13,17 +13,9 @@
 #define TUDAT_EOPREADER_H
 
 #include <map>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <iostream>
-#include <iomanip>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

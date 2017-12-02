@@ -51,17 +51,17 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         accelerationName = "thrust ";
         break;
     case relativistic_correction_acceleration:
-        accelerationName  ="relativistic correction";
+        accelerationName  = "relativistic correction ";
         break;
     case empirical_acceleration:
-        accelerationName  ="empirical correction";
+        accelerationName  = "empirical correction ";
         break;
     case direct_tidal_dissipation_acceleration:
-        accelerationName  ="direct tidal dissipation";
+        accelerationName  = "direct tidal dissipation ";
         break;
     default:
         std::string errorMessage = "Error, acceleration type " +
-                boost::lexical_cast< std::string >( accelerationType ) +
+                std::to_string( accelerationType ) +
                 "not found when retrieving acceleration name ";
         throw std::runtime_error( errorMessage );
     }
@@ -162,8 +162,7 @@ AvailableMassRateModels getMassRateModelType(
     {
         massRateType = custom_mass_rate_model;
     }
-    else if( boost::dynamic_pointer_cast< propulsion::FromThrustMassRateModel >(
-                 massRateModel ) != NULL )
+    else if( boost::dynamic_pointer_cast< propulsion::FromThrustMassRateModel >( massRateModel ) != NULL )
     {
         massRateType = from_thrust_mass_rate_model;
     }
@@ -213,7 +212,7 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
     if( !isAccelerationDirectGravitational( accelerationType ) )
     {
         std::string errorMessage = "Error when getting third-body gravity type, requested type: " +
-                boost::lexical_cast< std::string >( accelerationType ) + " is not a direct gravity acceleration";
+                std::to_string( accelerationType ) + " is not a direct gravity acceleration";
         throw std::runtime_error( errorMessage );
     }
     else if( accelerationType == central_gravity )
@@ -230,7 +229,7 @@ AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceler
     }
     else
     {        std::string errorMessage = "Error when getting thirdbody gravity type, requested type: " +
-                boost::lexical_cast< std::string >( accelerationType ) + " is not recognized.";
+                std::to_string( accelerationType ) + " is not recognized.";
         throw std::runtime_error( errorMessage );
 
     }

@@ -11,14 +11,12 @@
 #ifndef TUDAT_KERNELDENSITYDISTRIBUTION_H
 #define TUDAT_KERNELDENSITYDISTRIBUTION_H
 
-#include <iostream>
 #include <map>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h>
-#include <Tudat/Mathematics/Statistics/boostProbabilityDistributions.h>
-
+#include "Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h"
+#include "Tudat/Mathematics/Statistics/boostProbabilityDistributions.h"
 namespace tudat
 {
 

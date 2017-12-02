@@ -15,19 +15,17 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h>
-#include <Tudat/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
+#include "Tudat/Basics/testMacros.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-
-#include <iostream>
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include <limits>
 #include <string>
 

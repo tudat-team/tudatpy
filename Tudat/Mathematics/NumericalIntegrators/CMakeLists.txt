@@ -12,7 +12,6 @@
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.cpp"
-  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
 )
 

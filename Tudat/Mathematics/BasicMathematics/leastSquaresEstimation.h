@@ -14,8 +14,6 @@
 
 #include <map>
 
-#include <boost/function.hpp>
-
 #include <Eigen/Core>
 #include <Eigen/SVD>
 

@@ -462,7 +462,7 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
         else if( linkEnds.count( linkEndForCalculator ) == 0 )
         {
             std::string errorMessage = "Error when creating one-way Doppler proper time calculator, did not find link end " +
-                    boost::lexical_cast< std::string >( linkEndForCalculator );
+                    std::to_string( linkEndForCalculator );
             throw std::runtime_error( errorMessage );
         }
         else
@@ -503,7 +503,7 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
     }
     default:
         std::string errorMessage = "Error when creating one-way Doppler proper time calculator, did not recognize type " +
-                boost::lexical_cast< std::string >( properTimeRateSettings->dopplerProperTimeRateType_ );
+                std::to_string( properTimeRateSettings->dopplerProperTimeRateType_ );
         throw std::runtime_error( errorMessage );
     }
     return properTimeRateInterface;
@@ -610,7 +610,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     default:
     {
         std::string errorMessage = "Error when making observation bias, bias type " +
-                boost::lexical_cast< std::string >( biasSettings->observationBiasType_  ) + " not recognized";
+                std::to_string( biasSettings->observationBiasType_  ) + " not recognized";
         throw std::runtime_error( errorMessage );
     }
     }
@@ -679,7 +679,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -716,7 +716,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way Doppler model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -773,7 +773,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 2 way Doppler model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -855,7 +855,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -896,7 +896,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making n way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -921,7 +921,7 @@ public:
                     if( linkEnds.count( previousLinkEndType ) == 0 )
                     {
                         throw std::runtime_error( "Error when making n-way range model, did not find link end type " +
-                                                  boost::lexical_cast< std::string >( previousLinkEndType ) );
+                                                  std::to_string( previousLinkEndType ) );
                     }
                 }
             }
@@ -997,7 +997,7 @@ public:
         }
 
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 1 observation model.";
             throw std::runtime_error( errorMessage );
@@ -1041,7 +1041,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making angular position model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -1073,7 +1073,7 @@ public:
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 2 observation model.";
             throw std::runtime_error( errorMessage );
@@ -1119,7 +1119,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making position observable model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
 
@@ -1157,7 +1157,7 @@ public:
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 3 observation model.";
             throw std::runtime_error( errorMessage );

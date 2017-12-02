@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_SPICE_H
 #define TUDAT_JSONINTERFACE_SPICE_H
 
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

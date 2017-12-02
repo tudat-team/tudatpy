@@ -75,7 +75,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
         }
         default:
             std::string errorMessage = "Cannot yet create state derivative partial models for type " +
-                    boost::lexical_cast< std::string >( stateDerivativeIterator->first );
+                    std::to_string( stateDerivativeIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }

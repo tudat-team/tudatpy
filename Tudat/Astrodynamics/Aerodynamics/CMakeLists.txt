@@ -17,7 +17,6 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
-  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/trimOrientation.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/equilibriumWallTemperature.cpp"

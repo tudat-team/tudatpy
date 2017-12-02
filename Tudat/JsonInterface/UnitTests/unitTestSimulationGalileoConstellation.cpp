@@ -10,9 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
-#include "unitTestSupport.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/jsonInterface.h"
 
 namespace tudat
@@ -99,7 +98,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     std::string currentSatelliteName;
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
-        currentSatelliteName =  "Satellite" + boost::lexical_cast< std::string >( i );
+        currentSatelliteName =  "Satellite" + std::to_string( i );
         bodyMap[ currentSatelliteName ] = boost::make_shared< simulation_setup::Body >( );
     }
 
@@ -202,7 +201,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     // Set accelerations for each satellite.
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
-        currentSatelliteName =  "Satellite" + boost::lexical_cast< std::string >( i );
+        currentSatelliteName =  "Satellite" + std::to_string( i );
 
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfCurrentSatellite;
         accelerationsOfCurrentSatellite[ "Earth" ].push_back(

@@ -17,7 +17,6 @@
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -82,7 +81,7 @@ public:
 
     //! Exception that is thrown if the minimum step size is exceeded.
     /*!
-     * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::
+     * Exception thrown by RungeKuttaVariableStepSizeIntegrator< >::
      * computeNextStepSizeAndValidateResult() if the minimum step size is exceeded.
      */
     class MinimumStepSizeExceededError;
@@ -544,15 +543,19 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
     }
 
     // Check if minimum step size is violated and throw exception if necessary.
-    if ( std::fabs( this->stepSize_ ) < this->minimumStepSize_ )
+    if ( std::fabs( this->stepSize_ ) < std::fabs( this->minimumStepSize_ ) )
     {
-        throw MinimumStepSizeExceededError( this->minimumStepSize_,
+        throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
                                                       std::fabs( this->stepSize_ ) );
     }
-
-    else if ( std::fabs( this->stepSize_ ) > this->maximumStepSize_ )
+    else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
     {
-        this->stepSize_ = this->maximumStepSize_;
+        this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->maximumStepSize_ );
+    }
+
+    if( stepSize * this->stepSize_ < 0 )
+    {
+        throw std::runtime_error( "Error during step size control, step size flipped sign" );
     }
 
     // Check if computed error in state is too large and reject step if true.
@@ -613,7 +616,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
 //! Exception that is thrown if the minimum step size is exceeded.
 /*!
- * Exception thrown by RungeKuttaVariableStepSizeIntegrator<>::computeNextStepSizeAndValidateResult()
+ * Exception thrown by RungeKuttaVariableStepSizeIntegrator< >::computeNextStepSizeAndValidateResult()
  * if the minimum step size is exceeded.
  */
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

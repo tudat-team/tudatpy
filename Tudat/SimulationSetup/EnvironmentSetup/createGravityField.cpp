@@ -143,8 +143,8 @@ std::pair< double, double  > readGravityFieldFile(
             throw std::runtime_error( "Error when reading gravity field file, requested header index exceeds file contents" );
         }
 
-        gravitationalParameter = boost::lexical_cast< double >( vectorOfIndividualStrings[ gravitationalParameterIndex ] );
-        referenceRadius = boost::lexical_cast< double >( vectorOfIndividualStrings[ referenceRadiusIndex ] );
+        gravitationalParameter = std::stod( vectorOfIndividualStrings[ gravitationalParameterIndex ] );
+        referenceRadius = std::stod( vectorOfIndividualStrings[ referenceRadiusIndex ] );
     }
     else if( ( !( gravitationalParameterIndex >= 0 ) &&
                ( referenceRadiusIndex >= 0 ) ) ||
@@ -183,22 +183,22 @@ std::pair< double, double  > readGravityFieldFile(
         if( vectorOfIndividualStrings.size( ) < 4 )
         {
             std::string errorMessage = "Error when reading pds gravity field file, number of fields is " +
-                    boost::lexical_cast< std::string >( vectorOfIndividualStrings.size( ) );
+                    std::to_string( vectorOfIndividualStrings.size( ) );
             throw std::runtime_error( errorMessage );
         }
         else
         {
             // Read current degree and orde from line.
-            currentDegree = boost::lexical_cast< int >( vectorOfIndividualStrings[ 0 ] );
-            currentOrder = boost::lexical_cast< int >( vectorOfIndividualStrings[ 1 ] );
+            currentDegree = std::stoi( vectorOfIndividualStrings[ 0 ] );
+            currentOrder = std::stoi( vectorOfIndividualStrings[ 1 ] );
 
             // Set cosine and sine coefficients for current degree and order.
             if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
             {
                 cosineCoefficients( currentDegree, currentOrder ) =
-                        boost::lexical_cast< double >( vectorOfIndividualStrings[ 2 ] );
+                        std::stod( vectorOfIndividualStrings[ 2 ] );
                 sineCoefficients( currentDegree, currentOrder ) =
-                        boost::lexical_cast< double >( vectorOfIndividualStrings[ 3 ] );
+                        std::stod( vectorOfIndividualStrings[ 3 ] );
             }
         }
     }
@@ -331,7 +331,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     default:
         throw std::runtime_error(
                     "Error, did not recognize gravity field model settings type " +
-                    boost::lexical_cast< std::string >(
+                    std::to_string(
                         gravityFieldSettings->getGravityFieldType( ) ) );
     }
 

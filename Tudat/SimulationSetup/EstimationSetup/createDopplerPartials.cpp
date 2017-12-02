@@ -80,7 +80,7 @@ boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProper
     }
     else
     {
-        std::cerr<<"Warning, proper time contribution to Doppler observable not incorporated into Doppler partial "<<std::endl;
+        std::cerr << "Warning, proper time contribution to Doppler observable not incorporated into Doppler partial " << std::endl;
         properTimeRateDopplerPartial = NULL;
     }
     return properTimeRateDopplerPartial;

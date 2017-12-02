@@ -111,19 +111,19 @@ public:
         bool isConverged = 0;
         if( numberOfIterations >= maximumNumberOfIterations_ )
         {
-            std::cout<<"Maximum number of iterations reached"<<std::endl;
+            std::cout << "Maximum number of iterations reached" << std::endl;
             isConverged = 1;
         }
         if( rmsResidualHistory[ rmsResidualHistory.size( ) - 1 ] < minimumResidual_ )
         {
-            std::cout<<"Required residual level achieved"<<std::endl;
+            std::cout << "Required residual level achieved" << std::endl;
             isConverged = 1;
         }
         if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
                                  rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
                 numberOfIterationsWithoutImprovement_ )
         {
-            std::cout<<"Too many iterations without parameter improvement"<<std::endl;
+            std::cout << "Too many iterations without parameter improvement" << std::endl;
             isConverged = 1;
         }
         if( rmsResidualHistory.size( ) > 1 )
@@ -514,7 +514,7 @@ public:
 
             if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Calculating residuals and partials "<<totalNumberOfObservations<<std::endl;
+                std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
             }
             // Calculate residuals and observation matrix for current parameter estimate.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
@@ -567,7 +567,7 @@ public:
 
             if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
+                std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
             }
 
             // Calculate mean residual for current iteration.
@@ -576,7 +576,7 @@ public:
             rmsResidualHistory.push_back( residualRms );
             if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Current residual: "<<residualRms<<std::endl;
+                std::cout << "Current residual: " << residualRms << std::endl;
             }
 
             // If current iteration is better than previous one, update 'best' data.
@@ -602,7 +602,7 @@ public:
         } while( convergenceChecker->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
 
 
-        std::cout<<"Final residual: "<<bestResidual<<std::endl;
+        std::cout << "Final residual: " << bestResidual << std::endl;
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
@@ -704,7 +704,7 @@ public:
         if( observationManagers_.count( observableType ) == 0 )
         {
             throw std::runtime_error(
-                        "Error when retrieving observation manager of type " + boost::lexical_cast< std::string >(
+                        "Error when retrieving observation manager of type " + std::to_string(
                             observableType ) + ", manager not found" );
         }
 

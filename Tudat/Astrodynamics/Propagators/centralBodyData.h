@@ -14,7 +14,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
@@ -97,7 +96,7 @@ public:
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            throw std::runtime_error( "Error, body "+ bodiesToIntegrate[ j ] +
+                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] +
                                                       " cannot be its own central body" );
                         }
                     }
@@ -296,7 +295,7 @@ private:
             break;
         default:
             throw std::runtime_error( "Error, do not recognize boy origin type " +
-                              boost::lexical_cast< std::string >( bodyOriginType_[ bodyIndex ] ) );
+                              std::to_string( bodyOriginType_[ bodyIndex ] ) );
             break;
         }
     }

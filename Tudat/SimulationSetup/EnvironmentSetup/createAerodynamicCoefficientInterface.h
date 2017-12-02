@@ -1139,7 +1139,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     {
         throw std::runtime_error(
                     "Error, expected tabulated aerodynamic coefficients of size " +
-                    boost::lexical_cast<  std::string >( NumberOfDimensions ) + "for body " + body );
+                    std::to_string( NumberOfDimensions ) + "for body " + body );
     }
     else
     {

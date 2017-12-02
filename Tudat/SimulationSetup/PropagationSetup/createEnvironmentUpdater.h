@@ -160,7 +160,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
     }
     return environmentModelsToUpdate;

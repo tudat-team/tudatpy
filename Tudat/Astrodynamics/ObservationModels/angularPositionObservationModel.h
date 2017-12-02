@@ -12,8 +12,6 @@
 #define TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
 
 #include <map>
-#include <string>
-
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"

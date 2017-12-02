@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionPartials )
 
 //    // Test partials with real ephemerides (without test of position partials)
 //    {
-//        std::cout<<"Test 1"<<std::endl;
+//        std::cout << "Test 1" << std::endl;
 //        // Create environment
 //        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 

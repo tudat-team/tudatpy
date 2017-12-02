@@ -15,8 +15,7 @@
 
 #include "Tudat/JsonInterface/Support/deserialization.h"
 #include "Tudat/JsonInterface/Support/utilities.h"
-
-#include <Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h>
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 
 namespace tudat
 {
@@ -82,6 +81,8 @@ void checkConsistentEnum( const std::string& filename,
             supportedValues.push_back( value );
         }
     }
+
+    std::cout << "JSON file: " << filename << std::endl;
 
     // Check that values and supportedValues are equivalent
     const std::vector< Enum > values = parseJSONFile< std::vector< Enum > >( filename );

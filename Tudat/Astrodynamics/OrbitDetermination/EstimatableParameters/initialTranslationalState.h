@@ -270,7 +270,7 @@ int getSingleArcParameterSetSize(
         {
             throw std::runtime_error(
                         "Error when getting single arc paramater vector, did not recognize initial state parameter " +
-                        boost::lexical_cast< std::string >( initialStateParameters.at( i )->getParameterName( ).first ) );
+                        std::to_string( initialStateParameters.at( i )->getParameterName( ).first ) );
         }
     }
     return totalParameterSetSize;

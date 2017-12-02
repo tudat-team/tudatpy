@@ -129,6 +129,10 @@ add_executable(test_GlobalFrameOrigin "${SRCROOT}${PROPAGATORSDIR}/UnitTests/uni
 setup_custom_test_program(test_GlobalFrameOrigin "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_GlobalFrameOrigin ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestForwardsBackwardsIntegration.cpp")
+setup_custom_test_program(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_ForwardBackwardIntegration ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")

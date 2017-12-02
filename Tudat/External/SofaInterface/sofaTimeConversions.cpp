@@ -31,9 +31,9 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     if( iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, utcInJulianDays, &year, &month, &day, &fractionOfDay ) != 0 )
     {
         throw std::runtime_error(  "Provided julian date too small to convert to calendar date" +
-                                   boost::lexical_cast< std::string >( year ) + " " +
-                                   boost::lexical_cast< std::string >( month ) + " " +
-                                   boost::lexical_cast< std::string >( day ) );
+                                   std::to_string( year ) + " " +
+                                   std::to_string( month ) + " " +
+                                   std::to_string( day ) );
     }
 
 
@@ -43,9 +43,9 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     if( deltaAtReturn != 0 )
     {
         throw std::runtime_error(  "Provided caledar date cannot properly give Delta AT" +
-                                   boost::lexical_cast< std::string >( year ) + " " +
-                                   boost::lexical_cast< std::string >( month ) + " " +
-                                   boost::lexical_cast< std::string >( day ) );
+                                   std::to_string( year ) + " " +
+                                   std::to_string( month ) + " " +
+                                   std::to_string( day ) );
     }
 
     return deltaAt;

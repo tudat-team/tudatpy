@@ -80,6 +80,7 @@ protected:
 
     //! Last time at which the updateMembers was evaluated (or NaN if next call is to recompute torque).
     double currentTime_;
+
 private:
 
 };

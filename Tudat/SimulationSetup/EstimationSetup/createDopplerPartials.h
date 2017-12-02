@@ -205,7 +205,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             throw std::runtime_error( "Error when making one way doppler partials, could not identify parameter " +
-                                      boost::lexical_cast< std::string >(
+                                      std::to_string(
                                           initialDynamicalParameters.at( i )->getParameterName( ).first ) );
         }
 

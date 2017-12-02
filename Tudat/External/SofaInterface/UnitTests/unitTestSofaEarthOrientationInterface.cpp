@@ -11,10 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 

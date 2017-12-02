@@ -19,7 +19,6 @@
 
 #include <cmath>
 
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"

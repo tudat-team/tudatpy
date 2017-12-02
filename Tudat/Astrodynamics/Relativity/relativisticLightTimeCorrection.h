@@ -16,9 +16,6 @@
 #include <cmath>
 #include <vector>
 
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"

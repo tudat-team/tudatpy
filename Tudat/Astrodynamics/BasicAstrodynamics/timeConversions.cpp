@@ -178,7 +178,7 @@ int getDaysInMonth( const int month,
     // Check input consistency
     if( month < 1 || month > 12 )
     {
-        throw std::runtime_error( "Error, month number " + boost::lexical_cast< std::string >( month ) +
+        throw std::runtime_error( "Error, month number " + std::to_string( month ) +
                                   " does not exist, value must be gretaer than 0 and smaller than 13" );
     }
     else

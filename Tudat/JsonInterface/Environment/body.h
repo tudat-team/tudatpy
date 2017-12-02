@@ -11,9 +11,8 @@
 #ifndef TUDAT_JSONINTERFACE_BODY_H
 #define TUDAT_JSONINTERFACE_BODY_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-#include <Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/JsonInterface/Environment/spice.h"
 
 #include "Tudat/JsonInterface/Support/valueAccess.h"

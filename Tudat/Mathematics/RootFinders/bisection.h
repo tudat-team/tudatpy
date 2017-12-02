@@ -21,9 +21,6 @@
 #define TUDAT_BISECTION_H
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/format.hpp>
-#include <boost/format/free_funcs.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 

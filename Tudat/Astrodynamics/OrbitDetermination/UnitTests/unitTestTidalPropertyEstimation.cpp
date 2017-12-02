@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
             BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - podOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
         }
 
-        std::cout<<"Parameter error: "<<( truthParameters -  podOutput->parameterEstimate_ ).transpose( )<<std::endl;
+        std::cout << "Parameter error: " << ( truthParameters -  podOutput->parameterEstimate_ ).transpose( ) << std::endl;
     }
 }
 
@@ -502,10 +502,10 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     for( int i = 0; i < estimationError.rows( ) - 6; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 6 ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( i + 6 ) ), 5.0E-6 );
     }
 
-    std::cout<<( estimationError ).transpose( )<<std::endl;
+    std::cout << ( estimationError ).transpose( ) << std::endl;
 
 }
 

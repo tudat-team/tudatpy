@@ -127,7 +127,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         }
         default:
             std::string errorMessage = "Error when closing observation bias/estimation loop, did not recognize bias type " +
-                    boost::lexical_cast< std::string >( parameter->getParameterName( ).first );
+                    std::to_string( parameter->getParameterName( ).first );
             throw std::runtime_error( errorMessage );
 
         }
@@ -301,7 +301,7 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
     default:
         throw std::runtime_error(
                     "Error when making observation manager, could not identify observable type " +
-                    boost::lexical_cast< std::string >( observableType ) );
+                    std::to_string( observableType ) );
     }
     return observationManager;
 }

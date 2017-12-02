@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_EPHEMERIS_H
 #define TUDAT_JSONINTERFACE_EPHEMERIS_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

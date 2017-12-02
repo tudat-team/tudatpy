@@ -128,7 +128,7 @@ simulateSingleObservationSet(
     if( currentObservationViabilityCalculators.size( ) > 0 &&
             observationSimulator->getLinkViabilityCalculators( linkEnds ).size( ) > 0 )
     {
-        std::cerr<<"Error when simulating viability-constrained observations, viability settings provided both manually and through ObservationSimulator, ignoring ObservationSimulator settings"<<std::endl;
+        std::cerr << "Error when simulating viability-constrained observations, viability settings provided both manually and through ObservationSimulator, ignoring ObservationSimulator settings" << std::endl;
     }
     else if( currentObservationViabilityCalculators.size( ) == 0 &&
             observationSimulator->getLinkViabilityCalculators( linkEnds ).size( ) > 0 )
@@ -307,7 +307,7 @@ simulateObservations(
             }
             default:
                 throw std::runtime_error( "Error, simulation of observations not yet implemented for size " +
-                                          boost::lexical_cast< std::string >( observationSize ) );
+                                          std::to_string( observationSize ) );
 
             }
         }
@@ -597,6 +597,11 @@ simulateObservationsWithNoise(
                 observationsToSimulate, observationSimulators, noiseFunctionList, viabilityCalculatorList );
 }
 
+//! Function to remove link id from the simulated observations
+/*!
+ * /param simulatedObservations The simulated observation
+ * /return Simulated observations without link end id
+ */
 template< typename ObservationScalarType = double, typename TimeType = double >
 std::map< ObservableType, std::map< LinkEnds, std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >,
 std::vector< TimeType > > > > removeLinkIdFromSimulatedObservations(

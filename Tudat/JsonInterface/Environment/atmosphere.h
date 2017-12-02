@@ -11,8 +11,7 @@
 #ifndef TUDAT_JSONINTERFACE_ATMOSPHERE_H
 #define TUDAT_JSONINTERFACE_ATMOSPHERE_H
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h>
-
+#include "Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h"
 #include "Tudat/JsonInterface/Support/valueAccess.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
 

@@ -99,7 +99,7 @@ public:
         // Check if functions already exist
         if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
         {
-            std::cerr<<"Warning when resetting absolute observation bias in estimation object, existing contents not empty"<<std::endl;
+            std::cerr << "Warning when resetting absolute observation bias in estimation object, existing contents not empty" << std::endl;
         }
 
         getCurrentBias_ = getCurrentBias;
@@ -231,7 +231,7 @@ public:
         // Check if functions already exist
         if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
         {
-            std::cerr<<"Warning when resetting relative observation bias in estimation object, existing contents not empty"<<std::endl;
+            std::cerr << "Warning when resetting relative observation bias in estimation object, existing contents not empty" << std::endl;
         }
 
         getCurrentBias_ = getCurrentBias;

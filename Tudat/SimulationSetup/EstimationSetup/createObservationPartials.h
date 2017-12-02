@@ -153,7 +153,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
-                        boost::lexical_cast< std::string >( observableType ) + " not recognized.";
+                        std::to_string( observableType ) + " not recognized.";
                 throw std::runtime_error( errorMessage );
             }
 
@@ -307,7 +307,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 1 ";
+                    std::to_string( observableType ) + " of size 1 ";
             throw std::runtime_error( errorMessage );
         }
 
@@ -359,7 +359,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 2 ";
+                    std::to_string( observableType ) + " of size 2 ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;
@@ -411,7 +411,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 3 ";
+                    std::to_string( observableType ) + " of size 3 ";
             throw std::runtime_error( errorMessage );        }
         return observationPartialList;
     }
@@ -458,7 +458,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 6 ";
+                    std::to_string( observableType ) + " of size 6 ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;
@@ -506,7 +506,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size dynamic ";
+                    std::to_string( observableType ) + " of size dynamic ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;

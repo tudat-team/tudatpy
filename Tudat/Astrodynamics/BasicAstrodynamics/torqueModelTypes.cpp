@@ -36,7 +36,7 @@ AvailableTorque getTorqueModelType(
     }
     else
     {
-        std::cerr<<"Error, could not identify torque type"<<std::endl;
+        std::cerr << "Error, could not identify torque type" << std::endl;
     }
     return torqueType;
 }
@@ -56,7 +56,7 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     default:
         std::string errorMessage = "Error, torque type " +
-                boost::lexical_cast< std::string >( torqueType ) +
+                std::to_string( torqueType ) +
                 "not found when retrieving torque name ";
         throw std::runtime_error( errorMessage );
     }

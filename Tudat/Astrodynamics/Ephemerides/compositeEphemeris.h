@@ -11,7 +11,6 @@
 #ifndef TUDAT_COMPOSITEEPHEMERIS_H
 #define TUDAT_COMPOSITEEPHEMERIS_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/bind.hpp>

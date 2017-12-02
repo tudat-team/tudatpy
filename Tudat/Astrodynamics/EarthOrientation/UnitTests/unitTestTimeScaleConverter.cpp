@@ -12,9 +12,8 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include "Tudat/Basics/testMacros.h"
+#include "Tudat/Basics/utilityMacros.h"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
@@ -49,6 +48,9 @@ SofaTimeOutput getSofaDirectTimes( )
     double slatn, slonw, hm, elon, phi, xyz[3], u, v, sec,
             utc1, utc2, dut, ut11, ut12, ut, tai1, tai2, tt1, tt2,
             tcg1, tcg2, dtr, tdb1, tdb2, tcb1, tcb2;
+
+    TUDAT_UNUSED_PARAMETER( j );
+
     /* Site terrestrial coordinates (WGS84). */
     latnd = 19;
     latnm = 28;
@@ -300,7 +302,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionPrecisionWithTimeType )
                         originScales.at( j ), originScales.at( i ), currentTimes[ originScales.at( j ) ],
                     stationCartesianPosition );
             BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( currentBackConvertedTime - baseTime ) ), 1.0E-12L );
-            std::cout<<i<<" "<<j<<" "<<std::fabs( static_cast< long double >( currentBackConvertedTime - baseTime ) )<<std::endl;
+            std::cout << i << " " << j << " " << std::fabs( static_cast< long double >( currentBackConvertedTime - baseTime ) ) << std::endl;
         }
     }
 }
@@ -314,7 +316,7 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
     // Define leap second list (day, month, year)
     Eigen::Matrix< int, Eigen::Dynamic, 3 > leapSecondDays;
     leapSecondDays.resize( 27, 3 );
-    leapSecondDays<<1, 7, 1972,
+    leapSecondDays << 1, 7, 1972,
             1, 1, 1973,
             1, 1, 1974,
             1, 1, 1975,

@@ -1,5 +1,17 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #include <iostream>
 
+#include "Tudat/Basics/utilityMacros.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 
 namespace tudat
@@ -31,7 +43,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         const double ut1Correction )
 {
 
-//    std::cout<<"Angles: "<<calculationCase<<" "<<dXInMas<<" "<<dYInMas<<" "<<xPInAs<<" "<<yPInAs<<" "<<ut1Correction<<std::endl;
+//    std::cout << "Angles: " << calculationCase << " " << dXInMas << " " << dYInMas << " " << xPInAs << " " << yPInAs << " " << ut1Correction << std::endl;
 
     double AS2R = 4.848136811095359935899141E-6;
 
@@ -46,6 +58,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
             RC2I[3][3], ERA, DP00, DE00, RB[3][3],
             RPB[3][3], V1[3], V2[3], DDP00, DDE00;
 
+    TUDAT_UNUSED_PARAMETER( UT1 );
 
     //  UTC.
     IY = 2007;
@@ -217,7 +230,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         X = X + DX06;
         Y = Y + DY06;
 
-        //std::cout<<"Corrections Nut: "<<std::setprecision( 16 )<<TT<<" "<<X<<" "<<Y<<" "<<S<<" "<<DX06<<" "<<DY06<<std::endl;
+        //std::cout << "Corrections Nut: " << std::setprecision( 16 ) << TT << " " << X << " " << Y << " " << S << " " << DX06 << " " << DY06 << std::endl;
 
         //  GCRS to CIRS matrix.
         iauC2ixys ( X, Y, S, RC2I );
@@ -225,7 +238,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Earth rotation angle.
         ERA = iauEra00 ( DJMJD0+DATE, TUT );
 
-        //std::cout<<"Corrections ERA: "<<std::setprecision( 16 )<<ERA<<" "<< DJMJD0+DATE<<" "<<TUT<<std::endl;
+        //std::cout << "Corrections ERA: " << std::setprecision( 16 ) << ERA << " " << DJMJD0+DATE << " " << TUT << std::endl;
 
         //  Form celestial-terrestrial matrix (no polar motion yet).
         iauCr ( RC2I, RC2TI );
@@ -237,12 +250,12 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
         //  Form celestial-terrestrial matrix (including polar motion).
         iauRxr ( RPOM, RC2TI, RC2IT );
 
-//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-//                   convertArrayToMatrix( RC2I )<<std::endl;
-//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-//                   convertArrayToMatrix( RC2TI )<<std::endl;
-//        std::cout<<"Matrix Sofa: "<<std::endl<<std::setprecision( 16 )<<
-//                   convertArrayToMatrix( RC2IT )<<std::endl;
+//        std::cout << "Matrix Sofa: " << std::endl << std::setprecision( 16 )
+//                  << convertArrayToMatrix( RC2I ) << std::endl;
+//        std::cout << "Matrix Sofa: " << std::endl << std::setprecision( 16 )
+//                  << convertArrayToMatrix( RC2TI ) << std::endl;
+//        std::cout << "Matrix Sofa: " << std::endl << std::setprecision( 16 )
+//                  << convertArrayToMatrix( RC2IT ) << std::endl;
         break;
 
         //  ===========================================
@@ -275,7 +288,7 @@ Eigen::Matrix3d getSofaEarthOrientationExamples(
 
         break;
     default:
-        std::cerr<<"Error, did not recognize case "<<calculationCase<<" in sofa earth orientation cookbook"<<std::endl;
+        std::cerr << "Error, did not recognize case " << calculationCase << " in sofa earth orientation cookbook" << std::endl;
     }
 
     return convertArrayToMatrix( RC2IT );

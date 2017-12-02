@@ -17,11 +17,8 @@
 #define TUDAT_CUBIC_SPLINE_INTERPOLATOR_H
 
 #include <cmath>
-#include <iostream>
-
 #include <Eigen/Core>
 
-#include <boost/exception/all.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"

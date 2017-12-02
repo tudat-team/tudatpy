@@ -9,8 +9,6 @@
  */
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/lexical_cast.hpp>
-
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #endif
@@ -104,8 +102,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         bodyName == "Uranus" || bodyName == "Neptune" )
                 {
                     inputName += " Barycenter";
-                    std::cerr<<"Warning, position of "<<bodyName<<" taken as barycenter of that body's "
-                            <<"planetary system."<<std::endl;
+                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
+                            << "planetary system." << std::endl;
                 }
 
                 // Create corresponding ephemeris object.
@@ -277,7 +275,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         {
             throw std::runtime_error(
                         "Error, did not recognize ephemeris model settings type " +
-                        boost::lexical_cast< std::string >( ephemerisSettings->getEphemerisType( ) ) );
+                        std::to_string( ephemerisSettings->getEphemerisType( ) ) );
         }
         }
     }

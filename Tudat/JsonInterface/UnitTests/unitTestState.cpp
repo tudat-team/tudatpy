@@ -10,9 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.cpp>
-
-#include "unitTestSupport.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.cpp"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Propagation/state.h"
 
 namespace tudat

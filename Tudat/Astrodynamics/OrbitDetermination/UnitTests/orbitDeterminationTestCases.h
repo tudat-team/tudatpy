@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef ORBITDETERMINATIONTESTCASES_H
 #define ORBITDETERMINATIONTESTCASES_H
 
@@ -331,7 +342,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     double aerodynamicCoefficient = 1.2;
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
-                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( )<<1.2, -0.1, -0.4 ).finished( ), 1, 1 );
+                referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
@@ -452,7 +463,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
     linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
-    std::cout<<"Link ends "<<getLinkEndsString( linkEndsPerObservable[ one_way_doppler ].at( 0 ) )<<std::endl;
+    std::cout << "Link ends " << getLinkEndsString( linkEndsPerObservable[ one_way_doppler ].at( 0 ) ) << std::endl;
 
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back(
@@ -602,7 +613,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout<<( estimationError ).transpose( )<<std::endl;
+    std::cout << ( estimationError ).transpose( ) << std::endl;
 
     podData = std::make_pair( podOutput, podInput );
 
