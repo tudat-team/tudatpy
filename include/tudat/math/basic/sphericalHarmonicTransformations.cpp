@@ -16,7 +16,7 @@ void SphericalHarmonicTransformationCache::updateFromCayleyKleinParameters(
         const std::complex< double > cayleyKleinA,
         const std::complex< double > cayleyKleinB )
 {
-    std::cout<<"Updating: "<<cayleyKleinA<<" "<<cayleyKleinB<<std::endl;
+//    std::cout<<"Updating: "<<cayleyKleinA<<" "<<cayleyKleinB<<std::endl;
     wignerDMatricesCache_->updateMatrices( cayleyKleinA, cayleyKleinB );
 }
 
@@ -45,7 +45,7 @@ void SphericalHarmonicTransformationCache::transformCoefficientsAtDegree(
 
     for( unsigned int l = 0; l < originalCosineCoefficients.rows( ); l++ )
     {
-        for( int m = 0; ( m <= l && m < originalCosineCoefficients.cols( ) ); m++ )
+        for( unsigned int m = 0; ( m <= l && m < originalCosineCoefficients.cols( ) ); m++ )
         {
             if( !areCoefficientsNormalized )
             {

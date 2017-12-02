@@ -184,12 +184,12 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const boost::function< double( int, int, int, int ) >& effectiveCosineCoefficientFunction,
         const boost::function< double( int, int, int, int ) >& effectiveSineCoefficientFunction,
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
-        const int maximumDegree1, const int maximumDegree2,
+        const int maximumDegree1, const int maximumDegree2, const int maximumEvaluationDegree,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
         boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
-    std::cout<<"Position: "<<positionOfBodySubjectToAcceleration.transpose( )<<std::endl;
+//    std::cout<<"Computing acceleration: "<<std::endl;
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
 
@@ -243,8 +243,9 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     bool computeTerm;
 
     std::vector< std::pair< double, double > > legendreTerms;
-    legendreTerms.resize( ( maximumDegree1  + maximumDegree2 + 1 ) * ( maximumDegree1  + maximumDegree2 + 1 ) );
-    for( unsigned int i = 0; i <= maximumDegree1  + maximumDegree2; i++ )
+
+    legendreTerms.resize( ( maximumEvaluationDegree + 1 ) * ( maximumEvaluationDegree + 1 ) );
+    for( unsigned int i = 0; i <= maximumEvaluationDegree; i++ )
     {
         for( unsigned int j = 0; j <= i; j++ )
         {
@@ -260,7 +261,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                         i, j, sineOfAngle,
                         legendrePolynomial, incrementedLegendrePolynomial );
 
-            legendreTerms[ i + ( maximumDegree1  + maximumDegree2 + 1 ) * j ] = std::make_pair( legendrePolynomial, legendrePolynomialDerivative );
+            legendreTerms[ i + ( maximumEvaluationDegree + 1 ) * j ] = std::make_pair( legendrePolynomial, legendrePolynomialDerivative );
         }
     }
 
@@ -303,7 +304,16 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
 
             if( computeTerm )
             {
-                currentTerms = legendreTerms.at( totalDegree + ( maximumDegree1  + maximumDegree2 + 1 ) * totalOrder );
+//                std::cout<<"Computing  "<<j<<" "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<" "<<
+//                           sphericalGradient.transpose( )<<" "<<
+//                           sphericalpositionOfBodySubjectToAcceleration.transpose( )<<" "<<preMultiplier<<" "<<
+//                           totalDegree<<" "<<totalOrder<<" "<<
+//                           effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+//                           effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+//                           currentTerms.first<<" "<<currentTerms.second
+//                        <<std::endl;
+
+                currentTerms = legendreTerms.at( totalDegree + ( maximumEvaluationDegree + 1 ) * totalOrder );
 
                 // Compute the potential gradient of a single spherical harmonic term.
                 sphericalGradient += basic_mathematics::computePotentialGradientWithManualRadiusRatioPower(
@@ -317,14 +327,6 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                             currentTerms.first,
                             currentTerms.second,
                             sphericalHarmonicsCache );
-                std::cout<<"Computing  "<<j<<" "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<" "<<
-                           sphericalGradient.transpose( )<<" "<<
-                           sphericalpositionOfBodySubjectToAcceleration.transpose( )<<" "<<preMultiplier<<" "<<
-                           totalDegree<<" "<<totalOrder<<" "<<
-                           effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-                           effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-                           currentTerms.first<<" "<<currentTerms.second<<std::endl;
-
             }
         }
 
@@ -617,9 +619,10 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
                     effectiveCosineCoefficients_[ effectiveIndex ],
                     effectiveSineCoefficients_[ effectiveIndex ] );
 
-        std::cout<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<effectiveIndex<<" "<<
-                   effectiveCosineCoefficients_[ effectiveIndex ]<<" "<<
-                   effectiveSineCoefficients_[ effectiveIndex ]<<std::endl;
+//        std::cout<<"Updating effective potential: "<<
+//                   degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<effectiveIndex<<" "<<
+//                   effectiveCosineCoefficients_[ effectiveIndex ]<<" "<<
+//                   effectiveSineCoefficients_[ effectiveIndex ]<<std::endl;
         if( orderOfBody1 != 0 )
         {
             effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );

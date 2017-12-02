@@ -103,7 +103,6 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
 
         if( areCoefficientsNormalized_ )
         {
-            std::cout<<"Coeff. normalized"<<std::endl;
             mutualPotentialGradient_ = computeGeodesyNormalizedMutualGravitationalAccelerationSum(
                         currentBodyFixedRelativePosition_, gravitationalParameterFunction_( ),
                         equatorialRadiusOfBody1_, equatorialRadiusOfBody2_,
@@ -111,6 +110,7 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
                         coefficientCombinationsToUse_,
                         effectiveMutualPotentialField_->getMaximumDegree1( ),
                         effectiveMutualPotentialField_->getMaximumDegree2( ),
+                        maximumDegree_,
                         radius1Powers_,
                         radius2Powers_,
                         sphericalHarmonicsCache_ );

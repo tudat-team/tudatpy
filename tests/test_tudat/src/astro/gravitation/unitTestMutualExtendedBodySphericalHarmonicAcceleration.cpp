@@ -30,20 +30,20 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > generateCosineSineCoefficients(
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
 
-//    for( int i = 0; i <= maximumDegree; i++ )
-//    {
-//        for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
-//        {
-//          cosineCoefficients( i, j ) = randomNumberGenerator->getRandomVariableValue( );
-//            if( j != 0 )
-//            {
-////                sineCoefficients( i, j ) = randomNumberGenerator->getRandomVariableValue( );
-//            }
-//        }
-//    }
+    for( int i = 0; i <= maximumDegree; i++ )
+    {
+        for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
+        {
+            cosineCoefficients( i, j ) = randomNumberGenerator->getRandomVariableValue( );
+            if( j != 0 )
+            {
+                sineCoefficients( i, j ) = randomNumberGenerator->getRandomVariableValue( );
+            }
+        }
+    }
 
-//    sineCoefficients( 2, 1 ) = randomNumberGenerator->getRandomVariableValue( );
-    sineCoefficients( 2, 1 ) = randomNumberGenerator->getRandomVariableValue( );
+    //cosineCoefficients( 1, 0 ) = randomNumberGenerator->getRandomVariableValue( );
+    //    sineCoefficients( 2, 1 ) = randomNumberGenerator->getRandomVariableValue( );
 
     cosineCoefficients( 0, 0 ) = 1.0;
 
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
     double initialTime = 1.0E7;
     double finalTime = 1.2E7;
 
-    int expanstionDegree = 3;
+    int expansionDegree = 5;
 
     //for( int isNormalized = 1; isNormalized < 1; isNormalized++ )
     int isNormalized = 1;
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
 
         // Create spherical harmonic gravity of Jupiter on Io, Jupiter-fixed (mu = Io + Jupiter)
         boost::shared_ptr< AccelerationSettings > sphericalHarmonicGravityOnIoFromJupiterSettings =
-                boost::make_shared< SphericalHarmonicAccelerationSettings >( expanstionDegree, expanstionDegree );
+                boost::make_shared< SphericalHarmonicAccelerationSettings >( expansionDegree, expansionDegree );
         boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicGravityOnIoFromJupiter =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel(  bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), sphericalHarmonicGravityOnIoFromJupiterSettings,
@@ -298,11 +298,11 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         sphericalHarmonicGravityOnIoFromJupiter->updateMembers( );
         Eigen::Vector3d sphericalHarmonicGravityOnIoFromJupiterAcceleration = sphericalHarmonicGravityOnIoFromJupiter->getAcceleration( );
         double sphericalHarmonicPotentialAtIoFromJupiter = jupiterGravityField->getGravitationalPotential(
-                    sphericalHarmonicGravityOnIoFromJupiter->getCurrentRelativePosition( ), expanstionDegree, expanstionDegree );
+                    sphericalHarmonicGravityOnIoFromJupiter->getCurrentRelativePosition( ), expansionDegree, expansionDegree );
 
         // Create spherical harmonic gravity of Io on Jupiter, Io-fixed (mu = Io + Jupiter)
         boost::shared_ptr< AccelerationSettings > sphericalHarmonicGravityOnJupiterFromIoSettings =
-                boost::make_shared< SphericalHarmonicAccelerationSettings >( expanstionDegree, expanstionDegree );
+                boost::make_shared< SphericalHarmonicAccelerationSettings >( expansionDegree, expansionDegree );
         boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicGravityOnJupiterFromIo =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), sphericalHarmonicGravityOnJupiterFromIoSettings,
@@ -312,11 +312,11 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         sphericalHarmonicGravityOnJupiterFromIo->updateMembers( );
         Eigen::Vector3d sphericalHarmonicGravityOnJupiterFromIoAcceleration = sphericalHarmonicGravityOnJupiterFromIo->getAcceleration( );
         double sphericalHarmonicPotentialAtJupiterFromIo = ioGravityField->getGravitationalPotential(
-                    sphericalHarmonicGravityOnJupiterFromIo->getCurrentRelativePosition( ), expanstionDegree, expanstionDegree );
+                    sphericalHarmonicGravityOnJupiterFromIo->getCurrentRelativePosition( ), expansionDegree, expansionDegree );
 
         // Create mutual spherical harmonic gravity between Io and Jupiter on Io, Jupiter fixed (mu = Io + Jupiter)
         boost::shared_ptr< AccelerationSettings > mutualDirectJupiterIoShGravitySettings =
-                boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( expanstionDegree, expanstionDegree, expanstionDegree, expanstionDegree );
+                boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( expansionDegree, expansionDegree, expansionDegree, expansionDegree );
         boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > mutualDirectJupiterIoShGravity =
                 boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), mutualDirectJupiterIoShGravitySettings,
@@ -329,84 +329,92 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        expanstionDegree, expanstionDegree, 0, 0 );
+                        expansionDegree, expansionDegree, 0, 0 );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
-
-            Eigen::Vector3d relativePosition = sphericalHarmonicGravityOnJupiterFromIo->getCurrentInertialRelativePosition( );
-            Eigen::Vector3d pointMassAcceleration =
-                    spice_interface::getBodyGravitationalParameter( "Jupiter" ) * relativePosition /
-                    ( std::pow( relativePosition.norm( ), 3 ) );
-
-            std::cout<<"Extended body:  "<<( sh1ExtendedGravityAcceleration - pointMassAcceleration ).transpose( )<<std::endl;
 
             Eigen::Vector3d precomputedAcceleration = ( ( -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) ) /
                                                         5.959916033410404E012 * sphericalHarmonicGravityOnJupiterFromIoAcceleration );
 
-            std::cout<<"Original:  "<<( precomputedAcceleration - pointMassAcceleration ).transpose( )<<std::endl;
+            Eigen::Vector3d accelerationDifference = precomputedAcceleration - sh1ExtendedGravityAcceleration;
 
-            std::cout<<"Difference: "<<( ( precomputedAcceleration - sh1ExtendedGravityAcceleration ) ).transpose( )<<std::endl;
-
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( precomputedAcceleration, sh1ExtendedGravityAcceleration, 5.0E-14 );
-
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
         }
 
-        sleep( 10000.0 );
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        0, 0, expanstionDegree, expanstionDegree );
+                        0, 0, expansionDegree, expansionDegree );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ), extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
-            Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
+            Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );;
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sphericalHarmonicGravityOnIoFromJupiterAcceleration, sh1ExtendedGravityAcceleration, 1.0E-14 );
+            Eigen::Vector3d accelerationDifference = sphericalHarmonicGravityOnIoFromJupiterAcceleration - sh1ExtendedGravityAcceleration;
 
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
         }
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        0, 0, expanstionDegree, expanstionDegree );
+                        0, 0, expansionDegree, expansionDegree );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), extendedBodySettings, "Jupiter", "Io" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sphericalHarmonicGravityOnJupiterFromIoAcceleration, sh1ExtendedGravityAcceleration, 5.0E-14 );
+            Eigen::Vector3d accelerationDifference = sphericalHarmonicGravityOnJupiterFromIoAcceleration - sh1ExtendedGravityAcceleration;
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
         }
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        expanstionDegree, expanstionDegree, 0, 0 );
+                        expansionDegree, expansionDegree, 0, 0 );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ), extendedBodySettings, "Jupiter", "Io" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        ( sphericalHarmonicGravityOnIoFromJupiterAcceleration ),
-                        ( -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) / 5.959916033410404E012 * sh1ExtendedGravityAcceleration ), 1.0E-14 );
+            Eigen::Vector3d precomputedAcceleration = -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) /
+                    5.959916033410404E012 * sh1ExtendedGravityAcceleration;
+
+            Eigen::Vector3d accelerationDifference = sphericalHarmonicGravityOnIoFromJupiterAcceleration - precomputedAcceleration;
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
         }
 
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        getExtendedSinglePointMassInteractions( expanstionDegree, expanstionDegree, expanstionDegree, expanstionDegree ) );
+                        getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ),  extendedBodySettings, "Io", "Jupiter" ) );
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
+
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         mutualSphericalHarmonicGravityOnIoFromJupiterAcceleration, sh1ExtendedGravityAcceleration, 5.0E-14 );
@@ -415,7 +423,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
         {
             // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
             boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        getExtendedSinglePointMassInteractions( expanstionDegree, expanstionDegree, expanstionDegree, expanstionDegree ) );
+                        getExtendedSinglePointMassInteractions( expansionDegree, expansionDegree, expansionDegree, expansionDegree ) );
             boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
                     boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
                         createAccelerationModel( bodyMap.at( "Jupiter" ), bodyMap.at( "Io" ),  extendedBodySettings, "Jupiter", "Io" ) );
@@ -427,159 +435,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
                         ( -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) / 5.959916033410404E012 * sh1ExtendedGravityAcceleration ), 5.0E-14 );
         }
 
-        {
-            std::cout<<"Test start"<<std::endl;
-            // Create (through mutual extended body interface) central gravity acceleration (mu = Io + Jupiter)
-            boost::shared_ptr< AccelerationSettings > extendedBodySettings = boost::make_shared< MutualExtendedBodySphericalHarmonicAccelerationSettings >(
-                        expanstionDegree, expanstionDegree, expanstionDegree, expanstionDegree );
-            //getExtendedSinglePointMassInteractions( expanstionDegree, expanstionDegree, expanstionDegree, expanstionDegree ) );
-            boost::shared_ptr< MutualExtendedBodySphericalHarmonicAcceleration > sh1ExtendedGravity =
-                    boost::dynamic_pointer_cast< MutualExtendedBodySphericalHarmonicAcceleration >(
-                        createAccelerationModel( bodyMap.at( "Io" ), bodyMap.at( "Jupiter" ),  extendedBodySettings, "Io", "Jupiter" ) );
 
-//            boost::shared_ptr< MutualExtendedBodySphericalHarmonicTorque > sh1ExtendedTorque =
-//                    boost::make_shared< MutualExtendedBodySphericalHarmonicTorque >(
-//                        sh1ExtendedGravity );
-
-            sh1ExtendedGravity->updateMembers( );
-            Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
-
-//            sh1ExtendedTorque->updateMembers( );
-
-//            {
-//                std::vector< Eigen::MatrixXd > transformedCosineCoefficientsOfBody2Partials;
-//                std::vector< Eigen::MatrixXd > transformedSineCoefficientsOfBody2Partials;
-
-////                sh1ExtendedTorque->getBodyCoefficientPartialsWrtEulerAngles(
-////                            transformedCosineCoefficientsOfBody2Partials,
-////                            transformedSineCoefficientsOfBody2Partials );
-
-//                std::vector< Eigen::MatrixXd > numericalTransformedCosineCoefficientsOfBody2Partials;
-//                std::vector< Eigen::MatrixXd > numericalTransformedSineCoefficientsOfBody2Partials;
-
-
-//                getBodyCoefficientEulerAnglePartials(
-//                            sh1ExtendedGravity->getCurrentRotationFromBody2ToBody1( ), sh1ExtendedGravity->getEffectiveMutualPotentialField( ),
-//                            numericalTransformedCosineCoefficientsOfBody2Partials,
-//                            numericalTransformedSineCoefficientsOfBody2Partials,
-//                            std::pow( 10, -5 ) );
-
-//                for( unsigned int i = 0; i < 3; i++ )
-//                {
-//                    for( unsigned int j = 0; j <= 5; j++ )
-//                    {
-//                        for( unsigned int k = 0; k <= 5; k++ )
-//                        {
-//                            BOOST_CHECK_CLOSE_FRACTION(
-//                                        numericalTransformedCosineCoefficientsOfBody2Partials.at( i )( j, k ),
-//                                        transformedCosineCoefficientsOfBody2Partials.at( i )( j, k ), 2.0E-7 );
-//                            BOOST_CHECK_CLOSE_FRACTION(
-//                                        numericalTransformedSineCoefficientsOfBody2Partials.at( i )( j, k ),
-//                                        transformedSineCoefficientsOfBody2Partials.at( i )( j, k ), 2.0E-7 );
-//                        }
-//                    }
-//                }
-//            }
-
-//            {
-//                std::map< int, std::map< int, std::map< int, std::map< int, Eigen::Matrix2d > > > > fullCoefficientsWrtBody2Coefficients;
-//                sh1ExtendedTorque->getFullCoefficientsWrtBody2Coefficients( fullCoefficientsWrtBody2Coefficients );
-//                std::map< int, std::map< int, std::map< int, std::map< int, Eigen::Matrix2d > > > > numericalFullCoefficientsWrtBody2Coefficients;
-
-//                boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > mutualPotentialField =
-//                        sh1ExtendedGravity->getEffectiveMutualPotentialField( );
-//                std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse =
-//                        mutualPotentialField->getCoefficientCombinationsToUse( );
-
-//                int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2;
-
-//                Eigen::MatrixXd nominalTransformedCosineCoefficients = mutualPotentialField->getTransformedCosineCoefficientsOfBody2( );
-//                Eigen::MatrixXd nominalTransformedSineCoefficients = mutualPotentialField->getTransformedCosineCoefficientsOfBody2( );
-
-//                double coefficientPerturbation = 1.0E-10;
-
-//                for( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
-//                {
-//                    degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-//                    orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-//                    degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-//                    orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
-
-//                    numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ] =
-//                            getEffectiveMutualPotentialCoefficientWrtBody2Coefficient(
-//                                degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2,
-//                                nominalTransformedCosineCoefficients,
-//                                nominalTransformedSineCoefficients,
-//                                mutualPotentialField,
-//                                coefficientPerturbation );
-//                    numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ] =
-//                            getEffectiveMutualPotentialCoefficientWrtBody2Coefficient(
-//                                degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2,
-//                                nominalTransformedCosineCoefficients,
-//                                nominalTransformedSineCoefficients,
-//                                mutualPotentialField,
-//                                coefficientPerturbation );
-//                    numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ] =
-//                            getEffectiveMutualPotentialCoefficientWrtBody2Coefficient(
-//                                degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2,
-//                                nominalTransformedCosineCoefficients,
-//                                nominalTransformedSineCoefficients,
-//                                mutualPotentialField,
-//                                coefficientPerturbation );
-//                    numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ] =
-//                            getEffectiveMutualPotentialCoefficientWrtBody2Coefficient(
-//                                degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2,
-//                                nominalTransformedCosineCoefficients,
-//                                nominalTransformedSineCoefficients,
-//                                mutualPotentialField,
-//                                coefficientPerturbation );
-
-//                    //std::cout<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2 <<std::endl;
-//                    double tolerance = 1.0E-5;
-//                    if( degreeOfBody1 == 2 && orderOfBody1 == 1 )
-//                    {
-//                        tolerance *= 100.0;
-//                    }
-
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ],
-//                                fullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ], tolerance );
-
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ],
-//                            fullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ orderOfBody2 ], tolerance );
-
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ],
-//                            fullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ], tolerance );
-
-//                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-//                                numericalFullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ],
-//                            fullCoefficientsWrtBody2Coefficients[ degreeOfBody1 ][ -orderOfBody1 ][ degreeOfBody2 ][ -orderOfBody2 ], tolerance );
-//                }
-//            }
-
-//            {
-//                std::map< int, std::map< int, std::map< int, std::map< int, Eigen::Matrix< double, 1, 2 > > > > > potentialComponentsWrtFullCoefficients;
-//                sh1ExtendedTorque->getPotentialComponentsWrtFullCoefficients( potentialComponentsWrtFullCoefficients );
-
-//                boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > mutualPotentialField =
-//                        sh1ExtendedGravity->getEffectiveMutualPotentialField( );
-//                std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse =
-//                        mutualPotentialField->getCoefficientCombinationsToUse( );
-
-//                int degreeOfBody1, degreeOfBody2, orderOfBody1, orderOfBody2;
-
-//                for( unsigned int i = 0; i < coefficientCombinationsToUse.size( ); i++ )
-//                {
-//                    degreeOfBody1 = coefficientCombinationsToUse.at( i ).get< 0 >( );
-//                    orderOfBody1 = coefficientCombinationsToUse.at( i ).get< 1 >( );
-//                    degreeOfBody2 = coefficientCombinationsToUse.at( i ).get< 2 >( );
-//                    orderOfBody2 = coefficientCombinationsToUse.at( i ).get< 3 >( );
-//                }
-
-//            }
-        }
     }
 }
 BOOST_AUTO_TEST_SUITE_END( )

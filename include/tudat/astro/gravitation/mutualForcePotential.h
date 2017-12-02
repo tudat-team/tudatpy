@@ -64,6 +64,7 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse,
         const int maximumDegree1,
         const int maximumDegree2,
+        const int maximumEvaluationDegree,
         const std::vector< double > radius1Powers,
         const std::vector< double > radius2Powers,
         boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
@@ -189,16 +190,19 @@ public:
     double getEffectiveCosineCoefficient(
             const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-        return effectiveCosineCoefficients_[ degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + maximumDegree1_+ ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * ( maximumDegree2_ + orderOfBody2 ) ) ) ];
+//        std::cout<<"Getting cosine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
+//                   getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+//                effectiveCosineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ]<<std::endl;
+        return effectiveCosineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
     double getEffectiveSineCoefficient(
             const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-        std::cout<<"Getting sine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
-                   degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) )<<" "<<
-                   effectiveSineCoefficients_[ degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) ) ]<<std::endl;
-        return effectiveSineCoefficients_[ degreeOfBody1 + ( maximumDegree1_ + 1 ) * ( orderOfBody1 + ( 2 * maximumDegree1_ + 1 ) * ( degreeOfBody2 + ( maximumDegree2_ + 1 ) * orderOfBody2 ) ) ];
+//        std::cout<<"Getting sine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
+//                   getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
+//                effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ]<<std::endl;
+        return effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
     boost::shared_ptr< basic_mathematics::SphericalHarmonicTransformationCache > getTransformationCache( )

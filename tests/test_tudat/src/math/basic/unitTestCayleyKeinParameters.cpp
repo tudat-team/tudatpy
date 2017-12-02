@@ -93,12 +93,12 @@ BOOST_AUTO_TEST_CASE( test_CayleyKleinConversions )
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.w( ), ( 0.5 * ( cayleyKleinA + cayleyKleinD ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.x( ),
-                                        ( -0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinB + cayleyKleinC ) ).real( ),
+                                        ( 0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinB + cayleyKleinC ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.y( ), ( 0.5 * ( cayleyKleinB - cayleyKleinC ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_CLOSE_FRACTION( directQuaternion.z( ),
-                                        ( -0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinA - cayleyKleinD )).real( ),
+                                        ( 0.5 * mathematical_constants::COMPLEX_I * ( cayleyKleinA - cayleyKleinD ) ).real( ),
                                         10.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
