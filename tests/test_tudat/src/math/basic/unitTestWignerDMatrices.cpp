@@ -47,7 +47,7 @@ using namespace tudat::basic_mathematics;
 BOOST_AUTO_TEST_SUITE( test_WignerDMatrices )
 
 //! Compute values of Wigner D-matrix components at edge of blocks, Varschalovich et al., p. 115, Section 4.17, Eq. (8)
-double getWignerDValueAtBoundary(
+void getWignerDValueAtBoundary(
         const int degree, const int orderToEvaluate,
         const double angleAlpha, const double angleBeta, const double angleGamma,
         std::complex< double >& valueOrderEqualsDegree,
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( test_Wigner_D_Matrices )
                 {
                     // Compute expected value on diagonal
                     std::complex< double > expectedDMatrixValue =
-                            std::exp( static_cast< double >( m ) * tudat::mathematical_constants::COMPLEX_I * (
+                            std::exp( -static_cast< double >( m ) * tudat::mathematical_constants::COMPLEX_I * (
                                                          angleAlpha + angleGamma ) );
                     BOOST_CHECK_CLOSE_FRACTION( currentDMatrix( j, k ).real( ), expectedDMatrixValue.real( ),
                                                 100.0 * std::numeric_limits< double >::epsilon( ) );

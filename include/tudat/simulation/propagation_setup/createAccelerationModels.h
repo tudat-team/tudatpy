@@ -422,6 +422,23 @@ createThirdBodyRingGravityAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
 
+//! Function to create mutual two-body spherical harmonic gravity acceleration model.
+/*!
+ *  Function to create mutual two-body spherical harmonic gravity acceleration model from bodies exerting and
+ *  undergoing acceleration, from algorithm of Dirkx et al. (2018)
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting acceleration.
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with mutual two-body spherical harmonic acceleration).
+ *  \param useCentralBodyFixedFrame Boolean setting whether the central attraction of body
+ *  undergoing acceleration on body exerting acceleration is to be included in acceleration model.
+ *  Should be set to true in case the body undergoing acceleration is a celestial body
+ *  (with gravity field) and integration is performed in the frame centered at the body exerting
+ *  acceleration.
+ *  \return Mutual two-body spherical harmonic gravity acceleration model pointer.
+ */
 std::shared_ptr< gravitation::MutualExtendedBodySphericalHarmonicAcceleration > createMutualExtendedBodySphericalHarmonicsGravityAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,

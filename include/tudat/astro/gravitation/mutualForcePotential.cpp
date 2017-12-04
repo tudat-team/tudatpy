@@ -10,6 +10,7 @@ namespace tudat
 namespace gravitation
 {
 
+//! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
 std::pair< int, int > getMaximumDegrees(
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse )
 {
@@ -35,6 +36,7 @@ std::pair< int, int > getMaximumDegrees(
     return std::make_pair( maximumDegree1, maximumDegree2 );
 }
 
+//! Function to compute cross-body normalization terms for mutual two-body potential
 double getGammaCoefficientForMutualForcePotential(
         const int l, const int m, const int j, const int k )
 {
@@ -56,7 +58,8 @@ double getGammaCoefficientForMutualForcePotential(
     return gammaCoefficient;
 }
 
-
+//! Function to compute cross-body normalization terms for mutual two-body potential, for unnormalized or fully normalized
+//! coefficients
 double getMutualPotentialEffectiveCoefficientMultiplier(
         const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized )
 {
@@ -83,15 +86,16 @@ double getMutualPotentialEffectiveCoefficientMultiplier(
 double computeSingleMutualForcePotentialTerm(
         const double effectiveCosineCoefficient,
         const double effectiveSineCoefficient,
-        const double polynomialParameter,
         boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int degreeOfBody1,
         const int orderOfBody1,
         const int degreeOfBody2,
         const int orderOfBody2 )
 {
-    return ( effectiveCosineCoefficient * sphericalHarmonicsCache->getCosineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) -
-             effectiveSineCoefficient * sphericalHarmonicsCache->getSineOfMultipleLongitude( std::abs( orderOfBody1 + orderOfBody2 ) ) ) *
+    return ( effectiveCosineCoefficient * sphericalHarmonicsCache->getCosineOfMultipleLongitude(
+                 std::abs( orderOfBody1 + orderOfBody2 ) ) -
+             effectiveSineCoefficient * sphericalHarmonicsCache->getSineOfMultipleLongitude(
+                 std::abs( orderOfBody1 + orderOfBody2 ) ) ) *
             sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial(
                 degreeOfBody1 + degreeOfBody2, std::abs( orderOfBody1 + orderOfBody2 ) );
 }
@@ -152,19 +156,19 @@ double computeMutualForcePotential(
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
+                    sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 ),
-                    sineOfLatitude,sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
+                    sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
+                    sphericalHarmonicsCache, degreeOfBody1, orderOfBody1, degreeOfBody2, -orderOfBody2 );
         currentTerm += computeSingleMutualForcePotentialTerm(
                     effectiveCosineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
                     effectiveSineCoefficientFunction( degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 ),
-                    sineOfLatitude, sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
+                    sphericalHarmonicsCache, degreeOfBody1, -orderOfBody1, degreeOfBody2, -orderOfBody2 );
         currentTerm *= radiusRatioOfBody1List.at( degreeOfBody1 );
         currentTerm *= radiusRatioOfBody2List.at( degreeOfBody2 );
         
@@ -228,7 +232,6 @@ Eigen::Vector3d computeGeodesyNormalizedMutualGravitationalAccelerationSum(
     // Compute longitude coordinate.
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
-    double cosineOfAngle = std::cos( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
 
     sphericalHarmonicsCache->update( TUDAT_NAN, sineOfAngle, sphericalpositionOfBodySubjectToAcceleration( 2 ), TUDAT_NAN );
 

@@ -8,22 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Eberly, D. Spherical Harmonics. Help documentation of Geometric Tools, 2008. Available at
- *        URL http://www.geometrictools.com/Documentation/SphericalHarmonics.pdf. Last access:
- *        09-09-2012.
- *      Heiskanen, W.A., Moritz, H. Physical geodesy. Freeman, 1967.
- *      Holmes, S.A., Featherstone, W.E. A unified approach to the Clenshaw summation and the
- *        recursive computation of very high degree and order normalised associated Legendre
- *        functions. Journal of Geodesy, 76(5):279-299, 2002.
- *      Vallado, D. and McClain, W. Fundamentals of astrodynammics and applications. Microcosm
- *        Press, 2001.
- *      Weisstein, E.W. Associated Legendre Polynomial, 2012.
- *        URL http://mathworld.wolfram.com/AssociatedLegendrePolynomial.html. Last access:
- *        12-09-2012.
- *
- *    Notes
- *      For information on how the caching mechanism works, please contact S. Billemont
- *      (S.Billemont@studelft.tudelft.nl).
+ *      Varschalovich, et al. Quantum Theory of Angular Momentum. World Scientific, February 1988
+ *      Boué, (2017) The two rigid body interaction using angular momentum theory formulae, CMDA 128(2-3):261-273
  *
  */
 
@@ -34,28 +20,68 @@
 
 namespace tudat
 {
+
 namespace basic_mathematics
 {
 
+//! Class to compute Wigner D-Matrices, used to transform spherical harmonic coefficients
+/*!
+ *  Class to compute Wigner D-Matrices, used to transform spherical harmonic coefficients under a rotation of the reference
+ *  frame. The formulation is in terms of Cayley-Klein parameters, and follows the same recursive formulation as Boué (2016)
+ */
 class WignerDMatricesCache
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param maximumDegree Maximum degree for which Wigner-D matrix is to be computed
+     */
     WignerDMatricesCache( const int maximumDegree );
 
+    //! Destructor
     ~WignerDMatricesCache( ){ }
 
+    //! Function to update contents of this object to new orientation
+    /*!
+     * Function to update contents of this object to new orientation, defined by Cayley-Klein parameters a and b. The
+     * parameters a and b are related to teh quaternion q by a = q0 - i q3, b = q1 - i q2.
+     * Calling this function updates the wignerDMatrices_ member variable
+     * \param cayleyKleinA Cayley-Klein parameters a
+     * \param cayleyKleinB Cayley-Klein parameters b
+     */
     void updateMatrices( const std::complex< double > cayleyKleinA, const std::complex< double > cayleyKleinB );
 
+    //! Function to retrieve single component of Wigner D-matrix
+    /*!
+     * Function to retrieve single component of Wigner D-matrix
+     * \param degree Degree for which coefficient is to be retrieved (denoted l by Boué)
+     * \param originalOrder Original order for which coefficient is to be retrieved (denoted m by Boué)
+     * \param newOrder New order for which coefficient is to be retrieved (denoted m' by Boué)
+     * \return Single component of Wigner D-matrix
+     */
     std::complex< double > getWignerDCoefficient( const int degree, const int originalOrder, const int newOrder )
     {
         return wignerDMatrices_[ degree ]( originalOrder + degree, newOrder + degree );
     }
 
+    //! Function to retrieve single Wigner D-matrix
+    /*!
+     * Function to retrieve single Wigner D-matrix
+     * \param degree  Degree for which matrix is to be retrieved (denoted l by Boué)
+     * \return Wigner D-matrix at requested degree
+     */
     Eigen::MatrixXcd& getWignerDMatrix( const int degree )
     {
         return wignerDMatrices_[ degree ];
     }
 
+    //! Function to retrieve list of Wigner D-matrices
+    /*!
+     *  Function to retrieve list of Wigner D-matrices
+     *  \return List of Wigner D-matrices
+     */
     std::vector< Eigen::MatrixXcd >& getWignerDMatrices( )
     {
         return wignerDMatrices_;
@@ -63,28 +89,39 @@ public:
 
 private:
 
+    //! Function to precompute the coefficients used on the recursive formulation for Wigner D-matrices
     void computeCoefficients( );
 
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
     std::vector< Eigen::MatrixXd > coefficientsIndexMinusOne_;
 
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
     std::vector< Eigen::MatrixXd > coefficientsIndexZero_;
 
+    //! Coefficients used in the recursive formulation for Wigner D-matrices
     std::vector< Eigen::MatrixXd > coefficientsIndexOne_;
 
+    //! Maximum degree for which Wigner-D matrix is to be computed
     int maximumDegree_;
 
+    //! List of Wigner D-matrices
     std::vector< Eigen::MatrixXcd > wignerDMatrices_;
 
+    //! Cayley-Klein parameter a for current orientation.
     std::complex< double > currentCayleyKleinA_;
 
+    //! Cayley-Klein parameter b for current orientation.
     std::complex< double > currentCayleyKleinB_;
 
+    //! Conjugate of Cayley-Klein parameter a for current orientation.
     std::complex< double > currentCayleyKleinAConjugate_;
 
+    //! Conjugate of Cayley-Klein parameter b for current orientation.
     std::complex< double > currentCayleyKleinBConjugate_;
 };
 
 } // namespace basic_mathematics
+
 } // namespace tudat
 
 #endif // TUDAT_WIGNER_D_MATRIXRES_H

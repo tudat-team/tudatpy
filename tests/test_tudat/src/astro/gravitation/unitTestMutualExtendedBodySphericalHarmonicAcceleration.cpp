@@ -415,9 +415,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
 
+            Eigen::Vector3d accelerationDifference = mutualSphericalHarmonicGravityOnIoFromJupiterAcceleration - sh1ExtendedGravityAcceleration;
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualSphericalHarmonicGravityOnIoFromJupiterAcceleration, sh1ExtendedGravityAcceleration, 5.0E-14 );
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
         }
 
         {
@@ -430,11 +433,17 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravity )
             sh1ExtendedGravity->updateMembers( );
             Eigen::Vector3d sh1ExtendedGravityAcceleration = sh1ExtendedGravity->getAcceleration( );
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        mutualSphericalHarmonicGravityOnIoFromJupiterAcceleration,
-                        ( -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) / 5.959916033410404E012 * sh1ExtendedGravityAcceleration ), 5.0E-14 );
-        }
+            Eigen::Vector3d precomputedAcceleration = -1.0 * spice_interface::getBodyGravitationalParameter( "Jupiter" ) /
+                    5.959916033410404E012 * sh1ExtendedGravityAcceleration;
 
+            Eigen::Vector3d accelerationDifference = mutualSphericalHarmonicGravityOnIoFromJupiterAcceleration - precomputedAcceleration;
+
+            for( unsigned int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( i ) ), 1.0E-15 );
+            }
+
+        }
 
     }
 }

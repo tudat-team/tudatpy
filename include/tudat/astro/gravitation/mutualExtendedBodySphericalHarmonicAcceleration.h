@@ -114,39 +114,85 @@ public:
 
 private:
 
+    //! Function returning the position of body 1
     boost::function< Eigen::Vector3d( ) > positionOfBody1Function_;
+
+    //! Function returning the position of body 2
     boost::function< Eigen::Vector3d( ) > positionOfBody2Function_;
 
+    //! Function returning the effective gravitational parameter
     boost::function< double( ) > gravitationalParameterFunction_;
 
+    //! Equatorial radius of body 1.
     double equatorialRadiusOfBody1_;
+
+    //! Equatorial radius of body 2.
     double equatorialRadiusOfBody2_;
 
+    //! List of degrees/orders that are to be used for the series expansion.
+    /*!
+     * List of degrees/orders that are to be used for the series expansion. Each tuple contains: (degree of body 1, order of
+     * body 1, degree of body 2, order of body 2)
+     */
     std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > > coefficientCombinationsToUse_;
 
+    //! Function that returns the effective one-body spherical harmonic cosine coefficient
+    /*!
+     *  Function that returns the effective one-body spherical harmonic cosine coefficient as a function of (degree of body 1,
+     *  order of body 1, degree of body 2, order of body 2)
+     */
     boost::function< double( int, int, int, int ) > effectiveCosineCoefficientFunction_;
+
+    //! Function that returns the effective one-body spherical harmonic sine coefficient
+    /*!
+     *  Function that returns the effective one-body spherical harmonic sine coefficient as a function of (degree of body 1,
+     *  order of body 1, degree of body 2, order of body 2)
+     */
     boost::function< double( int, int, int, int ) > effectiveSineCoefficientFunction_;
 
+    //! Function that returns the rotation from the inertial to body-fixed frame of body 1
     boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody1Transformation_;
+
+    //! Function that returns the rotation from the inertial to body-fixed frame of body 2
     boost::function< Eigen::Quaterniond( ) > toLocalFrameOfBody2Transformation_;
 
-    int maximumDegree_;
-    int maximumOrder_;
+    //! Maximum degree of effective one-body spherical harmonic expansion
+    unsigned int maximumDegree_;
 
+    //! Maximum order of effective one-body spherical harmonic expansion
+    unsigned int maximumOrder_;
+
+    //! Object that computes the effect one-body coefficients from the two one-body gravoity fields and their relative orientation
     boost::shared_ptr< gravitation::EffectiveMutualSphericalHarmonicsField > effectiveMutualPotentialField_;
+
+    //! Function that computes the coefficients of body, in the body-fixed frame of body 1
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
+    //! Acceleration, as computed by last call to updateMembers
     Eigen::Vector3d currentAcceleration_;
+
+    //! Position of body 1 w.r.t. body 2, expressed in inertial frame, as computed by last call to updateMembers
     Eigen::Vector3d currentRelativePosition_;
+
+    //! Position of body 1 w.r.t. body 2, expressed in body-fixed frame of body 1, as computed by last call to updateMembers
     Eigen::Vector3d currentBodyFixedRelativePosition_;
+
+    //! Current gradient of mutual potential, in body-fixed frame of body 1 in Cartesian coordinates
     Eigen::Vector3d mutualPotentialGradient_;
 
+    //! Current rotation from body-fixed frame of body 2 to that of body 1, as computed by last call to updateMembers
     Eigen::Quaterniond currentRotationFromBody2ToBody1_;
 
+    //! Variable denoting whether acceleration is expressed in body-fixed frame of body 1, or in inertial frame.
     bool useCentraBodyFrame_;
+
+    //! Boolean denoting whether spherical harmonic coefficients are normalized
     bool areCoefficientsNormalized_;
 
+    //! List of integer powers of (distance / equatorial radius of body 1)
     std::vector< double > radius1Powers_;
+
+    //! List of integer powers of (distance / equatorial radius of body 2)
     std::vector< double > radius2Powers_;
 
 

@@ -1,5 +1,15 @@
-#ifndef MUTUALFORCEPOTENTIAL_H
-#define MUTUALFORCEPOTENTIAL_H
+/*    Copyright (c) 2010-2017, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_MUTUALFORCEPOTENTIAL_H
+#define TUDAT_MUTUALFORCEPOTENTIAL_H
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
@@ -21,24 +31,65 @@ namespace tudat
 namespace gravitation
 {
 
+//! Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
+/*!
+ *  Function to get maximum degrees of used for the spherical harmonic expansions of the two bodies
+ *  \param coefficientCombinationsToUse st of degrees/orders that are to be used for the series expansion.
+ *  Each tuple contains: (degree of body 1, order of body 1, degree of body 2, order of body 2)
+ *  \return Maximum degree of body 1 and body 2 (as a pair)
+ */
 std::pair< int, int > getMaximumDegrees(
         const std::vector< boost::tuple< unsigned int, unsigned int, unsigned int, unsigned int > >& coefficientCombinationsToUse );
 
+//! Function to compute cross-body normalization terms for mutual two-body potential
+/*!
+ * Function to compute cross-body normalization term gamma for mutual two-body potential, according to formulation of Compere &
+ * Lemaitre (2014)
+ * \param l Parameter l used by Compere & Lemaitre (2014); degree of body 1
+ * \param m Parameter m used by Compere & Lemaitre (2014); order of body 1
+ * \param j Parameter j used by Compere & Lemaitre (2014); degree of body 2
+ * \param k Parameter k used by Compere & Lemaitre (2014); order of body 2
+ * \return Term gamma for mutual two-body potential, according to formulation of Compere & Lemaitre (2014)
+ */
 double getGammaCoefficientForMutualForcePotential(
         const int l, const int m, const int j, const int k );
 
+//! Function to compute cross-body normalization terms for mutual two-body potential, for unnormalized or fully normalized
+//! coefficients
+/*!
+ * Function to compute cross-body normalization terms for mutual two-body potential, for unnormalized or fully normalized
+ * coefficients
+ * \param degree1 Degree of body 1
+ * \param order1 Order of body 1
+ * \param degree2 Degree of body 2
+ * \param order2 Order of body 2
+ * \param areCoefficientsNormalized Boolean denoting whether the coefficients are fully normalized or unnormalized
+ * \return Cross-body normalization terms for mutual two-body potential
+ */
+double getMutualPotentialEffectiveCoefficientMultiplier(
+        const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized );
+
+//! Function to compute single-term in two-body potential, from effective one-body formulation of Dirkx et al. (2018)
+/*!
+ * Function to compute single-term in two-body potential, from effective one-body formulation of Dirkx et al. (2018),
+ * omitting the radius power term, and the common multiplier for all terms
+ * \param effectiveCosineCoefficient Effective one-body cosine coefficient
+ * \param effectiveSineCoefficient Effective one-body sine coefficient
+ * \param sphericalHarmonicsCache Cache object used to pre-compute Legendre polynomials and other spherical harmonic terms
+ * \param degree1 Degree of body 1
+ * \param order1 Order of body 1
+ * \param degree2 Degree of body 2
+ * \param order2 Order of body 2
+ * \return Single-term in effective one-body formulation, omitting the radius power term, and the common multiplier for all terms
+ */
 double computeSingleMutualForcePotentialTerm(
         const double effectiveCosineCoefficient,
         const double effectiveSineCoefficient,
-        const double polynomialParameter,
         boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int degreeOfBody1,
         const int orderOfBody1,
         const int degreeOfBody2,
         const int orderOfBody2 );
-
-double getMutualPotentialEffectiveCoefficientMultiplier(
-        const int degree1, const int order1, const int degree2, const int order2, const bool areCoefficientsNormalized );
 
 double computeMutualForcePotential(
         const Eigen::Vector3d& bodyFixedPosition,
@@ -190,18 +241,12 @@ public:
     double getEffectiveCosineCoefficient(
             const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-//        std::cout<<"Getting cosine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
-//                   getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-//                effectiveCosineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ]<<std::endl;
         return effectiveCosineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
     double getEffectiveSineCoefficient(
             const int degreeOfBody1, const int orderOfBody1, const int degreeOfBody2, const int orderOfBody2 )
     {
-//        std::cout<<"Getting sine: "<<degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<
-//                   getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 )<<" "<<
-//                effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ]<<std::endl;
         return effectiveSineCoefficients_[ getEffectiveIndex( degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ];
     }
 
@@ -240,22 +285,6 @@ public:
         return multipliers_[ getEffectiveIndex(
                     degreeOfBody1, orderOfBody1, degreeOfBody2, orderOfBody2 ) ] ;
     }
-
-//    void getTransformedCoefficientPartialsWrtEulerAngles(
-//            std::vector< Eigen::MatrixXd >& transformedCosineCoefficientsOfBody2Partials,
-//            std::vector< Eigen::MatrixXd >& transformedSineCoefficientsOfBody2Partials )
-//    {
-//        transformationCache_->getPartialDerivativesOfTransformedCoefficientsWrtEulerAngles(
-//                    cosineCoefficientsOfBody2_,
-//                    sineCoefficientsOfBody2_,
-//                    transformedCosineCoefficientsOfBody2Partials_,
-//                    transformedSineCoefficientsOfBody2Partials_,
-//                    areCoefficientsNormalized_ );
-
-//        transformedCosineCoefficientsOfBody2Partials = transformedCosineCoefficientsOfBody2Partials_;
-//        transformedSineCoefficientsOfBody2Partials = transformedSineCoefficientsOfBody2Partials_;
-
-//    }
 
     void computePartialsOfFullCoefficientsWrtTransformedCoefficients(
             std::vector< Eigen::Matrix2d >& fullCoefficientsWrtBody2CoefficientsList );
@@ -322,4 +351,4 @@ private:
 
 }
 
-#endif // MUTUALFORCEPOTENTIAL_H
+#endif // TUDAT_MUTUALFORCEPOTENTIAL_H

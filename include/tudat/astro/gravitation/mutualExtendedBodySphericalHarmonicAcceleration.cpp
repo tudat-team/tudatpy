@@ -88,13 +88,13 @@ void MutualExtendedBodySphericalHarmonicAcceleration::updateMembers( const doubl
         effectiveMutualPotentialField_->computeCurrentEffectiveCoefficients( currentRotationFromBody2ToBody1_ );
 
         double currentDistance = currentRelativePosition_.norm( );
-        for( unsigned int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
+        for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree1( ); i++ )
         {
             radius1Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody1_ / currentDistance, i );
 
         }
 
-        for( unsigned int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree2( ); i++ )
+        for( int i = 0; i <= effectiveMutualPotentialField_->getMaximumDegree2( ); i++ )
         {
             radius2Powers_[ i ] = basic_mathematics::raiseToIntegerPower( equatorialRadiusOfBody2_ / currentDistance, i );
 
