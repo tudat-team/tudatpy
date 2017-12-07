@@ -384,9 +384,6 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
 
 {
-    // Define return partial list
-    SingleLinkObservationPartialList twoWayDopplerPartialList;
-
 
     // Define list of constituent one-way partials.
     typedef std::vector< std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
@@ -501,6 +498,9 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     boost::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler = boost::make_shared< TwoWayDopplerScaling >(
                 oneWayDopplerScalers, oneWayRangeScalings, oneWayDopplerModels );
 
+    // Define return partial list
+    SingleLinkObservationPartialList twoWayDopplerPartialList;
+
     // Create two-way Doppler partial objects
     for( std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
          sortedOneWayDopplerPartials.begin( ); sortedPartialIterator != sortedOneWayDopplerPartials.end( ); sortedPartialIterator++ )
@@ -529,6 +529,30 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
             twoWayDopplerPartialList[ sortedPartialIterator->first ] = boost::make_shared< TwoWayDopplerPartial >(
                         twoWayDopplerScaler, currentDopplerPartialList, currentRangePartialList,
                         parameterIdList.at( sortedPartialIterator->first ), numberOfLinkEnds );
+        }
+    }
+
+    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+            vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
+    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
+         parameterIterator =
+         vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
+    {
+
+        boost::shared_ptr< ObservationPartial< 1 > > currentTwoWayDopplerPartial;
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
+                        twoWayDopplerLinkEnds, observation_models::two_way_doppler, parameterIterator->second );
+        }
+
+        // Check if partial is non-null (i.e. whether dependency exists between current doppler and current parameter)
+        if( currentTwoWayDopplerPartial != NULL )
+        {
+            // Add partial to the list.
+            std::pair< double, double > currentPair = std::pair< int, int >( parameterIterator->first,
+                                                 parameterIterator->second->getParameterSize( ) );
+            twoWayDopplerPartialList[ currentPair ] = currentTwoWayDopplerPartial;
         }
     }
 
