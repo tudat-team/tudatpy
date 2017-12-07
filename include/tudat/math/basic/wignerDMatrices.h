@@ -66,6 +66,7 @@ public:
         return wignerDMatrices_[ degree ]( originalOrder + degree, newOrder + degree );
     }
 
+
     //! Function to retrieve single Wigner D-matrix
     /*!
      * Function to retrieve single Wigner D-matrix
@@ -89,6 +90,8 @@ public:
 
 private:
 
+    void computeAngularMomentumOperators( );
+
     //! Function to precompute the coefficients used on the recursive formulation for Wigner D-matrices
     void computeCoefficients( );
 
@@ -101,11 +104,23 @@ private:
     //! Coefficients used in the recursive formulation for Wigner D-matrices
     std::vector< Eigen::MatrixXd > coefficientsIndexOne_;
 
+
+    Eigen::MatrixXd angularMomentumScalingEntry0_;
+
+    Eigen::MatrixXd angularMomentumScalingEntry2_;
+
+
     //! Maximum degree for which Wigner-D matrix is to be computed
     int maximumDegree_;
 
     //! List of Wigner D-matrices
     std::vector< Eigen::MatrixXcd > wignerDMatrices_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsX_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsY_;
+
+    std::vector< Eigen::MatrixXcd > angularMomentumOperatorsZ_;
 
     //! Cayley-Klein parameter a for current orientation.
     std::complex< double > currentCayleyKleinA_;
@@ -118,6 +133,10 @@ private:
 
     //! Conjugate of Cayley-Klein parameter b for current orientation.
     std::complex< double > currentCayleyKleinBConjugate_;
+
+    const bool computeAngularMomentumOperators_;
+
+    Eigen::Matrix3cd transformationMatrixToCartesianBasis_;
 };
 
 } // namespace basic_mathematics

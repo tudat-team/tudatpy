@@ -622,10 +622,6 @@ void EffectiveMutualSphericalHarmonicsField::updateEffectiveMutualPotential( )
                     effectiveCosineCoefficients_[ effectiveIndex ],
                     effectiveSineCoefficients_[ effectiveIndex ] );
 
-//        std::cout<<"Updating effective potential: "<<
-//                   degreeOfBody1<<" "<<orderOfBody1<<" "<<degreeOfBody2<<" "<<orderOfBody2<<" "<<effectiveIndex<<" "<<
-//                   effectiveCosineCoefficients_[ effectiveIndex ]<<" "<<
-//                   effectiveSineCoefficients_[ effectiveIndex ]<<std::endl;
         if( orderOfBody1 != 0 )
         {
             effectiveIndex = getEffectiveIndex( degreeOfBody1, -orderOfBody1, degreeOfBody2, orderOfBody2 );
