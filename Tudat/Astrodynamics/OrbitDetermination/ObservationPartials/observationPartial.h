@@ -284,7 +284,8 @@ template< int ObservationSize >
 boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPartialWrtLinkProperty(
         const observation_models::LinkEnds& linkEnds,
         const observation_models::ObservableType observableType,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate )
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate,
+        const bool useBiasPartials = true )
 {
     boost::shared_ptr< ObservationPartial< ObservationSize > > observationPartial;
 
@@ -293,6 +294,8 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
     {
     case estimatable_parameters::constant_additive_observation_bias:
     {
+        if( useBiasPartials )
+        {
         // Check input consistency
         boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
                 boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
@@ -310,10 +313,13 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
                             observableType, linkEnds );
             }
         }
+        }
         break;
     }
     case estimatable_parameters::constant_relative_observation_bias:
     {
+        if( useBiasPartials )
+        {
         // Check input consistency
         boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > constantBias =
                 boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
@@ -332,10 +338,12 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
             }
         }
         break;
+        }
     }
     default:
         break;
     }
+
     return observationPartial;
 }
 

@@ -149,7 +149,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > transmitterDopplerProperTimeInterface,
         const boost::shared_ptr< observation_models::DopplerProperTimeRateInterface > receiverDopplerProperTimeInterface,
         const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
-        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
+        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ),
+        const bool useBiasPartials = true )
 {
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
     if( lightTimeCorrections.size( ) > 0 )
@@ -266,7 +267,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             currentDopplerPartial = createObservationPartialWrtLinkProperty< 1 >(
-                        oneWayDopplerLinkEnds, observation_models::one_way_doppler, parameterIterator->second );
+                        oneWayDopplerLinkEnds, observation_models::one_way_doppler, parameterIterator->second, useBiasPartials );
         }
 
 
@@ -304,7 +305,8 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
         const std::map< observation_models::LinkEnds,
         boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > > observationModelList,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate )
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+        const bool useBiasPartials = true )
 {
     // Declare return list.
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
@@ -342,7 +344,7 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayDopplerPartials(
                     linkIterator.first, bodyMap, parametersToEstimate,
                     dopplerObservationModel->getTransmitterProperTimeRateCalculator( ),
                     dopplerObservationModel->getReceiverProperTimeRateCalculator( ),
-                    singleLinkLightTimeCorrections );
+                    singleLinkLightTimeCorrections, useBiasPartials );
     }
 
     // Return complete set of link ends.
@@ -442,7 +444,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         constituentOneWayDopplerPartials.push_back(
                     createOneWayDopplerPartials(
                         currentLinkEnds, bodyMap, parametersToEstimate, transmitterDopplerProperTimeInterface,
-                        receiverDopplerProperTimeInterface, currentLightTimeCorrections ) );
+                        receiverDopplerProperTimeInterface, currentLightTimeCorrections, false ) );
         constituentOneWayRangePartials.push_back(
                     createOneWayRangePartials( currentLinkEnds, bodyMap, parametersToEstimate,
                                                currentLightTimeCorrections ) );
