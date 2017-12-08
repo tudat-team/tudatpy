@@ -375,7 +375,9 @@ struct PodOutput
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
                const double residualStandardDeviation,
                const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
-               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ) ):
+               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
+               const bool exceptionDuringInversion = false,
+               const bool exceptionDuringPropagation = false ):
 
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
@@ -383,7 +385,9 @@ struct PodOutput
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         residualStandardDeviation_( residualStandardDeviation ),
         residualHistory_( residualHistory ),
-        parameterHistory_( parameterHistory )
+        parameterHistory_( parameterHistory ),
+        exceptionDuringInversion_( exceptionDuringInversion ),
+        exceptionDuringPropagation_( exceptionDuringPropagation)
     { }
 
     //! Function to retrieve the unnormalized inverse estimation covariance matrix
@@ -512,6 +516,10 @@ struct PodOutput
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
+
+    bool exceptionDuringInversion_;
+
+    bool exceptionDuringPropagation_;
 };
 
 }

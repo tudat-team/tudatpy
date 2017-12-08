@@ -621,11 +621,12 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 }
 
 template< typename TimeType = double, typename StateScalarType  = double >
-Eigen::VectorXd executeEarthOrbiterBiasEstimation(
+std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         const bool estimateRangeBiases = true,
         const bool estimateTwoWayBiases = false,
         const bool useSingleBiasModel = true,
-        const bool estimateAbsoluteBiases = true )
+        const bool estimateAbsoluteBiases = true,
+        const bool omitRangeData = false )
 {
 
     const int numberOfDaysOfData = 1;
@@ -885,11 +886,16 @@ Eigen::VectorXd executeEarthOrbiterBiasEstimation(
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
     {
         ObservableType currentObservable = linkEndIterator->first;
-        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+
+        if( !( omitRangeData && ( ( currentObservable == one_way_range ) ||
+                                    ( currentObservable == n_way_range ) ) ) )
         {
-            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_pair( baseTimeList, receiver );
+            std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+            for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+            {
+                measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
+                        std::make_pair( baseTimeList, receiver );
+            }
         }
     }
 
@@ -951,7 +957,7 @@ Eigen::VectorXd executeEarthOrbiterBiasEstimation(
     weightPerObservable[ two_way_doppler ] = 1.0 / ( 1.0E-12 * 1.0E-12 );
 
     podInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
-    podInput->defineEstimationSettings( true, false, false, false, false );
+    podInput->defineEstimationSettings( true, false, false, true, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
@@ -960,7 +966,7 @@ Eigen::VectorXd executeEarthOrbiterBiasEstimation(
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout << ( estimationError ).transpose( ) << std::endl<< std::endl;
 
-    return estimationError;
+    return std::make_pair( estimationError, ( podOutput->exceptionDuringInversion_ || podOutput->exceptionDuringPropagation_ ) );
 }
 
 }
