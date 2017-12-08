@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 
                     // Simulate estimated parameter error.
                     Eigen::VectorXd totalError = executeEarthOrbiterBiasEstimation< double, double >(
-                                estimateRangeBiases, estimateTwoWayBiases, useSingleBiasModel, estimateAbsoluteBiases );
+                                estimateRangeBiases, estimateTwoWayBiases, useSingleBiasModel, estimateAbsoluteBiases ).first;
 
                     for( unsigned int j = 0; j < 3; j++ )
                     {
@@ -74,6 +74,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
             }
         }
     }
+
+    BOOST_CHECK_EQUAL( executeEarthOrbiterBiasEstimation( true, false, true, true, true ).second, true );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
