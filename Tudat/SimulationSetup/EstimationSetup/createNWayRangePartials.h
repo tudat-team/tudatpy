@@ -89,7 +89,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
         // Create onw-way range partials for current link
         constituentOneWayRangePartials[ i ] =
-                createOneWayRangePartials( currentLinkEnds, bodyMap, parametersToEstimate, currentLightTimeCorrections );
+                createOneWayRangePartials( currentLinkEnds, bodyMap, parametersToEstimate, currentLightTimeCorrections, false );
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
@@ -120,6 +120,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         }
     }
 
+
     // Create n-way range scaling object
     boost::shared_ptr< NWayRangeScaling > nWayRangeScaler = boost::make_shared< NWayRangeScaling >(
                 oneWayRangeScalers, nWayRangeLinkEnds.size( ) );
@@ -131,6 +132,30 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         nWayRangePartialList[ sortedPartialIterator->first ] = boost::make_shared< NWayRangePartial >(
                     nWayRangeScaler, sortedPartialIterator->second, parameterIdList.at( sortedPartialIterator->first ),
                     numberOfLinkEnds );
+    }
+
+    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+            vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
+    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
+         parameterIterator =
+         vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
+    {
+
+        boost::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
+        if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
+        {
+            currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
+                        nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second );
+        }
+
+        // Check if partial is non-null
+        if( currentNWayRangePartial != NULL )
+        {
+            // Add partial to the list.
+            std::pair< double, double > currentPair = std::pair< int, int >( parameterIterator->first,
+                                                 parameterIterator->second->getParameterSize( ) );
+            nWayRangePartialList[ currentPair ] = currentNWayRangePartial;
+        }
     }
 
     return std::make_pair( nWayRangePartialList, nWayRangeScaler );

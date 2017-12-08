@@ -121,7 +121,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
-        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
+        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ),
+        const bool useBiasPartials = true )
 {
 
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
@@ -220,7 +221,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             currentRangePartial = createObservationPartialWrtLinkProperty< 1 >(
-                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second );
+                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second, useBiasPartials );
         }
 
         // Check if partial is non-null (i.e. whether dependency exists between current range and current parameter)
@@ -261,7 +262,8 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
         std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ),
+        const bool useBiasPartials = true )
 {
     // Declare return list.
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
@@ -294,7 +296,7 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
 
         // Create range partials for current link ends
         rangePartials[ linkEnds[ i ] ] = createOneWayRangePartials< ParameterType >(
-                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections );
+                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections, useBiasPartials );
     }
 
     // Return complete set of link ends.
