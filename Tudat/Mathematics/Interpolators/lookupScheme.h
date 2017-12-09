@@ -69,6 +69,11 @@ public:
      */
     virtual int findNearestLowerNeighbour( const IndependentVariableType valueToLookup ) = 0;
 
+    std::vector< IndependentVariableType > getIndependentVariableValues( )
+    {
+        return independentVariableValues_;
+    }
+
 protected:
 
     //! Vector of independent variable values in which lookup is to be performed.

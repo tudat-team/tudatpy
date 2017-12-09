@@ -175,8 +175,47 @@ public:
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
-
 };
+
+class ArcWiseConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param isBiasAdditive True if bias is absolute, false if it is relative
+     */
+    ArcWiseConstantObservationBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime,
+            const bool isBiasAdditive ):
+        EstimatableParameterSettings(
+            linkEnds.begin( )->second.first,
+            isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
+            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    std::vector< double > arcStartTimes_;
+
+    observation_models::LinkEndType linkEndForTime_;
+};
+
+
+
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings

@@ -54,8 +54,14 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case constant_additive_observation_bias:
         parameterDescription = "absolute observation bias ";
         break;
+    case arcwise_constant_additive_observation_bias:
+        parameterDescription = "absolute arc-wise observation bias ";
+        break;
     case constant_relative_observation_bias:
         parameterDescription = "relative observation bias ";
+        break;
+    case arcwise_constant_relative_observation_bias:
+        parameterDescription = "relative arc-wise observation bias ";
         break;
     case ground_station_position:
         parameterDescription = "ground station position ";
@@ -144,7 +150,13 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case constant_additive_observation_bias:
         isDoubleParameter = false;
         break;
+    case arcwise_constant_additive_observation_bias:
+        isDoubleParameter = false;
+        break;
     case constant_relative_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arcwise_constant_relative_observation_bias:
         isDoubleParameter = false;
         break;
     case ppn_parameter_gamma:
@@ -209,7 +221,13 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case constant_additive_observation_bias:
         flag = true;
         break;
+    case arcwise_constant_additive_observation_bias:
+        flag = true;
+        break;
     case constant_relative_observation_bias:
+        flag = true;
+        break;
+    case arcwise_constant_relative_observation_bias:
         flag = true;
         break;
     default:
