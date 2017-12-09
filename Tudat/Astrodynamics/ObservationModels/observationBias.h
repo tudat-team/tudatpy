@@ -12,6 +12,7 @@
 #define TUDAT_OBSERVATIONBIAS_H
 
 #include <vector>
+#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -20,11 +21,11 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-
 #include "Tudat/Basics/basicTypedefs.h"
-
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
+
 
 namespace tudat
 {
@@ -37,7 +38,9 @@ enum ObservationBiasTypes
 {
     multiple_observation_biases,
     constant_absolute_bias,
-    constant_relative_bias
+    constant_relative_bias,
+    arc_wise_constant_absolute_bias,
+    arc_wise_constant_relative_bias,
 };
 
 //! Base class (non-functional) for describing observation biases
@@ -166,7 +169,7 @@ public:
         }
         else
         {
-            throw std::runtime_error( "Error whem resetting constant bias, size is inconsistent" );
+            throw std::runtime_error( "Error when resetting constant bias, size is inconsistent" );
         }
     }
 
@@ -176,6 +179,118 @@ private:
     //! Constant (entry-wise) observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > observationBias_;
 
+};
+
+template< int ObservationSize = 1 >
+class ConstantArcWiseObservationBias: public ObservationBias< ObservationSize >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationBias Constant (entry-wise) observation bias.
+     */
+    ConstantArcWiseObservationBias(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< Eigen::Matrix< double, ObservationSize, 1 > >& observationBiases,
+            const int linkEndIndexForTime ):
+        arcStartTimes_( arcStartTimes ), observationBiases_( observationBiases ), linkEndIndexForTime_( linkEndIndexForTime )
+    {
+        std::vector< double > lookupSchemeTimes = arcStartTimes_;
+        lookupSchemeTimes.push_back( std::numeric_limits< double >::max( ) );
+        lookupScheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                    lookupSchemeTimes );
+    }
+
+    //! Destructor
+    ~ConstantArcWiseObservationBias( ){ }
+
+    //! Function to retrieve the constant observation bias.
+    /*!
+     * Function to retrieve the constant observation bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \param currentObservableValue  Unbiased value of the observable (unused and default NAN).
+     * \return Constant observation bias.
+     */
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
+            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
+    {
+        return observationBiases_.at(
+                    lookupScheme_->findNearestLowerNeighbour( linkEndTimes.at( linkEndIndexForTime_ ) ) );
+    }
+
+    std::vector< double > getArcStartTimes( )
+    {
+        return arcStartTimes_;
+    }
+
+    //! Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector.
+    /*!
+         * Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector
+         * \return The constant (entry-wise) absolute observation bias.
+         */
+    std::vector< Eigen::VectorXd > getTemplateFreeConstantObservationBias( )
+    {
+        std::vector< Eigen::VectorXd > templateFreeObservationBiases;
+        for( unsigned int i = 0; i < observationBiases_.size( ); i++ )
+        {
+            templateFreeObservationBiases.push_back( observationBiases_.at( i ) );
+        }
+        return templateFreeObservationBiases;
+    }
+
+    //! Function to reset the constant (entry-wise) absolute observation bias with variable-size input.
+    /*!
+         * Function to reset the constant (entry-wise) absolute observation bias with variable-size input. Input VectorXd size
+         * must match ObservationSize class template parameter.
+         * \param observationBias The new constant (entry-wise) absolute observation bias.
+         */
+    void resetConstantObservationBiasTemplateFree( const std::vector< Eigen::VectorXd >& observationBiases )
+    {
+        if( observationBiases_.size( ) == observationBiases.size( ) )
+        {
+            for( unsigned int i = 0; i < observationBiases.size( ); i++ )
+            {
+                if( ! ( observationBiases.at( i ).rows( ) == ObservationSize ) )
+                {
+                    throw std::runtime_error( "Error when resetting arc-wise constant bias, single entry size is inconsistent" );
+                }
+                else
+                {
+                    observationBiases_[ i ] = observationBiases.at( i );
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when resetting arc-wise constant bias, size is inconsistent" );
+        }
+    }
+
+    int getLinkEndIndexForTime( )
+    {
+        return linkEndIndexForTime_;
+    }
+
+    boost::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
+    {
+        return lookupScheme_;
+    }
+
+private:
+
+    std::vector< double > arcStartTimes_;
+
+    std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases_;
+
+    int linkEndIndexForTime_;
+
+    boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
 //! Class for a constant relative observation bias of a given size
@@ -259,7 +374,7 @@ public:
         }
         else
         {
-            throw std::runtime_error( "Error whem resetting constant bias, size is inconsistent" );
+            throw std::runtime_error( "Error when resetting constant bias, size is inconsistent" );
         }
     }
 
@@ -268,6 +383,118 @@ private:
     //! Constant (entry-wise) relative observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > relativeObservationBias_;
 
+};
+
+template< int ObservationSize = 1 >
+class ConstantRelativeArcWiseObservationBias: public ObservationBias< ObservationSize >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationBias Constant (entry-wise) observation bias.
+     */
+    ConstantRelativeArcWiseObservationBias(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< Eigen::Matrix< double, ObservationSize, 1 > >& observationBiases,
+            const int linkEndIndexForTime ):
+        arcStartTimes_( arcStartTimes ), observationBiases_( observationBiases ), linkEndIndexForTime_( linkEndIndexForTime )
+    {
+        std::vector< double > lookupSchemeTimes = arcStartTimes_;
+        lookupSchemeTimes.push_back( std::numeric_limits< double >::max( ) );
+        lookupScheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                    lookupSchemeTimes );
+    }
+
+    //! Destructor
+    ~ConstantRelativeArcWiseObservationBias( ){ }
+
+    //! Function to retrieve the constant observation bias.
+    /*!
+     * Function to retrieve the constant observation bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \param currentObservableValue  Unbiased value of the observable (unused and default NAN).
+     * \return Constant observation bias.
+     */
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
+            const Eigen::Matrix< double, ObservationSize, 1 >& currentObservableValue =
+            ( Eigen::Matrix< double, ObservationSize, 1 >( ) << TUDAT_NAN ).finished( ) )
+    {
+        return observationBiases_.at( lookupScheme_->findNearestLowerNeighbour( linkEndTimes.at( linkEndIndexForTime_ ) ) ).
+                cwiseProduct( currentObservableValue );
+    }
+
+    std::vector< double > getArcStartTimes( )
+    {
+        return arcStartTimes_;
+    }
+
+    //! Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector.
+    /*!
+         * Function retrieve the constant (entry-wise) absolute observation bias as a variable-size vector
+         * \return The constant (entry-wise) absolute observation bias.
+         */
+    std::vector< Eigen::VectorXd > getTemplateFreeConstantObservationBias( )
+    {
+        std::vector< Eigen::VectorXd > templateFreeObservationBiases;
+        for( unsigned int i = 0; i < observationBiases_.size( ); i++ )
+        {
+            templateFreeObservationBiases.push_back( observationBiases_.at( i ) );
+        }
+        return templateFreeObservationBiases;
+    }
+
+    //! Function to reset the constant (entry-wise) absolute observation bias with variable-size input.
+    /*!
+         * Function to reset the constant (entry-wise) absolute observation bias with variable-size input. Input VectorXd size
+         * must match ObservationSize class template parameter.
+         * \param observationBias The new constant (entry-wise) absolute observation bias.
+         */
+    void resetConstantObservationBiasTemplateFree( const std::vector< Eigen::VectorXd >& observationBiases )
+    {
+        if( observationBiases_.size( ) == observationBiases.size( ) )
+        {
+            for( unsigned int i = 0; i < observationBiases.size( ); i++ )
+            {
+                if( ! ( observationBiases.at( i ).rows( ) == ObservationSize ) )
+                {
+                    throw std::runtime_error( "Error when resetting arc-wise constant bias, single entry size is inconsistent" );
+                }
+                else
+                {
+                    observationBiases_[ i ] = observationBiases.at( i );
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error when resetting arc-wise constant bias, size is inconsistent" );
+        }
+    }
+
+    int getLinkEndIndexForTime( )
+    {
+        return linkEndIndexForTime_;
+    }
+
+    boost::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
+    {
+        return lookupScheme_;
+    }
+
+private:
+
+    std::vector< double > arcStartTimes_;
+
+    std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases_;
+
+    int linkEndIndexForTime_;
+
+    boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
 //! Class for combining multiple observation bias models into a single bias value
@@ -348,9 +575,17 @@ ObservationBiasTypes getObservationBiasType(
     {
         biasType = constant_absolute_bias;
     }
+    else if( boost::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( biasObject ) != NULL )
+    {
+        biasType = arc_wise_constant_absolute_bias;
+    }
     else if( boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( biasObject ) != NULL )
     {
         biasType = constant_relative_bias;
+    }
+    else if( boost::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( biasObject ) != NULL )
+    {
+        biasType = arc_wise_constant_relative_bias;
     }
     else if( boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( biasObject ) != NULL )
     {
@@ -362,7 +597,7 @@ ObservationBiasTypes getObservationBiasType(
         throw std::runtime_error( errorMessage );
     }
     return biasType;
- }
+}
 
 } // namespace observation_models
 

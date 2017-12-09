@@ -273,6 +273,46 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             break;
         }
+        case arcwise_constant_additive_observation_bias:
+        {
+            boost::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating arcwise constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ArcWiseObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            boost::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            boost::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
+        case arcwise_constant_relative_observation_bias:
+        {
+            boost::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating arcwise constant relative observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ArcWiseRelativeObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            boost::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            boost::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                            biasSettings->linkEnds_, biasSettings->observableType_ );
+            }
+            break;
+        }
         case rotation_pole_position:
             if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )
             {

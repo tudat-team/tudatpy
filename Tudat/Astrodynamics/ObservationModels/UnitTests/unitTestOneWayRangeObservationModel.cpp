@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     // Create bodies settings needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
             getDefaultBodySettings(
-                bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+                bodiesToCreate );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-                                                lightTimePerturbingBodies ) );
+                                               lightTimePerturbingBodies ) );
 
 
     // Create observation settings
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
 
     // Create observation model.
     boost::shared_ptr< ObservationModel< 1, double, double > > observationModel =
-           ObservationModelCreator< 1, double, double >::createObservationModel(
+            ObservationModelCreator< 1, double, double >::createObservationModel(
                 linkEnds, observableSettings, bodyMap );
     boost::shared_ptr< ObservationBias< 1 > > observationBias = observationModel->getObservationBiasCalculator( );
 
@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     BOOST_CHECK_CLOSE_FRACTION(
                 positionDifference.norm( ) / physical_constants::SPEED_OF_LIGHT + lightTimeCorrection,
                 linkEndTimes[ 1 ] - linkEndTimes[ 0 ],
-                std::numeric_limits< double >::epsilon( ) * 1000.0 );
-                        // Poor tolerance due to rounding errors when subtracting times
+            std::numeric_limits< double >::epsilon( ) * 1000.0 );
+    // Poor tolerance due to rounding errors when subtracting times
 
     // Check computed range from link end states
     BOOST_CHECK_CLOSE_FRACTION(
@@ -175,6 +175,79 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 linkEndStates2.at( 1 ), bodyMap.at( "Mars" )->getStateInBaseFrameFromEphemeris( linkEndTimes2.at( 1 ) ),
                 std::numeric_limits< double >::epsilon( ) );
+
+
+    std::vector< double > observationTimes;
+    observationTimes.push_back( 1.0E6 );
+    observationTimes.push_back( 2.0E6 );
+    observationTimes.push_back( 2.5E6 );
+    observationTimes.push_back( 2.8E6 );
+
+    std::vector< Eigen::VectorXd > observationBiases;
+    observationBiases.push_back( ( Eigen::Vector1d( ) << 4.54 ).finished( ) );
+    observationBiases.push_back( ( Eigen::Vector1d( ) << -2.343 ).finished( ) );
+    observationBiases.push_back( ( Eigen::Vector1d( ) << 10.42 ).finished( ) );
+    observationBiases.push_back( ( Eigen::Vector1d( ) << -0.435 ).finished( ) );
+
+    for( unsigned biasTest = 0; biasTest < 2; biasTest++ )
+    {
+        LinkEndType linkEndForTime;
+        if( biasTest == 0 )
+        {
+            linkEndForTime = transmitter;
+        }
+        else
+        {
+            linkEndForTime = receiver;
+        }
+        boost::shared_ptr< ObservationSettings > arcWiseBiasedObservableSettings = boost::make_shared< ObservationSettings >
+                ( one_way_range, lightTimeCorrectionSettings,
+                  boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                      observationTimes, observationBiases, linkEndForTime ) );
+
+        // Create observation model.
+        boost::shared_ptr< ObservationModel< 1, double, double > > arcwiseBiasedObservationModel =
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                    linkEnds, arcWiseBiasedObservableSettings, bodyMap );
+
+        std::vector< double > observationDifferences;
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 1.8E6, transmitter )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 1.8E6 , transmitter )( 0 ) );
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 2.2E6, transmitter )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 2.2E6 , transmitter )( 0 ) );
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 2.5E6 - 1.0E-6, transmitter )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 2.5E6 - 1.0E-6, transmitter )( 0 ) );
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 2.5E6 - 1.0E-6, receiver )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 2.5E6 - 1.0E-6, receiver)( 0 ) );
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 2.5E6 + 1.0E-6, transmitter )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 2.5E6 + 1.0E-6, transmitter )( 0 ) );
+        observationDifferences.push_back(
+                    arcwiseBiasedObservationModel->computeObservations( 1.0E7, transmitter )( 0 ) -
+                    arcwiseBiasedObservationModel->computeIdealObservations( 1.0E7, transmitter )( 0 ) );
+
+        BOOST_CHECK_SMALL( observationDifferences.at( 0 ) - observationBiases.at( 0 )( 0 ), 1.0E-4 );
+        BOOST_CHECK_SMALL( observationDifferences.at( 1 ) - observationBiases.at( 1 )( 0 ), 1.0E-4 );
+
+        if( biasTest == 0 )
+        {
+            BOOST_CHECK_SMALL( observationDifferences.at( 2 ) - observationBiases.at( 1 )( 0 ), 1.0E-4 );
+            BOOST_CHECK_SMALL( observationDifferences.at( 3 ) - observationBiases.at( 1 )( 0 ), 1.0E-4 );
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( observationDifferences.at( 2 ) - observationBiases.at( 2 )( 0 ), 1.0E-4 );
+            BOOST_CHECK_SMALL( observationDifferences.at( 3 ) - observationBiases.at( 1 )( 0 ), 1.0E-4 );
+        }
+
+        BOOST_CHECK_SMALL( observationDifferences.at( 4 ) - observationBiases.at( 2 )( 0 ), 1.0E-4 );
+        BOOST_CHECK_SMALL( observationDifferences.at( 5 ) - observationBiases.at( 3 )( 0 ), 1.0E-4 );
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
