@@ -366,6 +366,9 @@ struct PodOutput
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
      * \param residualHistory Vector of residuals per iteration
      * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
+     * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
+     * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
+     * motion (and variational equations).
      */
     PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
@@ -517,8 +520,10 @@ struct PodOutput
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
 
+    //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;
 
+    //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 };
 
