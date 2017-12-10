@@ -111,6 +111,7 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
  *  representing all  necessary one-way range partials of a single link end, and OneWayRangeScaling, object, used for
  *  scaling the position partial members of all OneWayRangePartials in link end.
@@ -121,7 +122,8 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
-        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
+        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ),
+        const bool useBiasPartials = true )
 {
 
     std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
@@ -220,7 +222,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         else
         {
             currentRangePartial = createObservationPartialWrtLinkProperty< 1 >(
-                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second );
+                        oneWayRangeLinkEnds, observation_models::one_way_range, parameterIterator->second, useBiasPartials );
         }
 
         // Check if partial is non-null (i.e. whether dependency exists between current range and current parameter)
@@ -249,6 +251,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Map of SingleLinkObservationPartialList, representing all necessary one-way range partials of a single link end,
  *  and OneWayRangeScaling, object, used for scaling the position partial members of all OneWayRangePartials in link end.
  */
@@ -261,7 +264,8 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
         const std::map< observation_models::LinkEnds,
         std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
         std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ),
+        const bool useBiasPartials = true )
 {
     // Declare return list.
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList,
@@ -294,7 +298,7 @@ boost::shared_ptr< PositionPartialScaling > > > createOneWayRangePartials(
 
         // Create range partials for current link ends
         rangePartials[ linkEnds[ i ] ] = createOneWayRangePartials< ParameterType >(
-                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections );
+                    linkEnds[ i ], bodyMap, parametersToEstimate, singleLinkLightTimeCorrections, useBiasPartials );
     }
 
     // Return complete set of link ends.

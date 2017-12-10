@@ -239,7 +239,7 @@ public:
 };
 
 //! Class to define the settings for one-way Doppler observable
-class OneWayDopperObservationSettings: public ObservationSettings
+class OneWayDopplerObservationSettings: public ObservationSettings
 {
 public:
 
@@ -252,7 +252,7 @@ public:
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
-    OneWayDopperObservationSettings(
+    OneWayDopplerObservationSettings(
             const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = NULL,
             const boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = NULL,
@@ -270,7 +270,7 @@ public:
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
-    OneWayDopperObservationSettings(
+    OneWayDopplerObservationSettings(
             const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
             const boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = NULL,
@@ -281,7 +281,7 @@ public:
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
     //! Destructor
-    ~OneWayDopperObservationSettings( ){ }
+    ~OneWayDopplerObservationSettings( ){ }
 
     //! Settings for proper time rate at transmitter
     boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings_;
@@ -293,7 +293,7 @@ public:
 
 
 //! Class to define the settings for one-way Doppler observable
-class TwoWayDopperObservationSettings: public ObservationSettings
+class TwoWayDopplerObservationSettings: public ObservationSettings
 {
 public:
 
@@ -304,22 +304,22 @@ public:
      * \param downlinkOneWayDopplerSettings Settings for the one-way Doppler model of the downlink
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
-    TwoWayDopperObservationSettings(
-            const boost::shared_ptr< OneWayDopperObservationSettings > uplinkOneWayDopplerSettings,
-            const boost::shared_ptr< OneWayDopperObservationSettings > downlinkOneWayDopplerSettings,
+    TwoWayDopplerObservationSettings(
+            const boost::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
+            const boost::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
             const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
         ObservationSettings( two_way_doppler, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
         uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
         downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings ){ }
 
     //! Destructor
-    ~TwoWayDopperObservationSettings( ){ }
+    ~TwoWayDopplerObservationSettings( ){ }
 
     //! Settings for the one-way Doppler model of the uplink
-    boost::shared_ptr< OneWayDopperObservationSettings > uplinkOneWayDopplerSettings_;
+    boost::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings_;
 
     //! Settings for the one-way Doppler model of the downlink
-    boost::shared_ptr< OneWayDopperObservationSettings > downlinkOneWayDopplerSettings_;
+    boost::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings_;
 };
 
 
@@ -736,7 +736,7 @@ public:
                             linkEnds, observationSettings->biasSettings_,bodyMap );
             }
 
-            if( boost::dynamic_pointer_cast< OneWayDopperObservationSettings >( observationSettings ) == NULL )
+            if( boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings ) == NULL )
             {
                 // Create observation model
                 observationModel = boost::make_shared< OneWayDopplerObservationModel<
@@ -748,8 +748,8 @@ public:
             }
             else
             {
-                boost::shared_ptr< OneWayDopperObservationSettings > oneWayDopplerSettings =
-                        boost::dynamic_pointer_cast< OneWayDopperObservationSettings >( observationSettings );
+                boost::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerSettings =
+                        boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
                 // Create observation model
                 observationModel = boost::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
@@ -809,8 +809,8 @@ public:
             downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
             downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
 
-            boost::shared_ptr< TwoWayDopperObservationSettings > twoWayDopplerSettings =
-                    boost::dynamic_pointer_cast< TwoWayDopperObservationSettings >( observationSettings );
+            boost::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
+                    boost::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
 
             if( twoWayDopplerSettings == NULL )
             {
