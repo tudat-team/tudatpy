@@ -278,6 +278,7 @@ typedef std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 
  *  \param linkEnds Link ends of observable for which partial is to be made.
  *  \param observableType Type of observable for which partial is to be made.
  *  \param parameterToEstimate Parameter w.r.t. which the partial is to be taken
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Object that computes the partial of the observation w.r.t. parameterToEstimate (NULL if no dependency).
  */
 template< int ObservationSize >

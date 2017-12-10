@@ -137,6 +137,7 @@ boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > createDopplerProper
  *  \param transmitterDopplerProperTimeInterface Proper time rate calculator for transmitter
  *  \param receiverDopplerProperTimeInterface Proper time rate calculator for receiver
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
  *  representing all  necessary one-way doppler partials of a single link end, and OneWayDopplerScaling, object, used for
  *  scaling the position partial members of all OneWayDopplerPartials in link end.
@@ -296,6 +297,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  \param bodyMap List of all bodies, for creating one-way doppler partials.
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Map of SingleLinkObservationPartialList, representing all necessary one-way doppler partials of a single link end,
  *  and OneWayDopplerScaling, object, used for scaling the position partial members of all OneWayDopplerPartials in link end.
  */
@@ -532,6 +534,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
         }
     }
 
+    // Create two-way Doppler partials
     std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
     for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
