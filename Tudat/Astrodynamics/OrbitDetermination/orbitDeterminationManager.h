@@ -254,10 +254,10 @@ public:
     getObservationSimulators( ) const
     {
         std::map< observation_models::ObservableType,
-        boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+                boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
         for( typename std::map< observation_models::ObservableType,
-        boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
+             boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
              managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
              managerIterator++ )
         {
@@ -413,32 +413,32 @@ public:
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
 
-//        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
-//        {
-//            int currentColumn = observationLinkParameterIndices_.at( i );
-//            int startIndex = -1;
-//            int endIndex = -1;
-//            std::vector< double > partialMaximum;
-//            bool isInRange = 0;
+        //        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
+        //        {
+        //            int currentColumn = observationLinkParameterIndices_.at( i );
+        //            int startIndex = -1;
+        //            int endIndex = -1;
+        //            std::vector< double > partialMaximum;
+        //            bool isInRange = 0;
 
-//            for( int j = 0; j < observationMatrix.rows( ); j++ )
-//            {
-//                if( observationMatrix( j, currentColumn ) != 0.0 )
-//                {
-//                   if( isInRange == 0 )
-//                   {
-//                       isInRange = 1;
-//                       startIndex = j;
-//                   }
-//                }
-//                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
-//                {
-//                    isInRange = 0;
-//                    endIndex = j;
-//                }
+        //            for( int j = 0; j < observationMatrix.rows( ); j++ )
+        //            {
+        //                if( observationMatrix( j, currentColumn ) != 0.0 )
+        //                {
+        //                   if( isInRange == 0 )
+        //                   {
+        //                       isInRange = 1;
+        //                       startIndex = j;
+        //                   }
+        //                }
+        //                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
+        //                {
+        //                    isInRange = 0;
+        //                    endIndex = j;
+        //                }
 
-//            }
-//        }
+        //            }
+        //        }
         return normalizationTerms;
     }
 
@@ -467,12 +467,12 @@ public:
 
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual =  std::numeric_limits< double >::max( );
-        ParameterVectorType bestParameterEstimate = ParameterVectorType::Zero( parameterVectorSize );
-        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Zero( parameterVectorSize );
-        Eigen::VectorXd bestResiduals = Eigen::VectorXd::Zero( totalNumberOfObservations );
-        Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Zero( totalNumberOfObservations, parameterVectorSize );
-        Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Zero( totalNumberOfObservations );
-        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Zero( parameterVectorSize, parameterVectorSize );
+        ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
+        Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Constant( totalNumberOfObservations, parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
+        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( parameterVectorSize, parameterVectorSize, TUDAT_NAN );
 
         std::vector< Eigen::VectorXd > residualHistory;
         std::vector< Eigen::VectorXd > parameterHistory;
@@ -492,22 +492,31 @@ public:
 
         int numberOfEstimatedParameters = parameterVectorSize;
 
+        bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
         // Iterate until convergence (at least once)
         int numberOfIterations = 0;
         do
         {
-            // Re-integrate equations of motion and variational equations with new parameter estimate.
-            if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
+            try
             {
-                resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
-            }
+                // Re-integrate equations of motion and variational equations with new parameter estimate.
+                if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
+                {
+                    resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
+                }
 
-            if( podInput->getSaveStateHistoryForEachIteration( ) )
+                if( podInput->getSaveStateHistoryForEachIteration( ) )
+                {
+                    dynamicsHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+                    dependentVariableHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+                }
+            }
+            catch( std::runtime_error )
             {
-                dynamicsHistoryPerIteration.push_back(
-                            variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
-                dependentVariableHistoryPerIteration.push_back(
-                            variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+                exceptionDuringPropagation = true;
+                break;
             }
 
             oldParameterEstimate = newParameterEstimate;
@@ -539,11 +548,20 @@ public:
             }
 
             // Perform least squares calculation for correction to parameter vector.
-            std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
-                    linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
-                        residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                        normalizedInverseAprioriCovarianceMatrix );
+            std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
+            try
+            {
+                leastSquaresOutput =
+                        linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+                            residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
+                            residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
+                            normalizedInverseAprioriCovarianceMatrix );
+            }
+            catch( std::runtime_error )
+            {
+                exceptionDuringInversion = true;
+                break;
+            }
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
@@ -601,12 +619,15 @@ public:
             // Check for convergence
         } while( convergenceChecker->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
 
-
-        std::cout << "Final residual: " << bestResidual << std::endl;
+        if( podInput->getPrintOutput( ) )
+        {
+            std::cout << "Final residual: " << bestResidual << std::endl;
+        }
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory );
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
+                    exceptionDuringPropagation );
     }
 
     //! Function to reset the current parameter estimate.
@@ -841,32 +862,32 @@ protected:
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-//        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
-//                parametersToEstimate_->getDoubleParameters( );
-//        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
-//             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
-//        {
-//            if( estimatable_parameters::isParameterObservationLinkProperty(
-//                        parameterIterator->second->getParameterName( ).first ) )
-//            {
-//                observationLinkParameterIndices_.push_back( parameterIterator->first );
-//            }
-//        }
+        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+        //                parametersToEstimate_->getDoubleParameters( );
+        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+        //             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
+        //        {
+        //            if( estimatable_parameters::isParameterObservationLinkProperty(
+        //                        parameterIterator->second->getParameterName( ).first ) )
+        //            {
+        //                observationLinkParameterIndices_.push_back( parameterIterator->first );
+        //            }
+        //        }
 
-//        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
-//                parametersToEstimate_->getVectorParameters( );
-//        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
-//             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
-//        {
-//            if( estimatable_parameters::isParameterObservationLinkProperty(
-//                        parameterIterator->second->getParameterName( ).first ) )
-//            {
-//                for( int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
-//                {
-//                    observationLinkParameterIndices_.push_back( parameterIterator->first + i );
-//                }
-//            }
-//        }
+        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+        //                parametersToEstimate_->getVectorParameters( );
+        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
+        //             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
+        //        {
+        //            if( estimatable_parameters::isParameterObservationLinkProperty(
+        //                        parameterIterator->second->getParameterName( ).first ) )
+        //            {
+        //                for( int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
+        //                {
+        //                    observationLinkParameterIndices_.push_back( parameterIterator->first + i );
+        //                }
+        //            }
+        //        }
 
     }
 
