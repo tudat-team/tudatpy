@@ -111,6 +111,7 @@ boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
  *  requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
  *  representing all  necessary one-way range partials of a single link end, and OneWayRangeScaling, object, used for
  *  scaling the position partial members of all OneWayRangePartials in link end.
@@ -250,6 +251,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states
  *  of requested bodies)
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
+ *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Map of SingleLinkObservationPartialList, representing all necessary one-way range partials of a single link end,
  *  and OneWayRangeScaling, object, used for scaling the position partial members of all OneWayRangePartials in link end.
  */
