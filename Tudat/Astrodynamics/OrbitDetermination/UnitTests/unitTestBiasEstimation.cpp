@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 
 
 
-//! This test checks, for double states/observables and double time, if the orbit determination correctly converges
-//! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
+//! This test checks whether observation biases are correctly estimated, using a variety of different settings
+//! for types of observables/biases.
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
     for( int estimateRangeBiases = 0; estimateRangeBiases < 2; estimateRangeBiases++ )

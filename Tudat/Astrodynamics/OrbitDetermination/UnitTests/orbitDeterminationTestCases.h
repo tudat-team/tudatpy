@@ -620,6 +620,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     return estimationError;
 }
 
+//! Test the estimation of observation biases.
 template< typename TimeType = double, typename StateScalarType  = double >
 std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         const bool estimateRangeBiases = true,
