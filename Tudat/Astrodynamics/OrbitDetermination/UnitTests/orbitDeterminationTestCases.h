@@ -513,16 +513,16 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
 
                 biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
-                biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
+                                                Eigen::Vector1d::Zero( ), true ) );
+                biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                                                Eigen::Vector1d::Zero( ), false ) );
                 biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
                             biasSettingsList );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Zero( ) );
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ), false );
             }
 
             observationSettingsMap.insert(
@@ -928,12 +928,12 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                     if( estimateAbsoluteBiases )
                     {
                         biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-                                    Eigen::Vector1d::Zero( ) );
+                                    Eigen::Vector1d::Zero( ), true );
                     }
                     else
                     {
-                        biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                    Eigen::Vector1d::Zero( ) );
+                        biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                                    Eigen::Vector1d::Zero( ), false );
                     }
                 }
                 else
@@ -941,9 +941,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                     std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
 
                     biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
-                                                    Eigen::Vector1d::Zero( ) ) );
-                    biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                                    Eigen::Vector1d::Zero( ) ) );
+                                                    Eigen::Vector1d::Zero( ), true ) );
+                    biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                                                    Eigen::Vector1d::Zero( ), false ) );
                     biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
                                 biasSettingsList );
                 }
