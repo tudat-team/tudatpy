@@ -126,16 +126,22 @@ public:
     ArcWiseConstantObservationBiasSettings(
             const std::vector< double >& observationTimes,
             const std::vector< Eigen::VectorXd >& observationBiases,
-            const LinkEndType linkEndForTime ):
-        ObservationBiasSettings( arc_wise_constant_absolute_bias ), observationTimes_( observationTimes ),
-        observationBiases_( observationBiases ), linkEndForTime_( linkEndForTime ){ }
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
+        observationTimes_( observationTimes ), observationBiases_( observationBiases ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
 
     ArcWiseConstantObservationBiasSettings(
             const std::map< double, Eigen::VectorXd >& observationBiases,
-            const LinkEndType linkEndForTime ):
-        ObservationBiasSettings( arc_wise_constant_absolute_bias ),
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias  ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
         observationTimes_( utilities::createVectorFromMapKeys( observationBiases ) ),
-        observationBiases_( utilities::createVectorFromMapValues( observationBiases ) ), linkEndForTime_( linkEndForTime ){ }
+        observationBiases_( utilities::createVectorFromMapValues( observationBiases ) ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasSettings( ){ }
@@ -145,6 +151,8 @@ public:
     std::vector< Eigen::VectorXd > observationBiases_;
 
     LinkEndType linkEndForTime_;
+
+    bool useAbsoluteBias_;
 };
 
 //! Class for defining settings for the creation of a constant relative observation bias model
@@ -164,39 +172,6 @@ public:
 
 };
 
-class ArcWiseRelativeConstantObservationBiasSettings: public ObservationBiasSettings
-{
-public:
-
-    //! Constuctor
-    /*!
-     * Constuctor
-     * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
-     * size of the observable to which it is assigned.
-     */
-    ArcWiseRelativeConstantObservationBiasSettings(
-            const std::vector< double >& observationTimes,
-            const std::vector< Eigen::VectorXd >& observationBiases,
-            const LinkEndType linkEndForTime ):
-        ObservationBiasSettings( arc_wise_constant_relative_bias ), observationTimes_( observationTimes ),
-        observationBiases_( observationBiases ), linkEndForTime_( linkEndForTime ){ }
-
-    ArcWiseRelativeConstantObservationBiasSettings(
-            const std::map< double, Eigen::VectorXd >& observationBiases,
-            const LinkEndType linkEndForTime ):
-        ObservationBiasSettings( arc_wise_constant_relative_bias ),
-        observationTimes_( utilities::createVectorFromMapKeys( observationBiases ) ),
-        observationBiases_( utilities::createVectorFromMapValues( observationBiases ) ), linkEndForTime_( linkEndForTime ){ }
-
-    //! Destructor
-    ~ArcWiseRelativeConstantObservationBiasSettings( ){ }
-
-    std::vector< double > observationTimes_;
-
-    std::vector< Eigen::VectorXd > observationBiases_;
-
-    LinkEndType linkEndForTime_;
-};
 
 //! Class used for defining the settings for an observation model that is to be created.
 /*!
@@ -642,6 +617,10 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
         {
             throw std::runtime_error( "Error when making arc-wise observation bias, settings are inconsistent" );
         }
+        else if( !arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise observation bias, class contents are inconsistent" );
+        }
 
         std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
         for( unsigned int i = 0; i < arcwiseBiasSettings->observationBiases_.size( ); i++ )
@@ -684,11 +663,15 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     case arc_wise_constant_relative_bias:
     {
         // Check input consistency
-        boost::shared_ptr< ArcWiseRelativeConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
-                ArcWiseRelativeConstantObservationBiasSettings >( biasSettings );
+        boost::shared_ptr< ArcWiseConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasSettings >( biasSettings );
         if( arcwiseBiasSettings == NULL )
         {
-            throw std::runtime_error( "Error when making arc-wise observation bias, settings are inconsistent" );
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, settings are inconsistent" );
+        }
+        else if( arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, class contents are inconsistent" );
         }
 
         std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
