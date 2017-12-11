@@ -98,9 +98,10 @@ public:
      * size of the observable to which it is assigned.
      */
     ConstantObservationBiasSettings(
-            const Eigen::VectorXd& observationBias ):
-        ObservationBiasSettings( constant_absolute_bias ), observationBias_( observationBias )
-    { }
+            const Eigen::VectorXd& observationBias,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ? ( constant_absolute_bias ) : ( constant_relative_bias ) ),
+        observationBias_( observationBias ), useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
     ~ConstantObservationBiasSettings( ){ }
@@ -111,6 +112,8 @@ public:
      *  size of the observable to which it is assigned.
      */
     Eigen::VectorXd observationBias_;
+
+    bool useAbsoluteBias_;
 };
 
 class ArcWiseConstantObservationBiasSettings: public ObservationBiasSettings
@@ -154,24 +157,6 @@ public:
 
     bool useAbsoluteBias_;
 };
-
-//! Class for defining settings for the creation of a constant relative observation bias model
-class ConstantRelativeObservationBiasSettings: public ObservationBiasSettings
-{
-public:
-
-    ConstantRelativeObservationBiasSettings(
-            const Eigen::VectorXd& relativeObservationBias ):
-        ObservationBiasSettings( constant_relative_bias ), relativeObservationBias_( relativeObservationBias )
-    { }
-
-    //! Destructor
-    ~ConstantRelativeObservationBiasSettings( ){ }
-
-    Eigen::VectorXd relativeObservationBias_;
-
-};
-
 
 //! Class used for defining the settings for an observation model that is to be created.
 /*!
@@ -599,6 +584,11 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
             throw std::runtime_error( "Error when making constant observation bias, settings are inconsistent" );
         }
 
+        if( !constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
         if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
@@ -644,20 +634,25 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     case constant_relative_bias:
     {
         // Check input consistency
-        boost::shared_ptr< ConstantRelativeObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
-                ConstantRelativeObservationBiasSettings >( biasSettings );
+        boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
+                ConstantObservationBiasSettings >( biasSettings );
         if( constantBiasSettings == NULL )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, settings are inconsistent" );
         }
 
+        if( constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant relative observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
-        if( constantBiasSettings->relativeObservationBias_.rows( ) != ObservationSize )
+        if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, bias size is inconsistent" );
         }
         observationBias = boost::make_shared< ConstantRelativeObservationBias< ObservationSize > >(
-                    constantBiasSettings->relativeObservationBias_ );
+                    constantBiasSettings->observationBias_ );
         break;
     }
     case arc_wise_constant_relative_bias:

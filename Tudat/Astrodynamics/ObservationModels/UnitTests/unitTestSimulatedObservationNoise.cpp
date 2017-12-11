@@ -132,13 +132,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             boost::shared_ptr< ObservationBiasSettings > biasSettings;
             if( ( currentObservable == one_way_range ) && ( i == 0 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias1 ) );
-            }
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( rangeBias1 ), false );
+            }useAbsoluteBias_
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias2 ) );
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( rangeBias2 ), false );
             }
 
             // Create observation settings
