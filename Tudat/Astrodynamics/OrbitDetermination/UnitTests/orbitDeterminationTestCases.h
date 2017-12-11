@@ -901,12 +901,12 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                     if( estimateAbsoluteBiases )
                     {
                         biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
-                                    biasArcs, biasPerArc, transmitter );
+                                    biasArcs, biasPerArc, transmitter, true );
                     }
                     else
                     {
-                        biasSettings = boost::make_shared< ArcWiseRelativeConstantObservationBiasSettings >(
-                                    biasArcs, biasPerArc, transmitter );
+                        biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                    biasArcs, biasPerArc, transmitter, false );
                     }
                 }
                 else
@@ -914,9 +914,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                     std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
 
                     biasSettingsList.push_back( boost::make_shared< ArcWiseConstantObservationBiasSettings >(
-                                                    biasArcs, biasPerArc, transmitter ) );
-                    biasSettingsList.push_back( boost::make_shared< ArcWiseRelativeConstantObservationBiasSettings >(
-                                                    biasArcs, biasPerArc, transmitter ) );
+                                                    biasArcs, biasPerArc, transmitter, true ) );
+                    biasSettingsList.push_back( boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                                    biasArcs, biasPerArc, transmitter, false ) );
                     biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
                                 biasSettingsList );
                 }
