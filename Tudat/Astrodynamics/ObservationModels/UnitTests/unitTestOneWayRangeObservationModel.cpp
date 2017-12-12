@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
             ( one_way_range, lightTimeCorrectionSettings,
               boost::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ) ) );
+                  ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ), true ) );
 
     // Create observation model.
     boost::shared_ptr< ObservationModel< 1, double, double > > observationModel =
@@ -189,6 +189,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     observationBiases.push_back( ( Eigen::Vector1d( ) << 10.42 ).finished( ) );
     observationBiases.push_back( ( Eigen::Vector1d( ) << -0.435 ).finished( ) );
 
+    // Test whether arc-wise absolute biases are correctly added to one-way range data
     for( unsigned biasTest = 0; biasTest < 2; biasTest++ )
     {
         LinkEndType linkEndForTime;
@@ -203,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
         boost::shared_ptr< ObservationSettings > arcWiseBiasedObservableSettings = boost::make_shared< ObservationSettings >
                 ( one_way_range, lightTimeCorrectionSettings,
                   boost::make_shared< ArcWiseConstantObservationBiasSettings >(
-                      observationTimes, observationBiases, linkEndForTime ) );
+                      observationTimes, observationBiases, linkEndForTime, true ) );
 
         // Create observation model.
         boost::shared_ptr< ObservationModel< 1, double, double > > arcwiseBiasedObservationModel =

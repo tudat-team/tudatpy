@@ -187,6 +187,13 @@ private:
 
 };
 
+//! Class for computing the derivative of any observable w.r.t. an arc-wise constant absolute observation bias
+/*!
+ *  Class for computing the derivative of any observable w.r.t. a n arc-wiseconstant absolute observation bias. Note that this
+ *  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
+ *  parameter (arc-wise constant observation bias), not the type of observable: the implementation is identical for each
+ *  observable.
+ */
 template< int ObservationSize >
 class ObservationPartialWrtArcWiseAbsoluteBias: public ObservationPartial< ObservationSize >
 {
@@ -197,6 +204,9 @@ public:
      * Constructor
      * \param observableType Observable type for which the bias is active.
      * \param linkEnds Observation link ends for which the bias is active.
+     * \param arcLookupScheme Object used to determine the index from observationBiases_ to be used, based on the current time.
+     * \param linkEndIndex Link end index from which the 'current time' is determined
+     * \param numberOfArcs Number of arcs for which biases are defined
      */
     ObservationPartialWrtArcWiseAbsoluteBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds,
@@ -208,21 +218,19 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
-        // Compute partial (vector of ObservationSize with 1.0 entries).
         constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
-
         totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
     ~ObservationPartialWrtArcWiseAbsoluteBias( ){ }
 
-    //! Function to calculate the observation partial w.r.t. constant absolute bias
+    //! Function to calculate the observation partial w.r.t. arc-wise constant absolute bias
     /*!
-     *  Function to calculate the observation partial w.r.t. constant absolute bias. Note that output is independent of input.
-     *  Associated time defined at times[ 0 ].
+     *  Function to calculate the observation partial w.r.t. arc-wise constant absolute bias. Note that output is independent of
+     *  input. Associated time defined by linkEndIndex_.
      *  \param states Link end states (unused).
-     *  \param times Link end times  (unused).
+     *  \param times Link end times.
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable  (unused).
      *  \param currentObservation Value of the observation for which the partial is to be computed  (unused).
      *  \return Vector of pairs containing partial values and associated times.
@@ -250,15 +258,19 @@ private:
     //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
 
+    //! Object used to determine the index from observationBiases_ to be used, based on the current time.
     boost::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme_;
 
+    //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
 
+    //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
-    //! Observation partial for singe arc: constant for all conditions.
+       //! Observation partial for singe arc: constant for all conditions.
     Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
 
+    //! Pre-allocated partial vector
     Eigen::VectorXd totalPartial_;
 
 };
@@ -319,6 +331,13 @@ private:
     observation_models::LinkEnds linkEnds_;
 };
 
+//! Class for computing the derivative of any observable w.r.t. an arc-wise constant relative observation bias
+/*!
+ *  Class for computing the derivative of any observable w.r.t. a n arc-wiseconstant relative observation bias. Note that this
+ *  partial is distinct from most other ObservationPartial partial derived classes, as its implementation is based on the
+ *  parameter (arc-wise constant observation bias), not the type of observable: the implementation is identical for each
+ *  observable.
+ */
 template< int ObservationSize >
 class ObservationPartialWrtArcWiseRelativeBias: public ObservationPartial< ObservationSize >
 {
@@ -329,6 +348,9 @@ public:
      * Constructor
      * \param observableType Observable type for which the bias is active.
      * \param linkEnds Observation link ends for which the bias is active.
+     * \param arcLookupScheme Object used to determine the index from observationBiases_ to be used, based on the current time.
+     * \param linkEndIndex Link end index from which the 'current time' is determined
+     * \param numberOfArcs Number of arcs for which biases are defined
      */
     ObservationPartialWrtArcWiseRelativeBias( const observation_models::ObservableType observableType,
                                                const observation_models::LinkEnds& linkEnds,
@@ -346,10 +368,10 @@ public:
     //! Destructor
     ~ObservationPartialWrtArcWiseRelativeBias( ){ }
 
-    //! Function to calculate the observation partial w.r.t. constant absolute bias
+    //! Function to calculate the observation partial w.r.t. arc-wise constant relative bias
     /*!
-     *  Function to calculate the observation partial w.r.t. constant absolute bias. Note that output is independent of input.
-     *  Associated time defined at times[ 0 ].
+     *  Function to calculate the observation partial w.r.t. arc-wise constant relative bias. Note that output is independent of
+     *  input. Associated time defined by linkEndIndex_.
      *  \param states Link end states (unused).
      *  \param times Link end times  (unused).
      *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable  (unused).
@@ -379,12 +401,16 @@ private:
     //!  Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
 
+    //! Object used to determine the index from observationBiases_ to be used, based on the current time.
     boost::shared_ptr< interpolators::LookUpScheme< double > > arcLookupScheme_;
 
+    //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
 
+    //! Number of arcs for which biases are defined
     int numberOfArcs_;
 
+    //! Pre-allocated partial vector
     Eigen::VectorXd totalPartial_;
 
 };
@@ -495,8 +521,8 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
         if( useBiasPartials )
         {
             // Check input consistency
-            boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > constantBias =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > constantBias =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameterToEstimate );
             if( constantBias == NULL )
             {
@@ -520,8 +546,8 @@ boost::shared_ptr< ObservationPartial< ObservationSize > > createObservationPart
         if( useBiasPartials )
         {
             // Check input consistency
-            boost::shared_ptr< estimatable_parameters::ArcWiseRelativeObservationBiasParameter > arcwiseBias =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRelativeObservationBiasParameter >(
+            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > arcwiseBias =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
                         parameterToEstimate );
             if( arcwiseBias == NULL )
             {
