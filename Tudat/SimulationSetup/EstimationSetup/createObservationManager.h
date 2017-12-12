@@ -147,8 +147,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         case estimatable_parameters::constant_relative_observation_bias:
         {
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameter );
             if( biasParameter == NULL )
             {
@@ -177,8 +177,8 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         {
 
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ArcWiseRelativeObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRelativeObservationBiasParameter >(
+            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
                         parameter );
             if( biasParameter == NULL )
             {

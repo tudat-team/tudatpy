@@ -177,6 +177,7 @@ public:
     observation_models::ObservableType observableType_;
 };
 
+//! Class to define settings for estimation of arc-wise constant observation biases (absolute or relative)
 class ArcWiseConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
@@ -186,6 +187,8 @@ public:
      * Constructor
      * \param linkEnds Observation link ends for which the bias is to be estimated.
      * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
      * \param isBiasAdditive True if bias is absolute, false if it is relative
      */
     ArcWiseConstantObservationBiasEstimatableParameterSettings(
@@ -209,8 +212,10 @@ public:
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
 
+    //! Start times for arcs in which biases are defined
     std::vector< double > arcStartTimes_;
 
+    //! Link end index from which the 'current time' is determined
     observation_models::LinkEndType linkEndForTime_;
 };
 
@@ -588,4 +593,5 @@ public:
 } // namespace estimatable_parameters
 
 } // namespace tudat
+
 #endif // TUDAT_ESTIMATABLEPARAMETERSETTINGS_H
