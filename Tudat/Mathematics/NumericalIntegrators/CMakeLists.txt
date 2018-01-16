@@ -11,6 +11,7 @@
 # Add source files.
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/rungeKuttaCoefficients.cpp"
+  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/bulirschStoerVariableStepsizeIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
 )
 
@@ -18,6 +19,7 @@ set(NUMERICALINTEGRATORS_SOURCES
 set(NUMERICALINTEGRATORS_HEADERS 
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/adamsBashforthMoultonIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/createNumericalIntegrator.h"
+  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/bulirschStoerVariableStepsizeIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/euler.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/reinitializableNumericalIntegrator.h"
@@ -74,3 +76,8 @@ target_link_libraries(test_RungeKuttaFehlberg78Integrator tudat_numerical_integr
 add_executable(test_RungeKutta87DormandPrinceIntegrator "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/unitTestRungeKutta87DormandPrinceIntegrator.cpp")
 setup_custom_test_program(test_RungeKutta87DormandPrinceIntegrator "${SRCROOT}${NUMERICALINTEGRATORSDIR}")
 target_link_libraries(test_RungeKutta87DormandPrinceIntegrator tudat_numerical_integrators tudat_input_output ${Boost_LIBRARIES})
+
+add_executable(test_BulirschStoerVariableStepSizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/unitTestBulirschStoerVariableStepSizeIntegrator.cpp")
+ setup_custom_test_program(test_BulirschStoerVariableStepSizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
+target_link_libraries(test_BulirschStoerVariableStepSizeIntegrator tudat_numerical_integrators tudat_input_output ${Boost_LIBRARIES})
+
