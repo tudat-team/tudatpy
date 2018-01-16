@@ -133,6 +133,40 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
+// Test 6: adamsBashforthMoulton
+BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
+{
+    using namespace tudat::numerical_integrators;
+    using namespace tudat::json_interface;
+
+    // Create IntegratorSettings from JSON file
+    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "adamsBashforthMoulton" ) );
+
+    // Create IntegratorSettings manually
+    const AvailableIntegrators integratorType = adamsBashforthMoulton;
+    const double initialTime = -0.3;
+    const double initialStepSize = 1.4;
+    const double minimumStepSize = 0.4;
+    const double maximumStepSize = 2.4;
+    const double relativeErrorTolerance = 1.0E-4;
+    const double absoluteErrorTolerance = 1.0E-2;
+    const double bandwidth = 200;
+    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
+            boost::make_shared< AdamsBashforthMoultonSettings< double > >( integratorType,
+                                                                                initialTime,
+                                                                                initialStepSize,
+                                                                                minimumStepSize,
+                                                                                maximumStepSize,
+                                                                                relativeErrorTolerance,
+                                                                                absoluteErrorTolerance,
+                                                                                1,
+                                                                                false,
+                                                                                bandwidth );
+
+    // Compare
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

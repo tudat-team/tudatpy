@@ -329,6 +329,7 @@ const std::string Keys::Integrator::absoluteErrorTolerance = "absoluteErrorToler
 const std::string Keys::Integrator::safetyFactorForNextStepSize = "safetyFactorForNextStepSize";
 const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize = "maximumFactorIncreaseForNextStepSize";
 const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "minimumFactorDecreaseForNextStepSize";
+const std::string Keys::Integrator::bandwidth = "bandwidth";
 
 
 //  Interpolation

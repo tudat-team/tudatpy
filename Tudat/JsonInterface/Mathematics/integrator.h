@@ -26,7 +26,8 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 {
     { rungeKutta4, "rungeKutta4" },
     { euler, "euler" },
-    { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" }
+    { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },    
+    { adamsBashforthMoulton, "adamsBashforthMoulton" }
 };
 
 //! `AvailableIntegrators` not supported by `json_interface`.
@@ -116,6 +117,19 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
                 rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
         return;
     }
+    case adamsBashforthMoulton:
+    {
+        boost::shared_ptr< AdamsBashforthMoultonSettings< TimeType > > adamsBashforthMoultonSettings =
+                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< TimeType > >( integratorSettings );
+        assertNonNullPointer( adamsBashforthMoultonSettings );
+        jsonObject[ K::initialStepSize ] = adamsBashforthMoultonSettings->initialTimeStep_;
+        jsonObject[ K::minimumStepSize ] = adamsBashforthMoultonSettings->minimumStepSize_;
+        jsonObject[ K::maximumStepSize ] = adamsBashforthMoultonSettings->maximumStepSize_;
+        jsonObject[ K::relativeErrorTolerance ] = adamsBashforthMoultonSettings->relativeErrorTolerance_;
+        jsonObject[ K::absoluteErrorTolerance ] = adamsBashforthMoultonSettings->absoluteErrorTolerance_;
+        jsonObject[ K::bandwidth ] = adamsBashforthMoultonSettings->bandwidth_;
+        return;
+    }
     default:
         handleUnimplementedEnumValue( integratorType, integratorTypes, unsupportedIntegratorTypes );
     }
@@ -173,6 +187,26 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
                               defaults.maximumFactorIncreaseForNextStepSize_ ),
                     getValue( jsonObject, K::minimumFactorDecreaseForNextStepSize,
                               defaults.minimumFactorDecreaseForNextStepSize_ ) );
+        return;
+    }
+    case adamsBashforthMoulton:
+    {
+        AdamsBashforthMoultonSettings< TimeType > defaults(
+                    integratorType, 0.0, 0.0, 0.0, 0.0 );
+
+        integratorSettings = boost::make_shared< AdamsBashforthMoultonSettings< TimeType > >(
+                    integratorType,
+                    initialTime,
+                    getValue< TimeType >( jsonObject, K::initialStepSize ),
+                    getValue< TimeType >( jsonObject, K::minimumStepSize ),
+                    getValue< TimeType >( jsonObject, K::maximumStepSize ),
+                    getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
+                    getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
+                    getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
+                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                    getValue( jsonObject, K::bandwidth,
+                              defaults.bandwidth_ ) );
         return;
     }
     default:
