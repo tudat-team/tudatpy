@@ -15,7 +15,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/euler.h"
-
+#include "Tudat/Mathematics/NumericalIntegrators/adamsBashforthMoultonIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -31,7 +31,8 @@ enum AvailableIntegrators
 {
     rungeKutta4,
     euler,
-    rungeKuttaVariableStepSize
+    rungeKuttaVariableStepSize,
+    adamsBashforthMoulton
 };
 
 //! Class to define settings of numerical integrator
@@ -198,6 +199,79 @@ public:
     TimeType minimumFactorDecreaseForNextStepSize_;
 };
 
+
+//! Class to define settings of variable step ABAM numerical integrator
+/*!
+ *  Class to define settings of variable step ABAM  numerical integrator, 
+ *  for instance for use in numerical integration of equations of motion/
+ *  variational equations.
+ */
+template< typename TimeType = double >
+class AdamsBashforthMoultonSettings: public IntegratorSettings< TimeType >
+{
+public:
+
+    //! Constructor
+    /*!
+     *  Constructor for variable step RK integrator settings.
+     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
+     *  Adapted during integration
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *  comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *  each integration step (`false`).
+     *  \param bandwidth maximum error factor for doubling the stepsize (default: 200)
+     */
+    AdamsBashforthMoultonSettings(
+            const AvailableIntegrators integratorType,
+            const TimeType initialTime,
+            const TimeType initialTimeStep,
+            const TimeType minimumStepSize, const TimeType maximumStepSize,
+            const TimeType relativeErrorTolerance = 1.0E-12,
+            const TimeType absoluteErrorTolerance = 1.0E-12,
+            const int saveFrequency = 1,            
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const TimeType bandwidth = 200. ):
+        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency,
+                                        assessPropagationTerminationConditionDuringIntegrationSubsteps ),
+        minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
+        bandwidth_( bandwidth ) { }
+
+    //! Destructor
+    /*!
+     *  Destructor
+     */
+    ~AdamsBashforthMoultonSettings( ){ }
+
+    //! Minimum step size for integration.
+    /*!
+     *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
+     */
+    TimeType minimumStepSize_;
+
+    //! Maximum step size for integration.
+    TimeType maximumStepSize_;
+
+    //! Relative error tolerance for step size control
+    TimeType relativeErrorTolerance_;
+
+    //! Absolute error tolerance for step size control
+    TimeType absoluteErrorTolerance_;
+
+    //! Safety factor for step size control
+    TimeType bandwidth_;
+};
+
 //! Function to create a numerical integrator.
 /*!
  *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
@@ -237,7 +311,8 @@ DependentVariableType, TimeStepType > > createIntegrator(
     case rungeKuttaVariableStepSize:
     {
         // Check input consistency
-        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
+        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > 
+            variableStepIntegratorSettings =
                 boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
                     integratorSettings );
         if( variableStepIntegratorSettings == NULL )
@@ -261,6 +336,31 @@ DependentVariableType, TimeStepType > > createIntegrator(
                       static_cast< TimeStepType >( variableStepIntegratorSettings->safetyFactorForNextStepSize_ ),
                       static_cast< TimeStepType >( variableStepIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
                       static_cast< TimeStepType >( variableStepIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+        }
+        break;
+    }
+    case adamsBashforthMoulton:
+    {
+        // Check input consistency
+        boost::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > > 
+            variableStepIntegratorSettings =
+                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+                    integratorSettings );
+        if( variableStepIntegratorSettings == NULL )
+        {
+           std::runtime_error( "Error, type of integrator settings (AdamsBashforthMoultonSettings) not compatible with selected integrator (derived class of IntegratorSettings must be AdamsBashforthMoultonSettings for this type)" );
+        }
+        else
+        {
+            integrator = boost::make_shared<
+                    AdamsBashforthMoultonIntegrator
+                    < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
+                    ( stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->minimumStepSize_ ),
+                      static_cast< TimeStepType >( variableStepIntegratorSettings->maximumStepSize_ ),
+                      variableStepIntegratorSettings->relativeErrorTolerance_,
+                      variableStepIntegratorSettings->absoluteErrorTolerance_ ,
+                      variableStepIntegratorSettings->bandwidth_ );
         }
         break;
     }

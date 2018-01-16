@@ -97,8 +97,8 @@ public:
         const StateDerivativeFunction& stateDerivativeFunction,
         const IndependentVariableType intervalStart, 
         const StateType& initialState,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
+        const TimeStepType minimumStepSize,
+        const TimeStepType maximumStepSize,
         const StateType& relativeErrorTolerance,
         const StateType& absoluteErrorTolerance,
         const TimeStepType bandwidth = 200. )
@@ -150,8 +150,8 @@ public:
         const StateDerivativeFunction& stateDerivativeFunction,
         const IndependentVariableType intervalStart, 
         const StateType& initialState,
-        const IndependentVariableType minimumStepSize,
-        const IndependentVariableType maximumStepSize,
+        const TimeStepType minimumStepSize,
+        const TimeStepType maximumStepSize,
         const typename StateType::Scalar relativeErrorTolerance,
         const typename StateType::Scalar absoluteErrorTolerance,
         const TimeStepType bandwidth = 200. )
@@ -174,7 +174,7 @@ public:
      * integration step by the integrator.
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
     //! Get the order of next step.
     /*!
@@ -189,7 +189,7 @@ public:
      * the user, the step size of last step can be retrieved with this function.
      * \return Step size to be used for the last step.
      */
-    virtual IndependentVariableType getStepSize( ) const { return lastStepSize_; }
+    virtual TimeStepType getStepSize( ) const { return lastStepSize_; }
 
     //! Get current state.
     /*!
@@ -214,7 +214,7 @@ public:
      * \param stepSize The step size to take.
      * \return The state at the end of the interval,
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
+    virtual StateType performIntegrationStep( const TimeStepType stepSize )
     { 
         // If stepSize is not same as old, clear the step-size dependent histories.
         if ( stepSize != stepSize_ ){
@@ -241,7 +241,7 @@ public:
      * integrator during the last stop. 
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( )
+    StateType performIntegrationStep( )
     {
         // Set last* variables for rollback.
         lastStepSize_ = stepSize_;
@@ -599,7 +599,7 @@ protected:
      * Important to have to prevent infinite halving.
      * Not initialised, constructor does so.
      */
-    IndependentVariableType minimumStepSize_;
+    TimeStepType minimumStepSize_;
 
     //! Maximum step size.
     /*! 
@@ -607,7 +607,7 @@ protected:
      * be set pretty high.
      * Not initialised, constructor does so.
      */
-    IndependentVariableType maximumStepSize_;
+    TimeStepType maximumStepSize_;
 
     //! Maximum relative error.
     /*! 
@@ -787,9 +787,10 @@ protected:
     { 
         // Calculate predicted state
         unsigned int stepsToSkip = static_cast< unsigned int>( doubleStep );
+        TimeStepType stepSize = stepSize_ * static_cast< double >( stepsToSkip + 1 );
         StateType predictedState = stateHistory_.at( stepsToSkip );
         for ( unsigned int i = 0; i < order; i++ ){
-            predictedState += extrapolationCoefficients[ order * 2 - 2 ][ i ] * stepSize_ * ( stepsToSkip + 1 ) * 
+            predictedState += extrapolationCoefficients[ order * 2 - 2 ][ i ] * stepSize * 
                 derivHistory_.at( i * ( stepsToSkip + 1 ) + stepsToSkip );
         }
         return predictedState;
@@ -806,10 +807,11 @@ protected:
     StateType performCorrectorStep( StateType predictedState, unsigned int order, bool doubleStep )
     {
         unsigned int stepsToSkip = static_cast< unsigned int>( doubleStep );
+        TimeStepType stepSize = stepSize_ * static_cast< double >( stepsToSkip + 1 );
         StateType correctedState = stateHistory_.at( stepsToSkip ) + extrapolationCoefficients[ order * 2 - 1 ][ 0 ] *
-            stepSize_ * ( stepsToSkip + 1 ) * predictedDerivative_;
+            stepSize * predictedDerivative_;
         for ( unsigned int i = 1; i < order; i++ ){
-            correctedState += stepSize_ * ( stepsToSkip + 1 ) * extrapolationCoefficients[ order * 2 - 1 ][ i ] * 
+            correctedState += stepSize * extrapolationCoefficients[ order * 2 - 1 ][ i ] * 
                 derivHistory_.at( ( i - 1 ) * ( stepsToSkip + 1 ) + stepsToSkip );
         }
         return correctedState;

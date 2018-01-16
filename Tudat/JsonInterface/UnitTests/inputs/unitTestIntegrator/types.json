@@ -1,5 +1,6 @@
 [
   "euler",
   "rungeKutta4",
-  "rungeKuttaVariableStepSize"
+  "rungeKuttaVariableStepSize",
+  "adamsBashforthMoulton"
 ]
