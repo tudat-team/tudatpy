@@ -153,8 +153,7 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
     const double absoluteErrorTolerance = 1.0E-2;
     const double bandwidth = 200;
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< AdamsBashforthMoultonSettings< double > >( integratorType,
-                                                                                initialTime,
+            boost::make_shared< AdamsBashforthMoultonSettings< double > >(  initialTime,
                                                                                 initialStepSize,
                                                                                 minimumStepSize,
                                                                                 maximumStepSize,

@@ -195,7 +195,6 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
                     integratorType, 0.0, 0.0, 0.0, 0.0 );
 
         integratorSettings = boost::make_shared< AdamsBashforthMoultonSettings< TimeType > >(
-                    integratorType,
                     initialTime,
                     getValue< TimeType >( jsonObject, K::initialStepSize ),
                     getValue< TimeType >( jsonObject, K::minimumStepSize ),

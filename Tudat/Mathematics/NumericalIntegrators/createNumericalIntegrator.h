@@ -232,7 +232,6 @@ public:
      *  \param bandwidth maximum error factor for doubling the stepsize (default: 200)
      */
     AdamsBashforthMoultonSettings(
-            const AvailableIntegrators integratorType,
             const TimeType initialTime,
             const TimeType initialTimeStep,
             const TimeType minimumStepSize, const TimeType maximumStepSize,
@@ -241,7 +240,7 @@ public:
             const int saveFrequency = 1,            
             const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
             const TimeType bandwidth = 200. ):
-        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency,
+        IntegratorSettings< TimeType >( adamsBashforthMoulton, initialTime, initialTimeStep, saveFrequency,
                                         assessPropagationTerminationConditionDuringIntegrationSubsteps ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
