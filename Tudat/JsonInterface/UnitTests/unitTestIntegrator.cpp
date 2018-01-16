@@ -152,6 +152,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
     const double relativeErrorTolerance = 1.0E-4;
     const double absoluteErrorTolerance = 1.0E-2;
     const double bandwidth = 200;
+    const int minimumOrder = 6;
+    const int maximumOrder = 11;
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
             boost::make_shared< AdamsBashforthMoultonSettings< double > >(  initialTime,
                                                                                 initialStepSize,
@@ -159,6 +161,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
                                                                                 maximumStepSize,
                                                                                 relativeErrorTolerance,
                                                                                 absoluteErrorTolerance,
+                                                                            minimumOrder,
+                                                                            maximumOrder,
                                                                                 1,
                                                                                 false,
                                                                                 bandwidth );

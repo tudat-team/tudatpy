@@ -68,7 +68,8 @@ public:
                 const std::vector< IntegratedStateType > ) > environmentUpdateFunction,
             const boost::shared_ptr< VariationalEquations > variationalEquations =
             boost::shared_ptr< VariationalEquations >( ) ):
-        environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations )
+        environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations ),
+        functionEvaluationCounter_( 0 )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -218,6 +219,8 @@ public:
                         time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
                         stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
+
+        functionEvaluationCounter_++;
 
         return stateDerivative_;
     }
@@ -446,6 +449,17 @@ public:
         return stateTypeStartIndex_;
     }
 
+
+    int getNumberOfFunctionEvaluations( )
+    {
+        return functionEvaluationCounter_;
+    }
+
+    void resetFunctionEvaluationCounter( )
+    {
+        functionEvaluationCounter_ = 0;
+    }
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.
@@ -490,7 +504,7 @@ private:
                 // Get state block indices of current state derivative model
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
-//                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
+                //                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
@@ -499,9 +513,9 @@ private:
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
 
-//                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
-//                               stateDerivativeModelsIterator_->first ).block(
-//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
+                //                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
+                //                               stateDerivativeModelsIterator_->first ).block(
+                //                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 currentStateTypeSize += currentIndices.second;
             }
@@ -558,6 +572,8 @@ private:
     //! convertCurrentStateToGlobalRepresentationPerType
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
     currentStatesPerTypeInConventionalRepresentation_;
+
+    int functionEvaluationCounter_ = 0;
 };
 
 //! Function to retrieve a single given acceleration model from a list of models
