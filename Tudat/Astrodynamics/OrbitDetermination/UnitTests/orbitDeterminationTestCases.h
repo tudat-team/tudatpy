@@ -153,11 +153,17 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     LinkEnds linkEnds;
     observation_models::ObservationSettingsMap observationSettingsMap;
 
-    if(observableType == 0 )
+    if( observableType == 0 )
     {
         linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
         observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
                                                            position_observable ) ) );
+    }
+    else if( observableType == 5 )
+    {
+        linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
+        observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
+                                                          velocity_observable ) ) );
     }
     else
     {
@@ -222,6 +228,11 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     {
         singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, observed_body );
         measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
+    }
+    else if( observableType == 5 )
+    {
+        singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, observed_body );
+        measurementSimulationInput[ velocity_observable ] = singleObservableSimulationInput;
     }
     else
     {

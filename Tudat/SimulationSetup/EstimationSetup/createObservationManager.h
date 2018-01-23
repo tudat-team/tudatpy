@@ -298,6 +298,11 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
+    case velocity_observable:
+        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
     default:
         throw std::runtime_error(
                     "Error when making observation manager, could not identify observable type " +
