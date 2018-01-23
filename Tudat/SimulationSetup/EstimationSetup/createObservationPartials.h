@@ -150,6 +150,10 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             {
                 break;
             }
+            case observation_models::velocity_observable:
+            {
+                break;
+            }
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
@@ -406,6 +410,10 @@ public:
         {
         case observation_models::position_observable:
             observationPartialList = createPositionObservablePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
+            break;
+        case observation_models::velocity_observable:
+            observationPartialList = createVelocityObservablePartials< ObservationScalarType >(
                         utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
             break;
         default:
