@@ -220,6 +220,18 @@ public:
         return printInterval_;
     }
 
+    //! Function to modify settings for creating the object that checks whether the propagation is finished.
+    /*!
+     * Function to modify settings for creating the object that checks whether the propagation is finished.
+     * \param terminationSettings new settings for creating the object that checks whether the propagation is finished.
+     */
+    void setTerminationSettings(
+            boost::shared_ptr< PropagationTerminationSettings > terminationSettings )
+    {
+        terminationSettings_ = terminationSettings;
+    }
+
+
 
 protected:
 
