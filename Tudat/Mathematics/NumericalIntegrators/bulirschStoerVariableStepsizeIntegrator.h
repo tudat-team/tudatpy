@@ -37,13 +37,20 @@ namespace tudat
 namespace numerical_integrators
 {
 
+//! Types of sequences available for extrapolation integration methods
 enum ExtrapolationMethodStepSequences
 {
     bulirsch_stoer_sequence,
     deufelhard_sequence
 };
 
-
+//! Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
+/*!
+ * Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
+ * \param extrapolationMethodStepSequenceType Type of sequence that is to be retrieved
+ * \param lengthOfSequence Length of the sequence that is to be retrieved (default 12)
+ * \return Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
+ */
 std::vector< unsigned int > getBulirschStoerStepSequence(
         const ExtrapolationMethodStepSequences& extrapolationMethodStepSequenceType = bulirsch_stoer_sequence,
         const unsigned int lengthOfSequence = 12 );
@@ -88,8 +95,14 @@ public:
      * \param initialState The initial state.
      * \param minimumStepSize The minimum step size to take. If this constraint is violated, a
      *          flag will be set that can be retrieved with isMinimumStepSizeViolated( ).
+     * \param maximumStepSize The maximum step size to take.
      * \param relativeErrorTolerance The relative error tolerance, for each individual state
      *          vector element.
+     * \param absoluteErrorTolerance The absolute error tolerance, for each individual state
+     *          vector element.
+     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
+     * \param maximumFactorIncreaseForNextStepSize Maximum factor increase for next step size.
+     * \param minimumFactorDecreaseForNextStepSize Maximum factor decrease for next step size.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     BulirschStoerVariableStepSizeIntegrator(
@@ -127,14 +140,20 @@ public:
     /*!
      * Default constructor, taking coefficients, a state derivative function, initial conditions,
      * minimum step size and relative error tolerance for all items in the state vector as argument.
-     * \param coefficients Coefficients to use with this integrator.
+     * \param sequence Rational function sequence used by algorithm.
      * \param stateDerivativeFunction State derivative function.
      * \param intervalStart The start of the integration interval.
      * \param initialState The initial state.
      * \param minimumStepSize The minimum step size to take. If this constraint is violated, a
      *          flag will be set that can be retrieved with isMinimumStepSizeViolated( ).
+     * \param maximumStepSize The maximum step size to take.
      * \param relativeErrorTolerance The relative error tolerance, equal for all individual state
      *          vector elements.
+     * \param absoluteErrorTolerance The absolute error tolerance, for each individual state
+     *          vector element.
+     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
+     * \param maximumFactorIncreaseForNextStepSize Maximum factor increase for next step size.
+     * \param minimumFactorDecreaseForNextStepSize Maximum factor decrease for next step size.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     BulirschStoerVariableStepSizeIntegrator(
@@ -401,6 +420,10 @@ private:
      */
     TimeStepType minimumStepSize_;
 
+    //! Minimum step size.
+    /*!
+     * Maximum step size.
+     */
     TimeStepType maximumStepSize_;
 
     //! Relative error tolerance.
@@ -415,13 +438,27 @@ private:
      */
     StateType absoluteErrorTolerance_;
 
-
+    //! Safety factor for next step size.
+    /*!
+     * Safety factor used to scale prediction of next step size. This is usually picked between
+     * 0.8 and 0.9 (Burden and Faires, 2001).
+     */
     TimeStepType safetyFactorForNextStepSize_;
 
-
+    //! Maximum factor increase for next step size.
+    /*!
+     * The maximum factor by which the next step size can increase compared to the current value.
+     * The need for this maximum stems from a need to ensure that the step size changes do not
+     * alias with the dynamics of the model being integrated.
+     */
     TimeStepType maximumFactorIncreaseForNextStepSize_;
 
-
+    //! Minimum factor decrease for next step size.
+    /*!
+     * The minimum factor by which the next step size can decrease compared to the current value.
+     * The need for this minimum stems from a need to ensure that the step size changes do not
+     * alias with the dynamics of the model being integrated.
+     */
     TimeStepType minimumFactorDecreaseForNextStepSize_;
 
     //! Flag to indicate whether the minimum step size constraint has been violated.
@@ -437,7 +474,7 @@ private:
      * \param stateAtCenterPoint State at center point.
      * \param independentVariableAtFirstPoint Independent variable at first point.
      * \param subStepSize Sub step size between successive states used by mid-point method.
-     * \param stateAtLastPoint State at last point.
+     * \return Result of midpoint method
      */
     StateType executeMidPointMethod( StateType stateAtFirstPoint, StateType stateAtCenterPoint,
                                      const IndependentVariableType independentVariableAtFirstPoint,

@@ -449,12 +449,23 @@ public:
         return stateTypeStartIndex_;
     }
 
-
+    //! Function to retrieve number of calls to the computeStateDerivative function
+    /*!
+     * Function to retrieve number of calls to the computeStateDerivative function since object creation/last call to
+     * resetFunctionEvaluationCounter function
+     * \return Number of calls to the computeStateDerivative function since object creation/last call to
+     * resetFunctionEvaluationCounter function
+     */
     int getNumberOfFunctionEvaluations( )
     {
         return functionEvaluationCounter_;
     }
 
+    //! Function to resetr the number of calls to the computeStateDerivative function to zero.
+    /*!
+     * Function to resetr the number of calls to the computeStateDerivative function to zero.  Typically called before any
+     * start of numerical integration of dynamics (automatically by DynamicsSimulator)
+     */
     void resetFunctionEvaluationCounter( )
     {
         functionEvaluationCounter_ = 0;
@@ -504,18 +515,12 @@ private:
                 // Get state block indices of current state derivative model
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
-                //                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
-
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
                             state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
-
-                //                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
-                //                               stateDerivativeModelsIterator_->first ).block(
-                //                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
 
                 currentStateTypeSize += currentIndices.second;
             }
@@ -573,6 +578,7 @@ private:
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
     currentStatesPerTypeInConventionalRepresentation_;
 
+    //! Variable to keep track of the number of calls to the computeStateDerivative function
     int functionEvaluationCounter_ = 0;
 };
 

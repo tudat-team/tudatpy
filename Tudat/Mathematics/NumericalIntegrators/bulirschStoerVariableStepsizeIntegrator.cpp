@@ -26,7 +26,7 @@ namespace tudat
 namespace numerical_integrators
 {
 
-
+//! Function to retrieve the sequence of number of steps to used for Bulirsch-Stoer integration
 std::vector< unsigned int > getBulirschStoerStepSequence(
         const ExtrapolationMethodStepSequences& extrapolationMethodStepSequenceType,
         const unsigned int lengthOfSequence )
