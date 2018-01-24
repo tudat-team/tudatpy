@@ -35,7 +35,7 @@ enum AvailableIntegrators
     rungeKutta4,
     euler,
     rungeKuttaVariableStepSize,
-    bulirsch_stoer,
+    bulirschStoer,
     adamsBashforthMoulton
 };
 
@@ -243,7 +243,7 @@ public:
             const TimeType safetyFactorForNextStepSize = 0.7,
             const TimeType maximumFactorIncreaseForNextStepSize = 10.0,
             const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
-        IntegratorSettings< TimeType >( bulirsch_stoer, initialTime, initialTimeStep, saveFrequency,
+        IntegratorSettings< TimeType >( bulirschStoer, initialTime, initialTimeStep, saveFrequency,
                                         assessPropagationTerminationConditionDuringIntegrationSubsteps ),
         extrapolationSequence_( extrapolationSequence ), maximumNumberOfSteps_( maximumNumberOfSteps ),
         minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
@@ -433,7 +433,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
         }
         break;
     }
-    case bulirsch_stoer:
+    case bulirschStoer:
     {
         // Check input consistency
         boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
@@ -447,7 +447,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
         {
             integrator = boost::make_shared<
                     BulirschStoerVariableStepSizeIntegrator
-                    < IndependentVariableType, DependentVariableType, DependentVariableType > >
+                    < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
                       stateDerivativeFunction, integratorSettings->initialTime_, initialState,

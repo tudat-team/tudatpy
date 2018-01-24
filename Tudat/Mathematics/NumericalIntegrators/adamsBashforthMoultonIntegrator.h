@@ -933,7 +933,7 @@ protected:
     /*!
      * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
      */
-    IndependentVariableType stepSize_;
+    TimeStepType stepSize_;
 
     //! Predicted derivative state.
     /*!
