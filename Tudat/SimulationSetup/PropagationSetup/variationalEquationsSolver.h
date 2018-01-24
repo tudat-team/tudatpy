@@ -625,6 +625,8 @@ public:
 
             // Integrate variational and state equations.
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
+            dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
+
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
             std::map< TimeType, double > cummulativeComputationTimeHistory;
@@ -665,6 +667,8 @@ public:
 
             // Integrate variational equations.
             dynamicsStateDerivative_->setPropagationSettings( boost::assign::list_of( transational_state ), 0, 1 );
+            dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
+
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
@@ -1151,6 +1155,7 @@ public:
 
 
                 // Integrate variational and state equations.
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
@@ -1238,6 +1243,7 @@ public:
                         template cast< StateScalarType >( );
 
                 // Integrate variational equations for current arc
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,

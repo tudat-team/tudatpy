@@ -92,6 +92,7 @@ struct RungeKuttaCoefficients
     //! Enum of predefined coefficient sets.
     enum CoefficientSets
     {
+        undefinedCoefficientSet = -1,
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
