@@ -265,7 +265,6 @@ public:
         setIntegratedResult_ = setIntegratedResult;
     }
 
-
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -661,7 +660,18 @@ public:
         return dependentVariablesFunctions_;
     }
 
-
+    //! Function to reset the object that checks whether the simulation has finished from
+    //! (newly defined) propagation settings.
+    /*!
+     *  Function to reset the object that checks whether the simulation has finished from
+     *  (newly defined) propagation settings.
+     */
+    void resetPropagationTerminationConditions( )
+    {
+        propagationTerminationCondition_ = createPropagationTerminationConditions(
+                    propagatorSettings_->getTerminationSettings(), bodyMap_,
+                            integratorSettings_->initialTimeStep_ );
+    }
 
 protected:
 
