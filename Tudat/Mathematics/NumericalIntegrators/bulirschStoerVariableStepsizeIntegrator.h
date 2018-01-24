@@ -114,12 +114,12 @@ public:
         isMinimumStepSizeViolated_( false )
     {
         maximumStepIndex_ = sequence_.size( ) - 1;
-        subSteps_.resize( maximumStepIndex_ );
+        subSteps_.resize( maximumStepIndex_ + 1 );
 
-        integratedStates_.resize( maximumStepIndex_ );
-        for( unsigned int i = 0; i < maximumStepIndex_; i++ )
+        integratedStates_.resize( maximumStepIndex_ + 1  );
+        for( unsigned int i = 0; i < maximumStepIndex_ + 1 ; i++ )
         {
-            integratedStates_[ i ].resize( maximumStepIndex_ );
+            integratedStates_[ i ].resize( maximumStepIndex_ + 1  );
         }
     }
 
@@ -285,14 +285,14 @@ public:
         {
             if( safetyFactorForNextStepSize_ * errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
             {
-                this->stepSize_ = minimumFactorDecreaseForNextStepSize_ * errorScaleTerm;
+                this->stepSize_ = stepSize * minimumFactorDecreaseForNextStepSize_ * errorScaleTerm;
             }
             else
             {
                 this->stepSize_ = stepSize * safetyFactorForNextStepSize_ * errorScaleTerm;
             }
 
-            if( stepSize_ < minimumStepSize_ )
+            if( std::fabs( stepSize_ ) < std::fabs( minimumStepSize_ ) )
             {
                 isMinimumStepSizeViolated_ = true;
                 throw std::runtime_error( "Error in BS integrator, minimum step size exceeded" );
@@ -304,9 +304,9 @@ public:
             if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
             {
                 this->stepSize_ = stepSize * maximumFactorIncreaseForNextStepSize_;
-                if( this->stepSize_ >= maximumStepSize_ )
+                if(  std::fabs( this->stepSize_ ) >=  std::fabs( maximumStepSize_ ) )
                 {
-                   this->stepSize_ = maximumStepSize_ ;
+                   this->stepSize_ = stepSize / ( std::fabs( stepSize ) ) * maximumStepSize_ ;
                 }
             }
             else
@@ -346,6 +346,16 @@ public:
      * \return True if the minimum step size constraint was violated.
      */
     bool isMinimumStepSizeViolated( ) const { return isMinimumStepSizeViolated_; }
+
+    IndependentVariableType getPreviousIndependentVariable( )
+    {
+        return lastIndependentVariable_;
+    }
+
+    StateType getPreviousState( )
+    {
+        return lastState_;
+    }
 
 private:
 
