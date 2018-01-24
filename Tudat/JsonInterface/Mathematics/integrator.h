@@ -26,7 +26,7 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
 {
     { rungeKutta4, "rungeKutta4" },
     { euler, "euler" },
-    { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },    
+    { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },
     { adamsBashforthMoulton, "adamsBashforthMoulton" },
     { bulirschStoer, "bulirschStoer" },
 };
@@ -128,7 +128,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
         jsonObject[ K::maximumStepSize ] = adamsBashforthMoultonSettings->maximumStepSize_;
         jsonObject[ K::relativeErrorTolerance ] = adamsBashforthMoultonSettings->relativeErrorTolerance_;
         jsonObject[ K::absoluteErrorTolerance ] = adamsBashforthMoultonSettings->absoluteErrorTolerance_;
-        jsonObject[ K::minimumOrder ] = adamsBashforthMoultonSettings->maximumOrder_;
+        jsonObject[ K::minimumOrder ] = adamsBashforthMoultonSettings->minimumOrder_;
         jsonObject[ K::maximumOrder ] = adamsBashforthMoultonSettings->maximumOrder_;
         jsonObject[ K::bandwidth ] = adamsBashforthMoultonSettings->bandwidth_;
         return;
