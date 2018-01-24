@@ -211,11 +211,12 @@ public:
     //! Constructor
     /*!
      *  Constructor for variable step RK integrator settings.
-     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
-     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param extrapolationSequence Type of sequence that is to be used for Bulirsch-Stoer integrator
+     *  \param maximumNumberOfSteps Number of entries in teh sequence, e.g. number of integrations used for a single
+     *  extrapolation.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
      *  comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
@@ -258,8 +259,10 @@ public:
      */
     ~BulirschStoerIntegratorSettings( ){ }
 
+    //! Type of sequence that is to be used for Bulirsch-Stoer integrator
     ExtrapolationMethodStepSequences extrapolationSequence_;
 
+    //! Number of entries in teh sequence, e.g. number of integrations used for a single extrapolation.
     unsigned int maximumNumberOfSteps_;
 
     //! Minimum step size for integration.
@@ -302,16 +305,16 @@ public:
     //! Constructor
     /*!
      *  Constructor for variable step RK integrator settings.
-     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
-     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
      *  comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
+     *  \param minimumOrder Minimum order of integrator (default 6)
+     *  \param maximumOrder Maximum order of integrator (default 11)
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
      *  time steps, with n = saveFrequency).
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
@@ -358,8 +361,10 @@ public:
     //! Absolute error tolerance for step size control
     TimeType absoluteErrorTolerance_;
 
+    //! Minimum order of integrator
     const int minimumOrder_;
 
+    //! Maximum order of integrator
     const int maximumOrder_;
 
     //! Safety factor for step size control

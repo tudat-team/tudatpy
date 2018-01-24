@@ -546,8 +546,8 @@ public:
     //! Set the minimum and maximum step size.
     /*!
      * Change the bounds of the stepsize.
-     * \param minimum stepsize
-     * \param maximum stepsize
+     * \param minimumStepSize minimum stepsize
+     * \param maximumStepSize maximum stepsize
      */
     void setStepSizeBounds( IndependentVariableType minimumStepSize, IndependentVariableType maximumStepSize ) {
         minimumStepSize_ = minimumStepSize;
@@ -572,8 +572,18 @@ public:
      */
     void setStepSize( IndependentVariableType stepSize ) { stepSize_ = stepSize; }
 
+    //! Function to reset the minimum order of the integrator
+    /*!
+     * Function to reset the minimum order of the integrator
+     * \param minimumOrder New minimum order of the integrator
+     */
     void setMinimumOrder( unsigned int minimumOrder ){ minimumOrder_ = minimumOrder; }
 
+    //! Function to reset the maximum order of the integrator
+    /*!
+     * Function to reset the maximum order of the integrator
+     * \param maximumOrder New maximum order of the integrator
+     */
     void setMaximumOrder( unsigned int maximumOrder ){ maximumOrder_ = maximumOrder; }
 
     IndependentVariableType getPreviousIndependentVariable( )
@@ -793,8 +803,8 @@ protected:
     //! Perform predictor step.
     /*!
      * Using the order find predicted estimate using the Adams-Bashforth predictor
-     * \param order of the integration.
-     * \param boolean if stepsize should be considered double, true for estimating doubling error.
+     * \param order Order of the integration.
+     * \param doubleStep Boolean if stepsize should be considered double, true for estimating doubling error.
      * \return state after predictor step
      */
     StateType performPredictorStep( unsigned int order, bool doubleStep )
@@ -865,8 +875,8 @@ protected:
      * true if first one is better than second (smaller is better).
      * \param absoluteError1 absolute error one.
      * \param relativeError1 relative error one.
-     * \param absoluteError1 absolute error two.
-     * \param relativeError1 relative error two.
+     * \param absoluteError2 absolute error two.
+     * \param relativeError2 relative error two.
      * \return true if one is better than two, false otherwise.
      */
     bool errorCompare( StateType absoluteError1, StateType relativeError1,
@@ -912,8 +922,8 @@ protected:
     /*!
      * Checks error (absolute and relative form) and return true if
      * the exceed tolerance limits.
-     * \param a absolute error.
-     * \param r relative error.
+     * \param absoluteError absolute error.
+     * \param relativeError relative error.
      * \return true if one error is too small, false if within limits
      */
     bool errorTooSmall( StateType absoluteError, StateType relativeError )
