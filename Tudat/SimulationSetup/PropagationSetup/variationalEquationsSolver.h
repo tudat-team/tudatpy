@@ -1155,7 +1155,7 @@ public:
 
 
                 // Integrate variational and state equations.
-                dynamicsSimulator_->getDynamicsStateDerivative( )->resetFunctionEvaluationCounter( );
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
@@ -1243,7 +1243,7 @@ public:
                         template cast< StateScalarType >( );
 
                 // Integrate variational equations for current arc
-                dynamicsSimulator_->getDynamicsStateDerivative( )->resetFunctionEvaluationCounter( );
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,

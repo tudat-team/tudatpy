@@ -27,7 +27,8 @@ static std::map< AvailableIntegrators, std::string > integratorTypes =
     { rungeKutta4, "rungeKutta4" },
     { euler, "euler" },
     { rungeKuttaVariableStepSize, "rungeKuttaVariableStepSize" },    
-    { adamsBashforthMoulton, "adamsBashforthMoulton" }
+    { adamsBashforthMoulton, "adamsBashforthMoulton" },
+    { bulirschStoer, "bulirschStoer" },
 };
 
 //! `AvailableIntegrators` not supported by `json_interface`.
@@ -130,6 +131,21 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
         jsonObject[ K::bandwidth ] = adamsBashforthMoultonSettings->bandwidth_;
         return;
     }
+    case bulirschStoer:
+    {
+        boost::shared_ptr< BulirschStoerIntegratorSettings< TimeType > > bulirschStoerSettings =
+                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< TimeType > >( integratorSettings );
+        assertNonNullPointer( bulirschStoerSettings );
+        jsonObject[ K::initialStepSize ] = bulirschStoerSettings->initialTimeStep_;
+        jsonObject[ K::minimumStepSize ] = bulirschStoerSettings->minimumStepSize_;
+        jsonObject[ K::maximumStepSize ] = bulirschStoerSettings->maximumStepSize_;
+        jsonObject[ K::relativeErrorTolerance ] = bulirschStoerSettings->relativeErrorTolerance_;
+        jsonObject[ K::absoluteErrorTolerance ] = bulirschStoerSettings->absoluteErrorTolerance_;
+        jsonObject[ K::extrapolationSequence ] =  bulirschStoerSettings->extrapolationSequence_;
+        jsonObject[ K::maximumNumberOfSteps ] =  bulirschStoerSettings->maximumNumberOfSteps_;
+
+        return;
+    }
     default:
         handleUnimplementedEnumValue( integratorType, integratorTypes, unsupportedIntegratorTypes );
     }
@@ -192,7 +208,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
     case adamsBashforthMoulton:
     {
         AdamsBashforthMoultonSettings< TimeType > defaults(
-                    integratorType, 0.0, 0.0, 0.0, 0.0 );
+                    0.0, 0.0, 0.0, 0.0 );
 
         integratorSettings = boost::make_shared< AdamsBashforthMoultonSettings< TimeType > >(
                     initialTime,
@@ -206,6 +222,32 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
                               defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
                     getValue( jsonObject, K::bandwidth,
                               defaults.bandwidth_ ) );
+        return;
+    }
+    case bulirschStoer:
+    {
+        BulirschStoerIntegratorSettings< TimeType > defaults(
+                    0.0, 0.0, bulirsch_stoer_sequence, 6, std::numeric_limits< limits >::epsilon( ),
+                    std::numeric_limits< limits >::infinity( ) );
+
+        integratorSettings = boost::make_shared< BulirschStoerIntegratorSettings< TimeType > >(
+                    initialTime,
+                    getValue< TimeType >( jsonObject, K::initialStepSize ),
+                    getValue( jsonObject, K::extrapolationSequence, defaults.extrapolationSequence_ ),
+                    getValue( jsonObject, K::maximumNumberOfSteps, defaults.maximumNumberOfSteps_ ),
+                    getValue< TimeType >( jsonObject, K::minimumStepSize ),
+                    getValue< TimeType >( jsonObject, K::maximumStepSize ),
+                    getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
+                    getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
+                    getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
+                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                    getValue( jsonObject, K::safetyFactorForNextStepSize,
+                              defaults.safetyFactorForNextStepSize_ ),
+                    getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,
+                              defaults.maximumFactorIncreaseForNextStepSize_ ),
+                    getValue( jsonObject, K::minimumFactorDecreaseForNextStepSize,
+                              defaults.minimumFactorDecreaseForNextStepSize_ ) );
         return;
     }
     default:

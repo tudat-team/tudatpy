@@ -61,7 +61,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = double >
 class BulirschStoerVariableStepSizeIntegrator :
-        public NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType >
+        public NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 {
 public:
 
@@ -69,7 +69,7 @@ public:
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType > Base;
+    typedef NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType > Base;
 
     //! Typedef to the state derivative function.
     /*!
@@ -96,8 +96,8 @@ public:
             const std::vector< unsigned int >& sequence,
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart,  const StateType& initialState,
-            const IndependentVariableType minimumStepSize,
-            const IndependentVariableType maximumStepSize,
+            const TimeStepType minimumStepSize,
+            const TimeStepType maximumStepSize,
             const StateType& relativeErrorTolerance,
             const StateType& absoluteErrorTolerance,
             const TimeStepType safetyFactorForNextStepSize = 0.6,
@@ -141,8 +141,8 @@ public:
             const std::vector< unsigned int >& sequence,
             const StateDerivativeFunction& stateDerivativeFunction,
             const IndependentVariableType intervalStart, const StateType& initialState,
-            const IndependentVariableType minimumStepSize,
-            const IndependentVariableType maximumStepSize,
+            const TimeStepType minimumStepSize,
+            const TimeStepType maximumStepSize,
             const typename StateType::Scalar relativeErrorTolerance = 1.0e-12,
             const typename StateType::Scalar absoluteErrorTolerance = 1.0e-12,
             const TimeStepType safetyFactorForNextStepSize = 0.75,
@@ -175,7 +175,7 @@ public:
      * Returns the step size of the next step.
      * \return Step size to be used for the next step.
      */
-    virtual IndependentVariableType getNextStepSize( ) const { return stepSize_; }
+    virtual TimeStepType getNextStepSize( ) const { return stepSize_; }
 
     //! Get current state.
     /*!
@@ -201,7 +201,7 @@ public:
      *          constraints, the step is redone until the error constraint is satisfied.
      * \return The state at the end of the interval.
      */
-    virtual StateType performIntegrationStep( const IndependentVariableType stepSize )
+    virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
         StateType stateAtFirstPoint_;
         StateType stateAtCenterPoint_;
@@ -363,7 +363,7 @@ private:
     /*!
      * Last used step size, passed to either integrateTo( ) or performIntegrationStep( ).
      */
-    IndependentVariableType stepSize_;
+    TimeStepType stepSize_;
 
     //! Current independent variable.
     /*!
@@ -399,9 +399,9 @@ private:
     /*!
      * Minimum step size.
      */
-    IndependentVariableType minimumStepSize_;
+    TimeStepType minimumStepSize_;
 
-    IndependentVariableType maximumStepSize_;
+    TimeStepType maximumStepSize_;
 
     //! Relative error tolerance.
     /*!

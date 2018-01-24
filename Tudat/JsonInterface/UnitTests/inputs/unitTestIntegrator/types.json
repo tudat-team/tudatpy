@@ -2,5 +2,6 @@
   "euler",
   "rungeKutta4",
   "rungeKuttaVariableStepSize",
-  "adamsBashforthMoulton"
+  "adamsBashforthMoulton",
+  "bulirschStoer"
 ]
