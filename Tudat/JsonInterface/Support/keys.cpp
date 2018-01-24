@@ -332,7 +332,8 @@ const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "mini
 const std::string Keys::Integrator::bandwidth = "bandwidth";
 const std::string Keys::Integrator::extrapolationSequence = "extrapolationSequence";
 const std::string Keys::Integrator::maximumNumberOfSteps = "maximumNumberOfSteps";
-
+const std::string Keys::Integrator::maximumOrder = "maximumOrder";
+const std::string Keys::Integrator::minimumOrder = "minimumOrder";
 
 //  Interpolation
 

@@ -156,22 +156,22 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
     const int maximumOrder = 11;
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
             boost::make_shared< AdamsBashforthMoultonSettings< double > >(  initialTime,
-                                                                                initialStepSize,
-                                                                                minimumStepSize,
-                                                                                maximumStepSize,
-                                                                                relativeErrorTolerance,
-                                                                                absoluteErrorTolerance,
-                                                                            minimumOrder,
-                                                                            maximumOrder,
-                                                                                1,
-                                                                                false,
-                                                                                bandwidth );
+                                                                initialStepSize,
+                                                                minimumStepSize,
+                                                                maximumStepSize,
+                                                                relativeErrorTolerance,
+                                                                absoluteErrorTolerance,
+                                                                minimumOrder,
+                                                                maximumOrder,
+                                                                1,
+                                                                false,
+                                                                bandwidth );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
-// Test 6: adamsBashforthMoulton
+// Test 6: bulirschStoer
 BOOST_AUTO_TEST_CASE( test_json_integrator_bulirschStoer )
 {
     using namespace tudat::numerical_integrators;
@@ -191,17 +191,9 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_bulirschStoer )
     const int maximumNumberOfSteps = 8;
 
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< BulirschStoerIntegratorSettings(  initialTime,
-                                                                                initialStepSize,
-                                                                                minimumStepSize,
-                                                                                maximumStepSize,
-                                                                                relativeErrorTolerance,
-                                                                                absoluteErrorTolerance,
-                                                                            minimumOrder,
-                                                                            maximumOrder,
-                                                                                1,
-                                                                                false,
-                                                                                bandwidth );
+            boost::make_shared< BulirschStoerIntegratorSettings< double > >(
+                initialTime, initialStepSize, bulirsch_stoer_sequence, maximumNumberOfSteps,
+                minimumStepSize, maximumStepSize, relativeErrorTolerance, absoluteErrorTolerance );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
