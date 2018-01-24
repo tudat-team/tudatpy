@@ -321,7 +321,7 @@ public:
         // isn't fixed and will not become too small, then halve the
         // stepsize.
         if ( errorTooLarge( predictorAbsoluteError, predictorRelativeError )
-             && stepSize_ / 2.0 > minimumStepSize_ && !fixedStepSize_ ) {
+             && std::fabs( stepSize_ / 2.0 )> minimumStepSize_ && !fixedStepSize_ ) {
 
             // Set up new data for halving
             std::deque< StateType > tempStateHistory;
@@ -385,7 +385,7 @@ public:
         // then double the stepsize.
         if ( errorTooSmall( predictorAbsoluteError, predictorRelativeError )
              && sizeDerivativeHistory >= 2 * order_
-             && stepSize_ * 2.0 <= maximumStepSize_ && !fixedStepSize_ ) {
+             && std::fabs( stepSize_ * 2.0 ) <= maximumStepSize_ && !fixedStepSize_ ) {
             
             // Predict error after doubling, to prevent error from becoming too big
             // This prevents fluttering and throwing away states from the history that will be
@@ -575,6 +575,16 @@ public:
     void setMinimumOrder( unsigned int minimumOrder ){ minimumOrder_ = minimumOrder; }
 
     void setMaximumOrder( unsigned int maximumOrder ){ maximumOrder_ = maximumOrder; }
+
+    IndependentVariableType getPreviousIndependentVariable( )
+    {
+        return lastIndependentVariable_;
+    }
+
+    StateType getPreviousState( )
+    {
+        return lastState_;
+    }
 
 protected:
 

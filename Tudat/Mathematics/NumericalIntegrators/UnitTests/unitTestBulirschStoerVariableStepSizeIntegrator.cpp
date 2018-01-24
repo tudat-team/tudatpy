@@ -9,266 +9,162 @@
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
- *      The MathWorks, Inc. Symbolic Math Toolbox, 2012.
+ *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
+ *      The MathWorks, Inc. RKF54b, Symbolic Math Toolbox, 2012.
+ *
+ *    Notes
+ *      For the tests using data from the Symbolic Math Toolbox (MathWorks, 2012), the single step
+ *      and full integration error tolerances were picked to be as small as possible, without
+ *      causing the tests to fail. These values are not deemed to indicate any bugs in the code;
+ *      however, it is important to take these discrepancies into account when using this numerical
+ *      integrator.
  *
  */
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-
 #include <limits>
+#include <cmath>
+
+#include <Eigen/Core>
 
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
-
 #include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
-const double TUDAT_MACHINE_PRECISION = std::numeric_limits< double >::epsilon( );
+BOOST_AUTO_TEST_SUITE( test_bulirsch_stoer_integrator )
 
-BOOST_AUTO_TEST_SUITE( test_bulirsch_stoer_variable_step_size_integrator )
+using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
+using numerical_integrator_test_functions::computeVanDerPolStateDerivative;
+using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative;
+using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
 
-using namespace tudat::numerical_integrators;
+using namespace numerical_integrators;
 
-//! Test the validity of the BurlischStoerVariableStepSize integrator.
-/*!
- * Tests the validity of the RungeKuttaVariableStepSize integrator.
- * \param sequence The rational function sequence used for the Bulirsch-Stoer integrator being
- *          tested.
- * \param stateDerivativeFunction Function pointer to the state derivative function.
- * \param intervalStart The start of the integration interval.
- * \param intervalEnd The end of the integration interval.
- * \param stepSize The step size to take.
- * \param initialState The initial state.
- * \param expectedState Expected final state.
- * \param tolerance Tolerance when comparing.
- * \return True if actual final state equals the expected final state within the specified
- *          tolerance.
- */
-bool testValidityOfBulirschStoerVariableStepSizeIntegrator(
-        const std::vector< unsigned int > sequence,
-        const BulirschStoerVariableStepSizeIntegratorXd::StateDerivativeFunction&
-        stateDerivativeFunction,
-        const double intervalStart, const double intervalEnd, const double stepSize,
-        const Eigen::VectorXd& initialState, const Eigen::VectorXd expectedState,
-        const double tolerance )
+//! Test Compare with Runge Kutta 78
+BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78 )
 {
-    // Create forward BulirschStoerVariableStepSize integrator.
-    {
-        std::cout<<"T1"<<std::endl;
-        BulirschStoerVariableStepSizeIntegratorXd integrator( sequence, stateDerivativeFunction,
-                                                              intervalStart, initialState,
-                                                              1.0e-15, tolerance / 10.0 );
-        std::cout<<"T1"<<std::endl;
+    // Setup integrator
+    RungeKuttaCoefficients coeff_rk78 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78);
+
+    // Integrator settings
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
+    double initialStepSize = 1E-4; // Don't make this too small
+    Eigen::VectorXd relativeTolerance(1);
+    relativeTolerance << 1E-12;
+    Eigen::VectorXd absoluteTolerance = relativeTolerance;
+
+    // Initial conditions
+    double initialTime = 0.5;
+    Eigen::VectorXd initialState( 1 );
+    initialState << 0.5; // 1 large error
 
 
-        Eigen::VectorXd finalState = integrator.integrateTo( intervalEnd, stepSize );
+    // Setup integrator
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
+                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                computeNonAutonomousModelStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-        // Compute differences between computed and expected interval end and generate
-        // cerr statement if test fails.
-        if ( std::fabs( integrator.getCurrentIndependentVariable( ) - intervalEnd ) / intervalEnd >
-             10.0 * TUDAT_MACHINE_PRECISION )
-        {
-            return false;
-        }
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
+                coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-        // Compute differences between computed and expected results and generate
-        // cerr statement if test fails.
-        if ( !expectedState.isApprox( finalState, tolerance ) )
-        {
-            return false;
-        }
-    }
-    std::cout<<"T1"<<std::endl;
+    double endTime = 1.5;
+    Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime, initialStepSize );
+    Eigen::VectorXd solution_rk78 = integrator_rk78.integrateTo( endTime, initialStepSize );
 
+    Eigen::VectorXd difference = solution_bs - solution_rk78;
 
-    // Try the same again, but in two steps.
-    {
-        std::cout<<"T2"<<std::endl;
-
-        BulirschStoerVariableStepSizeIntegratorXd integrator( sequence, stateDerivativeFunction,
-                                                              intervalStart, initialState,
-                                                              1.0e-15, tolerance / 10.0 );
-
-        const double intermediateIndependentVariable
-                = intervalStart + ( intervalEnd - intervalStart ) / 2.0;
-
-        const Eigen::VectorXd intermediateState = integrator.integrateTo(
-                    intermediateIndependentVariable, stepSize );
-
-        // Compute differences between computed and expected interval end.
-        if ( std::fabs( integrator.getCurrentIndependentVariable( )
-                       - intermediateIndependentVariable ) /
-             intermediateIndependentVariable > TUDAT_MACHINE_PRECISION )
-        {
-            return false;
-        }
-
-        std::cout<<"T2"<<std::endl;
-
-        // Integrate to the end
-        Eigen::VectorXd finalState = integrator.integrateTo( intervalEnd, stepSize );
-
-        // Compute differences between computed and expected interval end.
-        if ( std::fabs( integrator.getCurrentIndependentVariable( ) - intervalEnd ) / intervalEnd >
-             10.0 * TUDAT_MACHINE_PRECISION )
-        {
-            return false;
-        }
-
-        // Compute differences between computed and expected results and generate
-        // cerr statement if test fails.
-        if ( !expectedState.isApprox( finalState, tolerance ) )
-        {
-            return false;
-        }
-
-        integrator.performIntegrationStep( stepSize );
-        if ( !integrator.rollbackToPreviousState( ) )
-        {
-            return false;
-        }
-
-        // No need to check machine precision, because this interval is stored exact.
-        if ( std::fabs( integrator.getCurrentIndependentVariable( ) - intervalEnd ) / intervalEnd >
-             10.0 * TUDAT_MACHINE_PRECISION )
-        {
-            return false;
-        }
-
-        // This result should be exactly the same.
-        if ( integrator.getCurrentState( ) != finalState )
-        {
-            return false;
-        }
-
-        if ( integrator.rollbackToPreviousState( ) )
-        {
-            return false;
-        }
-    }
-
-    return true;
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 1E-11 );
 }
 
-//! Test different types of states and state derivatives.
-/*!
- * Tests if different types of states and state derivatives work. If something
- * is broken, then a compile time error will be generated.
- * \return Unconditionally true
- */
-bool testDifferentStateAndStateDerivativeTypes( )
+//! Test Compare with Runge Kutta 78
+BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_v2 )
 {
-    using tudat::unit_tests::numerical_integrator_test_functions::computeZeroStateDerivative;
-    tudat::numerical_integrators::BulirschStoerVariableStepSizeIntegrator
-            < double, Eigen::Vector3d, Eigen::VectorXd > integrator(
-                getBulirschStoerStepSequence( ),  &computeZeroStateDerivative,
-                0.0, Eigen::Vector3d::Zero( ) );
+    // Setup integrator
+    RungeKuttaCoefficients coeff_rk78 =
+            RungeKuttaCoefficients::get(
+                RungeKuttaCoefficients::rungeKuttaFehlberg78 );
 
-    integrator.integrateTo( 0.0, 0.1 );
+    // Integrator settings
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
+    double initialStepSize = 1.0; // Don't make this too small
+    double relativeTolerance = 1E-10;
+    double absoluteTolerance = 1E-10;
 
-    // No need to test anything, this is just to check compile time errors.
-    return true;
+    // Initial conditions
+    double initialTime = 0.2;
+    Eigen::VectorXd initialState( 1 );
+    initialState << -1.0;
+
+    // Setup integrator
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
+                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                computeNonAutonomousModelStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
+                coeff_rk78, computeNonAutonomousModelStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
+
+    double endTime = 2.0;
+    Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime, initialStepSize );
+    Eigen::VectorXd solution_rk78 = integrator_rk78.integrateTo( endTime, initialStepSize );
+
+    Eigen::VectorXd difference = solution_bs - solution_rk78;
+
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 1E-8 );
 }
 
-//! Test the validity of the BulirschStoerVariableStepSize integrator.
-/*!
- * Tests the validity of the BulirschStoerVariableStepSize integrator.
- * \param sequence Bulirsch-Stoer, variable-step size rational function sequence.
- * \return True if actual final state equals the expected final state within the specified
- *          tolerance.
- */
-bool testValidityOfBulirschStoerVariableStepSizeIntegrator(
-        const std::vector< unsigned int >& sequence )
+//! Test Compare with Runge Kutta 78
+BOOST_AUTO_TEST_CASE( test_BulirschStoer_Integrator_Compare78_VanDerPol )
 {
-    // Test result initialised to false.
-    bool testBulirschStoerVariableStepSizeIsOk = true;
+    // Setup integrator
+    RungeKuttaCoefficients coeff_rk78 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
 
-    using namespace tudat::unit_tests;
-//    std::map< BenchmarkFunctions, BenchmarkFunction >& benchmarkFunctions =
-//            getBenchmarkFunctions( );
+    // Integrator settings
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
+    double initialStepSize = 1; // Don't make this too small
+    double relativeTolerance = 1E-15;
+    double absoluteTolerance = 1E-15;
 
-//    // Case 1: test with x_dot = 0, which results in x_f = x_0.
-//    {
-//        testBulirschStoerVariableStepSizeIsOk
-//                &= testValidityOfBulirschStoerVariableStepSizeIntegrator(
-//                    sequence,
-//                    &unit_tests::numerical_integrator_test_functions::computeZeroStateDerivative,
-//                    0.0,
-//                    100.0, 0.2,
-//                    Eigen::Vector3d::Zero( ),
-//                    Eigen::Vector3d::Zero( ),
-//                    TUDAT_MACHINE_PRECISION );
-//    }
+    // Initial conditions
+    double initialTime = 0.2;
+    Eigen::VectorXd initialState( 2 );
+    initialState << -1.0, 1.0;
 
-//    // Case 2: test with x_dot = 1, which results in x_f = x_0 + t_f.
-//    {
-//        std::cout<<"test 2"<<std::endl;
-//        testBulirschStoerVariableStepSizeIsOk
-//                &= testValidityOfBulirschStoerVariableStepSizeIntegrator(
-//                    sequence,
-//                    &unit_tests::numerical_integrator_test_functions::computeConstantStateDerivative,
-//                    0.0,
-//                    100.0, 0.2,
-//                    Eigen::Vector3d::UnitX( ),
-//                    Eigen::Vector3d::UnitX( ) * 101.0,
-//                    1000.0 * TUDAT_MACHINE_PRECISION );
-//        std::cout<<"test 2 done"<<std::endl;
+    // Setup integrator
+    BulirschStoerVariableStepSizeIntegratorXd integrator_bs(
+                getBulirschStoerStepSequence( bulirsch_stoer_sequence, 4 ),
+                computeVanDerPolStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-//    }
+    RungeKuttaVariableStepSizeIntegratorXd integrator_rk78(
+                coeff_rk78, computeVanDerPolStateDerivative, initialTime, initialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    // Case 3: test with x_dot = x, which results in x_f = x0 * exp( t_f )
-    {
-        std::cout<<"test 3"<<std::endl;
+    double endTime = 1.4;
+    Eigen::VectorXd solution_bs = integrator_bs.integrateTo( endTime,initialStepSize );
+    Eigen::VectorXd solution_rk78 = integrator_rk78.integrateTo( endTime,initialStepSize );
 
-        testBulirschStoerVariableStepSizeIsOk
-                &= testValidityOfBulirschStoerVariableStepSizeIntegrator(
-                    sequence,
-                    &unit_tests::numerical_integrator_test_functions::computeVanDerPolStateDerivative,
-                    0.0,
-                    10.0, 1.0,
-                    Eigen::Vector2d::UnitX( ),
-                    Eigen::Vector2d::UnitX( ) * std::exp( 10.0 ), 1.0e-14 );
-        std::cout<<"test 3 done"<<std::endl;
+    Eigen::VectorXd difference = solution_rk78 - solution_bs;
 
-    }
-
-//    // Case 4: test with an example from Burden and Faires.
-//    {
-//        testBulirschStoerVariableStepSizeIsOk
-//                &= testValidityOfBulirschStoerVariableStepSizeIntegrator(
-//                    sequence,
-//                    benchmarkFunctions[ BurdenAndFaires ]
-//                    .pointerToStateDerivativeFunction_,
-//                    benchmarkFunctions[ BurdenAndFaires ].intervalStart_,
-//                    benchmarkFunctions[ BurdenAndFaires ].intervalEnd_, 0.25,
-//                    benchmarkFunctions[ BurdenAndFaires ].initialState_,
-//                    benchmarkFunctions[ BurdenAndFaires ].finalState_, 1.0e-11 );
-//    }
-
-    return testBulirschStoerVariableStepSizeIsOk;
-}
-
-BOOST_AUTO_TEST_CASE( testBulirschStoerVariableStepSizeIntegrator )
-{
-    // Case 1: test if difference in type between state and state derivative works.
-    //BOOST_CHECK( testDifferentStateAndStateDerivativeTypes( ) );
-
-    // Case 2: test if Bulirsch-Stoer sequence works.
-    BOOST_CHECK( testValidityOfBulirschStoerVariableStepSizeIntegrator(
-                     getBulirschStoerStepSequence( ) ) );
-
-//    // Case 2: test if Deufelhard sequence works.
-//    BOOST_CHECK( testValidityOfBulirschStoerVariableStepSizeIntegrator(
-//                     BulirschStoerRationalFunctionSequences::get(
-//                         BulirschStoerRationalFunctionSequences::deufelhard ) ) );
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 5E-12 );
+    BOOST_CHECK_SMALL( std::fabs( difference( 1 ) ), 5E-12 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
