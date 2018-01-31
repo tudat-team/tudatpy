@@ -71,7 +71,6 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 break;
             }
         }
-        return stopPropagation;
     }
     // Check all conditions are fulfilled.
     else
