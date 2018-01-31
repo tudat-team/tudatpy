@@ -194,7 +194,7 @@ void getFinalStateForExactHybridVariableTerminationCondition(
             if( !timesAreSet )
             {
                 minimumTimeStep = currentFinalTimeStep;
-                maximumTimeStep = currentFinalTimeStep;
+                minimumTimeIndex = i;
                 timesAreSet = true;
             }
             else
