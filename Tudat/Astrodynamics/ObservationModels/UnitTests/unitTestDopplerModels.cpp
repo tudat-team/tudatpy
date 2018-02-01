@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation settings
         boost::shared_ptr< ObservationSettings > observableSettingsWithCorrections =
-                boost::make_shared< OneWayDopperObservationSettings >
+                boost::make_shared< OneWayDopplerObservationSettings >
                 (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
@@ -484,14 +484,14 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                     linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodyMap );
 
         // Create observation settings
-        boost::shared_ptr< OneWayDopperObservationSettings > oneWayObservableSettingsWithCorrections =
-                boost::make_shared< OneWayDopperObservationSettings >
+        boost::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableSettingsWithCorrections =
+                boost::make_shared< OneWayDopplerObservationSettings >
                 (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
 
         boost::shared_ptr< ObservationSettings > twoWayObservableSettingsWithCorrections =
-                boost::make_shared< TwoWayDopperObservationSettings >
+                boost::make_shared< TwoWayDopplerObservationSettings >
                 ( oneWayObservableSettingsWithCorrections, oneWayObservableSettingsWithCorrections );
 
         // Create observation model.

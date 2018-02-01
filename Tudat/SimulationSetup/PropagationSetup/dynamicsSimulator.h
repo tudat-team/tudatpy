@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -264,7 +264,6 @@ public:
     {
         setIntegratedResult_ = setIntegratedResult;
     }
-
 
 protected:
 
@@ -660,7 +659,18 @@ public:
         return dependentVariablesFunctions_;
     }
 
-
+    //! Function to reset the object that checks whether the simulation has finished from
+    //! (newly defined) propagation settings.
+    /*!
+     *  Function to reset the object that checks whether the simulation has finished from
+     *  (newly defined) propagation settings.
+     */
+    void resetPropagationTerminationConditions( )
+    {
+        propagationTerminationCondition_ = createPropagationTerminationConditions(
+                    propagatorSettings_->getTerminationSettings(), bodyMap_,
+                            integratorSettings_->initialTimeStep_ );
+    }
 
 protected:
 

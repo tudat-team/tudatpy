@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -144,6 +144,8 @@ private:
 
     //! Time at which the propagation is to stop.
     double stopTime_;
+
+private:
 
     //!  Boolean denoting whether propagation is forward (if true) or backwards (if false) in time.
     bool propagationDirectionIsPositive_;

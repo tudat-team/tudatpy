@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -120,13 +120,13 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< TwoWayDopperObservationSettings >
-                            (  boost::make_shared< OneWayDopperObservationSettings >(
+                            linkEnds, boost::make_shared< TwoWayDopplerObservationSettings >
+                            (  boost::make_shared< OneWayDopplerObservationSettings >(
                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
-                               boost::make_shared< OneWayDopperObservationSettings >(
+                               boost::make_shared< OneWayDopplerObservationSettings >(
                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
@@ -178,13 +178,13 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< TwoWayDopperObservationSettings >
-                            (  boost::make_shared< OneWayDopperObservationSettings >(
+                            linkEnds, boost::make_shared< TwoWayDopplerObservationSettings >
+                            (  boost::make_shared< OneWayDopplerObservationSettings >(
                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
-                               boost::make_shared< OneWayDopperObservationSettings >(
+                               boost::make_shared< OneWayDopplerObservationSettings >(
                                    boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
                                    boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),

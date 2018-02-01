@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -219,6 +219,18 @@ public:
     {
         return printInterval_;
     }
+
+    //! Function to modify settings for creating the object that checks whether the propagation is finished.
+    /*!
+     * Function to modify settings for creating the object that checks whether the propagation is finished.
+     * \param terminationSettings new settings for creating the object that checks whether the propagation is finished.
+     */
+    void setTerminationSettings(
+            boost::shared_ptr< PropagationTerminationSettings > terminationSettings )
+    {
+        terminationSettings_ = terminationSettings;
+    }
+
 
 
 protected:
