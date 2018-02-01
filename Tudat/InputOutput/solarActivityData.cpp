@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,8 +18,6 @@
 #include <istream>
 #include <string>
 #include <vector>
-
-#include <boost/test/unit_test.hpp>
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/solarActivityData.h"

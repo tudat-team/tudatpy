@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< OneWayDopperObservationSettings >
+                            linkEnds, boost::make_shared< OneWayDopplerObservationSettings >
                             (  boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             {
                 oneWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< OneWayDopperObservationSettings >
+                            linkEnds, boost::make_shared< OneWayDopplerObservationSettings >
                             (  boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                    perturbingBodies ),
                                boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -333,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         boost::shared_ptr< OneWayDopplerObservationModel< > > oneWayDopplerModel =
                 boost::dynamic_pointer_cast< OneWayDopplerObservationModel< > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        linkEnds, boost::make_shared< OneWayDopperObservationSettings >
+                        linkEnds, boost::make_shared< OneWayDopplerObservationSettings >
                         (  boost::shared_ptr< LightTimeCorrectionSettings >( ),
                            boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                            boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ), bodyMap ) );

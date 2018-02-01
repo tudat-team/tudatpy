@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -366,6 +366,9 @@ struct PodOutput
      * \param residualStandardDeviation Standard deviation of postfit residuals vector
      * \param residualHistory Vector of residuals per iteration
      * \param parameterHistory Vector of parameter vectors per iteration (entry 1 is pre-estimation values)
+     * \param exceptionDuringInversion Boolean denoting whether an exception was caught during inversion of normal equations
+     * \param exceptionDuringPropagation Boolean denoting whether an exception was caught during (re)propagation of equations of
+     * motion (and variational equations).
      */
     PodOutput( const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& parameterEstimate,
                const Eigen::VectorXd& residuals,
@@ -375,7 +378,9 @@ struct PodOutput
                const Eigen::MatrixXd& inverseNormalizedCovarianceMatrix,
                const double residualStandardDeviation,
                const std::vector< Eigen::VectorXd >& residualHistory = std::vector< Eigen::VectorXd >( ),
-               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ) ):
+               const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
+               const bool exceptionDuringInversion = false,
+               const bool exceptionDuringPropagation = false ):
 
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
@@ -383,7 +388,9 @@ struct PodOutput
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         residualStandardDeviation_( residualStandardDeviation ),
         residualHistory_( residualHistory ),
-        parameterHistory_( parameterHistory )
+        parameterHistory_( parameterHistory ),
+        exceptionDuringInversion_( exceptionDuringInversion ),
+        exceptionDuringPropagation_( exceptionDuringPropagation)
     { }
 
     //! Function to retrieve the unnormalized inverse estimation covariance matrix
@@ -512,6 +519,12 @@ struct PodOutput
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
+
+    //! Boolean denoting whether an exception was caught during inversion of normal equations
+    bool exceptionDuringInversion_;
+
+    //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
+    bool exceptionDuringPropagation_;
 };
 
 }
