@@ -175,8 +175,52 @@ public:
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
-
 };
+
+//! Class to define settings for estimation of arc-wise constant observation biases (absolute or relative)
+class ArcWiseConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param isBiasAdditive True if bias is absolute, false if it is relative
+     */
+    ArcWiseConstantObservationBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime,
+            const bool isBiasAdditive ):
+        EstimatableParameterSettings(
+            linkEnds.begin( )->second.first,
+            isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
+            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Start times for arcs in which biases are defined
+    std::vector< double > arcStartTimes_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+};
+
+
+
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
@@ -549,4 +593,5 @@ public:
 } // namespace estimatable_parameters
 
 } // namespace tudat
+
 #endif // TUDAT_ESTIMATABLEPARAMETERSETTINGS_H

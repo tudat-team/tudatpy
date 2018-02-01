@@ -86,7 +86,7 @@ public:
     std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList_;
 };
 
-//! Class for defining settings for the creation of a constant additive observation bias model
+//! Class for defining settings for the creation of a constant absolute or relative observation bias model
 class ConstantObservationBiasSettings: public ObservationBiasSettings
 {
 public:
@@ -96,11 +96,13 @@ public:
      * Constuctor
      * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
      * size of the observable to which it is assigned.
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
      */
     ConstantObservationBiasSettings(
-            const Eigen::VectorXd& observationBias ):
-        ObservationBiasSettings( constant_absolute_bias ), observationBias_( observationBias )
-    { }
+            const Eigen::VectorXd& observationBias,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ? ( constant_absolute_bias ) : ( constant_relative_bias ) ),
+        observationBias_( observationBias ), useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
     ~ConstantObservationBiasSettings( ){ }
@@ -112,23 +114,64 @@ public:
      */
     Eigen::VectorXd observationBias_;
 
+    //! Boolean to denote whether an absolute or relative bias is to be created.
+    bool useAbsoluteBias_;
 };
 
-//! Class for defining settings for the creation of a constant relative observation bias model
-class ConstantRelativeObservationBiasSettings: public ObservationBiasSettings
+//! Class for defining settings for the creation of an arc-wise constant absolute or relative observation bias model
+class ArcWiseConstantObservationBiasSettings: public ObservationBiasSettings
 {
 public:
 
-    ConstantRelativeObservationBiasSettings(
-            const Eigen::VectorXd& relativeObservationBias ):
-        ObservationBiasSettings( constant_relative_bias ), relativeObservationBias_( relativeObservationBias )
-    { }
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param arcStartTimes Start times for arcs in which biases (observationBiases) are used
+     * \param observationBiases List of observation biases per arc
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
+     */
+    ArcWiseConstantObservationBiasSettings(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< Eigen::VectorXd >& observationBiases,
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
+        arcStartTimes_( arcStartTimes ), observationBiases_( observationBiases ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param observationBiases Map of observation biases per arc, with bias as map value, and arc start time as map key
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
+     */
+    ArcWiseConstantObservationBiasSettings(
+            const std::map< double, Eigen::VectorXd >& observationBiases,
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias  ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
+        arcStartTimes_( utilities::createVectorFromMapKeys( observationBiases ) ),
+        observationBiases_( utilities::createVectorFromMapValues( observationBiases ) ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
-    ~ConstantRelativeObservationBiasSettings( ){ }
+    ~ArcWiseConstantObservationBiasSettings( ){ }
 
-    Eigen::VectorXd relativeObservationBias_;
+    //! Start times for arcs in which biases (observationBiases) are used
+    std::vector< double > arcStartTimes_;
 
+    //! List of observation biases per arc
+    std::vector< Eigen::VectorXd > observationBiases_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+    //! Boolean to denote whether an absolute or relative bias is to be created.
+    bool useAbsoluteBias_;
 };
 
 //! Class used for defining the settings for an observation model that is to be created.
@@ -533,6 +576,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
  *  Function to create an object that computes an observation bias, which can represent any type of system-dependent influence
  *  on the observed value (e.g. absolute bias, relative bias, clock drift, etc.)
  *  \param linkEnds Observation link ends for which the bias is to be created.
+ *  \param observableType Observable type for which bias is to be created
  *  \param biasSettings Settings for teh observation bias that is to be created.
  *  \param bodyMap List of body objects that comprises the environment.
  *  \return Object that computes an observation bias according to requested settings.
@@ -540,6 +584,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
 template< int ObservationSize = 1 >
 boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
         const LinkEnds linkEnds,
+        const ObservableType observableType,
         const boost::shared_ptr< ObservationBiasSettings > biasSettings,
         const simulation_setup::NamedBodyMap &bodyMap )
 {
@@ -556,6 +601,11 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
             throw std::runtime_error( "Error when making constant observation bias, settings are inconsistent" );
         }
 
+        if( !constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
         if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
@@ -565,23 +615,94 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
                     constantBiasSettings->observationBias_ );
         break;
     }
+    case arc_wise_constant_absolute_bias:
+    {
+        // Check input consistency
+        boost::shared_ptr< ArcWiseConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making arc-wise observation bias, settings are inconsistent" );
+        }
+        else if( !arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise observation bias, class contents are inconsistent" );
+        }
+
+        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
+        for( unsigned int i = 0; i < arcwiseBiasSettings->observationBiases_.size( ); i++ )
+        {
+            // Check if size of bias is consistent with requested observable size
+            if( arcwiseBiasSettings->observationBiases_.at( i ).rows( ) != ObservationSize )
+            {
+                throw std::runtime_error( "Error when making arc-wise observation bias, bias size is inconsistent" );
+            }
+            else
+            {
+                observationBiases.push_back( arcwiseBiasSettings->observationBiases_.at( i ) );
+            }
+        }
+        observationBias = boost::make_shared< ConstantArcWiseObservationBias< ObservationSize > >(
+                    arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                    observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
+        break;
+    }
     case constant_relative_bias:
     {
         // Check input consistency
-        boost::shared_ptr< ConstantRelativeObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
-                ConstantRelativeObservationBiasSettings >( biasSettings );
+        boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
+                ConstantObservationBiasSettings >( biasSettings );
         if( constantBiasSettings == NULL )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, settings are inconsistent" );
         }
 
+        if( constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant relative observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
-        if( constantBiasSettings->relativeObservationBias_.rows( ) != ObservationSize )
+        if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, bias size is inconsistent" );
         }
         observationBias = boost::make_shared< ConstantRelativeObservationBias< ObservationSize > >(
-                    constantBiasSettings->relativeObservationBias_ );
+                    constantBiasSettings->observationBias_ );
+        break;
+    }
+    case arc_wise_constant_relative_bias:
+    {
+        // Check input consistency
+        boost::shared_ptr< ArcWiseConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, settings are inconsistent" );
+        }
+        else if( arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, class contents are inconsistent" );
+        }
+
+        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
+        for( unsigned int i = 0; i < arcwiseBiasSettings->observationBiases_.size( ); i++ )
+        {
+            // Check if size of bias is consistent with requested observable size
+            if( arcwiseBiasSettings->observationBiases_.at( i ).rows( ) != ObservationSize )
+            {
+                throw std::runtime_error( "Error when making arc-wise observation bias, bias size is inconsistent" );
+            }
+            else
+            {
+                observationBiases.push_back( arcwiseBiasSettings->observationBiases_.at( i ) );
+            }
+        }
+        observationBias = boost::make_shared< ConstantRelativeArcWiseObservationBias< ObservationSize > >(
+                    arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                    observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
         break;
     }
     case multiple_observation_biases:
@@ -599,7 +720,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
         for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
         {
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
-                                               linkEnds, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
+                                               linkEnds, observableType, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
         }
 
         // Create combined bias object
@@ -696,7 +817,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -733,7 +854,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             if( boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings ) == NULL )
@@ -796,7 +917,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -872,7 +993,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -932,7 +1053,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_, bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodyMap );
             }
 
             std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
@@ -1059,7 +1180,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 2 >(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -1142,7 +1263,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
 
