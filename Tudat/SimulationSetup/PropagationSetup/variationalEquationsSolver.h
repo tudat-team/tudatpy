@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -632,8 +632,7 @@ public:
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
-                        boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
+                        dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory,
                         cummulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
@@ -673,8 +672,7 @@ public:
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
-                        boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
+                        dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cummulativeComputationTimeHistory );
 
             setVariationalEquationsSolution< double, double >(
@@ -1156,9 +1154,7 @@ public:
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
                             initialVariationalState, integratorSettings,
-                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                                         _1, _2 ),
+                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dependentVariableHistorySolutions.at( i ),
                             cummulativeComputationTimeHistorySolutions.at( i ),
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ) );
@@ -1242,9 +1238,7 @@ public:
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
-                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                                         _1, _2 ),
+                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dummyDependentVariableHistorySolution, dummyCummulativeComputationTimeHistorySolution );
 
                 // Save state transition and sensitivity matrix solutions for current arc.

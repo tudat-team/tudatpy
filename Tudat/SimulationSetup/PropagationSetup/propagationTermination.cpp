@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -59,9 +59,10 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
 bool HybridPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
     // Check if single condition is fulfilled.
+    bool stopPropagation = -1;
     if( fulFillSingleCondition_ )
     {
-        bool stopPropagation = 0;
+        stopPropagation = 0;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
@@ -70,12 +71,11 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 break;
             }
         }
-        return stopPropagation;
     }
     // Check all conditions are fulfilled.
     else
     {
-        bool stopPropagation = 1;
+        stopPropagation = 1;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
@@ -84,8 +84,26 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
                 break;
             }
         }
-        return stopPropagation;
     }
+
+    // Save if conditions were met
+    if( stopPropagation )
+    {
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
+            {
+                isConditionMetWhenStopping_[ i ] = false;
+            }
+            else
+            {
+                isConditionMetWhenStopping_[ i ] = true;
+            }
+        }
+    }
+
+    return stopPropagation;
+
 }
 
 
@@ -106,7 +124,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
-                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) );
+                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
+                    timeTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     case cpu_time_stopping_condition:
@@ -140,7 +159,9 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
                     dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
-                    dependentVariableTerminationSettings->useAsLowerLimit_ );
+                    dependentVariableTerminationSettings->useAsLowerLimit_,
+                    dependentVariableTerminationSettings->terminateExactlyOnFinalCondition_,
+                    dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }
     case hybrid_stopping_condition:
@@ -158,7 +179,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                             bodyMap, initialTimeStep ) );
         }
         propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
-                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_ );
+                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_,
+                    hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     default:

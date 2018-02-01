@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -76,6 +76,20 @@ public:
      */
     virtual DependentVariableType
             interpolate( const IndependentVariableType independentVariableValue ) = 0;
+
+    //! Function to perform interpolation, with non-const input argument.
+    /*!
+     * This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is
+     * included for compatibility with some function pointer binding interfaces.
+     * \param independentVariableValue Independent variable value at which the value of the
+     *          dependent variable is to be determined.
+     * \return Interpolated value of dependent variable.
+     */
+    DependentVariableType
+            interpolateNonConst( IndependentVariableType independentVariableValue )
+    {
+        return interpolate( independentVariableValue );
+    }
 
     //! Function to return the number of independent variables of the interpolation.
     /*!

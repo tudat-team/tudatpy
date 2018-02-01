@@ -1,4 +1,4 @@
-#    Copyright (c) 2010-2017, Delft University of Technology
+#    Copyright (c) 2010-2018, Delft University of Technology
 #    All rigths reserved
 #
 #    This file is part of the Tudat. Redistribution and use in source and
@@ -297,14 +297,14 @@ endif()
 list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_ground_stations tudat_propagators
     tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_basic_mathematics
+     tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_root_finders tudat_basic_mathematics
      tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
 list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_simulation_setup tudat_observation_models tudat_ground_stations tudat_acceleration_partials
     tudat_observation_partials tudat_estimatable_parameters tudat_orbit_determination  tudat_propagators
     tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_basic_mathematics
+    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_root_finders tudat_basic_mathematics
     tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
 
