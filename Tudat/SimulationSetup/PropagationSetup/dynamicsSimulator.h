@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -265,7 +265,6 @@ public:
         setIntegratedResult_ = setIntegratedResult;
     }
 
-
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -334,7 +333,7 @@ public:
         propagatorSettings_(
             boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
-        propagationTerminationReason_( propagation_never_run )
+        propagationTerminationReason_( boost::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
         if( propagatorSettings == NULL )
         {
@@ -430,8 +429,7 @@ public:
                     stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
-                    boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                 propagationTerminationCondition_, _1, _2 ),
+                    propagationTerminationCondition_,
                     dependentVariableHistory_,
                     cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
@@ -614,7 +612,7 @@ public:
      * Function to retrieve the event that triggered the termination of the last propagation
      * \return Event that triggered the termination of the last propagation
      */
-    PropagationTerminationReason getPropagationTerminationReason()
+    boost::shared_ptr< PropagationTerminationDetails > getPropagationTerminationReason( )
     {
         return propagationTerminationReason_;
     }
@@ -626,7 +624,7 @@ public:
      */
     virtual bool integrationCompletedSuccessfully( ) const
     {
-        return propagationTerminationReason_ == termination_condition_reached;
+        return ( propagationTerminationReason_->getPropagationTerminationReason( ) == termination_condition_reached );
     }
 
 
@@ -661,7 +659,18 @@ public:
         return dependentVariablesFunctions_;
     }
 
-
+    //! Function to reset the object that checks whether the simulation has finished from
+    //! (newly defined) propagation settings.
+    /*!
+     *  Function to reset the object that checks whether the simulation has finished from
+     *  (newly defined) propagation settings.
+     */
+    void resetPropagationTerminationConditions( )
+    {
+        propagationTerminationCondition_ = createPropagationTerminationConditions(
+                    propagatorSettings_->getTerminationSettings(), bodyMap_,
+                            integratorSettings_->initialTimeStep_ );
+    }
 
 protected:
 
@@ -768,7 +777,7 @@ protected:
     std::chrono::steady_clock::time_point initialClockTime_;
 
     //! Event that triggered the termination of the propagation
-    PropagationTerminationReason propagationTerminationReason_;
+    boost::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
 
 };
 
@@ -1298,7 +1307,7 @@ protected:
     std::vector< double > arcStartTimes_;
 
     //! Event that triggered the termination of the propagation
-    std::vector< PropagationTerminationReason > propagationTerminationReasons_;
+    std::vector< boost::shared_ptr< PropagationTerminationDetails > > propagationTerminationReasons_;
 
     //! Propagator settings used by this objec
     boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;

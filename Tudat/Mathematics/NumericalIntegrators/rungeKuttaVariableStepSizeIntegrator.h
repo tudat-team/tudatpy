@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -135,7 +135,7 @@ public:
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction )
+        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
     {
         // Set default newStepSizeFunction_ to the class method.
         if ( this->newStepSizeFunction_ == 0 )
@@ -197,7 +197,7 @@ public:
         safetyFactorForNextStepSize_( std::fabs( static_cast< double >( safetyFactorForNextStepSize ) ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( static_cast< double >( maximumFactorIncreaseForNextStepSize ) ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( static_cast< double >( minimumFactorDecreaseForNextStepSize ) ) ),
-        newStepSizeFunction_( newStepSizeFunction )
+        newStepSizeFunction_( newStepSizeFunction ), useStepSizeControl_( true )
     {
         // Set default newStepSizeFunction_ to the class method.
         if ( newStepSizeFunction_ == 0 )
@@ -238,8 +238,8 @@ public:
      * Runge-Kutta scheme.
      * \return Current state derivatives evaluated according to stages of Runge-Kutta scheme.
      */
-    std::vector< StateDerivativeType > getCurrentStateDerivatives( ) 
-    { 
+    std::vector< StateDerivativeType > getCurrentStateDerivatives( )
+    {
         return currentStateDerivatives_;
     }
 
@@ -272,6 +272,26 @@ public:
         return true;
     }
 
+    //! Get previous independent variable.
+    /*!
+     * Returns the previoius value of the independent variable of the integrator.
+     * \return Previous independent variable.
+     */
+    IndependentVariableType getPreviousIndependentVariable( )
+    {
+        return this->lastIndependentVariable_;
+    }
+
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state.
+     * \return Previous state
+     */
+    StateType getPreviousState( )
+    {
+        return this->lastState_;
+    }
+
     //! Modify the state at the current interval.
     /*!
      * Modify the state at the current interval. This allows for discrete jumps in the state, often
@@ -286,6 +306,16 @@ public:
     {
         this->currentState_ = newState;
         this->lastIndependentVariable_ = currentIndependentVariable_;
+    }
+
+    //! Function to toggle the use of step-size control
+    /*!
+     * Function to toggle the use of step-size control
+     * \param useStepSizeControl Boolean denoting whether step size control is to be used
+     */
+    void setStepSizeControl( const bool useStepSizeControl )
+    {
+        useStepSizeControl_ = useStepSizeControl;
     }
 
 protected:
@@ -424,6 +454,9 @@ protected:
      * Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme.
      */
     std::vector< StateDerivativeType > currentStateDerivatives_;
+
+    //! Boolean denoting whether step size control is to be used
+    bool useStepSizeControl_;
 };
 
 //! Perform a single integration step.
@@ -438,7 +471,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
     // Define lower and higher order estimates.
     StateType lowerOrderEstimate( this->currentState_ ),
-              higherOrderEstimate( this->currentState_ );
+            higherOrderEstimate( this->currentState_ );
 
     // Compute the k_i state derivatives per stage.
     for ( int stage = 0; stage < this->coefficients_.cCoefficients.rows( ); stage++ )
@@ -512,54 +545,62 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         const StateType& lowerOrderEstimate, const StateType& higherOrderEstimate,
         const TimeStepType stepSize )
 {
-    // Compute new step size using new step size function, which also returns whether the
-    // relative error is within bounds or not.
-    std::pair< TimeStepType, bool > newStepSizePair = this->newStepSizeFunction_(
-                stepSize, this->coefficients_.lowerOrder, this->coefficients_.higherOrder,
-                this->safetyFactorForNextStepSize_, this->relativeErrorTolerance_,
-                this->absoluteErrorTolerance_, lowerOrderEstimate,
-                higherOrderEstimate );
-
-    // Check whether change in stepsize does not exceed bounds.
-    // If the stepsize is reduced to less than the prescibed minimum factor, set to minimum factor.
-    // If the stepsize is increased to more than the prescribed maximum factor, set to maximum
-    // factor. These bounds are necessary to prevent the stepsize changes from aliasing
-    // with the dynamics of the system of ODEs.
-    // Also check if maximum step size is exceeded and step next step size to maximum if necessary.
-    // Typically used bounds can be found in (Burden and Faires, 2001).
-    if ( newStepSizePair.first / stepSize <= this->minimumFactorDecreaseForNextStepSize_ )
+    if( useStepSizeControl_ )
     {
-        this->stepSize_ = stepSize * this->minimumFactorDecreaseForNextStepSize_;
-    }
+        // Compute new step size using new step size function, which also returns whether the
+        // relative error is within bounds or not.
+        std::pair< TimeStepType, bool > newStepSizePair = this->newStepSizeFunction_(
+                    stepSize, this->coefficients_.lowerOrder, this->coefficients_.higherOrder,
+                    this->safetyFactorForNextStepSize_, this->relativeErrorTolerance_,
+                    this->absoluteErrorTolerance_, lowerOrderEstimate,
+                    higherOrderEstimate );
 
-    else if ( newStepSizePair.first / stepSize >= maximumFactorIncreaseForNextStepSize_ )
-    {
-        this->stepSize_ = stepSize * this->maximumFactorIncreaseForNextStepSize_;
-    }
+        // Check whether change in stepsize does not exceed bounds.
+        // If the stepsize is reduced to less than the prescibed minimum factor, set to minimum factor.
+        // If the stepsize is increased to more than the prescribed maximum factor, set to maximum
+        // factor. These bounds are necessary to prevent the stepsize changes from aliasing
+        // with the dynamics of the system of ODEs.
+        // Also check if maximum step size is exceeded and step next step size to maximum if necessary.
+        // Typically used bounds can be found in (Burden and Faires, 2001).
+        if ( newStepSizePair.first / stepSize <= this->minimumFactorDecreaseForNextStepSize_ )
+        {
+            this->stepSize_ = stepSize * this->minimumFactorDecreaseForNextStepSize_;
+        }
 
+        else if ( newStepSizePair.first / stepSize >= maximumFactorIncreaseForNextStepSize_ )
+        {
+            this->stepSize_ = stepSize * this->maximumFactorIncreaseForNextStepSize_;
+        }
+
+        else
+        {
+            this->stepSize_ = newStepSizePair.first;
+        }
+
+        // Check if minimum step size is violated and throw exception if necessary.
+        if ( std::fabs( this->stepSize_ ) < std::fabs( this->minimumStepSize_ ) )
+        {
+            throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
+                                                std::fabs( this->stepSize_ ) );
+        }
+        else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
+        {
+            this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->maximumStepSize_ );
+        }
+
+        if( stepSize * this->stepSize_ < 0 )
+        {
+            throw std::runtime_error( "Error during step size control, step size flipped sign" );
+        }
+
+        // Check if computed error in state is too large and reject step if true.
+        return newStepSizePair.second;
+    }
     else
     {
-       this->stepSize_ = newStepSizePair.first;
+        this->stepSize_ = stepSize;
+        return true;
     }
-
-    // Check if minimum step size is violated and throw exception if necessary.
-    if ( std::fabs( this->stepSize_ ) < std::fabs( this->minimumStepSize_ ) )
-    {
-        throw MinimumStepSizeExceededError( std::fabs( this->minimumStepSize_ ),
-                                                      std::fabs( this->stepSize_ ) );
-    }
-    else if( std::fabs( this->stepSize_ ) > std::fabs( this->maximumStepSize_ ) )
-    {
-        this->stepSize_ = stepSize / std::fabs( stepSize ) * std::fabs( this->maximumStepSize_ );
-    }
-
-    if( stepSize * this->stepSize_ < 0 )
-    {
-        throw std::runtime_error( "Error during step size control, step size flipped sign" );
-    }
-
-    // Check if computed error in state is too large and reject step if true.
-    return newStepSizePair.second;
 }
 
 //! Compute new step size.

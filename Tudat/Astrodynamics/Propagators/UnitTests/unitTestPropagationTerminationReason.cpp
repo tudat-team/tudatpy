@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -166,13 +166,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == termination_condition_reached );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
 
 }
 
@@ -348,19 +348,19 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == termination_condition_reached );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
 
 }
 
 
 //! Test that after a propagation in which an error is caught, the propagation termination reason is
-//! `runtime_error_caught_in_propagation`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
+//! `nan_or_inf_detected_in_state`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
 BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -509,13 +509,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+                 nan_or_inf_detected_in_state );
 
 }
 

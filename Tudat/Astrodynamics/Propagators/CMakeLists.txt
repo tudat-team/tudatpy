@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2017, Delft University of Technology
+ #    Copyright (c) 2010-2018, Delft University of Technology
  #    All rigths reserved
  #
  #    This file is part of the Tudat. Redistribution and use in source and
@@ -132,6 +132,10 @@ target_link_libraries(test_GlobalFrameOrigin ${TUDAT_PROPAGATION_LIBRARIES} ${Bo
 add_executable(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestForwardsBackwardsIntegration.cpp")
 setup_custom_test_program(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_ForwardBackwardIntegration ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestExactTermination.cpp")
+setup_custom_test_program(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_ExactTermination ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
 
