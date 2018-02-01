@@ -54,7 +54,7 @@ public:
             biasIsAbsolute ? constant_additive_observation_bias :constant_relative_observation_bias,
                                                  linkEnds.begin( )->second. first ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ),
-        linkEnds_( linkEnds ), observableType_( observableType ), biasIsAbsolute_( biasIsAbsolute ){ }
+        linkEnds_( linkEnds ), observableType_( observableType ){ }
 
     //! Destructor
     ~ConstantObservationBiasParameter( ) { }
@@ -153,9 +153,6 @@ private:
 
     //! Observable type for which the bias is active.
     observation_models::ObservableType observableType_;
-
-    //! Boolean denoting whether the bias is absolute or relative
-    bool biasIsAbsolute_;
 };
 
 
@@ -196,8 +193,7 @@ public:
             biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
             linkEnds.begin( )->second. first ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
-        linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType ),
-        biasIsAbsolute_( biasIsAbsolute )
+        linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
     {
         observableSize_ = observation_models::getObservableSize( observableType );
         numberOfArcs_ = arcStartTimes.size( );
@@ -368,9 +364,6 @@ private:
 
     //! Object used to determine the current arc, based on the current time.
     boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
-
-    //! Boolean denoting whether the bias is absolute or relative
-    bool biasIsAbsolute_;
 };
 
 } // namespace estimatable_parameters
