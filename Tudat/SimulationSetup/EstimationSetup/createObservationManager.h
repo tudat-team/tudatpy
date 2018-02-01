@@ -96,11 +96,59 @@ void performObservationParameterEstimationClosureForSingleModelSet(
             }
             break;
         }
+        case estimatable_parameters::arcwise_constant_additive_observation_bias:
+        {
+
+            // Test input consistency
+            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
+                        parameter );
+            if( biasParameter == NULL )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for arc-wise additive bias, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            boost::shared_ptr< ConstantArcWiseObservationBias< ObservationSize > > constantBiasObject =
+                    boost::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != NULL )
+            {
+                // Check if bias and parameter link properties are equal
+                if( ( linkEnds == biasParameter->getLinkEnds( ) ) &&
+                        ( observableType == biasParameter->getObservableType( ) ) &&
+                        ( constantBiasObject->getLinkEndIndexForTime( ) == biasParameter->getLinkEndIndex( ) ) &&
+                        ( constantBiasObject->getArcStartTimes( ).size( ) == biasParameter->getArcStartTimes( ).size( ) ) )
+                {
+                    bool doTimesMatch = true;
+                    for( unsigned int i = 0; i < constantBiasObject->getArcStartTimes( ).size( ); i++ )
+                    {
+                        if( std::fabs( constantBiasObject->getArcStartTimes( ).at( i ) -
+                                       biasParameter->getArcStartTimes( ).at( i ) ) >  std::max(
+                                    1.0E-15 * std::fabs( constantBiasObject->getArcStartTimes( ).at( i ) ),
+                                    1.0E-15 * std::fabs( biasParameter->getArcStartTimes( ).at( i ) ) ) )
+                        {
+                            doTimesMatch = false;
+                        }
+                    }
+
+                    if( doTimesMatch == true )
+                    {
+                        biasParameter->setObservationBiasFunctions(
+                                    boost::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                                 constantBiasObject ),
+                                    boost::bind( &ConstantArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                 constantBiasObject, _1 ) );
+                        biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                    }
+                }
+            }
+            break;
+        }
         case estimatable_parameters::constant_relative_observation_bias:
         {
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ConstantRelativeObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantRelativeObservationBiasParameter >(
+            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameter );
             if( biasParameter == NULL )
             {
@@ -121,6 +169,54 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                              constantBiasObject ),
                                 boost::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
                                              constantBiasObject, _1 ) );
+                }
+            }
+            break;
+        }
+        case estimatable_parameters::arcwise_constant_relative_observation_bias:
+        {
+
+            // Test input consistency
+            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
+                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
+                        parameter );
+            if( biasParameter == NULL )
+            {
+                throw std::runtime_error( "Error, cannot perform bias closure for arc-wise relative bias, inconsistent bias types" );
+            }
+
+            // Check if bias object is of same type as estimated parameter
+            boost::shared_ptr< ConstantRelativeArcWiseObservationBias< ObservationSize > > constantBiasObject =
+                    boost::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != NULL )
+            {
+                // Check if bias and parameter link properties are equal
+                if( ( linkEnds == biasParameter->getLinkEnds( ) ) &&
+                        ( observableType == biasParameter->getObservableType( ) ) &&
+                        ( constantBiasObject->getLinkEndIndexForTime( ) == biasParameter->getLinkEndIndex( ) ) &&
+                        ( constantBiasObject->getArcStartTimes( ).size( ) == biasParameter->getArcStartTimes( ).size( ) ) )
+                {
+                    bool doTimesMatch = true;
+                    for( unsigned int i = 0; i < constantBiasObject->getArcStartTimes( ).size( ); i++ )
+                    {
+                        if( std::fabs( constantBiasObject->getArcStartTimes( ).at( i ) -
+                                       biasParameter->getArcStartTimes( ).at( i ) ) >  std::max(
+                                    1.0E-15 * std::fabs( constantBiasObject->getArcStartTimes( ).at( i ) ),
+                                    1.0E-15 * std::fabs( biasParameter->getArcStartTimes( ).at( i ) ) ) )
+                        {
+                            doTimesMatch = false;
+                        }
+                    }
+
+                    if( doTimesMatch == true )
+                    {
+                        biasParameter->setObservationBiasFunctions(
+                                    boost::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                                 constantBiasObject ),
+                                    boost::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                 constantBiasObject, _1 ) );
+                        biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
+                    }
                 }
             }
             break;
