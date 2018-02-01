@@ -133,6 +133,10 @@ add_executable(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/Unit
 setup_custom_test_program(test_ForwardBackwardIntegration "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_ForwardBackwardIntegration ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestExactTermination.cpp")
+setup_custom_test_program(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/")
+target_link_libraries(test_ExactTermination ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
