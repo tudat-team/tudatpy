@@ -102,5 +102,26 @@
   "integrator": {
     "type": "rungeKutta4",
     "stepSize": 10
-  }
+  },
+    "export": [
+        {
+            "file": "kepler_output.dat",
+            "variables": [
+                {
+                    "body": "asterix",
+                    "dependentVariableType": "keplerElements",
+                    "relativeToBody": "Earth"
+                }
+            ]
+        },
+        {
+            "file": "cartesian_output.dat",
+            "variables": [
+                {
+                    "type": "state"
+                }
+            ]
+        }
+    ]
 }
+
