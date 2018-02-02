@@ -408,6 +408,10 @@ public:
             {
                 normalizationTerms( i ) = maximum;
             }
+            if( normalizationTerms( i ) == 0.0 )
+            {
+                normalizationTerms( i ) = 1.0;
+            }
             currentVector = currentVector / normalizationTerms( i );
 
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
