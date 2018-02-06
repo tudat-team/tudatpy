@@ -68,7 +68,8 @@ public:
                 const std::vector< IntegratedStateType > ) > environmentUpdateFunction,
             const boost::shared_ptr< VariationalEquations > variationalEquations =
             boost::shared_ptr< VariationalEquations >( ) ):
-        environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations )
+        environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations ),
+        functionEvaluationCounter_( 0 )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -218,6 +219,8 @@ public:
                         time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
                         stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
+
+        functionEvaluationCounter_++;
 
         return stateDerivative_;
     }
@@ -446,6 +449,28 @@ public:
         return stateTypeStartIndex_;
     }
 
+    //! Function to retrieve number of calls to the computeStateDerivative function
+    /*!
+     * Function to retrieve number of calls to the computeStateDerivative function since object creation/last call to
+     * resetFunctionEvaluationCounter function
+     * \return Number of calls to the computeStateDerivative function since object creation/last call to
+     * resetFunctionEvaluationCounter function
+     */
+    int getNumberOfFunctionEvaluations( )
+    {
+        return functionEvaluationCounter_;
+    }
+
+    //! Function to resetr the number of calls to the computeStateDerivative function to zero.
+    /*!
+     * Function to resetr the number of calls to the computeStateDerivative function to zero.  Typically called before any
+     * start of numerical integration of dynamics (automatically by DynamicsSimulator)
+     */
+    void resetFunctionEvaluationCounter( )
+    {
+        functionEvaluationCounter_ = 0;
+    }
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.
@@ -496,7 +521,6 @@ private:
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
-                currentStateTypeSize += currentIndices.second;
             }
         }
     }
@@ -551,6 +575,9 @@ private:
     //! convertCurrentStateToGlobalRepresentationPerType
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
     currentStatesPerTypeInConventionalRepresentation_;
+
+    //! Variable to keep track of the number of calls to the computeStateDerivative function
+    int functionEvaluationCounter_ = 0;
 };
 
 //! Function to retrieve a single given acceleration model from a list of models
