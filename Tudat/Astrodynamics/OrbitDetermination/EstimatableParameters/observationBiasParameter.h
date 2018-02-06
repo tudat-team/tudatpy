@@ -66,7 +66,14 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        return getCurrentBias_( );
+        if( !getCurrentBias_.empty( ) )
+        {
+            return getCurrentBias_( );
+        }
+        else
+        {
+            return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
+        }
     }
 
     //! Function to reset the value of the constant observation bias that is to be estimated.
@@ -209,14 +216,21 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
-        Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
-                    observableSize_ * observationBiases.size( ) );
-        for( unsigned int i = 0; i < observationBiases.size( ); i++ )
+        if( !getBiasList_.empty( ) )
         {
-            currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
+            std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
+            Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
+                        observableSize_ * observationBiases.size( ) );
+            for( unsigned int i = 0; i < observationBiases.size( ); i++ )
+            {
+                currentParameterSet.segment( i * observableSize_, observableSize_ ) = observationBiases.at( i );
+            }
+            return currentParameterSet;
         }
-        return currentParameterSet;
+        else
+        {
+            return Eigen::VectorXd::Constant( getParameterSize( ), TUDAT_NAN );
+        }
     }
 
     //! Function to reset the value of the arc-wise constant observation bias that is to be estimated.

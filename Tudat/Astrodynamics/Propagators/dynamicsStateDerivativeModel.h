@@ -490,19 +490,12 @@ private:
                 // Get state block indices of current state derivative model
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
-//                std::cout << "Pre-converted state: " << state.block( currentIndices.first, startColumn, currentIndices.second, 1 ).transpose( ) << std::endl;
-
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
                             state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentIndices.second, 1 ) );
-
-//                std::cout << "Converted state: " << currentStatesPerTypeInConventionalRepresentation_.at(
-//                               stateDerivativeModelsIterator_->first ).block(
-//                               currentStateTypeSize, 0, currentIndices.second, 1 ).transpose( ) << std::endl;
-
                 currentStateTypeSize += currentIndices.second;
             }
         }
