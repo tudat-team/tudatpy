@@ -419,6 +419,7 @@ public:
         equationsOfMotionNumericalSolutionRaw_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
+        dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
         // Reset initial time to ensure consistency with multi-arc propagation.
         integratorSettings_->initialTime_ = this->initialPropagationTime_;
