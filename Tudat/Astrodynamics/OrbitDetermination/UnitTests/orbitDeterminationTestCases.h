@@ -1059,7 +1059,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout << ( estimationError ).transpose( ) << std::endl<< std::endl;
 
-    return std::make_pair( estimationError, ( podOutput->exceptionDuringInversion_ || podOutput->exceptionDuringPropagation_ ) );
+    return std::make_pair( estimationError,
+                           ( podOutput->exceptionDuringInversion_ ||
+                             !( podOutput->getUnnormalizedCovarianceMatrix( ) == podOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
 }
 
 }
