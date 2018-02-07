@@ -519,8 +519,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             orbitingBodyGravitationalParameter = boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                                                               bodyMap.at( orbitingBody )->getGravityFieldModel( ) );
             effectiveGravitationalParameter = boost::bind( &utilities::sumFunctionReturn< double >,
-                         orbitingBodyGravitationalParameter,
-                         centralBodyGravitationalParameter );
+                                                           orbitingBodyGravitationalParameter,
+                                                           centralBodyGravitationalParameter );
 
         }
         else
@@ -541,6 +541,67 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 
         variableFunction = boost::bind( &orbital_element_conversions::convertCartesianToKeplerianElementsFromFunctions< double >,
                                         relativeStateFunction, effectiveGravitationalParameter );
+        parameterSize = 6;
+
+
+        break;
+    }
+    case modified_equinocial_state_dependent_variable:
+    {
+        // Retrieve model responsible for computing accelerations of requested bodies.
+        std::string orbitingBody = dependentVariableSettings->associatedBody_;
+        std::string centralBody = dependentVariableSettings->secondaryBody_;
+
+        if( bodyMap.count( orbitingBody ) == 0 )
+        {
+            throw std::runtime_error( "Error when requesting modified equinoctial elements as dependent variables, orbiting body: '" + orbitingBody + "' not found" );
+        }
+        else if( bodyMap.count( centralBody ) == 0 )
+        {
+            throw std::runtime_error( "Error when requesting modified equinoctial elements as dependent variables, central body: '" + centralBody + "' not found" );
+        }
+
+        boost::function< double( ) > centralBodyGravitationalParameter;
+        if( bodyMap.at( centralBody )->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when requesting modified equinoctial elements as dependent variables, central body: '" + centralBody + "' has no gravity field" );
+        }
+        else
+        {
+            centralBodyGravitationalParameter = boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                             bodyMap.at( centralBody )->getGravityFieldModel( ) );
+        }
+
+        boost::function< double( ) > orbitingBodyGravitationalParameter;
+        boost::function< double( ) > effectiveGravitationalParameter;
+        if( bodyMap.at( orbitingBody )->getGravityFieldModel( ) != NULL )
+        {
+            orbitingBodyGravitationalParameter = boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                              bodyMap.at( orbitingBody )->getGravityFieldModel( ) );
+            effectiveGravitationalParameter = boost::bind( &utilities::sumFunctionReturn< double >,
+                                                           orbitingBodyGravitationalParameter,
+                                                           centralBodyGravitationalParameter );
+
+        }
+        else
+        {
+            effectiveGravitationalParameter = centralBodyGravitationalParameter;
+        }
+
+        // Retrieve functions for positions of two bodies.
+        boost::function< Eigen::Vector6d( const Eigen::Vector6d&, const Eigen::Vector6d& ) > functionToEvaluate =
+                boost::bind( &linear_algebra::computeVectorDifference< 6 >, _1, _2 );
+        boost::function< Eigen::Vector6d( ) > firstInput =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( orbitingBody ) );
+        boost::function< Eigen::Vector6d( ) > secondInput =
+                boost::bind( &simulation_setup::Body::getState, bodyMap.at( centralBody ) );
+        boost::function< Eigen::Vector6d( ) > relativeStateFunction = boost::bind(
+                    &evaluateBivariateReferenceFunction< Eigen::Vector6d, Eigen::Vector6d >,
+                    functionToEvaluate, firstInput, secondInput );
+
+        variableFunction = boost::bind(
+                    &orbital_element_conversions::convertCartesianToModifiedEquinoctialElementsFromStateFunction< double >,
+                    relativeStateFunction, effectiveGravitationalParameter );
         parameterSize = 6;
 
 
