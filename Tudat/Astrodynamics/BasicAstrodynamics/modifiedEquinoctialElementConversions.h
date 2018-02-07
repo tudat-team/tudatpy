@@ -354,6 +354,15 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
                 keplerianElements, flipSingularityToZeroInclination );
 }
 
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElementsFromStateFunction(
+        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
+        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return convertCartesianToModifiedEquinoctialElements(
+                cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
+}
+
 //! Convert Cartesian to modified equinoctial orbital elements using explicit MEE equation set.
 /*!
  * Converts Cartesian to modified equinoctial elements using one of two sets of equations specified
