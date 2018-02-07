@@ -320,7 +320,7 @@ public:
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
      *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
      *  each integration step (`false`).
-     *  \param bandwidth maximum error factor for doubling the stepsize (default: 200)
+     *  \param bandwidth Maximum error factor for doubling the stepsize (default: 200)
      */
     AdamsBashforthMoultonSettings(
             const TimeType initialTime,
