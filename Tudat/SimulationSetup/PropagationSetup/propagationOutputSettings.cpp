@@ -158,7 +158,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Kepler elements  ";
         break;
     case modified_equinocial_state_dependent_variable:
-        variableName = "Kepler elements  ";
+        variableName = "Modified equinoctial elements ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

@@ -35,7 +35,8 @@ enum ThrustDirectionGuidanceTypes
     colinear_with_state_segment_thrust_direction,
     thrust_direction_from_existing_body_orientation,
     custom_thrust_direction,
-    custom_thrust_orientation
+    custom_thrust_orientation,
+    mee_costate_based_thrust_direction
 
 }; 
 
@@ -169,6 +170,25 @@ public:
 
     //! Custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time.
     boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_ ;
+};
+
+class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionGuidanceSettings
+{
+public:
+
+    MeeCostateBasedThrustDirectionSettings(
+            const std::string& vehicleName,
+            const std::string& centralBodyName,
+            const boost::function< Eigen::VectorXd( const double ) > costateFunction ):
+        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
+    vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
+
+    ~MeeCostateBasedThrustDirectionSettings( ){ }
+
+    std::string vehicleName_;
+
+
+    boost::function< Eigen::VectorXd( const double ) > costateFunction_;
 };
 
 //! Function to create the object determining the direction of the thrust acceleration.
