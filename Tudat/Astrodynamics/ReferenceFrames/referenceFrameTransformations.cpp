@@ -157,7 +157,8 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
         const Eigen::Vector6d& vehicleState,
         const Eigen::Vector6d& centralBodyState,
-        const bool doesNaxisPointAwayFromCentralBody )
+        const bool doesNaxisPointAwayFromCentralBody,
+        const bool swapYAndZAxes)
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
     vehicleRadius = vehicleState.segment( 0, 3 ) - centralBodyState.segment( 0, 3 );
@@ -171,14 +172,24 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
     }
 
     Eigen::Vector3d unitW =  ( ( ( doesNaxisPointAwayFromCentralBody == true ) ? -1.0 : 1.0 ) *
-            ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
+                               ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
 
     Eigen::Vector3d unitN = ( unitW.cross( unitT ) ).normalized( );
 
     Eigen::Matrix3d transformationMatrix;
-    transformationMatrix << unitT( 0 ), unitN( 0 ), unitW( 0 ),
-                            unitT( 1 ), unitN( 1 ), unitW( 1 ),
-                            unitT( 2 ), unitN( 2 ), unitW( 2 );
+    if( swapYAndZAxes )
+    {
+        transformationMatrix << unitT( 0 ), unitW( 0 ), unitN( 0 ),
+                unitT( 1 ), unitW( 1 ), unitN( 1 ),
+                unitT( 2 ), unitW( 2 ), unitN( 2 );
+    }
+    else
+    {
+        transformationMatrix << unitT( 0 ), unitN( 0 ), unitW( 0 ),
+                unitT( 1 ), unitN( 1 ), unitW( 1 ),
+                unitT( 2 ), unitN( 2 ), unitW( 2 );
+
+    }
 
     return transformationMatrix;
 }
