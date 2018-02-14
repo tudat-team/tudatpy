@@ -83,8 +83,8 @@ void MeeCostateBasedThrustGuidance::updateForceDirection( const double time )
     // Calculate thrust direction
     currentForceDirection_ = reference_frames::getVelocityBasedLvlhToInertialRotation(
                 currentState, Eigen::Vector6d::Zero( ), false, true ) *
-            ( ( Eigen::Vector3d( ) << cos( alpha ) * cos( beta ), -sin( beta ) ,
-                -sin( alpha ) * cos( beta ) ).finished( ).normalized( ) );
+            ( ( Eigen::Vector3d( ) << cos( alpha ) * cos( beta ), sin( beta ) ,
+                sin( alpha ) * cos( beta ) ).finished( ).normalized( ) );
 
 }
 
