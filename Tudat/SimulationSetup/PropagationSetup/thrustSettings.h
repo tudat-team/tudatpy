@@ -6,6 +6,13 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References:
+ *
+ *    Kluever (2010), Low-Thrust Trajectory Optimization Using Orbital Averaging and Control Parameterization, In: Conway,
+ *    (editor) Spacecraft trajectory optimization. Cambridge University Press, 2010.
+ *    Boudestijn (2014), DEVELOPMENT OF A LOW -THRUST EARTH-CENTERED TRANSFER OPTIMIZER FOR THE PRELIMINARY MISSION DESIGN PHASE,
+ *    M.Sc. Thesis, Delft University of Technology
  */
 
 #ifndef TUDAT_THRUSTSETTINGS_H
@@ -172,10 +179,23 @@ public:
     boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_ ;
 };
 
+//! Class for defining settings for MEE-costate based thrust direction guidance
+/*!
+ *  Class for defining settings for MEE-costate based thrust direction guidance. Model details can be found in Kluever (2010) and
+ *  Boudestijn (2014). The MEE-costates are provided for the five slow elements, as a function of time. Constructors for
+ *  constant costates, and costates from an interpolator, are also provided.
+ */
 class MeeCostateBasedThrustDirectionSettings: public ThrustDirectionGuidanceSettings
 {
 public:
 
+    //! Constructor with costate function
+    /*!
+     * Constructor with costate function
+     * \param vehicleName Name of vehicle under thrust
+     * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
+     * \param costateFunction Function returning the 5 costates as a function of time
+     */
     MeeCostateBasedThrustDirectionSettings(
             const std::string& vehicleName,
             const std::string& centralBodyName,
@@ -183,11 +203,45 @@ public:
         ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
     vehicleName_( vehicleName ), costateFunction_( costateFunction ){ }
 
+    //! Constructor with costate function
+    /*!
+     * Constructor with costate function
+     * \param vehicleName Name of vehicle under thrust
+     * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
+     * \param costateInterpolator Interpolator returning the 5 costates as a function of time
+     */
+    MeeCostateBasedThrustDirectionSettings(
+            const std::string& vehicleName,
+            const std::string& centralBodyName,
+            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > costateInterpolator ):
+        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
+        vehicleName_( vehicleName ),
+        costateFunction_(
+            boost::bind( static_cast< Eigen::VectorXd( interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::* )
+                         ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
+                         costateInterpolator, _1 ) ){ }
+
+    //! Constructor with costate function
+    /*!
+     * Constructor with costate function
+     * \param vehicleName Name of vehicle under thrust
+     * \param centralBodyName Name of central body (w.r.t. which MEE are calculated)
+     * \param constantCostates The 5 costates, which will be used as constants in time
+     */
+    MeeCostateBasedThrustDirectionSettings(
+            const std::string& vehicleName,
+            const std::string& centralBodyName,
+            const Eigen::VectorXd constantCostates ):
+        ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
+    vehicleName_( vehicleName ), costateFunction_( boost::lambda::constant( constantCostates ) ){ }
+
+
     ~MeeCostateBasedThrustDirectionSettings( ){ }
 
+    //! Name of vehicle under thrust
     std::string vehicleName_;
 
-
+    //! Function returning the 5 costates as a function of time
     boost::function< Eigen::VectorXd( const double ) > costateFunction_;
 };
 

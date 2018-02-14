@@ -166,6 +166,7 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
     }
     case mee_costate_based_thrust_direction:
     {
+        // Check input consistency
         boost::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
                 boost::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
 
@@ -175,6 +176,7 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
         }
         else
         {
+            // Check whether all required environment properties exist
             if( bodyMap.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
             {
                 throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
@@ -192,6 +194,7 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
             }
             else
             {
+                // Retrieve required functions and create guidance object
                 boost::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
                         boost::bind( &simulation_setup::Body::getState,
                                      bodyMap.at( meeCostateBasedThrustSettings->vehicleName_ ) );
