@@ -888,7 +888,7 @@ protected:
         bool oneBetter = true;
         if( strictCompare_ ){
             // Needs to be better or equal for each component
-            for( unsigned int i = 0; i < c1.size( ); ++i ){
+            for( int i = 0; i < c1.size( ); ++i ){
                 oneBetter = oneBetter && ( c1( i ) <= c2( i ) );
             }
         } else {
@@ -910,7 +910,7 @@ protected:
     {
         bool belowLimit = true;
         // All components needs to be below the upper limit (tol)
-        for( unsigned int i = 0; i < absoluteError.size( ); ++i ){
+        for( int i = 0; i < absoluteError.size( ); ++i ){
             belowLimit = belowLimit &&
                     ( absoluteError( i ) < absoluteErrorTolerance_( i )
                       || relativeError( i ) < relativeErrorTolerance_( i ) );
@@ -930,7 +930,7 @@ protected:
     {
         bool belowLimit = true;
         // All components need to be above lower limit ( tol / bw )
-        for( unsigned int i = 0; i < absoluteError.size( ); ++i ){
+        for( int i = 0; i < absoluteError.size( ); ++i ){
             belowLimit = belowLimit &&
                     ( absoluteError( i ) <= absoluteErrorTolerance_( i ) / bandwidth_
                       || relativeError( i ) <= relativeErrorTolerance_( i ) / bandwidth_ );
