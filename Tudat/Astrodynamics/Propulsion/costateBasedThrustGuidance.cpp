@@ -44,51 +44,58 @@ void MeeCostateBasedThrustGuidance::updateForceDirection( const double time )
                     currentState, centralBodyGravitationalParameter, 0 );
 
         // Optimal control laws local variables declared for clarity
-        double w = ( 1.0 + modifiedEquinoctialElements( 1 ) * cos( modifiedEquinoctialElements( 5 ) )
+        double auxiliaryParameterW = ( 1.0 + modifiedEquinoctialElements( 1 ) * cos( modifiedEquinoctialElements( 5 ) )
                      + modifiedEquinoctialElements( 2 ) * sin( modifiedEquinoctialElements( 5 ) ) );
-        double sSquared = 1.0 + modifiedEquinoctialElements( 3 ) * modifiedEquinoctialElements( 3 )
+        double auxiliaryParameterSSquared = 1.0 + modifiedEquinoctialElements( 3 ) * modifiedEquinoctialElements( 3 )
                 + modifiedEquinoctialElements( 4 ) * modifiedEquinoctialElements( 4 );
 
         // Local variables for al constant terms for the calculation of pitch angle
-        double Lap = costates_( 0 ) * 2.0 * modifiedEquinoctialElements( 0 ) / w;
+        double Lap = costates_( 0 ) * 2.0 * modifiedEquinoctialElements( 0 ) / auxiliaryParameterW;
         double Laf1 = costates_( 1 )  * sin( modifiedEquinoctialElements( 5 ) ) ;
-        double Laf2 = costates_( 1 ) / w * ( ( w + 1.0 ) * cos( modifiedEquinoctialElements( 5 ) )
+        double Laf2 = costates_( 1 ) / auxiliaryParameterW *
+                ( ( auxiliaryParameterW + 1.0 ) * cos( modifiedEquinoctialElements( 5 ) )
                                              + modifiedEquinoctialElements( 1 ) ) ;
         double Lag1 = costates_( 2 ) * cos( modifiedEquinoctialElements( 5 ) );
-        double Lag2 = costates_( 2 ) / w * ( ( w + 1.0 ) * sin( modifiedEquinoctialElements( 5 ) )
+        double Lag2 = costates_( 2 ) / auxiliaryParameterW *
+                ( ( auxiliaryParameterW + 1.0 ) * sin( modifiedEquinoctialElements( 5 ) )
                                              + modifiedEquinoctialElements( 2 ) );
 
         // Calculate pitch angle, NOTE: denomitator ommitted since it is not relevant for the atan2 function,
         // since both denominators are the same.
-        double alpha = std::atan2( -Laf1+Lag1, -Lap-Laf2-Lag2);
+        double thrustAngleAlpha = std::atan2( -Laf1+Lag1, -Lap-Laf2-Lag2);
 
         // Local variables for al constant terms for the calculation of yaw angle
-        double Lbp = costates_( 0 ) * 2.0 * modifiedEquinoctialElements( 0 ) * cos( alpha) / w;
-        double Lbf1 = costates_( 1 )  * sin( modifiedEquinoctialElements( 5 ) ) * sin( alpha );
-        double Lbf2 = costates_( 1 ) / w * ( ( w + 1.0 ) * cos( modifiedEquinoctialElements( 5 ) )
-                                             + modifiedEquinoctialElements( 1 ) ) * cos( alpha );
-        double Lbf3 = costates_( 1 ) / w * ( modifiedEquinoctialElements( 2 ) *(
+        double Lbp = costates_( 0 ) * 2.0 * modifiedEquinoctialElements( 0 ) * cos( thrustAngleAlpha) / auxiliaryParameterW;
+        double Lbf1 = costates_( 1 )  * sin( modifiedEquinoctialElements( 5 ) ) * sin( thrustAngleAlpha );
+        double Lbf2 = costates_( 1 ) / auxiliaryParameterW *
+                ( ( auxiliaryParameterW + 1.0 ) * cos( modifiedEquinoctialElements( 5 ) )
+                                             + modifiedEquinoctialElements( 1 ) ) * cos( thrustAngleAlpha );
+        double Lbf3 = costates_( 1 ) / auxiliaryParameterW * ( modifiedEquinoctialElements( 2 ) *(
                                                  modifiedEquinoctialElements( 3 ) * sin( modifiedEquinoctialElements( 5 ) )
                                                  - modifiedEquinoctialElements( 4 ) * cos( modifiedEquinoctialElements( 5 ) ) ) );
 
-        double Lbg1 = costates_( 2 ) * cos( modifiedEquinoctialElements( 5 ) ) * sin( alpha);
-        double Lbg2 = costates_( 2 ) / w * ( ( w + 1.0 ) * sin( modifiedEquinoctialElements( 5 ) )
-                                             + modifiedEquinoctialElements( 2 ) ) * cos( alpha);
-        double Lbg3 = costates_( 2 ) / w * ( modifiedEquinoctialElements( 1 ) *(
+        double Lbg1 = costates_( 2 ) * cos( modifiedEquinoctialElements( 5 ) ) * sin( thrustAngleAlpha);
+        double Lbg2 = costates_( 2 ) / auxiliaryParameterW *
+                ( ( auxiliaryParameterW + 1.0 ) * sin( modifiedEquinoctialElements( 5 ) )
+                                             + modifiedEquinoctialElements( 2 ) ) * cos( thrustAngleAlpha);
+        double Lbg3 = costates_( 2 ) / auxiliaryParameterW * ( modifiedEquinoctialElements( 1 ) *(
                                                  modifiedEquinoctialElements( 3 ) * sin( modifiedEquinoctialElements( 5 ) )
                                                  - modifiedEquinoctialElements( 4 ) * cos( modifiedEquinoctialElements( 5 ) ) ) );
-        double Lbh = costates_( 3 ) * sSquared  * cos( modifiedEquinoctialElements( 5 ) ) / ( 2.0 * w );;
-        double Lbk = costates_( 4 ) * sSquared  * sin( modifiedEquinoctialElements( 5 ) ) / ( 2.0 * w );;
+        double Lbh = costates_( 3 ) * auxiliaryParameterSSquared *
+                cos( modifiedEquinoctialElements( 5 ) ) / ( 2.0 * auxiliaryParameterW );
+        double Lbk = costates_( 4 ) * auxiliaryParameterSSquared *
+                sin( modifiedEquinoctialElements( 5 ) ) / ( 2.0 * auxiliaryParameterW );
 
         // Calculate yaw angle, NOTE: denomitator ommitted since it is not relevant for the atan2 function,
         // since both denominators are the same.
-        double beta = std::atan2( Lbf3 - Lbg3 - Lbh - Lbk, - Lbp - Lbf1 - Lbf2 + Lbg1 - Lbg2 );
+        double thrustAngleBeta = std::atan2( Lbf3 - Lbg3 - Lbh - Lbk, - Lbp - Lbf1 - Lbf2 + Lbg1 - Lbg2 );
 
         // Calculate thrust direction
         currentForceDirection_ = reference_frames::getVelocityBasedLvlhToInertialRotation(
                     currentState, Eigen::Vector6d::Zero( ), false ) *
                 ( ( Eigen::Vector3d( ) <<
-                    cos( alpha ) * cos( beta ), sin( alpha ) * cos( beta ) , sin( beta )  ).finished( ).normalized( ) );
+                    cos( thrustAngleAlpha ) * cos( thrustAngleBeta ), sin( thrustAngleAlpha ) * cos( thrustAngleBeta ) ,
+                    sin( thrustAngleBeta )  ).finished( ).normalized( ) );
         currentTime_ = time;
     }
 
