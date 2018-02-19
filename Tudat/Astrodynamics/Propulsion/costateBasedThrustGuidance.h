@@ -14,7 +14,7 @@
  *
  *    Kluever (2010), Low-Thrust Trajectory Optimization Using Orbital Averaging and Control Parameterization, In: Conway,
  *    (editor) Spacecraft trajectory optimization. Cambridge University Press, 2010.
- *    Boudestijn (2014), DEVELOPMENT OF A LOW -THRUST EARTH-CENTERED TRANSFER OPTIMIZER FOR THE PRELIMINARY MISSION DESIGN PHASE,
+ *    Boudestijn (2014), Development of a Low-Thrust Earth-Centered Transfer Optimizer for the Preliminary Mission Design Phase,
  *    M.Sc. Thesis, Delft University of Technology
  */
 #include <cmath>
