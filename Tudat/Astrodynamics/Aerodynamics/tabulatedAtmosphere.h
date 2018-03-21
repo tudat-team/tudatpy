@@ -46,6 +46,17 @@ class TabulatedAtmosphere : public StandardAtmosphere
 {
 public:
 
+    /*!
+     * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
+     * file.
+     */
+    enum atmosphereDependentVariables
+    {
+        density_dependent_variable = 0,
+        pressure_dependent_variable = 1,
+        temperature_dependent_variable = 2
+    };
+
     //! Default constructor.
     /*!
      *  Default constructor.
@@ -57,10 +68,11 @@ public:
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
     TabulatedAtmosphere( const std::string& atmosphereTableFile,
+                         const std::vector<atmosphereDependentVariables> dependentVariables = {density_dependent_variable, pressure_dependent_variable, temperature_dependent_variable },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4 )
-        : atmosphereTableFile_( atmosphereTableFile ), specificGasConstant_( specificGasConstant ),
-          ratioOfSpecificHeats_( ratioOfSpecificHeats )
+        : atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariables ),
+          specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
         initialize( atmosphereTableFile_ );
     }
@@ -245,6 +257,12 @@ private:
      *  This value is set to a constant, implying constant atmospheric composition.
      */
     double ratioOfSpecificHeats_;
+
+    /*!
+     * A vector of strings containing the names of the variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector<atmosphereDependentVariables> dependentVariables_;
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.

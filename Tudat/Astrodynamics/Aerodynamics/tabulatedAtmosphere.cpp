@@ -10,7 +10,7 @@
  */
 
 #include <boost/make_shared.hpp>
-
+#include <iostream>
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
@@ -43,15 +43,44 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     pressureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
     temperatureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
 
+    int densityIndex = 0;
+    int pressureIndex = 0;
+    int temperatureIndex = 0;
+
+    for (std::vector<int>::size_type i = 0; i < dependentVariables_.size(); i++)
+    {
+        std::cout<<i<<std::endl;
+        switch(dependentVariables_[i])
+        {
+        case density_dependent_variable:
+            densityIndex = i+1;
+            break;
+        case pressure_dependent_variable:
+            pressureIndex = i+1;
+            break;
+        case temperature_dependent_variable:
+            temperatureIndex = i+1;
+        default:
+            std::string errorMessage = "Error, dependent variable " +
+                    std::to_string( dependentVariables_[i] ) +
+                    " not found ";
+            throw std::runtime_error( errorMessage );
+        }
+        std::cout<<densityIndex<<std::endl;
+        std::cout<<pressureIndex<<std::endl;
+        std::cout<<temperatureIndex<<std::endl;
+    }
+
     // Loop through all the strings stored in the container and store the data
     // in the right Eigen::VectorXd.
     for ( int i = 0; i < containerOfAtmosphereTableFileData.rows( ); i++  )
     {
         altitudeData_[ i ] = containerOfAtmosphereTableFileData( i, 0 );
-        densityData_[ i ] = containerOfAtmosphereTableFileData( i, 1 );
-        pressureData_[ i ] = containerOfAtmosphereTableFileData( i, 2 );
-        temperatureData_[ i ] = containerOfAtmosphereTableFileData( i, 3 );
+        densityData_[ i ] = containerOfAtmosphereTableFileData( i, densityIndex );
+        pressureData_[ i ] = containerOfAtmosphereTableFileData( i, pressureIndex );
+        temperatureData_[ i ] = containerOfAtmosphereTableFileData( i, temperatureIndex );
     }
+
 
     using namespace interpolators;
 
