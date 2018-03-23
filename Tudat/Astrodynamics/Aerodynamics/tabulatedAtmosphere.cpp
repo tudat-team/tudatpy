@@ -46,10 +46,13 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     int densityIndex = 0;
     int pressureIndex = 0;
     int temperatureIndex = 0;
+    int specificHeatRatioIndex = 0;
+    int gasConstantIndex = 0;
+    containsSpecificHeatRatio_ = false;
+    containsGasConstant_ = false;
 
     for (std::vector<int>::size_type i = 0; i < dependentVariables_.size(); i++)
     {
-        std::cout<<i<<std::endl;
         switch(dependentVariables_[i])
         {
         case density_dependent_variable:
@@ -60,15 +63,21 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
             break;
         case temperature_dependent_variable:
             temperatureIndex = i+1;
+            break;
+        case specific_heat_ratio_dependent_variable:
+            containsSpecificHeatRatio_ = true;
+            specificHeatRatioIndex = i+1;
+            break;
+        case gas_constant_dependent_variable:
+            containsGasConstant_ = true;
+            gasConstantIndex = i+1;
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " +
                     std::to_string( dependentVariables_[i] ) +
-                    " not found ";
+                    " not found in tabulated atmosphere";
             throw std::runtime_error( errorMessage );
         }
-        std::cout<<densityIndex<<std::endl;
-        std::cout<<pressureIndex<<std::endl;
-        std::cout<<temperatureIndex<<std::endl;
     }
 
     // Loop through all the strings stored in the container and store the data
@@ -79,6 +88,12 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
         densityData_[ i ] = containerOfAtmosphereTableFileData( i, densityIndex );
         pressureData_[ i ] = containerOfAtmosphereTableFileData( i, pressureIndex );
         temperatureData_[ i ] = containerOfAtmosphereTableFileData( i, temperatureIndex );
+        if(containsSpecificHeatRatio_){
+            specificHeatRatioData_[ i ] = containerOfAtmosphereTableFileData( i, specificHeatRatioIndex );
+        }
+        if(containsGasConstant_){
+            gasConstantData_[ i ] = containerOfAtmosphereTableFileData( i, gasConstantIndex );
+        }
     }
 
 
@@ -89,8 +104,17 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     cubicSplineInterpolationForPressure_
             = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_
-            = boost::make_shared< CubicSplineInterpolatorDouble >(
-                altitudeData_, temperatureData_ );
+            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
+
+    if(containsSpecificHeatRatio_){
+        cubicSplineInterpolationForSpecificHeatRatio_
+            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
+    }
+
+    if(containsGasConstant_){
+        cubicSplineInterpolationForGasConstant_
+            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
+    }
 }
 
 } // namespace aerodynamics
